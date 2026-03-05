@@ -125,3 +125,46 @@ class RunOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ── Subscription ──
+
+class SubscriptionCreate(BaseModel):
+    source_pattern: str
+    event_types: list[str]
+    filter_rules: dict = {}
+    enabled: bool = True
+
+
+class SubscriptionUpdate(BaseModel):
+    source_pattern: Optional[str] = None
+    event_types: Optional[list[str]] = None
+    filter_rules: Optional[dict] = None
+    enabled: Optional[bool] = None
+
+
+class SubscriptionOut(BaseModel):
+    id: str
+    agent_id: str
+    source_pattern: str
+    event_types: list[str]
+    filter_rules: dict
+    enabled: bool
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ── EventLog ──
+
+class EventLogOut(BaseModel):
+    id: str
+    source: str
+    event_type: str
+    subject: str
+    cloud_event: dict
+    matched_agent_ids: list[str]
+    status: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}

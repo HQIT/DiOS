@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     diagent_image: str = "ghcr.io/hqit/diagent/agent-task:latest"
     max_concurrent_runs: int = 5
 
+    # Webhook 签名验证密钥，按平台名存储
+    # 如 {"github": "xxx", "gitlab": "yyy", "gitea": "zzz"}
+    webhook_secrets: dict[str, str] = {}
+
     model_config = {"env_prefix": "NANAOS_"}
 
 

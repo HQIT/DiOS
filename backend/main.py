@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import init_db
-from app.api import models, teams, agents, runs
+from app.api import models, teams, agents, runs, events, subscriptions
 
 
 @asynccontextmanager
@@ -26,6 +26,8 @@ app.include_router(models.router)
 app.include_router(teams.router)
 app.include_router(agents.router)
 app.include_router(runs.router)
+app.include_router(events.router)
+app.include_router(subscriptions.router)
 
 
 @app.get("/health")
