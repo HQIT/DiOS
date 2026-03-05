@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import init_db
-from app.api import teams, agents, runs
+from app.api import models, teams, agents, runs
 
 
 @asynccontextmanager
@@ -13,7 +13,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="NANA-OS", description="Agent Teams Management", lifespan=lifespan)
+app = FastAPI(title="NANA-OS", description="Agentic OS for Teams Management", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,6 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(models.router)
 app.include_router(teams.router)
 app.include_router(agents.router)
 app.include_router(runs.router)

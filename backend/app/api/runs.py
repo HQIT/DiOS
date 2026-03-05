@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db, async_session
-from app.models.tables import Team, Agent, Run
+from app.models.tables import Team, Agent, Run, LLMModel
 from app.models.schemas import RunCreate, RunOut
 from app.services.config_generator import build_task_config, write_task_config
 from app.services.docker_runner import (
@@ -55,6 +55,9 @@ async def create_run(team_id: str, body: RunCreate, db: AsyncSession = Depends(g
     agents_result = await db.execute(select(Agent).where(Agent.team_id == team_id))
     agents = list(agents_result.scalars().all())
 
+    models_result = await db.execute(select(LLMModel))
+    llm_models = list(models_result.scalars().all())
+
     run = Run(team_id=team_id, task_text=body.task)
     db.add(run)
     await db.commit()
@@ -62,7 +65,7 @@ async def create_run(team_id: str, body: RunCreate, db: AsyncSession = Depends(g
 
     workspace = Path(team.workspace_path)
     config = build_task_config(
-        team, agents, body.task, run.id,
+        team, agents, llm_models, body.task, run.id,
         model_override=body.model,
         temperature=body.temperature,
     )

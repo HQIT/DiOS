@@ -1,3 +1,16 @@
+export interface LLMModel {
+  id: string;
+  name: string;
+  provider: string;
+  model: string;
+  base_url: string;
+  api_key: string;
+  display_name: string;
+  description: string;
+  context_length?: number;
+  created_at: string;
+}
+
 export interface Team {
   id: string;
   name: string;

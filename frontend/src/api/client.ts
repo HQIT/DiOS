@@ -14,6 +14,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  // Models
+  listModels: () => request<import("../types").LLMModel[]>("/models"),
+  createModel: (data: Record<string, unknown>) =>
+    request<import("../types").LLMModel>("/models", { method: "POST", body: JSON.stringify(data) }),
+  updateModel: (id: string, data: Record<string, unknown>) =>
+    request<import("../types").LLMModel>(`/models/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteModel: (id: string) => request<void>(`/models/${id}`, { method: "DELETE" }),
+
   // Teams
   listTeams: () => request<import("../types").Team[]>("/teams"),
   createTeam: (data: { name: string; description?: string; default_model?: string }) =>

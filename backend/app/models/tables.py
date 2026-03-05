@@ -14,6 +14,21 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+class LLMModel(Base):
+    __tablename__ = "models"
+
+    id: Mapped[str] = mapped_column(String(12), primary_key=True, default=_uuid)
+    name: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
+    provider: Mapped[str] = mapped_column(String(32), default="openai")
+    model: Mapped[str] = mapped_column(String(128), nullable=False)
+    base_url: Mapped[str] = mapped_column(String(512), nullable=False)
+    api_key: Mapped[str] = mapped_column(String(512), default="")
+    display_name: Mapped[str] = mapped_column(String(128), default="")
+    description: Mapped[str] = mapped_column(Text, default="")
+    context_length: Mapped[int | None] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class Team(Base):
     __tablename__ = "teams"
 

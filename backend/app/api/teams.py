@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db.database import get_db
-from app.models.tables import Team
+from app.models.tables import Team, _uuid
 from app.models.schemas import TeamCreate, TeamUpdate, TeamOut
 
 router = APIRouter(prefix="/teams", tags=["teams"])
@@ -18,8 +18,9 @@ async def list_teams(db: AsyncSession = Depends(get_db)):
 
 @router.post("", response_model=TeamOut, status_code=201)
 async def create_team(body: TeamCreate, db: AsyncSession = Depends(get_db)):
-    team = Team(name=body.name, description=body.description, default_model=body.default_model)
-    workspace = settings.workspace_root / team.id
+    team_id = _uuid()
+    team = Team(id=team_id, name=body.name, description=body.description, default_model=body.default_model)
+    workspace = settings.workspace_root / team_id
     workspace.mkdir(parents=True, exist_ok=True)
     team.workspace_path = str(workspace)
     db.add(team)

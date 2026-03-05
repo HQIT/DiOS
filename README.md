@@ -24,16 +24,24 @@ NANA-OS
 
 ## 快速启动
 
-### Docker Compose（推荐）
+### 生产部署
 
 ```bash
-docker compose up --build
+docker compose up -d
 ```
 
 - 前端：http://localhost:3000
 - 后端 API：http://localhost:8000
 
-### 本地开发
+### 开发环境（Docker，热加载）
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+修改 `backend/` 或 `frontend/src/` 下的代码会自动热加载，无需重新 build。
+
+### 本地开发（不用 Docker）
 
 ```bash
 # 后端

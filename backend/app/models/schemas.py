@@ -3,6 +3,45 @@ from datetime import datetime
 from typing import Optional
 
 
+# ── LLMModel ──
+
+class LLMModelCreate(BaseModel):
+    name: str
+    provider: str = "openai"
+    model: str
+    base_url: str
+    api_key: str = ""
+    display_name: str = ""
+    description: str = ""
+    context_length: Optional[int] = None
+
+
+class LLMModelUpdate(BaseModel):
+    name: Optional[str] = None
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    base_url: Optional[str] = None
+    api_key: Optional[str] = None
+    display_name: Optional[str] = None
+    description: Optional[str] = None
+    context_length: Optional[int] = None
+
+
+class LLMModelOut(BaseModel):
+    id: str
+    name: str
+    provider: str
+    model: str
+    base_url: str
+    api_key: str
+    display_name: str
+    description: str
+    context_length: Optional[int]
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 # ── Team ──
 
 class TeamCreate(BaseModel):
