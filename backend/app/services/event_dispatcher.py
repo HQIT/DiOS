@@ -102,7 +102,7 @@ async def dispatch_event(
     event: CloudEvent,
     agent_ids: list[str],
     db: AsyncSession,
-) -> EventLog:
+) -> tuple[EventLog, str | None]:
     """将事件投递给匹配的 Agent 列表，创建 EventLog 记录。"""
     event_log = EventLog(
         source=event.get("source", ""),
@@ -117,7 +117,7 @@ async def dispatch_event(
     await db.refresh(event_log)
 
     if not agent_ids:
-        return event_log
+        return event_log, None
 
     agents_result = await db.execute(
         select(Agent).where(Agent.id.in_(agent_ids))
@@ -128,13 +128,16 @@ async def dispatch_event(
     llm_models = list(models_result.scalars().all())
 
     dispatched = False
+    reasons: list[str] = []
     for agent_id in agent_ids:
         agent = agents.get(agent_id)
         if not agent:
+            reasons.append(f"Agent {agent_id} not found")
             logger.warning("Agent %s not found, skipping dispatch", agent_id)
             continue
 
         if not agent.workspace_path:
+            reasons.append(f"Agent {agent_id} has no workspace_path")
             logger.warning("Agent %s has no workspace_path, skipping", agent_id)
             continue
 
@@ -147,11 +150,16 @@ async def dispatch_event(
         )
 
         config_path = workspace / f"agent-task-{run_id}.json"
-        config_path.parent.mkdir(parents=True, exist_ok=True)
-        config_path.write_text(
-            json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-        (workspace / "output" / "events" / run_id).mkdir(parents=True, exist_ok=True)
+        try:
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            config_path.write_text(
+                json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            (workspace / "output" / "events" / run_id).mkdir(parents=True, exist_ok=True)
+        except OSError as e:
+            reasons.append(f"Agent {agent_id}: write config failed: {e}")
+            logger.exception("Write config failed for agent %s", agent_id)
+            continue
 
         try:
             container_id = start_container(run_id, workspace)
@@ -161,10 +169,12 @@ async def dispatch_event(
                 "Dispatched event %s to agent %s (container %s)",
                 event_log.id, agent_id, container_id[:12],
             )
-        except Exception:
+        except Exception as e:
+            reasons.append(f"Agent {agent_id}: {type(e).__name__}: {e}")
             logger.exception("Failed to dispatch event to agent %s", agent_id)
 
     event_log.status = "dispatched" if dispatched else "failed"
     await db.commit()
     await db.refresh(event_log)
-    return event_log
+    error_detail = "; ".join(reasons) if reasons else None
+    return event_log, error_detail

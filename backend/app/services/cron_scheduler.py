@@ -85,7 +85,7 @@ class CronScheduler:
             subject=sub.cron_expression,
             data={"agent_id": sub.agent_id, "subscription_id": sub.id},
         )
-        await dispatch_event(event, [sub.agent_id], db)
+        _, _ = await dispatch_event(event, [sub.agent_id], db)
         logger.info("CRON fired for subscription %s (agent %s)", sub.id, sub.agent_id)
 
 

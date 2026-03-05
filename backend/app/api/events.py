@@ -54,7 +54,7 @@ async def receive_webhook(
 
     matched_ids = match_subscriptions(event, subscriptions)
 
-    event_log = await dispatch_event(event, matched_ids, db)
+    event_log, error_detail = await dispatch_event(event, matched_ids, db)
 
     return {
         "event_id": event_log.id,
@@ -62,6 +62,7 @@ async def receive_webhook(
         "source": event.get("source"),
         "matched_agents": matched_ids,
         "status": event_log.status,
+        "error": error_detail,
     }
 
 
@@ -91,7 +92,7 @@ async def trigger_manual_event(
 
     matched_ids = match_subscriptions(event, subscriptions)
 
-    event_log = await dispatch_event(event, matched_ids, db)
+    event_log, error_detail = await dispatch_event(event, matched_ids, db)
 
     return {
         "event_id": event_log.id,
@@ -99,6 +100,7 @@ async def trigger_manual_event(
         "source": event.get("source"),
         "matched_agents": matched_ids,
         "status": event_log.status,
+        "error": error_detail,
     }
 
 
