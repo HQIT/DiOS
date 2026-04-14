@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     # 容器内 /workspace 和宿主机路径不同，挂载给兄弟容器时需要宿主机路径
     host_workspace_root: str = ""
     diagent_image: str = "ghcr.io/hqit/diagent/agent-task:latest"
+    diagent_service_image: str = "nana-os-diagent:latest"
+    diagent_service_url: str = "http://localhost:8001"  # fallback, runtime manager 会动态获取
     max_concurrent_runs: int = 5
 
     # Webhook 签名验证密钥，按平台名存储

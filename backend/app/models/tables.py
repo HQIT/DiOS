@@ -34,6 +34,7 @@ class Agent(Base):
 
     id: Mapped[str] = mapped_column(String(12), primary_key=True, default=_uuid)
     name: Mapped[str] = mapped_column(String(128), nullable=False)
+    mode: Mapped[str] = mapped_column(String(16), default="service")  # service (常驻可聊天) | task (一次性任务)
     group: Mapped[str] = mapped_column(String(128), default="")
     role: Mapped[str] = mapped_column(String(16), default="agent")
     description: Mapped[str] = mapped_column(Text, default="")
@@ -74,6 +75,20 @@ class McpServer(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+# ── Skills（OS 严选的 Skills 仓库） ──
+
+
+class Skill(Base):
+    __tablename__ = "skills"
+
+    id: Mapped[str] = mapped_column(String(12), primary_key=True, default=_uuid)
+    name: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
+    description: Mapped[str] = mapped_column(Text, default="")
+    source_url: Mapped[str] = mapped_column(String(512), default="")  # git repo URL
+    content: Mapped[str] = mapped_column(Text, default="")  # SKILL.md 内容
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 # ── Event Gateway ──
 
 
@@ -87,6 +102,42 @@ class Subscription(Base):
     filter_rules: Mapped[dict] = mapped_column(JSON, default=dict)
     cron_expression: Mapped[str] = mapped_column(String(64), default="")
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+# ── Agent Runtime（OS 管理的 DiAgent 服务实例） ──
+
+
+class AgentRuntime(Base):
+    __tablename__ = "agent_runtimes"
+
+    agent_id: Mapped[str] = mapped_column(String(12), primary_key=True)
+    container_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    url: Mapped[str] = mapped_column(String(256), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="starting")  # starting | running | stopped | error
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+# ── Chat App（会话 + 消息持久化） ──
+
+
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    agent_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(256), default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id: Mapped[str] = mapped_column(String(12), primary_key=True, default=_uuid)
+    session_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 

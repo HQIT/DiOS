@@ -1,56 +1,55 @@
-import { useEffect, useState, useCallback } from "react";
-import AgentList from "./components/AgentList";
-import ModelManager from "./components/ModelManager";
-import EventLogList from "./components/EventLogList";
-import ConnectorsPage from "./components/ConnectorsPage";
-import McpServersPage from "./components/McpServersPage";
-import TopologyPage from "./components/TopologyPage";
+import { useEffect, useState } from "react";
+import ConsolePage from "./apps/console/ConsolePage";
+import ChatPage from "./apps/chat/ChatPage";
 
-type GlobalTab = "agents" | "models" | "events" | "connectors" | "mcp" | "topology";
-const VALID_TABS: GlobalTab[] = ["agents", "events", "models", "connectors", "mcp", "topology"];
+type AppId = "console" | "chat";
+const APPS: { id: AppId; label: string }[] = [
+  { id: "console", label: "Console" },
+  { id: "chat", label: "Chat" },
+];
 
-function readHash(): { tab: GlobalTab; sub: string } {
+function readHash(): { app: AppId; sub: string } {
   const raw = window.location.hash.replace(/^#\/?/, "");
   const [first, ...rest] = raw.split("/");
-  const tab = VALID_TABS.includes(first as GlobalTab) ? (first as GlobalTab) : "agents";
-  return { tab, sub: rest.join("/") };
+  const app = APPS.some((a) => a.id === first) ? (first as AppId) : "console";
+  return { app, sub: rest.join("/") };
 }
 
 export default function App() {
-  const [globalTab, setGlobalTab] = useState<GlobalTab>(() => readHash().tab);
-  const [subHash, setSubHash] = useState(() => readHash().sub);
+  const [currentApp, setCurrentApp] = useState<AppId>(() => readHash().app);
+  const [sub, setSub] = useState(() => readHash().sub);
 
   useEffect(() => {
-    const onHash = () => { const h = readHash(); setGlobalTab(h.tab); setSubHash(h.sub); };
+    const onHash = () => {
+      const h = readHash();
+      setCurrentApp(h.app);
+      setSub(h.sub);
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
-  }, []);
-
-  const navigate = useCallback((tab: GlobalTab, sub = "") => {
-    window.location.hash = sub ? `${tab}/${sub}` : tab;
   }, []);
 
   return (
     <div className="app">
       <header className="app-header">
         <h1>NANA OS</h1>
-        <nav className="header-nav">
-          <button className={globalTab === "agents" ? "header-tab active" : "header-tab"} onClick={() => navigate("agents")}>Agents</button>
-          <button className={globalTab === "events" ? "header-tab active" : "header-tab"} onClick={() => navigate("events")}>Events</button>
-          <button className={globalTab === "models" ? "header-tab active" : "header-tab"} onClick={() => navigate("models")}>Models</button>
-          <button className={globalTab === "connectors" ? "header-tab active" : "header-tab"} onClick={() => navigate("connectors")}>Connectors</button>
-          <button className={globalTab === "mcp" ? "header-tab active" : "header-tab"} onClick={() => navigate("mcp")}>MCP</button>
-          <button className={globalTab === "topology" ? "header-tab active" : "header-tab"} onClick={() => navigate("topology")}>Topology</button>
+        <nav className="header-nav" style={{ borderRight: "1px solid var(--border)", paddingRight: 12, marginRight: 4 }}>
+          {APPS.map((a) => (
+            <button
+              key={a.id}
+              className={currentApp === a.id ? "header-tab active" : "header-tab"}
+              onClick={() => { window.location.hash = a.id; }}
+            >
+              {a.label}
+            </button>
+          ))}
         </nav>
+        {currentApp === "console" && <ConsolePage.Nav sub={sub} />}
       </header>
 
-      <div className="main-content" style={{ height: "calc(100vh - 57px)" }}>
-        {globalTab === "agents" && <AgentList />}
-        {globalTab === "events" && <EventLogList subTab={subHash === "logs" ? "logs" : "catalog"} onSubTabChange={(s: string) => navigate("events", s)} />}
-        {globalTab === "models" && <ModelManager />}
-        {globalTab === "connectors" && <ConnectorsPage />}
-        {globalTab === "mcp" && <McpServersPage />}
-        {globalTab === "topology" && <TopologyPage />}
+      <div style={{ height: "calc(100vh - 57px)" }}>
+        {currentApp === "console" && <ConsolePage.Content sub={sub} />}
+        {currentApp === "chat" && <ChatPage />}
       </div>
     </div>
   );

@@ -16,9 +16,9 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import dagre from "@dagrejs/dagre";
-import type { Agent, Connector, Subscription } from "../types";
-import { api } from "../api/client";
-import Drawer from "./Drawer";
+import type { Agent, Connector, Subscription } from "../../../types";
+import { api } from "../../../api/os";
+import Drawer from "../../../components/Drawer";
 
 /* ─── Constants ─── */
 

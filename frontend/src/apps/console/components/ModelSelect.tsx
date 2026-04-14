@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { LLMModel } from "../types";
-import { api } from "../api/client";
+import type { LLMModel } from "../../../types";
+import { api } from "../../../api/os";
 
 interface Props {
   value: string;

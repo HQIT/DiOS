@@ -16,11 +16,14 @@ router = APIRouter(prefix="/agents", tags=["agents"])
 @router.get("", response_model=list[AgentOut])
 async def list_agents(
     group: str | None = Query(None),
+    mode: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Agent).order_by(Agent.created_at)
     if group:
         query = query.where(Agent.group == group)
+    if mode:
+        query = query.where(Agent.mode == mode)
     result = await db.execute(query)
     return result.scalars().all()
 
@@ -36,6 +39,7 @@ async def create_agent(body: AgentCreate, db: AsyncSession = Depends(get_db)):
     agent = Agent(
         id=agent_id,
         name=body.name,
+        mode=body.mode,
         group=body.group,
         role=body.role,
         description=body.description,

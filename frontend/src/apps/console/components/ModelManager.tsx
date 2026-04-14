@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { LLMModel } from "../types";
-import { api } from "../api/client";
-import Drawer from "./Drawer";
+import type { LLMModel } from "../../../types";
+import { api } from "../../../api/os";
+import Drawer from "../../../components/Drawer";
 
 const genId = () => crypto.randomUUID().slice(0, 8);
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { Subscription } from "../types";
-import { api } from "../api/client";
+import type { Subscription } from "../../../types";
+import { api } from "../../../api/os";
 
 interface Props {
   agentId: string;

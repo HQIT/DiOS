@@ -1,4 +1,4 @@
-const BASE = "/api";
+const BASE = "/api/os";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -23,9 +23,12 @@ export const api = {
   deleteModel: (id: string) => request<void>(`/models/${id}`, { method: "DELETE" }),
 
   // Agents
-  listAgents: (group?: string) => {
-    const q = group ? `?group=${encodeURIComponent(group)}` : "";
-    return request<import("../types").Agent[]>(`/agents${q}`);
+  listAgents: (params?: { group?: string; mode?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.group) q.set("group", params.group);
+    if (params?.mode) q.set("mode", params.mode);
+    const qs = q.toString();
+    return request<import("../types").Agent[]>(`/agents${qs ? `?${qs}` : ""}`);
   },
   createAgent: (data: Record<string, unknown>) =>
     request<import("../types").Agent>("/agents", { method: "POST", body: JSON.stringify(data) }),
@@ -74,9 +77,17 @@ export const api = {
     request<import("../types").Connector>(`/connectors/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteConnector: (id: string) => request<void>(`/connectors/${id}`, { method: "DELETE" }),
 
-  // Skills catalog
-  getSkillsCatalog: () =>
-    request<{ name: string; description: string; source: string }[]>("/skills/catalog"),
+  // Skills
+  listSkills: () => request<import("../types").Skill[]>("/skills"),
+  createSkill: (data: Record<string, unknown>) =>
+    request<import("../types").Skill>("/skills", { method: "POST", body: JSON.stringify(data) }),
+  updateSkill: (id: string, data: Record<string, unknown>) =>
+    request<import("../types").Skill>(`/skills/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteSkill: (id: string) => request<void>(`/skills/${id}`, { method: "DELETE" }),
+  importSkillFromGit: (url: string) =>
+    request<import("../types").Skill>("/skills/import-git", { method: "POST", body: JSON.stringify({ url }) }),
+  searchSkillRegistry: (q: string) =>
+    request<{ repos: { name: string; url: string; description: string }[]; total: number }>(`/skills/registry?q=${encodeURIComponent(q)}`),
 
   // MCP Registry search
   searchMcpRegistry: (q: string, limit = 20) =>

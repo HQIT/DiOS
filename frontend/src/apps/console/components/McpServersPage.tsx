@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { McpServer } from "../types";
-import { api } from "../api/client";
-import Drawer from "./Drawer";
+import type { McpServer } from "../../../types";
+import { api } from "../../../api/os";
+import Drawer from "../../../components/Drawer";
 
 interface RegistryServer {
   name: string;

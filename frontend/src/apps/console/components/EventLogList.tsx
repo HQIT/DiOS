@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import type { EventLog, EventCatalog, EventCatalogType } from "../types";
-import { api } from "../api/client";
-import Drawer from "./Drawer";
+import type { EventLog, EventCatalog, EventCatalogType } from "../../../types";
+import { api } from "../../../api/os";
+import Drawer from "../../../components/Drawer";
 
 const STATUS_COLORS: Record<string, string> = {
   received: "var(--color-muted)",

@@ -1,6 +1,12 @@
-version: "3.8"
-
 services:
+  # 仅构建 DiAgent service 镜像，不启动；Runtime Manager 动态管理容器
+  diagent-build:
+    build:
+      context: ./DiAgent
+      dockerfile: docker/agent-service/Dockerfile
+    image: nana-os-diagent:latest
+    profiles: ["build"]
+
   backend:
     build: ./backend
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -14,6 +20,7 @@ services:
       - NANAOS_HOST_WORKSPACE_ROOT=${PWD}/workspace
       - NANAOS_DATABASE_URL=sqlite+aiosqlite:////data/nanaos.db
       - NANAOS_DIAGENT_IMAGE=ghcr.io/hqit/diagent/agent-task:latest
+      - NANAOS_DIAGENT_SERVICE_IMAGE=nana-os-diagent:latest
     ports:
       - "8000:8000"
 

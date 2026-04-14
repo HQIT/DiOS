@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { Connector } from "../types";
-import { api } from "../api/client";
-import Drawer from "./Drawer";
+import type { Connector } from "../../../types";
+import { api } from "../../../api/os";
+import Drawer from "../../../components/Drawer";
 
 interface PresetConnector {
   type: string;

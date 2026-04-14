@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../api/client";
+import { api } from "../../../api/os";
 
 interface SkillCatalogItem {
   name: string;

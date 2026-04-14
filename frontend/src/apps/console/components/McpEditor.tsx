@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { McpServer } from "../types";
-import { api } from "../api/client";
+import type { McpServer } from "../../../types";
+import { api } from "../../../api/os";
 
 interface Props {
   agentId: string;

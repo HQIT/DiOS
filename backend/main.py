@@ -3,8 +3,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi import APIRouter
+
 from app.db.database import init_db
-from app.api import models, agents, events, subscriptions, connectors, mcp_servers, skills, mcp_registry
+from app.api.os import models, agents, events, subscriptions, connectors, mcp_servers, skills, mcp_registry
+from app.api.apps import chat as chat_app
 from app.services.cron_scheduler import cron_scheduler
 from app.services.imap_poller import imap_poller
 from app.services.event_retry_worker import retry_worker
@@ -31,14 +34,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(models.router)
-app.include_router(agents.router)
-app.include_router(events.router)
-app.include_router(subscriptions.router)
-app.include_router(connectors.router)
-app.include_router(mcp_servers.router)
-app.include_router(skills.router)
-app.include_router(mcp_registry.router)
+os_router = APIRouter(prefix="/api/os")
+os_router.include_router(models.router)
+os_router.include_router(agents.router)
+os_router.include_router(events.router)
+os_router.include_router(subscriptions.router)
+os_router.include_router(connectors.router)
+os_router.include_router(mcp_servers.router)
+os_router.include_router(skills.router)
+os_router.include_router(mcp_registry.router)
+app.include_router(os_router)
+
+apps_router = APIRouter(prefix="/api/apps")
+apps_router.include_router(chat_app.router)
+app.include_router(apps_router)
 
 
 @app.get("/health")

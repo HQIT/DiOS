@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import type { Agent } from "../types";
-import { api } from "../api/client";
-import Drawer from "./Drawer";
+import type { Agent } from "../../../types";
+import { api } from "../../../api/os";
+import Drawer from "../../../components/Drawer";
 import ModelSelect from "./ModelSelect";
 import SubscriptionEditor from "./SubscriptionEditor";
 import SkillsEditor from "./SkillsEditor";
 import McpEditor from "./McpEditor";
 
 const EMPTY: Partial<Agent> = {
-  name: "", group: "", role: "agent", description: "", model: "",
+  name: "", mode: "service", group: "", role: "agent", description: "", model: "",
   system_prompt: "", skills: [], mcp_config_path: "", mcp_server_ids: [], workspace_path: "",
 };
 
@@ -65,6 +65,7 @@ export default function AgentList() {
     if (!editing?.name?.trim()) return;
     const data = {
       name: editing.name,
+      mode: editing.mode || "service",
       group: editing.group || "",
       role: editing.role || "agent",
       description: editing.description || "",
@@ -107,6 +108,7 @@ export default function AgentList() {
     <div key={a.id} className="entity-card" onClick={() => startEdit(a)}>
       <div className="entity-card-header">
         <span className="entity-card-name">{a.name}</span>
+        <span className="entity-card-tag" style={a.mode === "task" ? { background: "var(--color-warning)", color: "#000" } : {}}>{a.mode || "service"}</span>
         {a.group && <span className="entity-card-tag">{a.group}</span>}
       </div>
       {a.description && <p className="entity-card-desc">{a.description}</p>}
@@ -183,6 +185,12 @@ export default function AgentList() {
           <div className="drawer-form">
             <label>名称 *</label>
             <input placeholder="例如：code-reviewer" value={editing.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
+
+            <label>模式</label>
+            <select value={editing.mode || "service"} onChange={(e) => setEditing({ ...editing, mode: e.target.value })}>
+              <option value="service">Service（常驻 / 可聊天）</option>
+              <option value="task">Task（一次性任务）</option>
+            </select>
 
             <label>分组</label>
             <input placeholder="可选，如：代码审查、论文写作" value={editing.group || ""} onChange={(e) => setEditing({ ...editing, group: e.target.value })} />

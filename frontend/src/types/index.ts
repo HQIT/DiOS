@@ -14,6 +14,7 @@ export interface LLMModel {
 export interface Agent {
   id: string;
   name: string;
+  mode: string;  // "service" | "task"
   group: string;
   role: string;
   description: string;
@@ -41,6 +42,15 @@ export interface McpServer {
   command: string;
   args: string[];
   env: Record<string, string>;
+  created_at: string;
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  source_url: string;
+  content: string;
   created_at: string;
 }
 

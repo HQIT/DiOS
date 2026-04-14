@@ -46,6 +46,7 @@ class LLMModelOut(BaseModel):
 
 class AgentCreate(BaseModel):
     name: str
+    mode: str = "service"  # service | task
     group: str = ""
     role: str = "agent"
     description: str = ""
@@ -59,6 +60,7 @@ class AgentCreate(BaseModel):
 
 class AgentUpdate(BaseModel):
     name: Optional[str] = None
+    mode: Optional[str] = None
     group: Optional[str] = None
     role: Optional[str] = None
     description: Optional[str] = None
@@ -73,6 +75,7 @@ class AgentUpdate(BaseModel):
 class AgentOut(BaseModel):
     id: str
     name: str
+    mode: str
     group: str
     role: str
     description: str
@@ -136,6 +139,33 @@ class McpServerOut(BaseModel):
     command: str
     args: list
     env: dict
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ── Skill ──
+
+class SkillCreate(BaseModel):
+    name: str
+    description: str = ""
+    source_url: str = ""
+    content: str = ""
+
+
+class SkillUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    source_url: Optional[str] = None
+    content: Optional[str] = None
+
+
+class SkillOut(BaseModel):
+    id: str
+    name: str
+    description: str
+    source_url: str
+    content: str
     created_at: datetime
 
     model_config = {"from_attributes": True}
