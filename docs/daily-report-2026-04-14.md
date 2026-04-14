@@ -17,7 +17,7 @@
 
 ### 2. 修复聊天 stream 报错
 
-修复 `Error: stream is not async iterable` 问题。原因是 `streamChat` 是 `async function` 返回 `Promise<AsyncGenerator>`，`for await...of` 无法直接迭代。改为 `async function*` + `yield*`。
+修复 `Error: stream is not async iterable` 问题。原因是 `streamChat` 是 `async function` 返回 `Promise<AsyncGenerator>`，`for await...of` 无法直接迭代。改为 `async function`* + `yield*`。
 
 ### 3. Skills 管理功能
 
@@ -39,3 +39,4 @@
 4. **Skills 下发到 DiAgent**：Runtime Manager 启动容器时，将 Agent 选用的 Skills 内容写入 workspace，通过环境变量告知 DiAgent
 5. **扩充推荐 Skills 仓库**：丰富 KNOWN_SKILL_REPOS 列表，或对接 GitHub API 搜索
 6. **DiAgent 需求跟进**：确认 DiAgent 团队完成 Dockerfile 基础镜像源修复 + models.yaml 缓存逻辑修复
+
