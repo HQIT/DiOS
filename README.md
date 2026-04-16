@@ -1,8 +1,8 @@
-# NANA-OS
+# DiOS
 
-> **NANA** = **N**etwork **A**ttached **N**ative **A**gent
+> **NANA** = **N**etwork **A**ttached **N**ative **A**gent , 是一种智能体&环境交付形式
 
-NANA-OS 是面向 Agent 的事件驱动编排平台，基于 [DiAgent](https://github.com/HQIT/DiAgent)，负责将外部事件路由到对应的 Agent 并驱动其自动执行任务。
+DiOS 是面向 Agent 的事件驱动编排平台，基于 [DiAgent](https://github.com/HQIT/DiAgent)，负责将外部事件路由到对应的 Agent 并驱动其自动执行任务。
 
 ## 功能
 
