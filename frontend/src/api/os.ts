@@ -71,6 +71,8 @@ export const api = {
 
   // Connectors
   listConnectors: () => request<import("../types").Connector[]>("/connectors"),
+  listConnectorSourcePatterns: () =>
+    request<import("../types").ConnectorSourcePattern[]>("/connectors/source-patterns"),
   createConnector: (data: Record<string, unknown>) =>
     request<import("../types").Connector>("/connectors", { method: "POST", body: JSON.stringify(data) }),
   updateConnector: (id: string, data: Record<string, unknown>) =>

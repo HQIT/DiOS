@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 import asyncio
 from pathlib import Path
 
@@ -18,21 +19,27 @@ from app.services.docker_runner import get_client, _host_path
 
 logger = logging.getLogger(__name__)
 
-DOCKER_NETWORK = "nana-os_default"
+DOCKER_NETWORK = os.getenv("DIOS_DOCKER_NETWORK", "nana-os_default")
 
 
 def _container_name(agent_id: str) -> str:
-    return f"nanaos-agent-{agent_id}"
+    return f"dios-agent-{agent_id}"
 
 
 async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str]:
     """为 Agent 的 workspace 生成 models.yaml 和 mcp_servers.json，返回环境变量 dict。"""
     workspace = Path(agent.workspace_path)
     workspace.mkdir(parents=True, exist_ok=True)
-    env = {
+    # 业务凭据放最底层，系统 env 会覆盖同名 key（系统优先）
+    env: dict[str, str] = {}
+    for k, v in (agent.env or {}).items():
+        if v is None:
+            continue
+        env[str(k)] = str(v)
+    env.update({
         "AGENT_WORKSPACE": "/workspace",
         "LLM_MODELS_CONFIG_PATH": "/workspace/models.yaml",
-    }
+    })
 
     result = await db.execute(select(LLMModel))
     llms = result.scalars().all()
@@ -81,7 +88,7 @@ def _start_container(agent: Agent, env: dict[str, str]) -> tuple[str, str]:
     container = client.containers.run(
         image=settings.diagent_service_image,
         name=name,
-        labels={"nanaos.agent_id": agent.id, "nanaos.type": "service"},
+        labels={"dios.agent_id": agent.id, "dios.type": "service"},
         environment=env,
         volumes={host_ws: {"bind": "/workspace", "mode": "rw"}},
         network=DOCKER_NETWORK,

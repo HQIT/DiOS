@@ -20,7 +20,19 @@ export default function SkillsEditor({ agentId, skills, onSave }: Props) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => { setSelected(skills); }, [agentId, skills]);
-  useEffect(() => { api.getSkillsCatalog().then(setCatalog).catch(() => {}); }, []);
+  useEffect(() => {
+    api.listSkills()
+      .then((items) => {
+        setCatalog(
+          (items || []).map((s) => ({
+            name: s.name,
+            description: s.description || "",
+            source: "custom",
+          })),
+        );
+      })
+      .catch(() => { setCatalog([]); });
+  }, []);
 
   const toggle = (name: string) => {
     setSelected((prev) =>

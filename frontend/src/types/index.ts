@@ -24,6 +24,8 @@ export interface Agent {
   mcp_config_path: string;
   mcp_server_ids?: string[];
   workspace_path: string;
+  capabilities?: Record<string, unknown>;
+  env?: Record<string, string>;
   created_at: string;
 }
 
@@ -34,6 +36,16 @@ export interface Connector {
   enabled: boolean;
   config: Record<string, unknown>;
   created_at: string;
+}
+
+export interface ConnectorSourcePattern {
+  source_pattern: string;
+  label: string;
+  event_types: string[];
+  connector_id: string | null;
+  connector_name: string;
+  connector_type: string;
+  kind: "connector" | "internal";
 }
 
 export interface McpServer {

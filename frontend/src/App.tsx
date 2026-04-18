@@ -32,7 +32,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>NANA OS</h1>
+        <h1>DiOS</h1>
         <nav className="header-nav" style={{ borderRight: "1px solid var(--border)", paddingRight: 12, marginRight: 4 }}>
           {APPS.map((a) => (
             <button

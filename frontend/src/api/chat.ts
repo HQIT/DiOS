@@ -29,11 +29,13 @@ export interface ChatRequest {
 export async function* streamChat(
   req: ChatRequest,
   onSessionId?: (id: string) => void,
+  signal?: AbortSignal,
 ): AsyncGenerator<string> {
   const res = await fetch(`${BASE}/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...req, stream: true }),
+    signal,
   });
   if (!res.ok) {
     const text = await res.text();

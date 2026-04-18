@@ -19,12 +19,30 @@ def _add_agent_mcp_server_ids(sync_conn):
         pass
 
 
+def _add_agent_capabilities(sync_conn):
+    try:
+        from sqlalchemy import text
+        sync_conn.execute(text("ALTER TABLE agents ADD COLUMN capabilities TEXT DEFAULT '{}'"))
+    except Exception:
+        pass
+
+
+def _add_agent_env(sync_conn):
+    try:
+        from sqlalchemy import text
+        sync_conn.execute(text("ALTER TABLE agents ADD COLUMN env TEXT DEFAULT '{}'"))
+    except Exception:
+        pass
+
+
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     if "sqlite" in settings.database_url:
         async with engine.connect() as conn:
             await conn.run_sync(_add_agent_mcp_server_ids)
+            await conn.run_sync(_add_agent_capabilities)
+            await conn.run_sync(_add_agent_env)
             await conn.commit()
 
 

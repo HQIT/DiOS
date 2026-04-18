@@ -12,6 +12,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 type SubTab = "logs" | "catalog";
+const EVENT_LOG_AUTO_REFRESH_KEY = "dios:eventlog:autoRefresh";
 
 export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTab; onSubTabChange: (t: SubTab) => void }) {
   const [events, setEvents] = useState<EventLog[]>([]);
@@ -23,7 +24,14 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTa
   const [statusFilter, setStatusFilter] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState<boolean>(() => {
+    try {
+      const raw = localStorage.getItem(EVENT_LOG_AUTO_REFRESH_KEY);
+      return raw == null ? true : raw === "1";
+    } catch {
+      return true;
+    }
+  });
 
   const [catalog, setCatalog] = useState<EventCatalog | null>(null);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
@@ -65,6 +73,14 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTa
       return () => clearInterval(interval);
     }
   }, [autoRefresh, subTab, loadLogs]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(EVENT_LOG_AUTO_REFRESH_KEY, autoRefresh ? "1" : "0");
+    } catch {
+      // ignore storage errors
+    }
+  }, [autoRefresh]);
 
   const fmtTime = (iso: string) => {
     const d = new Date(iso);

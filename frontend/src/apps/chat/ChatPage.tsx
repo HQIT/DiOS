@@ -8,6 +8,8 @@ interface UIMessage {
   content: string;
 }
 
+const LAST_AGENT_KEY = "dios:chat:lastAgentId";
+
 export default function ChatPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -21,12 +23,22 @@ export default function ChatPage() {
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const skipNextSessionLoadRef = useRef(false);
 
   useEffect(() => {
     api.listAgents({ mode: "service" }).then((list) => {
       setAgents(list);
-      if (list.length > 0 && !selectedAgent) setSelectedAgent(list[0]);
+      if (list.length === 0) return;
+      const lastId = localStorage.getItem(LAST_AGENT_KEY);
+      const restored = lastId ? list.find((a) => a.id === lastId) : null;
+      if (!selectedAgent) setSelectedAgent(restored || list[0]);
     });
+  }, []);
+
+  const pickAgent = useCallback((a: Agent) => {
+    setSelectedAgent(a);
+    try { localStorage.setItem(LAST_AGENT_KEY, a.id); } catch {}
   }, []);
 
   // 切换 agent 时加载会话列表
@@ -40,6 +52,11 @@ export default function ChatPage() {
   // 切换 session 时加载历史消息
   useEffect(() => {
     if (!sessionId) return;
+    // 新会话首轮流式时，本地已有 user+assistant 占位，跳过一次覆盖
+    if (skipNextSessionLoadRef.current) {
+      skipNextSessionLoadRef.current = false;
+      return;
+    }
     chatApi.getMessages(sessionId).then((msgs) => {
       setMessages(msgs.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })));
     });
@@ -65,6 +82,9 @@ export default function ChatPage() {
     const assistantMsg: UIMessage = { role: "assistant", content: "" };
     setMessages((prev) => [...prev, assistantMsg]);
 
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
     try {
       const stream = streamChat(
         {
@@ -74,10 +94,12 @@ export default function ChatPage() {
         },
         (sid) => {
           if (!sessionId) {
+            skipNextSessionLoadRef.current = true;
             setSessionId(sid);
             refreshSessions();
           }
         },
+        ctrl.signal,
       );
 
       for await (const chunk of stream) {
@@ -90,19 +112,28 @@ export default function ChatPage() {
       }
       refreshSessions();
     } catch (err) {
+      const aborted = err instanceof DOMException && err.name === "AbortError";
       setMessages((prev) => {
         const updated = [...prev];
+        const last = updated[updated.length - 1];
         updated[updated.length - 1] = {
           role: "assistant",
-          content: `Error: ${err instanceof Error ? err.message : String(err)}`,
+          content: last.content
+            ? last.content + (aborted ? "\n\n[已中断]" : `\n\n[错误：${err instanceof Error ? err.message : String(err)}]`)
+            : (aborted ? "[已中断]" : `错误：${err instanceof Error ? err.message : String(err)}`),
         };
         return updated;
       });
     } finally {
+      abortRef.current = null;
       setLoading(false);
       inputRef.current?.focus();
     }
   }, [input, selectedAgent, loading, sessionId, refreshSessions]);
+
+  const stop = useCallback(() => {
+    abortRef.current?.abort();
+  }, []);
 
   const newChat = () => {
     setSessionId(null);
@@ -132,7 +163,7 @@ export default function ChatPage() {
         {agents.map((a) => (
           <button
             key={a.id}
-            onClick={() => setSelectedAgent(a)}
+            onClick={() => pickAgent(a)}
             style={{
               display: "block", width: "100%", textAlign: "left",
               padding: "10px 12px", marginBottom: 4, borderRadius: "var(--radius)",
@@ -233,18 +264,33 @@ export default function ChatPage() {
                 fontSize: 14, lineHeight: 1.5, outline: "none", minHeight: 42, maxHeight: 160, overflow: "auto",
               }}
             />
-            <button
-              onClick={send}
-              disabled={!input.trim() || !selectedAgent || loading}
-              style={{
-                padding: "10px 20px", borderRadius: "var(--radius)",
-                background: loading ? "var(--border)" : "var(--color-primary)",
-                color: "#fff", border: "none", cursor: loading ? "not-allowed" : "pointer",
-                fontSize: 14, fontWeight: 500, height: 42, transition: "background 0.15s",
-              }}
-            >
-              {loading ? "..." : "Send"}
-            </button>
+            {loading ? (
+              <button
+                onClick={stop}
+                style={{
+                  padding: "10px 20px", borderRadius: "var(--radius)",
+                  background: "var(--bg-surface)", color: "var(--text)",
+                  border: "1px solid var(--border)", cursor: "pointer",
+                  fontSize: 14, fontWeight: 500, height: 42,
+                }}
+                title="中断本次对话"
+              >
+                Stop
+              </button>
+            ) : (
+              <button
+                onClick={send}
+                disabled={!input.trim() || !selectedAgent}
+                style={{
+                  padding: "10px 20px", borderRadius: "var(--radius)",
+                  background: "var(--color-primary)",
+                  color: "#fff", border: "none", cursor: "pointer",
+                  fontSize: 14, fontWeight: 500, height: 42, transition: "background 0.15s",
+                }}
+              >
+                Send
+              </button>
+            )}
           </div>
         </div>
       </div>

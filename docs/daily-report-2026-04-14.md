@@ -34,7 +34,7 @@
 ## 待办 / 下一步计划
 
 1. **端到端测试**：启动服务，验证 Runtime Manager 动态启动容器 + Chat 持久化完整流程
-2. **构建 DiAgent 镜像**：执行 `docker compose --profile build build` 构建 `nana-os-diagent:latest`
+2. **构建 DiAgent 镜像**：执行 `docker compose --profile build build` 构建 `dios-diagent:latest`
 3. **Agent 编辑器对接 Skills**：Agent 编辑时可勾选已安装的 Skills（类似 MCP 的 McpEditor），skills 字段存 skill name 列表
 4. **Skills 下发到 DiAgent**：Runtime Manager 启动容器时，将 Agent 选用的 Skills 内容写入 workspace，通过环境变量告知 DiAgent
 5. **扩充推荐 Skills 仓库**：丰富 KNOWN_SKILL_REPOS 列表，或对接 GitHub API 搜索

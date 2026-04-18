@@ -51,12 +51,21 @@ def compute_dedup_hash(event: CloudEvent) -> str:
     if event_type.startswith("git."):
         repo = data.get("repository", {})
         repo_name = repo.get("full_name", "") if isinstance(repo, dict) else ""
+        # GitHub/GitLab/Gitea 事件的编号字段位置不一致，统一抽取
+        number = (
+            data.get("number")
+            or (data.get("issue", {}) or {}).get("number")
+            or (data.get("pull_request", {}) or {}).get("number")
+            or (data.get("object_attributes", {}) or {}).get("iid")
+            or ""
+        )
         key_parts = [
             event.get("source", ""),
             event_type,
             repo_name,
-            str(data.get("number", "")),  # PR/Issue 编号
+            str(number),  # PR/Issue 编号
             str(data.get("action", "")),
+            event.get("subject", ""),
         ]
     # 邮件事件：使用 Message-ID
     elif event_type.startswith("email."):

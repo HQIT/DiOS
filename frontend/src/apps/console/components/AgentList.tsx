@@ -10,6 +10,27 @@ import McpEditor from "./McpEditor";
 const EMPTY: Partial<Agent> = {
   name: "", mode: "service", group: "", role: "agent", description: "", model: "",
   system_prompt: "", skills: [], mcp_config_path: "", mcp_server_ids: [], workspace_path: "",
+  env: {},
+};
+
+type EnvPair = { key: string; value: string };
+
+const envToPairs = (env?: Record<string, string>): EnvPair[] =>
+  Object.entries(env || {}).map(([key, value]) => ({ key, value: String(value ?? "") }));
+
+const pairsToEnv = (pairs: EnvPair[]): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const p of pairs) {
+    const k = p.key.trim();
+    if (!k) continue;
+    out[k] = p.value;
+  }
+  return out;
+};
+
+const isSensitiveKey = (key: string): boolean => {
+  const u = key.toUpperCase();
+  return ["TOKEN", "KEY", "SECRET", "PASSWORD", "PASSWD", "CREDENTIAL"].some((kw) => u.includes(kw));
 };
 
 type DrawerMode = "edit" | "subscriptions" | "skills" | "mcp";
@@ -22,6 +43,7 @@ export default function AgentList() {
   const [targetAgentId, setTargetAgentId] = useState<string | null>(null);
   const [filterGroup, setFilterGroup] = useState("");
   const [viewMode, setViewMode] = useState<'grid' | 'grouped'>('grid');
+  const [envPairs, setEnvPairs] = useState<EnvPair[]>([]);
 
   const load = () => api.listAgents().then(setAgents);
   useEffect(() => { load(); }, []);
@@ -48,9 +70,11 @@ export default function AgentList() {
     if (a) {
       setEditId(a.id);
       setEditing({ ...a });
+      setEnvPairs(envToPairs(a.env));
     } else {
       setEditId(null);
       setEditing({ ...EMPTY });
+      setEnvPairs([]);
     }
     setDrawerMode("edit");
   };
@@ -63,7 +87,7 @@ export default function AgentList() {
 
   const save = async () => {
     if (!editing?.name?.trim()) return;
-    const data = {
+    const data: Partial<Agent> = {
       name: editing.name,
       mode: editing.mode || "service",
       group: editing.group || "",
@@ -75,6 +99,7 @@ export default function AgentList() {
       mcp_config_path: editing.mcp_config_path || "",
       mcp_server_ids: editing.mcp_server_ids || [],
       workspace_path: editing.workspace_path || "",
+      env: pairsToEnv(envPairs),
     };
     if (editId) {
       await api.updateAgent(editId, data);
@@ -203,6 +228,52 @@ export default function AgentList() {
 
             <label>系统提示词</label>
             <textarea placeholder="System prompt" value={editing.system_prompt || ""} onChange={(e) => setEditing({ ...editing, system_prompt: e.target.value })} rows={4} />
+
+            <label>环境变量 / 凭据</label>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>
+              注入任务容器的环境变量。Key 包含 TOKEN/KEY/SECRET/PASSWORD/CREDENTIAL 的 value 会被脱敏（显示为 ***xxxx）。保留 *** 前缀即不修改原值。
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {envPairs.map((pair, i) => {
+                const sensitive = isSensitiveKey(pair.key);
+                return (
+                  <div key={i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <input
+                      placeholder="KEY（如 GIT_PLATFORM_TOKEN）"
+                      value={pair.key}
+                      onChange={(e) => {
+                        const next = [...envPairs];
+                        next[i] = { ...next[i], key: e.target.value };
+                        setEnvPairs(next);
+                      }}
+                      style={{ flex: 1, fontFamily: "monospace", fontSize: 12 }}
+                    />
+                    <input
+                      type={sensitive ? "password" : "text"}
+                      placeholder="value"
+                      value={pair.value}
+                      onChange={(e) => {
+                        const next = [...envPairs];
+                        next[i] = { ...next[i], value: e.target.value };
+                        setEnvPairs(next);
+                      }}
+                      style={{ flex: 1, fontFamily: "monospace", fontSize: 12 }}
+                    />
+                    <button
+                      type="button"
+                      className="btn-sm btn-danger"
+                      onClick={() => setEnvPairs(envPairs.filter((_, j) => j !== i))}
+                    >删除</button>
+                  </div>
+                );
+              })}
+              <button
+                type="button"
+                className="btn-sm btn-secondary"
+                style={{ alignSelf: "flex-start" }}
+                onClick={() => setEnvPairs([...envPairs, { key: "", value: "" }])}
+              >+ 添加环境变量</button>
+            </div>
 
             <div className="drawer-actions">
               <button onClick={save}>保存</button>

@@ -4,7 +4,15 @@ services:
     build:
       context: ./DiAgent
       dockerfile: docker/agent-service/Dockerfile
-    image: nana-os-diagent:latest
+    image: dios-diagent-service:latest
+    profiles: ["build"]
+
+  # task 模式镜像（含 git/curl），供一次性事件触发容器使用
+  diagent-task-build:
+    build:
+      context: ./DiAgent
+      dockerfile: docker/agent-task/Dockerfile
+    image: dios-diagent-task:latest
     profiles: ["build"]
 
   backend:
@@ -14,15 +22,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./backend:/app
       - ./workspace:/workspace
-      - nanaos-data:/data
+      - dios-data:/data
     environment:
-      - NANAOS_WORKSPACE_ROOT=/workspace
-      - NANAOS_HOST_WORKSPACE_ROOT=${PWD}/workspace
-      - NANAOS_DATABASE_URL=sqlite+aiosqlite:////data/nanaos.db
-      - NANAOS_DIAGENT_IMAGE=ghcr.io/hqit/diagent/agent-task:latest
-      - NANAOS_DIAGENT_SERVICE_IMAGE=nana-os-diagent:latest
+      - DIOS_WORKSPACE_ROOT=/workspace
+      - DIOS_HOST_WORKSPACE_ROOT=${PWD}/workspace
+      - DIOS_DATABASE_URL=sqlite+aiosqlite:////data/dios.db
+      - DIOS_DIAGENT_IMAGE=dios-diagent-task:latest
+      - DIOS_DIAGENT_SERVICE_IMAGE=dios-diagent-service:latest
+      - DIOS_DOCKER_NETWORK=nana-os_default
     ports:
-      - "8000:8000"
+      - "8080:8000"
 
   frontend:
     build:
@@ -36,9 +45,9 @@ services:
     environment:
       - VITE_API_URL=http://backend:8000
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       - backend
 
 volumes:
-  nanaos-data:
+  dios-data:

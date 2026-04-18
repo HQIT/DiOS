@@ -1,108 +1,29 @@
-"""事件投递：为匹配的 Agent 生成 task config 并启动 DiAgent 容器。
+"""事件投递：通过 A2A 协议把事件转化为 Agent message/send 调用。
 
-Phase 1 使用 task 模式（一次性容器），复用现有 docker_runner。
-支持重试机制和事件去重。
+职责：
+- 事件去重与重试（EventLog 层面）
+- 订阅匹配结果的 fan-out：为每个匹配 Agent 调 a2a_service.send_message
+- 不再直接操作容器；容器生命周期由 a2a_service 管理
+
+EventLog 关注"事件本身"，A2ATask 关注"Agent 调用"，两者通过 context_id=event_log.id 关联。
 """
 
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
 import time
-import uuid
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
-from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.models.tables import Agent, LLMModel, EventLog, McpServer
-from app.services.docker_runner import (
-    start_container,
-    get_container_status,
-    get_container_exit_code,
-    remove_container,
-)
+from app.models.tables import EventLog
 from app.services.event_normalizer import CloudEvent, compute_dedup_hash
 from app.services.metrics import metrics
+from app.services import a2a_service
 
 logger = logging.getLogger(__name__)
-
-
-def _build_event_task_config(
-    agent: Agent,
-    llm_models: list[LLMModel],
-    event: CloudEvent,
-    run_id: str,
-    default_model: str = "",
-    mcp_config_path_override: str | None = None,
-) -> dict[str, Any]:
-    """根据 Agent 配置 + 事件内容生成 DiAgent task config。"""
-    model_map = {m.name: m for m in llm_models}
-    used_model = agent.model or default_model
-
-    models_section: dict[str, Any] = {"default_model": used_model, "models": {}}
-    if used_model and used_model in model_map:
-        m = model_map[used_model]
-        entry: dict[str, Any] = {
-            "provider": m.provider,
-            "model": m.model,
-            "base_url": m.base_url,
-        }
-        if m.api_key:
-            entry["api_key"] = m.api_key
-        if m.display_name:
-            entry["display_name"] = m.display_name
-        if m.context_length:
-            entry["context_length"] = m.context_length
-        models_section["models"][used_model] = entry
-
-    event_summary = (
-        f"[Event type={event.get('type')} source={event.get('source')} "
-        f"subject={event.get('subject', '')}]\n\n"
-        f"{json.dumps(event.get('data', {}), ensure_ascii=False, indent=2)}"
-    )
-
-    task_section: dict[str, Any] = {
-        "task": event_summary,
-        "model": used_model,
-        "temperature": 0.7,
-        "workspace": "/workspace",
-        "output": {
-            "log_file": "task.log",
-            "result_file": "task_result.md",
-        },
-        "output_dir": f"output/events/{run_id}",
-        "trigger": {"mode": "once"},
-        "recursion_limit": 100,
-    }
-
-    if agent.system_prompt:
-        task_section["system_prompt"] = agent.system_prompt
-    if agent.skills:
-        task_section["skill_names"] = agent.skills
-    mcp_path = mcp_config_path_override or getattr(agent, "mcp_config_path", None) or ""
-    if mcp_path:
-        task_section["mcp_config_path"] = mcp_path
-
-    return {"models": models_section, "task": task_section}
-
-
-async def _poll_event_container(run_id: str, container_id: str):
-    """后台轮询事件触发的容器状态，完成后清理。"""
-    while True:
-        await asyncio.sleep(5)
-        status = get_container_status(container_id)
-        if status is None or status == "exited":
-            break
-
-    exit_code = get_container_exit_code(container_id)
-    result = "success" if exit_code == 0 else "failed"
-    remove_container(container_id)
-    logger.info("Event container %s (run %s) finished: %s", container_id[:12], run_id, result)
 
 
 async def dispatch_event(
@@ -187,95 +108,45 @@ async def dispatch_event(
         await db.commit()
         return event_log, None
 
-    # 3. 获取 Agent 和模型信息
-    agents_result = await db.execute(
-        select(Agent).where(Agent.id.in_(agent_ids))
-    )
-    agents = {a.id: a for a in agents_result.scalars().all()}
+    # 3. 把 CloudEvent 转为 A2A Message，逐个 fan-out 投递
+    a2a_message = a2a_service.cloudevent_to_a2a_message(event)
 
-    models_result = await db.execute(select(LLMModel))
-    llm_models = list(models_result.scalars().all())
-
-    # 4. 逐个投递给 Agent
     dispatched = False
     reasons: list[str] = []
-    
+
     for agent_id in agent_ids:
-        agent = agents.get(agent_id)
-        if not agent:
-            reasons.append(f"Agent {agent_id} not found")
-            logger.warning("Agent %s not found, skipping dispatch", agent_id)
-            continue
-
-        if not agent.workspace_path:
-            reasons.append(f"Agent {agent_id} has no workspace_path")
-            logger.warning("Agent %s has no workspace_path, skipping", agent_id)
-            continue
-
-        run_id = uuid.uuid4().hex[:12]
-        workspace = Path(agent.workspace_path)
-
-        # 生成 MCP 配置
-        mcp_override = None
-        mcp_ids = getattr(agent, "mcp_server_ids", None) or []
-        if mcp_ids:
-            mcp_result = await db.execute(select(McpServer).where(McpServer.id.in_(mcp_ids)))
-            mcp_servers = list(mcp_result.scalars().all())
-            if mcp_servers:
-                mcp_list = [
-                    {"name": s.name, "command": s.command, "args": s.args or [], "env": s.env or {}}
-                    for s in mcp_servers
-                ]
-                config_dir = workspace / "config"
-                config_dir.mkdir(parents=True, exist_ok=True)
-                mcp_file = config_dir / f"mcp_servers_{run_id}.json"
-                mcp_file.write_text(json.dumps(mcp_list, ensure_ascii=False, indent=2), encoding="utf-8")
-                mcp_override = f"/workspace/config/mcp_servers_{run_id}.json"
-
-        # 生成任务配置
-        config = _build_event_task_config(
-            agent, llm_models, event, run_id,
-            default_model="",
-            mcp_config_path_override=mcp_override,
-        )
-
-        config_path = workspace / f"agent-task-{run_id}.json"
         try:
-            config_path.parent.mkdir(parents=True, exist_ok=True)
-            config_path.write_text(
-                json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8"
+            task = await a2a_service.send_message(
+                db=db,
+                agent_id=agent_id,
+                message=a2a_message,
+                context_id=event_log.id,
             )
-            (workspace / "output" / "events" / run_id).mkdir(parents=True, exist_ok=True)
-        except OSError as e:
-            reasons.append(f"Agent {agent_id}: write config failed: {e}")
-            logger.exception("Write config failed for agent %s", agent_id)
-            continue
-
-        # 启动容器
-        try:
-            container_id = start_container(run_id, workspace)
-            asyncio.create_task(_poll_event_container(run_id, container_id))
-            dispatched = True
-            logger.info(
-                "Dispatched event %s to agent %s (container %s)",
-                event_log.id, agent_id, container_id[:12],
-            )
+            if task.status in ("failed",):
+                reasons.append(f"Agent {agent_id}: {task.error}")
+                logger.warning("A2A dispatch to agent %s returned failed: %s", agent_id, task.error)
+            else:
+                dispatched = True
+                logger.info(
+                    "Dispatched event %s to agent %s via A2A (task %s, status=%s)",
+                    event_log.id, agent_id, task.id, task.status,
+                )
         except Exception as e:
             reasons.append(f"Agent {agent_id}: {type(e).__name__}: {e}")
-            logger.exception("Failed to dispatch event to agent %s", agent_id)
+            logger.exception("A2A send_message failed for agent %s", agent_id)
 
-    # 5. 更新状态
+    # 4. 更新 EventLog 状态
     event_log.status = "dispatched" if dispatched else "failed"
     error_detail = "; ".join(reasons) if reasons else None
-    
+
     if not dispatched:
         event_log.error_message = error_detail or "Failed to dispatch to any agent"
-    
+
     await db.commit()
     await db.refresh(event_log)
-    
-    # 6. 记录性能指标
+
+    # 5. 记录性能指标
     duration = time.time() - start_time
     metrics.record_dispatch(duration, dispatched, agent_ids)
-    
+
     return event_log, error_detail

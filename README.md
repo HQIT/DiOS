@@ -1,8 +1,10 @@
-# NANA-OS
+# DiOS
 
-> **NANA** = **N**etwork **A**ttached **N**ative **A**gent
+> **NANA**（**N**etwork **A**ttached **N**ative **A**gent）是一类产品的统称，类似 NAS 之于网络存储——泛指可通过网络接入的本地化 AI Agent 设备或系统。
+>
+> 我们的 NANA 产品基于 **DiOS** + **DiAgent** 构建，属于 [DiFlow](https://github.com/HQIT) 工具链体系。
 
-NANA-OS 是面向 Agent 的事件驱动编排平台，基于 [DiAgent](https://github.com/HQIT/DiAgent)，负责将外部事件路由到对应的 Agent 并驱动其自动执行任务。
+DiOS 是 DiFlow 工具链中面向 Agent 的事件驱动操作层，基于 [DiAgent](https://github.com/HQIT/DiAgent)，负责将外部事件路由到对应的 Agent 并驱动其自动执行任务。
 
 ## 功能
 

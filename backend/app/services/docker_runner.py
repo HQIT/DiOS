@@ -29,17 +29,29 @@ def _host_path(workspace: Path) -> str:
     return str(workspace.resolve())
 
 
-def start_container(run_id: str, workspace: Path) -> str:
-    """创建并启动一个 DiAgent 容器，返回 container_id。"""
+def start_container(
+    run_id: str,
+    workspace: Path,
+    extra_env: dict[str, str] | None = None,
+) -> str:
+    """创建并启动一个 DiAgent 容器，返回 container_id。
+
+    Args:
+        extra_env: 业务凭据/自定义环境变量（来源于 Agent.env），会与内置 env 合并注入容器。
+    """
     client = get_client()
     host_ws = _host_path(workspace)
+    env: dict[str, str] = {"TASK_CONFIG": f"/workspace/agent-task-{run_id}.json"}
+    if extra_env:
+        for k, v in extra_env.items():
+            if v is None:
+                continue
+            env[str(k)] = str(v)
     container = client.containers.run(
         image=settings.diagent_image,
-        name=f"nanaos-run-{run_id}",
-        labels={"nanaos.run_id": run_id},
-        environment={
-            "TASK_CONFIG": f"/workspace/agent-task-{run_id}.json",
-        },
+        name=f"dios-run-{run_id}",
+        labels={"dios.run_id": run_id},
+        environment=env,
         volumes={
             host_ws: {"bind": "/workspace", "mode": "rw"},
         },

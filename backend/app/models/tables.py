@@ -44,6 +44,8 @@ class Agent(Base):
     mcp_config_path: Mapped[str] = mapped_column(String(512), default="")
     mcp_server_ids: Mapped[list] = mapped_column(JSON, default=list)  # 选中的 McpServer id 列表，下发时生成 config
     workspace_path: Mapped[str] = mapped_column(String(512), default="")
+    capabilities: Mapped[dict] = mapped_column(JSON, default=dict)  # A2A AgentCapabilities: {streaming, push_notifications, ...}
+    env: Mapped[dict] = mapped_column(JSON, default=dict)  # 业务凭据/环境变量（注入任务容器），含 TOKEN/KEY/SECRET 的 key 在 API 返回时脱敏
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
@@ -161,3 +163,25 @@ class EventLog(Base):
     
     # 幂等性去重字段
     dedup_hash: Mapped[str] = mapped_column(String(64), index=True, default="")
+
+
+# ── A2A Task（Agent-to-Agent 协议任务） ──
+
+
+class A2ATask(Base):
+    """A2A 协议 Task 实体。
+    Task 是 A2A 中 send_message 产生的一次 Agent 调用单元。
+    - service 模式 Agent：DiOS 转发 HTTP，Task 跟踪调用状态
+    - task 模式 Agent：DiOS 作为 Proxy，启动一次性容器，Task 生命周期等于容器生命周期
+    """
+    __tablename__ = "a2a_tasks"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
+    agent_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
+    context_id: Mapped[str] = mapped_column(String(64), default="", index=True)  # 关联源（EventLog.id / chat_session_id 等）
+    status: Mapped[str] = mapped_column(String(16), default="submitted")  # submitted | working | completed | failed | canceled
+    message: Mapped[dict] = mapped_column(JSON, nullable=False)  # A2A Message 入参
+    artifacts: Mapped[list] = mapped_column(JSON, default=list)  # A2A Artifact[] 输出
+    error: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

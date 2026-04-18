@@ -77,6 +77,16 @@ async def receive_webhook(
     matched_ids = match_subscriptions(event, subscriptions)
 
     event_log, error_detail = await dispatch_event(event, matched_ids, db)
+    if event_log is None:
+        # 去重命中：不入库新日志，返回可读结果，避免 500
+        return {
+            "event_id": None,
+            "type": event.get("type"),
+            "source": event.get("source"),
+            "matched_agents": matched_ids,
+            "status": "deduplicated",
+            "error": error_detail,
+        }
 
     return {
         "event_id": event_log.id,
@@ -135,6 +145,15 @@ async def trigger_manual_event(
     matched_ids = match_subscriptions(event, subscriptions)
 
     event_log, error_detail = await dispatch_event(event, matched_ids, db)
+    if event_log is None:
+        return {
+            "event_id": None,
+            "type": event.get("type"),
+            "source": event.get("source"),
+            "matched_agents": matched_ids,
+            "status": "deduplicated",
+            "error": error_detail,
+        }
 
     return {
         "event_id": event_log.id,

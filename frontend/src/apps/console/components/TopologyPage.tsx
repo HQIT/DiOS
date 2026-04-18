@@ -9,39 +9,17 @@ import {
   Position,
   type Node,
   type Edge,
-  type Connection,
   type NodeProps,
   MarkerType,
   Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import dagre from "@dagrejs/dagre";
-import type { Agent, Connector, Subscription } from "../../../types";
+import type { Agent, Connector, ConnectorSourcePattern, EventCatalogType, Subscription } from "../../../types";
 import { api } from "../../../api/os";
 import Drawer from "../../../components/Drawer";
 
 /* ─── Constants ─── */
-
-const EVENT_TYPE_OPTIONS = [
-  { value: "git.push", label: "Git Push" },
-  { value: "git.pull_request.opened", label: "PR Opened" },
-  { value: "git.pull_request.closed", label: "PR Closed" },
-  { value: "git.pull_request.merged", label: "PR Merged" },
-  { value: "git.pull_request.review_submitted", label: "PR Review" },
-  { value: "git.issues.opened", label: "Issue Opened" },
-  { value: "git.issues.closed", label: "Issue Closed" },
-  { value: "git.issue_comment.created", label: "Issue Comment" },
-  { value: "cron.tick", label: "Cron Tick" },
-  { value: "manual.trigger", label: "Manual Trigger" },
-];
-
-const SOURCE_OPTIONS = [
-  { value: "github/*", label: "All GitHub Repos" },
-  { value: "gitlab/*", label: "All GitLab Repos" },
-  { value: "gitea/*", label: "All Gitea Repos" },
-  { value: "cron/*", label: "Cron Jobs" },
-  { value: "*", label: "Any Source" },
-];
 
 const NODE_WIDTH = 220;
 const NODE_HEIGHT = 100;
@@ -102,109 +80,54 @@ const nodeTypes = { connector: ConnectorNode, agent: AgentNode };
 
 /* ─── Match source_pattern to connector ─── */
 
-function matchConnector(sourcePattern: string, connectors: Connector[]): Connector | undefined {
-  // Try exact type match first, then prefix match
-  const pat = sourcePattern.replace("/*", "").replace("*", "");
-  return connectors.find((c) => c.type === pat || c.type.startsWith(pat) || sourcePattern === "*");
+function isPatternInNamespace(sourcePattern: string, namespacePattern: string): boolean {
+  const ns = namespacePattern.replace(/\/\*$/, "");
+  return sourcePattern === namespacePattern || sourcePattern === ns || sourcePattern.startsWith(`${ns}/`);
 }
 
-/* ─── Subscription Create Form ─── */
-
-function SubCreateForm({
-  sourceConnector,
-  targetAgent,
-  onSave,
-  onCancel,
-}: {
-  sourceConnector: Connector;
-  targetAgent: Agent;
-  onSave: () => void;
-  onCancel: () => void;
-}) {
-  const [eventTypes, setEventTypes] = useState<string[]>([]);
-  const [sourcePattern, setSourcePattern] = useState(sourceConnector.type + "/*");
-  const [saving, setSaving] = useState(false);
-
-  const toggleType = (t: string) =>
-    setEventTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
-
-  const handleSave = async () => {
-    if (eventTypes.length === 0) return;
-    setSaving(true);
-    await api.createSubscription(targetAgent.id, {
-      source_pattern: sourcePattern,
-      event_types: eventTypes,
-      enabled: true,
-    });
-    setSaving(false);
-    onSave();
-  };
-
-  return (
-    <>
-      <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 12px" }}>
-        {sourceConnector.name} → {targetAgent.name}
-      </p>
-      <label>Source</label>
-      <select value={sourcePattern} onChange={(e) => setSourcePattern(e.target.value)}>
-        {SOURCE_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
-      <label style={{ marginTop: 8 }}>Event Types</label>
-      <div className="event-type-grid">
-        {EVENT_TYPE_OPTIONS.map((o) => (
-          <label key={o.value} className="event-type-option">
-            <input type="checkbox" checked={eventTypes.includes(o.value)} onChange={() => toggleType(o.value)} />
-            <span>{o.label}</span>
-          </label>
-        ))}
-      </div>
-      <div className="drawer-actions" style={{ marginTop: 12 }}>
-        <button onClick={handleSave} disabled={saving || eventTypes.length === 0}>
-          {saving ? "Creating..." : "Create Subscription"}
-        </button>
-        <button className="btn-secondary" onClick={onCancel}>Cancel</button>
-      </div>
-    </>
+function matchConnector(
+  sourcePattern: string,
+  connectors: Connector[],
+  sourceOptions: ConnectorSourcePattern[],
+): Connector | undefined {
+  const option = sourceOptions.find(
+    (o) => !!o.connector_id && isPatternInNamespace(sourcePattern, o.source_pattern),
   );
+  if (!option?.connector_id) return undefined;
+  return connectors.find((c) => c.id === option.connector_id);
 }
 
-/* ─── Subscription Edit Form ─── */
+function eventOptionsForSource(
+  sourcePattern: string,
+  sourceOptions: ConnectorSourcePattern[],
+  allEventTypes: EventCatalogType[],
+): { value: string; label: string }[] {
+  const matched = sourceOptions.find((o) => isPatternInNamespace(sourcePattern, o.source_pattern));
+  const allowed = new Set(matched?.event_types || allEventTypes.map((e) => e.type));
+  return allEventTypes
+    .filter((e) => allowed.has(e.type))
+    .map((e) => ({ value: e.type, label: e.description || e.type }));
+}
 
-function SubEditPanel({
+/* ─── Subscription View ─── */
+
+function SubscriptionDetail({
   sub,
   agents,
   connectors,
-  onSave,
-  onDelete,
+  sourceOptions,
+  allEventTypes,
 }: {
   sub: Subscription;
   agents: Agent[];
   connectors: Connector[];
-  onSave: () => void;
-  onDelete: () => void;
+  sourceOptions: ConnectorSourcePattern[];
+  allEventTypes: EventCatalogType[];
 }) {
   const agent = agents.find((a) => a.id === sub.agent_id);
-  const conn = matchConnector(sub.source_pattern, connectors);
-  const [enabled, setEnabled] = useState(sub.enabled);
-  const [eventTypes, setEventTypes] = useState<string[]>([...sub.event_types]);
-  const [saving, setSaving] = useState(false);
-
-  const toggleType = (t: string) =>
-    setEventTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
-
-  const handleSave = async () => {
-    setSaving(true);
-    await api.updateSubscription(sub.agent_id, sub.id, { enabled, event_types: eventTypes });
-    setSaving(false);
-    onSave();
-  };
-
-  const handleDelete = async () => {
-    await api.deleteSubscription(sub.agent_id, sub.id);
-    onDelete();
-  };
+  const conn = matchConnector(sub.source_pattern, connectors, sourceOptions);
+  const eventOptions = eventOptionsForSource(sub.source_pattern, sourceOptions, allEventTypes);
+  const labelMap = new Map(eventOptions.map((o) => [o.value, o.label]));
 
   return (
     <>
@@ -221,22 +144,17 @@ function SubEditPanel({
           <span className="topo-detail-label">Pattern</span>
           <span className="mono">{sub.source_pattern}</span>
         </div>
-        <label style={{ marginTop: 8 }}>
-          <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
-          <span style={{ marginLeft: 6 }}>{enabled ? "Enabled" : "Disabled"}</span>
-        </label>
+        <div className="topo-detail-row">
+          <span className="topo-detail-label">Status</span>
+          <span>{sub.enabled ? "Enabled" : "Disabled"}</span>
+        </div>
         <label style={{ marginTop: 12 }}>Event Types</label>
         <div className="event-type-grid">
-          {EVENT_TYPE_OPTIONS.map((o) => (
-            <label key={o.value} className="event-type-option">
-              <input type="checkbox" checked={eventTypes.includes(o.value)} onChange={() => toggleType(o.value)} />
-              <span>{o.label}</span>
-            </label>
+          {sub.event_types.map((ev) => (
+            <span key={ev} className="event-type-badge">
+              {labelMap.get(ev) || ev}
+            </span>
           ))}
-        </div>
-        <div className="drawer-actions" style={{ marginTop: 12 }}>
-          <button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save"}</button>
-          <button className="btn-sm btn-danger" onClick={handleDelete}>Delete</button>
         </div>
       </div>
     </>
@@ -276,12 +194,13 @@ type PanelState =
   | { kind: "none" }
   | { kind: "connector"; connector: Connector }
   | { kind: "agent"; agent: Agent; subCount: number }
-  | { kind: "sub-edit"; sub: Subscription }
-  | { kind: "sub-create"; sourceConnector: Connector; targetAgent: Agent };
+  | { kind: "sub-view"; sub: Subscription };
 
 export default function TopologyPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [connectors, setConnectors] = useState<Connector[]>([]);
+  const [sourceOptions, setSourceOptions] = useState<ConnectorSourcePattern[]>([]);
+  const [allEventTypes, setAllEventTypes] = useState<EventCatalogType[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -292,14 +211,18 @@ export default function TopologyPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [a, c, s] = await Promise.all([
+      const [a, c, s, so, catalog] = await Promise.all([
         api.listAgents(),
         api.listConnectors(),
         api.listAllSubscriptions(),
+        api.listConnectorSourcePatterns(),
+        api.getEventCatalog(),
       ]);
       setAgents(a);
       setConnectors(c);
       setSubscriptions(s);
+      setSourceOptions(so);
+      setAllEventTypes(catalog.event_types || []);
       dataRef.current = { agents: a, connectors: c, subscriptions: s };
     } finally {
       setLoading(false);
@@ -345,7 +268,7 @@ export default function TopologyPage() {
 
     // Edges from subscriptions
     subscriptions.forEach((sub) => {
-      const conn = matchConnector(sub.source_pattern, connectors);
+      const conn = matchConnector(sub.source_pattern, connectors, sourceOptions);
       const sourceId = conn ? `conn-${conn.id}` : null;
       const targetId = `agent-${sub.agent_id}`;
 
@@ -388,7 +311,7 @@ export default function TopologyPage() {
     const layout = getLayoutedElements(rawNodes, rawEdges);
     setNodes(layout.nodes);
     setEdges(layout.edges);
-  }, [agents, connectors, subscriptions, loading, setNodes, setEdges]);
+  }, [agents, connectors, sourceOptions, subscriptions, loading, setNodes, setEdges]);
 
   // Click node => detail panel
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
@@ -409,27 +332,10 @@ export default function TopologyPage() {
   const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
     const subId = (edge.data as Record<string, unknown>)?._subId as string;
     const sub = dataRef.current.subscriptions.find((s) => s.id === subId);
-    if (sub) setPanel({ kind: "sub-edit", sub });
-  }, []);
-
-  // Connect (drag from source to target) => create subscription
-  const onConnect = useCallback((connection: Connection) => {
-    const { agents, connectors } = dataRef.current;
-    const connId = connection.source?.replace("conn-", "").replace("virtual-", "");
-    const agentId = connection.target?.replace("agent-", "");
-    const conn = connectors.find((c) => c.id === connId);
-    const agent = agents.find((a) => a.id === agentId);
-    if (conn && agent) {
-      setPanel({ kind: "sub-create", sourceConnector: conn, targetAgent: agent });
-    }
+    if (sub) setPanel({ kind: "sub-view", sub });
   }, []);
 
   const closePanel = useCallback(() => setPanel({ kind: "none" }), []);
-
-  const refreshAfterEdit = useCallback(() => {
-    setPanel({ kind: "none" });
-    loadData();
-  }, [loadData]);
 
   const empty = !loading && agents.length === 0 && connectors.length === 0;
 
@@ -459,7 +365,7 @@ export default function TopologyPage() {
           onEdgesChange={onEdgesChange}
           onNodeClick={onNodeClick}
           onEdgeClick={onEdgeClick}
-          onConnect={onConnect}
+          nodesConnectable={false}
           nodeTypes={nodeTypes}
           fitView
           proOptions={{ hideAttribution: true }}
@@ -485,24 +391,14 @@ export default function TopologyPage() {
       <Drawer open={panel.kind === "agent"} title="Agent Details" onClose={closePanel}>
         {panel.kind === "agent" && <AgentDetail agent={panel.agent} subCount={panel.subCount} />}
       </Drawer>
-      <Drawer open={panel.kind === "sub-edit"} title="Subscription Details" onClose={closePanel}>
-        {panel.kind === "sub-edit" && (
-          <SubEditPanel
+      <Drawer open={panel.kind === "sub-view"} title="Subscription Details" onClose={closePanel}>
+        {panel.kind === "sub-view" && (
+          <SubscriptionDetail
             sub={panel.sub}
             agents={agents}
             connectors={connectors}
-            onSave={refreshAfterEdit}
-            onDelete={refreshAfterEdit}
-          />
-        )}
-      </Drawer>
-      <Drawer open={panel.kind === "sub-create"} title="Create Subscription" onClose={closePanel}>
-        {panel.kind === "sub-create" && (
-          <SubCreateForm
-            sourceConnector={panel.sourceConnector}
-            targetAgent={panel.targetAgent}
-            onSave={refreshAfterEdit}
-            onCancel={closePanel}
+            sourceOptions={sourceOptions}
+            allEventTypes={allEventTypes}
           />
         )}
       </Drawer>

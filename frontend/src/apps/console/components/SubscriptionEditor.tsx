@@ -1,34 +1,13 @@
 import { useEffect, useState } from "react";
-import type { Subscription } from "../../../types";
+import type { ConnectorSourcePattern, EventCatalogType, Subscription } from "../../../types";
 import { api } from "../../../api/os";
 
 interface Props {
   agentId: string;
 }
 
-const EVENT_TYPE_OPTIONS = [
-  { value: "git.push", label: "Git Push" },
-  { value: "git.pull_request.opened", label: "PR 创建" },
-  { value: "git.pull_request.closed", label: "PR 关闭" },
-  { value: "git.pull_request.merged", label: "PR 合并" },
-  { value: "git.pull_request.review_submitted", label: "PR 评审" },
-  { value: "git.issues.opened", label: "Issue 创建" },
-  { value: "git.issues.closed", label: "Issue 关闭" },
-  { value: "git.issue_comment.created", label: "Issue 评论" },
-  { value: "cron.tick", label: "定时触发 (CRON)" },
-  { value: "manual.trigger", label: "手动触发" },
-];
-
-const SOURCE_OPTIONS = [
-  { value: "github/*", label: "所有 GitHub 仓库" },
-  { value: "gitlab/*", label: "所有 GitLab 仓库" },
-  { value: "gitea/*", label: "所有 Gitea 仓库" },
-  { value: "cron/*", label: "定时任务 (CRON)" },
-  { value: "*", label: "任意来源" },
-];
-
 const EMPTY: Omit<Subscription, "id" | "agent_id" | "created_at"> = {
-  source_pattern: "*",
+  source_pattern: "",
   event_types: [],
   filter_rules: {},
   cron_expression: "",
@@ -37,11 +16,44 @@ const EMPTY: Omit<Subscription, "id" | "agent_id" | "created_at"> = {
 
 export default function SubscriptionEditor({ agentId }: Props) {
   const [subs, setSubs] = useState<Subscription[]>([]);
+  const [sourceOptions, setSourceOptions] = useState<ConnectorSourcePattern[]>([]);
+  const [allEventTypes, setAllEventTypes] = useState<EventCatalogType[]>([]);
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState({ ...EMPTY });
 
-  const load = () => api.listSubscriptions(agentId).then(setSubs);
+  const inNamespace = (sourcePattern: string, namespacePattern: string): boolean => {
+    const ns = namespacePattern.replace(/\/\*$/, "");
+    return sourcePattern === namespacePattern || sourcePattern === ns || sourcePattern.startsWith(`${ns}/`);
+  };
+
+  const eventOptionsFor = (sourcePattern: string): { value: string; label: string }[] => {
+    const matched = sourceOptions.find((o) => inNamespace(sourcePattern, o.source_pattern));
+    const allowed = new Set(matched?.event_types || allEventTypes.map((e) => e.type));
+    return allEventTypes
+      .filter((e) => allowed.has(e.type))
+      .map((e) => ({ value: e.type, label: e.description || e.type }));
+  };
+
+  const load = () =>
+    Promise.all([api.listSubscriptions(agentId), api.listConnectorSourcePatterns(), api.getEventCatalog()]).then(([s, opts, catalog]) => {
+      setSubs(s);
+      setSourceOptions(opts);
+      setAllEventTypes(catalog.event_types || []);
+      setDraft((prev) => ({
+        ...prev,
+        source_pattern: prev.source_pattern || opts[0]?.source_pattern || "",
+      }));
+    });
   useEffect(() => { load(); }, [agentId]);
+
+  useEffect(() => {
+    if (!adding) return;
+    const allowed = new Set(eventOptionsFor(draft.source_pattern).map((o) => o.value));
+    setDraft((d) => ({
+      ...d,
+      event_types: d.event_types.filter((e) => allowed.has(e)),
+    }));
+  }, [adding, draft.source_pattern, sourceOptions, allEventTypes]);
 
   const isCron = draft.event_types.includes("cron.tick");
 
@@ -58,7 +70,7 @@ export default function SubscriptionEditor({ agentId }: Props) {
     if (draft.event_types.length === 0) return;
     await api.createSubscription(agentId, draft);
     setAdding(false);
-    setDraft({ ...EMPTY });
+    setDraft({ ...EMPTY, source_pattern: sourceOptions[0]?.source_pattern || "" });
     load();
   };
 
@@ -110,17 +122,17 @@ export default function SubscriptionEditor({ agentId }: Props) {
         <div className="sub-add-form">
           <label>事件来源</label>
           <select
-            value={SOURCE_OPTIONS.some((o) => o.value === draft.source_pattern) ? draft.source_pattern : "__custom"}
+            value={sourceOptions.some((o) => o.source_pattern === draft.source_pattern) ? draft.source_pattern : "__custom"}
             onChange={(e) => {
               if (e.target.value !== "__custom") setDraft({ ...draft, source_pattern: e.target.value });
             }}
           >
-            {SOURCE_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
+            {sourceOptions.map((o) => (
+              <option key={o.source_pattern} value={o.source_pattern}>{o.label}</option>
             ))}
             <option value="__custom">自定义 pattern...</option>
           </select>
-          {!SOURCE_OPTIONS.some((o) => o.value === draft.source_pattern) && (
+          {!sourceOptions.some((o) => o.source_pattern === draft.source_pattern) && (
             <input
               placeholder="如 github/my-org/my-repo"
               value={draft.source_pattern}
@@ -130,7 +142,7 @@ export default function SubscriptionEditor({ agentId }: Props) {
 
           <label>监听的事件类型（至少选一个）</label>
           <div className="event-type-grid">
-            {EVENT_TYPE_OPTIONS.map((o) => (
+            {eventOptionsFor(draft.source_pattern).map((o) => (
               <label key={o.value} className="event-type-option">
                 <input
                   type="checkbox"
@@ -155,7 +167,7 @@ export default function SubscriptionEditor({ agentId }: Props) {
 
           <div className="drawer-actions">
             <button onClick={handleAdd}>确认添加</button>
-            <button className="btn-secondary" onClick={() => { setAdding(false); setDraft({ ...EMPTY }); }}>取消</button>
+            <button className="btn-secondary" onClick={() => { setAdding(false); setDraft({ ...EMPTY, source_pattern: sourceOptions[0]?.source_pattern || "" }); }}>取消</button>
           </div>
         </div>
       )}

@@ -56,6 +56,8 @@ class AgentCreate(BaseModel):
     mcp_config_path: str = ""
     mcp_server_ids: list[str] = []
     workspace_path: str = ""
+    capabilities: dict = {}
+    env: dict = {}
 
 
 class AgentUpdate(BaseModel):
@@ -70,6 +72,8 @@ class AgentUpdate(BaseModel):
     mcp_config_path: Optional[str] = None
     mcp_server_ids: Optional[list[str]] = None
     workspace_path: Optional[str] = None
+    capabilities: Optional[dict] = None
+    env: Optional[dict] = None
 
 
 class AgentOut(BaseModel):
@@ -85,6 +89,8 @@ class AgentOut(BaseModel):
     mcp_config_path: str
     mcp_server_ids: list[str]
     workspace_path: str
+    capabilities: dict = {}
+    env: dict = {}
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -218,5 +224,21 @@ class EventLogOut(BaseModel):
     next_retry_at: Optional[datetime] = None
     error_message: str = ""
     dedup_hash: str = ""
+
+    model_config = {"from_attributes": True}
+
+
+# ── A2A Task ──
+
+class A2ATaskOut(BaseModel):
+    id: str
+    agent_id: str
+    context_id: str
+    status: str  # submitted | working | completed | failed | canceled
+    message: dict
+    artifacts: list
+    error: str
+    created_at: datetime
+    updated_at: datetime
 
     model_config = {"from_attributes": True}
