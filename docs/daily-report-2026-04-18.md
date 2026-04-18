@@ -84,3 +84,9 @@
 - HIL 卡片增强：显示 method/path、倒计时、过期禁用、确认防重入、标准化反馈文案。
 - 接入 Markdown 渲染（GFM）+ 代码高亮 + 代码块复制按钮（前端依赖同步更新并重建容器）。
 
+### 9. AI4R 事件驱动写作（MVP 基线）
+
+- 在事件目录中增加 `ai4r.*` 标准事件类型（topic/experiment/draft/review）。
+- 内部 source 扩展 `ai4r/*`，并由后端约束其可选事件为 `ai4r.*` 子集。
+- 新增 `scripts/configure_ai4r_scenario.sh`：仅通过 `dios cli` 配置已有 Writer/Engineer/Reviewer 的提示词与订阅关系（不创建新 Agent）。
+

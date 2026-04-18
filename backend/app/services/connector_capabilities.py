@@ -9,7 +9,7 @@ from app.models.tables import Connector
 from app.services.event_normalizer import get_event_catalog
 
 _LEGACY_GIT_TYPES = {"github", "gitlab", "gitea"}
-_INTERNAL_SOURCE_PATTERNS = ("cron/*", "manual/*")
+_INTERNAL_SOURCE_PATTERNS = ("cron/*", "manual/*", "ai4r/*")
 
 
 @dataclass
@@ -93,7 +93,15 @@ def build_source_pattern_items(
                 SourcePatternItem(
                     source_pattern=sp,
                     label=f"Internal ({sp})",
-                    event_types=["cron.tick"] if sp.startswith("cron/") else ["manual.trigger"],
+                    event_types=(
+                        ["cron.tick"]
+                        if sp.startswith("cron/")
+                        else (
+                            ["manual.trigger"]
+                            if sp.startswith("manual/")
+                            else grouped_event_types.get("ai4r", [])
+                        )
+                    ),
                     kind="internal",
                 )
                 for sp in _INTERNAL_SOURCE_PATTERNS

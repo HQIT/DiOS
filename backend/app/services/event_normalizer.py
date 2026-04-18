@@ -341,6 +341,12 @@ _EVENT_TYPE_DESCRIPTIONS: dict[str, str] = {
     "manual.trigger": "手动触发",
     "webhook.received": "通用 Webhook",
     "email.received": "邮件收取（IMAP）",
+    # AI4R 写作流水线事件
+    "ai4r.topic.proposed": "AI4R 选题提出",
+    "ai4r.experiment.requested": "AI4R 请求实验",
+    "ai4r.experiment.completed": "AI4R 实验完成",
+    "ai4r.draft.submitted": "AI4R 稿件提交",
+    "ai4r.review.completed": "AI4R 评审完成",
 }
 
 
@@ -354,6 +360,15 @@ def get_event_catalog() -> dict:
     for v in _GITEA_EVENT_MAP.values():
         all_types.add(v)
     all_types.update(["cron.tick", "manual.trigger", "webhook.received", "email.received"])
+    all_types.update(
+        [
+            "ai4r.topic.proposed",
+            "ai4r.experiment.requested",
+            "ai4r.experiment.completed",
+            "ai4r.draft.submitted",
+            "ai4r.review.completed",
+        ]
+    )
 
     sources = [
         {"id": "git", "name": "Git Webhook", "description": "GitHub / GitLab / Gitea 等"},

@@ -56,3 +56,26 @@
 - 高风险管理动作不经 HIL 无法落库
 - `reasoning/subagents` 能从 DiOS 配置稳定下发到 DiAgent 任务执行
 - 事件、任务、容器三段日志可追踪
+
+## F. AI4R 事件驱动写作（MVP）
+
+1. 先执行配置脚本（仅配置现有 Writer/Engineer/Reviewer，不创建新 Agent）：
+   - `bash scripts/configure_ai4r_scenario.sh`
+2. 校验事件目录：
+   - `GET /api/os/events/catalog` 中包含：
+     - `ai4r.topic.proposed`
+     - `ai4r.experiment.requested`
+     - `ai4r.experiment.completed`
+     - `ai4r.draft.submitted`
+     - `ai4r.review.completed`
+3. 校验 source 能力：
+   - `GET /api/os/connectors/source-patterns` 中包含 `ai4r/*`，其 `event_types` 仅为 `ai4r.*`。
+4. 手动触发链路起点：
+   - `POST /api/os/events/manual`
+   - `event_type=ai4r.topic.proposed`
+   - `source=ai4r/project-demo`
+5. 在 Event Log 验证路由：
+   - `topic.proposed -> Writer`
+   - `experiment.requested -> Engineer`
+   - `draft.submitted -> Reviewer`
+   - `review.completed -> Writer`
