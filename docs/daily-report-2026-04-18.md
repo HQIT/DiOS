@@ -90,3 +90,7 @@
 - 内部 source 扩展 `ai4r/*`，并由后端约束其可选事件为 `ai4r.*` 子集。
 - 新增 `scripts/configure_ai4r_scenario.sh`：仅通过 `dios cli` 配置已有 Writer/Engineer/Reviewer 的提示词与订阅关系（不创建新 Agent）。
 
+### 10. 下一步（已确认）
+
+- 增加 AI4R 交付物下载能力：在 UI 支持按项目下载 agent 产物（如 outline、experiment plan、draft、review）并保留基础元数据。
+
