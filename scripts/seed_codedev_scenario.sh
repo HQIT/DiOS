@@ -58,6 +58,7 @@ register_skill() {
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 register_skill "send_chat_message" "Agent 主动投递消息到 Chat 会话" "$ROOT_DIR/workspace/skills/send_chat_message/SKILL.md"
 register_skill "git_platform" "git + curl 调 Git 平台 REST API" "$ROOT_DIR/workspace/skills/git_platform/SKILL.md"
+register_skill "dios_admin" "通过 dios CLI 受控配置 DiOS 资源" "$ROOT_DIR/workspace/skills/dios_admin/SKILL.md"
 
 # ── 通用 env 块（供各 agent 共用） ──
 common_env() {
@@ -78,20 +79,27 @@ MAIN_ID=$(curl -s -X POST "$BASE/api/os/agents" \
   -H "Content-Type: application/json" \
   -d "$(cat <<EOF
 {
-  "name": "CodeDev-Main",
+  "name": "Master",
   "mode": "service",
   "group": "代码开发",
   "role": "agent",
-  "description": "接收用户代码修改需求，调度开发流程；在 PR merge 后通知用户。",
+  "description": "主调度与系统配置入口：分解需求、驱动开发链路、必要时执行受控 DiOS 配置。",
   "model": "$MODEL_NAME",
   "system_prompt": "你是代码开发协作的主调度者（仓库：$GITHUB_REPO）。\n\n工作流：\n1. 用户在 Chat 发起需求时，参照 git_platform skill 的 REST 示例，用 curl 向 \$GIT_PLATFORM_BASE_URL/repos/\$GIT_REPO/issues 创建一个 Issue（title/body 清晰）。告知用户 Issue 链接后即结束本轮对话——开发智能体会自动接手。\n2. 当收到 git.pull_request.closed 且 merged=true 的事件时，说明对应 PR 已合并，请：\n   a) 通读 PR 的 title/body/commit 记录\n   b) 用 send_chat_message skill 调 POST http://backend:8000/api/apps/chat/sessions/{session_id}/deliveries，content 写一段简洁的完成通知；session_id 从事件 context_id 或 data 中获取。\n\n你不参与代码细节评审。不要把 GIT_PLATFORM_TOKEN 写入 Chat 或输出。",
-  "skills": ["send_chat_message", "git_platform"],
+  "skills": ["send_chat_message", "git_platform", "dios_admin"],
+  "capabilities": {
+    "dios_admin": {
+      "enabled": true,
+      "scopes": ["agents.*", "subscriptions.*", "connectors.*", "models.*", "mcp-servers.*", "skills.*", "events.read"],
+      "risk_policy": {"high_risk": "hil_required"}
+    }
+  },
   "mcp_server_ids": [],
   $(common_env)
 }
 EOF
 )" | json_get "['id']")
-echo "  CodeDev-Main: $MAIN_ID"
+echo "  Master: $MAIN_ID"
 
 # ── Step 2: 开发智能体（task） ──
 echo "=== 创建开发智能体 (task) ==="

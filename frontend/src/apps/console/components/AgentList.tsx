@@ -44,6 +44,7 @@ export default function AgentList() {
   const [filterGroup, setFilterGroup] = useState("");
   const [viewMode, setViewMode] = useState<'grid' | 'grouped'>('grid');
   const [envPairs, setEnvPairs] = useState<EnvPair[]>([]);
+  const [capabilitiesText, setCapabilitiesText] = useState("{}");
 
   const load = () => api.listAgents().then(setAgents);
   useEffect(() => { load(); }, []);
@@ -71,10 +72,12 @@ export default function AgentList() {
       setEditId(a.id);
       setEditing({ ...a });
       setEnvPairs(envToPairs(a.env));
+      setCapabilitiesText(JSON.stringify(a.capabilities || {}, null, 2));
     } else {
       setEditId(null);
       setEditing({ ...EMPTY });
       setEnvPairs([]);
+      setCapabilitiesText("{}");
     }
     setDrawerMode("edit");
   };
@@ -87,6 +90,17 @@ export default function AgentList() {
 
   const save = async () => {
     if (!editing?.name?.trim()) return;
+    let capabilities: Record<string, unknown> = {};
+    try {
+      capabilities = JSON.parse(capabilitiesText || "{}");
+      if (typeof capabilities !== "object" || capabilities === null || Array.isArray(capabilities)) {
+        throw new Error("capabilities must be object");
+      }
+    } catch {
+      alert("Capabilities 必须是合法 JSON 对象");
+      return;
+    }
+
     const data: Partial<Agent> = {
       name: editing.name,
       mode: editing.mode || "service",
@@ -100,6 +114,7 @@ export default function AgentList() {
       mcp_server_ids: editing.mcp_server_ids || [],
       workspace_path: editing.workspace_path || "",
       env: pairsToEnv(envPairs),
+      capabilities,
     };
     if (editId) {
       await api.updateAgent(editId, data);
@@ -110,7 +125,9 @@ export default function AgentList() {
     load();
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, name: string) => {
+    const ok = window.confirm(`确认删除智能体「${name}」吗？此操作不可撤销。`);
+    if (!ok) return;
     await api.deleteAgent(id);
     load();
   };
@@ -146,7 +163,7 @@ export default function AgentList() {
         <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); openDrawer(a.id, "subscriptions"); }}>订阅</button>
         <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); openDrawer(a.id, "skills"); }}>Skills</button>
         <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); openDrawer(a.id, "mcp"); }}>MCP</button>
-        <button className="btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }}>删除</button>
+        <button className="btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); handleDelete(a.id, a.name); }}>删除</button>
       </div>
     </div>
   );
@@ -233,6 +250,7 @@ export default function AgentList() {
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>
               注入任务容器的环境变量。Key 包含 TOKEN/KEY/SECRET/PASSWORD/CREDENTIAL 的 value 会被脱敏（显示为 ***xxxx）。保留 *** 前缀即不修改原值。
             </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {envPairs.map((pair, i) => {
                 const sensitive = isSensitiveKey(pair.key);
@@ -274,6 +292,18 @@ export default function AgentList() {
                 onClick={() => setEnvPairs([...envPairs, { key: "", value: "" }])}
               >+ 添加环境变量</button>
             </div>
+
+            <label>Capabilities (JSON)</label>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>
+              用于配置高级能力（如 dios_admin / reasoning / subagents）。
+            </div>
+            <textarea
+              rows={8}
+              value={capabilitiesText}
+              onChange={(e) => setCapabilitiesText(e.target.value)}
+              style={{ fontFamily: "monospace", fontSize: 12 }}
+              placeholder='{"dios_admin":{"enabled":true}}'
+            />
 
             <div className="drawer-actions">
               <button onClick={save}>保存</button>

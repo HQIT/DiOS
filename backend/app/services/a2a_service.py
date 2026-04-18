@@ -319,6 +319,10 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
     (workspace / "output" / "events" / run_id).mkdir(parents=True, exist_ok=True)
 
     container_id = start_container(run_id, workspace, extra_env=agent.env or {})
+    logger.info(
+        "Start task container: task_id=%s agent_id=%s run_id=%s container_id=%s context_id=%s",
+        task.id, agent.id, run_id, container_id, task.context_id,
+    )
 
     task.status = "working"
     task.updated_at = _now()
@@ -370,7 +374,15 @@ async def _poll_task_container(task_id: str, run_id: str, container_id: str, wor
             task.error = f"container exit code {exit_code}"
         task.updated_at = _now()
         await db.commit()
-    logger.info("A2A task %s finished: exit=%s", task_id, exit_code)
+    logger.info(
+        "A2A task finished: task_id=%s run_id=%s exit=%s status=%s context_id=%s artifacts=%s",
+        task_id,
+        run_id,
+        exit_code,
+        "completed" if exit_code == 0 else "failed",
+        task.context_id if task else "",
+        len(artifacts),
+    )
 
 
 def _build_proxy_task_config(
@@ -410,6 +422,9 @@ def _build_proxy_task_config(
             elif kind == "data":
                 text_parts.append(json.dumps(p.get("data", {}), ensure_ascii=False, indent=2))
     task_text = "\n\n".join(text_parts) if text_parts else json.dumps(message, ensure_ascii=False)
+    capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
+    reasoning = capabilities.get("reasoning", {}) if isinstance(capabilities.get("reasoning"), dict) else {}
+    subagents = capabilities.get("subagents", []) if isinstance(capabilities.get("subagents"), list) else []
 
     task_section: dict[str, Any] = {
         "task": task_text,
@@ -422,8 +437,12 @@ def _build_proxy_task_config(
         },
         "output_dir": f"output/events/{run_id}",
         "trigger": {"mode": "once"},
-        "recursion_limit": 100,
+        "recursion_limit": int(reasoning.get("recursion_limit") or 100),
     }
+    if "max_tool_rounds" in reasoning:
+        task_section["max_tool_rounds"] = reasoning.get("max_tool_rounds")
+    if "middleware" in reasoning:
+        task_section["middleware_config"] = reasoning.get("middleware")
 
     if agent.system_prompt:
         task_section["system_prompt"] = agent.system_prompt
@@ -433,6 +452,29 @@ def _build_proxy_task_config(
     mcp_path = mcp_config_path_override or getattr(agent, "mcp_config_path", None) or ""
     if mcp_path:
         task_section["mcp_config_path"] = mcp_path
+    if subagents:
+        converted: list[dict[str, Any]] = []
+        for s in subagents:
+            if not isinstance(s, dict):
+                continue
+            prompt = s.get("prompt") or s.get("system_prompt")
+            if not (s.get("name") and s.get("description") and prompt):
+                continue
+            converted.append(
+                {
+                    "name": s.get("name"),
+                    "description": s.get("description"),
+                    "prompt": prompt,
+                    "tools": s.get("tools", []),
+                    "model": s.get("model"),
+                    "task": s.get("task"),
+                    "mcp_config_path": s.get("mcp_config_path"),
+                    "skills_dir": s.get("skills_dir"),
+                    "skill_names": s.get("skill_names"),
+                }
+            )
+        if converted:
+            task_section["subagents"] = converted
 
     return {"models": models_section, "task": task_section}
 

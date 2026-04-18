@@ -4,6 +4,8 @@ import uuid
 import httpx
 import json
 import logging
+import re
+import datetime as dt
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select, delete
@@ -15,6 +17,50 @@ from app.services.agent_runtime import ensure_running
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
+
+
+def _extract_hil_pending(result_text: str) -> dict | None:
+    """从工具输出文本中提取 pending_hil 结构化信息。"""
+    if not result_text or "pending_hil" not in result_text:
+        return None
+    token = None
+    method = None
+    path = None
+    message = None
+    expires_in_seconds = 600
+    token_match = re.search(r'"token"\s*:\s*"([^"]+)"', result_text, re.IGNORECASE)
+    method_match = re.search(r'"method"\s*:\s*"([^"]+)"', result_text, re.IGNORECASE)
+    path_match = re.search(r'"path"\s*:\s*"([^"]+)"', result_text, re.IGNORECASE)
+    msg_match = re.search(r'"message"\s*:\s*"([^"]+)"', result_text, re.IGNORECASE)
+    expires_match = re.search(r'"expires_in_seconds"\s*:\s*(\d+)', result_text, re.IGNORECASE)
+    if token_match:
+        token = token_match.group(1)
+    if method_match:
+        method = method_match.group(1)
+    if path_match:
+        path = path_match.group(1)
+    if msg_match:
+        message = msg_match.group(1)
+    if expires_match:
+        try:
+            expires_in_seconds = int(expires_match.group(1))
+        except Exception:
+            expires_in_seconds = 600
+    if not token:
+        return None
+    now = dt.datetime.now(dt.timezone.utc)
+    expires_at = now + dt.timedelta(seconds=expires_in_seconds)
+    return {
+        "type": "pending",
+        "token": token,
+        "method": method or "",
+        "path": path or "",
+        "message": message or "high-risk action requires HIL confirmation",
+        "created_at": now.isoformat(),
+        "expires_in_seconds": expires_in_seconds,
+        "expires_at": expires_at.isoformat(),
+        "next_confirm_command": f"dios request --confirm-token {token}",
+    }
 
 
 @router.post("/completions")
@@ -97,10 +143,15 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
     # 声明了 skills 的 agent 默认启用 shell（其余行为由 prompt + skills 约束）
     if agent.skills:
         payload["tool_selection"] = {"tool_ids": ["shell"]}
+    capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
+    reasoning = capabilities.get("reasoning")
+    if isinstance(reasoning, dict) and reasoning:
+        payload["custom_fields"] = {"reasoning": reasoning}
 
     if payload["stream"]:
         async def _stream():
             collected: list[str] = []
+            current_event: str | None = None
             try:
                 async with httpx.AsyncClient(timeout=httpx.Timeout(300, connect=10)) as client:
                     async with client.stream("POST", f"{diagent_url}/v1/chat/completions", json=payload) as resp:
@@ -113,6 +164,8 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
                         async for line in resp.aiter_lines():
                             # 保持 SSE 行格式，确保前端解析器不会等待悬空分隔符
                             yield line + "\n"
+                            if line.startswith("event: "):
+                                current_event = line[len("event: "):].strip()
                             if line.startswith("data: ") and not line.startswith("data: [DONE]"):
                                 try:
                                     p = json.loads(line[6:])
@@ -121,6 +174,16 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
                                         collected.append(delta)
                                 except Exception:
                                     pass
+                                if current_event == "tool_call":
+                                    try:
+                                        tool_evt = json.loads(line[6:])
+                                        if tool_evt.get("type") == "tool_call_end":
+                                            pending = _extract_hil_pending(str(tool_evt.get("result") or ""))
+                                            if pending:
+                                                yield "event: hil\n"
+                                                yield f"data: {json.dumps(pending, ensure_ascii=False)}\n\n"
+                                    except Exception:
+                                        pass
             except (httpx.RemoteProtocolError, httpx.ReadError, httpx.ReadTimeout) as e:
                 logger.warning("chat stream interrupted: %s", e)
                 yield f"data: {json.dumps({'error': f'stream interrupted: {type(e).__name__}'}, ensure_ascii=False)}\n\n"

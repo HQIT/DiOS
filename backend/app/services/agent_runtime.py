@@ -39,6 +39,7 @@ async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str
     env.update({
         "AGENT_WORKSPACE": "/workspace",
         "LLM_MODELS_CONFIG_PATH": "/workspace/models.yaml",
+        "DIOS_API": os.environ.get("DIOS_API_INTERNAL", "http://backend:8000"),
     })
 
     result = await db.execute(select(LLMModel))
@@ -69,6 +70,10 @@ async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str
             mcp_path.write_text(json.dumps(mcp_list, ensure_ascii=False, indent=2))
             env["MCP_CONFIG_PATH"] = "/workspace/mcp_servers.json"
 
+    # 确保共享目录存在：供 service/task 容器通过子挂载访问
+    (settings.workspace_root / "skills").mkdir(parents=True, exist_ok=True)
+    (settings.workspace_root / "cli").mkdir(parents=True, exist_ok=True)
+
     return env
 
 
@@ -85,12 +90,19 @@ def _start_container(agent: Agent, env: dict[str, str]) -> tuple[str, str]:
 
     host_ws = _host_path(Path(agent.workspace_path))
 
+    host_shared_skills = _host_path(settings.workspace_root / "skills")
+    host_shared_cli = _host_path(settings.workspace_root / "cli")
+
     container = client.containers.run(
         image=settings.diagent_service_image,
         name=name,
         labels={"dios.agent_id": agent.id, "dios.type": "service"},
         environment=env,
-        volumes={host_ws: {"bind": "/workspace", "mode": "rw"}},
+        volumes={
+            host_ws: {"bind": "/workspace", "mode": "rw"},
+            host_shared_skills: {"bind": "/workspace/skills", "mode": "ro"},
+            host_shared_cli: {"bind": "/workspace/cli", "mode": "ro"},
+        },
         network=DOCKER_NETWORK,
         detach=True,
         auto_remove=False,

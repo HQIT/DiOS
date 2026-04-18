@@ -35,6 +35,26 @@ def _add_agent_env(sync_conn):
         pass
 
 
+def _bootstrap_master_agent(sync_conn):
+    """启动时把历史默认 Agent `SayHi` 升级为 `Master`（仅改名，不改其余配置）。"""
+    try:
+        from sqlalchemy import text
+        has_master = sync_conn.execute(
+            text("SELECT 1 FROM agents WHERE name = 'Master' LIMIT 1")
+        ).fetchone()
+        if has_master:
+            return
+        has_sayhi = sync_conn.execute(
+            text("SELECT 1 FROM agents WHERE name = 'SayHi' LIMIT 1")
+        ).fetchone()
+        if has_sayhi:
+            sync_conn.execute(
+                text("UPDATE agents SET name = 'Master' WHERE name = 'SayHi'")
+            )
+    except Exception:
+        pass
+
+
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -43,6 +63,7 @@ async def init_db():
             await conn.run_sync(_add_agent_mcp_server_ids)
             await conn.run_sync(_add_agent_capabilities)
             await conn.run_sync(_add_agent_env)
+            await conn.run_sync(_bootstrap_master_agent)
             await conn.commit()
 
 

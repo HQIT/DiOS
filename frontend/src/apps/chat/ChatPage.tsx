@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 import { api } from "../../api/os";
-import { streamChat, chatApi, type ChatMessage, type ChatSession, type StoredMessage } from "../../api/chat";
+import { streamChat, chatApi, type ChatSession, type ChatStreamEvent } from "../../api/chat";
 import type { Agent } from "../../types";
 
 interface UIMessage {
@@ -8,7 +11,34 @@ interface UIMessage {
   content: string;
 }
 
+interface HilPending {
+  token: string;
+  message?: string;
+  method?: string;
+  path?: string;
+  nextConfirmCommand?: string;
+  createdAt?: string;
+  expiresAt?: string;
+  expiresInSeconds?: number;
+}
+
 const LAST_AGENT_KEY = "dios:chat:lastAgentId";
+
+function compactJson(value: unknown, max = 140): string {
+  try {
+    const text = JSON.stringify(value);
+    return text.length > max ? text.slice(0, max) + "..." : text;
+  } catch {
+    return String(value);
+  }
+}
+
+function formatSeconds(seconds: number): string {
+  const s = Math.max(0, seconds);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, "0")}`;
+}
 
 export default function ChatPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -20,6 +50,12 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [liveEvents, setLiveEvents] = useState<string[]>([]);
+  const [hilPending, setHilPending] = useState<HilPending | null>(null);
+  const [hilSubmitting, setHilSubmitting] = useState(false);
+  const [hilNotice, setHilNotice] = useState<string>("");
+  const [nowMs, setNowMs] = useState<number>(Date.now());
+  const [pendingDeleteSessionId, setPendingDeleteSessionId] = useState<string | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -66,17 +102,27 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (!hilPending) return;
+    const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [hilPending]);
+
   const refreshSessions = useCallback(() => {
     if (selectedAgent) chatApi.listSessions(selectedAgent.id).then(setSessions);
   }, [selectedAgent]);
 
-  const send = useCallback(async () => {
-    const text = input.trim();
+  const send = useCallback(async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim();
     if (!text || !selectedAgent || loading) return;
 
     const userMsg: UIMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
-    setInput("");
+    setLiveEvents([]);
+    setHilPending(null);
+    setHilSubmitting(false);
+    setHilNotice("");
+    if (overrideText === undefined) setInput("");
     setLoading(true);
 
     const assistantMsg: UIMessage = { role: "assistant", content: "" };
@@ -102,13 +148,76 @@ export default function ChatPage() {
         ctrl.signal,
       );
 
-      for await (const chunk of stream) {
-        setMessages((prev) => {
-          const updated = [...prev];
-          const last = updated[updated.length - 1];
-          updated[updated.length - 1] = { ...last, content: last.content + chunk };
-          return updated;
+      const pushLiveEvent = (line: string) => {
+        setLiveEvents((prev) => {
+          const next = [...prev, line];
+          return next.slice(-14);
         });
+      };
+      const toolInvokeCount = new Map<string, number>();
+
+      for await (const evt of stream) {
+        const e = evt as ChatStreamEvent;
+        if (e.type === "content") {
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            updated[updated.length - 1] = { ...last, content: last.content + e.content };
+            return updated;
+          });
+          continue;
+        }
+        if (e.type === "reasoning") {
+          pushLiveEvent(`思考中: ${e.content.slice(0, 120)}`);
+          continue;
+        }
+        if (e.type === "tool_call_start") {
+          const argText = compactJson(e.arguments ?? {});
+          const key = `${e.tool_name}|${argText}`;
+          const count = (toolInvokeCount.get(key) || 0) + 1;
+          toolInvokeCount.set(key, count);
+          if (count > 1) {
+            pushLiveEvent(`重复调用(${count}) ${e.tool_name} args=${argText}`);
+          } else {
+            pushLiveEvent(`调用工具 ${e.tool_name} args=${argText}`);
+          }
+          continue;
+        }
+        if (e.type === "tool_call_end") {
+          const cost = typeof e.duration_ms === "number" ? ` (${Math.round(e.duration_ms)}ms)` : "";
+          const result = e.result ? ` result=${e.result.slice(0, 80)}` : "";
+          pushLiveEvent(`工具完成 ${e.tool_name}${cost}${result}`);
+          continue;
+        }
+        if (e.type === "tool_call_error") {
+          pushLiveEvent(`工具失败: ${e.tool_name} (${e.error})`);
+          continue;
+        }
+        if (e.type === "status") {
+          pushLiveEvent(e.message);
+          continue;
+        }
+        if (e.type === "hil_pending") {
+          const pending: HilPending = {
+            token: e.token,
+            method: e.method,
+            path: e.path,
+            message: e.message,
+            nextConfirmCommand: e.next_confirm_command,
+            createdAt: e.created_at,
+            expiresAt: e.expires_at,
+            expiresInSeconds: e.expires_in_seconds,
+          };
+          setHilPending(pending);
+          setHilSubmitting(false);
+          setHilNotice("");
+          pushLiveEvent(`HIL 待确认: ${pending.method || ""} ${pending.path || ""}`.trim());
+          continue;
+        }
+        if (e.type === "error") {
+          pushLiveEvent(`流错误: ${e.error}`);
+          continue;
+        }
       }
       refreshSessions();
     } catch (err) {
@@ -127,6 +236,7 @@ export default function ChatPage() {
     } finally {
       abortRef.current = null;
       setLoading(false);
+      setLiveEvents([]);
       inputRef.current?.focus();
     }
   }, [input, selectedAgent, loading, sessionId, refreshSessions]);
@@ -138,11 +248,13 @@ export default function ChatPage() {
   const newChat = () => {
     setSessionId(null);
     setMessages([]);
+    setPendingDeleteSessionId(null);
   };
 
   const deleteSession = async (sid: string) => {
     await chatApi.deleteSession(sid);
     if (sessionId === sid) newChat();
+    setPendingDeleteSessionId(null);
     refreshSessions();
   };
 
@@ -152,6 +264,12 @@ export default function ChatPage() {
       send();
     }
   };
+
+  const expiresAtMs = hilPending?.expiresAt ? Date.parse(hilPending.expiresAt) : NaN;
+  const hilExpired = Boolean(hilPending) && Number.isFinite(expiresAtMs) && nowMs >= expiresAtMs;
+  const hilRemainSeconds = Boolean(hilPending) && Number.isFinite(expiresAtMs)
+    ? Math.max(0, Math.floor((expiresAtMs - nowMs) / 1000))
+    : null;
 
   return (
     <div style={{ display: "flex", height: "100%" }}>
@@ -207,13 +325,62 @@ export default function ChatPage() {
                   <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text)" }}>
                     {s.title || "Untitled"}
                   </span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
-                    style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: 12, padding: "0 4px", opacity: 0.5 }}
-                    title="Delete"
-                  >
-                    ×
-                  </button>
+                  {pendingDeleteSessionId === s.id ? (
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
+                        style={{
+                          height: 28,
+                          padding: "0 10px",
+                          borderRadius: 6,
+                          border: "1px solid #ef4444",
+                          background: "#ef4444",
+                          color: "#fff",
+                          cursor: "pointer",
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                        title="确认删除该会话"
+                      >
+                        确认删除
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setPendingDeleteSessionId(null); }}
+                        style={{
+                          height: 28,
+                          padding: "0 10px",
+                          borderRadius: 6,
+                          border: "1px solid var(--border)",
+                          background: "var(--bg-surface)",
+                          color: "var(--text-secondary)",
+                          cursor: "pointer",
+                          fontSize: 12,
+                        }}
+                        title="取消删除"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setPendingDeleteSessionId(s.id); }}
+                      style={{
+                        height: 28,
+                        minWidth: 52,
+                        padding: "0 10px",
+                        borderRadius: 6,
+                        border: "1px solid var(--border)",
+                        background: "var(--bg-surface)",
+                        color: "var(--text-secondary)",
+                        cursor: "pointer",
+                        fontSize: 12,
+                        fontWeight: 500,
+                      }}
+                      title="删除会话"
+                    >
+                      删除
+                    </button>
+                  )}
                 </div>
               ))}
               {sessions.length === 0 && (
@@ -237,11 +404,55 @@ export default function ChatPage() {
             <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", marginBottom: 16 }}>
               <div style={{
                 maxWidth: "70%", padding: "12px 16px", borderRadius: 12, fontSize: 14,
-                lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word",
+                lineHeight: 1.6, wordBreak: "break-word",
                 background: msg.role === "user" ? "var(--color-primary)" : "var(--bg-surface)",
                 color: msg.role === "user" ? "#fff" : "var(--text)",
               }}>
-                {msg.content || (loading && i === messages.length - 1 ? "..." : "")}
+                {msg.content ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                    components={{
+                      pre: ({ children }) => (
+                        <div style={{ position: "relative", margin: "8px 0" }}>
+                          <pre style={{ overflowX: "auto", padding: "10px", borderRadius: 8, background: "rgba(0,0,0,0.08)" }}>{children}</pre>
+                        </div>
+                      ),
+                      code: ({ inline, className, children, ...props }: any) => {
+                        const text = String(children ?? "");
+                        if (inline) {
+                          return <code style={{ background: "rgba(0,0,0,0.08)", padding: "1px 4px", borderRadius: 4 }} {...props}>{children}</code>;
+                        }
+                        return (
+                          <div style={{ position: "relative" }}>
+                            <button
+                              type="button"
+                              style={{
+                                position: "absolute",
+                                right: 8,
+                                top: 8,
+                                fontSize: 11,
+                                border: "1px solid var(--border)",
+                                borderRadius: 6,
+                                background: "var(--bg-surface)",
+                                color: "var(--text-secondary)",
+                                cursor: "pointer",
+                                padding: "2px 8px",
+                              }}
+                              onClick={() => { void navigator.clipboard?.writeText(text); }}
+                              title="复制代码"
+                            >
+                              复制
+                            </button>
+                            <code className={className} {...props}>{children}</code>
+                          </div>
+                        );
+                      },
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (loading && i === messages.length - 1 ? "..." : "")}
               </div>
             </div>
           ))}
@@ -249,6 +460,87 @@ export default function ChatPage() {
         </div>
 
         <div style={{ padding: "12px 24px 20px", borderTop: "1px solid var(--border)" }}>
+          {hilPending && (
+            <div
+              style={{
+                marginBottom: 10,
+                background: "var(--bg-surface)",
+                border: "1px solid #f59e0b",
+                borderRadius: 8,
+                padding: "10px 12px",
+                fontSize: 12,
+                color: "var(--text)",
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: 6 }}>高风险操作待确认</div>
+              <div style={{ color: "var(--text-secondary)", marginBottom: 8 }}>
+                {(hilPending.method || "") + " " + (hilPending.path || "")}
+              </div>
+              {hilPending.message && (
+                <div style={{ color: "var(--text-secondary)", marginBottom: 8 }}>{hilPending.message}</div>
+              )}
+              <div style={{ color: hilExpired ? "#ef4444" : "var(--text-secondary)", marginBottom: 8 }}>
+                {hilExpired
+                  ? "确认已过期，请重新发起操作"
+                  : `确认剩余时间：${hilRemainSeconds != null ? formatSeconds(hilRemainSeconds) : "--:--"}`}
+              </div>
+              {hilNotice && (
+                <div style={{ color: "var(--color-primary)", marginBottom: 8 }}>{hilNotice}</div>
+              )}
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  className="btn-sm"
+                  disabled={loading || !selectedAgent || hilSubmitting || hilExpired}
+                  onClick={() => {
+                    if (!hilPending) return;
+                    const cmd = hilPending.nextConfirmCommand
+                      ? `python /workspace/cli/dios ${hilPending.nextConfirmCommand.replace(/^dios\s+/, "")}`
+                      : `python /workspace/cli/dios request --confirm-token ${hilPending.token}`;
+                    setHilSubmitting(true);
+                    setHilNotice("已发送确认指令，等待执行结果...");
+                    setHilPending(null);
+                    send(`请只执行以下确认命令，不要修改参数：\n${cmd}`);
+                  }}
+                >
+                  确认执行
+                </button>
+                <button
+                  type="button"
+                  className="btn-sm btn-secondary"
+                  disabled={loading || !selectedAgent || hilSubmitting}
+                  onClick={() => {
+                    if (!hilPending) return;
+                    const token = hilPending.token;
+                    setHilSubmitting(false);
+                    setHilNotice("已取消本次高风险操作。");
+                    setHilPending(null);
+                    send(`取消本次高风险操作，不执行。token=${token}`);
+                  }}
+                >
+                  取消
+                </button>
+              </div>
+            </div>
+          )}
+          {loading && liveEvents.length > 0 && (
+            <div
+              style={{
+                marginBottom: 10,
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: 12,
+                color: "var(--text-secondary)",
+                lineHeight: 1.5,
+              }}
+            >
+              {liveEvents.map((line, idx) => (
+                <div key={`${idx}-${line}`}>{line}</div>
+              ))}
+            </div>
+          )}
           <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
             <textarea
               ref={inputRef}
@@ -279,7 +571,7 @@ export default function ChatPage() {
               </button>
             ) : (
               <button
-                onClick={send}
+                onClick={() => send()}
                 disabled={!input.trim() || !selectedAgent}
                 style={{
                   padding: "10px 20px", borderRadius: "var(--radius)",

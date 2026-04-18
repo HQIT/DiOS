@@ -47,6 +47,8 @@ def start_container(
             if v is None:
                 continue
             env[str(k)] = str(v)
+    host_shared_skills = _host_path(settings.workspace_root / "skills")
+    host_shared_cli = _host_path(settings.workspace_root / "cli")
     container = client.containers.run(
         image=settings.diagent_image,
         name=f"dios-run-{run_id}",
@@ -54,6 +56,8 @@ def start_container(
         environment=env,
         volumes={
             host_ws: {"bind": "/workspace", "mode": "rw"},
+            host_shared_skills: {"bind": "/workspace/skills", "mode": "ro"},
+            host_shared_cli: {"bind": "/workspace/cli", "mode": "ro"},
         },
         detach=True,
         auto_remove=False,

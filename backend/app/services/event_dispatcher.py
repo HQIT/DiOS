@@ -47,6 +47,7 @@ async def dispatch_event(
     """
     start_time = time.time()
     event_type = event.get("type", "")
+    event_source = event.get("source", "")
     
     # 记录指标
     metrics.record_event_received(event_type)
@@ -110,6 +111,10 @@ async def dispatch_event(
 
     # 3. 把 CloudEvent 转为 A2A Message，逐个 fan-out 投递
     a2a_message = a2a_service.cloudevent_to_a2a_message(event)
+    logger.info(
+        "Dispatch event start: id=%s type=%s source=%s matched_agents=%s",
+        event_log.id, event_type, event_source, agent_ids,
+    )
 
     dispatched = False
     reasons: list[str] = []
@@ -128,8 +133,8 @@ async def dispatch_event(
             else:
                 dispatched = True
                 logger.info(
-                    "Dispatched event %s to agent %s via A2A (task %s, status=%s)",
-                    event_log.id, agent_id, task.id, task.status,
+                    "Dispatched event %s(type=%s) to agent %s via A2A (task=%s status=%s context=%s)",
+                    event_log.id, event_type, agent_id, task.id, task.status, task.context_id,
                 )
         except Exception as e:
             reasons.append(f"Agent {agent_id}: {type(e).__name__}: {e}")
@@ -148,5 +153,9 @@ async def dispatch_event(
     # 5. 记录性能指标
     duration = time.time() - start_time
     metrics.record_dispatch(duration, dispatched, agent_ids)
+    logger.info(
+        "Dispatch event done: id=%s type=%s status=%s duration_ms=%.0f error=%s",
+        event_log.id, event_type, event_log.status, duration * 1000, error_detail or "",
+    )
 
     return event_log, error_detail

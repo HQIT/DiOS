@@ -9,6 +9,7 @@ from app.db.database import get_db
 from app.config import settings
 from app.models.tables import Agent
 from app.models.schemas import AgentCreate, AgentUpdate, AgentOut
+from app.services.admin_guard import normalize_capabilities
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
@@ -73,6 +74,11 @@ async def create_agent(body: AgentCreate, db: AsyncSession = Depends(get_db)):
         workspace = str(settings.workspace_root / agent_id)
     Path(workspace).mkdir(parents=True, exist_ok=True)
 
+    try:
+        normalized_capabilities = normalize_capabilities(getattr(body, "capabilities", {}) or {})
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
     agent = Agent(
         id=agent_id,
         name=body.name,
@@ -86,7 +92,7 @@ async def create_agent(body: AgentCreate, db: AsyncSession = Depends(get_db)):
         mcp_config_path=body.mcp_config_path,
         mcp_server_ids=getattr(body, "mcp_server_ids", []) or [],
         workspace_path=workspace,
-        capabilities=getattr(body, "capabilities", {}) or {},
+        capabilities=normalized_capabilities,
         env=getattr(body, "env", {}) or {},
     )
     db.add(agent)
@@ -123,6 +129,12 @@ async def update_agent(agent_id: str, body: AgentUpdate, db: AsyncSession = Depe
             else:
                 merged[k] = v
         updates["env"] = merged
+    if "capabilities" in updates:
+        try:
+            updates["capabilities"] = normalize_capabilities(updates.get("capabilities") or {})
+        except ValueError as e:
+            raise HTTPException(422, str(e))
+
     for field, value in updates.items():
         setattr(agent, field, value)
     await db.commit()
