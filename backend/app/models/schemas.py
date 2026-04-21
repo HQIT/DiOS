@@ -228,6 +228,28 @@ class EventLogOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class EventActivityItemOut(BaseModel):
+    task_id: str
+    agent_id: str
+    agent_name: str
+    status: str
+    started_at: datetime
+    ended_at: Optional[datetime] = None
+    duration_ms: int
+    error: str = ""
+    artifacts_count: int = 0
+
+
+class EventActivityOverviewOut(BaseModel):
+    event_id: str
+    event_type: str
+    source: str
+    status: str
+    timeline_start: datetime
+    timeline_end: datetime
+    items: list[EventActivityItemOut]
+
+
 # ── A2A Task ──
 
 class A2ATaskOut(BaseModel):

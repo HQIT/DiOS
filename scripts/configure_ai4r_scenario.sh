@@ -37,17 +37,16 @@ dios_request() {
   # 高风险动作：自动执行 token-only 二次确认
   if [[ "$code" -eq 3 ]]; then
     local token
-    token=$(printf '%s' "$out" | python3 - <<'PY'
-import json, sys
-text = sys.stdin.read().strip()
-try:
-    payload = json.loads(text)
-except Exception:
-    print("")
-    raise SystemExit(0)
-print(payload.get("confirm_token") or payload.get("token") or "")
-PY
-)
+    token="$(python3 -c 'import json,sys;
+text=sys.stdin.read().strip();
+tok="";
+if text:
+    try:
+        payload=json.loads(text);
+        tok=(payload.get("confirm_token") or payload.get("token") or "");
+    except Exception:
+        tok="";
+sys.stdout.write(tok)' <<<"$out")"
     if [[ -z "$token" ]]; then
       echo "ERROR: pending_hil but token missing for $method $path" >&2
       echo "$out" >&2
@@ -72,16 +71,13 @@ get_agent_id_by_name() {
   local name="$1"
   local agents_json
   agents_json="$(dios_request GET /api/os/agents)"
-  printf '%s' "$agents_json" | python3 - <<PY
-import json, sys
-name = ${name@Q}
-arr = json.load(sys.stdin)
+  AGENTS_JSON="$agents_json" AGENT_NAME="$name" python3 -c 'import json, os;
+arr=json.loads(os.environ.get("AGENTS_JSON") or "[]");
+name=os.environ.get("AGENT_NAME") or "";
 for item in arr:
-    if item.get("name") == name:
-        print(item.get("id", ""))
-        raise SystemExit(0)
-print("")
-PY
+    if item.get("name")==name:
+        print(item.get("id","")); raise SystemExit(0)
+print("")'
 }
 
 update_prompt() {
@@ -91,6 +87,24 @@ update_prompt() {
   payload=$(python3 - <<PY
 import json
 print(json.dumps({"system_prompt": ${prompt@Q}}, ensure_ascii=False))
+PY
+)
+  dios_request PUT "/api/os/agents/$agent_id" "$payload" >/dev/null
+}
+
+update_reasoning_caps() {
+  local agent_id="$1"
+  local payload
+  payload=$(python3 - <<PY
+import json
+print(json.dumps({
+  "capabilities": {
+    "reasoning": {
+      "recursion_limit": 120,
+      "max_tool_rounds": 20
+    }
+  }
+}, ensure_ascii=False))
 PY
 )
   dios_request PUT "/api/os/agents/$agent_id" "$payload" >/dev/null
@@ -173,15 +187,21 @@ if [[ -z "$WRITER_ID" || -z "$ENGINEER_ID" || -z "$REVIEWER_ID" ]]; then
   exit 1
 fi
 
-WRITER_PROMPT='你是 AI4R Writer。你负责基于事件 data.project_id / manuscript_id / version 写作与修订。只在 /workspace/projects/<project_id>/manuscript 下产出稿件，并在完成后发布下一阶段事件。收到 ai4r.topic.proposed 时先形成结构并发布 ai4r.experiment.requested；收到 ai4r.experiment.completed 时整合结果并发布 ai4r.draft.submitted；收到 ai4r.review.completed 且 decision=changes_requested 时修订并再次发布 ai4r.draft.submitted。'
-ENGINEER_PROMPT='你是 AI4R Engineer。你根据 ai4r.experiment.requested 执行实验，产出数据与图表到 /workspace/projects/<project_id>/experiments 和 /workspace/projects/<project_id>/data，并发布 ai4r.experiment.completed。输出必须包含 artifact_refs 与 version。'
-REVIEWER_PROMPT='你是 AI4R Reviewer。你收到 ai4r.draft.submitted 后评审稿件质量、逻辑和证据充分性。评审结果发布 ai4r.review.completed（decision=approved 或 changes_requested），并给出可执行修改意见。'
+WRITER_PROMPT='你是 AI4R Writer（事件驱动执行者）。请先从输入中识别事件类型，然后只做该事件要求的一步，并在最后停止，不要循环思考。\n- 若事件是 ai4r.topic.proposed：生成简短选题结构到 /workspace/projects/<project_id>/manuscript/topic_structure.md，然后调用 publish_event 发布 ai4r.experiment.requested。\n- 若事件是 ai4r.experiment.completed：整合实验结果并输出 draft.md，然后调用 publish_event 发布 ai4r.draft.submitted。\n- 若事件是 ai4r.review.completed 且 decision=changes_requested：修订 draft.md，然后调用 publish_event 再次发布 ai4r.draft.submitted。\n要求：每次任务最多调用一次 publish_event；发布后在最终答复里写“事件已发布: <event_type>”，然后结束。'
+ENGINEER_PROMPT='你是 AI4R Engineer（事件驱动执行者）。仅处理 ai4r.experiment.requested：产出一个最小实验结果文件到 /workspace/projects/<project_id>/experiments/result.md（含 artifact_refs 与 version），然后调用 publish_event 发布 ai4r.experiment.completed。要求：每次任务最多调用一次 publish_event；发布后立即结束。'
+REVIEWER_PROMPT='你是 AI4R Reviewer（事件驱动执行者）。仅处理 ai4r.draft.submitted：给出简短评审结论并写入 /workspace/projects/<project_id>/manuscript/review.md，然后调用 publish_event 发布 ai4r.review.completed（decision 取 approved 或 changes_requested）。要求：每次任务最多调用一次 publish_event；发布后立即结束。'
 
 echo "=== 更新 system_prompt ==="
 update_prompt "$WRITER_ID" "$WRITER_PROMPT"
 update_prompt "$ENGINEER_ID" "$ENGINEER_PROMPT"
 update_prompt "$REVIEWER_ID" "$REVIEWER_PROMPT"
 echo "  Writer/Engineer/Reviewer prompts 已更新"
+
+echo "=== 更新 reasoning 能力参数 ==="
+update_reasoning_caps "$WRITER_ID"
+update_reasoning_caps "$ENGINEER_ID"
+update_reasoning_caps "$REVIEWER_ID"
+echo "  Writer/Engineer/Reviewer reasoning 已更新（recursion_limit=120, max_tool_rounds=20）"
 
 echo "=== 配置订阅（幂等） ==="
 upsert_ai4r_subscription "$WRITER_ID" '["ai4r.topic.proposed","ai4r.experiment.completed","ai4r.review.completed"]'

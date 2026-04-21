@@ -394,12 +394,18 @@ def _build_proxy_task_config(
     mcp_config_path_override: Optional[str] = None,
 ) -> dict[str, Any]:
     """把 A2A Message 转为 DiAgent task config（与 event_dispatcher 的格式对齐）。"""
-    model_map = {m.name: m for m in llm_models}
     used_model = agent.model or ""
 
+    def _resolve_model() -> LLMModel | None:
+        for m in llm_models:
+            if used_model and (m.name == used_model or m.id == used_model or m.model == used_model):
+                return m
+        return None
+
     models_section: dict[str, Any] = {"default_model": used_model, "models": {}}
-    if used_model and used_model in model_map:
-        m = model_map[used_model]
+    resolved = _resolve_model()
+    if used_model and resolved is not None:
+        m = resolved
         entry: dict[str, Any] = {
             "provider": m.provider,
             "model": m.model,

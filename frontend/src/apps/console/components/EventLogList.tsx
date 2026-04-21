@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import type { EventLog, EventCatalog, EventCatalogType } from "../../../types";
+import type { EventLog, EventCatalog, EventCatalogType, ActivityGanttResponse } from "../../../types";
 import { api } from "../../../api/os";
 import Drawer from "../../../components/Drawer";
 
@@ -11,10 +11,18 @@ const STATUS_COLORS: Record<string, string> = {
   dead_letter: "var(--color-danger)",
 };
 
-type SubTab = "logs" | "catalog";
+const TASK_STATUS_COLORS: Record<string, string> = {
+  submitted: "var(--color-muted)",
+  working: "var(--color-warning)",
+  completed: "var(--color-success)",
+  failed: "var(--color-danger)",
+  canceled: "var(--color-muted)",
+};
+
+type ActivitySubTab = "logs" | "catalog" | "activity";
 const EVENT_LOG_AUTO_REFRESH_KEY = "dios:eventlog:autoRefresh";
 
-export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTab; onSubTabChange: (t: SubTab) => void }) {
+export default function EventLogList({ subTab, onSubTabChange }: { subTab: ActivitySubTab; onSubTabChange: (t: ActivitySubTab) => void }) {
   const [events, setEvents] = useState<EventLog[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -34,6 +42,16 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTa
   });
 
   const [catalog, setCatalog] = useState<EventCatalog | null>(null);
+  const [gantt, setGantt] = useState<ActivityGanttResponse | null>(null);
+  const [ganttLoading, setGanttLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  });
+  const [agentFilter, setAgentFilter] = useState("");
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [triggerType, setTriggerType] = useState<EventCatalogType | null>(null);
   const [triggerSource, setTriggerSource] = useState("manual/test");
@@ -62,17 +80,41 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTa
   const loadCatalog = () => {
     api.getEventCatalog().then(setCatalog);
   };
+  const loadGantt = useCallback(async () => {
+    setGanttLoading(true);
+    try {
+      const data = await api.getActivityGantt({
+        date: selectedDate,
+        agent_ids: agentFilter || undefined,
+        limit: 1000,
+      });
+      setGantt(data);
+    } catch (err) {
+      console.error("Failed to load activity gantt:", err);
+    } finally {
+      setGanttLoading(false);
+    }
+  }, [selectedDate, agentFilter]);
 
   useEffect(() => { loadLogs(); }, [loadLogs]);
   useEffect(() => { loadCatalog(); }, []);
+  useEffect(() => {
+    if (subTab !== "activity") return;
+    loadGantt();
+  }, [subTab, loadGantt]);
 
   // 自动刷新
   useEffect(() => {
-    if (autoRefresh && subTab === "logs") {
+    if (!autoRefresh) return;
+    if (subTab === "logs") {
       const interval = setInterval(loadLogs, 3000);
       return () => clearInterval(interval);
     }
-  }, [autoRefresh, subTab, loadLogs]);
+    if (subTab === "activity") {
+      const interval = setInterval(loadGantt, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh, subTab, loadLogs, loadGantt]);
 
   useEffect(() => {
     try {
@@ -139,6 +181,82 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTa
   );
 
   const totalPages = Math.ceil(total / pageSize);
+  const renderGlobalGantt = (data: ActivityGanttResponse) => {
+    const startMs = new Date(data.timeline_start).getTime();
+    const endMs = new Date(data.timeline_end).getTime();
+    const total = Math.max(1, endMs - startMs);
+    const barsByAgent = data.bars.reduce<Record<string, typeof data.bars>>((acc, b) => {
+      (acc[b.agent_id] ||= []).push(b);
+      return acc;
+    }, {});
+    return (
+      <div style={{ marginTop: 10, border: "1px solid var(--border)", borderRadius: 6, padding: 10 }}>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
+          智能体活动总览（{data.date || selectedDate}）· {data.bars.length} 个任务
+        </div>
+        {data.agents.length === 0 && (
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>暂无关联任务记录</div>
+        )}
+        {data.agents.map((agent) => {
+          const bars = barsByAgent[agent.agent_id] || [];
+          return (
+            <div key={agent.agent_id} style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: 8, marginBottom: 10 }}>
+              <div style={{ fontSize: 12 }}>
+                <div>{agent.agent_name}</div>
+                <div style={{ color: "var(--text-secondary)" }}>{agent.task_count} 个任务</div>
+              </div>
+              <div style={{ position: "relative", minHeight: 24, background: "var(--bg-muted)", borderRadius: 4 }}>
+                {bars.map((it) => {
+                  const s = new Date(it.start_at).getTime();
+                  const e = new Date(it.effective_end_at).getTime();
+                  const left = ((s - startMs) / total) * 100;
+                  const width = (Math.max(1, e - s) / total) * 100;
+                  const color = TASK_STATUS_COLORS[it.status] || "var(--color-primary)";
+                  return (
+                    <div
+                      key={it.task_id}
+                      style={{
+                        position: "absolute",
+                        left: `${Math.max(0, left)}%`,
+                        width: `${Math.min(100, Math.max(1.5, width))}%`,
+                        top: 3,
+                        height: 18,
+                        borderRadius: 3,
+                        background: color,
+                      }}
+                      title={`${it.agent_name} | ${it.status} | ${it.event_type || "no-event"} | ${Math.max(0, Math.round(it.duration_ms / 1000))}s`}
+                    >
+                      {it.behaviors.map((b, idx) => {
+                        const bm = new Date(b.at).getTime();
+                        const bl = ((bm - s) / Math.max(1, e - s)) * 100;
+                        return (
+                          <span
+                            key={`${it.task_id}-${idx}`}
+                            title={b.label}
+                            style={{
+                              position: "absolute",
+                              left: `${Math.max(0, Math.min(100, bl))}%`,
+                              top: 4,
+                              width: 6,
+                              height: 6,
+                              borderRadius: "50%",
+                              background: "#fff",
+                              border: "1px solid rgba(0,0,0,0.25)",
+                              transform: "translateX(-3px)",
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="panel">
@@ -148,6 +266,9 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTa
         </button>
         <button className={`tab ${subTab === "catalog" ? "active" : ""}`} onClick={() => onSubTabChange("catalog")}>
           事件目录
+        </button>
+        <button className={`tab ${subTab === "activity" ? "active" : ""}`} onClick={() => onSubTabChange("activity")}>
+          活动总览
         </button>
       </div>
 
@@ -261,7 +382,6 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTa
                           </pre>
                         </div>
                       )}
-                      
                       <details style={{ marginTop: '8px' }}>
                         <summary>CloudEvent 详情</summary>
                         <pre className="log-box">{JSON.stringify(ev.cloud_event, null, 2)}</pre>
@@ -357,6 +477,28 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: SubTa
             </>
           )}
         </div>
+      )}
+      {subTab === "activity" && (
+        <>
+          <div className="event-filters">
+            <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+            <input
+              placeholder="按 agent_id 过滤（逗号分隔）"
+              value={agentFilter}
+              onChange={(e) => setAgentFilter(e.target.value)}
+            />
+            <button className="btn-sm btn-secondary" onClick={loadGantt} disabled={ganttLoading}>
+              {ganttLoading ? "加载中..." : "刷新"}
+            </button>
+          </div>
+          {ganttLoading && (
+            <div style={{ textAlign: "center", padding: "20px", color: "var(--text-secondary)" }}>
+              <div className="spinner"></div>
+              <span>加载中...</span>
+            </div>
+          )}
+          {!ganttLoading && gantt && renderGlobalGantt(gantt)}
+        </>
       )}
 
       <Drawer

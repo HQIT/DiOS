@@ -1,5 +1,6 @@
 """Event Gateway API: webhook 接收 + 手动触发 + 事件目录 + 事件日志查询。"""
 
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, Request, HTTPException, Query
 from sqlalchemy import select
@@ -7,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db.database import get_db
-from app.models.tables import Subscription, EventLog, Connector
-from app.models.schemas import EventLogOut
+from app.models.tables import Subscription, EventLog, Connector, A2ATask, Agent
+from app.models.schemas import EventLogOut, EventActivityOverviewOut, EventActivityItemOut
 from app.services.event_normalizer import (
     detect_and_normalize,
     get_event_catalog,
@@ -208,6 +209,173 @@ async def list_events(
         "limit": limit,
         "offset": offset,
     }
+
+
+@router.get("/activity-gantt", response_model=dict)
+async def get_activity_gantt(
+    since_minutes: int = Query(60, ge=1, le=7 * 24 * 60),
+    date: str | None = Query(None, description="按单日过滤，格式 YYYY-MM-DD"),
+    agent_ids: str | None = Query(None, description="逗号分隔的 agent id 列表"),
+    limit: int = Query(500, ge=1, le=2000),
+    db: AsyncSession = Depends(get_db),
+):
+    now = datetime.now(timezone.utc)
+    range_start = now - timedelta(minutes=since_minutes)
+    range_end = now
+    if date:
+        try:
+            day = datetime.strptime(date, "%Y-%m-%d").date()
+        except ValueError:
+            raise HTTPException(400, "Invalid date format, expected YYYY-MM-DD")
+        range_start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
+        range_end = range_start + timedelta(days=1)
+
+    stmt = (
+        select(A2ATask, Agent.name, EventLog.id, EventLog.event_type, EventLog.source)
+        .join(Agent, Agent.id == A2ATask.agent_id)
+        .outerjoin(EventLog, EventLog.id == A2ATask.context_id)
+        .where(A2ATask.created_at >= range_start, A2ATask.created_at < range_end)
+        .order_by(A2ATask.created_at.asc())
+        .limit(limit)
+    )
+
+    parsed_ids = [x.strip() for x in (agent_ids or "").split(",") if x.strip()]
+    if parsed_ids:
+        stmt = stmt.where(A2ATask.agent_id.in_(parsed_ids))
+
+    rows = (await db.execute(stmt)).all()
+    bars: list[dict] = []
+    agents_map: dict[str, dict] = {}
+    timeline_start: datetime | None = None
+    timeline_end: datetime | None = None
+
+    for task, agent_name, event_id, event_type, event_source in rows:
+        start_at = task.created_at
+        running = task.status in ("submitted", "working")
+        end_at = None if running else task.updated_at
+        effective_end = now if running else (task.updated_at or task.created_at)
+        duration_ms = max(0, int((effective_end - start_at).total_seconds() * 1000))
+
+        behaviors = [{"type": "start", "at": start_at.isoformat(), "label": "开始"}]
+        if running:
+            behaviors.append({"type": "running", "at": effective_end.isoformat(), "label": "运行中"})
+        if not running and end_at is not None:
+            end_label = "结束" if task.status == "completed" else task.status
+            behaviors.append({"type": "end", "at": end_at.isoformat(), "label": end_label})
+        if task.error:
+            behaviors.append({"type": "error", "at": (task.updated_at or effective_end).isoformat(), "label": "失败"})
+        if len(task.artifacts or []) > 0:
+            behaviors.append({"type": "artifact", "at": (task.updated_at or effective_end).isoformat(), "label": "产出"})
+
+        bars.append({
+            "task_id": task.id,
+            "agent_id": task.agent_id,
+            "agent_name": agent_name or task.agent_id,
+            "status": task.status,
+            "start_at": start_at.isoformat(),
+            "end_at": end_at.isoformat() if end_at else None,
+            "effective_end_at": effective_end.isoformat(),
+            "duration_ms": duration_ms,
+            "event_id": event_id or "",
+            "event_type": event_type or "",
+            "source": event_source or "",
+            "error": task.error or "",
+            "artifacts_count": len(task.artifacts or []),
+            "behaviors": behaviors,
+        })
+
+        if task.agent_id not in agents_map:
+            agents_map[task.agent_id] = {"agent_id": task.agent_id, "agent_name": agent_name or task.agent_id, "task_count": 0}
+        agents_map[task.agent_id]["task_count"] += 1
+
+        if timeline_start is None or start_at < timeline_start:
+            timeline_start = start_at
+        if timeline_end is None or effective_end > timeline_end:
+            timeline_end = effective_end
+
+    if timeline_start is None:
+        timeline_start = range_start
+    if timeline_end is None:
+        timeline_end = range_end
+
+    agents = sorted(agents_map.values(), key=lambda x: x["agent_name"])
+    return {
+        "timeline_start": timeline_start.isoformat(),
+        "timeline_end": timeline_end.isoformat(),
+        "since_minutes": since_minutes,
+        "date": date or "",
+        "agents": agents,
+        "bars": bars,
+    }
+
+
+@router.get("/{event_id}/activity-overview", response_model=EventActivityOverviewOut)
+async def get_event_activity_overview(event_id: str, db: AsyncSession = Depends(get_db)):
+    from datetime import datetime, timezone
+    from app.models.tables import A2ATask, Agent
+
+    event_log = await db.get(EventLog, event_id)
+    if not event_log:
+        raise HTTPException(404, "Event not found")
+
+    task_result = await db.execute(
+        select(A2ATask)
+        .where(A2ATask.context_id == event_id)
+        .order_by(A2ATask.created_at.asc())
+    )
+    tasks = list(task_result.scalars().all())
+
+    agent_name_map: dict[str, str] = {}
+    if tasks:
+        agent_ids = list({t.agent_id for t in tasks if t.agent_id})
+        if agent_ids:
+            agent_result = await db.execute(select(Agent).where(Agent.id.in_(agent_ids)))
+            agents = list(agent_result.scalars().all())
+            agent_name_map = {a.id: a.name for a in agents}
+
+    now = datetime.now(timezone.utc)
+    timeline_start = event_log.created_at
+    timeline_end = event_log.created_at
+    items: list[EventActivityItemOut] = []
+
+    for t in tasks:
+        started_at = t.created_at
+        is_running = t.status in ("submitted", "working")
+        ended_at = None if is_running else t.updated_at
+        effective_end = now if is_running else (t.updated_at or t.created_at)
+        duration_ms = max(0, int((effective_end - started_at).total_seconds() * 1000))
+
+        if started_at < timeline_start:
+            timeline_start = started_at
+        if effective_end > timeline_end:
+            timeline_end = effective_end
+
+        items.append(
+            EventActivityItemOut(
+                task_id=t.id,
+                agent_id=t.agent_id,
+                agent_name=agent_name_map.get(t.agent_id, t.agent_id),
+                status=t.status,
+                started_at=started_at,
+                ended_at=ended_at,
+                duration_ms=duration_ms,
+                error=t.error or "",
+                artifacts_count=len(t.artifacts or []),
+            )
+        )
+
+    if timeline_end < timeline_start:
+        timeline_end = timeline_start
+
+    return EventActivityOverviewOut(
+        event_id=event_log.id,
+        event_type=event_log.event_type,
+        source=event_log.source,
+        status=event_log.status,
+        timeline_start=timeline_start,
+        timeline_end=timeline_end,
+        items=items,
+    )
 
 
 @router.get("/{event_id}", response_model=EventLogOut)

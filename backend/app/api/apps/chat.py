@@ -124,8 +124,13 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
     model_name = agent.model or ""
     from app.models.tables import LLMModel
     if agent.model:
-        llm_result = await db.execute(select(LLMModel).where(LLMModel.name == agent.model))
-        llm = llm_result.scalar_one_or_none()
+        llm = await db.get(LLMModel, agent.model)
+        if llm is None:
+            llm_result = await db.execute(select(LLMModel).where(LLMModel.name == agent.model))
+            llm = llm_result.scalar_one_or_none()
+        if llm is None:
+            llm_result = await db.execute(select(LLMModel).where(LLMModel.model == agent.model))
+            llm = llm_result.scalar_one_or_none()
         if llm:
             model_name = llm.model
 
@@ -140,9 +145,9 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         "messages": messages,
         "stream": body.get("stream", True),
     }
-    # 声明了 skills 的 agent 默认启用 shell（其余行为由 prompt + skills 约束）
+    # 声明了 skills 的 agent 默认启用内置协作工具（其余行为由 prompt + skills 约束）
     if agent.skills:
-        payload["tool_selection"] = {"tool_ids": ["shell"]}
+        payload["tool_selection"] = {"tool_ids": ["shell", "publish_event"]}
     capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
     reasoning = capabilities.get("reasoning")
     if isinstance(reasoning, dict) and reasoning:

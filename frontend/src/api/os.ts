@@ -61,6 +61,17 @@ export const api = {
     return request<{ items: import("../types").EventLog[]; total: number; limit: number; offset: number }>(`/events${qs ? `?${qs}` : ""}`);
   },
   getEvent: (eventId: string) => request<import("../types").EventLog>(`/events/${eventId}`),
+  getEventActivityOverview: (eventId: string) =>
+    request<import("../types").EventActivityOverview>(`/events/${eventId}/activity-overview`),
+  getActivityGantt: (params?: { since_minutes?: number; date?: string; agent_ids?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.since_minutes) q.set("since_minutes", String(params.since_minutes));
+    if (params?.date) q.set("date", params.date);
+    if (params?.agent_ids) q.set("agent_ids", params.agent_ids);
+    if (params?.limit) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    return request<import("../types").ActivityGanttResponse>(`/events/activity-gantt${qs ? `?${qs}` : ""}`);
+  },
   retryEvent: (eventId: string) => 
     request<{ message: string; event_id: string }>(`/events/${eventId}/retry`, { method: "POST" }),
 

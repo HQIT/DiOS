@@ -110,3 +110,57 @@ export interface EventLog {
   error_message?: string;
   dedup_hash?: string;
 }
+
+export interface EventActivityItem {
+  task_id: string;
+  agent_id: string;
+  agent_name: string;
+  status: string;
+  started_at: string;
+  ended_at?: string;
+  duration_ms: number;
+  error?: string;
+  artifacts_count?: number;
+}
+
+export interface EventActivityOverview {
+  event_id: string;
+  event_type: string;
+  source: string;
+  status: string;
+  timeline_start: string;
+  timeline_end: string;
+  items: EventActivityItem[];
+}
+
+export interface ActivityBehaviorPoint {
+  type: string;
+  at: string;
+  label: string;
+}
+
+export interface ActivityGanttBar {
+  task_id: string;
+  agent_id: string;
+  agent_name: string;
+  status: string;
+  start_at: string;
+  end_at?: string | null;
+  effective_end_at: string;
+  duration_ms: number;
+  event_id?: string;
+  event_type?: string;
+  source?: string;
+  error?: string;
+  artifacts_count?: number;
+  behaviors: ActivityBehaviorPoint[];
+}
+
+export interface ActivityGanttResponse {
+  timeline_start: string;
+  timeline_end: string;
+  since_minutes: number;
+  date?: string;
+  agents: { agent_id: string; agent_name: string; task_count: number }[];
+  bars: ActivityGanttBar[];
+}
