@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     event_dedup_window_hours: int = 1
     event_dedup_exclude_types: list[str] = ["cron.tick", "manual.trigger"]
 
+    # 非空时启用 API Access Token（Authorization: Bearer 或 X-DiOS-Access-Token）
+    access_token: str = ""
+
     model_config = {"env_prefix": "DIOS_"}
 
 

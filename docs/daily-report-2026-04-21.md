@@ -55,3 +55,19 @@
 2. 降低对 LLM 自主收敛的依赖，确保事件链路可预测推进
 3. 复测并验收完整链路：`topic -> experiment -> draft -> review`
 
+## 架构迁移计划（已确认，待实施）
+
+目标：DiAgent 保留最小内置能力（建议仅 shell），业务级事件发布能力收敛到 DiOS 统一治理。
+
+### 阶段一：兼容迁移（灰度）
+
+1. 在 DiOS 增加 `publish_event` 注入能力（按 Agent 配置开启）
+2. 发布校验与审计统一在 DiOS 执行（event_type/source 白名单）
+3. 运行时按 capabilities 下发工具，避免在 DiAgent 写死业务工具
+
+### 阶段二：能力收敛（清理）
+
+1. 删除 DiAgent 内置 `publish_event` 实现与注册
+2. 清理 DiAgent task/service 路径中的内置注入逻辑
+3. 场景脚本仅保留“必须发布事件”的业务语义，不绑定具体实现
+

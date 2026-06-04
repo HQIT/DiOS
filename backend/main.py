@@ -11,6 +11,8 @@ from app.api.apps import chat as chat_app
 from app.services.cron_scheduler import cron_scheduler
 from app.services.imap_poller import imap_poller
 from app.services.event_retry_worker import retry_worker
+from app.middleware.access_token import AccessTokenMiddleware
+from app.config import settings
 
 
 @asynccontextmanager
@@ -27,6 +29,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="DiOS", description="DiFlow Intelligent Operation System", lifespan=lifespan)
 
+app.add_middleware(AccessTokenMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -54,3 +57,9 @@ app.include_router(apps_router)
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/api/auth/status")
+async def auth_status():
+    """前端判断是否需展示 Access Token 登录页。"""
+    return {"access_token_required": bool(settings.access_token)}

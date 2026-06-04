@@ -221,7 +221,9 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
             if model_name:
                 openai_req["model"] = model_name
 
-            async with httpx.AsyncClient(timeout=300) as client:
+            from app.services.http_internal import internal_client
+
+            async with internal_client(timeout=300) as client:
                 resp = await client.post(f"{url}/v1/chat/completions", json=openai_req)
                 resp.raise_for_status()
                 data = resp.json()

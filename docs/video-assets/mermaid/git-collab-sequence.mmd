@@ -1,0 +1,22 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1a1d27', 'primaryTextColor': '#e4e6eb', 'primaryBorderColor': '#6c8eef', 'lineColor': '#6c8eef', 'actorBkg': '#232730', 'actorTextColor': '#e4e6eb', 'actorBorder': '#4ea8de', 'signalColor': '#e4e6eb', 'noteBkgColor': '#2a2e3a', 'noteTextColor': '#e4e6eb'}}}%%
+sequenceDiagram
+    participant H as Human
+    participant Git as Git 系统
+    participant EG as DiOS Event Gateway
+    participant M as 主控 Agent
+    participant B as 开发 Agent
+    participant A as 评审 Agent
+
+    H->>Git: 创建 Issue
+    Git->>EG: webhook issue.created
+    EG->>M: 路由事件
+    M->>B: 分派开发任务
+    B->>Git: commit / push，创建 PR
+    Git->>EG: webhook pr.created
+    EG->>A: 路由事件
+    A->>Git: 提交 Review
+    Git->>EG: webhook review.submitted
+    EG->>B: 路由事件
+    Note over A,B: 循环修改直至通过
+    A->>Git: Approve & Merge
+    Git->>H: 通知完成

@@ -8,6 +8,8 @@ from pathlib import Path
 
 import yaml
 import httpx
+
+from app.services.http_internal import internal_client
 import docker
 from docker.errors import NotFound, APIError
 from sqlalchemy import select
@@ -112,10 +114,10 @@ def _start_container(agent: Agent, env: dict[str, str]) -> tuple[str, str]:
     return container.id, url
 
 
-async def _health_check(url: str, retries: int = 10, interval: float = 1.0) -> bool:
+async def _health_check(url: str, retries: int = 20, interval: float = 1.0) -> bool:
     for _ in range(retries):
         try:
-            async with httpx.AsyncClient(timeout=2) as client:
+            async with internal_client(timeout=2) as client:
                 resp = await client.get(f"{url}/health")
                 if resp.status_code == 200:
                     return True

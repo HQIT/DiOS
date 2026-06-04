@@ -1,4 +1,7 @@
-const BASE = "/api/apps/chat";
+import { apiPrefix } from "../lib/apiBase";
+import { authHeaders } from "../lib/auth";
+
+const BASE = `${apiPrefix()}/apps/chat`;
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -54,7 +57,7 @@ export async function* streamChat(
 ): AsyncGenerator<ChatStreamEvent> {
   const res = await fetch(`${BASE}/completions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(),
     body: JSON.stringify({ ...req, stream: true }),
     signal,
   });
@@ -208,13 +211,17 @@ async function* _readSSE(res: Response): AsyncGenerator<ChatStreamEvent> {
   }
 }
 
+function chatFetch(path: string, init?: RequestInit) {
+  return fetch(`${BASE}${path}`, { ...init, headers: authHeaders(init?.headers) });
+}
+
 export const chatApi = {
   listSessions: (agentId: string) =>
-    fetch(`${BASE}/agents/${agentId}/sessions`).then((r) => r.json()) as Promise<ChatSession[]>,
+    chatFetch(`/agents/${agentId}/sessions`).then((r) => r.json()) as Promise<ChatSession[]>,
 
   getMessages: (sessionId: string) =>
-    fetch(`${BASE}/sessions/${sessionId}/messages`).then((r) => r.json()) as Promise<StoredMessage[]>,
+    chatFetch(`/sessions/${sessionId}/messages`).then((r) => r.json()) as Promise<StoredMessage[]>,
 
   deleteSession: (sessionId: string) =>
-    fetch(`${BASE}/sessions/${sessionId}`, { method: "DELETE" }),
+    chatFetch(`/sessions/${sessionId}`, { method: "DELETE" }),
 };

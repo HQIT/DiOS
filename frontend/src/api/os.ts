@@ -1,9 +1,12 @@
-const BASE = "/api/os";
+import { apiPrefix } from "../lib/apiBase";
+import { authHeaders } from "../lib/auth";
+
+const BASE = `${apiPrefix()}/os`;
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...init,
+    headers: authHeaders(init?.headers),
   });
   if (res.status === 204) return undefined as T;
   if (!res.ok) {

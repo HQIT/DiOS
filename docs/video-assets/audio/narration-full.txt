@@ -1,0 +1,23 @@
+当 AI Agent 从聊天玩具变成团队里真正干活的成员，你会遇到一个新问题：谁来管这些 Agent？谁来接 Git、邮件、Webhook？谁来分配模型和工具？
+
+Di-OS 就是为此而生的——它是 DiFlow 工具链里，面向 Agent 的事件驱动操作系统层。
+
+可以把 Di-OS 理解成 Agent 的操作系统。它管资源、管调度，但不替 Agent 做业务决策。真正执行任务的是跑在上面的 DiAgent——每个 Agent 就像系统里的一个进程。
+
+我们的 NANA 产品基于 Di-OS 加 DiAgent 构建。NANA，Network Attached Native Agent，泛指可通过网络接入的本地化 AI Agent 设备或系统——就像 NAS 之于网络存储，是一类产品形态；Di-OS 是这套形态里的 OS 层。
+
+Di-OS 做六件关键的事。第一，Agent 管理——创建多个 Agent，配置角色、系统提示词、模型，以及 Skills 和 MCP 工具。第二，统一模型池——多个 LLM 端点集中注册，Agent 按需选用。第三，MCP 与 Skills——外部工具在 OS 层统一挂载，再分配给 Agent，类似设备驱动和扩展库。第四，事件接入——GitHub、GitLab、Gitea Webhook，IMAP 邮件轮询，以及通用 HTTP Webhook。第五，事件订阅与路由——按来源、类型、字段条件，甚至 Cron，决定哪个事件交给哪个 Agent。第六，隔离执行——匹配后在独立容器里启动 Agent，记录状态与日志——可观测、可重试、互不干扰。
+
+常驻型 service：长期 HTTP 服务，支持多轮对话。在 Chat App 里和它聊天，像打开一个 AI 同事窗口。一次性 task：事件触发、干完即走，适合自动化流水线——可并行、可重试。同一种 DiAgent 运行时，区别只在 OS 调度：长驻 worker 还是单次 job。
+
+Git 驱动的开发协作：创建 Issue，Webhook 进 Di-OS，路由主控 Agent；分派开发 Agent 写代码、提 PR；PR 创建后评审 Agent 介入；Review 再通过事件回到开发 Agent——直到合并，人只在关键节点决策。
+
+Di-OS 不负责 Agent 之间的业务编排——那是 Agent 自己的事；Di-OS 保证：外部事件能准确、安全地送到该醒来的 Agent。
+
+也可走邮件驱动：一封开始写论文，主控、实验、写作、评审 Agent 通过邮件与共享 workspace 接力。Git 靠 Issue 和 PR 当状态机，邮件靠 workspace 文件承载进度。
+
+Console 是 OS 管理台；Chat 与常驻 Agent 对话，会话由应用层持久化，Agent 保持无状态。还可通过 CLI、未来 Slack Bot 等扩展——统一走 API，OS 不绑定某一种交互形态。
+
+用操作系统类比：LLM 是算力，Skills 和 MCP 是扩展，Agent 是进程，Chat 和 Console 是 Shell 和 GUI。内核管调度与资源，进程干业务，用户通过 App 触达——让多 Agent 从 demo 走向可部署、可治理。
+
+Di-OS 基于 DiAgent，属 DiFlow 工具链，MIT 开源。无论你是搭 NANA 设备，还是落地事件驱动的多智能体协作——Di-OS 提供的是：让 Agent 像进程一样被创建、被触发、被隔离、被管理。欢迎试用、共建。

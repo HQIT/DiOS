@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.models.tables import Agent, ChatSession, ChatMessage
 from app.services.agent_runtime import ensure_running
+from app.services.http_internal import internal_client
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
@@ -158,7 +159,7 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
             collected: list[str] = []
             current_event: str | None = None
             try:
-                async with httpx.AsyncClient(timeout=httpx.Timeout(300, connect=10)) as client:
+                async with internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
                     async with client.stream("POST", f"{diagent_url}/v1/chat/completions", json=payload) as resp:
                         if resp.status_code != 200:
                             error = await resp.aread()
@@ -213,7 +214,7 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         )
 
     # 非流式
-    async with httpx.AsyncClient(timeout=httpx.Timeout(300, connect=10)) as client:
+    async with internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
         resp = await client.post(f"{diagent_url}/v1/chat/completions", json=payload)
         if resp.status_code != 200:
             raise HTTPException(resp.status_code, resp.text)

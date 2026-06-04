@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AccessGate from "./components/AccessGate";
 import ConsolePage from "./apps/console/ConsolePage";
 import ChatPage from "./apps/chat/ChatPage";
 
@@ -30,6 +31,7 @@ export default function App() {
   }, []);
 
   return (
+    <AccessGate>
     <div className="app">
       <header className="app-header">
         <h1>DiOS</h1>
@@ -52,5 +54,6 @@ export default function App() {
         {currentApp === "chat" && <ChatPage />}
       </div>
     </div>
+    </AccessGate>
   );
 }

@@ -1,0 +1,19 @@
+# 生产：本机端口 + 接入 demogo Caddy 网络
+services:
+  backend:
+    ports:
+      - "127.0.0.1:18080:8000"
+    environment:
+      - DIOS_ACCESS_TOKEN=${DIOS_ACCESS_TOKEN:-}
+
+  frontend:
+    ports:
+      - "127.0.0.1:13080:80"
+    networks:
+      - default
+      - demogo
+
+networks:
+  demogo:
+    external: true
+    name: gdw-3d-bin-packing_default

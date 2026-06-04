@@ -30,8 +30,13 @@ services:
       - DIOS_DIAGENT_IMAGE=dios-diagent-task:latest
       - DIOS_DIAGENT_SERVICE_IMAGE=dios-diagent-service:latest
       - DIOS_DOCKER_NETWORK=nana-os_default
+      # 避免 WSL/Cursor 代理劫持访问 dios-agent-* 容器
+      - NO_PROXY=localhost,127.0.0.1,backend,172.16.0.0/12,10.0.0.0/8
+      - no_proxy=localhost,127.0.0.1,backend,172.16.0.0/12,10.0.0.0/8
+      # 本地演示默认不启用；需与线上一致时取消注释并设与前端输入相同的值
+      # - DIOS_ACCESS_TOKEN=dev-local-token
     ports:
-      - "8080:8000"
+      - "8081:8000"  # 8080 常被其他服务占用，直连 API 用 8081
 
   frontend:
     build:
