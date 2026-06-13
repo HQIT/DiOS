@@ -148,7 +148,7 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
     }
     # 声明了 skills 的 agent 默认启用内置协作工具（其余行为由 prompt + skills 约束）
     if agent.skills:
-        payload["tool_selection"] = {"tool_ids": ["shell", "publish_event"]}
+        payload["tool_selection"] = {"tool_ids": ["shell", "publish_event", "upload_file"]}
     capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
     reasoning = capabilities.get("reasoning")
     if isinstance(reasoning, dict) and reasoning:
