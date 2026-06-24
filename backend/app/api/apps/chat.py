@@ -148,11 +148,14 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
     }
     # 声明了 skills 的 agent 默认启用内置协作工具（其余行为由 prompt + skills 约束）
     if agent.skills:
-        payload["tool_selection"] = {"tool_ids": ["shell", "publish_event", "upload_file"]}
+        payload["tool_selection"] = {"tool_ids": ["shell", "publish_event"]}
     capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
     reasoning = capabilities.get("reasoning")
+    # 合并调用方传入的 custom_fields，透传给 DiAgent
+    caller_cf = body.get("custom_fields") or {}
     if isinstance(reasoning, dict) and reasoning:
-        payload["custom_fields"] = {"reasoning": reasoning}
+        caller_cf["reasoning"] = reasoning
+    if caller_cf:
 
     if payload["stream"]:
         async def _stream():
