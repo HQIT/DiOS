@@ -425,31 +425,13 @@ MCP Server 为 Agent 在执行任务时提供可调用的外部工具，与事�
 
 **总结：Connector = 入站事件源；MCP = Agent 执行时的出站工具。两者职责不重叠。**
 
-### MCP Server 支持 Remote/SSE Transport（待实现）
+### MCP Server 支持 Remote/SSE Transport
 
-**现状**：当前 MCP Server 仅支持 stdio transport — Agent 容器内通过 `command + args` 启动子进程，经 stdin/stdout 通信。数据模型（`McpServer` 表）只有 `command`、`args`、`env` 三个字段。
+**已实现（后端）**：
 
-**问题**：MCP Registry 中大量 MCP Server 采用 SSE 或 Streamable HTTP transport（远程托管服务），当前架构无法使用这些服务。
+1. **数据模型**：`McpServer.transport`（`stdio` \| `sse` \| `streamable-http`）与 `url`
+2. **配置生成**（`mcp_config.build_diagent_mcp_servers` → `agent_runtime` / A2A）：输出 DiAgent MultiServerMCPClient **dict**（stdio / http / sse）
+3. **HTTP 头约定**：`env.Authorization` / `HEADER_*` → 远程 `headers`
+4. **Chat**：绑定了 `mcp_server_ids` 时不传 `tool_selection`（DiAgent：未传 = 全部 MCP）
 
-**需要改动**：
-
-1. **数据模型扩展**
-   - `McpServer` 表新增 `transport` 字段：`stdio`（默认）| `sse` | `streamable-http`
-   - 新增 `url` 字段：Remote MCP 的服务端点 URL
-   - `command`/`args` 仅在 `transport=stdio` 时使用，`url` 仅在远程模式时使用
-
-2. **配置生成逻辑**（`event_dispatcher.py`）
-   - 当前生成的 JSON 只含 `{name, command, args, env}`
-   - 需根据 transport 类型输出不同格式：
-     - stdio: `{name, command, args, env}`
-     - sse/http: `{name, transport, url, headers?}`
-
-3. **DiAgent 执行引擎**
-   - 需要 MCP client 支持 HTTP transport 连接远程 MCP Server
-   - 容器需网络出站权限访问远程 MCP 端点
-
-4. **前端 MCP Registry 搜索**
-   - 当前对无 `command` 的远程 MCP 显示 "Remote only" 不可添加
-   - 支持后：远程 MCP 点击 Add 时填写 URL 而非 command
-
-**优先级**：中。大部分核心工具（filesystem、git、docker）都有 stdio 版本，远程 MCP 主要用于 SaaS 集成（Gmail、Slack、SendGrid 等）。
+**仍待**：Console 对远程 MCP 的 URL 表单与 Registry「Remote only」可添加（API/seed 已可用）。

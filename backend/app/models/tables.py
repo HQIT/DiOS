@@ -71,9 +71,12 @@ class McpServer(Base):
 
     id: Mapped[str] = mapped_column(String(12), primary_key=True, default=_uuid)
     name: Mapped[str] = mapped_column(String(128), nullable=False)
-    command: Mapped[str] = mapped_column(String(512), nullable=False)
+    # stdio | sse | streamable-http（见 docs/event-gateway-design.md 附录）
+    transport: Mapped[str] = mapped_column(String(32), default="stdio")
+    command: Mapped[str] = mapped_column(String(512), default="")
     args: Mapped[list] = mapped_column(JSON, default=list)
     env: Mapped[dict] = mapped_column(JSON, default=dict)
+    url: Mapped[str] = mapped_column(String(1024), default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 

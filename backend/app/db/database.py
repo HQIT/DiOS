@@ -35,6 +35,24 @@ def _add_agent_env(sync_conn):
         pass
 
 
+def _add_mcp_server_remote_fields(sync_conn):
+    """Remote/SSE MCP：transport + url（附录 event-gateway-design）。"""
+    try:
+        from sqlalchemy import text
+        sync_conn.execute(
+            text("ALTER TABLE mcp_servers ADD COLUMN transport VARCHAR(32) DEFAULT 'stdio'")
+        )
+    except Exception:
+        pass
+    try:
+        from sqlalchemy import text
+        sync_conn.execute(
+            text("ALTER TABLE mcp_servers ADD COLUMN url VARCHAR(1024) DEFAULT ''")
+        )
+    except Exception:
+        pass
+
+
 def _bootstrap_master_agent(sync_conn):
     """启动时把历史默认 Agent `SayHi` 升级为 `Master`（仅改名，不改其余配置）。"""
     try:
@@ -63,6 +81,7 @@ async def init_db():
             await conn.run_sync(_add_agent_mcp_server_ids)
             await conn.run_sync(_add_agent_capabilities)
             await conn.run_sync(_add_agent_env)
+            await conn.run_sync(_add_mcp_server_remote_fields)
             await conn.run_sync(_bootstrap_master_agent)
             await conn.commit()
 

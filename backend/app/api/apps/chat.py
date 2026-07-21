@@ -145,8 +145,15 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         "messages": messages,
         "stream": body.get("stream", True),
     }
-    # 声明了 skills 的 agent 默认启用内置协作工具（其余行为由 prompt + skills 约束）
-    if agent.skills:
+    # 工具选择契约（DiAgent）：
+    # - 未传 tool_selection → 启用全部已连接 MCP
+    # - 显式 tool_ids=[] → 无工具
+    # - 显式 tool_ids=["shell",...] → 按名过滤 + 内置工具
+    # 有 MCP 绑定时不传 tool_selection，避免仅下发 shell 盖掉 MCP。
+    mcp_ids = getattr(agent, "mcp_server_ids", None) or []
+    if mcp_ids:
+        pass
+    elif agent.skills:
         payload["tool_selection"] = {"tool_ids": ["shell", "publish_event"]}
     capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
     reasoning = capabilities.get("reasoning")

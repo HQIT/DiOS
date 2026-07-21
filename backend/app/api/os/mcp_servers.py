@@ -19,7 +19,19 @@ async def list_mcp_servers(db: AsyncSession = Depends(get_db)):
 
 @router.post("", response_model=McpServerOut, status_code=201)
 async def create_mcp_server(body: McpServerCreate, db: AsyncSession = Depends(get_db)):
-    srv = McpServer(name=body.name, command=body.command, args=body.args, env=body.env)
+    transport = (body.transport or "stdio").strip().lower()
+    if transport == "stdio" and not (body.command or "").strip():
+        raise HTTPException(400, "command is required for stdio transport")
+    if transport in ("sse", "streamable-http", "http") and not (body.url or body.command or "").strip():
+        raise HTTPException(400, "url is required for remote transport")
+    srv = McpServer(
+        name=body.name,
+        transport=transport if transport != "http" else "streamable-http",
+        command=body.command or "",
+        args=body.args or [],
+        env=body.env or {},
+        url=body.url or "",
+    )
     db.add(srv)
     await db.commit()
     await db.refresh(srv)
