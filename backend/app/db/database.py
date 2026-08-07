@@ -35,6 +35,21 @@ def _add_agent_env(sync_conn):
         pass
 
 
+def _add_mcp_remote_columns(sync_conn):
+    from sqlalchemy import text
+
+    alters = [
+        "ALTER TABLE mcp_servers ADD COLUMN transport TEXT DEFAULT 'stdio'",
+        "ALTER TABLE mcp_servers ADD COLUMN url TEXT DEFAULT ''",
+        "ALTER TABLE mcp_servers ADD COLUMN headers TEXT DEFAULT '{}'",
+    ]
+    for sql in alters:
+        try:
+            sync_conn.execute(text(sql))
+        except Exception:
+            pass
+
+
 def _bootstrap_master_agent(sync_conn):
     """启动时把历史默认 Agent `SayHi` 升级为 `Master`（仅改名，不改其余配置）。"""
     try:
@@ -63,6 +78,7 @@ async def init_db():
             await conn.run_sync(_add_agent_mcp_server_ids)
             await conn.run_sync(_add_agent_capabilities)
             await conn.run_sync(_add_agent_env)
+            await conn.run_sync(_add_mcp_remote_columns)
             await conn.run_sync(_bootstrap_master_agent)
             await conn.commit()
 

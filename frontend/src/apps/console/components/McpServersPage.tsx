@@ -13,10 +13,13 @@ interface RegistryServer {
   transport: string;
 }
 
+const REMOTE_TRANSPORTS = new Set(["streamable_http", "http", "sse"]);
+
 export default function McpServersPage() {
   const [mcpServers, setMcpServers] = useState<McpServer[]>([]);
   const [mcpEdit, setMcpEdit] = useState<Partial<McpServer> | null>(null);
   const [envPairs, setEnvPairs] = useState<{ key: string; value: string; hint?: string }[]>([]);
+  const [headerPairs, setHeaderPairs] = useState<{ key: string; value: string }[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<RegistryServer[]>([]);
@@ -35,17 +38,38 @@ export default function McpServersPage() {
     if (s) {
       setMcpEdit({ ...s });
       setEnvPairs(envToList(s.env || {}));
+      setHeaderPairs(Object.entries(s.headers || {}).map(([key, value]) => ({ key, value })));
     } else {
-      setMcpEdit({ name: "", command: "", args: [], env: {} });
+      setMcpEdit({
+        name: "",
+        transport: "streamable_http",
+        url: "",
+        headers: {},
+        command: "",
+        args: [],
+        env: {},
+      });
       setEnvPairs([]);
+      setHeaderPairs([]);
     }
   };
 
+  const isRemote = REMOTE_TRANSPORTS.has((mcpEdit?.transport || "stdio").toLowerCase());
+
   const save = async () => {
-    if (!mcpEdit?.name?.trim() || !mcpEdit?.command?.trim()) return;
+    if (!mcpEdit?.name?.trim()) return;
+    const transport = (mcpEdit.transport || "stdio").trim();
+    if (REMOTE_TRANSPORTS.has(transport.toLowerCase())) {
+      if (!mcpEdit.url?.trim()) return;
+    } else if (!mcpEdit.command?.trim()) {
+      return;
+    }
     const payload = {
       name: mcpEdit.name,
-      command: mcpEdit.command,
+      transport,
+      url: mcpEdit.url || "",
+      headers: listToEnv(headerPairs),
+      command: mcpEdit.command || "",
       args: mcpEdit.args ?? [],
       env: listToEnv(envPairs),
     };
@@ -74,11 +98,15 @@ export default function McpServersPage() {
     const hints = srv.env_hints || {};
     setMcpEdit({
       name: srv.name.split("/").pop() || srv.name,
+      transport: srv.transport || "stdio",
+      url: "",
+      headers: {},
       command: srv.command,
       args: srv.args || [],
       env: Object.fromEntries(Object.entries(hints).map(([k]) => [k, ""])),
     });
     setEnvPairs(Object.entries(hints).map(([key, desc]) => ({ key, value: "", hint: desc })));
+    setHeaderPairs([]);
   };
 
   const updateArg = (idx: number, val: string) => {
@@ -109,60 +137,50 @@ export default function McpServersPage() {
     setEnvPairs((prev) => [...prev, { key: "", value: "" }]);
   };
 
+  const updateHeaderPair = (idx: number, field: "key" | "value", val: string) => {
+    setHeaderPairs((prev) => prev.map((p, i) => i === idx ? { ...p, [field]: val } : p));
+  };
+
+  const metaLine = (s: McpServer) => {
+    const t = (s.transport || "stdio").toLowerCase();
+    if (REMOTE_TRANSPORTS.has(t) || s.url) {
+      return `${s.transport || "streamable_http"} · ${s.url}`;
+    }
+    return `${s.transport || "stdio"} · ${s.command} ${(s.args || []).join(" ")}`;
+  };
+
   return (
     <div className="panel">
       <p className="text-muted" style={{ marginBottom: 12 }}>
-        MCP servers provide tools for Agents (e.g. filesystem, API, email), separate from event sources.
+        外部独立系统请用 <b>远程 MCP</b>（streamable_http + URL）。stdio 仅适合本地小工具。
       </p>
 
-      {/* Registry Search */}
       <div className="registry-search">
         <h4 className="catalog-section-title">Search MCP Registry</h4>
-        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
           <input
             style={{ flex: 1 }}
-            placeholder="Search MCP servers, e.g. filesystem, github, slack ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") doSearch(); }}
+            placeholder="Search registry…"
+            onKeyDown={(e) => e.key === "Enter" && doSearch()}
           />
           <button className="btn-sm" onClick={doSearch} disabled={searching}>
-            {searching ? "Searching..." : "Search"}
+            {searching ? "…" : "Search"}
           </button>
         </div>
-        {searchResults.length > 0 && (
-          <div className="registry-results">
-            {searchResults.map((srv) => {
-              const hasCmd = !!srv.command;
-              return (
-                <div key={srv.name + srv.version} className="registry-result-item">
-                  <div className="registry-result-info">
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span className="registry-result-name">{srv.name}</span>
-                      <span className={`transport-badge ${hasCmd ? "transport-stdio" : "transport-remote"}`}>
-                        {srv.transport || "stdio"}
-                      </span>
-                      {srv.version && <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>v{srv.version}</span>}
-                    </div>
-                    <span className="registry-result-desc">{srv.description}</span>
-                    {hasCmd && <span className="registry-result-cmd">{srv.command} {srv.args.join(" ")}</span>}
-                  </div>
-                  {hasCmd ? (
-                    <button className="btn-sm" onClick={() => addFromRegistry(srv)}>Add</button>
-                  ) : (
-                    <span className="text-muted" style={{ fontSize: 11, whiteSpace: "nowrap" }}>Remote only</span>
-                  )}
-                </div>
-              );
-            })}
+        {searchResults.map((srv) => (
+          <div key={srv.name} className="registry-result" style={{ marginBottom: 8 }}>
+            <div className="registry-result-name">{srv.name}</div>
+            <div className="text-muted" style={{ fontSize: 12 }}>{srv.description}</div>
+            <button className="btn-sm btn-secondary" onClick={() => addFromRegistry(srv)}>Add</button>
           </div>
-        )}
+        ))}
         {searchDone && searchResults.length === 0 && (
           <p className="text-muted">No matching MCP servers found</p>
         )}
       </div>
 
-      {/* 已添加列表 */}
       <h4 className="catalog-section-title" style={{ marginTop: 20 }}>Configured MCP Servers</h4>
       <div className="card-grid">
         {mcpServers.map((s) => (
@@ -171,7 +189,7 @@ export default function McpServersPage() {
               <span className="entity-card-name">{s.name}</span>
             </div>
             <div className="entity-card-meta">
-              <span className="mono">{s.command} {(s.args || []).join(" ")}</span>
+              <span className="mono">{metaLine(s)}</span>
             </div>
             <div className="entity-card-actions">
               <button className="btn-sm btn-secondary" onClick={() => openEdit(s)}>Edit</button>
@@ -189,32 +207,64 @@ export default function McpServersPage() {
         {mcpEdit && (
           <div className="drawer-form">
             <label>Name</label>
-            <input value={mcpEdit.name || ""} onChange={(e) => setMcpEdit({ ...mcpEdit, name: e.target.value })} placeholder="e.g. filesystem" />
+            <input value={mcpEdit.name || ""} onChange={(e) => setMcpEdit({ ...mcpEdit, name: e.target.value })} placeholder="e.g. git-perf" />
 
-            <label>Command</label>
-            <input value={mcpEdit.command || ""} onChange={(e) => setMcpEdit({ ...mcpEdit, command: e.target.value })} placeholder="npx / uvx / docker" />
+            <label>Transport</label>
+            <select
+              value={mcpEdit.transport || "streamable_http"}
+              onChange={(e) => setMcpEdit({ ...mcpEdit, transport: e.target.value })}
+            >
+              <option value="streamable_http">streamable_http（远程，推荐）</option>
+              <option value="sse">sse（远程，旧）</option>
+              <option value="stdio">stdio（本地进程）</option>
+            </select>
 
-            <label>Args</label>
-            {(mcpEdit.args || []).map((arg, i) => (
-              <div key={i} style={{ display: "flex", gap: 4, marginBottom: 4 }}>
-                <input style={{ flex: 1 }} value={arg} onChange={(e) => updateArg(i, e.target.value)} placeholder={`arg ${i + 1}`} />
-                <button className="btn-sm btn-danger" onClick={() => removeArg(i)}>x</button>
-              </div>
-            ))}
-            <button className="btn-sm btn-secondary" onClick={addArg} style={{ marginBottom: 8 }}>+ Add Arg</button>
+            {isRemote ? (
+              <>
+                <label>URL</label>
+                <input
+                  value={mcpEdit.url || ""}
+                  onChange={(e) => setMcpEdit({ ...mcpEdit, url: e.target.value })}
+                  placeholder="http://host.docker.internal:8090/mcp"
+                />
+                <label>Headers（可选）</label>
+                {headerPairs.map((p, i) => (
+                  <div key={i} style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+                    <input style={{ flex: 1 }} value={p.key} onChange={(e) => updateHeaderPair(i, "key", e.target.value)} placeholder="Authorization" />
+                    <input style={{ flex: 1 }} value={p.value} onChange={(e) => updateHeaderPair(i, "value", e.target.value)} placeholder="Bearer …" />
+                    <button className="btn-sm btn-danger" onClick={() => setHeaderPairs((prev) => prev.filter((_, j) => j !== i))}>x</button>
+                  </div>
+                ))}
+                <button className="btn-sm btn-secondary" onClick={() => setHeaderPairs((p) => [...p, { key: "", value: "" }])} style={{ marginBottom: 8 }}>+ Header</button>
+              </>
+            ) : (
+              <>
+                <label>Command</label>
+                <input value={mcpEdit.command || ""} onChange={(e) => setMcpEdit({ ...mcpEdit, command: e.target.value })} placeholder="npx / uvx / python" />
 
-            <label>Env</label>
-            {envPairs.map((p, i) => (
-              <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 6 }}>
-                <div style={{ display: "flex", gap: 4 }}>
-                  <input style={{ flex: 1 }} value={p.key} onChange={(e) => updateEnvPair(i, "key", e.target.value)} placeholder="KEY" />
-                  <input style={{ flex: 1 }} value={p.value} onChange={(e) => updateEnvPair(i, "value", e.target.value)} placeholder={p.hint || "VALUE"} />
-                  <button className="btn-sm btn-danger" onClick={() => removeEnvPair(i)}>x</button>
-                </div>
-                {p.hint && !p.value && <span style={{ fontSize: 11, color: "var(--text-secondary)", paddingLeft: 4 }}>{p.hint}</span>}
-              </div>
-            ))}
-            <button className="btn-sm btn-secondary" onClick={addEnvPair} style={{ marginBottom: 8 }}>+ Add Env</button>
+                <label>Args</label>
+                {(mcpEdit.args || []).map((arg, i) => (
+                  <div key={i} style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+                    <input style={{ flex: 1 }} value={arg} onChange={(e) => updateArg(i, e.target.value)} placeholder={`arg ${i + 1}`} />
+                    <button className="btn-sm btn-danger" onClick={() => removeArg(i)}>x</button>
+                  </div>
+                ))}
+                <button className="btn-sm btn-secondary" onClick={addArg} style={{ marginBottom: 8 }}>+ Add Arg</button>
+
+                <label>Env</label>
+                {envPairs.map((p, i) => (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 6 }}>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <input style={{ flex: 1 }} value={p.key} onChange={(e) => updateEnvPair(i, "key", e.target.value)} placeholder="KEY" />
+                      <input style={{ flex: 1 }} value={p.value} onChange={(e) => updateEnvPair(i, "value", e.target.value)} placeholder={p.hint || "VALUE"} />
+                      <button className="btn-sm btn-danger" onClick={() => removeEnvPair(i)}>x</button>
+                    </div>
+                    {p.hint && !p.value && <span style={{ fontSize: 11, color: "var(--text-secondary)", paddingLeft: 4 }}>{p.hint}</span>}
+                  </div>
+                ))}
+                <button className="btn-sm btn-secondary" onClick={addEnvPair} style={{ marginBottom: 8 }}>+ Add Env</button>
+              </>
+            )}
 
             <div className="drawer-actions">
               <button onClick={save}>保存</button>

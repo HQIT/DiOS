@@ -64,12 +64,11 @@ async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str
         mcp_result = await db.execute(select(McpServer).where(McpServer.id.in_(mcp_ids)))
         mcp_servers = list(mcp_result.scalars().all())
         if mcp_servers:
-            mcp_list = [
-                {"name": s.name, "command": s.command, "args": s.args or [], "env": s.env or {}}
-                for s in mcp_servers
-            ]
+            from app.services.mcp_config import servers_to_mcp_config
+
+            mcp_cfg = servers_to_mcp_config(mcp_servers)
             mcp_path = workspace / "mcp_servers.json"
-            mcp_path.write_text(json.dumps(mcp_list, ensure_ascii=False, indent=2))
+            mcp_path.write_text(json.dumps(mcp_cfg, ensure_ascii=False, indent=2))
             env["MCP_CONFIG_PATH"] = "/workspace/mcp_servers.json"
 
     # 确保共享目录存在：供 service/task 容器通过子挂载访问

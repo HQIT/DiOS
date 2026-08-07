@@ -71,7 +71,11 @@ class McpServer(Base):
 
     id: Mapped[str] = mapped_column(String(12), primary_key=True, default=_uuid)
     name: Mapped[str] = mapped_column(String(128), nullable=False)
-    command: Mapped[str] = mapped_column(String(512), nullable=False)
+    # stdio: command/args/env；远程: transport + url (+ headers)
+    transport: Mapped[str] = mapped_column(String(32), default="stdio")  # stdio | streamable_http | sse
+    url: Mapped[str] = mapped_column(String(512), default="")
+    headers: Mapped[dict] = mapped_column(JSON, default=dict)
+    command: Mapped[str] = mapped_column(String(512), default="")
     args: Mapped[list] = mapped_column(JSON, default=list)
     env: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

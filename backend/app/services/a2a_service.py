@@ -296,14 +296,13 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
         mcp_result = await db.execute(select(McpServer).where(McpServer.id.in_(mcp_ids)))
         mcp_servers = list(mcp_result.scalars().all())
         if mcp_servers:
-            mcp_list = [
-                {"name": s.name, "command": s.command, "args": s.args or [], "env": s.env or {}}
-                for s in mcp_servers
-            ]
+            from app.services.mcp_config import servers_to_mcp_config
+
+            mcp_cfg = servers_to_mcp_config(mcp_servers)
             config_dir = workspace / "config"
             config_dir.mkdir(parents=True, exist_ok=True)
             mcp_file = config_dir / f"mcp_servers_{run_id}.json"
-            mcp_file.write_text(json.dumps(mcp_list, ensure_ascii=False, indent=2), encoding="utf-8")
+            mcp_file.write_text(json.dumps(mcp_cfg, ensure_ascii=False, indent=2), encoding="utf-8")
             mcp_override = f"/workspace/config/mcp_servers_{run_id}.json"
 
     config = _build_proxy_task_config(

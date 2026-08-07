@@ -127,13 +127,19 @@ class ConnectorOut(BaseModel):
 
 class McpServerCreate(BaseModel):
     name: str
-    command: str
+    transport: str = "stdio"  # stdio | streamable_http | sse | http
+    url: str = ""
+    headers: dict = {}
+    command: str = ""
     args: list = []
     env: dict = {}
 
 
 class McpServerUpdate(BaseModel):
     name: Optional[str] = None
+    transport: Optional[str] = None
+    url: Optional[str] = None
+    headers: Optional[dict] = None
     command: Optional[str] = None
     args: Optional[list] = None
     env: Optional[dict] = None
@@ -142,9 +148,12 @@ class McpServerUpdate(BaseModel):
 class McpServerOut(BaseModel):
     id: str
     name: str
-    command: str
-    args: list
-    env: dict
+    transport: str = "stdio"
+    url: str = ""
+    headers: dict = {}
+    command: str = ""
+    args: list = []
+    env: dict = {}
     created_at: datetime
 
     model_config = {"from_attributes": True}

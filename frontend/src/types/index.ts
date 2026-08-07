@@ -51,6 +51,9 @@ export interface ConnectorSourcePattern {
 export interface McpServer {
   id: string;
   name: string;
+  transport: string;
+  url: string;
+  headers: Record<string, string>;
   command: string;
   args: string[];
   env: Record<string, string>;
