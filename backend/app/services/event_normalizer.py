@@ -67,6 +67,12 @@ def compute_dedup_hash(event: CloudEvent) -> str:
             str(data.get("action", "")),
             event.get("subject", ""),
         ]
+        # push 无 PR 号：必须纳入 commit SHA，否则同分支多次 push 会被误去重
+        if event_type == "git.push":
+            key_parts.extend([
+                str(data.get("before", "")),
+                str(data.get("after", "")),
+            ])
     # 邮件事件：使用 Message-ID
     elif event_type.startswith("email."):
         key_parts = [
