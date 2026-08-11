@@ -1,15 +1,16 @@
-"""Connector 能力解析：统一生成可订阅的 source pattern。"""
+"""Connector 能力解析：统一生成可订阅的 source pattern。
+
+具体类型的 pattern 与事件类型由各自 manifest 声明，本模块不做类型判断。
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Iterable
 
+from app.connectors import registry
 from app.models.tables import Connector
 from app.services.event_normalizer import get_event_catalog
-
-_LEGACY_GIT_TYPES = {"github", "gitlab", "gitea"}
-_INTERNAL_SOURCE_PATTERNS = ("cron/*", "manual/*", "ai4r/*")
 
 
 @dataclass
@@ -25,19 +26,8 @@ class SourcePatternItem:
 
 def _connector_patterns(conn: Connector) -> list[str]:
     """从单个 Connector 提取可订阅 source namespace。"""
-    ctype = (conn.type or "").strip()
-    cfg = conn.config or {}
-
-    if ctype == "git_webhook":
-        platform = str(cfg.get("platform", "")).strip()
-        return [f"{platform}/*"] if platform else []
-    if ctype in _LEGACY_GIT_TYPES:
-        return [f"{ctype}/*"]
-    if ctype == "imap":
-        return [f"imap/{conn.id}", "imap/*"]
-    if ctype == "generic":
-        return ["webhook/*"]
-    return []
+    manifest = registry.manifest_for(conn.type)
+    return manifest.patterns_for(conn) if manifest else []
 
 
 def _event_types_by_category() -> dict[str, list[str]]:
@@ -50,14 +40,13 @@ def _event_types_by_category() -> dict[str, list[str]]:
 
 
 def _connector_event_types(conn: Connector, grouped_event_types: dict[str, list[str]]) -> list[str]:
-    ctype = (conn.type or "").strip()
-    if ctype == "git_webhook" or ctype in _LEGACY_GIT_TYPES:
-        return grouped_event_types.get("git", [])
-    if ctype == "imap":
-        return grouped_event_types.get("email", [])
-    if ctype == "generic":
-        return grouped_event_types.get("webhook", [])
-    return []
+    manifest = registry.manifest_for(conn.type)
+    if not manifest:
+        return []
+    types: list[str] = []
+    for category in manifest.categories():
+        types.extend(grouped_event_types.get(category, []))
+    return types
 
 
 def build_source_pattern_items(
@@ -89,23 +78,13 @@ def build_source_pattern_items(
 
     if include_internal:
         items.extend(
-            [
-                SourcePatternItem(
-                    source_pattern=sp,
-                    label=f"Internal ({sp})",
-                    event_types=(
-                        ["cron.tick"]
-                        if sp.startswith("cron/")
-                        else (
-                            ["manual.trigger"]
-                            if sp.startswith("manual/")
-                            else grouped_event_types.get("ai4r", [])
-                        )
-                    ),
-                    kind="internal",
-                )
-                for sp in _INTERNAL_SOURCE_PATTERNS
-            ]
+            SourcePatternItem(
+                source_pattern=ns.source_pattern,
+                label=f"Internal ({ns.source_pattern})",
+                event_types=[decl.type for decl in ns.event_types],
+                kind="internal",
+            )
+            for ns in registry.event_namespaces()
         )
 
     # 去重（同 pattern 仅保留首个）
@@ -117,4 +96,3 @@ def build_source_pattern_items(
         seen.add(item.source_pattern)
         deduped.append(item)
     return deduped
-
