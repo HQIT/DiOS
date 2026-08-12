@@ -144,7 +144,7 @@ E2AG 当前不试图从任意自然语言中准确识别恶意语义。若攻击
 
 E2AG 在 Connector manifest 中新增可接受 source pattern。运行时将其与 event type 做笛卡尔绑定；内建/场景 namespace 则沿用显式 source--event type 对。契约判定首先验证 DiOS 所需字段 \texttt{specversion/id/source/type/data}，再查找唯一可接受绑定。当前 Git、IMAP、Generic 与 Internal 合同示例如下：
 
-{\def\LTcaptype{none} % do not increment counter
+{
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 Connector & 可接受 source & 可接受 type 示例 \\
@@ -193,7 +193,7 @@ E2AG 在 DiOS 后端以一个无副作用判定模块实现，核心代码不依
 
 当前实现新增或修改的主要组件如下：
 
-{\def\LTcaptype{none} % do not increment counter
+{
 \begin{longtable}[]{@{}ll@{}}
 \toprule\noalign{}
 组件 & 实现内容 \\
@@ -248,7 +248,7 @@ E2AG 在 DiOS 后端以一个无副作用判定模块实现，核心代码不依
 
 \section{实验结果}\label{sec:results}
 
-{\def\LTcaptype{none} % do not increment counter
+{
 \scriptsize
 \begin{longtable}[]{@{}lrrrrrrr@{}}
 \toprule\noalign{}
@@ -277,7 +277,7 @@ B2 进一步处理跨组织 source、目标事件类型、工具、动作和意�
 
 包含审计落库的控制面结果如下。完整 E2AG 相对关闭治理的 P50 从 7.96 ms 增至 8.38 ms，增量 0.42 ms（约 5.3\%）；P95 从 9.99 ms 增至 10.50 ms。由于使用内存 SQLite 且每个事件执行多次 commit/refresh，绝对值不代表生产数据库，但说明治理逻辑在当前持久化路径中的增量小于数据库操作本身。
 
-{\def\LTcaptype{none} % do not increment counter
+{
 \begin{longtable}[]{@{}lrrrr@{}}
 \toprule\noalign{}
 控制面模式 & 测量次数 & P50 (ms) & P95 (ms) & P99 (ms) \\
@@ -299,7 +299,7 @@ enforce & 2000 & 8.38 & 10.50 & 11.80 \\
 
 \subsection{RQ5：工具调用时强制}\label{75-rq5ux5de5ux5177ux8c03ux7528ux65f6ux5f3aux5236}
 
-{\def\LTcaptype{none} % do not increment counter
+{
 \begin{longtable}[]{@{}lrrrr@{}}
 \toprule\noalign{}
 模式 & 越权案例 & 越权阻断率 & 正常通过率 & P50/P95/P99 ($\mu$s) \\
