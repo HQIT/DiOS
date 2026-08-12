@@ -15,6 +15,7 @@ From the repository root:
 python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
+backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py --repeats 10000
 ```
 
 The runner evaluates three modes:
@@ -42,4 +43,9 @@ still excludes HTTP and Agent execution.
 The test does not claim to solve arbitrary prompt injection. A strict Agent
 policy can require a declared action and constrain sources, event types, actions
 and tools before an LLM runs. Semantic payload attacks that remain within those
-declared bounds require a separate runtime/tool-call enforcement experiment.
+declared bounds are not classified. The task-scoped remote MCP gateway instead
+constrains their effects: `run_tool_gateway_experiment.py` compares dispatch-only
+authorization with the runtime allow-list over ten deterministic tool/method
+cases. The 26 backend tests additionally verify that denied calls never reach
+the mocked upstream, authorized calls do, `tools/list` is filtered, grants
+expire/revoke, and unmediated stdio transport is withheld in enforce mode.

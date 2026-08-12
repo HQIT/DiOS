@@ -11,6 +11,7 @@ from app.config import settings
 _PUBLIC_PREFIXES = (
     "/health",
     "/api/os/events/webhook/",
+    "/api/internal/e2ag/mcp/",
 )
 
 

@@ -59,6 +59,7 @@ def start_container(
             host_shared_skills: {"bind": "/workspace/skills", "mode": "ro"},
             host_shared_cli: {"bind": "/workspace/cli", "mode": "ro"},
         },
+        extra_hosts={"host.docker.internal": "host-gateway"},
         detach=True,
         auto_remove=False,
     )

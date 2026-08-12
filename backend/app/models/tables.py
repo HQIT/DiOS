@@ -194,3 +194,23 @@ class A2ATask(Base):
     error: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class E2AGToolGrant(Base):
+    """Short-lived authorization for one task to call one remote MCP server."""
+
+    __tablename__ = "e2ag_tool_grants"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    trace_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    task_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    event_log_id: Mapped[str] = mapped_column(String(12), default="", index=True)
+    agent_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
+    mcp_server_id: Mapped[str] = mapped_column(String(12), nullable=False)
+    allowed_tools: Mapped[list] = mapped_column(JSON, default=list)
+    status: Mapped[str] = mapped_column(String(16), default="active")
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    call_count: Mapped[int] = mapped_column(default=0)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

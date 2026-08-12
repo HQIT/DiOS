@@ -179,6 +179,10 @@ async def send_message(
         task.status = "failed"
         task.error = f"{type(e).__name__}: {e}"
         task.updated_at = _now()
+        from app.services.e2ag_tool_gateway import revoke_task_grants
+        await revoke_task_grants(db, task.id)
+        if agent.workspace_path:
+            _remove_task_secret_config(agent.workspace_path, task.id[:12])
         await db.commit()
         await db.refresh(task)
 
@@ -306,14 +310,21 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
         mcp_result = await db.execute(select(McpServer).where(McpServer.id.in_(mcp_ids)))
         mcp_servers = list(mcp_result.scalars().all())
         if mcp_servers:
-            from app.services.mcp_config import servers_to_mcp_config
+            from app.services.e2ag_tool_gateway import issue_task_mcp_config
 
-            mcp_cfg = servers_to_mcp_config(mcp_servers)
+            mcp_cfg, omissions = await issue_task_mcp_config(
+                db, agent=agent, task=task, servers=mcp_servers,
+            )
             config_dir = workspace / "config"
             config_dir.mkdir(parents=True, exist_ok=True)
             mcp_file = config_dir / f"mcp_servers_{run_id}.json"
             mcp_file.write_text(json.dumps(mcp_cfg, ensure_ascii=False, indent=2), encoding="utf-8")
             mcp_override = f"/workspace/config/mcp_servers_{run_id}.json"
+            if omissions:
+                logger.warning(
+                    "E2AG withheld %d MCP server(s) for task %s: %s",
+                    len(omissions), task.id, omissions,
+                )
 
     config = _build_proxy_task_config(
         agent=agent,
@@ -378,13 +389,17 @@ async def _poll_task_container(task_id: str, run_id: str, container_id: str, wor
         task = await db.get(A2ATask, task_id)
         if task is None:
             logger.warning("Task %s disappeared during polling", task_id)
+            _remove_task_secret_config(workspace_path, run_id)
             return
         task.artifacts = artifacts
         task.status = "completed" if exit_code == 0 else "failed"
         if exit_code != 0:
             task.error = f"container exit code {exit_code}"
         task.updated_at = _now()
+        from app.services.e2ag_tool_gateway import revoke_task_grants
+        await revoke_task_grants(db, task.id)
         await db.commit()
+    _remove_task_secret_config(workspace_path, run_id)
     logger.info(
         "A2A task finished: task_id=%s run_id=%s exit=%s status=%s context_id=%s artifacts=%s",
         task_id,
@@ -496,6 +511,14 @@ def _build_proxy_task_config(
     return {"models": models_section, "task": task_section}
 
 
+def _remove_task_secret_config(workspace_path: str, run_id: str) -> None:
+    """Delete the exact per-task MCP file that contains the bearer ToolGrant."""
+    try:
+        (Path(workspace_path) / "config" / f"mcp_servers_{run_id}.json").unlink(missing_ok=True)
+    except OSError as exc:
+        logger.warning("Failed to remove task MCP secret config for run %s: %s", run_id, exc)
+
+
 async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
     """取消 Task。Phase 1C 先仅做状态变更，容器层面的中断在后续补全。"""
     task = await db.get(A2ATask, task_id)
@@ -505,6 +528,11 @@ async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
         return task
     task.status = "canceled"
     task.updated_at = _now()
+    from app.services.e2ag_tool_gateway import revoke_task_grants
+    await revoke_task_grants(db, task.id)
+    agent = await db.get(Agent, task.agent_id)
+    if agent and agent.workspace_path:
+        _remove_task_secret_config(agent.workspace_path, task.id[:12])
     await db.commit()
     await db.refresh(task)
     return task
