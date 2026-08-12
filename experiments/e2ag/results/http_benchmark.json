@@ -1,0 +1,38 @@
+{
+  "requested_repeats_per_mode": 300,
+  "environment": "FastAPI TestClient, middleware, API serialization, file-backed SQLite; no TCP socket, subscription targets, Agent, model, or tool network.",
+  "order": [
+    "off",
+    "contract",
+    "enforce",
+    "enforce",
+    "contract",
+    "off"
+  ],
+  "results": [
+    {
+      "mode": "off",
+      "measurements": 300,
+      "mean_ms": 40.17,
+      "p50_ms": 40.239,
+      "p95_ms": 49.288,
+      "p99_ms": 56.088
+    },
+    {
+      "mode": "contract",
+      "measurements": 300,
+      "mean_ms": 41.254,
+      "p50_ms": 41.686,
+      "p95_ms": 48.729,
+      "p99_ms": 54.373
+    },
+    {
+      "mode": "enforce",
+      "measurements": 300,
+      "mean_ms": 38.649,
+      "p50_ms": 39.948,
+      "p95_ms": 45.069,
+      "p99_ms": 50.139
+    }
+  ]
+}

@@ -26,6 +26,7 @@
 | dispatcher+SQLite 控制面增量 | `run_dispatch_benchmark.py` | `results/dispatch_benchmark.json` | 可写为内存 SQLite 微基准 |
 | 七类单因素变异下的机制互补性 | `run_mutation_experiment.py` | 固定种子 700 例 `mutation_summary.json` | 可写合成压力测试；禁止外推真实分布 |
 | 相同事件 replay 不产生第二条日志 | dispatcher dedup | replay integration test | 已验证单进程顺序 replay；并发竞态未验证 |
+| FastAPI+文件 SQLite 请求延迟 | `run_http_benchmark.py` | `http_benchmark.json`，每模式 300 次 | 三模式差异未超出顺序噪声；不声称负开销 |
 | 阻止任意提示词注入 | 无 | 无 | 禁止主张 |
 | 覆盖所有工具调用路径 | 仅 remote streamable HTTP task-mode | 无 service/Skill/stdio/SSE 全覆盖 | 禁止主张全覆盖 |
 | 强身份 HITL 审批 | Access Token 可选；actor 为客户端声明 | 无独立 IdP/RBAC | 禁止主张强身份或职责分离 |

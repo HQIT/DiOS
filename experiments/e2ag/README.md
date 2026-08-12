@@ -17,6 +17,7 @@ python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
 backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py --repeats 10000
 backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --per-operator 100
+backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeats 300
 ```
 
 The runner evaluates three modes:
@@ -54,3 +55,8 @@ expire/revoke, and unmediated stdio transport is withheld in enforce mode.
 `run_mutation_experiment.py` deterministically derives 700 single-factor cases
 (seven operators x 100) from the eight benign fixtures with seed `20260812`.
 It is a mechanism-coverage stress test, not a real-world attack distribution.
+
+`run_http_benchmark.py` includes FastAPI routing, middleware, response
+serialization and file-backed SQLite. It deliberately excludes a TCP socket,
+subscription targets, Agent/model execution, and remote tools. Its balanced
+mode order reduces but does not eliminate host noise.

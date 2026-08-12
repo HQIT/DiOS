@@ -241,6 +241,8 @@ B2 进一步处理跨组织 source、目标事件类型、工具、动作和意�
 | contract | 2000 | 8.23 | 10.14 | 11.29 |
 | enforce | 2000 | 8.38 | 10.50 | 11.80 |
 
+我们进一步通过 FastAPI TestClient 对每种模式发送 300 个手动事件，并采用 `off→contract→enforce→enforce→contract→off` 的平衡顺序。该口径包含中间件、路由、序列化和文件 SQLite，但不包含 TCP socket、订阅目标、Agent、模型和远端工具。off/contract/enforce 的 P50 分别为 40.239/41.686/39.948 ms，P95 分别为 49.288/48.729/45.069 ms。由于 enforce 在该轮反而略低，说明宿主机与顺序噪声大于可辨识治理增量；本文不把差值解释为负开销，也不据此声称生产端到端性能无影响。
+
 ### 7.4 RQ4：审计篡改检测
 
 我们构造四阶段审计链，并分别修改内容、换序、替换 trace、替换前驱哈希、删除中间项和插入伪造证据。6/6 类链内变更均被校验器拒绝。删除最后一个条目后，剩余前缀仍是一条自洽链，因此在没有可信 head/count 或外部锚点时无法检测。这一结果界定了当前“抗篡改”的准确含义：E2AG 能验证已取得链的内部一致性，但不能单独证明取得的是完整最新链。
@@ -310,6 +312,7 @@ python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
 backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py --repeats 10000
 backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --per-operator 100
+backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeats 300
 ```
 
 实验结果写入 `experiments/e2ag/results/`，依赖安装与中国大陆镜像命令见 `E2AG-reproducibility.md`。
