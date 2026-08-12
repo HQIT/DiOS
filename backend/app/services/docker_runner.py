@@ -1,6 +1,7 @@
 """通过 Docker SDK 管理 DiAgent 容器。"""
 
 import logging
+import os
 from pathlib import Path
 
 import docker
@@ -9,6 +10,9 @@ from docker.errors import NotFound, APIError
 from app.config import settings
 
 logger = logging.getLogger(__name__)
+
+# 与 agent_runtime 一致：task 容器也需加入此网络才能访问远程 MCP 等服务
+DOCKER_NETWORK = os.getenv("DIOS_DOCKER_NETWORK", "").strip()
 
 _client: docker.DockerClient | None = None
 
@@ -49,19 +53,22 @@ def start_container(
             env[str(k)] = str(v)
     host_shared_skills = _host_path(settings.workspace_root / "skills")
     host_shared_cli = _host_path(settings.workspace_root / "cli")
-    container = client.containers.run(
-        image=settings.diagent_image,
-        name=f"dios-run-{run_id}",
-        labels={"dios.run_id": run_id},
-        environment=env,
-        volumes={
+    run_kwargs: dict = {
+        "image": settings.diagent_image,
+        "name": f"dios-run-{run_id}",
+        "labels": {"dios.run_id": run_id},
+        "environment": env,
+        "volumes": {
             host_ws: {"bind": "/workspace", "mode": "rw"},
             host_shared_skills: {"bind": "/workspace/skills", "mode": "ro"},
             host_shared_cli: {"bind": "/workspace/cli", "mode": "ro"},
         },
-        detach=True,
-        auto_remove=False,
-    )
+        "detach": True,
+        "auto_remove": False,
+    }
+    if DOCKER_NETWORK:
+        run_kwargs["network"] = DOCKER_NETWORK
+    container = client.containers.run(**run_kwargs)
     logger.info("Started container %s for run %s", container.short_id, run_id)
     return container.id
 

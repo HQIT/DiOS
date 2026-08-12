@@ -1,10 +1,17 @@
 # 生产：本机端口 + 接入 demogo Caddy 网络
+# backend 加入 demogo 网，以便 task/service Agent 容器经 DIOS_DOCKER_NETWORK 访问 git-perf 等
 services:
   backend:
     ports:
       - "127.0.0.1:18080:8000"
     environment:
       - DIOS_ACCESS_TOKEN=${DIOS_ACCESS_TOKEN:-}
+      - DIOS_DOCKER_NETWORK=gdw-3d-bin-packing_default
+      - DIOS_DIAGENT_IMAGE=dios-diagent-task:latest
+      - DIOS_DIAGENT_SERVICE_IMAGE=dios-diagent-service:latest
+    networks:
+      - default
+      - demogo
 
   frontend:
     ports:
