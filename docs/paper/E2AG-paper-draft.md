@@ -158,7 +158,7 @@ E2AG 在已有 `ConnectorManifest` 中新增 `accepted_source_patterns`。运行
 }
 ```
 
-PEP 加载所有候选 Agent 的治理声明并进行合取判定。目标 Agent 完全缺失 `capabilities.governance` 时默认拒绝；已有治理对象中缺失的单个维度暂不施加限制，已声明列表则具有 allow-list 语义。对于启用 `require_action_declaration` 的 Agent，载荷必须给出结构化动作。生产环境中的 `admin.*`、`credential.*`、`secret.*`、`filesystem.delete` 和 `network.production.write` 等动作返回 `approval_required`。三态结果被持久化，不把待审批事件误当作失败事件重试。
+PEP 加载所有候选 Agent 的治理声明并进行合取判定。目标 Agent 完全缺失 `capabilities.governance` 时默认拒绝；已有治理对象中缺失的单个维度暂不施加限制，已声明列表则具有 allow-list 语义。对于启用 `require_action_declaration` 的 Agent，载荷必须给出结构化动作。生产环境中的 `admin.*`、`credential.*`、`secret.*`、`filesystem.delete` 和 `network.production.write` 等动作返回 `approval_required`。三态结果被持久化，不把待审批事件误当作失败事件重试。每个待审批事件生成一个有时限的 Approval；其状态只能从 `pending` 单次转移为 `approved`、`rejected` 或 `expired`。只有批准分支复用原 EventLog 的 `trace_id` 恢复 A2A fan-out，拒绝、过期和重复决策均不创建任务。
 
 原型提供 `off`、`contract`、`enforce` 三种运行模式以支持消融。未知模式回退到 `enforce`，避免配置错误导致静默放行。
 
@@ -183,12 +183,13 @@ E2AG 在 DiOS 后端以一个无副作用判定模块实现，核心代码不依
 | `services/event_dispatcher.py` | A2A 创建前 PEP、三态阻断与审计 |
 | `services/a2a_service.py` | trace 贯通 A2ATask 和 message |
 | `services/e2ag_tool_gateway.py` | 任务作用域 ToolGrant、MCP 方法/工具授权与撤销 |
+| `services/e2ag_approval.py` | 有时限、单次消费的批准/拒绝/过期状态机 |
 | `api/internal/e2ag_mcp.py` | 远程 streamable HTTP MCP 执行点 PEP 与工具发现裁剪 |
 | `models/tables.py`, `db/database.py` | 审计持久化与兼容迁移 |
 | `tests/test_e2ag*.py` | 决策与真实异步 SQLite 集成测试 |
 | `experiments/e2ag` | 攻击夹具、消融和微基准脚本 |
 
-截至本稿，26 个自动测试全部通过。其中 12 个覆盖纯判定和哈希篡改，5 个覆盖真实异步 SQLite dispatcher/A2A 路径，9 个覆盖工具网关及其任务生命周期。后者验证拒绝调用不会到达 mocked upstream、授权调用才携带上游凭据转发、工具发现结果按能力裁剪且畸形响应默认返回空列表、令牌只存哈希且具有任务绑定、到期和撤销语义、任务专用明文令牌配置被精确清理，并验证 enforce 模式会扣留尚未被代理覆盖的 stdio 传输。
+截至本稿，29 个自动测试全部通过。其中 12 个覆盖纯判定和哈希篡改，5 个覆盖真实异步 SQLite dispatcher/A2A 路径，9 个覆盖工具网关及其任务生命周期，3 个覆盖审批状态机。后两组验证拒绝调用不会到达 mocked upstream、授权调用才携带上游凭据转发、工具发现结果按能力裁剪且畸形响应默认返回空列表、令牌只存哈希且具有任务绑定/到期/撤销语义、任务专用明文令牌配置被精确清理，以及审批拒绝不可翻转、过期不可恢复、批准沿同一 trace 只恢复一次 fan-out。
 
 ## 6 实验设计
 
@@ -257,7 +258,7 @@ R0 模拟事件已经获准进入 Agent 后不再检查实际调用的情况，�
 
 **可信声明。** 当前动作和工具字段随事件数据到达，攻击者可以伪造声明。严格模式通过 `require_action_declaration` 防止完全隐式意图，但声明本身仍需与具体 handler/skill 绑定，不能只依赖事件自述。论文后续将区分“不可信请求意图”和“系统推导的计划动作”。
 
-**审批状态机。** 当前 `approval_required` 只保证停止执行并持久化证据，尚未实现批准、拒绝、过期和单次令牌状态机。因此本文当前只能声称“审批门控/等待态”，不能声称完整 HITL 工作流。
+**审批身份。** 原型已实现批准、拒绝、过期与数据库条件更新支持的单次消费状态机；但审批 API 沿用 DiOS 可选 Access Token 门禁，`actor` 是客户端提交的审计字段，尚未接入独立身份提供方、RBAC、多人复核或职责分离。因此本文主张的是可审计的 HITL 状态机，不是强身份审批系统。
 
 **工具传输覆盖。** 当前执行点 PEP 仅覆盖事件触发的 task-mode Agent 与远程 `streamable_http` MCP。为维持默认拒绝，enforce 模式不把 stdio 或 SSE MCP 下发给这类任务；service-mode Agent、Skill 内部调用、MCP 流式响应背压、工具参数授权及独立 Agent 运行时中的旁路调用尚未完成统一中介。因此当前不能声称覆盖 DiOS 的所有工具执行路径。
 
@@ -309,7 +310,7 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py
 ## 附录 B：下一轮必须完成的实证项
 
 1. 扩展工具 PEP 到 SSE、受控 stdio、service-mode Agent 与 Skill 调用；
-2. 实现审批令牌状态机及单次消费/过期测试；
+2. 将审批接入独立 IdP/RBAC，并增加多人复核与职责分离；
 3. 扩展 attack corpus，并用字段 mutation、边界值、replay 和工具参数越权生成变体；
 4. 测量包含 PostgreSQL、HTTP 代理与远端 MCP 的端到端 P50/P95/P99 与吞吐；
 5. 为审计链加入外部 head/count 锚定并验证尾部截断检测；

@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     # E2AG enforcement: off | contract | enforce
     e2ag_mode: str = "enforce"
     e2ag_tool_grant_ttl_seconds: int = 900
+    e2ag_approval_ttl_seconds: int = 3600
     # One-shot DiAgent containers are Docker siblings, not Compose services.
     # The host-gateway mapping in docker_runner makes this URL portable.
     e2ag_internal_base_url: str = "http://host.docker.internal:8000"

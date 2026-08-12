@@ -165,6 +165,10 @@ async def dispatch_event(
             evidence={"reason_codes": list(reason_codes)},
         )
         event_log.next_retry_at = None
+        if effective_decision == "approval_required" and not is_retry:
+            from app.services.e2ag_approval import create_approval
+
+            await create_approval(db, event_log)
         await db.commit()
         await db.refresh(event_log)
         metrics.record_dispatch(time.time() - start_time, False, agent_ids)
@@ -252,3 +256,56 @@ async def dispatch_event(
     )
 
     return event_log, error_detail
+
+
+async def resume_approved_event(event_log: EventLog, db: AsyncSession) -> None:
+    """Resume the original fan-out after a single E2AG human approval."""
+    if event_log.status != "approval_approved":
+        raise ValueError("APPROVAL_EVENT_NOT_APPROVED")
+    if not event_log.matched_agent_ids:
+        event_log.status = "dispatched"
+        event_log.audit_chain = append_audit_entry(
+            event_log.audit_chain or [], trace_id=event_log.trace_id,
+            stage="dispatch", outcome="no_target_after_approval",
+            evidence={"matched_agent_ids": []},
+        )
+        await db.commit()
+        return
+
+    message = a2a_service.cloudevent_to_a2a_message(
+        event_log.cloud_event, trace_id=event_log.trace_id,
+    )
+    dispatched = False
+    reasons: list[str] = []
+    for agent_id in event_log.matched_agent_ids:
+        try:
+            task = await a2a_service.send_message(
+                db=db,
+                agent_id=agent_id,
+                message=message,
+                context_id=event_log.id,
+                trace_id=event_log.trace_id,
+            )
+            if task.status == "failed":
+                reasons.append(f"Agent {agent_id}: {task.error}")
+                continue
+            dispatched = True
+            event_log.audit_chain = append_audit_entry(
+                event_log.audit_chain or [], trace_id=event_log.trace_id,
+                stage="a2a_task", outcome=task.status,
+                evidence={"task_id": task.id, "agent_id": agent_id, "after_approval": True},
+            )
+        except Exception as exc:
+            reasons.append(f"Agent {agent_id}: {type(exc).__name__}: {exc}")
+    event_log.status = "dispatched" if dispatched else "failed"
+    event_log.error_message = "; ".join(reasons)
+    event_log.audit_chain = append_audit_entry(
+        event_log.audit_chain or [], trace_id=event_log.trace_id,
+        stage="dispatch", outcome=event_log.status,
+        evidence={
+            "matched_agent_ids": event_log.matched_agent_ids,
+            "after_approval": True,
+            "error": event_log.error_message,
+        },
+    )
+    await db.commit()

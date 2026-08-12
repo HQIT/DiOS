@@ -241,6 +241,20 @@ class EventLogOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class E2AGApprovalOut(BaseModel):
+    id: str
+    event_log_id: str
+    trace_id: str
+    status: str
+    expires_at: datetime
+    decided_at: Optional[datetime] = None
+    actor: str = ""
+    reason: str = ""
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class EventActivityItemOut(BaseModel):
     task_id: str
     agent_id: str

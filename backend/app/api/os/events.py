@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db.database import get_db
-from app.models.tables import Subscription, EventLog, Connector, A2ATask, Agent
-from app.models.schemas import EventLogOut, EventActivityOverviewOut, EventActivityItemOut
+from app.models.tables import Subscription, EventLog, Connector, A2ATask, Agent, E2AGApproval
+from app.models.schemas import EventLogOut, EventActivityOverviewOut, EventActivityItemOut, E2AGApprovalOut
 from app.services.event_normalizer import (
     detect_and_normalize,
     get_event_catalog,
@@ -48,6 +48,12 @@ class ManualEventBody(BaseModel):
     source: str = "manual/test"
     subject: str = ""
     data: dict = {}
+
+
+class ApprovalDecisionBody(BaseModel):
+    decision: str
+    actor: str
+    reason: str = ""
 
 
 @router.post("/webhook/{source}")
@@ -382,6 +388,38 @@ async def get_event_activity_overview(event_id: str, db: AsyncSession = Depends(
         timeline_end=timeline_end,
         items=items,
     )
+
+
+@router.get("/approvals/pending", response_model=list[E2AGApprovalOut])
+async def list_pending_approvals(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(E2AGApproval)
+        .where(E2AGApproval.status == "pending")
+        .order_by(E2AGApproval.created_at.asc())
+    )
+    return list(result.scalars().all())
+
+
+@router.post("/approvals/{approval_id}/decision", response_model=E2AGApprovalOut)
+async def decide_event_approval(
+    approval_id: str,
+    body: ApprovalDecisionBody,
+    db: AsyncSession = Depends(get_db),
+):
+    from app.services.e2ag_approval import decide_approval
+
+    try:
+        if not body.actor.strip():
+            raise HTTPException(422, "APPROVAL_ACTOR_REQUIRED")
+        approval, _ = await decide_approval(
+            db, approval_id, decision=body.decision,
+            actor=body.actor.strip(), reason=body.reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(404, str(exc))
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
+    return approval
 
 
 @router.get("/{event_id}", response_model=EventLogOut)

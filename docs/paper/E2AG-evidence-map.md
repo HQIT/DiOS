@@ -16,7 +16,7 @@
 |---|---|---|---|
 | source–type 契约可执行且默认拒绝 | `backend/app/services/e2ag.py`, connector manifests | `test_e2ag.py`; `attack_cases.jsonl` A01–A05 | 已实现并有首批消融 |
 | 目标 Agent 的 source/type/tool/action allow-list | `evaluate_policy` 与 `capabilities.governance` | A06–A10；相应单测 | 已实现并有构造集证据 |
-| 高风险生产动作进入等待审批 | `POLICY_PRODUCTION_SENSITIVE_ACTION` | A11–A14；dispatcher integration test | 只能称审批门控，不能称完整审批工作流 |
+| 高风险生产动作进入单次审批状态机 | policy + `e2ag_approval.py` | A11–A14；3 个 approval integration tests | 批准/拒绝/过期/单次消费已实现；身份强度依赖 API 门禁 |
 | deny/approval 不创建 A2ATask | `event_dispatcher.dispatch_event` | `test_e2ag_dispatcher.py` | 已验证 |
 | trace 贯通 EventLog/A2ATask/A2A message/MCP PEP | tables, dispatcher, a2a_service, tool gateway | A2ATask 与 gateway 集成测试 | EventLog/A2A/MCP PEP 已验证；模型/Artifact 尚未贯通 |
 | 任务作用域 ToolGrant 绑定 trace/task/agent/server | `e2ag_tool_gateway.py`, `E2AGToolGrant` | grant hash/scope/expiry/revoke tests | 已实现于 event→task-mode remote MCP 路径 |
@@ -26,6 +26,6 @@
 | dispatcher+SQLite 控制面增量 | `run_dispatch_benchmark.py` | `results/dispatch_benchmark.json` | 可写为内存 SQLite 微基准 |
 | 阻止任意提示词注入 | 无 | 无 | 禁止主张 |
 | 覆盖所有工具调用路径 | 仅 remote streamable HTTP task-mode | 无 service/Skill/stdio/SSE 全覆盖 | 禁止主张全覆盖 |
-| 完整 HITL 审批状态机 | 无 | 无 | 待实现 |
+| 强身份 HITL 审批 | Access Token 可选；actor 为客户端声明 | 无独立 IdP/RBAC | 禁止主张强身份或职责分离 |
 | 外部不可变审计/不可抵赖 | 无 | 尾截断负结果 | 禁止主张 |
 | 跨 AIOS 通用性 | 仅抽象设计 | 无第二系统 | 只能作为设计目标/限制 |
