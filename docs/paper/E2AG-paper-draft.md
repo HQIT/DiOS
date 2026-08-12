@@ -189,7 +189,7 @@ E2AG 在 DiOS 后端以一个无副作用判定模块实现，核心代码不依
 | `tests/test_e2ag*.py` | 决策与真实异步 SQLite 集成测试 |
 | `experiments/e2ag` | 攻击夹具、消融和微基准脚本 |
 
-截至本稿，29 个自动测试全部通过。其中 12 个覆盖纯判定和哈希篡改，5 个覆盖真实异步 SQLite dispatcher/A2A 路径，9 个覆盖工具网关及其任务生命周期，3 个覆盖审批状态机。后两组验证拒绝调用不会到达 mocked upstream、授权调用才携带上游凭据转发、工具发现结果按能力裁剪且畸形响应默认返回空列表、令牌只存哈希且具有任务绑定/到期/撤销语义、任务专用明文令牌配置被精确清理，以及审批拒绝不可翻转、过期不可恢复、批准沿同一 trace 只恢复一次 fan-out。
+截至本稿，30 个自动测试全部通过。其中 12 个覆盖纯判定和哈希篡改，6 个覆盖真实异步 SQLite dispatcher/A2A 路径（含相同事件 replay 去重），9 个覆盖工具网关及其任务生命周期，3 个覆盖审批状态机。后两组验证拒绝调用不会到达 mocked upstream、授权调用才携带上游凭据转发、工具发现结果按能力裁剪且畸形响应默认返回空列表、令牌只存哈希且具有任务绑定/到期/撤销语义、任务专用明文令牌配置被精确清理，以及审批拒绝不可翻转、过期不可恢复、批准沿同一 trace 只恢复一次 fan-out。
 
 ## 6 实验设计
 
@@ -210,6 +210,8 @@ E2AG 在 DiOS 后端以一个无副作用判定模块实现，核心代码不依
 安全性指标包括攻击成功率（攻击被判为 `allow`）、攻击阻断率、正常通过率和精确三态决策正确率。纯函数性能脚本对每个模式、每个案例重复 5000 次，即每个模式 110,000 次、总计 330,000 次判定，记录 P50/P95/P99。另一个异步 SQLite 微基准对每种模式运行正序与逆序两轮、每轮 1000 次，并为每个模式创建独立内存数据库；该测试包含 dispatcher、契约/策略、EventLog 和哈希审计落库，但不包含 HTTP、订阅查询、网络、容器启动或模型推理。
 
 工具执行点实验另设 R0（只有调度前判定，不执行调用时授权）与 R1（任务作用域 E2AG 工具授权）两组。数据包含 4 个获准调用和 6 个越权工具或 MCP 方法；每个案例重复 10,000 次测量纯授权函数。真实代理的“不向上游转发”等安全不变量由 mocked HTTP 集成测试验证，而该微基准不包含数据库、HTTP 和远端工具执行延迟。
+
+为降低首批 22 例完全手工枚举带来的机制覆盖偏差，我们以 8 个正常基例为起点，使用固定种子 `20260812` 生成 7 类单因素变异，每类 100 例：删除必填字段、非法规范版本、source–type 交叉、未知类型、目标 source 越权、目标 tool 越权和生产敏感动作。生成器保证目标 source 变异仍满足 Connector 契约、工具变异只作用于已声明工具 allow-list 的目标、敏感动作同步进入 action allow-list，从而尽量隔离被测策略维度。该数据仍来自手工基例，不能代表真实攻击频率或多因素组合攻击。
 
 ## 7 初步结果
 
@@ -251,6 +253,10 @@ B2 进一步处理跨组织 source、目标事件类型、工具、动作和意�
 | R1 运行时 E2AG | 6 | 100.00% | 100.00% | 1.8/3.1/4.7 |
 
 R0 模拟事件已经获准进入 Agent 后不再检查实际调用的情况，因此 6 个越权工具/方法全部可达；R1 在 MCP PEP 重新用 ToolGrant 的 `allowed_tools` 判定，全部阻断并保留 4 个正常调用。集成测试进一步确认 deny 路径没有调用 mocked upstream，而 allow 路径才加载上游凭据。该结果证明了二次 PEP 对“声明获准、实际越权”这一特定构造威胁的必要性；案例数量小，且微基准不测网络代理开销，不能外推为生产环境攻击检出率或端到端延迟。
+
+### 7.6 固定种子单因素变异
+
+在 700 个合成变异上，B0 的精确决策率为 0%，B1 为 57.14%，B2 为 100%。B1 只正确处理删除必填字段、非法规范版本、source–type 交叉和未知类型四类契约异常；目标 source/tool 越权与生产敏感动作仍被放行。B2 在当前单因素生成器上正确处理全部七类。该结果与首批 22 例的机制分层结论一致，但并非独立采样数据；其价值是验证每个 operator 的预期控制点，而不是估算真实攻击检出率。相同 CloudEvent 的顺序 replay 另由真实 SQLite dispatcher 集成测试验证为不产生第二条 EventLog；并发 replay 竞态尚未评估。
 
 ## 8 讨论与限制
 
@@ -303,6 +309,7 @@ python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
 backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py --repeats 10000
+backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --per-operator 100
 ```
 
 实验结果写入 `experiments/e2ag/results/`，依赖安装与中国大陆镜像命令见 `E2AG-reproducibility.md`。

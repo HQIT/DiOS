@@ -48,9 +48,10 @@ python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 1000
 backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py --repeats 10000
+backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --per-operator 100
 ```
 
-四个脚本分别生成安全性/消融结果、审计篡改结果、含 SQLite 审计落库的控制面微基准和运行时工具网关消融结果。
+五个脚本分别生成安全性/消融结果、审计篡改结果、含 SQLite 审计落库的控制面微基准、运行时工具网关消融结果和固定种子合成变异结果。
 
 ## 5. 结果文件
 
@@ -59,5 +60,6 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py
 - `experiments/e2ag/results/audit_summary.json`
 - `experiments/e2ag/results/dispatch_benchmark.json`
 - `experiments/e2ag/results/tool_gateway_summary.json`
+- `experiments/e2ag/results/mutation_summary.json`
 
 论文中的数字必须以这些机器生成文件为准，不能手工选择更优的历史运行结果。

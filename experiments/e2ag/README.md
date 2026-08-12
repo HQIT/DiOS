@@ -16,6 +16,7 @@ python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
 backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py --repeats 10000
+backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --per-operator 100
 ```
 
 The runner evaluates three modes:
@@ -49,3 +50,7 @@ authorization with the runtime allow-list over ten deterministic tool/method
 cases. The 26 backend tests additionally verify that denied calls never reach
 the mocked upstream, authorized calls do, `tools/list` is filtered, grants
 expire/revoke, and unmediated stdio transport is withheld in enforce mode.
+
+`run_mutation_experiment.py` deterministically derives 700 single-factor cases
+(seven operators x 100) from the eight benign fixtures with seed `20260812`.
+It is a mechanism-coverage stress test, not a real-world attack distribution.

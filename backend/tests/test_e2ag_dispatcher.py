@@ -88,6 +88,20 @@ class DispatcherGovernanceTests(unittest.IsolatedAsyncioTestCase):
             contract_log, _ = await dispatch_event(spoof, [], db)
             self.assertEqual("denied", contract_log.status)
 
+    async def test_replayed_event_is_deduplicated_without_second_log(self):
+        async with self.sessions() as db:
+            settings.event_dedup_enabled = True
+            original = event("github/acme/repo", "git.push", {
+                "before": "a", "after": "b", "repository": {"full_name": "acme/repo"},
+            })
+            first, first_error = await dispatch_event(original, [], db)
+            replay, replay_error = await dispatch_event(original, [], db)
+            self.assertIsNotNone(first)
+            self.assertIsNone(first_error)
+            self.assertIsNone(replay)
+            self.assertIn(first.id, replay_error)
+            self.assertEqual(1, len((await db.execute(EventLog.__table__.select())).all()))
+
     async def test_trace_id_is_persisted_on_a2a_task(self):
         async with self.sessions() as db:
             task = await a2a_service.create_task(
