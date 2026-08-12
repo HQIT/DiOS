@@ -10,8 +10,12 @@ export default function AccessGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetch(`${apiPrefix()}/auth/status`)
-      .then((r) => r.json())
-      .then((d: { access_token_required?: boolean }) => {
+      .then(async (r) => {
+        if (!r.ok) {
+          // status 本身应公开；若失败则仍要求登录，避免误放行后 API 全 401
+          return;
+        }
+        const d = (await r.json()) as { access_token_required?: boolean };
         if (!d.access_token_required) setUnlocked(true);
       })
       .catch(() => {

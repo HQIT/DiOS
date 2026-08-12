@@ -10,6 +10,7 @@ from app.config import settings
 
 _PUBLIC_PREFIXES = (
     "/health",
+    "/api/auth/status",
     "/api/os/events/webhook/",
 )
 
