@@ -227,6 +227,10 @@ class EventLogOut(BaseModel):
     cloud_event: dict
     matched_agent_ids: list[str]
     status: str
+    trace_id: str = ""
+    contract_decision: dict = {}
+    policy_decision: dict = {}
+    audit_chain: list = []
     created_at: datetime
     retry_count: int = 0
     max_retries: int = 3
@@ -265,6 +269,7 @@ class A2ATaskOut(BaseModel):
     id: str
     agent_id: str
     context_id: str
+    trace_id: str = ""
     status: str  # submitted | working | completed | failed | canceled
     message: dict
     artifacts: list

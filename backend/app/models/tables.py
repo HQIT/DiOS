@@ -156,7 +156,11 @@ class EventLog(Base):
     subject: Mapped[str] = mapped_column(String(256), default="")
     cloud_event: Mapped[dict] = mapped_column(JSON, nullable=False)
     matched_agent_ids: Mapped[list] = mapped_column(JSON, default=list)
-    status: Mapped[str] = mapped_column(String(16), default="received")  # received, dispatching, dispatched, failed, dead_letter
+    status: Mapped[str] = mapped_column(String(32), default="received")  # includes E2AG denied / approval_required
+    trace_id: Mapped[str] = mapped_column(String(32), index=True, default=lambda: uuid.uuid4().hex)
+    contract_decision: Mapped[dict] = mapped_column(JSON, default=dict)
+    policy_decision: Mapped[dict] = mapped_column(JSON, default=dict)
+    audit_chain: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     
     # 重试机制字段
@@ -183,6 +187,7 @@ class A2ATask(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
     agent_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
     context_id: Mapped[str] = mapped_column(String(64), default="", index=True)  # 关联源（EventLog.id / chat_session_id 等）
+    trace_id: Mapped[str] = mapped_column(String(32), index=True, default=lambda: uuid.uuid4().hex)
     status: Mapped[str] = mapped_column(String(16), default="submitted")  # submitted | working | completed | failed | canceled
     message: Mapped[dict] = mapped_column(JSON, nullable=False)  # A2A Message 入参
     artifacts: Mapped[list] = mapped_column(JSON, default=list)  # A2A Artifact[] 输出

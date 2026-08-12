@@ -109,12 +109,14 @@ async def create_task(
     agent_id: str,
     message: dict[str, Any],
     context_id: str = "",
+    trace_id: str = "",
 ) -> A2ATask:
     """在 DB 创建一个 A2ATask，初始状态 submitted。"""
     task = A2ATask(
         id=uuid.uuid4().hex,
         agent_id=agent_id,
         context_id=context_id,
+        trace_id=trace_id or uuid.uuid4().hex,
         status="submitted",
         message=message,
         artifacts=[],
@@ -137,6 +139,7 @@ def task_to_a2a_dict(task: A2ATask) -> dict[str, Any]:
         "artifacts": task.artifacts or [],
         "history": [task.message] if task.message else [],
         "error": task.error or None,
+        "_e2ag": {"trace_id": task.trace_id} if task.trace_id else {},
     }
 
 
@@ -148,6 +151,7 @@ async def send_message(
     agent_id: str,
     message: dict[str, Any],
     context_id: str = "",
+    trace_id: str = "",
 ) -> A2ATask:
     """A2A message/send 方法入口。
     - service 模式：HTTP 转发到运行中的 DiAgent 容器
@@ -157,7 +161,13 @@ async def send_message(
     if not agent:
         raise ValueError(f"Agent {agent_id} not found")
 
-    task = await create_task(db, agent_id=agent_id, message=message, context_id=context_id)
+    task = await create_task(
+        db,
+        agent_id=agent_id,
+        message=message,
+        context_id=context_id,
+        trace_id=trace_id,
+    )
 
     try:
         if agent.mode == "service":
@@ -503,7 +513,7 @@ async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
 # ── 工具：CloudEvent -> A2A Message ────────────────────────────────
 
 
-def cloudevent_to_a2a_message(event: dict[str, Any]) -> dict[str, Any]:
+def cloudevent_to_a2a_message(event: dict[str, Any], trace_id: str = "") -> dict[str, Any]:
     """把 CloudEvent 封装为 A2A Message，用于 event_dispatcher 通过 A2A 投递。"""
     summary = (
         f"[Event type={event.get('type')} source={event.get('source')} "
@@ -523,4 +533,5 @@ def cloudevent_to_a2a_message(event: dict[str, Any]) -> dict[str, Any]:
             "type": event.get("type") or "",
             "source": event.get("source") or "",
         },
+        "_e2ag": {"trace_id": trace_id} if trace_id else {},
     }

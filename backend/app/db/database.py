@@ -50,6 +50,31 @@ def _add_mcp_remote_columns(sync_conn):
             pass
 
 
+def _add_e2ag_columns(sync_conn):
+    from sqlalchemy import text
+
+    alters = [
+        "ALTER TABLE event_logs ADD COLUMN trace_id TEXT DEFAULT ''",
+        "ALTER TABLE event_logs ADD COLUMN contract_decision TEXT DEFAULT '{}'",
+        "ALTER TABLE event_logs ADD COLUMN policy_decision TEXT DEFAULT '{}'",
+        "ALTER TABLE event_logs ADD COLUMN audit_chain TEXT DEFAULT '[]'",
+        "ALTER TABLE a2a_tasks ADD COLUMN trace_id TEXT DEFAULT ''",
+    ]
+    for sql in alters:
+        try:
+            sync_conn.execute(text(sql))
+        except Exception:
+            pass
+    for sql in (
+        "CREATE INDEX IF NOT EXISTS ix_event_logs_trace_id ON event_logs (trace_id)",
+        "CREATE INDEX IF NOT EXISTS ix_a2a_tasks_trace_id ON a2a_tasks (trace_id)",
+    ):
+        try:
+            sync_conn.execute(text(sql))
+        except Exception:
+            pass
+
+
 def _bootstrap_master_agent(sync_conn):
     """启动时把历史默认 Agent `SayHi` 升级为 `Master`（仅改名，不改其余配置）。"""
     try:
@@ -79,6 +104,7 @@ async def init_db():
             await conn.run_sync(_add_agent_capabilities)
             await conn.run_sync(_add_agent_env)
             await conn.run_sync(_add_mcp_remote_columns)
+            await conn.run_sync(_add_e2ag_columns)
             await conn.run_sync(_bootstrap_master_agent)
             await conn.commit()
 

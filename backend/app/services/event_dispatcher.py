@@ -12,13 +12,15 @@ from __future__ import annotations
 
 import logging
 import time
+import uuid
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.models.tables import EventLog
+from app.models.tables import Agent, EventLog
+from app.services.e2ag import Decision, append_audit_entry, evaluate_contract, evaluate_policy
 from app.services.event_normalizer import CloudEvent, compute_dedup_hash
 from app.services.metrics import metrics
 from app.services import a2a_service
@@ -48,13 +50,56 @@ async def dispatch_event(
     start_time = time.time()
     event_type = event.get("type", "")
     event_source = event.get("source", "")
+    trace_id = uuid.uuid4().hex
+    e2ag_mode = str(getattr(settings, "e2ag_mode", "enforce") or "enforce").lower()
+    if e2ag_mode not in {"off", "contract", "enforce"}:
+        logger.warning("Unknown E2AG mode %s; falling back to enforce", e2ag_mode)
+        e2ag_mode = "enforce"
     
     # 记录指标
     metrics.record_event_received(event_type)
     if is_retry:
         metrics.record_retry()
     
-    # 1. 去重检查（非重试操作才检查）
+    # 1. E2AG contract admission + target-scoped policy gate.
+    target_capabilities: dict[str, dict] = {}
+    if agent_ids:
+        agents_result = await db.execute(select(Agent).where(Agent.id.in_(agent_ids)))
+        target_capabilities = {
+            agent.id: (agent.capabilities or {})
+            for agent in agents_result.scalars().all()
+        }
+    if e2ag_mode == "off":
+        contract = Decision(
+            stage="contract", decision="allow", reason_codes=("E2AG_DISABLED",)
+        )
+        policy = Decision(
+            stage="policy", decision="allow", reason_codes=("E2AG_DISABLED",)
+        )
+    else:
+        contract = evaluate_contract(event)
+        policy = (
+            Decision(
+                stage="policy",
+                decision="allow",
+                reason_codes=("POLICY_DISABLED_CONTRACT_MODE",),
+                contract_type=contract.contract_type,
+            )
+            if e2ag_mode == "contract"
+            else evaluate_policy(event, contract, target_capabilities)
+        )
+    effective_decision = contract.decision if e2ag_mode == "contract" else policy.decision
+    event_status = "denied" if effective_decision == "deny" else effective_decision
+    audit_chain = append_audit_entry(
+        [], trace_id=trace_id, stage="contract", outcome=contract.decision,
+        evidence=contract.as_dict(),
+    )
+    audit_chain = append_audit_entry(
+        audit_chain, trace_id=trace_id, stage="policy", outcome=effective_decision,
+        evidence=policy.as_dict(),
+    )
+
+    # 2. 去重检查（非重试操作才检查）
     dedup_hash = compute_dedup_hash(event)
     
     if not is_retry and getattr(settings, "event_dedup_enabled", True):
@@ -81,7 +126,7 @@ async def dispatch_event(
                 metrics.record_dedup()
                 return None, f"Duplicate of event {duplicate.id}"
     
-    # 2. 创建 EventLog 记录（如果是重试，更新原记录而不是创建新记录）
+    # 3. Audit every decision, including denied and approval-held events.
     if is_retry and original_log_id:
         event_log = await db.get(EventLog, original_log_id)
         if not event_log:
@@ -94,7 +139,11 @@ async def dispatch_event(
             subject=event.get("subject", ""),
             cloud_event=event,
             matched_agent_ids=agent_ids,
-            status="received",
+            status="received" if effective_decision == "allow" else event_status,
+            trace_id=trace_id,
+            contract_decision={"mode": e2ag_mode, **contract.as_dict()},
+            policy_decision={"mode": e2ag_mode, **policy.as_dict(), "effective_decision": effective_decision},
+            audit_chain=audit_chain,
             dedup_hash=dedup_hash,
             retry_count=0,
             max_retries=getattr(settings, "event_max_retries", 3),
@@ -104,13 +153,41 @@ async def dispatch_event(
         await db.commit()
         await db.refresh(event_log)
 
+    if effective_decision != "allow":
+        reason_codes = contract.reason_codes if effective_decision == "deny" and not contract.permits_execution else policy.reason_codes
+        error_detail = ",".join(reason_codes)
+        event_log.error_message = error_detail
+        event_log.audit_chain = append_audit_entry(
+            event_log.audit_chain,
+            trace_id=event_log.trace_id,
+            stage="dispatch",
+            outcome="blocked",
+            evidence={"reason_codes": list(reason_codes)},
+        )
+        event_log.next_retry_at = None
+        await db.commit()
+        await db.refresh(event_log)
+        metrics.record_dispatch(time.time() - start_time, False, agent_ids)
+        logger.info(
+            "E2AG held event: id=%s trace_id=%s decision=%s reasons=%s",
+            event_log.id, event_log.trace_id, effective_decision, error_detail,
+        )
+        return event_log, error_detail
+
     if not agent_ids:
         event_log.status = "dispatched"  # 无匹配 Agent，视为完成
+        event_log.audit_chain = append_audit_entry(
+            event_log.audit_chain,
+            trace_id=event_log.trace_id,
+            stage="dispatch",
+            outcome="no_target",
+            evidence={"matched_agent_ids": []},
+        )
         await db.commit()
         return event_log, None
 
-    # 3. 把 CloudEvent 转为 A2A Message，逐个 fan-out 投递
-    a2a_message = a2a_service.cloudevent_to_a2a_message(event)
+    # 4. 把 CloudEvent 转为 A2A Message，逐个 fan-out 投递
+    a2a_message = a2a_service.cloudevent_to_a2a_message(event, trace_id=event_log.trace_id)
     logger.info(
         "Dispatch event start: id=%s type=%s source=%s matched_agents=%s",
         event_log.id, event_type, event_source, agent_ids,
@@ -126,12 +203,20 @@ async def dispatch_event(
                 agent_id=agent_id,
                 message=a2a_message,
                 context_id=event_log.id,
+                trace_id=event_log.trace_id,
             )
             if task.status in ("failed",):
                 reasons.append(f"Agent {agent_id}: {task.error}")
                 logger.warning("A2A dispatch to agent %s returned failed: %s", agent_id, task.error)
             else:
                 dispatched = True
+                event_log.audit_chain = append_audit_entry(
+                    event_log.audit_chain,
+                    trace_id=event_log.trace_id,
+                    stage="a2a_task",
+                    outcome=task.status,
+                    evidence={"task_id": task.id, "agent_id": agent_id},
+                )
                 logger.info(
                     "Dispatched event %s(type=%s) to agent %s via A2A (task=%s status=%s context=%s)",
                     event_log.id, event_type, agent_id, task.id, task.status, task.context_id,
@@ -140,17 +225,25 @@ async def dispatch_event(
             reasons.append(f"Agent {agent_id}: {type(e).__name__}: {e}")
             logger.exception("A2A send_message failed for agent %s", agent_id)
 
-    # 4. 更新 EventLog 状态
+    # 5. 更新 EventLog 状态
     event_log.status = "dispatched" if dispatched else "failed"
     error_detail = "; ".join(reasons) if reasons else None
 
     if not dispatched:
         event_log.error_message = error_detail or "Failed to dispatch to any agent"
 
+    event_log.audit_chain = append_audit_entry(
+        event_log.audit_chain,
+        trace_id=event_log.trace_id,
+        stage="dispatch",
+        outcome=event_log.status,
+        evidence={"matched_agent_ids": agent_ids, "error": error_detail or ""},
+    )
+
     await db.commit()
     await db.refresh(event_log)
 
-    # 5. 记录性能指标
+    # 6. 记录性能指标
     duration = time.time() - start_time
     metrics.record_dispatch(duration, dispatched, agent_ids)
     logger.info(

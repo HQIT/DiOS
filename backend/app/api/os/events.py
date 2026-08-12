@@ -95,6 +95,9 @@ async def receive_webhook(
         "source": event.get("source"),
         "matched_agents": matched_ids,
         "status": event_log.status,
+        "trace_id": event_log.trace_id,
+        "contract_decision": event_log.contract_decision,
+        "policy_decision": event_log.policy_decision,
         "error": error_detail,
     }
 
@@ -162,6 +165,9 @@ async def trigger_manual_event(
         "source": event.get("source"),
         "matched_agents": matched_ids,
         "status": event_log.status,
+        "trace_id": event_log.trace_id,
+        "contract_decision": event_log.contract_decision,
+        "policy_decision": event_log.policy_decision,
         "error": error_detail,
     }
 
