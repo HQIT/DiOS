@@ -2,17 +2,11 @@
 
 > 投稿目标：《软件学报》“人工智能操作系统及其安全”专刊
 >
-> 稿件状态：阶段实验主稿 V0.5（2026-08-14）
+> 稿件状态：匿名审稿主稿 V0.6（2026-08-14）
 >
-> 实现基线：`feat/event-subscription-governance-20260418@72732a4`
+> 匿名状态：作者、单位、通讯方式及可识别仓库版本信息已从审稿稿件移除
 >
-> 论文实现分支：`codex/e2ag-research`
->
-> 作者：徐刚、冯骐、姚俊杰、陈铭松、王江涛
->
-> 单位：华东师范大学国家可信嵌入式软件工程技术研究中心、信息化治理办公室、软件工程学院
->
-> 通讯作者：王江涛（jtwang@sei.ecnu.edu.cn）；陈铭松所属单位、单位邮编等信息暂缺
+> 实现基线：匿名审稿版本；录用后恢复公开仓库、分支与提交号
 
 ## 投稿选题定位
 
@@ -68,6 +62,7 @@ DiOS[11] 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管理 Age
 这一基线具备实现 E2AG 的关键“窄腰”：所有事件最终都在 dispatcher 创建 A2A Task。将第一个 PEP 设置于此，可覆盖 Webhook、轮询和内建事件，且无需侵入每个 Connector；将第二个 PEP 设置于远程 MCP 调用点，可在工具产生副作用前重新校验任务授权。但基线 manifest 只面向展示和订阅声明事件类型，尚不能强制判断一个 `source` 与一个 `type` 是否属于同一 Connector 契约；`Agent.capabilities` 也未参与事件投递授权。图 1 给出本文所涉及的 DiOS 子架构与 E2AG 落点。
 
 ```mermaid
+%%{init: {"flowchart": {"curve": "stepAfter"}, "themeCSS": ".flowchart-link { stroke-linejoin: round; stroke-linecap: round; }"}}%%
 flowchart LR
     subgraph I["外部与接入域"]
         direction TB
@@ -169,6 +164,7 @@ E2AG 当前不试图从任意自然语言中准确识别恶意语义。若攻击
 ### 4.1 执行流程
 
 ```mermaid
+%%{init: {"flowchart": {"curve": "stepAfter"}, "themeCSS": ".flowchart-link { stroke-linejoin: round; stroke-linecap: round; }"}}%%
 flowchart LR
     E["外部或内部事件"] --> N["标准化 CloudEvent"]
     N --> C{"source-type 契约"}
@@ -391,7 +387,7 @@ C1P0 只阻断 10 个契约绑定攻击；C0P1 阻断 16 个目标能力攻击�
 
 [10] W3C. Trace Context. W3C Recommendation, 2021. https://www.w3.org/TR/trace-context/.
 
-[11] HQIT. DiOS: DiFlow Intelligent Operation System. https://github.com/HQIT/DiOS. [2026-08-14]
+[11] Anonymous. DiOS: DiFlow Intelligent Operation System. Anonymous software artifact, 2026.
 
 [12] Huang HY, Li SL, Lan TW, et al. A survey on the safety of large language model: Classification, evaluation, attribution, mitigation and prospect. CAAI Transactions on Intelligent Systems, 2025, 20(1): 2–32 (in Chinese with English abstract). [doi: 10.11992/tis.202401006]
 

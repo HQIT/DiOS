@@ -58,8 +58,10 @@ DiOS\cite{dios} 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管
     inner xsep=3mm,inner ysep=5mm},
   audit/.style={draw=black,densely dotted,line width=.8pt,rounded corners=2pt,
     fill=white,align=center,minimum height=8mm},
-  flow/.style={-{Latex[length=1.8mm]},line width=.7pt},
-  evidence/.style={-{Latex[length=1.5mm]},draw=black,densely dotted,line width=.65pt},
+  flow/.style={-{Latex[length=1.8mm]},line width=.7pt,
+    rounded corners=2pt,line join=round,line cap=round},
+  evidence/.style={-{Latex[length=1.5mm]},draw=black,densely dotted,line width=.65pt,
+    rounded corners=2pt,line join=round,line cap=round},
   boundary/.style={draw=black,dash dot,line width=.65pt}
 ]
 \node[component] (source) {Git / IMAP / Webhook\\Cron / Manual};
@@ -90,17 +92,17 @@ DiOS\cite{dios} 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管
    $\rightarrow$ Task/Grant $\rightarrow$ Tool Result};
 
 \draw[flow] (source)--(connector);
-\draw[flow] (connector.east)--(gateway.west);
+\draw[flow] (connector.east) |- (gateway.west);
 \draw[flow] (gateway)--(pep1)--(dispatcher);
-\draw[flow] (dispatcher.east)--(task.west);
+\draw[flow] (dispatcher.east) |- (task.west);
 \draw[flow] (task)--(runtime);
-\draw[flow] (runtime.east)--(grant.west);
+\draw[flow] (runtime.east) |- (grant.west);
 \draw[flow] (grant)--(pep2)--(tool);
 \draw[flow,dashed,draw=black!55] (runtime)--(futurepath);
 
-\draw[evidence] (domain2.south)--(auditlog.north west);
-\draw[evidence] (domain3.south)--(auditlog.north);
-\draw[evidence] (domain4.south)--(auditlog.north east);
+\draw[evidence] (domain2.south) -- ++(0,-3mm) -| (auditlog.north west);
+\draw[evidence] (domain3.south) -- ++(0,-3mm) -| (auditlog.north);
+\draw[evidence] (domain4.south) -- ++(0,-3mm) -| (auditlog.north east);
 
 \draw[boundary] ($(domain1.north east)!0.5!(domain2.north west)$)
   -- ($(domain1.south east)!0.5!(domain2.south west)$);
@@ -202,8 +204,10 @@ E2AG 当前不试图从任意自然语言中准确识别恶意语义。若攻击
     inner xsep=4mm,inner ysep=5mm},
   auditbar/.style={draw=black,densely dotted,line width=.8pt,rounded corners=2pt,
     fill=white,minimum height=8mm,align=center,font=\footnotesize},
-  flow/.style={-{Latex[length=2mm]},line width=.75pt},
-  branch/.style={-{Latex[length=1.8mm]},dashed,line width=.65pt,draw=black}
+  flow/.style={-{Latex[length=2mm]},line width=.75pt,
+    rounded corners=2pt,line join=round,line cap=round},
+  branch/.style={-{Latex[length=1.8mm]},dashed,line width=.65pt,draw=black,
+    rounded corners=2pt,line join=round,line cap=round}
 ]
 \node[stage] (event) {事件接入\\并标准化};
 \node[pep,right=8mm of event] (contract) {能力契约\\source--type};
@@ -238,7 +242,8 @@ E2AG 当前不试图从任意自然语言中准确识别恶意语义。若攻击
 \draw[branch] (policy)--(review);
 \draw[branch] (mcp)--(deny2);
 
-\draw[draw=black,densely dotted,line width=.65pt]
+\draw[draw=black,densely dotted,line width=.65pt,
+  rounded corners=2pt,line join=round,line cap=round]
   (auditlog.north west) ++(7mm,0) -- ++(0,2mm)
   -| node[pos=.25,above,font=\scriptsize,text=black]{各阶段同步写入审计证据}
   ($(auditlog.north east)+(-7mm,2mm)$) -- ++(0,-2mm);
@@ -501,7 +506,7 @@ AIOS 与智能体体系 & AIOS、智能体综述、DiOS\cite{aios,agent-survey,d
 \bibitem{mcp} Model Context Protocol Contributors. Model Context Protocol Specification, Revision 2025-06-18. \url{https://modelcontextprotocol.io/specification/2025-06-18/}. [2026-08-14]
 \bibitem{opa} Open Policy Agent. OPA Documentation: Policy Decision and Enforcement. \url{https://www.openpolicyagent.org/docs}. [2026-08-14]
 \bibitem{trace-context} W3C. Trace Context. W3C Recommendation, 2021. \url{https://www.w3.org/TR/trace-context/}.
-\bibitem{dios} HQIT. DiOS: DiFlow Intelligent Operation System. \url{https://github.com/HQIT/DiOS}. [2026-08-14]
+\bibitem{dios} Anonymous. DiOS: DiFlow Intelligent Operation System. Anonymous software artifact, 2026.
 \bibitem{huang-llm-safety} Huang HY, Li SL, Lan TW, et al. A survey on the safety of large language model: Classification, evaluation, attribution, mitigation and prospect. CAAI Transactions on Intelligent Systems, 2025, 20(1): 2--32 (in Chinese with English abstract). [doi: 10.11992/tis.202401006]
 \bibitem{mu-llm-security} Mu YY, Chen HX, Li HW. Advances in security and privacy-preserving techniques for large language models. Journal of Cybersecurity, 2024, 2(1): 40--49 (in Chinese with English abstract). [doi: 10.20172/j.issn.2097-3136.240103]
 \bibitem{zhang-agent-security} Zhang X, Li CZ, Xu N, Zhang LT. Security challenges and response mechanisms for trustworthy large language model agents. Information and Communications Technology and Policy, 2025, 51(1): 33--37 (in Chinese with English abstract). [doi: 10.12267/j.issn.2096-5931.2025.01.005]
