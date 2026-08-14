@@ -1,8 +1,8 @@
 \section{引言}\label{sec:introduction}
 
-智能体操作系统（Agent OS/AIOS）试图把模型、上下文、存储、外部工具和智能体调度从应用中抽离，形成统一的资源与执行控制面。已有 AIOS 工作说明，对大模型和外部工具的无限制访问会带来资源分配与潜在危害问题，并将调度、存储与访问控制视为内核服务\cite{aios}。与此同时，工程系统正广泛采用 Git Webhook、电子邮件、告警、定时器及业务回调触发智能体。这使攻击者不必直接与模型对话，只需控制智能体将要读取的事件数据，就可能形成间接提示词注入，并影响后续 API 或工具调用\cite{indirect-pi}。
+智能体操作系统（Agent OS/AIOS）试图把模型、上下文、存储、外部工具和智能体调度从应用中抽离，形成统一的资源与执行控制面。已有 AIOS 工作说明，对大模型和外部工具的无限制访问会带来资源分配与潜在危害问题，并将调度、存储与访问控制视为内核服务\cite{aios}；相关综述也把工具使用、记忆、规划和执行环境视为自主智能体的共同组成\cite{agent-survey}。与此同时，工程系统正广泛采用 Git Webhook、电子邮件、告警、定时器及业务回调触发智能体。这使攻击者不必直接与模型对话，只需控制智能体将要读取的事件数据，就可能形成间接提示词注入，并影响后续 API 或工具调用\cite{indirect-pi,injecagent,agentdojo}。
 
-事件驱动链路的安全控制目前呈碎片化状态。Webhook 签名校验关注传输真实性；CloudEvents 规定 \texttt{id}、\texttt{source}、\texttt{specversion} 和 \texttt{type} 等上下文属性以实现互操作\cite{cloudevents}；A2A 协议通过 Agent Card 描述能力，并用 Task 与 \texttt{contextId} 组织交互\cite{a2a}；通用策略引擎把策略决策点（PDP）和策略执行点（PEP）分离\cite{opa}；分布式追踪规范则解决跨服务上下文传播\cite{trace-context}。单独采用其中任一机制，都无法约束一条完整的 Event-to-Agent 执行链。
+事件驱动链路的安全控制目前呈碎片化状态。Webhook 签名校验关注传输真实性；CloudEvents 规定 \texttt{id}、\texttt{source}、\texttt{specversion} 和 \texttt{type} 等上下文属性以实现互操作\cite{cloudevents}；A2A 协议通过 Agent Card 描述能力，并用 Task 与 \texttt{contextId} 组织交互\cite{a2a}；MCP 规定主机、客户端、服务端之间的工具暴露与 \texttt{tools/call} 交互，但把同意和访问控制留给实现方\cite{mcp}；通用策略引擎把策略决策点（PDP）和策略执行点（PEP）分离\cite{opa}；分布式追踪规范则解决跨服务上下文传播\cite{trace-context}。单独采用其中任一机制，都无法约束一条完整的 Event-to-Agent 执行链。
 
 本文关注如下问题：在外部事件已经进入 AIOS、但智能体尚未开始执行的临界点，系统如何统一约束事件声明权、目标智能体能力和高风险动作，并保留可验证的决策因果证据？我们的核心判断是：事件结构不是授权，智能体能力发现也不是调用授权，普通可观测性 trace 更不是安全证据。三者必须在调度前形成可执行闭环。
 
@@ -50,17 +50,17 @@ DiOS\cite{dios} 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管
 \resizebox{0.98\textwidth}{!}{%
 \begin{tikzpicture}[
   font=\footnotesize,
-  component/.style={draw=black!55,rounded corners=1.5pt,align=center,
-    minimum width=30mm,minimum height=9mm,inner xsep=3pt,fill=black!2},
-  e2ag/.style={component,draw=blue!65!black,fill=blue!7,line width=.8pt},
-  future/.style={component,dashed,draw=black!55,fill=white},
-  domainbox/.style={draw=black!22,rounded corners=3pt,fill=black!0,
+  component/.style={draw=black,rounded corners=1.5pt,align=center,
+    minimum width=30mm,minimum height=9mm,inner xsep=3pt,fill=white,line width=.45pt},
+  e2ag/.style={component,double=black,double distance=.7pt,line width=.45pt},
+  future/.style={component,dashed,line width=.65pt},
+  domainbox/.style={draw=black!55,rounded corners=3pt,fill=white,
     inner xsep=3mm,inner ysep=5mm},
-  audit/.style={draw=purple!60!black,rounded corners=2pt,fill=purple!5,
-    align=center,minimum height=8mm},
+  audit/.style={draw=black,densely dotted,line width=.8pt,rounded corners=2pt,
+    fill=white,align=center,minimum height=8mm},
   flow/.style={-{Latex[length=1.8mm]},line width=.7pt},
-  evidence/.style={-{Latex[length=1.5mm]},draw=purple!60!black,dashed,line width=.55pt},
-  boundary/.style={draw=red!55!black,dashed,line width=.55pt}
+  evidence/.style={-{Latex[length=1.5mm]},draw=black,densely dotted,line width=.65pt},
+  boundary/.style={draw=black,dash dot,line width=.65pt}
 ]
 \node[component] (source) {Git / IMAP / Webhook\\Cron / Manual};
 \node[component,below=5mm of source] (connector) {Connector Runtime\\Manifest / Registry};
@@ -109,18 +109,25 @@ DiOS\cite{dios} 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管
 \draw[boundary] ($(domain3.north east)!0.5!(domain4.north west)$)
   -- ($(domain3.south east)!0.5!(domain4.south west)$);
 
+\node[font=\scriptsize,fill=white,inner sep=1pt]
+  at ($(domain1.north east)!0.5!(domain2.north west)+(0,-3mm)$) {TB1};
+\node[font=\scriptsize,fill=white,inner sep=1pt]
+  at ($(domain2.north east)!0.5!(domain3.north west)+(0,-3mm)$) {TB2};
+\node[font=\scriptsize,fill=white,inner sep=1pt]
+  at ($(domain3.north east)!0.5!(domain4.north west)+(0,-3mm)$) {TB3};
+
 \node[below=2mm of auditlog,font=\scriptsize,align=center] (legend)
-  {灰色：当前 DiOS/DiAgent 基线\quad
-   \textcolor{blue!65!black}{蓝色：E2AG 治理机制}\quad
-   虚线框：Roadmap 或本文未统一中介的路径\quad
-   \textcolor{red!55!black}{红色虚线：信任边界}};
+  {单线框：当前 DiOS/DiAgent 基线\quad
+   双线框：E2AG 治理机制\quad
+   虚线框：Roadmap 或未统一中介路径\quad
+   点划线：信任边界\quad 点线：审计证据};
 \end{tikzpicture}
 }
 \caption{DiOS 事件驱动智能体控制面及 E2AG 治理落点}
 \label{fig:dios-e2ag-architecture}
 \end{figure}
 
-图中灰色节点是当前 DiOS/DiAgent 基线，蓝色节点是 E2AG 新增或强化的治理机制，虚线节点表示 Roadmap 或本文尚未统一中介的路径。跨域箭头对应外部输入、控制面到运行时、运行时到工具三类信任边界。该图只说明论文相关的系统上下文，不把 DiOS 管理界面、模型服务和全部应用层能力列为本文贡献。
+图中单线框是当前 DiOS/DiAgent 基线，双线框是 E2AG 新增或强化的治理机制，虚线框表示 Roadmap 或本文尚未统一中介的路径，点划线 TB1--TB3 标识三处信任边界，点线表示审计证据汇聚。全部语义由形状和线型编码，不依赖颜色。该图只说明论文相关的系统上下文，不把 DiOS 管理界面、模型服务和全部应用层能力列为本文贡献。
 
 \subsection{格式、能力与授权的差异}\label{22-ux683cux5f0fux80fdux529bux4e0eux6388ux6743ux7684ux5deeux5f02}
 
@@ -184,19 +191,19 @@ E2AG 当前不试图从任意自然语言中准确识别恶意语义。若攻击
 \begin{tikzpicture}[
   font=\small,
   node distance=5mm,
-  stage/.style={draw=black!65,rounded corners=1.5pt,align=center,
+  stage/.style={draw=black,rounded corners=1.5pt,align=center,
     minimum width=20mm,minimum height=9mm,inner xsep=4pt,fill=white},
-  pep/.style={stage,draw=blue!65!black,fill=blue!7},
-  runtime/.style={stage,draw=teal!65!black,fill=teal!7},
-  terminal/.style={stage,draw=orange!70!black,fill=orange!8},
-  outcome/.style={draw=black!55,rounded corners=1.5pt,align=center,
-    minimum width=20mm,minimum height=6mm,font=\footnotesize,fill=black!3},
-  lane/.style={draw=black!25,rounded corners=3pt,fill=black!1,
+  pep/.style={stage,double=black,double distance=.7pt,line width=.45pt},
+  runtime/.style={stage},
+  terminal/.style={stage,line width=1pt},
+  outcome/.style={draw=black,dashed,rounded corners=1.5pt,align=center,
+    minimum width=20mm,minimum height=6mm,font=\footnotesize,fill=white},
+  lane/.style={draw=black!55,rounded corners=3pt,fill=white,
     inner xsep=4mm,inner ysep=5mm},
-  auditbar/.style={draw=purple!55!black,rounded corners=2pt,
-    fill=purple!5,minimum height=8mm,align=center,font=\footnotesize},
+  auditbar/.style={draw=black,densely dotted,line width=.8pt,rounded corners=2pt,
+    fill=white,minimum height=8mm,align=center,font=\footnotesize},
   flow/.style={-{Latex[length=2mm]},line width=.75pt},
-  branch/.style={-{Latex[length=1.8mm]},line width=.6pt,draw=black!65}
+  branch/.style={-{Latex[length=1.8mm]},dashed,line width=.65pt,draw=black}
 ]
 \node[stage] (event) {事件接入\\并标准化};
 \node[pep,right=8mm of event] (contract) {能力契约\\source--type};
@@ -212,9 +219,9 @@ E2AG 当前不试图从任意自然语言中准确识别恶意语义。若攻击
 
 \begin{pgfonlayer}{background}
 \node[lane,fit=(event)(contract)(policy),label={[font=\footnotesize\bfseries,
-  text=blue!55!black]above left:PEP-1\quad 调度前门控}] (lane1) {};
-\node[lane,fit=(task)(grant)(mcp)(tool),label={[font=\footnotesize\bfseries,
-  text=teal!55!black]above left:PEP-2\quad 工具调用时门控}] (lane2) {};
+  text=black]above left:PEP-1\quad 调度前门控}] (lane1) {};
+\node[lane,dash dot,fit=(task)(grant)(mcp)(tool),label={[font=\footnotesize\bfseries,
+  text=black]above left:PEP-2\quad 工具调用时门控}] (lane2) {};
 \end{pgfonlayer}
 
 \node[auditbar,below=9mm of review,
@@ -231,9 +238,9 @@ E2AG 当前不试图从任意自然语言中准确识别恶意语义。若攻击
 \draw[branch] (policy)--(review);
 \draw[branch] (mcp)--(deny2);
 
-\draw[draw=purple!55!black,line width=.55pt]
+\draw[draw=black,densely dotted,line width=.65pt]
   (auditlog.north west) ++(7mm,0) -- ++(0,2mm)
-  -| node[pos=.25,above,font=\scriptsize,text=purple!55!black]{各阶段同步写入审计证据}
+  -| node[pos=.25,above,font=\scriptsize,text=black]{各阶段同步写入审计证据}
   ($(auditlog.north east)+(-7mm,2mm)$) -- ++(0,-2mm);
 \end{tikzpicture}
 }
@@ -446,9 +453,35 @@ approve/reject & 32 & 100 & 3200 & 100 & 0 \\
 
 \section{相关工作}\label{sec:related-work}
 
-AIOS 将智能体所需的模型、工具、上下文和资源管理下沉到类似操作系统内核的控制层，为 E2AG 提供了系统落点。间接提示词注入研究表明，攻击者可在被应用检索或处理的数据中植入指令，并影响外部 API 调用，这构成事件载荷威胁的重要依据。
+\textbf{AIOS 与国内安全研究。} AIOS 将模型、工具、上下文和资源管理下沉到类似操作系统内核的控制层\cite{aios}，自主智能体综述则从规划、记忆、工具使用和环境交互总结其通用结构\cite{agent-survey}，二者为 E2AG 提供了系统落点。国内研究已从模型自身安全、生成内容安全、生命周期攻击与隐私风险等角度形成较完整的分类、评估和缓解综述\cite{huang-llm-safety,mu-llm-security}；张熙等进一步面向大模型智能体讨论信息泄露、模型攻击、幻觉和合规风险及应对机制\cite{zhang-agent-security}。这些工作回答``风险有哪些、如何分类和缓解''，本文则聚焦其较少展开的系统控制面问题：外部事件怎样获得任务创建权、一次任务怎样获得工具副作用权限，以及拒绝或审批决定怎样形成可复核证据。
 
-CloudEvents 提供跨平台的事件格式与必要上下文属性，但不规定某一来源对某一领域事件类型的授权关系。A2A 提供 Agent Card、Message、Task、Artifact 和 \texttt{contextId} 等互操作抽象；E2AG 在其上补充事件到任务创建前的授权与安全 trace。OPA 明确区分 PDP 和 PEP，并支持对结构化输入作策略决策与审计日志；E2AG 沿用此职责分离，但当前采用内置确定性规则，贡献不依赖具体策略引擎。W3C Trace Context 解决分布式请求的统一 trace 传播；E2AG 进一步把安全决策与哈希证据链接入 trace，但不替代通用可观测性标准。
+\textbf{攻击评测与系统级防护。} 间接提示词注入揭示了不可信外部数据混淆指令与数据的根因\cite{indirect-pi}；InjecAgent 和 AgentDojo 分别提供工具集成智能体的静态测试集与可扩展动态环境\cite{injecagent,agentdojo}；ToolEmu 用模型仿真工具沙箱识别长尾风险\cite{toolemu}。这些工作主要用于暴露或度量模型介导的攻击面。AgentSpec 以领域专用语言在动作前执行可定制规则\cite{agentspec}，CaMeL 则显式分离可信查询的控制流与不可信数据流，并在工具调用时实施能力策略\cite{camel}，与 E2AG 的确定性执行思路最接近。区别在于，E2AG 的授权对象从模型计划前移到外部事件，显式绑定 \texttt{source--type--target}，并在任务创建和真实 MCP 调用两处执行同一任务作用域授权；它不能替代 CaMeL 的参数级数据流控制，两者是互补关系。
+
+\textbf{协议、策略与证据。} CloudEvents、A2A 和 MCP 分别提供事件、智能体任务和工具调用的互操作语义\cite{cloudevents,a2a,mcp}，但协议描述本身不是跨层授权。OPA 的 PDP/PEP 分离为结构化策略执行提供了通用基础\cite{opa}；W3C Trace Context 解决跨服务标识传播\cite{trace-context}，却不保证安全决策未被修改。Haber--Stornetta 的时间戳链和 in-toto 的步骤级供应链证据说明，哈希链接或签名可使过程记录具备可验证完整性\cite{haber-stornetta,in-toto}。E2AG 将这些基础机制收敛到同一 \texttt{trace\_id}，但当前哈希链没有外部锚定，不能抵抗整链删除或数据库回滚。
+
+表~\ref{tab:related-work-comparison} 按研究目标比较代表性工作。这里的差异不是以``是否安全''作二元评价，而是说明各工作约束的链路位置；E2AG 的新增点是把事件声明权、目标调度权、工具执行权和因果证据放入同一可执行闭环。
+
+\begin{table}[htbp]
+\centering
+\caption{E2AG 与代表性相关工作的关注范围比较}
+\label{tab:related-work-comparison}
+\scriptsize
+\resizebox{0.98\textwidth}{!}{%
+\begin{tabular}{p{22mm}p{38mm}p{43mm}p{53mm}}
+\toprule
+类别 & 代表性工作 & 主要约束位置或机制 & 与 E2AG 的关系 \\
+\midrule
+AIOS 与智能体体系 & AIOS、智能体综述、DiOS\cite{aios,agent-survey,dios} & 模型、记忆、调度、工具和运行资源 & 提供控制面载体；未单独给出外部事件到工具的治理闭环 \\
+国内安全综述 & 黄河燕等、牟奕洋等、张熙等\cite{huang-llm-safety,mu-llm-security,zhang-agent-security} & 模型/内容/隐私风险分类及智能体可信建议 & 提供风险体系；E2AG 补充可执行控制点与系统证据 \\
+攻击与评测 & 间接注入、InjecAgent、AgentDojo、ToolEmu\cite{indirect-pi,injecagent,agentdojo,toolemu} & 不可信数据到模型/工具的攻击与风险评估 & 给出威胁和评测环境；不等同于生产链路强制授权 \\
+运行时防护 & AgentSpec、CaMeL\cite{agentspec,camel} & 动作规则、控制/数据流分离、工具调用策略 & 与 PEP-2 互补；E2AG 进一步覆盖事件来源和任务创建 \\
+互操作协议 & CloudEvents、A2A、MCP\cite{cloudevents,a2a,mcp} & 事件格式、任务交互、工具协议 & 提供跨层对象；协议能力声明不直接构成调用授权 \\
+策略与证据基础 & OPA、Trace Context、时间戳链、in-toto\cite{opa,trace-context,haber-stornetta,in-toto} & PDP/PEP、标识传播、哈希或签名证据 & E2AG 将其组合成任务作用域策略和因果审计 \\
+本文 E2AG & 契约接入、双 PEP、审批、哈希链 & Event $\rightarrow$ Task $\rightarrow$ Tool & 统一约束事件声明权、目标调度权和工具执行权 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 \section{结论}\label{sec:conclusion}
 
@@ -459,12 +492,32 @@ CloudEvents 提供跨平台的事件格式与必要上下文属性，但不规�
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
 \bibitem{aios} Mei K, Zhu X, Xu W, et al. AIOS: LLM Agent Operating System. arXiv:2403.16971, 2024.
+\bibitem{agent-survey} Wang L, Ma C, Feng X, et al. A survey on large language model based autonomous agents. Frontiers of Computer Science, 2024, 18: 186345. [doi: 10.1007/s11704-024-40231-1]
 \bibitem{indirect-pi} Greshake K, Abdelnabi S, Mishra S, et al. Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection. arXiv:2302.12173, 2023.
-\bibitem{cloudevents} Cloud Native Computing Foundation. CloudEvents Specification, Version 1.0. \url{https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md}.
-\bibitem{a2a} A2A Protocol Working Group. Agent2Agent Protocol Specification. \url{https://a2a-protocol.org/latest/}.
-\bibitem{opa} Open Policy Agent. OPA Documentation: Policy Decision and Enforcement. \url{https://www.openpolicyagent.org/docs}.
+\bibitem{injecagent} Zhan Q, Liang Z, Ying Z, Kang D. InjecAgent: Benchmarking indirect prompt injections in tool-integrated large language model agents. In: Proc. of the Findings of the Association for Computational Linguistics: ACL 2024. Bangkok: Association for Computational Linguistics, 2024. 10471--10506. [doi: 10.18653/v1/2024.findings-acl.624]
+\bibitem{agentdojo} Debenedetti E, Zhang J, Balunovi\'{c} M, et al. AgentDojo: A dynamic environment to evaluate prompt injection attacks and defenses for LLM agents. Advances in Neural Information Processing Systems, 2024, 37: 82895--82920. [doi: 10.52202/079017-2636]
+\bibitem{cloudevents} Cloud Native Computing Foundation. CloudEvents Specification, Version 1.0.2, 2022. \url{https://github.com/cloudevents/spec/tree/ce@v1.0.2}. [2026-08-14]
+\bibitem{a2a} A2A Protocol Working Group. Agent2Agent Protocol Specification. \url{https://a2a-protocol.org/latest/}. [2026-08-14]
+\bibitem{mcp} Model Context Protocol Contributors. Model Context Protocol Specification, Revision 2025-06-18. \url{https://modelcontextprotocol.io/specification/2025-06-18/}. [2026-08-14]
+\bibitem{opa} Open Policy Agent. OPA Documentation: Policy Decision and Enforcement. \url{https://www.openpolicyagent.org/docs}. [2026-08-14]
 \bibitem{trace-context} W3C. Trace Context. W3C Recommendation, 2021. \url{https://www.w3.org/TR/trace-context/}.
-\bibitem{dios} HQIT. DiOS: DiFlow Intelligent Operation System. \url{https://github.com/HQIT/DiOS}.
-\bibitem{jos-call} 《软件学报》编辑部. ``人工智能操作系统及其安全''专刊征文, 2026.
+\bibitem{dios} HQIT. DiOS: DiFlow Intelligent Operation System. \url{https://github.com/HQIT/DiOS}. [2026-08-14]
+\bibitem{huang-llm-safety} Huang HY, Li SL, Lan TW, et al. A survey on the safety of large language model: Classification, evaluation, attribution, mitigation and prospect. CAAI Transactions on Intelligent Systems, 2025, 20(1): 2--32 (in Chinese with English abstract). [doi: 10.11992/tis.202401006]
+\bibitem{mu-llm-security} Mu YY, Chen HX, Li HW. Advances in security and privacy-preserving techniques for large language models. Journal of Cybersecurity, 2024, 2(1): 40--49 (in Chinese with English abstract). [doi: 10.20172/j.issn.2097-3136.240103]
+\bibitem{zhang-agent-security} Zhang X, Li CZ, Xu N, Zhang LT. Security challenges and response mechanisms for trustworthy large language model agents. Information and Communications Technology and Policy, 2025, 51(1): 33--37 (in Chinese with English abstract). [doi: 10.12267/j.issn.2096-5931.2025.01.005]
+\bibitem{toolemu} Ruan Y, Dong H, Wang A, et al. Identifying the risks of LM agents with an LM-emulated sandbox. In: Proc. of the 12th Int'l Conf. on Learning Representations. Vienna: OpenReview, 2024.
+\bibitem{agentspec} Wang H, Poskitt CM, Sun J. AgentSpec: Customizable runtime enforcement for safe and reliable LLM agents. In: Proc. of the 48th IEEE/ACM Int'l Conf. on Software Engineering. New York: ACM, 2026. 12 pages. [doi: 10.1145/3744916.3764546]
+\bibitem{camel} Debenedetti E, Shumailov I, Fan T, et al. Defeating Prompt Injections by Design. arXiv:2503.18813, 2025.
+\bibitem{haber-stornetta} Haber S, Stornetta WS. How to time-stamp a digital document. Journal of Cryptology, 1991, 3(2): 99--111. [doi: 10.1007/BF00196791]
+\bibitem{in-toto} Torres-Arias S, Afzali H, Kuppusamy TK, et al. in-toto: Providing farm-to-table guarantees for bits and bytes. In: Proc. of the 28th USENIX Security Symp. Santa Clara: USENIX Association, 2019. 1393--1410.
 \end{thebibliography}
+
+\vspace{1mm}
+\noindent\textbf{附中文参考文献}
+
+\noindent [12] 黄河燕, 李思霖, 兰天伟, 等. 大语言模型安全性：分类、评估、归因、缓解、展望. 智能系统学报, 2025, 20(1): 2--32. [doi: 10.11992/tis.202401006]
+
+\noindent [13] 牟奕洋, 陈涵霄, 李洪伟. 大语言模型的安全与隐私保护技术研究进展. 网络空间安全科学学报, 2024, 2(1): 40--49. [doi: 10.20172/j.issn.2097-3136.240103]
+
+\noindent [14] 张熙, 李朝卓, 许诺, 张力天. 面向可信大语言模型智能体的安全挑战与应对机制. 信息通信技术与政策, 2025, 51(1): 33--37. [doi: 10.12267/j.issn.2096-5931.2025.01.005]
 }

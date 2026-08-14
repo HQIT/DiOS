@@ -2,7 +2,7 @@
 
 > 投稿目标：《软件学报》“人工智能操作系统及其安全”专刊
 >
-> 稿件状态：阶段实验主稿 V0.4（2026-08-14）
+> 稿件状态：阶段实验主稿 V0.5（2026-08-14）
 >
 > 实现基线：`feat/event-subscription-governance-20260418@72732a4`
 >
@@ -36,9 +36,9 @@ Event-driven agent operating systems connect external events to agent runtimes a
 
 ## 1 引言
 
-智能体操作系统（Agent OS/AIOS）试图把模型、上下文、存储、外部工具和智能体调度从应用中抽离，形成统一的资源与执行控制面。已有 AIOS 工作说明，对大模型和外部工具的无限制访问会带来资源分配与潜在危害问题，并将调度、存储与访问控制视为内核服务。与此同时，工程系统正广泛采用 Git Webhook、电子邮件、告警、定时器及业务回调触发智能体。这使攻击者不必直接与模型对话，只需控制智能体将要读取的事件数据，就可能形成间接提示词注入，并影响后续 API 或工具调用。
+智能体操作系统（Agent OS/AIOS）试图把模型、上下文、存储、外部工具和智能体调度从应用中抽离，形成统一的资源与执行控制面。已有 AIOS 工作说明，对大模型和外部工具的无限制访问会带来资源分配与潜在危害问题，并将调度、存储与访问控制视为内核服务[1]；相关综述也把工具使用、记忆、规划和执行环境视为自主智能体的共同组成[2]。与此同时，工程系统正广泛采用 Git Webhook、电子邮件、告警、定时器及业务回调触发智能体。这使攻击者不必直接与模型对话，只需控制智能体将要读取的事件数据，就可能形成间接提示词注入，并影响后续 API 或工具调用[3–5]。
 
-事件驱动链路的安全控制目前呈碎片化状态。Webhook 签名校验关注传输真实性；CloudEvents 规定 `id`、`source`、`specversion` 和 `type` 等上下文属性以实现互操作；A2A 协议通过 Agent Card 描述能力，并用 Task 与 `contextId` 组织交互；通用策略引擎把策略决策点（PDP）和策略执行点（PEP）分离；分布式追踪规范则解决跨服务上下文传播。单独采用其中任一机制，都无法约束一条完整的 Event-to-Agent 执行链。
+事件驱动链路的安全控制目前呈碎片化状态。Webhook 签名校验关注传输真实性；CloudEvents 规定 `id`、`source`、`specversion` 和 `type` 等上下文属性以实现互操作[6]；A2A 协议通过 Agent Card 描述能力，并用 Task 与 `contextId` 组织交互[7]；MCP 规定主机、客户端、服务端之间的工具暴露与 `tools/call` 交互，但把同意和访问控制留给实现方[8]；通用策略引擎把策略决策点（PDP）和策略执行点（PEP）分离[9]；分布式追踪规范则解决跨服务上下文传播[10]。单独采用其中任一机制，都无法约束一条完整的 Event-to-Agent 执行链。
 
 本文关注如下问题：在外部事件已经进入 AIOS、但智能体尚未开始执行的临界点，系统如何统一约束事件声明权、目标智能体能力和高风险动作，并保留可验证的决策因果证据？我们的核心判断是：事件结构不是授权，智能体能力发现也不是调用授权，普通可观测性 trace 更不是安全证据。三者必须在调度前形成可执行闭环。
 
@@ -61,7 +61,7 @@ Event-driven agent operating systems connect external events to agent runtimes a
 
 ### 2.1 DiOS 事件控制面
 
-DiOS 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管理 Agent、模型、MCP、Connector 等资源，并负责事件接入、路由、任务调度和执行追踪；DiAgent 负责单个智能体的模型、上下文、Skill 与工具交互。因而本文把 DiOS 视为一个正在演进的事件驱动 Agent 控制面原型，而非已经完备的企业级 AIOS。该定位既解释了 E2AG 的系统落点，也避免把未来 Roadmap 能力写成当前事实。
+DiOS[11] 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管理 Agent、模型、MCP、Connector 等资源，并负责事件接入、路由、任务调度和执行追踪；DiAgent 负责单个智能体的模型、上下文、Skill 与工具交互。因而本文把 DiOS 视为一个正在演进的事件驱动 Agent 控制面原型，而非已经完备的企业级 AIOS。该定位既解释了 E2AG 的系统落点，也避免把未来 Roadmap 能力写成当前事实。
 
 当前开发分支已经包含 Connector manifest/registry、CloudEvents 标准化、事件去重、订阅匹配、重试和 A2A Task。EventLog 表示事件，A2ATask 表示一次智能体调用，两者通过 `context_id=EventLog.id` 关联。Connector 覆盖 GitHub/GitLab/Gitea、IMAP、通用 Webhook，以及 Cron/Manual 内建事件；task-mode Agent 由隔离的 DiAgent 运行时执行，并可获得系统分配的 MCP 配置。
 
@@ -101,25 +101,25 @@ flowchart LR
         Q --> P2 --> X
     end
 
-    C --> G
-    D --> T
-    R --> Q
+    C -->|"TB1"| G
+    D -->|"TB2"| T
+    R -->|"TB3"| Q
     P1 -. "trace evidence" .-> L["统一哈希链接审计链"]
     D -.-> L
     T -.-> L
     P2 -.-> L
 
-    classDef e2ag fill:#eef4ff,stroke:#315aa8,stroke-width:1.5px;
-    classDef current fill:#f8f8f8,stroke:#666;
-    classDef future fill:#fff,stroke:#888,stroke-dasharray:5 4;
-    classDef audit fill:#fbf2f7,stroke:#8b3f68;
+    classDef e2ag fill:#fff,stroke:#000,stroke-width:3px;
+    classDef current fill:#fff,stroke:#000,stroke-width:1px;
+    classDef future fill:#fff,stroke:#000,stroke-width:1px,stroke-dasharray:6 4;
+    classDef audit fill:#fff,stroke:#000,stroke-width:2px,stroke-dasharray:2 3;
     class P1,P2,Q e2ag;
     class S,C,G,D,T,R,X current;
     class U future;
     class L audit;
 ```
 
-图中灰色节点是当前 DiOS/DiAgent 基线，蓝色节点是 E2AG 新增或强化的治理机制，虚线节点表示 Roadmap 或本文尚未统一中介的路径。跨域箭头对应外部输入、控制面到运行时、运行时到工具三类信任边界。该图只用于说明论文相关的系统上下文，不把 DiOS 管理界面、模型服务和全部应用层能力列为本文贡献。
+图中细单线框是当前 DiOS/DiAgent 基线，粗线框是 E2AG 新增或强化的治理机制，虚线框表示 Roadmap 或本文尚未统一中介的路径，TB1–TB3 标识三处信任边界，点线框表示审计证据。全部语义由形状和线型编码，不依赖颜色。该图只用于说明论文相关的系统上下文，不把 DiOS 管理界面、模型服务和全部应用层能力列为本文贡献。
 
 ### 2.2 格式、能力与授权的差异
 
@@ -187,6 +187,15 @@ flowchart LR
     T -. trace_id .-> A
     G -. trace_id .-> A
     M -. trace_id .-> A
+
+    classDef baseline fill:#fff,stroke:#000,stroke-width:1px;
+    classDef pep fill:#fff,stroke:#000,stroke-width:3px;
+    classDef outcome fill:#fff,stroke:#000,stroke-width:1px,stroke-dasharray:6 4;
+    classDef audit fill:#fff,stroke:#000,stroke-width:2px,stroke-dasharray:2 3;
+    class E,N,R,T,G,X baseline;
+    class C,P,M pep;
+    class D,H outcome;
+    class A audit;
 ```
 
 原型的契约计算和订阅匹配均无外部副作用；实际强制点位于 dispatcher 开头、A2A Task 创建之前。这意味着订阅匹配可能先计算候选目标，但任何智能体执行仍必须经过 E2AG。
@@ -338,30 +347,75 @@ C1P0 只阻断 10 个契约绑定攻击；C0P1 阻断 16 个目标能力攻击�
 
 ## 9 相关工作
 
-AIOS 将智能体所需的模型、工具、上下文和资源管理下沉到类似操作系统内核的控制层，为 E2AG 提供了系统落点。间接提示词注入研究表明，攻击者可在被应用检索或处理的数据中植入指令，并影响外部 API 调用，这构成事件载荷威胁的重要依据。
+**AIOS 与国内安全研究。** AIOS 将模型、工具、上下文和资源管理下沉到类似操作系统内核的控制层[1]，自主智能体综述则从规划、记忆、工具使用和环境交互总结其通用结构[2]，二者为 E2AG 提供了系统落点。国内研究已从模型自身安全、生成内容安全、生命周期攻击与隐私风险等角度形成较完整的分类、评估和缓解综述[12–13]；张熙等进一步面向大模型智能体讨论信息泄露、模型攻击、幻觉和合规风险及应对机制[14]。这些工作回答“风险有哪些、如何分类和缓解”，本文则聚焦其较少展开的系统控制面问题：外部事件怎样获得任务创建权、一次任务怎样获得工具副作用权限，以及拒绝或审批决定怎样形成可复核证据。
 
-CloudEvents 提供跨平台的事件格式与必要上下文属性，但不规定某一来源对某一领域事件类型的授权关系。A2A 提供 Agent Card、Message、Task、Artifact 和 `contextId` 等互操作抽象；E2AG 在其上补充事件到任务创建前的授权与安全 trace。OPA 明确区分 PDP 和 PEP，并支持对结构化输入作策略决策与审计日志；E2AG 沿用此职责分离，但当前采用内置确定性规则，贡献不依赖具体策略引擎。W3C Trace Context 解决分布式请求的统一 trace 传播；E2AG 进一步把安全决策与哈希证据链接入 trace，但不替代通用可观测性标准。
+**攻击评测与系统级防护。** 间接提示词注入揭示了不可信外部数据混淆指令与数据的根因[3]；InjecAgent 和 AgentDojo 分别提供工具集成智能体的静态测试集与可扩展动态环境[4–5]；ToolEmu 用模型仿真工具沙箱识别长尾风险[15]。这些工作主要用于暴露或度量模型介导的攻击面。AgentSpec 以领域专用语言在动作前执行可定制规则[16]，CaMeL 则显式分离可信查询的控制流与不可信数据流，并在工具调用时实施能力策略[17]，与 E2AG 的确定性执行思路最接近。区别在于，E2AG 的授权对象从模型计划前移到外部事件，显式绑定 `source–type–target`，并在任务创建和真实 MCP 调用两处执行同一任务作用域授权；它不能替代 CaMeL 的参数级数据流控制，两者是互补关系。
+
+**协议、策略与证据。** CloudEvents、A2A 和 MCP 分别提供事件、智能体任务和工具调用的互操作语义[6–8]，但协议描述本身不是跨层授权。OPA 的 PDP/PEP 分离为结构化策略执行提供了通用基础[9]；W3C Trace Context 解决跨服务标识传播[10]，却不保证安全决策未被修改。Haber–Stornetta 的时间戳链和 in-toto 的步骤级供应链证据说明，哈希链接或签名可使过程记录具备可验证完整性[18–19]。E2AG 将这些基础机制收敛到同一 `trace_id`，但当前哈希链没有外部锚定，不能抵抗整链删除或数据库回滚。
+
+下表按研究目标比较代表性工作。这里的差异不是以“是否安全”作二元评价，而是说明各工作约束的链路位置；E2AG 的新增点是把事件声明权、目标调度权、工具执行权和因果证据放入同一可执行闭环。
+
+| 类别 | 代表性工作 | 主要约束位置或机制 | 与 E2AG 的关系 |
+|---|---|---|---|
+| AIOS 与智能体体系 | AIOS、智能体综述、DiOS[1–2,11] | 模型、记忆、调度、工具和运行资源 | 提供控制面载体；未单独给出外部事件到工具的治理闭环 |
+| 国内安全综述 | 黄河燕等、牟奕洋等、张熙等[12–14] | 模型/内容/隐私风险分类及智能体可信建议 | 提供风险体系；E2AG 补充可执行控制点与系统证据 |
+| 攻击与评测 | 间接注入、InjecAgent、AgentDojo、ToolEmu[3–5,15] | 不可信数据到模型/工具的攻击与风险评估 | 给出威胁和评测环境；不等同于生产链路强制授权 |
+| 运行时防护 | AgentSpec、CaMeL[16–17] | 动作规则、控制/数据流分离、工具调用策略 | 与 PEP-2 互补；E2AG 进一步覆盖事件来源和任务创建 |
+| 互操作协议 | CloudEvents、A2A、MCP[6–8] | 事件格式、任务交互、工具协议 | 提供跨层对象；协议能力声明不直接构成调用授权 |
+| 策略与证据基础 | OPA、Trace Context、时间戳链、in-toto[9–10,18–19] | PDP/PEP、标识传播、哈希或签名证据 | E2AG 将其组合成任务作用域策略和因果审计 |
+| 本文 E2AG | 契约接入、双 PEP、审批、哈希链 | Event → Task → Tool | 统一约束事件声明权、目标调度权和工具执行权 |
 
 ## 10 结论
 
 本文提出 E2AG，将事件能力契约、目标作用域策略门控、任务作用域工具授权和哈希链接因果审计部署在 Event-to-Agent 执行链的两个临界点。60 例 Contract×Policy 完整消融显示两类控制点在冻结威胁矩阵上互补；480 次持久化执行说明调度前 PEP 和 MCP PEP 分别约束事件入口与实际工具副作用；100 条注入故障 trace 验证了显式治理阶段的关联和定位。并发实验还发现并修复了原始 replay 去重竞态。上述证据支持一个确定性原型机制闭环，不支持任意提示词注入检测、跨数据库正确性或生产部署泛化；参数级策略、完整传输覆盖、外部审计锚定和跨 AIOS 验证仍是后续工作。
 
-## 参考文献（工作列表，待按《软件学报》格式统一）
+## 参考文献
 
 [1] Mei K, Zhu X, Xu W, et al. AIOS: LLM Agent Operating System. arXiv:2403.16971, 2024.
 
-[2] Greshake K, Abdelnabi S, Mishra S, et al. Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection. arXiv:2302.12173, 2023.
+[2] Wang L, Ma C, Feng X, et al. A survey on large language model based autonomous agents. Frontiers of Computer Science, 2024, 18: 186345. [doi: 10.1007/s11704-024-40231-1]
 
-[3] Cloud Native Computing Foundation. CloudEvents Specification, Version 1.0. https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md.
+[3] Greshake K, Abdelnabi S, Mishra S, et al. Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection. arXiv:2302.12173, 2023.
 
-[4] A2A Protocol Working Group. Agent2Agent Protocol Specification. https://a2a-protocol.org/latest/.
+[4] Zhan Q, Liang Z, Ying Z, Kang D. InjecAgent: Benchmarking indirect prompt injections in tool-integrated large language model agents. In: Proc. of the Findings of the Association for Computational Linguistics: ACL 2024. Bangkok: Association for Computational Linguistics, 2024. 10471–10506. [doi: 10.18653/v1/2024.findings-acl.624]
 
-[5] Open Policy Agent. OPA Documentation: Policy Decision and Enforcement. https://www.openpolicyagent.org/docs.
+[5] Debenedetti E, Zhang J, Balunović M, et al. AgentDojo: A dynamic environment to evaluate prompt injection attacks and defenses for LLM agents. Advances in Neural Information Processing Systems, 2024, 37: 82895–82920. [doi: 10.52202/079017-2636]
 
-[6] W3C. Trace Context. W3C Recommendation, 2021. https://www.w3.org/TR/trace-context/.
+[6] Cloud Native Computing Foundation. CloudEvents Specification, Version 1.0.2, 2022. https://github.com/cloudevents/spec/tree/ce@v1.0.2. [2026-08-14]
 
-[7] HQIT. DiOS: DiFlow Intelligent Operation System. https://github.com/HQIT/DiOS.
-[8] 《软件学报》编辑部. “人工智能操作系统及其安全”专刊征文, 2026.
+[7] A2A Protocol Working Group. Agent2Agent Protocol Specification. https://a2a-protocol.org/latest/. [2026-08-14]
+
+[8] Model Context Protocol Contributors. Model Context Protocol Specification, Revision 2025-06-18. https://modelcontextprotocol.io/specification/2025-06-18/. [2026-08-14]
+
+[9] Open Policy Agent. OPA Documentation: Policy Decision and Enforcement. https://www.openpolicyagent.org/docs. [2026-08-14]
+
+[10] W3C. Trace Context. W3C Recommendation, 2021. https://www.w3.org/TR/trace-context/.
+
+[11] HQIT. DiOS: DiFlow Intelligent Operation System. https://github.com/HQIT/DiOS. [2026-08-14]
+
+[12] Huang HY, Li SL, Lan TW, et al. A survey on the safety of large language model: Classification, evaluation, attribution, mitigation and prospect. CAAI Transactions on Intelligent Systems, 2025, 20(1): 2–32 (in Chinese with English abstract). [doi: 10.11992/tis.202401006]
+
+[13] Mu YY, Chen HX, Li HW. Advances in security and privacy-preserving techniques for large language models. Journal of Cybersecurity, 2024, 2(1): 40–49 (in Chinese with English abstract). [doi: 10.20172/j.issn.2097-3136.240103]
+
+[14] Zhang X, Li CZ, Xu N, Zhang LT. Security challenges and response mechanisms for trustworthy large language model agents. Information and Communications Technology and Policy, 2025, 51(1): 33–37 (in Chinese with English abstract). [doi: 10.12267/j.issn.2096-5931.2025.01.005]
+
+[15] Ruan Y, Dong H, Wang A, et al. Identifying the risks of LM agents with an LM-emulated sandbox. In: Proc. of the 12th Int'l Conf. on Learning Representations. Vienna: OpenReview, 2024.
+
+[16] Wang H, Poskitt CM, Sun J. AgentSpec: Customizable runtime enforcement for safe and reliable LLM agents. In: Proc. of the 48th IEEE/ACM Int'l Conf. on Software Engineering. New York: ACM, 2026. 12 pages. [doi: 10.1145/3744916.3764546]
+
+[17] Debenedetti E, Shumailov I, Fan T, et al. Defeating Prompt Injections by Design. arXiv:2503.18813, 2025.
+
+[18] Haber S, Stornetta WS. How to time-stamp a digital document. Journal of Cryptology, 1991, 3(2): 99–111. [doi: 10.1007/BF00196791]
+
+[19] Torres-Arias S, Afzali H, Kuppusamy TK, et al. in-toto: Providing farm-to-table guarantees for bits and bytes. In: Proc. of the 28th USENIX Security Symp. Santa Clara: USENIX Association, 2019. 1393–1410.
+
+### 附中文参考文献
+
+[12] 黄河燕, 李思霖, 兰天伟, 等. 大语言模型安全性：分类、评估、归因、缓解、展望. 智能系统学报, 2025, 20(1): 2–32. [doi: 10.11992/tis.202401006]
+
+[13] 牟奕洋, 陈涵霄, 李洪伟. 大语言模型的安全与隐私保护技术研究进展. 网络空间安全科学学报, 2024, 2(1): 40–49. [doi: 10.20172/j.issn.2097-3136.240103]
+
+[14] 张熙, 李朝卓, 许诺, 张力天. 面向可信大语言模型智能体的安全挑战与应对机制. 信息通信技术与政策, 2025, 51(1): 33–37. [doi: 10.12267/j.issn.2096-5931.2025.01.005]
 
 ## 附录 A：当前可复现命令
 
