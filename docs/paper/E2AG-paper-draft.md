@@ -2,7 +2,7 @@
 
 > 投稿目标：《软件学报》“人工智能操作系统及其安全”专刊
 >
-> 稿件状态：阶段实验主稿 V0.3（2026-08-14）
+> 稿件状态：阶段实验主稿 V0.4（2026-08-14）
 >
 > 实现基线：`feat/event-subscription-governance-20260418@72732a4`
 >
@@ -61,9 +61,65 @@ Event-driven agent operating systems connect external events to agent runtimes a
 
 ### 2.1 DiOS 事件控制面
 
-DiOS 将一个智能体运行在独立的 DiAgent 容器中，并通过 Event Gateway 接收外部 I/O 事件。当前开发分支已经包含 Connector manifest/registry、CloudEvents 标准化、事件去重、订阅匹配、重试和 A2A Task。EventLog 表示事件，A2ATask 表示一次智能体调用，两者原本通过 `context_id=EventLog.id` 关联。Connector 覆盖 GitHub/GitLab/Gitea、IMAP、通用 Webhook，以及 Cron/Manual 内建事件。
+DiOS 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管理 Agent、模型、MCP、Connector 等资源，并负责事件接入、路由、任务调度和执行追踪；DiAgent 负责单个智能体的模型、上下文、Skill 与工具交互。因而本文把 DiOS 视为一个正在演进的事件驱动 Agent 控制面原型，而非已经完备的企业级 AIOS。该定位既解释了 E2AG 的系统落点，也避免把未来 Roadmap 能力写成当前事实。
 
-这一基线具备实现 E2AG 的关键“窄腰”：所有事件最终都在 dispatcher 创建 A2A Task。将 PEP 设置于此，可覆盖 Webhook、轮询和内建事件，且无需侵入每个智能体容器。但基线 manifest 只面向展示和订阅声明事件类型，尚不能强制判断一个 `source` 与一个 `type` 是否属于同一 Connector 契约；`Agent.capabilities` 也未参与事件投递授权。
+当前开发分支已经包含 Connector manifest/registry、CloudEvents 标准化、事件去重、订阅匹配、重试和 A2A Task。EventLog 表示事件，A2ATask 表示一次智能体调用，两者通过 `context_id=EventLog.id` 关联。Connector 覆盖 GitHub/GitLab/Gitea、IMAP、通用 Webhook，以及 Cron/Manual 内建事件；task-mode Agent 由隔离的 DiAgent 运行时执行，并可获得系统分配的 MCP 配置。
+
+这一基线具备实现 E2AG 的关键“窄腰”：所有事件最终都在 dispatcher 创建 A2A Task。将第一个 PEP 设置于此，可覆盖 Webhook、轮询和内建事件，且无需侵入每个 Connector；将第二个 PEP 设置于远程 MCP 调用点，可在工具产生副作用前重新校验任务授权。但基线 manifest 只面向展示和订阅声明事件类型，尚不能强制判断一个 `source` 与一个 `type` 是否属于同一 Connector 契约；`Agent.capabilities` 也未参与事件投递授权。图 1 给出本文所涉及的 DiOS 子架构与 E2AG 落点。
+
+```mermaid
+flowchart LR
+    subgraph I["外部与接入域"]
+        direction TB
+        S["Git / IMAP / Webhook<br/>Cron / Manual"]
+        C["Connector Runtime<br/>Manifest / Registry"]
+        S --> C
+    end
+
+    subgraph O["DiOS 事件控制面"]
+        direction TB
+        G["Event Gateway<br/>CloudEvents 标准化"]
+        P1["E2AG PEP-1<br/>契约 + 目标策略"]
+        D["Dispatcher<br/>EventLog / Approval"]
+        G --> P1 --> D
+    end
+
+    subgraph A["Agent 执行域"]
+        direction TB
+        T["A2A Task<br/>trace_id"]
+        R["DiAgent Runtime<br/>task mode"]
+        U["Roadmap / 未统一中介<br/>service mode / Skill"]
+        T --> R
+        R -.-> U
+    end
+
+    subgraph M["工具与副作用域"]
+        direction TB
+        Q["Task-scoped ToolGrant"]
+        P2["E2AG PEP-2<br/>MCP tools/call"]
+        X["MCP Tool<br/>外部副作用"]
+        Q --> P2 --> X
+    end
+
+    C --> G
+    D --> T
+    R --> Q
+    P1 -. "trace evidence" .-> L["统一哈希链接审计链"]
+    D -.-> L
+    T -.-> L
+    P2 -.-> L
+
+    classDef e2ag fill:#eef4ff,stroke:#315aa8,stroke-width:1.5px;
+    classDef current fill:#f8f8f8,stroke:#666;
+    classDef future fill:#fff,stroke:#888,stroke-dasharray:5 4;
+    classDef audit fill:#fbf2f7,stroke:#8b3f68;
+    class P1,P2,Q e2ag;
+    class S,C,G,D,T,R,X current;
+    class U future;
+    class L audit;
+```
+
+图中灰色节点是当前 DiOS/DiAgent 基线，蓝色节点是 E2AG 新增或强化的治理机制，虚线节点表示 Roadmap 或本文尚未统一中介的路径。跨域箭头对应外部输入、控制面到运行时、运行时到工具三类信任边界。该图只用于说明论文相关的系统上下文，不把 DiOS 管理界面、模型服务和全部应用层能力列为本文贡献。
 
 ### 2.2 格式、能力与授权的差异
 

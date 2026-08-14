@@ -39,9 +39,88 @@
 
 \subsection{DiOS 事件控制面}\label{21-dios-ux4e8bux4ef6ux63a7ux5236ux9762}
 
-DiOS\cite{dios} 将一个智能体运行在独立的 DiAgent 容器中，并通过 Event Gateway 接收外部 I/O 事件。当前开发分支已经包含 Connector manifest/registry、CloudEvents 标准化、事件去重、订阅匹配、重试和 A2A Task。EventLog 表示事件，A2ATask 表示一次智能体调用，两者原本通过 \texttt{context\_id=EventLog.id} 关联。Connector 覆盖 GitHub/GitLab/Gitea、IMAP、通用 Webhook，以及 Cron/Manual 内建事件。
+DiOS\cite{dios} 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管理 Agent、模型、MCP、Connector 等资源，并负责事件接入、路由、任务调度和执行追踪；DiAgent 负责单个智能体的模型、上下文、Skill 与工具交互。因而本文把 DiOS 视为一个正在演进的事件驱动 Agent 控制面原型，而非已经完备的企业级 AIOS。该定位既解释了 E2AG 的系统落点，也避免把未来 Roadmap 能力写成当前事实。
 
-这一基线具备实现 E2AG 的关键``窄腰''：所有事件最终都在 dispatcher 创建 A2A Task。将 PEP 设置于此，可覆盖 Webhook、轮询和内建事件，且无需侵入每个智能体容器。但基线 manifest 只面向展示和订阅声明事件类型，尚不能强制判断一个 \texttt{source} 与一个 \texttt{type} 是否属于同一 Connector 契约；\texttt{Agent.capabilities} 也未参与事件投递授权。
+当前开发分支已经包含 Connector manifest/registry、CloudEvents 标准化、事件去重、订阅匹配、重试和 A2A Task。EventLog 表示事件，A2ATask 表示一次智能体调用，两者通过 \texttt{context\_id=EventLog.id} 关联。Connector 覆盖 GitHub/GitLab/Gitea、IMAP、通用 Webhook，以及 Cron/Manual 内建事件；task-mode Agent 由隔离的 DiAgent 运行时执行，并可获得系统分配的 MCP 配置。
+
+这一基线具备实现 E2AG 的关键``窄腰''：所有事件最终都在 dispatcher 创建 A2A Task。将第一个 PEP 设置于此，可覆盖 Webhook、轮询和内建事件，且无需侵入每个 Connector；将第二个 PEP 设置于远程 MCP 调用点，可在工具产生副作用前重新校验任务授权。但基线 manifest 只面向展示和订阅声明事件类型，尚不能强制判断一个 \texttt{source} 与一个 \texttt{type} 是否属于同一 Connector 契约；\texttt{Agent.capabilities} 也未参与事件投递授权。图~\ref{fig:dios-e2ag-architecture} 给出本文所涉及的 DiOS 子架构与 E2AG 落点。
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\footnotesize,
+  component/.style={draw=black!55,rounded corners=1.5pt,align=center,
+    minimum width=30mm,minimum height=9mm,inner xsep=3pt,fill=black!2},
+  e2ag/.style={component,draw=blue!65!black,fill=blue!7,line width=.8pt},
+  future/.style={component,dashed,draw=black!55,fill=white},
+  domainbox/.style={draw=black!22,rounded corners=3pt,fill=black!0,
+    inner xsep=3mm,inner ysep=5mm},
+  audit/.style={draw=purple!60!black,rounded corners=2pt,fill=purple!5,
+    align=center,minimum height=8mm},
+  flow/.style={-{Latex[length=1.8mm]},line width=.7pt},
+  evidence/.style={-{Latex[length=1.5mm]},draw=purple!60!black,dashed,line width=.55pt},
+  boundary/.style={draw=red!55!black,dashed,line width=.55pt}
+]
+\node[component] (source) {Git / IMAP / Webhook\\Cron / Manual};
+\node[component,below=5mm of source] (connector) {Connector Runtime\\Manifest / Registry};
+
+\node[component,right=11mm of source] (gateway) {Event Gateway\\CloudEvents 标准化};
+\node[e2ag,below=5mm of gateway] (pep1) {E2AG PEP-1\\契约 $+$ 目标策略};
+\node[component,below=5mm of pep1] (dispatcher) {Dispatcher\\EventLog / Approval};
+
+\node[component,right=11mm of gateway] (task) {A2A Task\\\texttt{trace\_id}};
+\node[component,below=5mm of task] (runtime) {DiAgent Runtime\\task mode};
+\node[future,below=5mm of runtime] (futurepath) {Roadmap / 未统一中介\\service mode / Skill};
+
+\node[e2ag,right=11mm of task] (grant) {Task-scoped\\ToolGrant};
+\node[e2ag,below=5mm of grant] (pep2) {E2AG PEP-2\\MCP \texttt{tools/call}};
+\node[component,below=5mm of pep2] (tool) {MCP Tool\\外部副作用};
+
+\begin{pgfonlayer}{background}
+\node[domainbox,fit=(source)(connector),label={[font=\footnotesize\bfseries]above:外部与接入域}] (domain1) {};
+\node[domainbox,fit=(gateway)(pep1)(dispatcher),label={[font=\footnotesize\bfseries]above:DiOS 事件控制面}] (domain2) {};
+\node[domainbox,fit=(task)(runtime)(futurepath),label={[font=\footnotesize\bfseries]above:Agent 执行域}] (domain3) {};
+\node[domainbox,fit=(grant)(pep2)(tool),label={[font=\footnotesize\bfseries]above:工具与副作用域}] (domain4) {};
+\end{pgfonlayer}
+
+\node[audit,below=10mm of $(domain2.south)!0.5!(domain3.south)$,
+  minimum width=112mm] (auditlog)
+  {统一哈希链接审计链：契约 $\rightarrow$ 策略 $\rightarrow$ Event/Approval
+   $\rightarrow$ Task/Grant $\rightarrow$ Tool Result};
+
+\draw[flow] (source)--(connector);
+\draw[flow] (connector.east)--(gateway.west);
+\draw[flow] (gateway)--(pep1)--(dispatcher);
+\draw[flow] (dispatcher.east)--(task.west);
+\draw[flow] (task)--(runtime);
+\draw[flow] (runtime.east)--(grant.west);
+\draw[flow] (grant)--(pep2)--(tool);
+\draw[flow,dashed,draw=black!55] (runtime)--(futurepath);
+
+\draw[evidence] (domain2.south)--(auditlog.north west);
+\draw[evidence] (domain3.south)--(auditlog.north);
+\draw[evidence] (domain4.south)--(auditlog.north east);
+
+\draw[boundary] ($(domain1.north east)!0.5!(domain2.north west)$)
+  -- ($(domain1.south east)!0.5!(domain2.south west)$);
+\draw[boundary] ($(domain2.north east)!0.5!(domain3.north west)$)
+  -- ($(domain2.south east)!0.5!(domain3.south west)$);
+\draw[boundary] ($(domain3.north east)!0.5!(domain4.north west)$)
+  -- ($(domain3.south east)!0.5!(domain4.south west)$);
+
+\node[below=2mm of auditlog,font=\scriptsize,align=center] (legend)
+  {灰色：当前 DiOS/DiAgent 基线\quad
+   \textcolor{blue!65!black}{蓝色：E2AG 治理机制}\quad
+   虚线框：Roadmap 或本文未统一中介的路径\quad
+   \textcolor{red!55!black}{红色虚线：信任边界}};
+\end{tikzpicture}
+}
+\caption{DiOS 事件驱动智能体控制面及 E2AG 治理落点}
+\label{fig:dios-e2ag-architecture}
+\end{figure}
+
+图中灰色节点是当前 DiOS/DiAgent 基线，蓝色节点是 E2AG 新增或强化的治理机制，虚线节点表示 Roadmap 或本文尚未统一中介的路径。跨域箭头对应外部输入、控制面到运行时、运行时到工具三类信任边界。该图只说明论文相关的系统上下文，不把 DiOS 管理界面、模型服务和全部应用层能力列为本文贡献。
 
 \subsection{格式、能力与授权的差异}\label{22-ux683cux5f0fux80fdux529bux4e0eux6388ux6743ux7684ux5deeux5f02}
 
