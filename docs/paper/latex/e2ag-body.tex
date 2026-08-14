@@ -61,8 +61,7 @@ DiOS\cite{dios} 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管
   flow/.style={-{Latex[length=1.8mm]},line width=.7pt,
     rounded corners=2pt,line join=round,line cap=round},
   evidence/.style={-{Latex[length=1.5mm]},draw=black,densely dotted,line width=.65pt,
-    rounded corners=2pt,line join=round,line cap=round},
-  boundary/.style={draw=black,dash dot,line width=.65pt}
+    rounded corners=2pt,line join=round,line cap=round}
 ]
 \node[component] (source) {Git / IMAP / Webhook\\Cron / Manual};
 \node[component,below=5mm of source] (connector) {Connector Runtime\\Manifest / Registry};
@@ -86,30 +85,38 @@ DiOS\cite{dios} 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管
 \node[domainbox,fit=(grant)(pep2)(tool),label={[font=\footnotesize\bfseries]above:工具与副作用域}] (domain4) {};
 \end{pgfonlayer}
 
+% Cross-domain flows use the whitespace between domain boxes as dedicated
+% routing channels, avoiding overlaps with nodes and domain borders.
+\coordinate (gap12) at ($(domain1.east)!0.5!(domain2.west)$);
+\coordinate (gap23) at ($(domain2.east)!0.5!(domain3.west)$);
+\coordinate (gap34) at ($(domain3.east)!0.5!(domain4.west)$);
+
 \node[audit,below=10mm of $(domain2.south)!0.5!(domain3.south)$,
   minimum width=112mm] (auditlog)
   {统一哈希链接审计链：契约 $\rightarrow$ 策略 $\rightarrow$ Event/Approval
    $\rightarrow$ Task/Grant $\rightarrow$ Tool Result};
 
 \draw[flow] (source)--(connector);
-\draw[flow] (connector.east) |- (gateway.west);
+\draw[flow] (connector.east)
+  -- (gap12 |- connector.east)
+  -- (gap12 |- gateway.west)
+  -- (gateway.west);
 \draw[flow] (gateway)--(pep1)--(dispatcher);
-\draw[flow] (dispatcher.east) |- (task.west);
+\draw[flow] (dispatcher.east)
+  -- (gap23 |- dispatcher.east)
+  -- (gap23 |- task.west)
+  -- (task.west);
 \draw[flow] (task)--(runtime);
-\draw[flow] (runtime.east) |- (grant.west);
+\draw[flow] (runtime.east)
+  -- (gap34 |- runtime.east)
+  -- (gap34 |- grant.west)
+  -- (grant.west);
 \draw[flow] (grant)--(pep2)--(tool);
 \draw[flow,dashed,draw=black!55] (runtime)--(futurepath);
 
 \draw[evidence] (domain2.south) -- ++(0,-3mm) -| (auditlog.north west);
 \draw[evidence] (domain3.south) -- ++(0,-3mm) -| (auditlog.north);
 \draw[evidence] (domain4.south) -- ++(0,-3mm) -| (auditlog.north east);
-
-\draw[boundary] ($(domain1.north east)!0.5!(domain2.north west)$)
-  -- ($(domain1.south east)!0.5!(domain2.south west)$);
-\draw[boundary] ($(domain2.north east)!0.5!(domain3.north west)$)
-  -- ($(domain2.south east)!0.5!(domain3.south west)$);
-\draw[boundary] ($(domain3.north east)!0.5!(domain4.north west)$)
-  -- ($(domain3.south east)!0.5!(domain4.south west)$);
 
 \node[font=\scriptsize,fill=white,inner sep=1pt]
   at ($(domain1.north east)!0.5!(domain2.north west)+(0,-3mm)$) {TB1};
@@ -122,14 +129,14 @@ DiOS\cite{dios} 与 DiAgent 在 DiFlow 工具链中承担不同职责：DiOS 管
   {单线框：当前 DiOS/DiAgent 基线\quad
    双线框：E2AG 治理机制\quad
    虚线框：Roadmap 或未统一中介路径\quad
-   点划线：信任边界\quad 点线：审计证据};
+   TB1--TB3：信任边界\quad 点线：审计证据};
 \end{tikzpicture}
 }
 \caption{DiOS 事件驱动智能体控制面及 E2AG 治理落点}
 \label{fig:dios-e2ag-architecture}
 \end{figure}
 
-图中单线框是当前 DiOS/DiAgent 基线，双线框是 E2AG 新增或强化的治理机制，虚线框表示 Roadmap 或本文尚未统一中介的路径，点划线 TB1--TB3 标识三处信任边界，点线表示审计证据汇聚。全部语义由形状和线型编码，不依赖颜色。该图只说明论文相关的系统上下文，不把 DiOS 管理界面、模型服务和全部应用层能力列为本文贡献。
+图中单线框是当前 DiOS/DiAgent 基线，双线框是 E2AG 新增或强化的治理机制，虚线框表示 Roadmap 或本文尚未统一中介的路径，TB1--TB3 标签标识三处信任边界，点线表示审计证据汇聚。全部语义由形状和线型编码，不依赖颜色。该图只说明论文相关的系统上下文，不把 DiOS 管理界面、模型服务和全部应用层能力列为本文贡献。
 
 \subsection{格式、能力与授权的差异}\label{22-ux683cux5f0fux80fdux529bux4e0eux6388ux6743ux7684ux5deeux5f02}
 
