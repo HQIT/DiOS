@@ -30,7 +30,7 @@
 \item
   在 DiOS 最新开发基线上实现调度前强制点、三态决策、审计持久化与 A2A trace 传播，提供不依赖模型的确定性测试；
 \item
-  构造首批 22 个多事件源案例并完成三组消融与 33 万次判定测量，给出可复现的初步安全性和微基准结果。
+  在 60 例冻结威胁矩阵上完成 Contract$\times$Policy 2$\times$2 消融，并以 480 次持久化 Event-to-Agent-to-Tool 执行、100 条因果定位 trace 和并发竞态实验验证双执行点与审计闭环。
 \end{itemize}
 
 上述工作直接面向专刊所列``智能体协同安全与调度防护机制''问题：契约和策略决定事件能否进入调度，因果审计则为调度防护的度量、异常分析与复核提供证据。
@@ -101,37 +101,61 @@ E2AG 当前不试图从任意自然语言中准确识别恶意语义。若攻击
 
 \begin{figure}[htbp]
 \centering
-\resizebox{\textwidth}{!}{%
+\resizebox{0.98\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=5mm and 6mm,
-  box/.style={draw,rounded corners,align=center,font=\scriptsize,minimum height=7mm,inner xsep=4pt},
-  decision/.style={box,diamond,aspect=2.1,inner xsep=1pt},
-  flow/.style={-{Latex[length=2mm]},thick},
-  audit/.style={-{Latex[length=1.7mm]},dashed,gray}
+  font=\small,
+  node distance=5mm,
+  stage/.style={draw=black!65,rounded corners=1.5pt,align=center,
+    minimum width=20mm,minimum height=9mm,inner xsep=4pt,fill=white},
+  pep/.style={stage,draw=blue!65!black,fill=blue!7},
+  runtime/.style={stage,draw=teal!65!black,fill=teal!7},
+  terminal/.style={stage,draw=orange!70!black,fill=orange!8},
+  outcome/.style={draw=black!55,rounded corners=1.5pt,align=center,
+    minimum width=20mm,minimum height=6mm,font=\footnotesize,fill=black!3},
+  lane/.style={draw=black!25,rounded corners=3pt,fill=black!1,
+    inner xsep=4mm,inner ysep=5mm},
+  auditbar/.style={draw=purple!55!black,rounded corners=2pt,
+    fill=purple!5,minimum height=8mm,align=center,font=\footnotesize},
+  flow/.style={-{Latex[length=2mm]},line width=.75pt},
+  branch/.style={-{Latex[length=1.8mm]},line width=.6pt,draw=black!65}
 ]
-\node[box] (event) {外部/内部事件};
-\node[box,right=of event] (normalize) {标准化\\CloudEvent};
-\node[decision,right=of normalize] (contract) {source--type\\契约};
-\node[box,right=of contract] (match) {订阅匹配};
-\node[decision,right=of match] (policy) {目标作用域\\策略};
-\node[box,below=of policy] (approval) {等待审批};
-\node[box,right=of policy] (task) {A2A Task};
-\node[box,right=of task] (grant) {ToolGrant};
-\node[decision,right=of grant] (mcp) {MCP PEP};
-\node[box,right=of mcp] (tool) {远程工具};
-\node[box,below=12mm of match,minimum width=34mm] (deny) {拒绝并审计};
-\node[box,below=12mm of grant,minimum width=38mm] (auditlog) {哈希链接因果审计};
-\draw[flow] (event)--(normalize)--(contract)--node[above,font=\tiny]{绑定}(match)--(policy);
-\draw[flow] (policy)--node[above,font=\tiny]{allow}(task)--(grant)--(mcp)--node[above,font=\tiny]{allow}(tool);
-\draw[flow] (contract)|-node[pos=.25,left,font=\tiny]{未绑定}(deny);
-\draw[flow] (policy)--node[right,font=\tiny]{approval}(approval);
-\draw[flow] (policy)|-node[pos=.25,right,font=\tiny]{deny}(deny);
-\draw[flow] (mcp)|-node[pos=.25,right,font=\tiny]{deny}(deny);
-\draw[audit] (contract)--(auditlog);
-\draw[audit] (policy)--(auditlog);
-\draw[audit] (task)--(auditlog);
-\draw[audit] (grant)--(auditlog);
-\draw[audit] (mcp)--(auditlog);
+\node[stage] (event) {事件接入\\并标准化};
+\node[pep,right=8mm of event] (contract) {能力契约\\source--type};
+\node[pep,right=8mm of contract] (policy) {目标策略\\source/type/action};
+\node[runtime,right=12mm of policy] (task) {创建\\A2A Task};
+\node[runtime,right=8mm of task] (grant) {签发短期\\ToolGrant};
+\node[pep,right=8mm of grant] (mcp) {调用时 PEP\\tool/method};
+\node[terminal,right=8mm of mcp] (tool) {执行远程\\工具};
+
+\node[outcome,below=4mm of contract] (deny1) {拒绝：契约不匹配};
+\node[outcome,below=4mm of policy] (review) {待审批 / 拒绝};
+\node[outcome,below=4mm of mcp] (deny2) {拒绝：调用越权};
+
+\begin{pgfonlayer}{background}
+\node[lane,fit=(event)(contract)(policy),label={[font=\footnotesize\bfseries,
+  text=blue!55!black]above left:PEP-1\quad 调度前门控}] (lane1) {};
+\node[lane,fit=(task)(grant)(mcp)(tool),label={[font=\footnotesize\bfseries,
+  text=teal!55!black]above left:PEP-2\quad 工具调用时门控}] (lane2) {};
+\end{pgfonlayer}
+
+\node[auditbar,below=9mm of review,
+  minimum width=150mm] (auditlog)
+  {统一因果证据链：\texttt{trace\_id}\quad 契约判定 $\rightarrow$ 策略决定
+   $\rightarrow$ Task/Grant $\rightarrow$ 工具结果\quad（前向哈希链接）};
+
+\draw[flow] (event)--(contract);
+\draw[flow] (contract)--node[above,font=\footnotesize]{通过}(policy);
+\draw[flow] (policy)--node[above,font=\footnotesize]{allow}(task);
+\draw[flow] (task)--(grant)--(mcp);
+\draw[flow] (mcp)--node[above,font=\footnotesize]{allow}(tool);
+\draw[branch] (contract)--(deny1);
+\draw[branch] (policy)--(review);
+\draw[branch] (mcp)--(deny2);
+
+\draw[draw=purple!55!black,line width=.55pt]
+  (auditlog.north west) ++(7mm,0) -- ++(0,2mm)
+  -| node[pos=.25,above,font=\scriptsize,text=purple!55!black]{各阶段同步写入审计证据}
+  ($(auditlog.north east)+(-7mm,2mm)$) -- ++(0,-2mm);
 \end{tikzpicture}
 }
 \caption{E2AG 的双执行点治理流程}
@@ -223,100 +247,109 @@ E2AG 在 DiOS 后端以一个无副作用判定模块实现，核心代码不依
 \begin{itemize}
 \tightlist
 \item
-  \textbf{RQ1：} 可执行 source--type 契约能阻断哪些接入混淆攻击？
+  \textbf{RQ1：} source--type 契约与目标作用域策略是否分别贡献安全收益，组合后是否互补？
 \item
-  \textbf{RQ2：} 目标作用域策略相对仅契约基线增加多少安全收益？
+  \textbf{RQ2：} 调度前 PEP 与 MCP 调用时 PEP 是否能在真实持久化执行链中共同阻止禁止副作用？
 \item
-  \textbf{RQ3：} 纯判定核心引入多少本机计算开销？
-\item
-  \textbf{RQ4：} trace 和哈希链能检测哪些审计篡改，其边界是什么？
-\item
-  \textbf{RQ5：} 调度前门控之后，任务作用域工具 PEP 能否阻断实际调用越权？
+  \textbf{RQ3：} 统一 trace 和哈希链能否完整关联执行阶段并定位治理失败点，其并发状态不变量是否成立？
 \end{itemize}
 
 \subsection{对照与数据集}\label{62-ux5bf9ux7167ux4e0eux6570ux636eux96c6}
 
-实验使用三组消融：B0 无治理（全部放行）；B1 仅执行能力契约；B2 执行完整契约与目标策略。首批数据集包含 22 个手工案例：8 个正常事件和 14 个攻击事件，覆盖 GitHub/GitLab/Gitea、IMAP、Generic Webhook、Manual 和 Cron。攻击包括 5 个结构/绑定异常、5 个目标能力或意图越权，以及 4 个应转人工审批的生产高风险动作。
+RQ1 使用完整 2$\times$2：C0P0（契约、策略均关闭）、C1P0（仅契约）、C0P1（仅策略）和 C1P1（均开启）。正式冻结集为 60 例，其中 30 个正常事件、30 个攻击事件；攻击包括 10 个 source--type 绑定攻击、16 个目标 source/type/action/tool 或意图攻击，以及 4 个应转审批的生产敏感动作。语料覆盖 GitHub、GitLab、Gitea、IMAP、通用 Webhook、Manual 和 Cron，SHA-256 前后缀为 \texttt{8c0074fc...a096a6}。所有事件均满足基本结构要求，以隔离 source--type 绑定与目标策略贡献。该语料是作者冻结威胁矩阵，独立合作者标签复核尚待完成。
+
+RQ2 使用 G0R0、G1R0、G0R1、G1R1 四组，G 表示调度前 PEP，R 表示 MCP 调用时 PEP。四类场景为正常授权调用、伪造来源、任务创建后的工具升级和生产敏感动作，每个``配置$\times$场景''重复 30 次，共 480 次。执行使用真实 DiOS dispatcher、SQLite 模型、A2A Task、ToolGrant、MCP PEP 和审计链；Agent 决策和远程 MCP 为确定性测试替身，不使用 LLM、容器和外部网络。主要观测上游是否真正收到调用及 canary 副作用是否发生，而非只读取授权函数返回值。
 
 \subsection{指标与环境}\label{63-ux6307ux6807ux4e0eux73afux5883}
 
-安全性指标包括攻击成功率（攻击被判为 \texttt{allow}）、攻击阻断率、正常通过率和精确三态决策正确率。纯函数性能脚本对每个模式、每个案例重复 5000 次，即每个模式 110,000 次、总计 330,000 次判定，记录 P50/P95/P99。另一个异步 SQLite 微基准对每种模式运行正序与逆序两轮、每轮 1000 次，并为每个模式创建独立内存数据库；该测试包含 dispatcher、契约/策略、EventLog 和哈希审计落库，但不包含 HTTP、订阅查询、网络、容器启动或模型推理。
-
-工具执行点实验另设 R0（只有调度前判定，不执行调用时授权）与 R1（任务作用域 E2AG 工具授权）两组。数据包含 4 个获准调用和 6 个越权工具或 MCP 方法；每个案例重复 10,000 次测量纯授权函数。真实代理的``不向上游转发''等安全不变量由 mocked HTTP 集成测试验证，而该微基准不包含数据库、HTTP 和远端工具执行延迟。
-
-为降低首批 22 例完全手工枚举带来的机制覆盖偏差，我们以 8 个正常基例为起点，使用固定种子 \texttt{20260812} 生成 7 类单因素变异，每类 100 例：删除必填字段、非法规范版本、source--type 交叉、未知类型、目标 source 越权、目标 tool 越权和生产敏感动作。生成器保证目标 source 变异仍满足 Connector 契约、工具变异只作用于已声明工具 allow-list 的目标、敏感动作同步进入 action allow-list，从而尽量隔离被测策略维度。该数据仍来自手工基例，不能代表真实攻击频率或多因素组合攻击。
+RQ1 报告攻击阻断率、正常通过率、各治理层计数和 Wilson 95\% 置信区间。RQ2 报告 Task/Approval/Grant 创建数、上游调用数、允许/禁止副作用数、审计链有效性和路径阶段完整性。RQ3 对契约拒绝、策略拒绝、审批过期、ToolGrant 过期、MCP 工具拒绝各注入 20 次，报告阶段定位、trace 完整性和哈希校验；另对 8/32 并发 replay 与 approve/reject 各运行 100 轮。性能仅作为同机随机配对的工程观察：30 批、每批 1200 次判定，不作为独立研究问题或生产性能证据。
 
 \section{实验结果}\label{sec:results}
 
+\subsection{RQ1：Contract$\times$Policy 完整消融}
+
+{
+\footnotesize
+\begin{longtable}[]{@{}lrrrr@{}}
+\toprule\noalign{}
+模式 & 阻断攻击 & 攻击阻断率 & 正常通过 & 正常通过率 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+C0P0 & 0/30 & 0.00\% & 30/30 & 100.00\% \\
+C1P0 & 10/30 & 33.33\% & 30/30 & 100.00\% \\
+C0P1 & 20/30 & 66.67\% & 30/30 & 100.00\% \\
+C1P1 & 30/30 & 100.00\% & 30/30 & 100.00\% \\
+\end{longtable}
+}
+
+C1P0 只阻断 10 个契约绑定攻击；C0P1 阻断 16 个目标能力攻击，并将 4 个生产敏感动作转为待审批；C1P1 合并两类控制点。对应 Wilson 95\% 区间分别为 [19.23\%, 51.22\%]、[48.78\%, 80.77\%] 和 [88.65\%, 100\%]；30/30 正常通过的区间为 [88.65\%, 100\%]。结果支持机制分工，但作者冻结矩阵不是未知攻击样本。
+
+\subsection{RQ2：双执行点与上游副作用}
+
 {
 \scriptsize
-\begin{longtable}[]{@{}lrrrrrrr@{}}
+\begin{longtable}[]{@{}lrrrr@{}}
 \toprule\noalign{}
-模式 & 攻击成功率 & 攻击阻断率 & 正常通过率 & 三态准确率 & P50 ($\mu$s) & P95 ($\mu$s) & P99 ($\mu$s) \\
+配置 & 正常到达 & 伪造来源副作用 & 工具升级副作用 & 敏感动作副作用 \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-B0 无治理 & 100.00\% & 0.00\% & 100.00\% & 36.36\% & 0.1 & 0.2 & 0.2 \\
-B1 仅契约 & 64.29\% & 35.71\% & 100.00\% & 59.09\% & 12.4 & 22.3 & 64.4 \\
-B2 完整 E2AG & 0.00\% & 100.00\% & 100.00\% & 100.00\% & 21.2 & 42.1 & 121.0 \\
+G0R0 & 30/30 & 30/30 & 30/30 & 30/30 \\
+G1R0 & 30/30 & 0/30 & 30/30 & 0/30（审批） \\
+G0R1 & 30/30 & 30/30 & 0/30 & 0/30 \\
+G1R1 & 30/30 & 0/30 & 0/30 & 0/30（审批） \\
 \end{longtable}
 }
 
-\subsection{RQ1：契约接入的作用}\label{71-rq1ux5951ux7ea6ux63a5ux5165ux7684ux4f5cux7528}
+调度前 PEP 能阻断伪造来源并把高风险动作转为审批，但不能阻止任务创建后的工具升级；MCP PEP 能阻断未授权工具，却无法判断获准工具是否由伪造来源触发。G1R1 保持 30/30 个正常副作用，并使三类禁止副作用均为 0/30。480/480 条链通过哈希校验且包含路径所需阶段。确定性 Agent/MCP 替身证明系统强制路径，而非 LLM 识别恶意语义的能力。
 
-B1 阻断 14 个攻击中的 5 个，使攻击成功率从 100\% 降至 64.29\%。这些收益来自缺失字段、错误规范版本、未知类型及 source--type 混淆。契约层对结构合法但目标越权的事件无能为力，这说明 CloudEvent 合规与授权是两个不同问题。
-
-\subsection{RQ2：策略门控的增益}\label{72-rq2ux7b56ux7565ux95e8ux63a7ux7684ux589eux76ca}
-
-B2 进一步处理跨组织 source、目标事件类型、工具、动作和意图缺失，并把 4 个生产高风险动作转为审批，因此在当前夹具上实现 14/14 非放行且保持 8/8 正常放行。该结果证明两层机制在构造集上的互补性，但样本是为机制覆盖设计的手工案例，不能直接外推真实攻击分布或未知攻击。
-
-\subsection{RQ3：判定开销}\label{73-rq3ux5224ux5b9aux5f00ux9500}
-
-完整 E2AG 的中位开销为 21.2~$\mu$s，P95 为 42.1~$\mu$s；相对 B1 约增加一次目标策略遍历。B0 的 0.1~$\mu$s 仅是 Python 函数调用与常量返回成本。由于端到端链路还包含数据库和 Agent 启动，当前结果只支持``判定核心开销较小''，尚不能支持``系统端到端性能影响可忽略''的结论。
-
-包含审计落库的控制面结果如下。完整 E2AG 相对关闭治理的 P50 从 7.96 ms 增至 8.38 ms，增量 0.42 ms（约 5.3\%）；P95 从 9.99 ms 增至 10.50 ms。由于使用内存 SQLite 且每个事件执行多次 commit/refresh，绝对值不代表生产数据库，但说明治理逻辑在当前持久化路径中的增量小于数据库操作本身。
+\subsection{RQ3：因果阶段定位}
 
 {
 \begin{longtable}[]{@{}lrrrr@{}}
 \toprule\noalign{}
-控制面模式 & 测量次数 & P50 (ms) & P95 (ms) & P99 (ms) \\
+注入故障 & trace 数 & 正确定位 & 链有效 & 阶段完整 \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-off & 2000 & 7.96 & 9.99 & 11.11 \\
-contract & 2000 & 8.23 & 10.14 & 11.29 \\
-enforce & 2000 & 8.38 & 10.50 & 11.80 \\
+契约拒绝 & 20 & 20 & 20 & 20 \\
+策略拒绝 & 20 & 20 & 20 & 20 \\
+审批过期 & 20 & 20 & 20 & 20 \\
+ToolGrant 过期 & 20 & 20 & 20 & 20 \\
+MCP 工具拒绝 & 20 & 20 & 20 & 20 \\
 \end{longtable}
 }
 
-我们进一步通过 FastAPI TestClient 对每种模式发送 300 个手动事件，并采用 off--contract--enforce--enforce--contract--off 的平衡顺序。该口径包含中间件、路由、序列化和文件 SQLite，但不包含 TCP socket、订阅目标、Agent、模型和远端工具。off/contract/enforce 的 P50 分别为 40.239/41.686/39.948 ms，P95 分别为 49.288/48.729/45.069 ms。由于 enforce 在该轮反而略低，说明宿主机与顺序噪声大于可辨识治理增量；本文不把差值解释为负开销，也不据此声称生产端到端性能无影响。
+100/100 条 trace 均使用同一 \texttt{trace\_id}，包含预期阶段并定位到首个终态治理失败点。该定位依赖显式 stage/outcome 语义，不等同于一般程序根因分析。6 类链内篡改均能检出；无外部 head/count 锚点时链尾截断仍不可检测。
 
-\subsection{RQ4：审计篡改检测}\label{74-rq4ux5ba1ux8ba1ux7be1ux6539ux68c0ux6d4b}
+\subsection{并发 replay 与审批竞态}
 
-我们构造四阶段审计链，并分别修改内容、换序、替换 trace、替换前驱哈希、删除中间项和插入伪造证据。6/6 类链内变更均被校验器拒绝。删除最后一个条目后，剩余前缀仍是一条自洽链，因此在没有可信 head/count 或外部锚点时无法检测。这一结果界定了当前``抗篡改''的准确含义：E2AG 能验证已取得链的内部一致性，但不能单独证明取得的是完整最新链。
-
-\subsection{RQ5：工具调用时强制}\label{75-rq5ux5de5ux5177ux8c03ux7528ux65f6ux5f3aux5236}
+修复前，8 并发 replay 的 100/100 轮均持久化多条 EventLog，共创建 588 条日志而不是 100 条，暴露 check--then--insert 竞态。原型随后增加数据库唯一、带过期时间的 \texttt{EventDedupClaim}。修复后结果如下：
 
 {
-\begin{longtable}[]{@{}lrrrr@{}}
+\begin{longtable}[]{@{}lrrrrr@{}}
 \toprule\noalign{}
-模式 & 越权案例 & 越权阻断率 & 正常通过率 & P50/P95/P99 ($\mu$s) \\
+场景 & 并发 & 轮数 & 请求数 & 创建/成功终态 & 不变量违规 \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-R0 仅调度前门控 & 6 & 0.00\% & 100.00\% & 0.2/0.3/0.3 \\
-R1 运行时 E2AG & 6 & 100.00\% & 100.00\% & 1.8/3.1/4.7 \\
+replay & 8 & 100 & 800 & 100 & 0 \\
+replay & 32 & 100 & 3200 & 100 & 0 \\
+approve/reject & 8 & 100 & 800 & 100 & 0 \\
+approve/reject & 32 & 100 & 3200 & 100 & 0 \\
 \end{longtable}
 }
 
-R0 模拟事件已经获准进入 Agent 后不再检查实际调用的情况，因此 6 个越权工具/方法全部可达；R1 在 MCP PEP 重新用 ToolGrant 的 \texttt{allowed\_tools} 判定，全部阻断并保留 4 个正常调用。集成测试进一步确认 deny 路径没有调用 mocked upstream，而 allow 路径才加载上游凭据。该结果证明了二次 PEP 对``声明获准、实际越权''这一特定构造威胁的必要性；案例数量小，且微基准不测网络代理开销，不能外推为生产环境攻击检出率或端到端延迟。
+该结果只验证 SQLite 文件数据库与独立异步会话，不外推其他数据库或多地域部署。修复前 32 并发数据因实验输入与前一阶段哈希碰撞而无效，不用于结论。
 
-\subsection{固定种子单因素变异}\label{76-ux56faux5b9aux79cdux5b50ux5355ux56e0ux7d20ux53d8ux5f02}
+\subsection{附属开销观察}
 
-在 700 个合成变异上，B0 的精确决策率为 0\%，B1 为 57.14\%，B2 为 100\%。B1 只正确处理删除必填字段、非法规范版本、source--type 交叉和未知类型四类契约异常；目标 source/tool 越权与生产敏感动作仍被放行。B2 在当前单因素生成器上正确处理全部七类。该结果与首批 22 例的机制分层结论一致，但并非独立采样数据；其价值是验证每个 operator 的预期控制点，而不是估算真实攻击检出率。相同 CloudEvent 的顺序 replay 另由真实 SQLite dispatcher 集成测试验证为不产生第二条 EventLog；并发 replay 竞态尚未评估。
+同机随机配对 30 批中，C1P1 每次判定的批次均值中位数为 11.228~$\mu$s，P95 为 12.896~$\mu$s。C0P0 近似空函数，故不报告容易误导的相对倍数。该观察仅排除纯判定出现数量级退化，不支持生产端到端性能结论。
 
 \section{讨论与限制}\label{sec:limitations}
 
@@ -330,7 +363,7 @@ R0 模拟事件已经获准进入 Agent 后不再检查实际调用的情况，�
 
 \textbf{审计强度。} 哈希链可检测链内修改，但无法抵御高权限管理员删除整条记录、截断尾部或回滚数据库。可采用外部透明日志、周期 Merkle root 锚定或签名存储增强不可抵赖性。
 
-\textbf{外部有效性。} 当前实现在单一开源系统上完成，基础攻击集规模小且为手工构造；700 例固定种子单因素变异主要检验规则覆盖，仍不能替代真实事件分布、多因素 fuzz、真实红队或另一 AIOS 移植。后续将扩展基础案例、组合变异和真实回放，并报告不同 Connector 和 Agent 数量下的扩展性。
+\textbf{外部有效性。} 当前实现在单一开源系统上完成，60 例语料是作者冻结的威胁驱动矩阵，独立合作者标签复核仍待完成；确定性 Agent/MCP 测试替身不能替代真实 LLM 红队、生产凭据与外部网络。并发结果只验证 SQLite，其他数据库和多实例部署尚未实测。固定种子 700 次变异去重后只有 319 个不同用例，因此仅作为机制覆盖附录，不作为独立样本规模。
 
 \section{相关工作}\label{sec:related-work}
 
@@ -340,7 +373,7 @@ CloudEvents 提供跨平台的事件格式与必要上下文属性，但不规�
 
 \section{结论}\label{sec:conclusion}
 
-本文提出 E2AG，将事件能力契约、目标作用域策略门控、任务作用域工具授权和哈希链接因果审计部署在 Event-to-Agent 执行链的两个临界点。DiOS 原型已经实现 A2A Task 创建前的默认拒绝、审批等待、trace 传播、远程 MCP 调用时再授权和可验证审计链。初步消融说明，仅检查结构和 source--type 契约不足以阻止目标能力越权，而只在调度前检查也不足以约束 Agent 的实际工具选择；两个 PEP 在当前手工确定性案例上分别阻断接入/目标越权与执行点越权，并保持微秒量级的纯授权开销。更强的论文结论仍取决于更大变异攻击集、参数级策略、完整传输覆盖、端到端性能和外部审计锚定，本文将在最终稿中据实更新。
+本文提出 E2AG，将事件能力契约、目标作用域策略门控、任务作用域工具授权和哈希链接因果审计部署在 Event-to-Agent 执行链的两个临界点。60 例 Contract$\times$Policy 完整消融显示两类控制点在冻结威胁矩阵上互补；480 次持久化执行说明调度前 PEP 和 MCP PEP 分别约束事件入口与实际工具副作用；100 条注入故障 trace 验证了显式治理阶段的关联和定位。并发实验还发现并修复了 replay 去重竞态。上述证据支持确定性原型机制闭环，不支持任意提示词注入检测、跨数据库正确性或生产部署泛化；参数级策略、完整传输覆盖、外部审计锚定和跨 AIOS 验证仍是后续工作。
 
 {\scriptsize
 \begin{thebibliography}{99}

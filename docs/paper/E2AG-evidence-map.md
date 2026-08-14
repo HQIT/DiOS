@@ -25,7 +25,11 @@
 | 纯判定开销 | `run_experiment.py` | `results/summary.json` | P50/P95/P99 可写，需注明非端到端 |
 | dispatcher+SQLite 控制面增量 | `run_dispatch_benchmark.py` | `results/dispatch_benchmark.json` | 可写为内存 SQLite 微基准 |
 | 七类单因素变异下的机制互补性 | `run_mutation_experiment.py` | 固定种子 700 例 `mutation_summary.json` | 可写合成压力测试；禁止外推真实分布 |
-| 相同事件 replay 不产生第二条日志 | dispatcher dedup | replay integration test | 已验证单进程顺序 replay；并发竞态未验证 |
+| Contract×Policy 独立贡献 | `run_frozen_ablation.py` | 60 例冻结矩阵，四模式 `frozen_ablation_summary.json` | 30/30 正常通过；阻断率 0/33.33/66.67/100%；独立标签复核待完成 |
+| 两个 PEP 阻止真实上游副作用 | `run_e2e_chain_experiment.py` | 480 次持久化执行，`e2e_chain_summary.json`/CSV | 确定性 Agent/MCP 替身；可写系统强制链，不可写真实 LLM 红队 |
+| 因果阶段定位 | `run_causal_audit_experiment.py` | 5 类故障×20 条 trace | 100/100 定位、链有效、阶段完整；仅显式治理阶段，不是通用根因分析 |
+| 相同事件 replay 不产生第二条日志 | `EventDedupClaim` + dispatcher | 修复前后 `concurrency_summary*.json` | 修复前 8 并发 100/100 轮违规；修复后 SQLite 8/32 并发各 100 轮零违规 |
+| 审批单次终态 | conditional update | SQLite 8/32 并发各 100 轮 | 零双重终态/重复 Task；禁止外推其他数据库 |
 | FastAPI+文件 SQLite 请求延迟 | `run_http_benchmark.py` | `http_benchmark.json`，每模式 300 次 | 三模式差异未超出顺序噪声；不声称负开销 |
 | 阻止任意提示词注入 | 无 | 无 | 禁止主张 |
 | 覆盖所有工具调用路径 | 仅 remote streamable HTTP task-mode | 无 service/Skill/stdio/SSE 全覆盖 | 禁止主张全覆盖 |

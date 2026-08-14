@@ -2,7 +2,7 @@
 
 > 投稿目标：《软件学报》“人工智能操作系统及其安全”专刊
 >
-> 稿件状态：研究主稿 V0.2（2026-08-12）
+> 稿件状态：阶段实验主稿 V0.3（2026-08-14）
 >
 > 实现基线：`feat/event-subscription-governance-20260418@72732a4`
 >
@@ -22,7 +22,7 @@
 
 ## 摘要
 
-事件驱动人工智能操作系统连接外部事件、智能体运行时、大模型与工具生态，使系统能够自主触发并执行任务。然而，事件从接入、标准化、订阅匹配到智能体决策和工具调用跨越多个信任边界。传输层签名只能证明消息经过持有密钥的一方，CloudEvents 等互操作规范只描述事件结构，容器隔离则主要限制运行时边界；这些局部机制无法共同回答“某来源是否有权声明该事件、该事件是否可触发目标智能体的特定能力、执行为何发生且证据是否被篡改”等问题。本文提出 E2AG（Event-to-Agent Governance），一种部署在智能体操作系统事件控制面中的治理机制。E2AG 将 Connector manifest 扩展为可执行的 source–event type 能力契约，在任何 A2A Task 创建前执行面向目标智能体的三态策略判定，为任务签发短期工具授权，并使用统一 `trace_id` 与逐项哈希链接的证据链记录契约、策略、调度和实际工具调用。本文在开源 DiOS 原型上实现了最小闭环，并构造覆盖 Git、IMAP、通用 Webhook、Manual 与 Cron 的确定性攻击集。初步实验包含 14 个攻击事件和 8 个正常事件：无治理基线、仅契约基线和完整 E2AG 的攻击阻断率分别为 0%、35.71% 和 100%，正常事件通过率均为 100%；在 11 万次判定测量中，完整 E2AG 纯判定核心的 P50/P95/P99 延迟分别为 21.2/42.1/121.0 μs。工具执行点的附加实验在 6 个越权与 4 个正常方法/工具案例上，将越权阻断率从仅调度门控的 0% 提升到 100%，正常通过率保持 100%，纯授权函数 P50 为 1.8 μs。包含 EventLog 与哈希审计落库的 SQLite 控制面微基准显示，完整 E2AG 相对关闭治理的 P50 增量约 0.42 ms。6 类预期可检测的链内篡改均被发现，但无外部锚点时无法发现链尾截断。上述结果仅说明当前手工攻击集上的机制互补性与原型开销，不代表对任意提示词注入的普适检测能力。
+事件驱动人工智能操作系统连接外部事件、智能体运行时、大模型与工具生态，使系统能够自主触发并执行任务，但事件接入、任务创建和工具调用跨越多个信任边界。本文提出 E2AG（Event-to-Agent Governance）：将 Connector manifest 扩展为可执行的 source–event type 能力契约，在 A2A Task 创建前执行目标作用域三态策略，为任务签发短期工具授权并在 MCP 调用点再次强制，同时使用统一 `trace_id` 和哈希链接证据链记录契约、策略、调度、授权与工具结果。本文在 DiOS 原型上实现 E2AG。作者冻结的 60 例威胁矩阵包含 30 个正常与 30 个攻击事件；无机制、仅契约、仅策略和契约＋策略的攻击阻断率分别为 0%、33.33%、66.67% 和 100%，四组均通过 30/30 个正常事件。进一步执行 480 次真实 dispatcher、SQLite、A2A Task、ToolGrant 与 MCP PEP 路径：双执行点同时开启时，30/30 个正常调用到达模拟上游，伪造来源、任务后工具升级和生产敏感动作三类禁止副作用均为 0/30；只启用任一执行点会暴露其未覆盖阶段。对 5 类注入故障生成的 100 条持久化 trace 均能定位首个治理失败阶段并通过链校验。并发实验发现原始去重存在 check-then-insert 竞态；引入数据库唯一去重声明后，SQLite 下 8/32 并发各 100 轮均未产生重复日志或双重审批。上述结果证明的是威胁驱动确定性场景中的机制互补性与执行闭环，不代表任意提示词注入检测、跨数据库一致性或生产部署效果。
 
 **关键词：** 人工智能操作系统；智能体安全；事件驱动系统；能力契约；策略门控；因果审计
 
@@ -30,7 +30,7 @@
 
 ### Abstract
 
-Event-driven agent operating systems connect external events to agent runtimes, large language models, and tools. This execution path crosses multiple trust boundaries, while existing controls are typically local to webhook authentication, event interoperability, runtime isolation, or tool authorization. They do not jointly determine whether a source is entitled to assert an event type, whether the asserted intent fits the target agent's capabilities, and whether the resulting execution can be causally reconstructed with tamper evidence. We present E2AG (Event-to-Agent Governance), a control-plane mechanism that turns connector manifests into executable source–event type contracts, performs a target-scoped three-way policy decision before any A2A task is created, issues a short-lived task-scoped tool grant, and propagates a trace identifier through a hash-linked audit chain. We implement a minimal E2AG loop in the open-source DiOS prototype. In an initial deterministic corpus of 14 attacks and 8 benign cases spanning Git, IMAP, generic webhook, manual, and cron sources, attack prevention increases from 0% without governance and 35.71% with contract-only admission to 100% with full E2AG, while all benign cases pass. Across 110,000 measurements, the full in-process decision core shows P50/P95/P99 latencies of 21.2/42.1/121.0 μs. In a separate runtime-gateway corpus of six unauthorized and four benign method/tool cases, enforcement raises unauthorized-call prevention from 0% to 100% while preserving all benign calls; the pure authorization function has a P50 latency of 1.8 μs. A SQLite control-plane microbenchmark including audit persistence shows an approximately 0.42 ms P50 increase over disabled governance. All six expected detectable in-chain mutations are detected, while tail truncation remains undetectable without an external anchor. These results establish feasibility on the current hand-authored corpus; they do not imply general detection of arbitrary prompt injection.
+Event-driven agent operating systems connect external events to agent runtimes and tools across multiple trust boundaries. We present E2AG (Event-to-Agent Governance), which turns connector manifests into executable source–event type contracts, performs target-scoped three-way policy decisions before A2A task creation, issues short-lived task-scoped tool grants, re-enforces them at the MCP call site, and records contract, policy, dispatch, grant, and tool outcomes in a trace-consistent hash-linked chain. In an author-frozen matrix of 30 benign and 30 attack events, attack prevention is 0%, 33.33%, 66.67%, and 100% for no mechanism, contract only, policy only, and contract plus policy; all four configurations pass 30/30 benign events. Across 480 executions using the real DiOS dispatcher, SQLite models, A2A Task, ToolGrant, and MCP PEP paths, the two-PEP configuration preserves 30/30 authorized upstream effects while each of three forbidden-effect scenarios reaches the upstream 0/30 times. Disabling either PEP exposes its uncovered stage. One hundred persisted traces across five injected fault stages are all localized correctly and remain hash-valid. A concurrency experiment exposes a check-then-insert replay race; after adding a database-unique time-bounded deduplication claim, 8- and 32-way SQLite tests over 100 rounds each show no duplicate log or double approval. These results establish mechanism behavior in deterministic threat-driven scenarios, not general prompt-injection detection, cross-database correctness, or production effectiveness.
 
 **Keywords:** agent operating system; agent security; event-driven system; capability contract; policy enforcement; causal audit
 
@@ -53,7 +53,7 @@ Event-driven agent operating systems connect external events to agent runtimes, 
 - 提出 Event-to-Agent 跨层威胁模型，区分事件格式合规、来源声明权、目标能力授权和执行证据完整性；
 - 设计“契约接入—策略门控—因果审计”统一控制链，并说明三项机制的职责边界；
 - 在 DiOS 最新开发基线上实现调度前强制点、三态决策、审计持久化与 A2A trace 传播，提供不依赖模型的确定性测试；
-- 构造首批 22 个多事件源案例并完成三组消融与 33 万次判定测量，给出可复现的初步安全性和微基准结果。
+- 在 60 例冻结威胁矩阵上完成 Contract×Policy 2×2 消融，并以 480 次持久化 Event→Agent→Tool 执行、100 条因果定位 trace 和并发竞态实验验证双执行点与审计闭环。
 
 上述工作直接面向专刊所列“智能体协同安全与调度防护机制”问题：契约和策略决定事件能否进入调度，因果审计则为调度防护的度量、异常分析与复核提供证据。
 
@@ -199,70 +199,72 @@ E2AG 在 DiOS 后端以一个无副作用判定模块实现，核心代码不依
 
 ### 6.1 研究问题
 
-- **RQ1：** 可执行 source–type 契约能阻断哪些接入混淆攻击？
-- **RQ2：** 目标作用域策略相对仅契约基线增加多少安全收益？
-- **RQ3：** 纯判定核心引入多少本机计算开销？
-- **RQ4：** trace 和哈希链能检测哪些审计篡改，其边界是什么？
-- **RQ5：** 调度前门控之后，任务作用域工具 PEP 能否阻断实际调用越权？
+- **RQ1：** source–type 契约与目标作用域策略是否分别贡献安全收益，组合后是否互补？
+- **RQ2：** 调度前 PEP 与 MCP 调用时 PEP 是否能在真实持久化执行链中共同阻止禁止副作用？
+- **RQ3：** 统一 trace 和哈希链能否完整关联执行阶段并定位治理失败点，其并发状态不变量是否成立？
 
 ### 6.2 对照与数据集
 
-实验使用三组消融：B0 无治理（全部放行）；B1 仅执行能力契约；B2 执行完整契约与目标策略。首批数据集包含 22 个手工案例：8 个正常事件和 14 个攻击事件，覆盖 GitHub/GitLab/Gitea、IMAP、Generic Webhook、Manual 和 Cron。攻击包括 5 个结构/绑定异常、5 个目标能力或意图越权，以及 4 个应转人工审批的生产高风险动作。
+RQ1 使用完整 2×2：C0P0（契约、策略均关闭）、C1P0（仅契约）、C0P1（仅策略）和 C1P1（均开启）。正式冻结集为 60 例，其中 30 个正常事件、30 个攻击事件；攻击包括 10 个 source–type 绑定攻击、16 个目标 source/type/action/tool 或意图攻击，以及 4 个应转审批的生产敏感动作。语料覆盖 GitHub、GitLab、Gitea、IMAP、通用 Webhook、Manual 和 Cron，SHA-256 为 `8c0074fc...a096a6`。所有事件均满足基本结构要求，以隔离 source–type 绑定与目标策略的贡献。该语料是作者冻结威胁矩阵，独立合作者标签复核尚待完成。
+
+RQ2 使用 G0R0、G1R0、G0R1、G1R1 四组，G 表示调度前 PEP，R 表示 MCP 调用时 PEP。四类场景为正常授权调用、伪造来源、任务创建后的工具升级和生产敏感动作，每个“配置×场景”重复 30 次，共 480 次。执行使用真实 DiOS dispatcher、SQLite 模型、A2A Task、ToolGrant、MCP PEP 和审计链；Agent 决策和远程 MCP 为确定性测试替身，不使用 LLM、容器和外部网络。主要观测上游是否真正收到调用及 canary 副作用是否发生，而非只读取授权函数返回值。
 
 ### 6.3 指标与环境
 
-安全性指标包括攻击成功率（攻击被判为 `allow`）、攻击阻断率、正常通过率和精确三态决策正确率。纯函数性能脚本对每个模式、每个案例重复 5000 次，即每个模式 110,000 次、总计 330,000 次判定，记录 P50/P95/P99。另一个异步 SQLite 微基准对每种模式运行正序与逆序两轮、每轮 1000 次，并为每个模式创建独立内存数据库；该测试包含 dispatcher、契约/策略、EventLog 和哈希审计落库，但不包含 HTTP、订阅查询、网络、容器启动或模型推理。
+RQ1 报告攻击阻断率、正常通过率、各治理层计数和 Wilson 95% 置信区间。RQ2 报告 Task/Approval/Grant 创建数、上游调用数、允许/禁止副作用数、审计链有效性和路径阶段完整性。RQ3 对契约拒绝、策略拒绝、审批过期、ToolGrant 过期、MCP 工具拒绝各注入 20 次，报告阶段定位、trace 完整性和哈希校验；另对 8/32 并发 replay 与 approve/reject 各运行 100 轮。性能仅作为同机随机配对的工程观察：30 批、每批 1200 次判定，不作为独立研究问题或生产性能证据。
 
-工具执行点实验另设 R0（只有调度前判定，不执行调用时授权）与 R1（任务作用域 E2AG 工具授权）两组。数据包含 4 个获准调用和 6 个越权工具或 MCP 方法；每个案例重复 10,000 次测量纯授权函数。真实代理的“不向上游转发”等安全不变量由 mocked HTTP 集成测试验证，而该微基准不包含数据库、HTTP 和远端工具执行延迟。
+## 7 实验结果
 
-为降低首批 22 例完全手工枚举带来的机制覆盖偏差，我们以 8 个正常基例为起点，使用固定种子 `20260812` 生成 7 类单因素变异，每类 100 例：删除必填字段、非法规范版本、source–type 交叉、未知类型、目标 source 越权、目标 tool 越权和生产敏感动作。生成器保证目标 source 变异仍满足 Connector 契约、工具变异只作用于已声明工具 allow-list 的目标、敏感动作同步进入 action allow-list，从而尽量隔离被测策略维度。该数据仍来自手工基例，不能代表真实攻击频率或多因素组合攻击。
+### 7.1 RQ1：Contract×Policy 完整消融
 
-## 7 初步结果
+| 模式 | 阻断攻击 | 攻击阻断率 | Wilson 95% CI | 正常通过 | 正常通过率 | Wilson 95% CI |
+|---|---:|---:|---:|---:|---:|---:|
+| C0P0 | 0/30 | 0.00% | [0.00%, 11.35%] | 30/30 | 100.00% | [88.65%, 100%] |
+| C1P0 | 10/30 | 33.33% | [19.23%, 51.22%] | 30/30 | 100.00% | [88.65%, 100%] |
+| C0P1 | 20/30 | 66.67% | [48.78%, 80.77%] | 30/30 | 100.00% | [88.65%, 100%] |
+| C1P1 | 30/30 | 100.00% | [88.65%, 100%] | 30/30 | 100.00% | [88.65%, 100%] |
 
-| 模式 | 攻击成功率 | 攻击阻断率 | 正常通过率 | 三态准确率 | P50 (μs) | P95 (μs) | P99 (μs) |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| B0 无治理 | 100.00% | 0.00% | 100.00% | 36.36% | 0.1 | 0.2 | 0.2 |
-| B1 仅契约 | 64.29% | 35.71% | 100.00% | 59.09% | 12.4 | 22.3 | 64.4 |
-| B2 完整 E2AG | 0.00% | 100.00% | 100.00% | 100.00% | 21.2 | 42.1 | 121.0 |
+C1P0 只阻断 10 个契约绑定攻击；C0P1 阻断 16 个目标能力攻击，并将 4 个生产敏感动作转为待审批；C1P1 合并两类控制点。结果与冻结威胁矩阵的层次设计一致，支持机制分工和组合闭环，但不是未知攻击检出率。由于独立标签复核尚未完成，本文称其为“作者冻结威胁矩阵”，不称独立测试集。
 
-### 7.1 RQ1：契约接入的作用
+### 7.2 RQ2：双执行点与上游副作用
 
-B1 阻断 14 个攻击中的 5 个，使攻击成功率从 100% 降至 64.29%。这些收益来自缺失字段、错误规范版本、未知类型及 source–type 混淆。契约层对结构合法但目标越权的事件无能为力，这说明 CloudEvent 合规与授权是两个不同问题。
-
-### 7.2 RQ2：策略门控的增益
-
-B2 进一步处理跨组织 source、目标事件类型、工具、动作和意图缺失，并把 4 个生产高风险动作转为审批，因此在当前夹具上实现 14/14 非放行且保持 8/8 正常放行。该结果证明两层机制在构造集上的互补性，但样本是为机制覆盖设计的手工案例，不能直接外推真实攻击分布或未知攻击。
-
-### 7.3 RQ3：判定开销
-
-完整 E2AG 的中位开销为 21.2 μs，P95 为 42.1 μs；相对 B1 约增加一次目标策略遍历。B0 的 0.1 μs 仅是 Python 函数调用与常量返回成本。由于端到端链路还包含数据库和 Agent 启动，当前结果只支持“判定核心开销较小”，尚不能支持“系统端到端性能影响可忽略”的结论。
-
-包含审计落库的控制面结果如下。完整 E2AG 相对关闭治理的 P50 从 7.96 ms 增至 8.38 ms，增量 0.42 ms（约 5.3%）；P95 从 9.99 ms 增至 10.50 ms。由于使用内存 SQLite 且每个事件执行多次 commit/refresh，绝对值不代表生产数据库，但说明治理逻辑在当前持久化路径中的增量小于数据库操作本身。
-
-| 控制面模式 | 测量次数 | P50 (ms) | P95 (ms) | P99 (ms) |
+| 配置 | 正常调用到达上游 | 伪造来源禁止副作用 | 工具升级禁止副作用 | 敏感动作禁止副作用 |
 |---|---:|---:|---:|---:|
-| off | 2000 | 7.96 | 9.99 | 11.11 |
-| contract | 2000 | 8.23 | 10.14 | 11.29 |
-| enforce | 2000 | 8.38 | 10.50 | 11.80 |
+| G0R0 | 30/30 | 30/30 发生 | 30/30 发生 | 30/30 发生 |
+| G1R0 | 30/30 | 0/30 | 30/30 发生 | 0/30（进入审批） |
+| G0R1 | 30/30 | 30/30 发生 | 0/30 | 0/30 |
+| G1R1 | 30/30 | 0/30 | 0/30 | 0/30（进入审批） |
 
-我们进一步通过 FastAPI TestClient 对每种模式发送 300 个手动事件，并采用 `off→contract→enforce→enforce→contract→off` 的平衡顺序。该口径包含中间件、路由、序列化和文件 SQLite，但不包含 TCP socket、订阅目标、Agent、模型和远端工具。off/contract/enforce 的 P50 分别为 40.239/41.686/39.948 ms，P95 分别为 49.288/48.729/45.069 ms。由于 enforce 在该轮反而略低，说明宿主机与顺序噪声大于可辨识治理增量；本文不把差值解释为负开销，也不据此声称生产端到端性能无影响。
+调度前 PEP 能阻断伪造来源并将高风险动作转为审批，但不能阻止任务创建后的工具升级；MCP PEP 能阻断未授权工具，却无法判断一个获准工具是否由伪造来源触发。G1R1 保持 30/30 个正常副作用，并使三类禁止副作用均为 0/30。480/480 条链通过哈希校验且包含各自路径所需阶段。该实验使用确定性 Agent 和 MCP 测试替身，证明的是系统强制路径，而非 LLM 识别恶意语义的能力。
 
-### 7.4 RQ4：审计篡改检测
+### 7.3 RQ3：因果阶段定位
 
-我们构造四阶段审计链，并分别修改内容、换序、替换 trace、替换前驱哈希、删除中间项和插入伪造证据。6/6 类链内变更均被校验器拒绝。删除最后一个条目后，剩余前缀仍是一条自洽链，因此在没有可信 head/count 或外部锚点时无法检测。这一结果界定了当前“抗篡改”的准确含义：E2AG 能验证已取得链的内部一致性，但不能单独证明取得的是完整最新链。
-
-### 7.5 RQ5：工具调用时强制
-
-| 模式 | 越权案例 | 越权阻断率 | 正常通过率 | P50/P95/P99 (μs) |
+| 注入故障 | trace 数 | 正确定位 | 链有效 | 阶段完整 |
 |---|---:|---:|---:|---:|
-| R0 仅调度前门控 | 6 | 0.00% | 100.00% | 0.2/0.3/0.3 |
-| R1 运行时 E2AG | 6 | 100.00% | 100.00% | 1.8/3.1/4.7 |
+| 契约拒绝 | 20 | 20 | 20 | 20 |
+| 策略拒绝 | 20 | 20 | 20 | 20 |
+| 审批过期 | 20 | 20 | 20 | 20 |
+| ToolGrant 过期 | 20 | 20 | 20 | 20 |
+| MCP 工具拒绝 | 20 | 20 | 20 | 20 |
 
-R0 模拟事件已经获准进入 Agent 后不再检查实际调用的情况，因此 6 个越权工具/方法全部可达；R1 在 MCP PEP 重新用 ToolGrant 的 `allowed_tools` 判定，全部阻断并保留 4 个正常调用。集成测试进一步确认 deny 路径没有调用 mocked upstream，而 allow 路径才加载上游凭据。该结果证明了二次 PEP 对“声明获准、实际越权”这一特定构造威胁的必要性；案例数量小，且微基准不测网络代理开销，不能外推为生产环境攻击检出率或端到端延迟。
+100/100 条 trace 均使用同一 `trace_id`，包含预期阶段并定位到首个终态治理失败点。该定位依赖 E2AG 显式 stage/outcome 语义，不等同于一般程序根因分析。另对内容修改、换序、trace/前驱替换、中间删除和伪造证据插入的 6 类链内篡改均能检出；无外部 head/count 锚点时链尾截断仍不可检测。
 
-### 7.6 固定种子单因素变异
+### 7.4 并发 replay 与审批竞态
 
-在 700 个合成变异上，B0 的精确决策率为 0%，B1 为 57.14%，B2 为 100%。B1 只正确处理删除必填字段、非法规范版本、source–type 交叉和未知类型四类契约异常；目标 source/tool 越权与生产敏感动作仍被放行。B2 在当前单因素生成器上正确处理全部七类。该结果与首批 22 例的机制分层结论一致，但并非独立采样数据；其价值是验证每个 operator 的预期控制点，而不是估算真实攻击检出率。相同 CloudEvent 的顺序 replay 另由真实 SQLite dispatcher 集成测试验证为不产生第二条 EventLog；并发 replay 竞态尚未评估。
+修复前，8 并发 replay 的 100/100 轮均持久化多条 EventLog，共创建 588 条日志而不是 100 条，暴露 check-then-insert 竞态。原型随后增加数据库唯一、带过期时间的 `EventDedupClaim`。修复后结果如下：
+
+| 场景 | 并发 | 轮数 | 请求数 | 创建/成功终态 | 正确判重/冲突 | 不变量违规 |
+|---|---:|---:|---:|---:|---:|---:|
+| replay | 8 | 100 | 800 | 100 | 700 | 0 |
+| replay | 32 | 100 | 3200 | 100 | 3100 | 0 |
+| approve/reject | 8 | 100 | 800 | 100 | 700 | 0 |
+| approve/reject | 32 | 100 | 3200 | 100 | 3100 | 0 |
+
+该结果验证 SQLite 单机文件数据库与独立异步会话下的状态不变量，不外推 PostgreSQL/MySQL 或多地域部署。修复前 32 并发数据因实验输入与前一阶段哈希碰撞而无效，不用于结论。
+
+### 7.5 附属开销观察
+
+同机随机配对 30 批中，C1P1 每次判定的批次均值中位数为 11.228 μs，P95 为 12.896 μs。C0P0 近似空函数，故不报告容易误导的相对倍数。该观察仅排除控制面纯判定出现数量级退化，不包含数据库、Agent、模型和网络，也不支持生产端到端性能结论。
 
 ## 8 讨论与限制
 
@@ -276,7 +278,7 @@ R0 模拟事件已经获准进入 Agent 后不再检查实际调用的情况，�
 
 **审计强度。** 哈希链可检测链内修改，但无法抵御高权限管理员删除整条记录、截断尾部或回滚数据库。可采用外部透明日志、周期 Merkle root 锚定或签名存储增强不可抵赖性。
 
-**外部有效性。** 当前实现在单一开源系统上完成，攻击集规模小且为手工构造；尚未进行 mutation/fuzz、真实红队或另一 AIOS 移植。后续将扩展至 30–50 个基础案例及系统化变体，并报告不同 Connector 和 Agent 数量下的扩展性。
+**外部有效性。** 当前实现在单一开源系统上完成，60 例语料是作者冻结的威胁驱动矩阵，独立合作者标签复核仍待完成；确定性 Agent/MCP 测试替身不能替代真实 LLM 红队、生产凭据与外部网络。并发结果只验证 SQLite，PostgreSQL/MySQL 和多实例部署尚未实测。固定种子 700 次变异去重后只有 319 个不同用例，因此仅作为机制覆盖附录，不作为独立样本规模。
 
 ## 9 相关工作
 
@@ -286,7 +288,7 @@ CloudEvents 提供跨平台的事件格式与必要上下文属性，但不规�
 
 ## 10 结论
 
-本文提出 E2AG，将事件能力契约、目标作用域策略门控、任务作用域工具授权和哈希链接因果审计部署在 Event-to-Agent 执行链的两个临界点。DiOS 原型已经实现 A2A Task 创建前的默认拒绝、审批等待、trace 传播、远程 MCP 调用时再授权和可验证审计链。初步消融说明，仅检查结构和 source–type 契约不足以阻止目标能力越权，而只在调度前检查也不足以约束 Agent 的实际工具选择；两个 PEP 在当前手工确定性案例上分别阻断接入/目标越权与执行点越权，并保持微秒量级的纯授权开销。更强的论文结论仍取决于更大变异攻击集、参数级策略、完整传输覆盖、端到端性能和外部审计锚定，本文将在最终稿中据实更新。
+本文提出 E2AG，将事件能力契约、目标作用域策略门控、任务作用域工具授权和哈希链接因果审计部署在 Event-to-Agent 执行链的两个临界点。60 例 Contract×Policy 完整消融显示两类控制点在冻结威胁矩阵上互补；480 次持久化执行说明调度前 PEP 和 MCP PEP 分别约束事件入口与实际工具副作用；100 条注入故障 trace 验证了显式治理阶段的关联和定位。并发实验还发现并修复了原始 replay 去重竞态。上述证据支持一个确定性原型机制闭环，不支持任意提示词注入检测、跨数据库正确性或生产部署泛化；参数级策略、完整传输覆盖、外部审计锚定和跨 AIOS 验证仍是后续工作。
 
 ## 参考文献（工作列表，待按《软件学报》格式统一）
 
@@ -313,6 +315,10 @@ cd backend
 cd ..
 python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
+backend\.venv\Scripts\python.exe experiments/e2ag/run_frozen_ablation.py
+backend\.venv\Scripts\python.exe experiments/e2ag/run_e2e_chain_experiment.py --repeats 30
+backend\.venv\Scripts\python.exe experiments/e2ag/run_causal_audit_experiment.py --repeats 20
+backend\.venv\Scripts\python.exe experiments/e2ag/run_concurrency_experiment.py --levels 8,32 --rounds 100
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
 backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py --repeats 10000
 backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --per-operator 100
@@ -321,11 +327,11 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeat
 
 实验结果写入 `experiments/e2ag/results/`，依赖安装与中国大陆镜像命令见 `E2AG-reproducibility.md`。
 
-## 附录 B：下一轮必须完成的实证项
+## 附录 B：投稿前与后续实证项
 
-1. 扩展工具 PEP 到 SSE、受控 stdio、service-mode Agent 与 Skill 调用；
-2. 将审批接入独立 IdP/RBAC，并增加多人复核与职责分离；
-3. 扩展 attack corpus，并用字段 mutation、边界值、replay 和工具参数越权生成变体；
-4. 测量包含 PostgreSQL、HTTP 代理与远端 MCP 的端到端 P50/P95/P99 与吞吐；
+1. 投稿前由一名合作者独立复核 60 例冻结集标签并记录修改历史；
+2. 扩展工具 PEP 到 SSE、受控 stdio、service-mode Agent 与 Skill 调用；
+3. 将审批接入独立 IdP/RBAC，并增加多人复核与职责分离；
+4. 实测 PostgreSQL 并发语义、真实 HTTP 代理与远端 MCP；
 5. 为审计链加入外部 head/count 锚定并验证尾部截断检测；
-6. 增加至少一种外部策略引擎适配或第二系统映射，以检验架构可迁移性。
+6. 增加外部策略引擎适配或第二系统映射，以检验架构可迁移性。

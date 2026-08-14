@@ -173,6 +173,18 @@ class EventLog(Base):
     dedup_hash: Mapped[str] = mapped_column(String(64), index=True, default="")
 
 
+class EventDedupClaim(Base):
+    """Atomic time-bounded ownership of one event deduplication hash."""
+
+    __tablename__ = "event_dedup_claims"
+
+    dedup_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    owner_token: Mapped[str] = mapped_column(String(32), nullable=False)
+    event_log_id: Mapped[str] = mapped_column(String(12), default="", index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 # ── A2A Task（Agent-to-Agent 协议任务） ──
 
 

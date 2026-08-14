@@ -15,17 +15,77 @@ import time
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.models.tables import Agent, EventLog
+from app.models.tables import Agent, EventDedupClaim, EventLog
 from app.services.e2ag import Decision, append_audit_entry, evaluate_contract, evaluate_policy
 from app.services.event_normalizer import CloudEvent, compute_dedup_hash
 from app.services.metrics import metrics
 from app.services import a2a_service
 
 logger = logging.getLogger(__name__)
+
+
+async def _claim_dedup_hash(
+    db: AsyncSession,
+    dedup_hash: str,
+    *,
+    expires_at: datetime,
+) -> tuple[bool, str, str]:
+    """Atomically claim a dedup hash, including safe takeover after expiry.
+
+    Returns ``(claimed, duplicate_event_log_id, owner_token)``.  The unique
+    claim row closes the check-then-insert race across independent sessions.
+    """
+    owner_token = uuid.uuid4().hex
+    values = {
+        "dedup_hash": dedup_hash,
+        "owner_token": owner_token,
+        "event_log_id": "",
+        "expires_at": expires_at,
+    }
+    dialect = db.bind.dialect.name if db.bind is not None else ""
+    if dialect == "sqlite":
+        from sqlalchemy.dialects.sqlite import insert
+
+        statement = insert(EventDedupClaim).values(**values).on_conflict_do_nothing(
+            index_elements=[EventDedupClaim.dedup_hash]
+        )
+    elif dialect == "postgresql":
+        from sqlalchemy.dialects.postgresql import insert
+
+        statement = insert(EventDedupClaim).values(**values).on_conflict_do_nothing(
+            index_elements=[EventDedupClaim.dedup_hash]
+        )
+    else:
+        # DiOS currently ships with SQLite.  Keeping the fallback explicit avoids
+        # silently claiming cross-database atomicity that has not been exercised.
+        raise RuntimeError(f"E2AG_DEDUP_DIALECT_UNSUPPORTED:{dialect}")
+
+    inserted = await db.execute(statement)
+    if inserted.rowcount == 1:
+        return True, "", owner_token
+
+    now = datetime.now(timezone.utc)
+    reclaimed = await db.execute(
+        update(EventDedupClaim)
+        .where(
+            EventDedupClaim.dedup_hash == dedup_hash,
+            EventDedupClaim.expires_at <= now,
+        )
+        .values(
+            owner_token=owner_token,
+            event_log_id="",
+            expires_at=expires_at,
+        )
+    )
+    if reclaimed.rowcount == 1:
+        return True, "", owner_token
+
+    existing = await db.get(EventDedupClaim, dedup_hash)
+    return False, (existing.event_log_id if existing else ""), owner_token
 
 
 async def dispatch_event(
@@ -102,29 +162,25 @@ async def dispatch_event(
     # 2. 去重检查（非重试操作才检查）
     dedup_hash = compute_dedup_hash(event)
     
+    dedup_claim_owner = ""
     if not is_retry and getattr(settings, "event_dedup_enabled", True):
         # 检查去重排除列表
         exclude_types = getattr(settings, "event_dedup_exclude_types", ["cron.tick", "manual.trigger"])
         if event_type not in exclude_types:
             # 查询最近时间窗口内是否有重复事件
             dedup_window_hours = getattr(settings, "event_dedup_window_hours", 1)
-            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=dedup_window_hours)
-            
-            existing = await db.execute(
-                select(EventLog).where(
-                    EventLog.dedup_hash == dedup_hash,
-                    EventLog.created_at > cutoff_time,
-                ).limit(1)
+            claimed, duplicate_id, dedup_claim_owner = await _claim_dedup_hash(
+                db,
+                dedup_hash,
+                expires_at=datetime.now(timezone.utc) + timedelta(hours=dedup_window_hours),
             )
-            
-            duplicate = existing.scalar_one_or_none()
-            if duplicate:
+            if not claimed:
                 logger.info(
                     "Duplicate event detected (hash=%s), original event_id=%s",
-                    dedup_hash[:8], duplicate.id
+                    dedup_hash[:8], duplicate_id or "pending-claim"
                 )
                 metrics.record_dedup()
-                return None, f"Duplicate of event {duplicate.id}"
+                return None, f"Duplicate of event {duplicate_id or 'pending-claim'}"
     
     # 3. Audit every decision, including denied and approval-held events.
     if is_retry and original_log_id:
@@ -150,6 +206,12 @@ async def dispatch_event(
             next_retry_at=datetime.now(timezone.utc) + timedelta(minutes=1),
         )
         db.add(event_log)
+        if dedup_claim_owner:
+            await db.flush()
+            claim = await db.get(EventDedupClaim, dedup_hash)
+            if claim is None or claim.owner_token != dedup_claim_owner:
+                raise RuntimeError("E2AG_DEDUP_CLAIM_LOST")
+            claim.event_log_id = event_log.id
         await db.commit()
         await db.refresh(event_log)
 

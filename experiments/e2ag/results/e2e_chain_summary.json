@@ -1,0 +1,308 @@
+{
+  "protocol": "event-agent-tool-chain-v1",
+  "repeats_per_scenario_config": 30,
+  "scenarios": [
+    "normal_authorized",
+    "spoofed_source",
+    "post_admission_tool_escalation",
+    "production_sensitive_action"
+  ],
+  "configurations": {
+    "G0R0": {
+      "pre_dispatch_pep": false,
+      "runtime_mcp_pep": false
+    },
+    "G1R0": {
+      "pre_dispatch_pep": true,
+      "runtime_mcp_pep": false
+    },
+    "G0R1": {
+      "pre_dispatch_pep": false,
+      "runtime_mcp_pep": true
+    },
+    "G1R1": {
+      "pre_dispatch_pep": true,
+      "runtime_mcp_pep": true
+    }
+  },
+  "executions": 480,
+  "summary": [
+    {
+      "config": "G0R0",
+      "scenario": "normal_authorized",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 0,
+      "upstream_calls": 30,
+      "allowed_effects": 30,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch"
+    },
+    {
+      "config": "G0R0",
+      "scenario": "post_admission_tool_escalation",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 0,
+      "upstream_calls": 30,
+      "allowed_effects": 0,
+      "forbidden_effects": 30,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch"
+    },
+    {
+      "config": "G0R0",
+      "scenario": "production_sensitive_action",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 0,
+      "upstream_calls": 30,
+      "allowed_effects": 0,
+      "forbidden_effects": 30,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch"
+    },
+    {
+      "config": "G0R0",
+      "scenario": "spoofed_source",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 0,
+      "upstream_calls": 30,
+      "allowed_effects": 0,
+      "forbidden_effects": 30,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch"
+    },
+    {
+      "config": "G0R1",
+      "scenario": "normal_authorized",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 30,
+      "upstream_calls": 30,
+      "allowed_effects": 30,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch>tool_grant>tool_call"
+    },
+    {
+      "config": "G0R1",
+      "scenario": "post_admission_tool_escalation",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 30,
+      "upstream_calls": 0,
+      "allowed_effects": 0,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        403
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch>tool_grant>tool_call"
+    },
+    {
+      "config": "G0R1",
+      "scenario": "production_sensitive_action",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 30,
+      "upstream_calls": 0,
+      "allowed_effects": 0,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        403
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch>tool_grant>tool_call"
+    },
+    {
+      "config": "G0R1",
+      "scenario": "spoofed_source",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 30,
+      "upstream_calls": 30,
+      "allowed_effects": 0,
+      "forbidden_effects": 30,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch>tool_grant>tool_call"
+    },
+    {
+      "config": "G1R0",
+      "scenario": "normal_authorized",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 0,
+      "upstream_calls": 30,
+      "allowed_effects": 30,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch"
+    },
+    {
+      "config": "G1R0",
+      "scenario": "post_admission_tool_escalation",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 0,
+      "upstream_calls": 30,
+      "allowed_effects": 0,
+      "forbidden_effects": 30,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch"
+    },
+    {
+      "config": "G1R0",
+      "scenario": "production_sensitive_action",
+      "runs": 30,
+      "tasks_created": 0,
+      "approvals_created": 30,
+      "grants_created": 0,
+      "upstream_calls": 0,
+      "allowed_effects": 0,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        0
+      ],
+      "sample_audit_stages": "contract>policy>dispatch>approval"
+    },
+    {
+      "config": "G1R0",
+      "scenario": "spoofed_source",
+      "runs": 30,
+      "tasks_created": 0,
+      "approvals_created": 0,
+      "grants_created": 0,
+      "upstream_calls": 0,
+      "allowed_effects": 0,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        0
+      ],
+      "sample_audit_stages": "contract>policy>dispatch"
+    },
+    {
+      "config": "G1R1",
+      "scenario": "normal_authorized",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 30,
+      "upstream_calls": 30,
+      "allowed_effects": 30,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        200
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch>tool_grant>tool_call"
+    },
+    {
+      "config": "G1R1",
+      "scenario": "post_admission_tool_escalation",
+      "runs": 30,
+      "tasks_created": 30,
+      "approvals_created": 0,
+      "grants_created": 30,
+      "upstream_calls": 0,
+      "allowed_effects": 0,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        403
+      ],
+      "sample_audit_stages": "contract>policy>a2a_task>dispatch>tool_grant>tool_call"
+    },
+    {
+      "config": "G1R1",
+      "scenario": "production_sensitive_action",
+      "runs": 30,
+      "tasks_created": 0,
+      "approvals_created": 30,
+      "grants_created": 0,
+      "upstream_calls": 0,
+      "allowed_effects": 0,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        0
+      ],
+      "sample_audit_stages": "contract>policy>dispatch>approval"
+    },
+    {
+      "config": "G1R1",
+      "scenario": "spoofed_source",
+      "runs": 30,
+      "tasks_created": 0,
+      "approvals_created": 0,
+      "grants_created": 0,
+      "upstream_calls": 0,
+      "allowed_effects": 0,
+      "forbidden_effects": 0,
+      "audit_valid": 30,
+      "trace_complete": 30,
+      "response_statuses": [
+        0
+      ],
+      "sample_audit_stages": "contract>policy>dispatch"
+    }
+  ],
+  "limitations": [
+    "Real DiOS dispatcher/DB/A2ATask/ToolGrant/MCP PEP path with deterministic Agent and MCP test double.",
+    "No LLM, container runtime, external TCP network, or production credentials are included.",
+    "The experiment measures whether a forbidden upstream effect is reachable, not semantic attack detection."
+  ]
+}

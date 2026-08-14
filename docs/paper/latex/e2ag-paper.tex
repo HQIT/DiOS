@@ -5,7 +5,7 @@
 \usepackage[a4paper,top=22mm,bottom=24mm,left=22mm,right=22mm]{geometry}
 \usepackage{amsmath,amssymb,booktabs,longtable,array,graphicx,xcolor,url}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc,backgrounds}
 \usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
@@ -36,7 +36,7 @@
 \maketitle
 
 \begin{abstract}
-事件驱动人工智能操作系统连接外部事件、智能体运行时、大模型与工具生态，使系统能够自主触发并执行任务。然而，事件从接入、标准化、订阅匹配到智能体决策和工具调用跨越多个信任边界。本文提出 E2AG（Event-to-Agent Governance），将 Connector manifest 扩展为可执行的 source--event type 能力契约，在 A2A Task 创建前执行目标作用域三态策略判定，为任务签发短期工具授权，并用统一 \texttt{trace\_id} 与哈希链接证据链记录契约、策略、调度和实际工具调用。在 DiOS 原型的 14 个攻击与 8 个正常事件上，无治理、仅契约和完整 E2AG 的攻击阻断率分别为 0\%、35.71\% 和 100\%，正常通过率均为 100\%；完整 E2AG 纯判定核心 P50/P95/P99 为 21.2/42.1/121.0~$\mu$s。工具执行点实验将 6 个越权案例的阻断率从 0\% 提升至 100\%，并保持 4 个正常调用全部通过。固定种子生成的 700 个单因素变异进一步复现了契约与目标策略的互补性。哈希链检测出 6 类链内篡改，但在无外部锚点时不能发现链尾截断。上述结果仅表明当前手工与合成案例上的机制有效性，不代表对任意提示词注入的普适检测能力。
+事件驱动人工智能操作系统连接外部事件、智能体运行时与工具生态，但事件接入、任务创建和工具调用跨越多个信任边界。本文提出 E2AG（Event-to-Agent Governance）：将 Connector manifest 扩展为可执行的 source--event type 能力契约，在 A2A Task 创建前执行目标作用域三态策略，为任务签发短期工具授权并在 MCP 调用点再次强制，同时用统一 \texttt{trace\_id} 和哈希链接证据链记录契约、策略、调度、授权与工具结果。在作者冻结的 30 个正常和 30 个攻击事件上，无机制、仅契约、仅策略和契约加策略的攻击阻断率分别为 0\%、33.33\%、66.67\% 和 100\%，四组均通过 30/30 个正常事件。进一步执行 480 次真实 dispatcher、SQLite、A2A Task、ToolGrant 与 MCP PEP 路径：双执行点同时开启时，30/30 个正常调用到达模拟上游，伪造来源、任务后工具升级和生产敏感动作三类禁止副作用均为 0/30；只启用任一执行点会暴露其未覆盖阶段。5 类注入故障的 100 条持久化 trace 均定位到首个治理失败阶段并通过链校验。并发实验发现原始去重存在竞态；引入数据库唯一去重声明后，SQLite 下 8/32 并发各 100 轮均未产生重复日志或双重审批。结果证明的是威胁驱动确定性场景中的机制闭环，不代表任意提示词注入检测、跨数据库一致性或生产部署效果。
 
 \noindent\textbf{关键词：} 人工智能操作系统；智能体安全；事件驱动系统；能力契约；策略门控；因果审计
 \end{abstract}
@@ -54,7 +54,7 @@
 \end{center}
 
 \begin{quote}\small
-\textbf{Abstract:} Event-driven agent operating systems connect external events to agent runtimes, large language models, and tools across multiple trust boundaries. We present E2AG (Event-to-Agent Governance), which turns connector manifests into executable source--event type contracts, performs target-scoped three-way policy decisions before A2A task creation, issues short-lived task-scoped tool grants, and records decisions and calls in a trace-consistent hash-linked audit chain. In a deterministic corpus of 14 attacks and 8 benign cases, attack prevention rises from 0\% without governance and 35.71\% with contract-only admission to 100\% with full E2AG, while all benign cases pass. A separate runtime-gateway corpus blocks all six unauthorized cases and preserves all four benign calls. A fixed-seed suite of 700 single-factor mutations reproduces the complementarity between contract admission and target policy. Six in-chain mutations are detected; tail truncation remains undetectable without an external anchor. These findings establish feasibility on hand-authored and synthetic cases rather than general detection of arbitrary prompt injection.
+\textbf{Abstract:} Event-driven agent operating systems connect external events to agent runtimes and tools across multiple trust boundaries. We present E2AG (Event-to-Agent Governance), which turns connector manifests into executable source--event type contracts, performs target-scoped three-way policy decisions before A2A task creation, issues short-lived task-scoped tool grants, re-enforces them at the MCP call site, and records contract, policy, dispatch, grant, and tool outcomes in a trace-consistent hash-linked chain. In an author-frozen matrix of 30 benign and 30 attack events, attack prevention is 0\%, 33.33\%, 66.67\%, and 100\% for no mechanism, contract only, policy only, and contract plus policy; all configurations pass 30/30 benign events. Across 480 executions using the real DiOS dispatcher, SQLite models, A2A Task, ToolGrant, and MCP PEP paths, the two-PEP configuration preserves 30/30 authorized upstream effects while each of three forbidden-effect scenarios reaches the upstream 0/30 times. One hundred persisted traces across five injected fault stages are all localized correctly and remain hash-valid. After a replay race was found, a database-unique time-bounded deduplication claim yielded no duplicate log or double approval in 8- and 32-way SQLite tests over 100 rounds each. These results establish deterministic mechanism behavior, not general prompt-injection detection, cross-database correctness, or production effectiveness.
 
 \textbf{Key words:} agent operating system; agent security; event-driven system; capability contract; policy enforcement; causal audit
 \end{quote}

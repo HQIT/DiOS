@@ -1,0 +1,59 @@
+{
+  "protocol": "sqlite-concurrency-robustness-v1",
+  "levels": [
+    8,
+    32
+  ],
+  "rounds_per_level": 100,
+  "replay": {
+    "8": {
+      "rounds": 100,
+      "requests": 800,
+      "outcomes": {
+        "created": 100,
+        "deduplicated": 700
+      },
+      "rounds_with_persisted_count_not_one": 0
+    },
+    "32": {
+      "rounds": 100,
+      "requests": 3200,
+      "outcomes": {
+        "created": 100,
+        "deduplicated": 3100
+      },
+      "rounds_with_persisted_count_not_one": 0
+    }
+  },
+  "approval": {
+    "8": {
+      "rounds": 100,
+      "requests": 800,
+      "outcomes": {
+        "expected_conflict": 700,
+        "success:approved": 63,
+        "success:rejected": 37
+      },
+      "rounds_without_exactly_one_success": 0,
+      "rounds_without_one_terminal_state": 0,
+      "rounds_with_more_than_one_task": 0
+    },
+    "32": {
+      "rounds": 100,
+      "requests": 3200,
+      "outcomes": {
+        "expected_conflict": 3100,
+        "success:approved": 64,
+        "success:rejected": 36
+      },
+      "rounds_without_exactly_one_success": 0,
+      "rounds_without_one_terminal_state": 0,
+      "rounds_with_more_than_one_task": 0
+    }
+  },
+  "limitations": [
+    "Single-host file-backed SQLite with independent async sessions.",
+    "The result validates or falsifies current SQLite behavior; it does not establish behavior on PostgreSQL/MySQL.",
+    "Database errors and invariant violations are retained rather than retried away."
+  ]
+}

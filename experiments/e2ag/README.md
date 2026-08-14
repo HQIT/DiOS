@@ -1,6 +1,6 @@
 # E2AG reproducible experiment
 
-This directory contains the deterministic first-stage evaluation for E2AG.
+This directory contains the deterministic evaluation for E2AG.
 It deliberately excludes any LLM call so that contract and policy effects can
 be measured independently from model stochasticity and network latency.
 
@@ -12,6 +12,10 @@ For dependency installation in mainland China, use the explicit mirrors in
 From the repository root:
 
 ```powershell
+backend\.venv\Scripts\python.exe experiments/e2ag/run_frozen_ablation.py
+backend\.venv\Scripts\python.exe experiments/e2ag/run_e2e_chain_experiment.py --repeats 30
+backend\.venv\Scripts\python.exe experiments/e2ag/run_causal_audit_experiment.py --repeats 20
+backend\.venv\Scripts\python.exe experiments/e2ag/run_concurrency_experiment.py --levels 8,32 --rounds 100
 python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
@@ -19,6 +23,16 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_tool_gateway_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --per-operator 100
 backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeats 300
 ```
+
+The four commands at the top are the primary paper evaluation as of
+2026-08-14.  They produce the frozen Contract x Policy 2x2 result, 480 real
+dispatcher-to-MCP executions, 100 persisted causal-localization traces, and the
+SQLite concurrency robustness result.  The older 22-case, mutation, and pure
+authorization scripts remain development and supplementary checks.
+
+`frozen_cases.jsonl` is immutable by protocol once reviewed.  Its current
+SHA-256 and review status are stored in `results/frozen_ablation_summary.json`;
+independent collaborator label review is still pending.
 
 The runner evaluates three modes:
 
@@ -31,9 +45,10 @@ Inputs are in `attack_cases.jsonl`. Outputs are overwritten deterministically in
 
 ## Scope and interpretation
 
-The current corpus contains 22 hand-authored cases: 14 attacks and 8 benign
-events across Git, IMAP, generic webhook, manual and cron sources. Results are a
-prototype sanity check, not evidence of population-level detection accuracy.
+The frozen corpus contains 60 threat-driven cases: 30 attacks and 30 benign
+events. Results establish mechanism behavior on this matrix, not
+population-level detection accuracy. The original corpus contains 22
+development cases and remains a prototype sanity check.
 Latency is the in-process decision-core cost on the machine running the script;
 it is not end-to-end Event Gateway latency.
 

@@ -1,0 +1,117 @@
+{
+  "protocol": "causal-stage-localization-v1",
+  "repeats_per_fault": 20,
+  "traces": 100,
+  "localization_accuracy": 1.0,
+  "audit_valid_rate": 1.0,
+  "trace_complete_rate": 1.0,
+  "trace_id_consistency_rate": 1.0,
+  "by_fault": {
+    "contract_denied": {
+      "traces": 20,
+      "localized_correctly": 20,
+      "audit_valid": 20,
+      "trace_complete": 20,
+      "trace_id_consistent": 20,
+      "sample_stages": [
+        "contract",
+        "policy",
+        "dispatch"
+      ],
+      "sample_outcomes": [
+        "deny",
+        "deny",
+        "blocked"
+      ]
+    },
+    "policy_denied": {
+      "traces": 20,
+      "localized_correctly": 20,
+      "audit_valid": 20,
+      "trace_complete": 20,
+      "trace_id_consistent": 20,
+      "sample_stages": [
+        "contract",
+        "policy",
+        "dispatch"
+      ],
+      "sample_outcomes": [
+        "allow",
+        "deny",
+        "blocked"
+      ]
+    },
+    "approval_expired": {
+      "traces": 20,
+      "localized_correctly": 20,
+      "audit_valid": 20,
+      "trace_complete": 20,
+      "trace_id_consistent": 20,
+      "sample_stages": [
+        "contract",
+        "policy",
+        "dispatch",
+        "approval",
+        "approval"
+      ],
+      "sample_outcomes": [
+        "allow",
+        "approval_required",
+        "blocked",
+        "pending",
+        "expired"
+      ]
+    },
+    "tool_grant_expired": {
+      "traces": 20,
+      "localized_correctly": 20,
+      "audit_valid": 20,
+      "trace_complete": 20,
+      "trace_id_consistent": 20,
+      "sample_stages": [
+        "contract",
+        "policy",
+        "a2a_task",
+        "dispatch",
+        "tool_grant",
+        "tool_grant"
+      ],
+      "sample_outcomes": [
+        "allow",
+        "allow",
+        "submitted",
+        "dispatched",
+        "grant_issued",
+        "grant_expired"
+      ]
+    },
+    "tool_call_denied": {
+      "traces": 20,
+      "localized_correctly": 20,
+      "audit_valid": 20,
+      "trace_complete": 20,
+      "trace_id_consistent": 20,
+      "sample_stages": [
+        "contract",
+        "policy",
+        "a2a_task",
+        "dispatch",
+        "tool_grant",
+        "tool_call"
+      ],
+      "sample_outcomes": [
+        "allow",
+        "allow",
+        "submitted",
+        "dispatched",
+        "grant_issued",
+        "deny"
+      ]
+    }
+  },
+  "limitations": [
+    "Localization uses explicit E2AG stage/outcome semantics on deterministic injected faults.",
+    "Hash-chain integrity does not detect tail truncation without an external anchor.",
+    "This is causal-stage localization, not general program root-cause analysis."
+  ]
+}

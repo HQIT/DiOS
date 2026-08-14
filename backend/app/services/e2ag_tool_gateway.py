@@ -81,6 +81,7 @@ async def _append_event_audit(
     event_log_id: str,
     *,
     trace_id: str,
+    stage: str,
     outcome: str,
     evidence: Mapping[str, Any],
 ) -> None:
@@ -92,7 +93,7 @@ async def _append_event_audit(
     event_log.audit_chain = append_audit_entry(
         event_log.audit_chain or [],
         trace_id=trace_id,
-        stage="tool_call",
+        stage=stage,
         outcome=outcome,
         evidence=evidence,
     )
@@ -165,6 +166,7 @@ async def issue_task_mcp_config(
             db,
             task.context_id,
             trace_id=task.trace_id,
+            stage="tool_grant",
             outcome="grant_issued",
             evidence={
                 "grant_id": grant.id,
@@ -180,6 +182,7 @@ async def issue_task_mcp_config(
             db,
             task.context_id,
             trace_id=task.trace_id,
+            stage="tool_grant",
             outcome="grant_withheld",
             evidence={"agent_id": agent.id, "task_id": task.id, **omission},
         )
@@ -200,7 +203,7 @@ async def validate_grant(
     if _aware(grant.expires_at) <= _now():
         grant.status = "expired"
         await _append_event_audit(
-            db, grant.event_log_id, trace_id=grant.trace_id,
+            db, grant.event_log_id, trace_id=grant.trace_id, stage="tool_grant",
             outcome="grant_expired",
             evidence={"grant_id": grant.id, "task_id": grant.task_id},
         )
@@ -212,7 +215,7 @@ async def validate_grant(
     if task.status in {"completed", "failed", "canceled"}:
         grant.status = "revoked"
         await _append_event_audit(
-            db, grant.event_log_id, trace_id=grant.trace_id,
+            db, grant.event_log_id, trace_id=grant.trace_id, stage="tool_grant",
             outcome="grant_revoked",
             evidence={
                 "grant_id": grant.id,
@@ -243,6 +246,7 @@ async def record_tool_decision(
         db,
         grant.event_log_id,
         trace_id=grant.trace_id,
+        stage="tool_call",
         outcome="allow" if allowed else "deny",
         evidence={
             "grant_id": grant.id,
@@ -270,7 +274,7 @@ async def revoke_task_grants(db: AsyncSession, task_id: str) -> None:
     for grant in result.scalars().all():
         grant.status = "revoked"
         await _append_event_audit(
-            db, grant.event_log_id, trace_id=grant.trace_id,
+            db, grant.event_log_id, trace_id=grant.trace_id, stage="tool_grant",
             outcome="grant_revoked",
             evidence={
                 "grant_id": grant.id,

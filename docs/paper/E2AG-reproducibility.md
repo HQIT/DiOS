@@ -44,6 +44,10 @@ cd backend
 从仓库根目录执行：
 
 ```powershell
+backend\.venv\Scripts\python.exe experiments/e2ag/run_frozen_ablation.py
+backend\.venv\Scripts\python.exe experiments/e2ag/run_e2e_chain_experiment.py --repeats 30
+backend\.venv\Scripts\python.exe experiments/e2ag/run_causal_audit_experiment.py --repeats 20
+backend\.venv\Scripts\python.exe experiments/e2ag/run_concurrency_experiment.py --levels 8,32 --rounds 100
 python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 1000
@@ -52,7 +56,7 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --p
 backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeats 300
 ```
 
-六个脚本分别生成安全性/消融结果、审计篡改结果、含 SQLite 审计落库的控制面微基准、运行时工具网关消融结果、固定种子合成变异结果和 FastAPI＋文件 SQLite HTTP 进程内基准。
+前四个脚本是当前正文主实验，分别生成冻结集 2×2 消融、480 次持久化端到端链、因果阶段定位和 SQLite 并发健壮性结果。后六个脚本保留为开发集、篡改、微基准和补充机制覆盖检查。
 
 ## 5. 结果文件
 
@@ -63,6 +67,13 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeat
 - `experiments/e2ag/results/tool_gateway_summary.json`
 - `experiments/e2ag/results/mutation_summary.json`
 - `experiments/e2ag/results/http_benchmark.json`
+- `experiments/e2ag/results/frozen_ablation_summary.json`
+- `experiments/e2ag/results/frozen_ablation_cases.csv`
+- `experiments/e2ag/results/e2e_chain_summary.json`
+- `experiments/e2ag/results/e2e_chain_runs.csv`
+- `experiments/e2ag/results/causal_audit_summary.json`
+- `experiments/e2ag/results/concurrency_summary_before_fix.json`
+- `experiments/e2ag/results/concurrency_summary.json`
 
 论文中的数字必须以这些机器生成文件为准，不能手工选择更优的历史运行结果。
 

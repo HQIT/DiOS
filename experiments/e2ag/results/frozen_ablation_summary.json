@@ -1,0 +1,414 @@
+{
+  "protocol": "frozen-contract-policy-2x2-v1",
+  "corpus_sha256": "8c0074fcffa6a7eefbff8ff4cd73f6d555d1bfa0e7fe8bb45dabebbb48a096a6",
+  "review_status": "pending_independent_collaborator_review",
+  "modes": {
+    "C0P0": {
+      "contract_binding": false,
+      "target_policy": false
+    },
+    "C1P0": {
+      "contract_binding": true,
+      "target_policy": false
+    },
+    "C0P1": {
+      "contract_binding": false,
+      "target_policy": true
+    },
+    "C1P1": {
+      "contract_binding": true,
+      "target_policy": true
+    }
+  },
+  "results": [
+    {
+      "mode": "C0P0",
+      "cases": 60,
+      "attacks": 30,
+      "benign": 30,
+      "attacks_prevented": 0,
+      "attack_prevention_rate": 0.0,
+      "attack_prevention_wilson95": [
+        0.0,
+        0.113513
+      ],
+      "benign_passed": 30,
+      "benign_pass_rate": 1.0,
+      "benign_pass_wilson95": [
+        0.886487,
+        1.0
+      ],
+      "exact_correct": 60,
+      "exact_accuracy": 1.0,
+      "by_layer": {
+        "approval": {
+          "cases": 4,
+          "non_allow": 0,
+          "exact_correct": 4
+        },
+        "benign": {
+          "cases": 30,
+          "non_allow": 0,
+          "exact_correct": 30
+        },
+        "contract": {
+          "cases": 10,
+          "non_allow": 0,
+          "exact_correct": 10
+        },
+        "policy": {
+          "cases": 16,
+          "non_allow": 0,
+          "exact_correct": 16
+        }
+      }
+    },
+    {
+      "mode": "C1P0",
+      "cases": 60,
+      "attacks": 30,
+      "benign": 30,
+      "attacks_prevented": 10,
+      "attack_prevention_rate": 0.3333333333333333,
+      "attack_prevention_wilson95": [
+        0.192305,
+        0.512199
+      ],
+      "benign_passed": 30,
+      "benign_pass_rate": 1.0,
+      "benign_pass_wilson95": [
+        0.886487,
+        1.0
+      ],
+      "exact_correct": 60,
+      "exact_accuracy": 1.0,
+      "by_layer": {
+        "approval": {
+          "cases": 4,
+          "non_allow": 0,
+          "exact_correct": 4
+        },
+        "benign": {
+          "cases": 30,
+          "non_allow": 0,
+          "exact_correct": 30
+        },
+        "contract": {
+          "cases": 10,
+          "non_allow": 10,
+          "exact_correct": 10
+        },
+        "policy": {
+          "cases": 16,
+          "non_allow": 0,
+          "exact_correct": 16
+        }
+      }
+    },
+    {
+      "mode": "C0P1",
+      "cases": 60,
+      "attacks": 30,
+      "benign": 30,
+      "attacks_prevented": 20,
+      "attack_prevention_rate": 0.6666666666666666,
+      "attack_prevention_wilson95": [
+        0.487801,
+        0.807695
+      ],
+      "benign_passed": 30,
+      "benign_pass_rate": 1.0,
+      "benign_pass_wilson95": [
+        0.886487,
+        1.0
+      ],
+      "exact_correct": 60,
+      "exact_accuracy": 1.0,
+      "by_layer": {
+        "approval": {
+          "cases": 4,
+          "non_allow": 4,
+          "exact_correct": 4
+        },
+        "benign": {
+          "cases": 30,
+          "non_allow": 0,
+          "exact_correct": 30
+        },
+        "contract": {
+          "cases": 10,
+          "non_allow": 0,
+          "exact_correct": 10
+        },
+        "policy": {
+          "cases": 16,
+          "non_allow": 16,
+          "exact_correct": 16
+        }
+      }
+    },
+    {
+      "mode": "C1P1",
+      "cases": 60,
+      "attacks": 30,
+      "benign": 30,
+      "attacks_prevented": 30,
+      "attack_prevention_rate": 1.0,
+      "attack_prevention_wilson95": [
+        0.886487,
+        1.0
+      ],
+      "benign_passed": 30,
+      "benign_pass_rate": 1.0,
+      "benign_pass_wilson95": [
+        0.886487,
+        1.0
+      ],
+      "exact_correct": 60,
+      "exact_accuracy": 1.0,
+      "by_layer": {
+        "approval": {
+          "cases": 4,
+          "non_allow": 4,
+          "exact_correct": 4
+        },
+        "benign": {
+          "cases": 30,
+          "non_allow": 0,
+          "exact_correct": 30
+        },
+        "contract": {
+          "cases": 10,
+          "non_allow": 10,
+          "exact_correct": 10
+        },
+        "policy": {
+          "cases": 16,
+          "non_allow": 16,
+          "exact_correct": 16
+        }
+      }
+    }
+  ],
+  "paired_overhead": {
+    "interpretation": "Same-host paired engineering observation only; absolute latency and relative factors do not establish production end-to-end performance.",
+    "seed": 20260814,
+    "randomized_mode_orders": [
+      [
+        "C1P0",
+        "C0P0",
+        "C1P1",
+        "C0P1"
+      ],
+      [
+        "C1P0",
+        "C0P0",
+        "C1P1",
+        "C0P1"
+      ],
+      [
+        "C1P0",
+        "C0P0",
+        "C0P1",
+        "C1P1"
+      ],
+      [
+        "C0P1",
+        "C1P0",
+        "C1P1",
+        "C0P0"
+      ],
+      [
+        "C1P0",
+        "C0P1",
+        "C1P1",
+        "C0P0"
+      ],
+      [
+        "C1P0",
+        "C0P1",
+        "C1P1",
+        "C0P0"
+      ],
+      [
+        "C0P0",
+        "C0P1",
+        "C1P1",
+        "C1P0"
+      ],
+      [
+        "C1P1",
+        "C1P0",
+        "C0P1",
+        "C0P0"
+      ],
+      [
+        "C1P0",
+        "C0P0",
+        "C1P1",
+        "C0P1"
+      ],
+      [
+        "C1P1",
+        "C0P1",
+        "C1P0",
+        "C0P0"
+      ],
+      [
+        "C0P1",
+        "C1P1",
+        "C1P0",
+        "C0P0"
+      ],
+      [
+        "C1P0",
+        "C0P1",
+        "C1P1",
+        "C0P0"
+      ],
+      [
+        "C1P0",
+        "C0P1",
+        "C1P1",
+        "C0P0"
+      ],
+      [
+        "C1P1",
+        "C0P1",
+        "C1P0",
+        "C0P0"
+      ],
+      [
+        "C0P0",
+        "C1P1",
+        "C1P0",
+        "C0P1"
+      ],
+      [
+        "C1P0",
+        "C1P1",
+        "C0P0",
+        "C0P1"
+      ],
+      [
+        "C1P0",
+        "C0P1",
+        "C0P0",
+        "C1P1"
+      ],
+      [
+        "C1P0",
+        "C1P1",
+        "C0P1",
+        "C0P0"
+      ],
+      [
+        "C1P1",
+        "C0P1",
+        "C1P0",
+        "C0P0"
+      ],
+      [
+        "C0P0",
+        "C1P0",
+        "C0P1",
+        "C1P1"
+      ],
+      [
+        "C0P1",
+        "C1P1",
+        "C1P0",
+        "C0P0"
+      ],
+      [
+        "C0P1",
+        "C0P0",
+        "C1P0",
+        "C1P1"
+      ],
+      [
+        "C1P1",
+        "C1P0",
+        "C0P0",
+        "C0P1"
+      ],
+      [
+        "C1P1",
+        "C0P0",
+        "C1P0",
+        "C0P1"
+      ],
+      [
+        "C1P0",
+        "C0P1",
+        "C0P0",
+        "C1P1"
+      ],
+      [
+        "C0P1",
+        "C1P0",
+        "C0P0",
+        "C1P1"
+      ],
+      [
+        "C0P1",
+        "C0P0",
+        "C1P1",
+        "C1P0"
+      ],
+      [
+        "C0P1",
+        "C1P1",
+        "C1P0",
+        "C0P0"
+      ],
+      [
+        "C1P0",
+        "C0P1",
+        "C0P0",
+        "C1P1"
+      ],
+      [
+        "C1P0",
+        "C0P0",
+        "C0P1",
+        "C1P1"
+      ]
+    ],
+    "summary": {
+      "C0P0": {
+        "batches": 30,
+        "decisions_per_batch": 1200,
+        "median_batch_mean_us_per_decision": 0.028,
+        "p95_batch_mean_us_per_decision": 0.035,
+        "relative_to_C0P0": 1.0
+      },
+      "C1P0": {
+        "batches": 30,
+        "decisions_per_batch": 1200,
+        "median_batch_mean_us_per_decision": 6.519,
+        "p95_batch_mean_us_per_decision": 7.383,
+        "relative_to_C0P0": 229.079
+      },
+      "C0P1": {
+        "batches": 30,
+        "decisions_per_batch": 1200,
+        "median_batch_mean_us_per_decision": 5.3,
+        "p95_batch_mean_us_per_decision": 6.296,
+        "relative_to_C0P0": 186.221
+      },
+      "C1P1": {
+        "batches": 30,
+        "decisions_per_batch": 1200,
+        "median_batch_mean_us_per_decision": 11.228,
+        "p95_batch_mean_us_per_decision": 12.896,
+        "relative_to_C0P0": 394.545
+      }
+    }
+  },
+  "limitations": [
+    "Threat-driven author-frozen corpus; not a prevalence sample.",
+    "Independent collaborator label review is pending.",
+    "All cases are structurally valid to isolate source-type binding from target policy."
+  ]
+}
