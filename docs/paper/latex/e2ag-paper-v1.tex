@@ -1,0 +1,62 @@
+\documentclass[UTF8,zihao=5,fontset=none]{ctexart}
+\setCJKmainfont[Path=C:/Windows/Fonts/,BoldFont=NotoSerifSC-VF.ttf,ItalicFont=NotoSerifSC-VF.ttf]{NotoSerifSC-VF.ttf}
+\setCJKsansfont[Path=C:/Windows/Fonts/,BoldFont={Noto Sans SC Bold (TrueType).otf}]{Noto Sans SC (TrueType).otf}
+\setCJKmonofont[Path=C:/Windows/Fonts/]{Noto Sans SC (TrueType).otf}
+\usepackage[a4paper,top=22mm,bottom=24mm,left=22mm,right=22mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,longtable,array,graphicx,url}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={面向事件驱动智能体操作系统的跨层能力治理方法},
+  pdfauthor={},
+  pdfsubject={Anonymous manuscript},
+  pdfcreator={LaTeX}
+}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small 软件学报匿名投稿稿}
+\fancyhead[R]{\small 跨层能力治理}
+\fancyfoot[C]{\thepage}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\setlist{nosep,leftmargin=2.2em}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\emergencystretch}{2em}
+\Urlmuskip=0mu plus 1mu
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\floatname{algorithm}{算法}
+
+\title{\bfseries\zihao{-2} 面向事件驱动智能体操作系统的跨层能力治理方法}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+事件驱动智能体操作系统允许外部事件自主触发智能体并调用工具，但事件来源、任务创建与工具副作用分属不同信任域，现有事件格式校验或单点工具授权无法约束完整执行链。本文提出跨层能力治理方法 E2AG。该方法首先以来源--类型能力契约验证事件声明权，再依据目标智能体的来源、事件类型、动作、工具与环境策略决定任务创建；任务获准后，系统签发绑定事件、任务、智能体和工具集合的短期能力授权，并在模型产生的实际 MCP 调用到达上游前再次验证。算法同时将各阶段对象与判定写入统一执行溯源链。本文在事件驱动智能体操作系统原型上实现 E2AG，并设置无治理、仅契约、仅调度策略和仅运行时工具约束等基准方法。在包含 30 个正常事件和 30 个攻击事件的冻结矩阵上，完整方法阻断 30/30 个攻击并通过 30/30 个正常事件；仅契约和仅调度策略分别阻断 10/30 和 20/30 个攻击。480 次确定性端到端执行表明，调度前与工具调用时两个执行点缺一不可。进一步使用真实模型完成 30 次工具决策并在三种配置下形成 90 条执行路径：模型在工具升级场景中 10/10 次选择越权工具；仅调度门控时 10/10 次禁止副作用到达上游，启用运行时能力验证后上游到达数降为 0/10；完整方法同时阻断 10/10 个伪造来源事件。100 条故障注入轨迹全部正确定位治理失败阶段，并发实验验证了修复后的事件去重与审批状态不变量。结果表明，跨层能力生命周期能够同时约束事件触发权、任务创建权与工具副作用权。
+
+\noindent\textbf{关键词：} 人工智能操作系统；事件驱动智能体；能力治理；运行时强制；执行溯源
+\end{abstract}
+
+\noindent\textbf{中图法分类号：} TP309
+
+\begin{center}
+{\bfseries\large A Cross-Layer Capability Governance Method for Event-Driven Agent Operating Systems}
+\end{center}
+
+\begin{quote}\small
+\textbf{Abstract:} Event-driven agent operating systems allow external events to autonomously trigger agents and tool calls. Event provenance, task creation, and tool side effects, however, cross distinct trust domains; event-format validation or a single tool guard cannot constrain the complete execution chain. This paper presents E2AG, a cross-layer capability-governance method. E2AG first validates an event's declaration authority through a source--type capability contract and then decides task creation against target-scoped source, event-type, action, tool, and environment policies. For each admitted task, E2AG issues a short-lived capability bound to the event, task, agent, and tool set, and validates it again before an actual MCP call reaches the upstream tool. All objects and decisions are recorded in a unified execution-provenance chain. We implement E2AG in an event-driven agent-OS prototype and compare it with no-governance, contract-only, dispatch-policy-only, and runtime-tool-only baselines. On a frozen matrix of 30 benign and 30 attack events, full E2AG blocks 30/30 attacks while admitting 30/30 benign events; contract-only and dispatch-policy-only block 10/30 and 20/30 attacks, respectively. Across 480 deterministic end-to-end executions, both enforcement points are necessary. We further obtain 30 tool decisions from a real model and replay them through three governance configurations, yielding 90 executions. The model selects the unauthorized tool in 10/10 escalation cases. All 10 forbidden effects reach the upstream under dispatch-only enforcement, whereas runtime capability validation reduces upstream reachability to 0/10; full E2AG also blocks all 10 spoofed-source events. One hundred fault-injection traces correctly identify their first governance failure stage, and concurrency tests validate the repaired deduplication and approval-state invariants. These results show that a cross-layer capability lifecycle jointly constrains event-trigger authority, task-creation authority, and tool-side-effect authority.
+
+\textbf{Key words:} agent operating system; event-driven agent; capability governance; runtime enforcement; execution provenance
+\end{quote}
+
+\input{e2ag-body-v1.tex}
+\end{document}

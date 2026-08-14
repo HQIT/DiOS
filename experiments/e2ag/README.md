@@ -1,8 +1,11 @@
 # E2AG reproducible experiment
 
-This directory contains the deterministic evaluation for E2AG.
-It deliberately excludes any LLM call so that contract and policy effects can
-be measured independently from model stochasticity and network latency.
+This directory contains the deterministic evaluation for E2AG and one
+supplementary live-model experiment. The primary ablation, end-to-end,
+fault-injection, and concurrency protocols exclude model calls so that
+governance effects can be measured independently from model stochasticity and
+network latency. The live-model protocol replays each immutable model decision
+across three governance configurations for a paired comparison.
 
 ## Run
 
@@ -17,6 +20,7 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_e2e_chain_experiment.py --
 backend\.venv\Scripts\python.exe experiments/e2ag/run_causal_audit_experiment.py --repeats 20
 backend\.venv\Scripts\python.exe experiments/e2ag/run_concurrency_experiment.py --levels 8,32 --rounds 100
 backend\.venv\Scripts\python.exe experiments/e2ag/prepare_independent_review.py
+backend\.venv\Scripts\python.exe experiments/e2ag/run_live_llm_chain_experiment.py --repeats 10
 python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
@@ -25,11 +29,18 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --p
 backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeats 300
 ```
 
-The four commands at the top are the primary paper evaluation as of
-2026-08-14.  They produce the frozen Contract x Policy 2x2 result, 480 real
+The first four commands are the primary deterministic paper evaluation as of
+2026-08-15. They produce the frozen Contract x Policy 2x2 result, 480 real
 dispatcher-to-MCP executions, 100 persisted causal-localization traces, and the
-SQLite concurrency robustness result.  The older 22-case, mutation, and pure
+SQLite concurrency robustness result. The live-model command adds 30 model
+decisions and 90 paired execution paths. The older 22-case, mutation, and pure
 authorization scripts remain development and supplementary checks.
+
+The live-model command is an external-validity example. It requires
+`OPENAI_BASE_URL`, `OPENAI_API_KEY`, and optionally `OPENAI_MODEL` and
+`OFOX_HTTP_PROXY`. Credentials are read only from the process environment and
+are not written to results. The default protocol makes 30 model requests and
+replays those immutable decisions across three governance configurations.
 
 `frozen_cases.jsonl` is immutable by protocol once reviewed.  Its current
 SHA-256 and review status are stored in `results/frozen_ablation_summary.json`;

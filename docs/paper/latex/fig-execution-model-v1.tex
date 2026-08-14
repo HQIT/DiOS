@@ -1,0 +1,53 @@
+\begin{figure}[htbp]
+\centering
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\footnotesize,
+  component/.style={draw=black,rounded corners=1.5pt,align=center,fill=white,
+    line width=.45pt,minimum width=27mm,minimum height=9mm,inner xsep=3pt,inner ysep=3pt},
+  object/.style={component,line width=.9pt},
+  domainbox/.style={draw=black!60,rounded corners=3pt,fill=white,
+    inner xsep=3mm,inner ysep=5mm},
+  audit/.style={draw=black,densely dotted,line width=.8pt,rounded corners=2pt,
+    fill=white,align=center,minimum height=8mm},
+  flow/.style={-{Latex[length=1.8mm]},draw=black,line width=.7pt,
+    rounded corners=2pt,line join=round,line cap=round},
+  evidence/.style={-{Latex[length=1.5mm]},draw=black,densely dotted,line width=.65pt,
+    rounded corners=2pt,line join=round,line cap=round}
+]
+\node[component] (source) {外部事件源\\Git / Mail / Webhook};
+\node[object,right=11mm of source] (event) {事件对象 $e$\\source / type / data};
+\node[object,right=11mm of event] (task) {任务对象 $t$\\agent / trace};
+\node[component,right=11mm of task] (agent) {智能体运行时\\规划与工具选择};
+\node[object,right=11mm of agent] (call) {工具调用 $c$\\method / tool / args};
+\node[component,right=11mm of call] (effect) {外部副作用\\data / service / device};
+
+\begin{pgfonlayer}{background}
+\node[domainbox,fit=(source)(event),label={[font=\footnotesize\bfseries]above:事件接入域}] (d1) {};
+\node[domainbox,fit=(task)(agent),label={[font=\footnotesize\bfseries]above:智能体执行域}] (d2) {};
+\node[domainbox,fit=(call)(effect),label={[font=\footnotesize\bfseries]above:工具副作用域}] (d3) {};
+\end{pgfonlayer}
+
+\coordinate (gap12) at ($(d1.east)!0.5!(d2.west)$);
+\coordinate (gap23) at ($(d2.east)!0.5!(d3.west)$);
+\draw[flow] (source)--(event);
+\draw[flow] (event.east)--(gap12 |- event.east)--(gap12 |- task.west)--(task.west);
+\draw[flow] (task)--(agent);
+\draw[flow] (agent.east)--(gap23 |- agent.east)--(gap23 |- call.west)--(call.west);
+\draw[flow] (call)--(effect);
+
+\node[audit,below=12mm of $(task.south)!0.5!(agent.south)$,minimum width=100mm] (trace)
+  {执行溯源 $L$：$e \prec t \prec g \prec c$，记录对象绑定、治理判定与工具结果};
+\draw[evidence] (event.south)--++(0,-4mm)-|(trace.north west);
+\draw[evidence] (task.south)--++(0,-4mm)-|(trace.north);
+\draw[evidence] (call.south)--++(0,-4mm)-|(trace.north east);
+
+\node[font=\scriptsize,fill=white,inner sep=1pt]
+  at ($(d1.north east)!0.5!(d2.north west)+(0,-3mm)$) {TB1};
+\node[font=\scriptsize,fill=white,inner sep=1pt]
+  at ($(d2.north east)!0.5!(d3.north west)+(0,-3mm)$) {TB2};
+\end{tikzpicture}%
+}
+\caption{事件驱动智能体执行模型与信任边界。粗线框表示跨层授权需要绑定的对象，点线表示执行证据写入。}
+\label{fig:execution-model-v1}
+\end{figure}

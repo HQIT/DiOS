@@ -1,0 +1,52 @@
+\begin{figure}[htbp]
+\centering
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\footnotesize,
+  component/.style={draw=black,rounded corners=1.5pt,align=center,fill=white,
+    line width=.45pt,minimum width=24mm,minimum height=9mm,inner xsep=3pt,inner ysep=3pt},
+  proposed/.style={component,double=black,double distance=.7pt},
+  outcome/.style={component,dashed,minimum width=20mm,minimum height=7mm},
+  audit/.style={draw=black,densely dotted,line width=.8pt,rounded corners=2pt,
+    fill=white,align=center,minimum height=8mm},
+  flow/.style={-{Latex[length=1.8mm]},draw=black,line width=.7pt,
+    rounded corners=2pt,line join=round,line cap=round},
+  branch/.style={-{Latex[length=1.6mm]},draw=black,dashed,line width=.65pt,
+    rounded corners=2pt,line join=round,line cap=round},
+  evidence/.style={-{Latex[length=1.5mm]},draw=black,densely dotted,line width=.65pt,
+    rounded corners=2pt,line join=round,line cap=round}
+]
+\node[component] (event) {标准化事件 $e$};
+\node[proposed,right=8mm of event] (contract) {能力契约 $C$\\验证 source--type};
+\node[proposed,right=8mm of contract] (policy) {目标策略 $P_a$\\三态决策};
+\node[component,right=12mm of policy] (task) {创建任务 $t$};
+\node[proposed,right=8mm of task] (grant) {任务能力 $g$\\绑定 trace / task / tool};
+\node[proposed,right=8mm of grant] (validate) {调用验证\\状态 / 绑定 / 工具};
+\node[component,right=8mm of validate] (upstream) {上游工具\\执行副作用};
+
+\node[outcome,below=7mm of contract] (deny) {deny};
+\node[outcome,below=7mm of policy] (approval) {approval};
+\node[outcome,below=7mm of validate] (block) {deny call};
+
+\draw[flow] (event)--(contract);
+\draw[flow] (contract)--node[above,font=\scriptsize]{bound}(policy);
+\draw[flow] (policy)--node[above,font=\scriptsize]{allow}(task);
+\draw[flow] (task)--(grant)--(validate);
+\draw[flow] (validate)--node[above,font=\scriptsize]{allow}(upstream);
+\draw[branch] (contract.south)--(deny.north);
+\draw[branch] (policy.south)--(approval.north);
+\draw[branch] (validate.south)--(block.north);
+
+\node[audit,below=13mm of $(task.south)!0.5!(grant.south)$,minimum width=145mm] (auditlog)
+  {统一执行溯源：contract $\rightarrow$ policy $\rightarrow$ task / approval $\rightarrow$ grant $\rightarrow$ tool result};
+\draw[evidence] (contract.south east)--++(0,-4mm)-|(auditlog.north west);
+\draw[evidence] (task.south)--++(0,-4mm)-|(auditlog.north);
+\draw[evidence] (validate.south west)--++(0,-4mm)-|(auditlog.north east);
+
+\node[below=2mm of auditlog,font=\scriptsize,align=center]
+  {单线框：执行对象\quad 双线框：E2AG 强制机制\quad 虚线框：非执行终态\quad 点线：证据写入};
+\end{tikzpicture}%
+}
+\caption{E2AG 跨层能力生命周期。调度前执行点决定事件能否创建任务，调用时执行点决定模型选择的工具能否产生副作用。}
+\label{fig:method-v1}
+\end{figure}
