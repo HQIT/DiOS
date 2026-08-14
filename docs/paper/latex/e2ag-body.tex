@@ -30,8 +30,10 @@
 \item
   在 DiOS 最新开发基线上实现调度前强制点、三态决策、审计持久化与 A2A trace 传播，提供不依赖模型的确定性测试；
 \item
-  在 60 例冻结威胁矩阵上完成 Contract$\times$Policy 2$\times$2 消融，并以 480 次持久化 Event-to-Agent-to-Tool 执行、100 条因果定位 trace 和并发竞态实验验证双执行点与审计闭环。
+  在 60 例冻结威胁矩阵上完成 Contract$\times$Policy 2$\times$2 消融，并以 480 次持久化 Event-to-Agent-to-Tool 执行、100 条执行依赖定位 trace 和并发竞态实验验证双执行点与审计闭环。
 \end{itemize}
+
+本文的新颖性不在于重新发明 CloudEvents、A2A、MCP、PDP/PEP 或哈希链，而在于定义并实现一个跨层授权生命周期：外部事件先证明 source--type 声明权，再取得目标 Agent 的任务创建权；任务只获得与其 \texttt{trace\_id} 和 \texttt{task\_id} 绑定的工具能力，实际副作用在 MCP 调用点再次强制；各阶段的对象标识和决策结果进入同一执行依赖证据链。由此，事件接入控制和工具运行时控制不再是两个彼此无关的安全检查。
 
 上述工作直接面向专刊所列``智能体协同安全与调度防护机制''问题：契约和策略决定事件能否进入调度，因果审计则为调度防护的度量、异常分析与复核提供证据。
 
@@ -303,11 +305,26 @@ PEP 加载所有候选 Agent 的治理声明并进行合取判定。目标 Agent
 
 策略门控不是一次性接入判断。对于事件触发的 task-mode Agent，原型把远程 streamable HTTP MCP 配置改写到 DiOS 内部 PEP，并签发绑定 trace、task、agent、MCP server 和 allowed tools 的短期 ToolGrant。数据库只存授权令牌 SHA-256 摘要；任务完成、失败或取消时撤销授权，过期或任务绑定不一致的令牌在调用点拒绝。\texttt{tools/list} 响应也按授权模式裁剪，避免先暴露完整工具面。任何越权 \texttt{tools/call} 在接触上游及其长期凭据前被拒绝并写入同一审计链。
 
-\subsection{因果审计}\label{44-ux56e0ux679cux5ba1ux8ba1}
+\subsection{因果审计：执行依赖溯源}\label{44-ux56e0ux679cux5ba1ux8ba1}
 
 每个 EventLog 生成 128 bit 随机 \texttt{trace\_id}。该标识写入 EventLog、A2ATask 和发送给 Agent 的 A2A message 扩展。审计链至少包含 contract、policy 和 dispatch 三个阶段；创建任务后再记录 \texttt{task\_id} 与 \texttt{agent\_id}。每个条目包含 \texttt{sequence}、\texttt{stage}、\texttt{outcome}、\texttt{evidence}、\texttt{previous\_hash} 与 \texttt{entry\_hash}。验证函数可发现内容、顺序、trace 或前驱链接的修改。
 
 被拒绝与待审批事件同样创建 EventLog，但不创建 A2ATask；这既保留攻击证据，也使``审计成功''与``执行发生''解耦。数据库迁移为历史 SQLite 增加相应 JSON/text 字段和 trace 索引。
+
+本文所称``因果''是安全执行溯源中的对象依赖与 happens-before 关系，不是从观测数据估计处理效应的统计因果推断。令事件、任务、工具授权和实际工具调用分别为 $e,t,g,c$，正常执行形成
+\[
+e \prec t \prec g \prec c,
+\]
+需要人工批准时，Approval 位于 $e$ 与 $t$ 之间。E2AG 在 \texttt{enforce} 模式下维护四个可检查不变量：
+
+\begin{enumerate}[label=\textbf{I\arabic*.},leftmargin=3.2em]
+\item \textbf{任务接入不变量。} 创建 $t$ 必须已有同一 trace 上的契约允许，并满足策略直接允许，或策略要求审批且 Approval 已批准；$\operatorname{trace}(t)=\operatorname{trace}(e)$。
+\item \textbf{副作用授权不变量。} 上游收到工具调用 $c$ 必须存在状态为 active、未过期且未撤销的 $g$；其 \texttt{trace\_id/task\_id/agent\_id/mcp\_server\_id} 与当前执行对象一致，且 $\operatorname{tool}(c)\in\operatorname{allowed\_tools}(g)$。
+\item \textbf{审批线性不变量。} 一个 Approval 只能从 pending 单次转移到 approved、rejected 或 expired；只有 approved 能沿原 trace 恢复一次 fan-out。
+\item \textbf{证据连续性不变量。} 对同一 trace 的第 $i$ 个条目，$\texttt{sequence}=i$ 且 $\texttt{previous\_hash}_i=\texttt{entry\_hash}_{i-1}$；条目证据中的 event/task/grant/tool 标识必须符合上述依赖关系。
+\end{enumerate}
+
+I1--I3 是执行安全属性，I4 是持久化证据属性。当前哈希链证明存储后的顺序和内容没有发生链内修改，但没有外部 head/count 锚点，因而不把它表述为一般程序根因分析、统计因果推断或不可抵赖日志。
 
 \section{原型实现}\label{sec:implementation}
 
@@ -404,7 +421,7 @@ G1R1 & 30/30 & 0/30 & 0/30 & 0/30（审批） \\
 
 调度前 PEP 能阻断伪造来源并把高风险动作转为审批，但不能阻止任务创建后的工具升级；MCP PEP 能阻断未授权工具，却无法判断获准工具是否由伪造来源触发。G1R1 保持 30/30 个正常副作用，并使三类禁止副作用均为 0/30。480/480 条链通过哈希校验且包含路径所需阶段。确定性 Agent/MCP 替身证明系统强制路径，而非 LLM 识别恶意语义的能力。
 
-\subsection{RQ3：因果阶段定位}
+\subsection{RQ3：执行依赖阶段定位}
 
 {
 \begin{longtable}[]{@{}lrrrr@{}}

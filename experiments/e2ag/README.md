@@ -16,6 +16,7 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_frozen_ablation.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_e2e_chain_experiment.py --repeats 30
 backend\.venv\Scripts\python.exe experiments/e2ag/run_causal_audit_experiment.py --repeats 20
 backend\.venv\Scripts\python.exe experiments/e2ag/run_concurrency_experiment.py --levels 8,32 --rounds 100
+backend\.venv\Scripts\python.exe experiments/e2ag/prepare_independent_review.py
 python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 500
@@ -33,6 +34,12 @@ authorization scripts remain development and supplementary checks.
 `frozen_cases.jsonl` is immutable by protocol once reviewed.  Its current
 SHA-256 and review status are stored in `results/frozen_ablation_summary.json`;
 independent collaborator label review is still pending.
+
+`prepare_independent_review.py` creates a deterministically shuffled blind
+sheet and a separate author-label mapping under `review/`. Give only the blind
+sheet to a collaborator who did not construct the corpus. After it is returned,
+`summarize_independent_review.py` validates all 60 rows, reports raw agreement
+and Cohen's kappa, and creates an adjudication table for disagreements.
 
 The runner evaluates three modes:
 
@@ -63,7 +70,7 @@ and tools before an LLM runs. Semantic payload attacks that remain within those
 declared bounds are not classified. The task-scoped remote MCP gateway instead
 constrains their effects: `run_tool_gateway_experiment.py` compares dispatch-only
 authorization with the runtime allow-list over ten deterministic tool/method
-cases. The 26 backend tests additionally verify that denied calls never reach
+cases. The 30 backend tests additionally verify that denied calls never reach
 the mocked upstream, authorized calls do, `tools/list` is filtered, grants
 expire/revoke, and unmediated stdio transport is withheld in enforce mode.
 

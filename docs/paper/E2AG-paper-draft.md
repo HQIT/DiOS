@@ -2,7 +2,7 @@
 
 > 投稿目标：《软件学报》“人工智能操作系统及其安全”专刊
 >
-> 稿件状态：匿名审稿主稿 V0.7（2026-08-14）
+> 稿件状态：匿名审稿主稿 V0.8（2026-08-14）
 >
 > 匿名状态：作者、单位、通讯方式及可识别仓库版本信息已从审稿稿件移除
 >
@@ -47,7 +47,9 @@ Event-driven agent operating systems connect external events to agent runtimes a
 - 提出 Event-to-Agent 跨层威胁模型，区分事件格式合规、来源声明权、目标能力授权和执行证据完整性；
 - 设计“契约接入—策略门控—因果审计”统一控制链，并说明三项机制的职责边界；
 - 在 DiOS 最新开发基线上实现调度前强制点、三态决策、审计持久化与 A2A trace 传播，提供不依赖模型的确定性测试；
-- 在 60 例冻结威胁矩阵上完成 Contract×Policy 2×2 消融，并以 480 次持久化 Event→Agent→Tool 执行、100 条因果定位 trace 和并发竞态实验验证双执行点与审计闭环。
+- 在 60 例冻结威胁矩阵上完成 Contract×Policy 2×2 消融，并以 480 次持久化 Event→Agent→Tool 执行、100 条执行依赖定位 trace 和并发竞态实验验证双执行点与审计闭环。
+
+本文的新颖性不在于重新发明 CloudEvents、A2A、MCP、PDP/PEP 或哈希链，而在于定义并实现一个跨层授权生命周期：外部事件先证明 source–type 声明权，再取得目标 Agent 的任务创建权；任务只获得与其 `trace_id` 和 `task_id` 绑定的工具能力，实际副作用在 MCP 调用点再次强制；各阶段的对象标识和决策结果进入同一执行依赖证据链。由此，事件接入控制和工具运行时控制不再是两个彼此无关的安全检查。
 
 上述工作直接面向专刊所列“智能体协同安全与调度防护机制”问题：契约和策略决定事件能否进入调度，因果审计则为调度防护的度量、异常分析与复核提供证据。
 
@@ -229,11 +231,20 @@ PEP 加载所有候选 Agent 的治理声明并进行合取判定。目标 Agent
 
 策略门控不是一次性接入判断。对于事件触发的 task-mode Agent，原型把远程 `streamable_http` MCP 配置改写到 DiOS 内部 PEP，并签发绑定 `trace_id/task_id/agent_id/mcp_server_id` 和 `allowed_tools` 的短期 ToolGrant。数据库只存授权令牌 SHA-256 摘要；任务完成、失败或取消时撤销授权，过期或任务绑定不一致的令牌在调用点拒绝。`tools/list` 响应也按授权模式裁剪，避免先暴露完整工具面。任何越权 `tools/call` 在接触上游及其长期凭据前被拒绝并写入同一审计链。
 
-### 4.4 因果审计
+### 4.4 因果审计：执行依赖溯源
 
 每个 EventLog 生成 128 bit 随机 `trace_id`。该标识写入 EventLog、A2ATask 和发送给 Agent 的 A2A message 扩展。审计链至少包含 contract、policy 和 dispatch 三个阶段；创建任务后再记录 `task_id` 与 `agent_id`。每个条目包含 `sequence`、`stage`、`outcome`、`evidence`、`previous_hash` 与 `entry_hash`。验证函数可发现内容、顺序、trace 或前驱链接的修改。
 
 被拒绝与待审批事件同样创建 EventLog，但不创建 A2ATask；这既保留攻击证据，也使“审计成功”与“执行发生”解耦。数据库迁移为历史 SQLite 增加相应 JSON/text 字段和 trace 索引。
+
+本文所称“因果”是安全执行溯源中的对象依赖与 happens-before 关系，不是从观测数据估计处理效应的统计因果推断。令事件、任务、工具授权和实际工具调用分别为 $e,t,g,c$，正常执行形成 $e\prec t\prec g\prec c$；需要人工批准时，Approval 位于 $e$ 与 $t$ 之间。E2AG 在 `enforce` 模式下维护四个可检查不变量：
+
+1. **任务接入不变量 I1。** 创建 $t$ 必须已有同一 trace 上的契约允许，并满足策略直接允许，或策略要求审批且 Approval 已批准；`trace(t)=trace(e)`。
+2. **副作用授权不变量 I2。** 上游收到工具调用 $c$ 必须存在状态为 active、未过期且未撤销的 $g$；其 `trace_id/task_id/agent_id/mcp_server_id` 与当前执行对象一致，且 `tool(c)` 属于 `allowed_tools(g)`。
+3. **审批线性不变量 I3。** 一个 Approval 只能从 pending 单次转移到 approved、rejected 或 expired；只有 approved 能沿原 trace 恢复一次 fan-out。
+4. **证据连续性不变量 I4。** 对同一 trace 的第 $i$ 个条目，`sequence=i` 且 `previous_hash_i=entry_hash_{i-1}`；条目证据中的 event/task/grant/tool 标识必须符合上述依赖关系。
+
+I1–I3 是执行安全属性，I4 是持久化证据属性。当前哈希链证明存储后的顺序和内容没有发生链内修改，但没有外部 head/count 锚点，因而不把它表述为一般程序根因分析、统计因果推断或不可抵赖日志。
 
 ## 5 原型实现
 
@@ -298,7 +309,7 @@ C1P0 只阻断 10 个契约绑定攻击；C0P1 阻断 16 个目标能力攻击�
 
 调度前 PEP 能阻断伪造来源并将高风险动作转为审批，但不能阻止任务创建后的工具升级；MCP PEP 能阻断未授权工具，却无法判断一个获准工具是否由伪造来源触发。G1R1 保持 30/30 个正常副作用，并使三类禁止副作用均为 0/30。480/480 条链通过哈希校验且包含各自路径所需阶段。该实验使用确定性 Agent 和 MCP 测试替身，证明的是系统强制路径，而非 LLM 识别恶意语义的能力。
 
-### 7.3 RQ3：因果阶段定位
+### 7.3 RQ3：执行依赖阶段定位
 
 | 注入故障 | trace 数 | 正确定位 | 链有效 | 阶段完整 |
 |---|---:|---:|---:|---:|
@@ -435,7 +446,7 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeat
 
 ## 附录 B：投稿前与后续实证项
 
-1. 投稿前由一名合作者独立复核 60 例冻结集标签并记录修改历史；
+1. 投稿前由一名未参与语料构造的合作者完成 60 例盲表复核，报告原始一致率、Cohen's kappa 和分歧处理历史；盲表与汇总脚本已经生成，人工填写仍待完成；
 2. 扩展工具 PEP 到 SSE、受控 stdio、service-mode Agent 与 Skill 调用；
 3. 将审批接入独立 IdP/RBAC，并增加多人复核与职责分离；
 4. 实测 PostgreSQL 并发语义、真实 HTTP 代理与远端 MCP；
