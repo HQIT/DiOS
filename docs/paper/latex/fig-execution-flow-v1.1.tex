@@ -37,7 +37,7 @@
 % Conditional and terminal states are compact capsules, not competing boxes.
 \node[outcome] (deny) at (3.15,1.40) {拒绝终止};
 \node[outcome] (approval) at (6.05,1.40) {等待审批};
-\node[outcome] (denycall) at (10.90,1.40) {调用拒绝};
+\node[outcome] (denycall) at (11.10,1.40) {调用拒绝};
 
 % Primary left-to-right execution path.
 \draw[dataflow] (event.east)--(admit.west);
@@ -46,14 +46,10 @@
 \draw[dataflow] (authorize.east)--(effect.west);
 
 % Governance branches use explicit orthogonal tracks in the upper routing row.
-\draw[control] ($(admit.north)+(-7mm,0)$)
-  -- ($(admit.north)+(-7mm,4mm)$)
-  -- (4.45,0.95)
+\draw[control] ($(admit.north)+(-1.5mm,0)$)
   -- (4.45,1.40)
   -- (deny.east);
-\draw[control] ($(admit.north)+(7mm,0)$)
-  -- ($(admit.north)+(7mm,4mm)$)
-  -- (4.75,0.95)
+\draw[control] ($(admit.north)+(1.5mm,0)$)
   -- (4.75,1.40)
   -- (approval.west);
 \draw[control] (approval.east)
@@ -61,10 +57,8 @@
   -- node[right,font=\scriptsize,fill=white,inner sep=1pt]{审批通过}
      ($(task.north)+(0,4mm)$)
   -- (task.north);
-\draw[control] (authorize.north)
-  -- (10.90,0.95)
-  -- (9.60,0.95)
-  -- (9.60,1.40)
+\draw[control] ($(authorize.north)+(-11.5mm,0)$)
+  -- (9.75,1.40)
   -- (denycall.west);
 
 % Evidence writes are visually secondary and terminate at one complete trace.
