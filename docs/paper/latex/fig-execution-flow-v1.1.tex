@@ -3,66 +3,82 @@
 \begin{tikzpicture}[
   font=\footnotesize,
   component/.style={draw=black,rounded corners=1.8pt,align=center,fill=white,
-    line width=.50pt,minimum width=24mm,minimum height=11mm,
+    line width=.50pt,minimum width=23mm,minimum height=11mm,
     inner xsep=4pt,inner ysep=3.5pt},
   proposed/.style={component,double=black,double distance=.75pt,line width=.65pt},
-  outcome/.style={component,densely dashed,line width=.68pt,
-    minimum width=18mm,minimum height=8mm},
+  outcome/.style={draw=black,rounded corners=7pt,align=center,fill=white,
+    line width=.50pt,minimum width=19mm,minimum height=7mm,
+    inner xsep=4pt,inner ysep=2pt},
   audit/.style={draw=black,densely dotted,line width=.80pt,rounded corners=2pt,
     fill=white,align=center,minimum height=10mm,inner xsep=5pt,inner ysep=4pt},
   lane/.style={draw=black!70,rounded corners=3pt,fill=white,line width=.45pt},
-  flow/.style={-{Latex[length=1.9mm]},draw=black,line width=.78pt,
+  dataflow/.style={-{Latex[length=1.9mm]},draw=black,line width=.78pt,
     rounded corners=2.5pt,line join=round,line cap=round},
-  branch/.style={-{Latex[open,length=1.9mm,width=1.6mm]},draw=black,line width=.64pt,
+  control/.style={-{Latex[open,length=1.9mm,width=1.6mm]},draw=black,line width=.68pt,
     rounded corners=2.5pt,line join=round,line cap=round},
-  evidence/.style={-{Stealth[open,length=1.9mm,width=1.6mm]},draw=black,line width=.56pt,
-    rounded corners=2.5pt,line join=round,line cap=round}
+  evidence/.style={-{Stealth[open,length=1.9mm,width=1.6mm]},draw=black,
+    densely dotted,line width=.65pt,rounded corners=2.5pt,
+    line join=round,line cap=round}
 ]
-% Main path reduced to five stage objects and drawn at final width.
-\node[component] (event) at (1.35,0) {标准化事件 $e$};
-\node[proposed,minimum width=30mm] (admit) at (4.65,0)
+% The main execution lane uses five grid-aligned columns. Every object remains
+% inside the common 154 mm frame; branch outcomes occupy a separate upper row.
+\node[component] (event) at (1.35,0)
+  {标准化事件 $e$};
+\node[proposed,minimum width=29mm] (admit) at (4.35,0)
   {调度前 PEP\\契约判定 $+$ 目标策略};
-\node[component] (task) at (8.00,0)
+\node[component,minimum width=25mm] (task) at (7.50,0)
   {A2A Task $t$\\任务能力 $g$};
-\node[proposed,minimum width=30mm] (authorize) at (11.35,0)
+\node[proposed,minimum width=29mm] (authorize) at (10.70,0)
   {调用时 PEP\\状态 $+$ 绑定 $+$ 工具};
-\node[component] (effect) at (14.65,0)
-  {上游工具\\副作用 $o$};
+\node[component] (effect) at (14.00,0)
+  {工具副作用 $o$};
 
-% Non-main outcomes stay above the execution lane.
-\node[outcome] (deny) at (3.55,1.25) {deny};
-\node[outcome] (approval) at (5.75,1.25) {approval\\pending};
-\node[outcome] (denycall) at (11.35,1.25) {deny call};
+% Conditional and terminal states are compact capsules, not competing boxes.
+\node[outcome] (deny) at (3.25,1.50) {拒绝终止};
+\node[outcome] (approval) at (6.00,1.50) {等待审批};
+\node[outcome] (denycall) at (10.70,1.50) {调用拒绝};
 
-\draw[flow] (event.east)--(admit.west);
-\draw[flow] (admit.east)--(task.west);
-\draw[flow] (task.east)--(authorize.west);
-\draw[flow] (authorize.east)--(effect.west);
+% Primary left-to-right execution path.
+\draw[dataflow] (event.east)--(admit.west);
+\draw[dataflow] (admit.east)--(task.west);
+\draw[dataflow] (task.east)--(authorize.west);
+\draw[dataflow] (authorize.east)--(effect.west);
 
-\draw[branch] ($(admit.north)+(-11mm,0)$)--(deny.south);
-\draw[branch] ($(admit.north)+(11mm,0)$)--(approval.south);
-\draw[branch] (approval.east)--++(5mm,0)--(8.00,1.25)--
-  node[right,font=\scriptsize,fill=white,inner sep=1pt]{approved}(task.north);
-\draw[branch] (authorize.north)--(denycall.south);
+% Governance branches use explicit orthogonal tracks in the upper routing row.
+\draw[control] ($(admit.north)+(-7mm,0)$)
+  -- ($(admit.north)+(-7mm,4mm)$)
+  -- (deny.south |- {$(admit.north)+(-7mm,4mm)$})
+  -- (deny.south);
+\draw[control] ($(admit.north)+(7mm,0)$)
+  -- ($(admit.north)+(7mm,4mm)$)
+  -- (approval.south |- {$(admit.north)+(7mm,4mm)$})
+  -- (approval.south);
+\draw[control] (approval.east)
+  -- ++(6mm,0)
+  -- node[right,font=\scriptsize,fill=white,inner sep=1pt]{审批通过}
+     ($(task.north)+(0,4mm)$)
+  -- (task.north);
+\draw[control] (authorize.north)--(denycall.south);
 
-\node[audit,minimum width=145mm] (auditlog) at (7.75,-1.45)
-  {统一执行溯源：Event $\rightarrow$ Decision $\rightarrow$ Task / Approval
-   $\rightarrow$ Grant $\rightarrow$ Tool result};
+% Evidence writes are visually secondary and terminate at one complete trace.
+\node[audit,minimum width=145mm] (auditlog) at (7.75,-1.55)
+  {完整执行轨迹：Event $\rightarrow$ Decision $\rightarrow$ Task / Approval
+   $\rightarrow$ Grant $\rightarrow$ ToolCall $\rightarrow$ Result};
 \draw[evidence] (admit.south)--(admit.south |- auditlog.north);
 \draw[evidence] (task.south)--(task.south |- auditlog.north);
 \draw[evidence] (authorize.south)--(authorize.south |- auditlog.north);
 
 \begin{pgfonlayer}{background}
-  \node[lane,minimum width=154mm,minimum height=25mm]
-    (flowlane) at (7.75,0.50) {};
+  \node[lane,minimum width=154mm,minimum height=29mm]
+    (flowlane) at (7.75,0.55) {};
   \node[lane,minimum width=154mm,minimum height=12mm]
-    (auditlane) at (7.75,-1.40) {};
+    (auditlane) at (7.75,-1.55) {};
 \end{pgfonlayer}
 \node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
-  at (0.75,1.75) {主执行路径：准入 $\rightarrow$ 任务 $\rightarrow$ 工具};
+  at (0.75,2.00) {执行平面：跨层授权状态机};
 \node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
-  at (0.75,-0.80) {证据记录};
+  at (0.75,-0.95) {证据平面：执行事实写入};
 \end{tikzpicture}
-\caption{E2AG 跨层授权执行流程。两个等宽区域共享左右边界；实心、空心三角和空心燕尾箭头分别表示主路径、审批分支和证据写入。}
+\caption{E2AG 跨层授权执行流程。两个等宽平面共享左右边界；实心箭头表示主执行路径，空心三角箭头表示治理分支，点线空心燕尾箭头表示证据写入，圆角胶囊表示暂停或终止状态。}
 \label{fig:execution-flow-v11}
 \end{figure}
