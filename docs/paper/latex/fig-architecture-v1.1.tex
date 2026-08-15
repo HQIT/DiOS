@@ -1,0 +1,79 @@
+\begin{figure}[htbp]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\footnotesize,
+  component/.style={draw=black,rounded corners=1.5pt,align=center,fill=white,
+    line width=.45pt,minimum width=25mm,minimum height=9mm,inner xsep=3pt,inner ysep=3pt},
+  proposed/.style={component,double=black,double distance=.7pt},
+  state/.style={component,densely dashed,line width=.65pt,minimum width=27mm},
+  external/.style={component,line width=.7pt,minimum width=25mm},
+  plane/.style={draw=black!65,rounded corners=3pt,fill=white,
+    inner xsep=4mm,inner ysep=5mm},
+  audit/.style={draw=black,densely dotted,line width=.8pt,rounded corners=2pt,
+    fill=white,align=center,minimum height=9mm},
+  dataflow/.style={-{Latex[length=1.8mm]},draw=black,line width=.75pt,
+    rounded corners=2pt,line join=round,line cap=round},
+  control/.style={-{Latex[length=1.6mm]},draw=black,densely dashed,line width=.7pt,
+    rounded corners=2pt,line join=round,line cap=round},
+  evidence/.style={-{Latex[length=1.5mm]},draw=black,densely dotted,line width=.7pt,
+    rounded corners=2pt,line join=round,line cap=round}
+]
+% External domains and execution plane.
+\node[external] (source) at (0,0) {外部事件域\\Git / Mail / Webhook};
+\node[component] (connector) at (3.1,0) {Connector\\标准化与身份适配};
+\node[proposed] (dispatch) at (6.1,0) {调度前 PEP\\契约与目标准入};
+\node[component] (runtime) at (9.1,0) {任务与智能体运行时\\A2A Task / Agent};
+\node[proposed] (mcppep) at (12.1,0) {调用时 PEP\\能力与工具验证};
+\node[external] (tool) at (15.2,0) {外部工具域\\MCP / Service / Device};
+
+% Governance plane: columns align with the execution points they govern.
+\node[state] (registry) at (3.1,2.60) {契约与策略库\\版本化持久状态};
+\node[proposed] (pdp) at (6.1,2.60) {治理判定器\\PDP / 三态策略};
+\node[proposed] (approval) at (9.1,2.60) {审批管理器\\单次终态转移};
+\node[proposed] (grantmgr) at (12.1,2.60) {任务能力管理器\\签发 / 过期 / 撤销};
+
+% Evidence plane.  The collector spans all three execution evidence sources.
+\node[audit,minimum width=70mm] (trace) at (7.65,-2.45)
+  {执行证据汇聚：Event $\rightarrow$ Decision $\rightarrow$ Task / Approval $\rightarrow$ Grant $\rightarrow$ ToolCall};
+\node[state,minimum width=25mm] (auditstore) at (12.55,-2.45) {审计存储\\序号 / 前驱哈希};
+\node[component] (verifier) at (15.25,-2.45) {轨迹验证器\\性质与首错定位};
+
+% Primary execution data flow.
+\draw[dataflow] (source.east)--node[above,font=\scriptsize]{TB1}(connector.west);
+\draw[dataflow] (connector.east)--(dispatch.west);
+\draw[dataflow] (dispatch.east)--(runtime.west);
+\draw[dataflow] (runtime.east)--(mcppep.west);
+\draw[dataflow] (mcppep.east)--node[above,font=\scriptsize]{TB2}(tool.west);
+
+% Governance/control relations, routed orthogonally.
+\draw[control] (registry.east)--(pdp.west);
+\draw[control] (pdp.south)--(dispatch.north);
+\draw[control] (approval.south)--(runtime.north);
+\draw[control] (grantmgr.south)--(mcppep.north);
+
+% Evidence relations are vertical and terminate at separate collector anchors.
+\draw[evidence] (dispatch.south)--(dispatch.south |- trace.north);
+\draw[evidence] (runtime.south)--(runtime.south |- trace.north);
+\draw[evidence] (mcppep.south)--++(0,-6mm)-|(trace.north east);
+\draw[evidence] (trace.east)--(auditstore.west);
+\draw[dataflow] (auditstore.east)--(verifier.west);
+
+% Plane boundaries are in the background and do not cut through connectors.
+\begin{pgfonlayer}{background}
+  \node[plane,fit=(registry)(pdp)(approval)(grantmgr),
+    label={[font=\footnotesize\bfseries]above:治理平面（决策与授权状态）}] (govplane) {};
+  \node[plane,fit=(connector)(dispatch)(runtime)(mcppep),
+    label={[font=\footnotesize\bfseries]above left:执行平面（完整中介路径）}] (execplane) {};
+  \node[plane,fit=(trace)(auditstore)(verifier),
+    label={[font=\footnotesize\bfseries]below left:证据平面（可验证执行依赖）}] (evidenceplane) {};
+\end{pgfonlayer}
+
+\node[below=4mm of evidenceplane,font=\scriptsize,align=center]
+  {单线框：既有执行组件\quad 双线框：E2AG 强制组件\quad 虚线框：持久状态\quad
+   实线箭头：执行数据\quad 虚线箭头：治理控制\quad 点线箭头：证据写入};
+\end{tikzpicture}%
+}
+\caption{E2AG 总体架构。治理平面拥有契约、策略、审批与任务能力，两个 PEP 在执行平面实施完整中介，证据平面记录并验证跨层对象依赖。}
+\label{fig:architecture-v11}
+\end{figure}
