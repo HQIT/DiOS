@@ -17,27 +17,27 @@ CloudEvents、A2A 和 MCP 分别规定事件、任务和工具调用对象\cite{
 \begin{enumerate}
   \item 提出事件驱动 AIOS 的跨层授权问题，统一刻画事件声明权、任务创建权与工具副作用权，给出可由算法和实验共同检查的安全性质；
   \item 设计 E2AG 三平面架构、任务作用域能力和双执行点完整中介算法，使工具调用不能脱离触发它的事件与任务单独获得权限；
-  \item 在真实事件驱动智能体操作系统原型中实现 E2AG，并通过完整消融、持久化端到端执行、真实模型决策配对回放、故障注入和并发状态实验验证各机制的独立作用与组合效果；
+  \item 在真实事件驱动智能体操作系统原型中实现 E2AG，并通过完整消融、持久化端到端执行、既有模型决策配对回放、故障注入和并发状态实验验证各机制的独立作用与组合效果；
   \item 公开区分已验证范围与外部有效性边界：当前证据支持单一 AIOS 原型上的副作用可达性与治理状态性质，不外推为任意提示词注入检测、所有工具传输覆盖或跨 AIOS 通用性。
 \end{enumerate}
 
-本文其余部分组织如下：第1节介绍相关协议、智能体运行时防护与访问控制基础；第2节给出系统模型、攻击者能力和安全目标；第3节介绍 E2AG 总体架构；第4节给出跨层治理机制、算法与性质分析；第5节说明原型实现；第6节报告实验；第7节讨论适用边界与有效性威胁；第8节总结全文。
+本文其余部分组织如下：第1节介绍相关协议、智能体运行时防护与访问控制基础；第2节给出系统模型、不可信输入能力和安全目标；第3节介绍 E2AG 总体架构；第4节给出跨层治理机制、算法与性质分析；第5节说明原型实现；第6节报告实验；第7节讨论适用边界与有效性威胁；第8节总结全文。
 
 \section{背景与相关工作}\label{sec:related-v11}
 
-\subsection{智能体攻击与评测}
+\subsection{智能体风险与评测}
 
-间接提示词注入利用智能体读取的不可信数据混淆指令与内容，使攻击者无需直接控制用户提示即可影响模型行为。InjecAgent 以工具集成任务评估间接注入，AgentDojo 提供包含任务、工具和攻击的动态环境，ToolEmu 则以模型模拟工具执行结果以扩大长尾风险测试范围\cite{injecagent,agentdojo,toolemu}。国内研究从模型自身安全、生成内容安全、隐私泄露和智能体可信等角度形成了风险分类与缓解框架\cite{huang-llm-safety,mu-llm-security,zhang-agent-security}。这些工作主要观测模型是否产生危险决策；E2AG 不对自然语言进行攻击分类，而是约束危险决策在真实系统执行链中的可达性。
+间接提示词注入源于智能体把不可信数据同时解释为内容和指令，因而可能改变模型行为。InjecAgent 以工具集成任务评估间接注入，AgentDojo 提供包含任务、工具和注入情形的动态环境，ToolEmu 则以模型模拟工具执行结果以扩大长尾风险测试范围\cite{injecagent,agentdojo,toolemu}。国内研究从模型自身安全、生成内容安全、隐私泄露和智能体可信等角度形成了风险分类与缓解框架\cite{huang-llm-safety,mu-llm-security,zhang-agent-security}。这些工作主要观测模型是否产生违规工具决策；E2AG 不判定自然语言意图类别，而是约束该决策在真实系统执行链中的可达性。
 
 \subsection{智能体运行时防护}
 
-AgentSpec 通过领域专用规则描述触发条件、谓词和动作，在智能体运行时拦截危险操作\cite{agentspec}。CaMeL 从可信查询提取控制流和数据流，并用能力约束不可信数据对程序流与敏感数据外泄的影响\cite{camel}。二者说明安全决策需要位于模型之外的确定性系统层。E2AG 与其共享运行时强制原则，但保护对象和授权起点不同：AgentSpec 约束动作，CaMeL 约束模型程序的数据流与能力，E2AG 把授权起点前移到外部事件，并把事件来源、任务身份和工具能力绑定为同一生命周期。对已授权工具的参数级数据流攻击仍应由 CaMeL 类机制或参数谓词补充。
+AgentSpec 通过领域专用规则描述触发条件、谓词和动作，在智能体运行时强制执行动作规则\cite{agentspec}。CaMeL 从可信查询提取控制流和数据流，并用能力约束不可信数据对程序流与敏感数据外泄的影响\cite{camel}。二者说明安全决策需要位于模型之外的确定性系统层。新近工作进一步把授权置于工具调用或智能体运行时：OAP 在调用前执行声明式策略并生成签名审计记录\cite{oap}；ToolGuardian 结合工具准入表征与任务感知的声明式授权\cite{toolguardian}；CASA 将确定性消息约束与任务--工具语义匹配结合\cite{casa}；Agent libOS 则以显式能力中介进程、工具、资源和审批原语\cite{agent-libos}。这些方法共同证明了调用前授权的重要性，但其授权起点主要是用户任务、运行时进程或待调用工具。E2AG 进一步处理 Connector 外部事件的声明权，并把事件、系统任务和调用能力绑定为同一生命周期。对已授权工具的参数级数据流约束仍应由 CaMeL 类机制或参数谓词补充。
 
 \subsection{协议、参考监控器与能力系统}
 
 CloudEvents、A2A 与 MCP 分别定义事件、任务和工具调用对象\cite{cloudevents,a2a,mcp}，但格式互操作不等于授权传播。PDP/PEP 分离支持在执行点实施结构化策略\cite{opa}；参考监控器和完整中介原则要求所有安全相关访问经过不可绕过且足够小的检查机制\cite{reference-monitor,saltzer-schroeder}；能力系统把访问权封装为可传递、可收缩的对象\cite{dennis-capability,cap-os,macaroons}。W3C Trace Context 解决跨服务标识传播，哈希链接和 in-toto 用于验证过程记录的连续性与步骤依赖\cite{trace-context,haber-stornetta,in-toto}。E2AG 的贡献不是重新定义这些协议或密码结构，而是把它们组织为事件--任务--工具三层的授权传播和完整中介。
 
-表~\ref{tab:related-scope-v11} 按保护对象、执行点和证据类型比较代表性方法。协议标准不承担治理，现有运行时方法集中于动作或数据流；E2AG 同时约束事件声明、任务创建和工具副作用，并把三个判定关联到同一执行证据。
+表~\ref{tab:related-scope-v11} 按保护对象、执行点和证据类型比较代表性方法。协议标准不承担治理，现有运行时方法集中于动作、任务意图或数据流；E2AG 同时约束事件声明、系统任务创建和工具副作用，并把三个判定关联到同一执行证据。由于这些方法的输入主体和保护对象不同，本文只进行机制范围比较，数值实验采用共享代码路径的治理位置基准，避免把不同系统的公开结果直接排序。
 
 \begin{table}[htbp]
 \centering
@@ -49,8 +49,12 @@ CloudEvents、A2A 与 MCP 分别定义事件、任务和工具调用对象\cite{
 方法 & 事件来源绑定 & 任务创建门控 & 工具调用强制 & 跨层执行证据 \\
 \midrule
 CloudEvents & -- & -- & -- & -- \\
-AgentSpec & -- & -- & $\checkmark$ & 局部 \\
+AgentSpec & -- & -- & $\checkmark$ & 局部规则 \\
 CaMeL & -- & -- & $\checkmark$ & 控制/数据流 \\
+OAP & -- & -- & $\checkmark$ & 签名调用记录 \\
+ToolGuardian & -- & -- & $\checkmark$ & 策略判定 \\
+CASA & -- & -- & $\checkmark$ & 任务--工具匹配 \\
+Agent libOS & -- & -- & $\checkmark$ & 进程/能力记录 \\
 E2AG & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 \bottomrule
 \end{tabular}
@@ -60,7 +64,7 @@ E2AG & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 
 \subsection{问题胶囊与信任边界}
 
-本文研究如下系统：多个外部事件源经 Connector 接入 AIOS，AIOS 创建智能体任务，模型在任务中选择工具，工具调用对外部资源产生副作用。外部事件源及其载荷不可信；AIOS 治理代码、策略库和持久化状态属于可信计算基；模型输出不作为授权依据；外部工具只信任经过调用 PEP 的请求。被保护资产是任务创建权、工具凭据和外部副作用。攻击者可伪造事件字段、重放事件或通过载荷改变模型工具选择，但不能直接修改治理代码、策略和数据库。目标是在不分析自然语言恶意性的前提下，使每个上游副作用都可追溯到合法事件、获准任务和有效任务能力。参数级数据流、治理主机失陷和外部存储整体回滚不在本文范围内。
+本文研究如下系统：多个外部事件源经 Connector 接入 AIOS，AIOS 创建智能体任务，模型在任务中选择工具，工具调用对外部资源产生副作用。外部事件源及其载荷不可信；AIOS 治理代码、策略库和持久化状态属于可信计算基；模型输出不作为授权依据；外部工具只信任经过调用 PEP 的请求。被保护资产是任务创建权、工具凭据和外部副作用。不可信来源可能提交不一致事件字段、重复事件，或通过载荷改变模型工具选择；本文假设其不能直接修改治理代码、策略和数据库。目标是在不分析自然语言意图类别的前提下，使每个上游副作用都可追溯到合法事件、获准任务和有效任务能力。参数级数据流、治理主机失陷和外部存储整体回滚不在本文范围内。
 
 设来源主体集合、智能体集合和工具服务集合分别为 $\mathcal{S}$、$\mathcal{A}$ 和 $\mathcal{M}$。一次执行涉及事件 $e$、任务 $t$、任务能力 $g$、工具调用 $c$ 与外部副作用 $o$。系统状态写为
 \begin{equation}
@@ -205,7 +209,7 @@ l_i.previous\_hash=h_{i-1}.
 \subsection{安全性与复杂度分析}
 
 \noindent\textbf{命题1（双执行点完整中介）.}
-若（A1）所有事件驱动任务只能由 GovernEvent 创建，（A2）所有产生外部副作用的 MCP 调用只能由 AuthorizeCall 转发，（A3）治理状态不能被攻击者直接修改，则算法~\ref{alg:e2ag-v11} 保持式~\eqref{eq:end-to-end-safety-v11}。
+若（A1）所有事件驱动任务只能由 GovernEvent 创建，（A2）所有产生外部副作用的 MCP 调用只能由 AuthorizeCall 转发，（A3）治理状态不能被不可信输入方直接修改，则算法~\ref{alg:e2ag-v11} 保持式~\eqref{eq:end-to-end-safety-v11}。
 
 \noindent\textbf{证明概要.}
 设调用 $c$ 已产生外部副作用。由 A2，它必经过 AuthorizeCall 且未在状态、期限、绑定或工具成员检查处返回 deny，因此存在满足 $\operatorname{ValidGrant}$ 且 $tool(c)\in U(g)$ 的 $g$。能力只由 GovernEvent 在任务创建分支签发；由 A1 和算法第2--14行，该分支只能在 $B_C(e)$ 成立且策略允许或审批已原子批准时执行，故 $\operatorname{Admit}(e,a)$ 成立，并建立 $e\prec t\prec g$。AuthorizeCall 接收同一绑定对象并追加调用，得到 $e\prec t\prec g\prec c$，从而式~\eqref{eq:end-to-end-safety-v11} 成立。若移除任一假设或 PEP，可分别构造来源绑定不满足或任务后集合外请求的反例；第6节以配对执行观测这些反例的上游可达性。\hfill$\square$
@@ -214,7 +218,7 @@ l_i.previous\_hash=h_{i-1}.
 
 \section{原型系统实现}\label{sec:implementation-v11}
 
-本文在 DiOS 事件驱动智能体操作系统原型上实现 E2AG。原型已有 Connector、CloudEvents 标准化、订阅匹配、事件调度、A2A Task 和 MCP 配置管理。E2AG 增加契约与策略判定器、调度前 PEP、审批管理器、任务能力管理器、MCP 调用 PEP 和执行证据验证器。
+本文在一个开源事件驱动智能体操作系统原型上实现 E2AG。为保持匿名评审，仓库、分支和部署地址在当前稿件中以角色名表示，解除匿名后公开。原型已有 Connector、CloudEvents 标准化、订阅匹配、事件调度、A2A Task 和 MCP 配置管理。E2AG 增加契约与策略判定器、调度前 PEP、审批管理器、任务能力管理器、MCP 调用 PEP 和执行证据验证器。
 
 调度前 PEP 位于所有 Connector 汇合到 A2ATask 创建的统一 dispatcher。EventLog 保存事件及契约判定，A2ATask 通过 context 和 trace 与事件关联，ToolGrant 保存式~\eqref{eq:grant-v11} 的能力摘要和生命周期状态。MCP PEP 代理 remote streamable HTTP：它先验证任务能力，再转发获准调用；\texttt{tools/list} 结果按任务允许集合裁剪，避免向任务暴露无权调用的工具。
 
@@ -235,7 +239,7 @@ l_i.previous\_hash=h_{i-1}.
 
 \subsection{工作负载、规模与实验边界}
 
-表~\ref{tab:scale-v11} 区分独立规模和重复次数。正式有效性结论来自60例威胁驱动冻结矩阵；三名未参与语料构造的复核者通过盲表检查其规则标签，复核不增加工作负载规模。700次固定种子变异仅作为机制压力覆盖，其中序列化去重后有319个不同用例。确定性端到端重复用于证明状态稳定和配对因果，不增加工作负载多样性。真实模型实验使用一个模型和每场景一个固定提示，因此只证明固定工具决策进入系统后的副作用可达性。另在自有设施上以真实 qame 推送构造允许路径正对照和固定越权向量负对照，检查 ToolGrant 与运行时 PEP 的一致性；该配对轨迹不计入统计样本。
+表~\ref{tab:scale-v11} 区分独立规模和重复次数。正式有效性结论来自60例治理规则冻结矩阵；三名未参与语料构造的复核者通过盲表检查其规则标签，复核不增加工作负载规模。700次固定种子变异仅作为机制压力覆盖，其中序列化去重后有319个不同用例。确定性端到端重复用于证明状态稳定和配对因果，不增加工作负载多样性。本研究早期已冻结一个模型在三个固定场景中的30个工具选择结果，本版只复用这些不可变结果进行配对回放，不新增模型调用，也不由模型构造治理回归向量。另在自有设施上以公开测试仓库的真实推送构造允许路径正对照和固定集合外请求负对照，检查 ToolGrant 与运行时 PEP 的一致性；该配对轨迹不计入统计样本。
 
 \begin{table}[htbp]
 \centering
@@ -246,18 +250,18 @@ l_i.previous\_hash=h_{i-1}.
 \toprule
 维度 & 当前覆盖 & 证据边界 \\
 \midrule
-事件与攻击 & 7类来源；30正常+30攻击；7类变异算子 & 三人盲表复核；变异集为合成压力数据 \\
+事件与规则情形 & 7类来源；30正常+30违规；7类变异算子 & 三人盲表复核；变异集为合成压力数据 \\
 标签复核 & 3名复核者$\times$60例 & 检查规则可复核性，不证明分布代表性 \\
 治理配置 & Contract$\times$Policy 4种；双PEP 4种 & 内部消融，不等价于外部方法复现 \\
 端到端路径 & 480条确定性路径；90条模型决策配对路径 & 重复验证稳定性，不代表独立样本规模 \\
 模型与提示 & 1个模型；每场景1个固定提示 & 不估计开放环境中的模型违规选择概率 \\
-外部端点 & loopback MCP canary；1组 qame--demogo 配对回归 & 验证部署闭合与 grant--PEP 一致性，不构成统计工作负载 \\
+外部端点 & loopback MCP canary；1组公开仓库--自有设施配对回归 & 验证部署闭合与 grant--PEP 一致性，不构成统计工作负载 \\
 状态与并发 & SQLite；8/32并发；每配置100轮 & 不外推其他数据库后端 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-正式冻结矩阵包含 GitHub、GitLab、Gitea、IMAP、通用 Webhook、Manual 和 Cron。30个攻击由来源--类型绑定攻击、目标来源/类型/动作/工具越权和高风险审批事件组成；所有样本满足基本 CloudEvent 结构，以避免把解析失败计为跨层治理收益。三名复核者仅接收移除作者标签的事件字段与目标治理声明，分别标注事件类别、首个治理层和完整 E2AG 预期决策。报告攻击阻断率、正常通过率、Wilson 95\% 置信区间以及多复核者 Fleiss $\kappa$。
+正式冻结矩阵包含 GitHub、GitLab、Gitea、IMAP、通用 Webhook、Manual 和 Cron。30个违规样本由来源--类型绑定不一致、目标来源/类型/动作/工具集合外请求和需审批事件组成；所有样本满足基本 CloudEvent 结构，以避免把解析失败计为跨层治理收益。三名复核者仅接收移除作者标签的事件字段与目标治理声明，分别标注事件类别、首个治理层和完整 E2AG 预期决策。报告违规拒绝率、正常通过率、Wilson 95\% 置信区间以及多复核者 Fleiss $\kappa$。
 
 \subsection{基准方法与公平性}
 
@@ -300,11 +304,11 @@ C1P1 & 30/30 & 100.00\% & 30/30 & 100.00\% \\
 \end{tabular}
 \end{table}
 
-表~\ref{tab:rq1-v11} 显示 ContractGuard 只阻断来源--类型绑定违规，违规拒绝率置信区间为[19.23\%, 51.22\%]；当来源具有合法契约但目标智能体不允许其动作或工具时，契约不产生作用。DispatchGuard 阻断目标能力越权并将高风险动作转入审批，区间为[48.78\%, 80.77\%]，但无法识别来源绑定不匹配。完整组合覆盖两类互不重叠的拒绝原因，区间为[88.65\%, 100\%]。四组正常通过率相同，说明差异来自治理对象而不是普遍收紧接入。
+表~\ref{tab:rq1-v11} 显示 ContractGuard 只阻断来源--类型绑定违规，违规拒绝率置信区间为[19.23\%, 51.22\%]；当来源具有合法契约但目标智能体不允许其动作或工具时，契约不产生作用。DispatchGuard 阻断目标能力不匹配并将需审批动作转入审批，区间为[48.78\%, 80.77\%]，但无法识别来源绑定不匹配。完整组合覆盖两类互不重叠的拒绝原因，区间为[88.65\%, 100\%]。四组正常通过率相同，说明差异来自治理对象而不是普遍收紧接入。
 
 三名复核者在事件类别、首个治理层和完整 E2AG 预期决策三项上均达到60/60逐例全体一致，并与冻结作者标签完全一致；三项 Fleiss $\kappa$ 均为1.00。三份表的冻结输入字段均未被修改，且逐例备注在任意两名复核者间没有完全相同项。该结果支持规则标签明确且可由非构造者复核，不说明矩阵覆盖自然流量中的违规分布。
 
-固定种子压力集对7种变异算子各执行100次。NoGuard、ContractGuard 和完整 E2AG 的精确决策率分别为0、57.14\%和100\%。ContractGuard 只覆盖必填字段、规范版本、来源--类型交叉和未知类型4类变异，完整方法继续覆盖敏感动作与目标能力越权。该结果验证实现对不同变异算子的稳定分工，但由于样本由规则生成，不用于估计真实分布中的检出率。
+固定种子压力集对7种变异算子各执行100次。NoGuard、ContractGuard 和完整 E2AG 的精确决策率分别为0、57.14\%和100\%。ContractGuard 只覆盖必填字段、规范版本、来源--类型交叉和未知类型4类变异，完整方法继续覆盖需审批动作与目标能力不匹配。该结果验证实现对不同变异算子的稳定分工，但由于样本由规则生成，不用于估计真实分布中的检出率。
 
 \subsection{RQ2：双执行点与上游副作用}
 
@@ -329,11 +333,11 @@ G1R1 & 30/30 & 0/30 & 0/30 & 0/30（审批） \\
 
 DispatchGuard 在任务创建前掌握来源和环境，因此拒绝来源不匹配事件并触发动作审批；任务创建后它不再观察模型实际工具，故集合外请求仍到达上游。RuntimeGuard 检查任务能力中的工具集合，阻断全部集合外请求，却不能判定一个获准工具是否由来源不匹配事件触发。完整 E2AG 保留正常副作用并阻断三类未授权副作用。该配对反例与命题1的两个完整中介假设一一对应。
 
-真实模型实验固定正常、任务后集合外请求和来源不匹配3个合成事件提示，每个重复10次，使用 \texttt{openai/gpt-4o-mini} 生成30次工具决策。每个不可变模型结果在 G1R0、G0R1 和 G1R1 中复用，形成90条配对执行路径；上游为真实 loopback HTTP MCP canary。
+既有模型决策回放固定正常、任务后集合外请求和来源不匹配3个合成事件提示，每个场景含10个已经冻结的工具选择结果，共30个。每个不可变结果在 G1R0、G0R1 和 G1R1 中复用，形成90条配对执行路径；本版不重新调用模型，上游为真实 loopback HTTP MCP canary。
 
 \begin{table}[htbp]
 \centering
-\caption{真实模型决策下的配对执行路径}
+\caption{既有模型决策的配对执行路径}
 \label{tab:rq2-live-v11}
 \small
 \begin{tabular}{lrrr}
@@ -349,28 +353,28 @@ G1R1 & 10/10 & 0/10 & 0/10 \\
 
 模型在集合外请求场景中均返回不在 grant 内的工具选择。为避免工具名称承载额外语义，本文仅按 grant 集合成员关系判定；结果文件保留原始标识供复核。表~\ref{tab:rq2-live-v11} 与确定性结果一致：G1R0 不能阻止任务后的集合外请求，G0R1 不能识别工具合法但来源不匹配的事件，G1R1 同时阻断两类副作用。该实验验证模型调用进入真实 MCP PEP 后的系统行为，不把工具选择比例解释为开放环境中的模型违规选择概率。
 
-\subsubsection{自有设施上的治理一致性与越权回归}
+\subsubsection{自有设施上的治理一致性与集合外请求回归}
 
-为排除全部证据仅来自进程内生成器的疑问，本文在 demogo.work 上另行部署仅绑定回环端口、使用独立数据库和工作区的 E2AG 实例，并在自有 \texttt{git-perf} 上游执行配对回归。正对照沿用公开仓库 \texttt{HQIT/qame} 的真实 GitHub push，验证 Connector、任务容器、ToolGrant、MCP PEP 与外部工具可以闭合。负对照使用另一条真实 qame 事件，但越权请求的工具名与参数由固定脚本直接构造，不由模型生成或选择；后续复验也只由确定性测试 harness 触发。
+为排除全部证据仅来自进程内生成器的疑问，本文在一台自有设施上另行部署仅绑定回环端口、使用独立数据库和工作区的 E2AG 实例，并在自有工具端点上执行配对回归。正对照沿用公开测试仓库的真实 GitHub push，验证 Connector、任务容器、ToolGrant、MCP PEP 与外部工具可以闭合。负对照使用该仓库的另一条真实事件，但集合外请求的工具名与参数由固定脚本直接构造，不由模型生成或选择；后续复验也只由确定性测试 harness 触发。
 
 \begin{table}[htbp]
 \centering
-\caption{qame--demogo 治理一致性配对回归}
+\caption{公开仓库--自有设施治理一致性配对回归}
 \label{tab:rq2-field-v11}
 \small
 \begin{tabular}{p{35mm}p{95mm}}
 \toprule
 阶段 & 观测结果 \\
 \midrule
-允许路径正对照 & commit \texttt{148ddf2c...}；任务 completed；5次获准调用抵达 \texttt{git-perf}；grant 终态 revoked \\
-固定越权负对照 & grant 仅含4个评审工具；集合外 \texttt{mark\_effective\_commit} 返回403与 \texttt{MCP\_TOOL\_NOT\_GRANTED} \\
+允许路径正对照 & 匿名化提交摘要；任务 completed；5次获准调用抵达自有工具端点；grant 终态 revoked \\
+固定集合外请求负对照 & grant 仅含4个评审工具；集合外请求返回403与 \texttt{MCP\_TOOL\_NOT\_GRANTED} \\
 未触达上游 & 拒绝审计的 \texttt{upstream\_status=null}；canary 仍为 \texttt{effective=0}，记录数不变 \\
 因果与完整性 & 负对照11项审计链校验有效，包含 grant、\texttt{tool\_call/deny}、revoke 与任务完成 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-该配对结果保留了真实 qame--demogo--DiAgent--PEP--\texttt{git-perf} 路径，同时把负向判断收缩为可复核的治理一致性性质：集合内调用能够到达上游，集合外调用由 PEP 本地拒绝且不改变上游状态。负对照完全由固定 harness 定义，模型不参与其构造或调度；该结果也不被解释为模型安全率、自然流量违规概率、吞吐量或外部方法比较。
+该配对结果保留了真实公开仓库--自有设施--任务运行时--PEP--工具端点路径，同时把负向判断收缩为可复核的治理一致性性质：集合内调用能够到达上游，集合外调用由 PEP 本地拒绝且不改变上游状态。负对照完全由固定 harness 定义，模型不参与其构造或调度；该结果也不被解释为模型安全率、自然流量违规概率、吞吐量或外部方法比较。
 
 \subsection{RQ3：证据定位与并发状态}
 
@@ -417,11 +421,11 @@ approve/reject & 32 & 3200 & 100 & 0 \\
 
 \section{讨论与有效性威胁}\label{sec:discussion-v11}
 
-\textbf{方法边界。}E2AG 保证调用不超出获准来源、目标和工具集合，不判断自然语言是否恶意。若攻击使用已授权工具和合法工具名，只在参数中构造危险数据，当前工具粒度能力无法区分；数据流能力或参数谓词可作为正交扩展。
+\textbf{方法边界。}E2AG 保证调用不超出获准来源、目标和工具集合，不判定自然语言意图类别。若请求使用已授权工具和合法工具名，只在参数中携带不符合约束的数据，当前工具粒度能力无法区分；数据流能力或参数谓词可作为正交扩展。
 
-\textbf{内部有效性。}冻结矩阵按治理层构造，适合验证机制分工，不用于估计自然流量中的违规发生率。三名非构造者的盲表复核排除了明显的标签歧义，但因复核者依据同一显式治理规则判定，完全一致不能证明语料具有自然流量代表性。真实模型实验固定提示并要求工具选择，保证相同模型决策可在不同治理配置下配对复用；它证明副作用可达性，不证明开放环境中的模型违规选择概率。内部基准共享代码路径以隔离治理位置，但不能替代 AgentSpec 或 CaMeL 的原实现比较。
+\textbf{内部有效性。}冻结矩阵按治理层构造，适合验证机制分工，不用于估计自然流量中的违规发生率。三名非构造者的盲表复核排除了明显的标签歧义，但因复核者依据同一显式治理规则判定，完全一致不能证明语料具有自然流量代表性。既有模型结果采用固定提示和工具选择约束，保证相同决策可在不同治理配置下配对复用；它证明副作用可达性，不证明开放环境中的模型违规选择概率。内部基准共享代码路径以隔离治理位置，但不能替代 AgentSpec、OAP、ToolGuardian 或 Agent libOS 的原实现比较。
 
-\textbf{外部有效性与规模。}当前实现限于一个 AIOS 原型、一个模型、一个合成 HTTP MCP canary、一组自有设施 qame--demogo 配对回归和 SQLite。该回归证明真实 GitHub payload、DiAgent 容器与外部 MCP 服务能够闭合，并为 grant--PEP 一致性提供一次现场证据，但单仓库、单组配对和共享上游状态不能代表自然工作负载。七类来源与压力变异扩大了输入机制覆盖，却不能替代多仓库 Connector 轨迹、生产工具或第二 AIOS。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
+\textbf{外部有效性与规模。}当前实现限于一个 AIOS 原型、一个模型、一个合成 HTTP MCP canary、一组公开仓库--自有设施配对回归和 SQLite。该回归证明真实 GitHub payload、任务运行时与外部 MCP 服务能够闭合，并为 grant--PEP 一致性提供一次现场证据，但单仓库、单组配对和共享上游状态不能代表自然工作负载。七类来源与压力变异扩大了输入机制覆盖，却不能替代多仓库 Connector 轨迹、更多工具类型或第二 AIOS。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
 
 \textbf{完整中介假设。}命题1依赖所有任务创建和外部副作用经过两个 PEP。当前原型验证 remote streamable HTTP 的 task-mode MCP 路径；stdio、SSE、Skill、内嵌服务和绕过 MCP 的本地调用尚未纳入主张。移植到其他 AIOS 时，必须重新识别任务创建和副作用调用的系统窄腰。
 
@@ -429,7 +433,7 @@ approve/reject & 32 & 3200 & 100 & 0 \\
 
 \section{总结}\label{sec:conclusion-v11}
 
-本文针对事件驱动 AIOS 中事件来源、任务创建和工具副作用跨越不同信任域的问题，提出跨层能力治理方法 E2AG。该方法用来源--类型契约建立事件声明权，用目标策略和审批控制任务创建，用任务作用域能力与调用时 PEP 约束模型最终选择的工具，并通过统一执行证据连接各阶段对象。状态迁移模型和完整中介命题说明两个执行点为何缺一不可；消融、端到端配对执行、真实模型决策回放、故障注入与并发实验分别验证任务来源闭包、副作用安全、证据连续性和状态单调性。E2AG 的核心价值不是检测模型语言层攻击，而是把非确定性模型决策置于可执行、可审计且对象绑定的系统授权边界内。
+本文针对事件驱动 AIOS 中事件来源、任务创建和工具副作用跨越不同信任域的问题，提出跨层能力治理方法 E2AG。该方法用来源--类型契约建立事件声明权，用目标策略和审批控制任务创建，用任务作用域能力与调用时 PEP 约束模型最终选择的工具，并通过统一执行证据连接各阶段对象。状态迁移模型和完整中介命题说明两个执行点为何缺一不可；消融、端到端配对执行、既有模型决策回放、故障注入与并发实验分别验证任务来源闭包、副作用安全、证据连续性和状态单调性。E2AG 的核心价值不是判定模型语言层输入类别，而是把非确定性模型决策置于可执行、可审计且对象绑定的系统授权边界内。
 
 {\small
 \begin{thebibliography}{99}
@@ -444,6 +448,10 @@ approve/reject & 32 & 3200 & 100 & 0 \\
 \bibitem{toolemu} Ruan Y, Dong H, Wang A, et al. Identifying the risks of LM agents with an LM-emulated sandbox. In: Proc. of the 12th Int'l Conf. on Learning Representations. Vienna: OpenReview, 2024.
 \bibitem{agentspec} Wang H, Poskitt CM, Sun J. AgentSpec: Customizable runtime enforcement for safe and reliable LLM agents. In: Proc. of the 48th IEEE/ACM Int'l Conf. on Software Engineering. New York: ACM, 2026. 12 pages. [doi: 10.1145/3744916.3764546]
 \bibitem{camel} Debenedetti E, Shumailov I, Fan T, et al. Defeating Prompt Injections by Design. arXiv:2503.18813, 2025.
+\bibitem{oap} Uchibeke U. Before the Tool Call: Deterministic Pre-Action Authorization for Autonomous AI Agents. arXiv:2603.20953, 2026.
+\bibitem{toolguardian} Ravindran A, Deochake S. ToolGuardian: Declarative Security for AI Agent-Tool Interactions. arXiv:2607.21835, 2026.
+\bibitem{casa} El Helou M, Ryder B, Troiani C, et al. Hybrid Inspection and Task-Based Access Control in Zero-Trust Agentic AI. arXiv:2605.02682, 2026.
+\bibitem{agent-libos} Zhang YQ. Agent libOS: A Runtime Substrate for Capability-Controlled Self-Evolving LLM Agents. arXiv:2606.03895v2, 2026.
 \bibitem{cloudevents} Cloud Native Computing Foundation. CloudEvents Specification, Version 1.0.2, 2022. \url{https://github.com/cloudevents/spec/tree/ce@v1.0.2}. [2026-08-14]
 \bibitem{a2a} A2A Protocol Working Group. Agent2Agent Protocol Specification. \url{https://a2a-protocol.org/latest/}. [2026-08-14]
 \bibitem{mcp} Model Context Protocol Contributors. Model Context Protocol Specification, Revision 2025-06-18. \url{https://modelcontextprotocol.io/specification/2025-06-18/}. [2026-08-14]
