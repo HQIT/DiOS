@@ -29,8 +29,11 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --p
 backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeats 300
 ```
 
-The independent policy-engine baseline uses the official OPA v1.17.0 binary
-and evaluates only the eight frozen `tools/call` cases:
+The independent policy-engine baseline uses the official OPA v1.17.0 binary.
+Its primary comparison applies a structural call-ready rule to the frozen
+60-case matrix (non-empty target, explicit requested tool, and target tool
+allowlist), producing 49 cases. The existing eight `tools/call` cases remain a
+supplementary interface check:
 
 ```bash
 python3 experiments/e2ag/run_opa_tool_baseline.py \
@@ -38,11 +41,14 @@ python3 experiments/e2ag/run_opa_tool_baseline.py \
   --expected-opa-sha256 e83da46804832578e9d9e1733dffbe4d3b5f8cc9c26eb124da9ceea4abfe189f
 ```
 
-The output is `results/opa_tool_baseline_summary.json`. OPA-Tool receives the
-same tool patterns as RuntimeGuard through a generic default-deny Rego policy.
-The two non-`tools/call` protocol-boundary cases are excluded explicitly. This
-is a functional external-engine comparison; it does not compare local process
-latency or claim that OPA implements event/task lifecycle governance.
+The output is `results/opa_tool_baseline_summary.json`. OPA-Tool receives each
+case's task-level tool patterns through a generic default-deny Rego policy.
+The primary slice records all 11 structurally excluded case IDs; the
+supplementary interface check excludes two non-`tools/call` methods. NoGuard
+and E2AG comparator rows are projected from the existing frozen C0P0/C1P1
+results for exactly the same 49 IDs. This comparison isolates visible policy
+context; it does not compare local process latency or rank OPA against the E2AG
+architecture.
 
 The first four commands are the primary deterministic paper evaluation as of
 2026-08-15. They produce the frozen Contract x Policy 2x2 result, 480 real

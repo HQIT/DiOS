@@ -4,6 +4,6 @@ default allow := false
 
 allow if {
     input.method == "tools/call"
-    some pattern in data.allowed_tools
+    some pattern in input.allowed_tools
     glob.match(pattern, null, input.tool)
 }
