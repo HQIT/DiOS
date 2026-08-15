@@ -234,9 +234,7 @@ data-reference="eq:end-to-end-safety-v11">[eq:end-to-end-safety-v11]</a>
 
 <figure id="fig:architecture-v11" data-latex-placement="htbp">
 
-<figcaption>E2AG 总体架构。治理平面维护决策与授权状态，执行平面的两个
-PEP 实施完整中介，证据平面记录并验证跨层对象依赖。双线框表示 E2AG
-强制组件；虚线框、虚线箭头和点线箭头分别表示持久状态、治理控制和证据写入。</figcaption>
+<figcaption>E2AG 总体架构。三个等宽平面按对象列对齐；实心、空心三角和空心燕尾箭头分别表示执行数据、治理控制和证据写入，双线框和虚线框分别表示 E2AG 强制组件和持久状态。</figcaption>
 </figure>
 
 图 <a href="#fig:architecture-v11" data-reference-type="ref"
@@ -307,10 +305,7 @@ data-reference="fig:architecture-v11">1</a> 的静态组件关系分离。
 
 <figure id="fig:execution-flow-v11" data-latex-placement="htbp">
 
-<figcaption>E2AG
-跨层授权执行流程。该图仅描述单个事件的时序路径；静态组件、控制归属和状态关系见图 <a
-href="#fig:architecture-v11" data-reference-type="ref"
-data-reference="fig:architecture-v11">1</a>。</figcaption>
+<figcaption>E2AG 跨层授权执行流程。两个等宽区域共享左右边界；实心、空心三角和空心燕尾箭头分别表示主路径、审批分支和证据写入。</figcaption>
 </figure>
 
 算法 <a href="#alg:e2ag-v11" data-reference-type="ref"

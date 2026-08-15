@@ -9,13 +9,12 @@
   state/.style={component,densely dashed,line width=.70pt,minimum width=32mm},
   audit/.style={draw=black,densely dotted,line width=.80pt,rounded corners=2pt,
     fill=white,align=center,minimum height=12mm,inner xsep=5pt,inner ysep=4pt},
-  plane/.style={draw=black!70,rounded corners=3pt,fill=white,
-    line width=.45pt,inner xsep=4mm,inner ysep=5mm},
+  plane/.style={draw=black!70,rounded corners=3pt,fill=white,line width=.45pt},
   dataflow/.style={-{Latex[length=1.9mm]},draw=black,line width=.78pt,
     rounded corners=2.5pt,line join=round,line cap=round},
-  control/.style={-{Latex[length=1.7mm]},draw=black,densely dashed,line width=.72pt,
+  control/.style={-{Latex[open,length=1.9mm,width=1.6mm]},draw=black,line width=.68pt,
     rounded corners=2.5pt,line join=round,line cap=round},
-  evidence/.style={-{Latex[length=1.6mm]},draw=black,densely dotted,line width=.72pt,
+  evidence/.style={-{Stealth[open,length=1.9mm,width=1.6mm]},draw=black,line width=.56pt,
     rounded corners=2.5pt,line join=round,line cap=round}
 ]
 % Four aligned columns keep the figure at its final journal width without scaling.
@@ -70,17 +69,20 @@
 \draw[dataflow] (auditstore.east)--(verifier.west);
 
 \begin{pgfonlayer}{background}
-  \node[plane,fit=(registry)(pdp)(approval)(grantmgr)] (govplane) {};
-  \node[plane,fit=(connector)(dispatch)(runtime)(mcppep)] (execplane) {};
-  \node[plane,fit=(trace)(auditstore)(verifier)] (evidenceplane) {};
+  \node[plane,minimum width=154mm,minimum height=16mm]
+    (govplane) at (7.75,2.65) {};
+  \node[plane,minimum width=154mm,minimum height=16mm]
+    (execplane) at (7.75,0) {};
+  \node[plane,minimum width=154mm,minimum height=34mm]
+    (evidenceplane) at (7.75,-3.15) {};
 \end{pgfonlayer}
-\node[font=\footnotesize\bfseries,fill=white,inner xsep=3pt]
-  at (7.75,3.50) {治理平面：决策与授权状态};
-\node[font=\footnotesize\bfseries,fill=white,inner xsep=3pt]
-  at (2.60,0.97) {执行平面：完整中介};
-\node[font=\footnotesize\bfseries,fill=white,inner xsep=3pt]
-  at (2.85,-1.52) {证据平面：可验证执行依赖};
+\node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
+  at (0.75,3.45) {治理平面：决策与授权状态};
+\node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
+  at (0.75,0.80) {执行平面：完整中介};
+\node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
+  at (0.75,-1.45) {证据平面：可验证执行依赖};
 \end{tikzpicture}
-\caption{E2AG 总体架构。治理平面维护决策与授权状态，执行平面的两个 PEP 实施完整中介，证据平面记录并验证跨层对象依赖。双线框表示 E2AG 强制组件；虚线框、虚线箭头和点线箭头分别表示持久状态、治理控制和证据写入。}
+\caption{E2AG 总体架构。三个等宽平面按对象列对齐；实心、空心三角和空心燕尾箭头分别表示执行数据、治理控制和证据写入，双线框和虚线框分别表示 E2AG 强制组件和持久状态。}
 \label{fig:architecture-v11}
 \end{figure}
