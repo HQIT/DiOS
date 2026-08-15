@@ -48,6 +48,7 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_frozen_ablation.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_e2e_chain_experiment.py --repeats 30
 backend\.venv\Scripts\python.exe experiments/e2ag/run_causal_audit_experiment.py --repeats 20
 backend\.venv\Scripts\python.exe experiments/e2ag/run_concurrency_experiment.py --levels 8,32 --rounds 100
+backend\.venv\Scripts\python.exe experiments/e2ag/summarize_independent_review.py --review <review-a.csv> --review <review-b.csv> --review <review-c.csv> --anonymized-dir experiments/e2ag/review/returned
 python experiments/e2ag/run_experiment.py --repeats 5000
 python experiments/e2ag/run_audit_experiment.py
 backend\.venv\Scripts\python.exe experiments/e2ag/run_dispatch_benchmark.py --repeats 1000
@@ -74,8 +75,18 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeat
 - `experiments/e2ag/results/causal_audit_summary.json`
 - `experiments/e2ag/results/concurrency_summary_before_fix.json`
 - `experiments/e2ag/results/concurrency_summary.json`
+- `experiments/e2ag/results/external_qame_demogo_summary.json`
+- `experiments/e2ag/review/independent_review_panel_summary.json`
+- `experiments/e2ag/review/independent_review_disagreements.csv`
+- `experiments/e2ag/review/returned/reviewer-{a,b,c}.csv`
 
 论文中的数字必须以这些机器生成文件为准，不能手工选择更优的历史运行结果。
+
+外部链实验使用 `deploy/e2ag-experiment/docker-compose.demogo.yml` 在 demogo
+部署隔离后端，并将 `HQIT/qame` 的真实 GitHub push payload 以原 Connector
+密钥签名后重放到回环入口。该实验需要现有 `dios-diagent-task:latest`、共享
+`git_platform` 技能和 `git-perf` 服务；具体网络、镜像和闭合检查见部署目录
+README。结构化摘要不包含访问令牌或 webhook 密钥。
 
 ## 6. LaTeX 论文构建
 

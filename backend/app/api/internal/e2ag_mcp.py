@@ -6,7 +6,7 @@ from typing import Any
 
 import httpx
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
@@ -24,6 +24,15 @@ router = APIRouter(prefix="/internal/e2ag/mcp", tags=["internal-e2ag"])
 def _bearer(request: Request) -> str:
     value = request.headers.get("authorization", "")
     return value[7:].strip() if value.lower().startswith("bearer ") else ""
+
+
+def _forward_headers(request: Request, server: McpServer) -> dict[str, str]:
+    headers = dict(server.headers or {})
+    for name in ("accept", "mcp-session-id", "last-event-id"):
+        value = request.headers.get(name)
+        if value:
+            headers[name] = value
+    return headers
 
 
 def _rpc_error(request_id: Any, code: int, message: str, data: dict[str, Any]) -> JSONResponse:
@@ -76,15 +85,15 @@ async def proxy_mcp_call(
         )
         return _rpc_error(payload.get("id"), -32002, "MCP upstream unavailable", {"reason": "MCP_UPSTREAM_MISSING"})
 
-    headers = dict(server.headers or {})
-    for name in ("accept", "mcp-session-id", "last-event-id"):
-        value = request.headers.get(name)
-        if value:
-            headers[name] = value
+    headers = _forward_headers(request, server)
     headers["content-type"] = "application/json"
 
     try:
-        async with httpx.AsyncClient(trust_env=False, timeout=30) as client:
+        async with httpx.AsyncClient(
+            trust_env=False,
+            timeout=30,
+            follow_redirects=True,
+        ) as client:
             upstream = await client.post(server.url, json=payload, headers=headers)
     except httpx.HTTPError as exc:
         await record_tool_decision(
@@ -112,4 +121,88 @@ async def proxy_mcp_call(
         status_code=upstream.status_code,
         media_type=upstream.headers.get("content-type"),
         headers=response_headers,
+    )
+
+
+@router.get("/{grant_id}")
+async def proxy_mcp_stream(
+    grant_id: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Relay the optional Streamable HTTP SSE channel under the same grant."""
+    grant, grant_reason = await validate_grant(db, grant_id, _bearer(request))
+    if grant is None:
+        return _rpc_error(None, -32001, "E2AG tool grant rejected", {"reason": grant_reason})
+    server = await db.get(McpServer, grant.mcp_server_id)
+    if server is None or not server.url:
+        return _rpc_error(None, -32002, "MCP upstream unavailable", {"reason": "MCP_UPSTREAM_MISSING"})
+
+    client = httpx.AsyncClient(trust_env=False, timeout=30, follow_redirects=True)
+    try:
+        upstream_request = client.build_request(
+            "GET", server.url, headers=_forward_headers(request, server),
+        )
+        upstream = await client.send(upstream_request, stream=True)
+    except httpx.HTTPError:
+        await client.aclose()
+        return _rpc_error(None, -32002, "MCP upstream error", {"reason": "MCP_UPSTREAM_ERROR"})
+
+    response_headers = {}
+    for name in ("mcp-session-id", "retry-after"):
+        if name in upstream.headers:
+            response_headers[name] = upstream.headers[name]
+    if upstream.status_code >= 400:
+        content = await upstream.aread()
+        await upstream.aclose()
+        await client.aclose()
+        return Response(
+            content=content,
+            status_code=upstream.status_code,
+            media_type=upstream.headers.get("content-type"),
+            headers=response_headers,
+        )
+
+    async def relay():
+        try:
+            async for chunk in upstream.aiter_bytes():
+                yield chunk
+        finally:
+            await upstream.aclose()
+            await client.aclose()
+
+    return StreamingResponse(
+        relay(),
+        status_code=upstream.status_code,
+        media_type=upstream.headers.get("content-type"),
+        headers=response_headers,
+    )
+
+
+@router.delete("/{grant_id}")
+async def proxy_mcp_close(
+    grant_id: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Forward session termination without granting a new tool action."""
+    grant, grant_reason = await validate_grant(db, grant_id, _bearer(request))
+    if grant is None:
+        return _rpc_error(None, -32001, "E2AG tool grant rejected", {"reason": grant_reason})
+    server = await db.get(McpServer, grant.mcp_server_id)
+    if server is None or not server.url:
+        return _rpc_error(None, -32002, "MCP upstream unavailable", {"reason": "MCP_UPSTREAM_MISSING"})
+    try:
+        async with httpx.AsyncClient(
+            trust_env=False, timeout=30, follow_redirects=True,
+        ) as client:
+            upstream = await client.delete(
+                server.url, headers=_forward_headers(request, server),
+            )
+    except httpx.HTTPError:
+        return _rpc_error(None, -32002, "MCP upstream error", {"reason": "MCP_UPSTREAM_ERROR"})
+    return Response(
+        content=upstream.content,
+        status_code=upstream.status_code,
+        media_type=upstream.headers.get("content-type"),
     )

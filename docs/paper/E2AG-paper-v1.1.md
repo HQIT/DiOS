@@ -1,6 +1,6 @@
 # 面向事件驱动智能体操作系统的跨层能力治理方法
 
-> **摘要：** 事件驱动智能体操作系统将外部事件转化为自主任务和工具副作用，但事件来源、任务创建与工具执行分属不同信任域，协议格式校验或单点动作过滤无法证明一次副作用获得了完整链路授权。本文提出跨层能力治理方法 E2AG，将事件声明权、任务创建权和工具副作用权组织为同一任务作用域能力生命周期。E2AG 通过来源–类型契约和目标策略完成任务准入，为获准任务签发对象绑定的短期能力，并在实际 MCP 调用抵达上游前实施第二次强制验证；统一执行证据用于检查授权依赖和定位治理失败。本文给出跨层授权状态模型、完整中介安全性质及其证明概要，并在事件驱动智能体操作系统原型上实现该方法。基于 60 例冻结威胁矩阵、合成压力集、真实持久化端到端路径、模型工具决策回放和并发故障注入的评估表明：完整方法在保持正常事件可用性的同时覆盖全部冻结攻击；移除任一执行点都会重新引入与其可见上下文对应的禁止副作用。结果说明，跨层对象绑定与双执行点完整中介能够把模型的不确定决策约束在可验证的系统授权边界内。
+> **摘要：** 事件驱动智能体操作系统将外部事件转化为自主任务和工具副作用，但事件来源、任务创建与工具执行分属不同信任域，协议格式校验或单点动作过滤无法证明一次副作用获得了完整链路授权。本文提出跨层能力治理方法 E2AG，将事件声明权、任务创建权和工具副作用权组织为同一任务作用域能力生命周期。E2AG 通过来源–类型契约和目标策略完成任务准入，为获准任务签发对象绑定的短期能力，并在实际 MCP 调用抵达上游前实施第二次强制验证；统一执行证据用于检查授权依赖和定位治理失败。本文给出跨层授权状态模型、完整中介安全性质及其证明概要，并在事件驱动智能体操作系统原型上实现该方法。基于经盲表复核的冻结威胁矩阵、合成压力集、真实持久化端到端路径、模型工具决策回放、公开仓库外部部署轨迹和并发故障注入的评估表明：完整方法在保持正常事件可用性的同时覆盖全部冻结攻击；移除任一执行点都会重新引入与其可见上下文对应的禁止副作用。结果说明，跨层对象绑定与双执行点完整中介能够把模型的不确定决策约束在可验证的系统授权边界内。
 >
 > **关键词：** 人工智能操作系统；事件驱动智能体；能力治理；完整中介；执行溯源
 
@@ -28,9 +28,10 @@ Operating Systems**
 > dependencies and localizes governance failures. We define a
 > cross-layer authorization transition model and a complete-mediation
 > safety property with a proof sketch, and implement E2AG in an
-> event-driven agent-OS prototype. Evaluation with a 60-case frozen
-> threat matrix, a synthetic stress suite, persistent end-to-end
-> executions, replayed model tool decisions, and concurrent fault
+> event-driven agent-OS prototype. Evaluation with a blindly reviewed
+> frozen threat matrix, a synthetic stress suite, persistent end-to-end
+> executions, replayed model tool decisions, a public-repository
+> deployment trace, and concurrent fault
 > injection shows that the complete method covers every frozen attack
 > while preserving benign availability; removing either enforcement
 > point reintroduces the forbidden side effects associated with the
@@ -434,17 +435,18 @@ pending、approved、rejected、expired 四态和条件更新，使 approve/reje
 
 表 <a href="#tab:scale-v11" data-reference-type="ref"
 data-reference="tab:scale-v11">2</a>
-区分独立规模和重复次数。正式有效性结论来自60例人工构造冻结矩阵；700次固定种子变异仅作为机制压力覆盖，其中序列化去重后有319个不同用例。确定性端到端重复用于证明状态稳定和配对因果，不增加工作负载多样性。真实模型实验使用一个模型和每场景一个固定提示，因此只证明固定工具决策进入系统后的副作用可达性。
+区分独立规模和重复次数。正式有效性结论来自60例威胁驱动冻结矩阵；三名未参与语料构造的复核者通过盲表检查其规则标签，复核不增加工作负载规模。700次固定种子变异仅作为机制压力覆盖，其中序列化去重后有319个不同用例。确定性端到端重复用于证明状态稳定和配对因果，不增加工作负载多样性。真实模型实验使用一个模型和每场景一个固定提示，因此只证明固定工具决策进入系统后的副作用可达性。另以公开仓库的一次真实推送验证部署链闭合，该单条轨迹不计入统计样本。
 
 <div id="tab:scale-v11">
 
 | 维度 | 当前覆盖 | 证据边界 |
 |:---|:---|:---|
-| 事件与攻击 | 7类来源；30正常+30攻击；7类变异算子 | 冻结矩阵待独立复核；变异集为合成压力数据 |
+| 事件与攻击 | 7类来源；30正常+30攻击；7类变异算子 | 三人盲表复核；变异集为合成压力数据 |
+| 标签复核 | 3名复核者×60例 | 检查规则可复核性，不证明分布代表性 |
 | 治理配置 | Contract$`\times`$Policy 4种；双PEP 4种 | 内部消融，不等价于外部方法复现 |
 | 端到端路径 | 480条确定性路径；90条模型决策配对路径 | 重复验证稳定性，不代表独立样本规模 |
 | 模型与提示 | 1个模型；每场景1个固定提示 | 不估计开放环境攻击成功率 |
-| 外部端点 | 真实 loopback HTTP MCP canary | 非生产凭据和生产工具 |
+| 外部端点 | loopback MCP canary；1条 qame–demogo 外部链 | 外部链仅验证部署闭合，不构成统计工作负载 |
 | 状态与并发 | SQLite；8/32并发；每配置100轮 | 不外推其他数据库后端 |
 
 当前实验的独立维度与操作规模
@@ -454,8 +456,8 @@ data-reference="tab:scale-v11">2</a>
 正式冻结矩阵包含 GitHub、GitLab、Gitea、IMAP、通用 Webhook、Manual 和
 Cron。30个攻击由来源–类型绑定攻击、目标来源/类型/动作/工具越权和高风险审批事件组成；所有样本满足基本
 CloudEvent
-结构，以避免把解析失败计为跨层治理收益。报告攻击阻断率、正常通过率和
-Wilson 95% 置信区间。
+结构，以避免把解析失败计为跨层治理收益。三名复核者仅接收移除作者标签的事件字段与目标治理声明，分别标注事件类别、首个治理层和完整
+E2AG 预期决策。报告攻击阻断率、正常通过率、Wilson 95% 置信区间以及多复核者 Fleiss κ。
 
 ## 基准方法与公平性
 
@@ -505,6 +507,10 @@ data-reference="tab:rq1-v11">4</a> 显示 ContractGuard
 阻断目标能力越权并将高风险动作转入审批，区间为\[48.78%,
 80.77%\]，但无法识别借用合法事件类型的伪造来源。完整组合覆盖两类互不重叠的拒绝原因，区间为\[88.65%,
 100%\]。四组正常通过率相同，说明差异来自治理对象而不是普遍收紧接入。
+
+三名复核者在事件类别、首个治理层和完整 E2AG
+预期决策三项上均达到60/60逐例全体一致，并与冻结作者标签完全一致；三项 Fleiss κ
+均为1.00。三份表的冻结输入字段均未被修改，且逐例备注在任意两名复核者间没有完全相同项。该结果支持规则标签明确且可由非构造者复核，不说明矩阵覆盖真实攻击分布。
 
 固定种子压力集对7种变异算子各执行100次。NoGuard、ContractGuard 和完整
 E2AG 的精确决策率分别为0、57.14%和100%。ContractGuard
@@ -560,6 +566,19 @@ data-reference="tab:rq2-live-v11">6</a> 与确定性结果一致：G1R0
 同时阻断两类副作用。该实验验证模型调用进入真实 MCP PEP
 后的系统行为，不把工具选择比例解释为模型对提示词注入的总体易感率。
 
+### 公开仓库外部部署链
+
+为排除全部证据仅来自进程内生成器的疑问，本文在 demogo.work 上另行部署仅绑定回环端口、使用独立数据库和工作区的 E2AG 实例。公开仓库 `HQIT/qame` 的 `e2ag-experiment` 分支产生真实 GitHub push；公网入口接收原始 webhook 后，同一 payload 经 Connector 密钥重新签名并送入隔离实例。冻结评审智能体只读取 webhook 字段，不访问外网，以避免把 demogo 到 GitHub 的网络超时混入治理结果。其任务是记录 push，并对仅新增 `.e2ag/markers/*.json` 的样本给出固定评审。
+
+| 阶段 | 观测结果 |
+|:---|:---|
+| 事件与任务 | GitHub commit `148ddf2c...`；契约/策略均 allow；A2ATask completed；1个结果 Artifact |
+| 运行时授权 | 审计记录5次 `tools/call`，ToolGrant 原子计数同为5；任务结束后状态 revoked |
+| 外部副作用 | `git-perf` 产生 before/after SHA 精确匹配的 push 记录；`record_review` 上游响应为200 |
+| 因果闭合 | 同一 trace 包含 contract、policy、grant、tool call、grant revoke 和 `a2a_task/completed` |
+
+该轨迹连接了真实 Connector 数据、DiOS 调度、真实 task-mode DiAgent 容器、任务作用域 ToolGrant、Streamable HTTP MCP PEP 和进程外 `git-perf` 服务。生产基线与隔离实例共享 `git-perf`，故同一 commit 的评审写入遇到既有规范行；本文据 200 工具审计证明授权调用到达上游，不把该单例解释为吞吐量、攻击成功率或外部方法比较。
+
 ## RQ3：证据定位与并发状态
 
 对契约拒绝、策略拒绝、审批过期、任务能力过期和 MCP
@@ -610,14 +629,10 @@ data-reference="tab:concurrency-v11">8</a>
 **方法边界。**E2AG
 保证调用不超出获准来源、目标和工具集合，不判断自然语言是否恶意。若攻击使用已授权工具和合法工具名，只在参数中构造危险数据，当前工具粒度能力无法区分；数据流能力或参数谓词可作为正交扩展。
 
-**内部有效性。**冻结矩阵按治理层构造，适合验证机制分工，不用于估计真实攻击流量发生率。真实模型实验固定提示并要求工具选择，保证相同模型决策可在不同治理配置下配对复用；它证明副作用可达性，不证明模型通用攻击成功率。内部基准共享代码路径以隔离治理位置，但不能替代
+**内部有效性。**冻结矩阵按治理层构造，适合验证机制分工，不用于估计真实攻击流量发生率。三名非构造者的盲表复核排除了明显的标签歧义，但因复核者依据同一显式治理规则判定，完全一致不能证明语料具有自然流量代表性。真实模型实验固定提示并要求工具选择，保证相同模型决策可在不同治理配置下配对复用；它证明副作用可达性，不证明模型通用攻击成功率。内部基准共享代码路径以隔离治理位置，但不能替代
 AgentSpec 或 CaMeL 的原实现比较。
 
-**外部有效性与规模。**当前实现限于一个 AIOS 原型、一个模型、一个合成
-HTTP MCP canary 和
-SQLite。七类来源与压力变异扩大了输入机制覆盖，却不能替代真实 Connector
-轨迹、多模型提示变体、生产工具或第二
-AIOS。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
+**外部有效性与规模。**当前实现限于一个 AIOS 原型、一个模型、一个合成 HTTP MCP canary、一条公开仓库 Connector 部署轨迹和 SQLite。qame–demogo 轨迹证明真实 GitHub payload、DiAgent 容器与外部 MCP 服务能够闭合，但冻结提示、单仓库单提交和共享上游状态不能代表自然工作负载。七类来源与压力变异扩大了输入机制覆盖，却不能替代多仓库 Connector 轨迹、多模型提示变体、生产工具或第二 AIOS。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
 
 **完整中介假设。**命题1依赖所有任务创建和外部副作用经过两个
 PEP。当前原型验证 remote streamable HTTP 的 task-mode MCP

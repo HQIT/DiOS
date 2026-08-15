@@ -57,8 +57,17 @@ def filter_tools_list_response(content: bytes, allowed_tools: list[str]) -> byte
     If the upstream body is not a conventional JSON tools/list response, fail
     closed by returning an empty tool list instead of exposing the full registry.
     """
+    is_sse = content.lstrip().startswith((b"event:", b"data:"))
+    raw_payload = content
+    if is_sse:
+        data_lines = [
+            line[5:].lstrip()
+            for line in content.decode("utf-8", errors="replace").splitlines()
+            if line.startswith("data:")
+        ]
+        raw_payload = "\n".join(data_lines).encode("utf-8")
     try:
-        payload = json.loads(content)
+        payload = json.loads(raw_payload)
         result = payload.get("result")
         tools = result.get("tools") if isinstance(result, dict) else None
         if not isinstance(tools, list):
@@ -68,12 +77,15 @@ def filter_tools_list_response(content: bytes, allowed_tools: list[str]) -> byte
             if isinstance(tool, dict)
             and tool_is_allowed(str(tool.get("name") or ""), allowed_tools)
         ]
-        return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        filtered = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     except (TypeError, ValueError, json.JSONDecodeError):
-        return json.dumps(
+        filtered = json.dumps(
             {"jsonrpc": "2.0", "id": None, "result": {"tools": []}},
             separators=(",", ":"),
         ).encode("utf-8")
+    if is_sse:
+        return b"event: message\ndata: " + filtered + b"\n\n"
+    return filtered
 
 
 async def _append_event_audit(
@@ -240,8 +252,16 @@ async def record_tool_decision(
     upstream_status: int | None = None,
 ) -> None:
     if method == "tools/call":
-        grant.call_count += 1
-        grant.last_used_at = _now()
+        from sqlalchemy import update
+
+        await db.execute(
+            update(E2AGToolGrant)
+            .where(E2AGToolGrant.id == grant.id)
+            .values(
+                call_count=E2AGToolGrant.call_count + 1,
+                last_used_at=_now(),
+            )
+        )
     await _append_event_audit(
         db,
         grant.event_log_id,

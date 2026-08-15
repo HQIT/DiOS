@@ -1,0 +1,62 @@
+{
+  "schema": "e2ag-external-field-validation/v1",
+  "executed_at": "2026-08-15T15:51:32Z",
+  "scope": {
+    "repository": "HQIT/qame",
+    "branch": "e2ag-experiment",
+    "before_sha": "f6e1b022bacdb2938f521bde43f36f105d390a0e",
+    "after_sha": "148ddf2c2c19f9adc991a2be79cde0845b4979ed",
+    "workload": "frozen webhook-payload-only review",
+    "host": "demogo.work",
+    "isolated_backend": "dios-e2ag-backend",
+    "diagent_image": "dios-diagent-task:latest",
+    "upstream_service": "git-perf"
+  },
+  "delivery": {
+    "github_webhook_status": 200,
+    "production_event_id": "54d85b8637e1",
+    "isolated_signed_replay_event_id": "868f8eab67ca",
+    "source": "github/HQIT/qame",
+    "event_type": "git.push"
+  },
+  "e2ag": {
+    "trace_id": "1c65e55240994b10965b49ba4791f223",
+    "task_id": "ba0427c2e7144cb0890c31c3f3360bf0",
+    "task_status": "completed",
+    "contract_decision": "allow",
+    "contract_latency_us": 132,
+    "policy_decision": "allow",
+    "policy_latency_us": 24,
+    "tool_calls": [
+      "record_push",
+      "record_review",
+      "list_pushes",
+      "list_reviews",
+      "record_review"
+    ],
+    "tool_call_audit_count": 5,
+    "grant_call_count": 5,
+    "grant_terminal_status": "revoked",
+    "terminal_audit_outcome": "completed",
+    "artifact_count": 1
+  },
+  "external_effect": {
+    "e2ag_push_record_id": "6422a9dd6780",
+    "e2ag_push_effective_before_review": false,
+    "baseline_push_record_id": "4a274817be28",
+    "baseline_push_effective": true,
+    "review_record_id": "07451840aea0",
+    "review_verdict": "pass"
+  },
+  "observed_repairs": [
+    "fail fast when the configured DiAgent image is absent",
+    "move blocking Docker SDK calls off the ASGI event loop",
+    "join task containers to the isolated service network",
+    "support Streamable HTTP redirects, SSE GET and session DELETE",
+    "preserve SSE framing while filtering tools/list",
+    "atomically count concurrent tool calls",
+    "persist terminal task audit entries and nested task artifacts"
+  ],
+  "interpretation": "This single field trace demonstrates deployability and causal closure across a real GitHub push, DiOS task dispatch, a real DiAgent container, task-scoped ToolGrant enforcement, and an external MCP service. It is not a statistical workload, an attack-success estimate, or an external baseline implementation comparison.",
+  "known_limitation": "The production baseline and isolated E2AG replay share git-perf state. record_review therefore encountered an existing review row for the same commit; E2AG authorization and upstream reachability are evidenced by the 200 tool-call audit, while only one canonical review row remains in git-perf."
+}

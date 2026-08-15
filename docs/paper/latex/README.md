@@ -2,7 +2,7 @@
 
 当前评审稿入口为 `e2ag-paper-v1.1.tex`，正文为 `e2ag-body-v1.1.tex`；`e2ag-paper.tex` 与 `e2ag-body.tex` 保留为上一版来源，不覆盖。构建产物写入 `build/`，不纳入版本控制；可交付 PDF 以版本号和日期另存于仓库根目录的 `output/pdf/`。
 
-最新可交付文件为 `E2AG-paper-anonymous-v1.1.7-20260815.pdf`。v1.1.7 是不改变正文和实验数字的配图修订版：图 1 的治理、执行和证据平面统一采用与图 2 相同的 6.5 mm 层间净距；事件域/TB1 与工具域/TB2 标签移出箭线，使执行主路径明确表现为左侧进入、右侧输出。图 2 沿用 v1.1.6 的状态分支与统一网格。
+最新可交付文件为 `E2AG-paper-anonymous-v1.1.9-20260815.pdf`。v1.1.9 在 v1.1.8 的三人冻结矩阵盲表复核基础上，加入一条 `HQIT/qame`→demogo DiOS→task-mode DiAgent→ToolGrant/MCP PEP→`git-perf` 的外部部署链；正文明确该单条轨迹只证明部署可行性和因果闭合，不构成统计工作负载或外部方法比较。图 1 和图 2 的路由、线型与间距未改变。
 
 为确保中文字体和 Unicode 映射完整嵌入，发布 PDF 使用 MiKTeX XeLaTeX 构建两遍：
 

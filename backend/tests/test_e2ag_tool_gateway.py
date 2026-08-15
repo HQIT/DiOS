@@ -58,10 +58,12 @@ def request_for(payload: dict, token: str) -> Request:
 
 class FakeAsyncClient:
     calls: list[dict] = []
+    last_kwargs: dict = {}
     response_json: dict = {"jsonrpc": "2.0", "id": 1, "result": {"ok": True}}
 
     def __init__(self, **kwargs):
         self.kwargs = kwargs
+        self.__class__.last_kwargs = kwargs
 
     async def __aenter__(self):
         return self
@@ -89,6 +91,7 @@ class E2AGToolGatewayTests(unittest.IsolatedAsyncioTestCase):
         settings.e2ag_mode = "enforce"
         settings.e2ag_internal_base_url = "http://host.docker.internal:8000"
         FakeAsyncClient.calls = []
+        FakeAsyncClient.last_kwargs = {}
         FakeAsyncClient.response_json = {"jsonrpc": "2.0", "id": 1, "result": {"ok": True}}
 
     async def asyncTearDown(self):
@@ -179,6 +182,7 @@ class E2AGToolGatewayTests(unittest.IsolatedAsyncioTestCase):
             with patch("app.api.internal.e2ag_mcp.httpx.AsyncClient", FakeAsyncClient):
                 response = await proxy_mcp_call(grant.id, request_for(payload, token), db)
             self.assertEqual(200, response.status_code)
+            self.assertTrue(FakeAsyncClient.last_kwargs["follow_redirects"])
             self.assertEqual("session-test", response.headers["mcp-session-id"])
             self.assertEqual(1, len(FakeAsyncClient.calls))
             call = FakeAsyncClient.calls[0]
@@ -211,6 +215,21 @@ class E2AGToolGatewayTests(unittest.IsolatedAsyncioTestCase):
                 ["ledger.record_push"],
                 [tool["name"] for tool in parsed["result"]["tools"]],
             )
+
+    async def test_tools_list_preserves_sse_framing(self):
+        upstream = (
+            b'event: message\n'
+            b'data: {"jsonrpc":"2.0","id":3,"result":{"tools":['
+            b'{"name":"ledger.record_push"},{"name":"admin.delete_all"}]}}\n\n'
+        )
+        filtered = filter_tools_list_response(upstream, ["ledger.*"])
+        self.assertTrue(filtered.startswith(b"event: message\ndata: "))
+        data = filtered.split(b"data: ", 1)[1].strip()
+        parsed = json.loads(data)
+        self.assertEqual(
+            ["ledger.record_push"],
+            [tool["name"] for tool in parsed["result"]["tools"]],
+        )
 
     async def test_malformed_tools_list_fails_closed(self):
         filtered = filter_tools_list_response(b"not-json", ["ledger.*"])

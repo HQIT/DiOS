@@ -1,7 +1,29 @@
 {
   "protocol": "frozen-contract-policy-2x2-v1",
   "corpus_sha256": "8c0074fcffa6a7eefbff8ff4cd73f6d555d1bfa0e7fe8bb45dabebbb48a096a6",
-  "review_status": "pending_independent_collaborator_review",
+  "review_status": "completed_blind_panel_review",
+  "review_evidence": {
+    "reviewer_count": 3,
+    "cases": 60,
+    "panel_agreement": {
+      "reviewer_class": {
+        "unanimous_cases": 60,
+        "raw_agreement": 1.0,
+        "fleiss_kappa": 1.0
+      },
+      "reviewer_governance_layer": {
+        "unanimous_cases": 60,
+        "raw_agreement": 1.0,
+        "fleiss_kappa": 1.0
+      },
+      "reviewer_expected_enforce_decision": {
+        "unanimous_cases": 60,
+        "raw_agreement": 1.0,
+        "fleiss_kappa": 1.0
+      }
+    },
+    "disagreement_cases": 0
+  },
   "modes": {
     "C0P0": {
       "contract_binding": false,
@@ -380,35 +402,35 @@
         "batches": 30,
         "decisions_per_batch": 1200,
         "median_batch_mean_us_per_decision": 0.028,
-        "p95_batch_mean_us_per_decision": 0.035,
+        "p95_batch_mean_us_per_decision": 0.03,
         "relative_to_C0P0": 1.0
       },
       "C1P0": {
         "batches": 30,
         "decisions_per_batch": 1200,
-        "median_batch_mean_us_per_decision": 6.519,
-        "p95_batch_mean_us_per_decision": 7.383,
-        "relative_to_C0P0": 229.079
+        "median_batch_mean_us_per_decision": 6.067,
+        "p95_batch_mean_us_per_decision": 7.477,
+        "relative_to_C0P0": 219.956
       },
       "C0P1": {
         "batches": 30,
         "decisions_per_batch": 1200,
-        "median_batch_mean_us_per_decision": 5.3,
-        "p95_batch_mean_us_per_decision": 6.296,
-        "relative_to_C0P0": 186.221
+        "median_batch_mean_us_per_decision": 4.845,
+        "p95_batch_mean_us_per_decision": 5.46,
+        "relative_to_C0P0": 175.644
       },
       "C1P1": {
         "batches": 30,
         "decisions_per_batch": 1200,
-        "median_batch_mean_us_per_decision": 11.228,
-        "p95_batch_mean_us_per_decision": 12.896,
-        "relative_to_C0P0": 394.545
+        "median_batch_mean_us_per_decision": 10.67,
+        "p95_batch_mean_us_per_decision": 13.084,
+        "relative_to_C0P0": 386.832
       }
     }
   },
   "limitations": [
     "Threat-driven author-frozen corpus; not a prevalence sample.",
-    "Independent collaborator label review is pending.",
+    "Blind review establishes label reproducibility under the explicit rules, not prevalence or natural-traffic representativeness.",
     "All cases are structurally valid to isolate source-type binding from target policy."
   ]
 }

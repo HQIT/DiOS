@@ -1,0 +1,39 @@
+name: dios-e2ag
+
+services:
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}
+    image: dios-e2ag-backend:local
+    container_name: dios-e2ag-backend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18081:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../../workspace:/workspace
+      - e2ag-data:/data
+    environment:
+      - DIOS_WORKSPACE_ROOT=/workspace
+      - DIOS_HOST_WORKSPACE_ROOT=/opt/dios-e2ag/workspace
+      - DIOS_DATABASE_URL=sqlite+aiosqlite:////data/dios.db
+      - DIOS_DIAGENT_IMAGE=${DIOS_DIAGENT_IMAGE:-dios-diagent-task:latest}
+      - DIOS_DIAGENT_SERVICE_IMAGE=dios-diagent-service:latest
+      - DIOS_DOCKER_NETWORK=gdw-3d-bin-packing_default
+      - DIOS_E2AG_MODE=${DIOS_E2AG_MODE:-enforce}
+      - DIOS_E2AG_INTERNAL_BASE_URL=http://dios-e2ag-backend:8000
+      - DIOS_ACCESS_TOKEN=${DIOS_ACCESS_TOKEN:-}
+    networks:
+      - default
+      - demogo
+
+volumes:
+  e2ag-data:
+
+networks:
+  demogo:
+    external: true
+    name: gdw-3d-bin-packing_default

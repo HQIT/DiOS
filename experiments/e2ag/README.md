@@ -36,21 +36,29 @@ SQLite concurrency robustness result. The live-model command adds 30 model
 decisions and 90 paired execution paths. The older 22-case, mutation, and pure
 authorization scripts remain development and supplementary checks.
 
+The demogo field trace is recorded in
+`results/external_qame_demogo_summary.json`. It connects a real `HQIT/qame`
+GitHub push to an isolated DiOS backend, a real task-mode DiAgent container,
+the task-scoped MCP proxy, and the external `git-perf` service. It is one
+deployment-validity trace, not an additional statistical workload.
+
 The live-model command is an external-validity example. It requires
 `OPENAI_BASE_URL`, `OPENAI_API_KEY`, and optionally `OPENAI_MODEL` and
 `OFOX_HTTP_PROXY`. Credentials are read only from the process environment and
 are not written to results. The default protocol makes 30 model requests and
 replays those immutable decisions across three governance configurations.
 
-`frozen_cases.jsonl` is immutable by protocol once reviewed.  Its current
-SHA-256 and review status are stored in `results/frozen_ablation_summary.json`;
-independent collaborator label review is still pending.
+`frozen_cases.jsonl` is immutable by protocol once reviewed. Its current
+SHA-256 is stored in `results/frozen_ablation_summary.json`. Three reviewers
+who did not construct the matrix completed the blinded protocol; anonymized
+returns and the panel statistics are stored under `review/`.
 
 `prepare_independent_review.py` creates a deterministically shuffled blind
 sheet and a separate author-label mapping under `review/`. Give only the blind
-sheet to a collaborator who did not construct the corpus. After it is returned,
-`summarize_independent_review.py` validates all 60 rows, reports raw agreement
-and Cohen's kappa, and creates an adjudication table for disagreements.
+sheet to reviewers who did not construct the corpus. After returns are
+collected, `summarize_independent_review.py` verifies frozen input integrity,
+normalizes UTF-8/GB18030 inputs, reports author, pairwise and Fleiss agreement,
+and creates anonymized returns plus an adjudication table for disagreements.
 
 The runner evaluates three modes:
 
@@ -81,7 +89,7 @@ and tools before an LLM runs. Semantic payload attacks that remain within those
 declared bounds are not classified. The task-scoped remote MCP gateway instead
 constrains their effects: `run_tool_gateway_experiment.py` compares dispatch-only
 authorization with the runtime allow-list over ten deterministic tool/method
-cases. The 30 backend tests additionally verify that denied calls never reach
+cases. The 34 backend tests additionally verify that denied calls never reach
 the mocked upstream, authorized calls do, `tools/list` is filtered, grants
 expire/revoke, and unmediated stdio transport is withheld in enforce mode.
 

@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 
 import docker
-from docker.errors import NotFound, APIError
+from docker.errors import NotFound, APIError, ImageNotFound
 
 from app.config import settings
 
@@ -16,7 +16,7 @@ _client: docker.DockerClient | None = None
 def get_client() -> docker.DockerClient:
     global _client
     if _client is None:
-        _client = docker.from_env()
+        _client = docker.from_env(timeout=30)
     return _client
 
 
@@ -40,6 +40,12 @@ def start_container(
         extra_env: 业务凭据/自定义环境变量（来源于 Agent.env），会与内置 env 合并注入容器。
     """
     client = get_client()
+    try:
+        client.images.get(settings.diagent_image)
+    except ImageNotFound as exc:
+        raise RuntimeError(
+            f"DIAGENT_IMAGE_NOT_PRESENT:{settings.diagent_image}"
+        ) from exc
     host_ws = _host_path(workspace)
     env: dict[str, str] = {"TASK_CONFIG": f"/workspace/agent-task-{run_id}.json"}
     if extra_env:
@@ -49,6 +55,9 @@ def start_container(
             env[str(k)] = str(v)
     host_shared_skills = _host_path(settings.workspace_root / "skills")
     host_shared_cli = _host_path(settings.workspace_root / "cli")
+    run_options = {}
+    if settings.docker_network:
+        run_options["network"] = settings.docker_network
     container = client.containers.run(
         image=settings.diagent_image,
         name=f"dios-run-{run_id}",
@@ -62,6 +71,7 @@ def start_container(
         extra_hosts={"host.docker.internal": "host-gateway"},
         detach=True,
         auto_remove=False,
+        **run_options,
     )
     logger.info("Started container %s for run %s", container.short_id, run_id)
     return container.id
@@ -86,6 +96,18 @@ def get_container_exit_code(container_id: str) -> int | None:
         return c.attrs.get("State", {}).get("ExitCode")
     except NotFound:
         return None
+
+
+def get_container_logs(container_id: str, tail: int = 200) -> str:
+    """Return a bounded combined stdout/stderr tail for post-mortem diagnosis."""
+    client = get_client()
+    try:
+        c = client.containers.get(container_id)
+        output = c.logs(stdout=True, stderr=True, tail=tail)
+        return output.decode("utf-8", errors="replace")
+    except (NotFound, APIError) as exc:
+        logger.warning("Failed to read container logs %s: %s", container_id, exc)
+        return ""
 
 
 def stop_container(container_id: str) -> bool:

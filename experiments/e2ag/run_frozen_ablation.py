@@ -185,10 +185,37 @@ def main() -> None:
         raise ValueError("frozen corpus must contain 30 attack cases")
 
     rows, summaries = evaluate(cases)
+    review_summary_path = HERE / "review" / "independent_review_panel_summary.json"
+    review_evidence = None
+    review_status = "pending_independent_collaborator_review"
+    review_limitation = "Independent collaborator label review is pending."
+    if review_summary_path.exists():
+        review_summary = json.loads(review_summary_path.read_text(encoding="utf-8"))
+        integrity = review_summary.get("input_integrity", {})
+        if (
+            review_summary.get("cases") == len(cases)
+            and review_summary.get("reviewer_count", 0) >= 1
+            and review_summary.get("disagreement_cases") == 0
+            and integrity.get("modified_frozen_input_cells") == 0
+            and integrity.get("missing_review_cells") == 0
+            and integrity.get("invalid_review_cells") == 0
+        ):
+            review_status = "completed_blind_panel_review"
+            review_evidence = {
+                "reviewer_count": review_summary["reviewer_count"],
+                "cases": review_summary["cases"],
+                "panel_agreement": review_summary["panel_agreement"],
+                "disagreement_cases": review_summary["disagreement_cases"],
+            }
+            review_limitation = (
+                "Blind review establishes label reproducibility under the explicit rules, "
+                "not prevalence or natural-traffic representativeness."
+            )
     result = {
         "protocol": "frozen-contract-policy-2x2-v1",
         "corpus_sha256": hashlib.sha256(args.cases.read_bytes()).hexdigest(),
-        "review_status": "pending_independent_collaborator_review",
+        "review_status": review_status,
+        "review_evidence": review_evidence,
         "modes": {
             "C0P0": {"contract_binding": False, "target_policy": False},
             "C1P0": {"contract_binding": True, "target_policy": False},
@@ -199,7 +226,7 @@ def main() -> None:
         "paired_overhead": paired_overhead(cases, args.latency_batches, args.latency_repeats),
         "limitations": [
             "Threat-driven author-frozen corpus; not a prevalence sample.",
-            "Independent collaborator label review is pending.",
+            review_limitation,
             "All cases are structurally valid to isolate source-type binding from target policy.",
         ],
     }
