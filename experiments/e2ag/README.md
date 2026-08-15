@@ -45,7 +45,7 @@ task-mode DiAgent container, the task-scoped MCP proxy, and the external
 issued grant is denied before upstream and leaves the canary unchanged. The
 negative vector is deterministic: do not ask a model to generate, select, or
 advance it. This pair is a governance-consistency check, not a statistical
-workload or an attack-success experiment.
+workload or a model-behavior estimate.
 
 The live-model command is an external-validity example. It requires
 `OPENAI_BASE_URL`, `OPENAI_API_KEY`, and optionally `OPENAI_MODEL` and

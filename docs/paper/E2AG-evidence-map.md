@@ -7,7 +7,7 @@
 | 官方方向 | E2AG 对应内容 | 定位 |
 |---|---|---|
 | 智能体协同安全与调度防护机制 | A2A Task 创建前契约与策略 PEP | 主选题 |
-| 系统安全度量与评估方法 | 攻击集、消融、延迟和审计篡改实验 | 核心评估支撑 |
+| 系统安全度量与评估方法 | 威胁矩阵、消融、延迟和审计篡改实验 | 核心评估支撑 |
 | 多智能体协同场景下的软件安全机制 | 目标 Agent 能力约束与 trace 传播 | 次级覆盖 |
 | 软件异常行为检测与根因分析 | 因果证据链；5 类注入故障的 100 条 trace 阶段定位 | 次级覆盖；仅主张显式治理阶段定位，不等同于通用根因分析 |
 | 系统安全架构设计与形式化验证 | 控制面架构与安全不变量 | 只覆盖架构设计，不声称形式化验证 |
@@ -26,8 +26,8 @@
 | dispatcher+SQLite 控制面增量 | `run_dispatch_benchmark.py` | `results/dispatch_benchmark.json` | 可写为内存 SQLite 微基准 |
 | 七类单因素变异下的机制互补性 | `run_mutation_experiment.py` | 固定种子 700 例 `mutation_summary.json` | 可写合成压力测试；禁止外推真实分布 |
 | Contract×Policy 独立贡献 | `run_frozen_ablation.py`、`summarize_independent_review.py` | 60 例冻结矩阵、三人盲表复核、四模式 `frozen_ablation_summary.json` | 30/30 正常通过；阻断率 0/33.33/66.67/100%；三项 Fleiss κ=1.00 |
-| 两个 PEP 阻止真实上游副作用 | `run_e2e_chain_experiment.py` | 480 次持久化执行，`e2e_chain_summary.json`/CSV | 确定性 Agent/MCP 替身；可写系统强制链，不可写真实 LLM 红队 |
-| 真实 GitHub→DiAgent→外部 MCP 治理一致性 | demogo 隔离 Compose、task-mode runner、Streamable HTTP PEP、固定负向量 | `external_qame_demogo_summary.json`；`external_governance_regression_summary.json` | 允许路径证明部署闭合；集合外请求403、无上游状态且 canary 不变；不可写模型安全率或攻击成功率 |
+| 两个 PEP 阻止真实上游副作用 | `run_e2e_chain_experiment.py` | 480 次持久化执行，`e2e_chain_summary.json`/CSV | 确定性 Agent/MCP 替身；可写系统强制链，不可写开放环境模型风险评测 |
+| 真实 GitHub→DiAgent→外部 MCP 治理一致性 | demogo 隔离 Compose、task-mode runner、Streamable HTTP PEP、固定负向量 | `external_qame_demogo_summary.json`；`external_governance_regression_summary.json` | 允许路径证明部署闭合；集合外请求403、无上游状态且 canary 不变；不可写模型安全率或自然流量违规概率 |
 | 因果阶段定位 | `run_causal_audit_experiment.py` | 5 类故障×20 条 trace | 100/100 定位、链有效、阶段完整；仅显式治理阶段，不是通用根因分析 |
 | 相同事件 replay 不产生第二条日志 | `EventDedupClaim` + dispatcher | 修复前后 `concurrency_summary*.json` | 修复前 8 并发 100/100 轮违规；修复后 SQLite 8/32 并发各 100 轮零违规 |
 | 审批单次终态 | conditional update | SQLite 8/32 并发各 100 轮 | 零双重终态/重复 Task；禁止外推其他数据库 |

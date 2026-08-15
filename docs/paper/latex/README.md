@@ -2,7 +2,7 @@
 
 当前评审稿入口为 `e2ag-paper-v1.1.tex`，正文为 `e2ag-body-v1.1.tex`；`e2ag-paper.tex` 与 `e2ag-body.tex` 保留为上一版来源，不覆盖。构建产物写入 `build/`，不纳入版本控制；可交付 PDF 以版本号和日期另存于仓库根目录的 `output/pdf/`。
 
-最新可交付文件为 `E2AG-paper-anonymous-v1.1.10-20260816.pdf`。v1.1.10 将 qame–demogo 验证重构为“自有设施治理一致性/越权回归”：保留真实 Connector→DiAgent→ToolGrant/MCP PEP→`git-perf` 允许路径，并加入已冻结的固定集合外请求拒绝证据（403、`MCP_TOOL_NOT_GRANTED`、`upstream_status=null`、canary 状态不变）。负向量不由模型生成或选择，后续也只允许确定性 harness 复验。图 1 和图 2 的路由、线型与间距未改变。
+最新可交付文件为 `E2AG-paper-anonymous-v1.1.11-20260816.pdf`。v1.1.11 在 v1.1.10 的自有设施治理一致性回归基础上统一实验术语：以“来源不匹配、集合外请求、需审批动作、违规拒绝率”替代操作性标签，并明确负对照完全由固定 harness 定义，模型不参与构造或调度。数据、表中数值、图 1 和图 2 均未改变。
 
 为确保中文字体和 Unicode 映射完整嵌入，发布 PDF 使用 MiKTeX XeLaTeX 构建两遍：
 
