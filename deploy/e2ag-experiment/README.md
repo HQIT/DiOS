@@ -48,3 +48,9 @@ POST requests, the optional SSE GET channel, DELETE session cleanup, redirect
 following, and SSE-preserving `tools/list` filtering. A terminal task must
 produce a matching `a2a_task/completed|failed` audit entry, a revoked grant,
 and (when emitted by DiAgent) a collected `task_result.md` artifact.
+
+The external negative check is a governance-consistency regression, not a
+model-driven attack exercise. Its tool name and arguments are fixed in
+`experiments/e2ag/external_governance_regression.py`. Any future replay must
+invoke that vector through a deterministic test harness; a model must not be
+asked to generate, select, or advance the negative steps.

@@ -76,17 +76,20 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeat
 - `experiments/e2ag/results/concurrency_summary_before_fix.json`
 - `experiments/e2ag/results/concurrency_summary.json`
 - `experiments/e2ag/results/external_qame_demogo_summary.json`
+- `experiments/e2ag/results/external_governance_regression_summary.json`
 - `experiments/e2ag/review/independent_review_panel_summary.json`
 - `experiments/e2ag/review/independent_review_disagreements.csv`
 - `experiments/e2ag/review/returned/reviewer-{a,b,c}.csv`
 
 论文中的数字必须以这些机器生成文件为准，不能手工选择更优的历史运行结果。
 
-外部链实验使用 `deploy/e2ag-experiment/docker-compose.demogo.yml` 在 demogo
-部署隔离后端，并将 `HQIT/qame` 的真实 GitHub push payload 以原 Connector
-密钥签名后重放到回环入口。该实验需要现有 `dios-diagent-task:latest`、共享
-`git_platform` 技能和 `git-perf` 服务；具体网络、镜像和闭合检查见部署目录
-README。结构化摘要不包含访问令牌或 webhook 密钥。
+自有设施治理一致性回归使用 `deploy/e2ag-experiment/docker-compose.demogo.yml`
+在 demogo 部署隔离后端，并将 `HQIT/qame` 的真实 GitHub push payload 以原
+Connector 密钥签名后送入回环入口。允许路径用于确认真实 Connector、DiAgent、
+PEP 与 `git-perf` 闭合；负对照的工具名和参数由
+`external_governance_regression.py` 固定，不由模型生成或选择。后续复验只能由
+确定性 harness 调用，不要求模型推进负向步骤。结构化摘要不包含访问令牌或
+webhook 密钥。
 
 ## 6. LaTeX 论文构建
 

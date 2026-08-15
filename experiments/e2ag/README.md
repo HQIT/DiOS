@@ -36,11 +36,16 @@ SQLite concurrency robustness result. The live-model command adds 30 model
 decisions and 90 paired execution paths. The older 22-case, mutation, and pure
 authorization scripts remain development and supplementary checks.
 
-The demogo field trace is recorded in
-`results/external_qame_demogo_summary.json`. It connects a real `HQIT/qame`
-GitHub push to an isolated DiOS backend, a real task-mode DiAgent container,
-the task-scoped MCP proxy, and the external `git-perf` service. It is one
-deployment-validity trace, not an additional statistical workload.
+The self-operated qame--demogo governance regression is recorded in
+`results/external_qame_demogo_summary.json` and
+`results/external_governance_regression_summary.json`. The positive control
+connects a real `HQIT/qame` GitHub push to an isolated DiOS backend, a real
+task-mode DiAgent container, the task-scoped MCP proxy, and the external
+`git-perf` service. The fixed negative control checks that a tool outside the
+issued grant is denied before upstream and leaves the canary unchanged. The
+negative vector is deterministic: do not ask a model to generate, select, or
+advance it. This pair is a governance-consistency check, not a statistical
+workload or an attack-success experiment.
 
 The live-model command is an external-validity example. It requires
 `OPENAI_BASE_URL`, `OPENAI_API_KEY`, and optionally `OPENAI_MODEL` and

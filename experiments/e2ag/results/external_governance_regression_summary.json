@@ -1,0 +1,70 @@
+{
+  "schema": "e2ag-owned-facility-governance-regression/v1",
+  "frozen_at": "2026-08-15T16:27:58.8880934Z",
+  "research_question": "Does the runtime MCP PEP enforce the task ToolGrant consistently and prevent an out-of-scope request from reaching the upstream service?",
+  "scope": {
+    "facility": "self-operated demogo DiOS and git-perf",
+    "repository": "HQIT/qame",
+    "branch": "e2ag-experiment",
+    "source": "github/HQIT/qame",
+    "event_type": "git.push",
+    "isolated_backend": "dios-e2ag-backend",
+    "upstream_service": "git-perf",
+    "negative_vector_generation": "fixed deterministic helper",
+    "model_generated_tool_or_arguments": false,
+    "future_replay_policy": "invoke the fixed vector from a deterministic test harness; do not ask a model to generate, select, or advance the negative test"
+  },
+  "positive_control": {
+    "result_file": "external_qame_demogo_summary.json",
+    "event_id": "868f8eab67ca",
+    "trace_id": "1c65e55240994b10965b49ba4791f223",
+    "after_sha": "148ddf2c2c19f9adc991a2be79cde0845b4979ed",
+    "task_status": "completed",
+    "allowed_tool_calls": 5,
+    "grant_terminal_status": "revoked",
+    "upstream_reached": true
+  },
+  "negative_control": {
+    "event_id": "81bf61a28689",
+    "cloud_event_id": "evt_daa29d1f5fd3",
+    "trace_id": "67f73ca2e9654022b6ad6e9686736fd4",
+    "task_id": "85c686433e5740178b386a443598b4ea",
+    "grant_id": "bb7b34a9b6474f6685e90215d25535ab",
+    "before_sha": "148ddf2c2c19f9adc991a2be79cde0845b4979ed",
+    "after_sha": "7e9c3848f6f3ba09b78c17dcdcd50067787ff273",
+    "allowed_tools": [
+      "record_push",
+      "record_review",
+      "list_pushes",
+      "list_reviews"
+    ],
+    "requested_tool": "mark_effective_commit",
+    "status_code": 403,
+    "reason": "MCP_TOOL_NOT_GRANTED",
+    "audit_sequence": 8,
+    "audit_outcome": "deny",
+    "upstream_status": null,
+    "upstream_reached": false,
+    "audit_entries": 11,
+    "audit_chain_valid": true,
+    "task_status": "completed",
+    "artifact_count": 1,
+    "grant_terminal_status": "revoked"
+  },
+  "upstream_state_check": {
+    "checked_at": "2026-08-15T16:27:58.8880934Z",
+    "canary_repo": "HQIT/e2ag-canary",
+    "canary_after_sha": "82e6cef3a7a609fd1cc302e94d887ebfddc050f6",
+    "record_id": "05799aff8d98",
+    "effective_before": false,
+    "effective_after": false,
+    "matching_record_count_after": 1,
+    "state_changed": false
+  },
+  "frozen_trace_integrity": {
+    "audit_chain_valid": true,
+    "historical_fixed_driver_sha256": "a57791026cfb37a4936a5c65761bbea1d66e9ea07247367f9e5bcf3adc104668"
+  },
+  "interpretation": "The positive control establishes the real qame-to-demogo-to-git-perf path. The fixed negative control establishes consistency between the issued ToolGrant and runtime PEP enforcement: the out-of-scope request was denied locally, the audit recorded no upstream status, and the pre-existing canary record remained unchanged.",
+  "claim_boundary": "This is a governance consistency and overprivilege regression on self-operated facilities. It is not an attack-success experiment, does not estimate prompt-injection susceptibility, and does not require a model to generate or select the negative request."
+}
