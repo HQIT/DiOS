@@ -19,13 +19,13 @@
     line join=round,line cap=round}
 ]
 % Four aligned columns keep the figure at its final journal width without scaling.
-\node[state] (registry) at (2.0,2.65)
+\node[state] (registry) at (2.0,2.25)
   {契约与策略库\\版本化持久状态};
-\node[proposed] (pdp) at (5.8,2.65)
+\node[proposed] (pdp) at (5.8,2.25)
   {策略判定器 PDP\\allow $\cdot$ deny $\cdot$ approval};
-\node[proposed] (approval) at (9.5,2.65)
+\node[proposed] (approval) at (9.5,2.25)
   {审批状态机\\pending $\rightarrow$ 终态};
-\node[proposed] (grantmgr) at (13.2,2.65)
+\node[proposed] (grantmgr) at (13.2,2.25)
   {能力授权器\\签发 $\cdot$ 过期 $\cdot$ 撤销};
 
 \node[component,minimum width=34mm] (connector) at (2.0,0)
@@ -45,16 +45,19 @@
 \node[component,minimum width=35mm] (verifier) at (12.05,-3.92)
   {轨迹验证器\\性质检查与首错定位};
 
-% Main execution path.  Trust-boundary labels live in the two external gaps.
-\coordinate (eventin) at (-0.20,0);
+% Main execution path. Boundary labels sit above and below the uninterrupted
+% external segments so that neither the line nor either arrowhead is occluded.
+\coordinate (eventin) at (-0.25,0);
 \coordinate (toolout) at (15.80,0);
-\draw[dataflow] (eventin)--node[pos=.20,above,font=\scriptsize,fill=white,inner sep=1pt]{事件域}
-  node[pos=.20,below,font=\scriptsize,fill=white,inner sep=1pt]{TB1}(connector.west);
+\node[font=\scriptsize,anchor=south,inner sep=0pt] at (0.02,0.14) {事件域};
+\node[font=\scriptsize,anchor=north,inner sep=0pt] at (0.02,-0.14) {TB1};
+\node[font=\scriptsize,anchor=south,inner sep=0pt] at (15.34,0.14) {工具域};
+\node[font=\scriptsize,anchor=north,inner sep=0pt] at (15.34,-0.14) {TB2};
+\draw[dataflow,shorten >=1pt] (eventin)--(connector.west);
 \draw[dataflow] (connector.east)--(dispatch.west);
 \draw[dataflow] (dispatch.east)--(runtime.west);
 \draw[dataflow] (runtime.east)--(mcppep.west);
-\draw[dataflow] (mcppep.east)--node[pos=.80,above,font=\scriptsize,fill=white,inner sep=1pt]{工具域}
-  node[pos=.80,below,font=\scriptsize,fill=white,inner sep=1pt]{TB2}(toolout);
+\draw[dataflow] (mcppep.east)--(toolout);
 
 % Governance relations use one vertical track per enforcement column.
 \draw[control] (registry.east)--(pdp.west);
@@ -71,14 +74,14 @@
 
 \begin{pgfonlayer}{background}
   \node[plane,minimum width=154mm,minimum height=16mm]
-    (govplane) at (7.75,2.65) {};
+    (govplane) at (7.75,2.25) {};
   \node[plane,minimum width=154mm,minimum height=16mm]
     (execplane) at (7.75,0) {};
   \node[plane,minimum width=154mm,minimum height=34mm]
     (evidenceplane) at (7.75,-3.15) {};
 \end{pgfonlayer}
 \node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
-  at (0.75,3.45) {治理平面：决策与授权状态};
+  at (0.75,3.05) {治理平面：决策与授权状态};
 \node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
   at (0.75,0.80) {执行平面：完整中介};
 \node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
