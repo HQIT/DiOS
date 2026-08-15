@@ -1,0 +1,124 @@
+{
+  "protocol": "external-opa-tool-boundary-v1",
+  "baseline": {
+    "name": "OPA-Tool",
+    "engine": "Open Policy Agent",
+    "upstream": "https://github.com/open-policy-agent/opa",
+    "license": "Apache-2.0",
+    "version": {
+      "version": "1.17.0",
+      "build_commit": "64a3625d33bc6ad8e7c40df03b76ce2fb3ab4d21-dirty",
+      "build_timestamp": "2026-05-28T14:48:35Z",
+      "build_hostname": "",
+      "go_version": "go1.26.3",
+      "platform": "linux/amd64",
+      "rego_version": "v1",
+      "webassembly": "unavailable"
+    },
+    "binary_sha256": "e83da46804832578e9d9e1733dffbe4d3b5f8cc9c26eb124da9ceea4abfe189f",
+    "policy_sha256": "ce4425a89d9859522188f376d5d353612cdaba35031a921b7f766a75397f7c4a",
+    "policy_data_sha256": "6011a10deccf12931bbfde54c37601bc3edf906afeb983dbcc0da2b7f6f6c7c5"
+  },
+  "corpus": {
+    "path": "experiments/e2ag/tool_call_cases.jsonl",
+    "sha256": "547173a48fe31944850f07e3311919424cd29a85cd7a658b0fb842ece7b99014",
+    "total_cases": 10,
+    "evaluated_tools_call_cases": 8,
+    "excluded_protocol_boundary_cases": [
+      "T09",
+      "T10"
+    ],
+    "exclusion_reason": "These cases evaluate non-tools/call MCP method mediation, which is outside the OPA-Tool policy input object."
+  },
+  "policy_input": {
+    "allowed_tools": [
+      "ledger.record_*",
+      "repo.read",
+      "mail.send"
+    ],
+    "adaptation": "A generic default-deny Rego allowlist using the same tool patterns; no E2AG implementation code is called."
+  },
+  "metrics": {
+    "cases": 8,
+    "benign_cases": 4,
+    "policy_violation_cases": 4,
+    "benign_pass_rate": 1.0,
+    "policy_violation_prevention_rate": 1.0,
+    "decision_accuracy": 1.0
+  },
+  "case_results": [
+    {
+      "id": "T01",
+      "label": "benign",
+      "method": "tools/call",
+      "tool": "ledger.record_push",
+      "expected": "allow",
+      "actual": "allow",
+      "correct": true
+    },
+    {
+      "id": "T02",
+      "label": "benign",
+      "method": "tools/call",
+      "tool": "ledger.record_issue",
+      "expected": "allow",
+      "actual": "allow",
+      "correct": true
+    },
+    {
+      "id": "T03",
+      "label": "benign",
+      "method": "tools/call",
+      "tool": "repo.read",
+      "expected": "allow",
+      "actual": "allow",
+      "correct": true
+    },
+    {
+      "id": "T04",
+      "label": "benign",
+      "method": "tools/call",
+      "tool": "mail.send",
+      "expected": "allow",
+      "actual": "allow",
+      "correct": true
+    },
+    {
+      "id": "T05",
+      "label": "attack",
+      "method": "tools/call",
+      "tool": "admin.delete_all",
+      "expected": "deny",
+      "actual": "deny",
+      "correct": true
+    },
+    {
+      "id": "T06",
+      "label": "attack",
+      "method": "tools/call",
+      "tool": "secret.read",
+      "expected": "deny",
+      "actual": "deny",
+      "correct": true
+    },
+    {
+      "id": "T07",
+      "label": "attack",
+      "method": "tools/call",
+      "tool": "ledger.delete_all",
+      "expected": "deny",
+      "actual": "deny",
+      "correct": true
+    },
+    {
+      "id": "T08",
+      "label": "attack",
+      "method": "tools/call",
+      "tool": "repo.write",
+      "expected": "deny",
+      "actual": "deny",
+      "correct": true
+    }
+  ],
+  "interpretation": "OPA-Tool checks the same fixed tool-call allowlist with an independent policy engine. It does not implement event-source binding, task admission, task-scoped grant lifecycle, or cross-layer evidence continuity. No latency comparison is reported."
+}

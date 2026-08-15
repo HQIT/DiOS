@@ -29,6 +29,21 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_mutation_experiment.py --p
 backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeats 300
 ```
 
+The independent policy-engine baseline uses the official OPA v1.17.0 binary
+and evaluates only the eight frozen `tools/call` cases:
+
+```bash
+python3 experiments/e2ag/run_opa_tool_baseline.py \
+  --opa-bin /path/to/opa_linux_amd64_static \
+  --expected-opa-sha256 e83da46804832578e9d9e1733dffbe4d3b5f8cc9c26eb124da9ceea4abfe189f
+```
+
+The output is `results/opa_tool_baseline_summary.json`. OPA-Tool receives the
+same tool patterns as RuntimeGuard through a generic default-deny Rego policy.
+The two non-`tools/call` protocol-boundary cases are excluded explicitly. This
+is a functional external-engine comparison; it does not compare local process
+latency or claim that OPA implements event/task lifecycle governance.
+
 The first four commands are the primary deterministic paper evaluation as of
 2026-08-15. They produce the frozen Contract x Policy 2x2 result, 480 real
 dispatcher-to-MCP executions, 100 persisted causal-localization traces, and the

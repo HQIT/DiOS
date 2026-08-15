@@ -21,6 +21,7 @@
 | trace 贯通 EventLog/A2ATask/A2A message/MCP PEP | tables, dispatcher, a2a_service, tool gateway | A2ATask 与 gateway 集成测试；demogo/qame 配对回归 | EventLog/A2A/MCP PEP/DiAgent/Artifact 已在真实 Connector 路径贯通 |
 | 任务作用域 ToolGrant 绑定 trace/task/agent/server | `e2ag_tool_gateway.py`, `E2AGToolGrant` | grant hash/scope/expiry/revoke tests | 已实现于 event→task-mode remote MCP 路径 |
 | MCP 工具调用时强制与发现裁剪 | `api/internal/e2ag_mcp.py` | 7 个 gateway tests；`tool_gateway_summary.json` | streamable HTTP 已验证；其他传输禁止外推 |
+| 工具允许集的独立引擎一致性 | `baselines/opa_tool_allowlist.rego`、官方 OPA v1.17.0 | `opa_tool_baseline_summary.json`；8个冻结 `tools/call` 用例；二进制/策略/输入哈希 | 集合内4/4通过、集合外4/4拒绝；只支持工具边界功能一致性，不等同于跨层 Agent 治理比较 |
 | 审计链可检测篡改 | `append_audit_entry`, `verify_audit_chain` | `audit_summary.json` | 6 类链内篡改可检；尾截断不可检 |
 | 纯判定开销 | `run_experiment.py` | `results/summary.json` | P50/P95/P99 可写，需注明非端到端 |
 | dispatcher+SQLite 控制面增量 | `run_dispatch_benchmark.py` | `results/dispatch_benchmark.json` | 可写为内存 SQLite 微基准 |

@@ -253,6 +253,7 @@ l_i.previous\_hash=h_{i-1}.
 事件与规则情形 & 7类来源；30正常+30违规；7类变异算子 & 三人盲表复核；变异集为合成压力数据 \\
 标签复核 & 3名复核者$\times$60例 & 检查规则可复核性，不证明分布代表性 \\
 治理配置 & Contract$\times$Policy 4种；双PEP 4种 & 内部消融，不等价于外部方法复现 \\
+外部策略引擎 & OPA v1.17.0；8个冻结\texttt{tools/call}用例 & 工具边界功能比较，不报告本地时延排名 \\
 端到端路径 & 480条确定性路径；90条模型决策配对路径 & 重复验证稳定性，不代表独立样本规模 \\
 模型与提示 & 1个模型；每场景1个固定提示 & 不估计开放环境中的模型违规选择概率 \\
 外部端点 & loopback MCP canary；1组公开仓库--自有设施配对回归 & 验证部署闭合与 grant--PEP 一致性，不构成统计工作负载 \\
@@ -265,7 +266,7 @@ l_i.previous\_hash=h_{i-1}.
 
 \subsection{基准方法与公平性}
 
-表~\ref{tab:baselines-v11} 给出基准。各配置共享代码路径、事件、模型决策和上游工具，仅切换治理位置。ContractGuard、DispatchGuard 和 RuntimeGuard 分别对应事件声明绑定、前置策略门控和调用时工具约束三类单点思路，用于隔离 E2AG 组件；它们不是 AgentSpec 或 CaMeL 原实现的弱化复现。外部方法保护对象不同，本文只在表~\ref{tab:related-scope-v11} 比较能力覆盖，不进行不公平的数值排名。
+表~\ref{tab:baselines-v11} 给出基准。内部配置共享代码路径、事件、模型决策和上游工具，仅切换治理位置。ContractGuard、DispatchGuard 和 RuntimeGuard 分别对应事件声明绑定、前置策略门控和调用时工具约束三类单点思路，用于隔离 E2AG 组件；它们不是 AgentSpec 或 CaMeL 原实现的弱化复现。为增加独立实现参照，本文另以官方 OPA v1.17.0 执行通用 default-deny Rego 工具允许集策略（OPA-Tool）\cite{opa}。该基线只接收工具调用对象，因此仅与 RuntimeGuard 在相同的冻结工具调用切片上比较判定结果，不比较本地时延，也不把通用策略引擎等同于事件驱动 Agent 治理系统。其他外部方法仍只在表~\ref{tab:related-scope-v11} 按保护对象比较，不对异构公开结果排序。
 
 \begin{table}[htbp]
 \centering
@@ -280,6 +281,7 @@ C0P0 / G0R0 & NoGuard & 无跨层治理 & 无治理参照 \\
 C1P0 & ContractGuard & 来源--类型契约 & 事件声明权 \\
 C0P1 / G1R0 & DispatchGuard & 目标策略/调度前PEP & 任务创建权 \\
 G0R1 & RuntimeGuard & 任务工具允许集合 & 工具副作用权 \\
+OPA-T & OPA-Tool & OPA/Rego工具允许集合 & 工具调用对象 \\
 C1P1 / G1R1 & E2AG & 准入与运行时能力 & 完整方法 \\
 \bottomrule
 \end{tabular}
@@ -311,6 +313,28 @@ C1P1 & 30/30 & 100.00\% & 30/30 & 100.00\% \\
 固定种子压力集对7种变异算子各执行100次。NoGuard、ContractGuard 和完整 E2AG 的精确决策率分别为0、57.14\%和100\%。ContractGuard 只覆盖必填字段、规范版本、来源--类型交叉和未知类型4类变异，完整方法继续覆盖需审批动作与目标能力不匹配。该结果验证实现对不同变异算子的稳定分工，但由于样本由规则生成，不用于估计真实分布中的检出率。
 
 \subsection{RQ2：双执行点与上游副作用}
+
+\subsubsection{独立策略引擎的工具边界基线}
+
+首先在\texttt{tool\_call\_cases.jsonl}中选取8个\texttt{tools/call}请求，其中4个工具名属于任务允许集合，4个在集合外。OPA-Tool 与 RuntimeGuard 接收相同的3项工具模式；Rego 策略只规定“方法为\texttt{tools/call}且工具名匹配允许模式时通过”，不调用 E2AG 判定代码。原冻结集另有2个非\texttt{tools/call}协议方法，它们检验 MCP 方法中介而非工具授权，故不计入 OPA-Tool 分母。
+
+\begin{table}[htbp]
+\centering
+\caption{冻结工具调用切片上的独立策略引擎基线}
+\label{tab:rq2-opa-v11}
+\small
+\begin{tabular}{lrrr}
+\toprule
+方法 & 集合内通过 & 集合外拒绝 & 判定一致 \\
+\midrule
+NoGuard & 4/4 & 0/4 & 4/8 \\
+RuntimeGuard & 4/4 & 4/4 & 8/8 \\
+OPA-Tool v1.17.0 & 4/4 & 4/4 & 8/8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+表~\ref{tab:rq2-opa-v11} 表明任务级工具允许集的判定语义可由独立通用策略引擎复现，RuntimeGuard 的结果不是由内部测试桩特有行为造成。该结果不表示 E2AG 在工具名判定上优于 OPA；二者在此切片功能等价。差异在保护范围：OPA-Tool 没有接收事件来源、任务准入、能力终态或跨层证据，因而不能回答同一工具调用是否继承自合法事件和有效任务。实验记录固定 OPA 版本、发布件 SHA-256、Rego 策略哈希、输入哈希和逐例结果，不报告单机进程启动时延。
 
 确定性实验包含正常授权、来源不匹配、任务后集合外请求和需审批动作，在4种配置下各重复30次，共480条 dispatcher--SQLite--A2ATask--ToolGrant--MCP PEP 路径。表~\ref{tab:rq2-deterministic-v11} 报告真实上游可达性。
 
@@ -423,7 +447,7 @@ approve/reject & 32 & 3200 & 100 & 0 \\
 
 \textbf{方法边界。}E2AG 保证调用不超出获准来源、目标和工具集合，不判定自然语言意图类别。若请求使用已授权工具和合法工具名，只在参数中携带不符合约束的数据，当前工具粒度能力无法区分；数据流能力或参数谓词可作为正交扩展。
 
-\textbf{内部有效性。}冻结矩阵按治理层构造，适合验证机制分工，不用于估计自然流量中的违规发生率。三名非构造者的盲表复核排除了明显的标签歧义，但因复核者依据同一显式治理规则判定，完全一致不能证明语料具有自然流量代表性。既有模型结果采用固定提示和工具选择约束，保证相同决策可在不同治理配置下配对复用；它证明副作用可达性，不证明开放环境中的模型违规选择概率。内部基准共享代码路径以隔离治理位置，但不能替代 AgentSpec、OAP、ToolGuardian 或 Agent libOS 的原实现比较。
+\textbf{内部有效性。}冻结矩阵按治理层构造，适合验证机制分工，不用于估计自然流量中的违规发生率。三名非构造者的盲表复核排除了明显的标签歧义，但因复核者依据同一显式治理规则判定，完全一致不能证明语料具有自然流量代表性。既有模型结果采用固定提示和工具选择约束，保证相同决策可在不同治理配置下配对复用；它证明副作用可达性，不证明开放环境中的模型违规选择概率。OPA-Tool 提供独立策略引擎的同输入功能参照，但 Rego 策略由本文按公开接口适配，只覆盖工具边界，不能替代 AgentSpec、OAP、ToolGuardian 或 Agent libOS 的原系统复现。
 
 \textbf{外部有效性与规模。}当前实现限于一个 AIOS 原型、一个模型、一个合成 HTTP MCP canary、一组公开仓库--自有设施配对回归和 SQLite。该回归证明真实 GitHub payload、任务运行时与外部 MCP 服务能够闭合，并为 grant--PEP 一致性提供一次现场证据，但单仓库、单组配对和共享上游状态不能代表自然工作负载。七类来源与压力变异扩大了输入机制覆盖，却不能替代多仓库 Connector 轨迹、更多工具类型或第二 AIOS。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
 
@@ -455,7 +479,7 @@ approve/reject & 32 & 3200 & 100 & 0 \\
 \bibitem{cloudevents} Cloud Native Computing Foundation. CloudEvents Specification, Version 1.0.2, 2022. \url{https://github.com/cloudevents/spec/tree/ce@v1.0.2}. [2026-08-14]
 \bibitem{a2a} A2A Protocol Working Group. Agent2Agent Protocol Specification. \url{https://a2a-protocol.org/latest/}. [2026-08-14]
 \bibitem{mcp} Model Context Protocol Contributors. Model Context Protocol Specification, Revision 2025-06-18. \url{https://modelcontextprotocol.io/specification/2025-06-18/}. [2026-08-14]
-\bibitem{opa} Open Policy Agent. OPA Documentation: Policy Decision and Enforcement. \url{https://www.openpolicyagent.org/docs}. [2026-08-14]
+\bibitem{opa} Open Policy Agent. OPA Documentation and Release v1.17.0: Policy Decision and Enforcement. \url{https://www.openpolicyagent.org/docs}; \url{https://github.com/open-policy-agent/opa/releases/tag/v1.17.0}. [2026-08-16]
 \bibitem{reference-monitor} Anderson JP. Computer Security Technology Planning Study. Technical Report ESD-TR-73-51, 1972.
 \bibitem{saltzer-schroeder} Saltzer JH, Schroeder MD. The protection of information in computer systems. Proc. of the IEEE, 1975, 63(9): 1278--1308. [doi: 10.1109/PROC.1975.9939]
 \bibitem{dennis-capability} Dennis JB, Van Horn EC. Programming semantics for multiprogrammed computations. Communications of the ACM, 1966, 9(3): 143--155. [doi: 10.1145/365230.365252]

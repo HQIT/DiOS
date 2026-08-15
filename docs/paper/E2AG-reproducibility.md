@@ -59,6 +59,16 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeat
 
 前四个脚本是当前正文主实验，分别生成冻结集 2×2 消融、480 次持久化端到端链、因果阶段定位和 SQLite 并发健壮性结果。后六个脚本保留为开发集、篡改、微基准和补充机制覆盖检查。
 
+外部工具边界基线使用官方 OPA v1.17.0。下载对应平台的官方发布件并核验发布页 SHA-256；本轮 Linux amd64 static 发布件的摘要为 `e83da46804832578e9d9e1733dffbe4d3b5f8cc9c26eb124da9ceea4abfe189f`。在 Linux/WSL 中执行：
+
+```bash
+python3 experiments/e2ag/run_opa_tool_baseline.py \
+  --opa-bin /path/to/opa_linux_amd64_static \
+  --expected-opa-sha256 e83da46804832578e9d9e1733dffbe4d3b5f8cc9c26eb124da9ceea4abfe189f
+```
+
+该脚本只评估冻结集中的8个 `tools/call` 请求；另2个非工具调用协议方法明确排除。它输出功能判定和版本/哈希，不采集本地进程启动时延。
+
 ## 5. 结果文件
 
 - `experiments/e2ag/results/summary.json`
@@ -77,6 +87,7 @@ backend\.venv\Scripts\python.exe experiments/e2ag/run_http_benchmark.py --repeat
 - `experiments/e2ag/results/concurrency_summary.json`
 - `experiments/e2ag/results/external_qame_demogo_summary.json`
 - `experiments/e2ag/results/external_governance_regression_summary.json`
+- `experiments/e2ag/results/opa_tool_baseline_summary.json`
 - `experiments/e2ag/review/independent_review_panel_summary.json`
 - `experiments/e2ag/review/independent_review_disagreements.csv`
 - `experiments/e2ag/review/returned/reviewer-{a,b,c}.csv`
