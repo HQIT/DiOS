@@ -2,6 +2,8 @@
 
 当前评审稿入口为 `e2ag-paper-v1.1.tex`，正文为 `e2ag-body-v1.1.tex`；`e2ag-paper.tex` 与 `e2ag-body.tex` 保留为上一版来源，不覆盖。构建产物写入 `build/`，不纳入版本控制；可交付 PDF 以版本号和日期另存于仓库根目录的 `output/pdf/`。
 
+最新可交付文件为 `E2AG-paper-anonymous-v1.1.1-20260815.pdf`。v1.1.1 是不改变正文和实验数字的配图修订版：图 1 按最终页宽直接绘制，不再整体缩放。
+
 为确保中文字体和 Unicode 映射完整嵌入，发布 PDF 使用 MiKTeX XeLaTeX 构建两遍：
 
 ```powershell

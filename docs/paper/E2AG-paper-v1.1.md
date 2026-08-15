@@ -234,9 +234,9 @@ data-reference="eq:end-to-end-safety-v11">[eq:end-to-end-safety-v11]</a>
 
 <figure id="fig:architecture-v11" data-latex-placement="htbp">
 
-<figcaption>E2AG 总体架构。治理平面拥有契约、策略、审批与任务能力，两个
-PEP
-在执行平面实施完整中介，证据平面记录并验证跨层对象依赖。</figcaption>
+<figcaption>E2AG 总体架构。治理平面维护决策与授权状态，执行平面的两个
+PEP 实施完整中介，证据平面记录并验证跨层对象依赖。双线框表示 E2AG
+强制组件；虚线框、虚线箭头和点线箭头分别表示持久状态、治理控制和证据写入。</figcaption>
 </figure>
 
 图 <a href="#fig:architecture-v11" data-reference-type="ref"

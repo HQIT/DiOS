@@ -1,79 +1,86 @@
 \begin{figure}[htbp]
 \centering
-\resizebox{0.98\textwidth}{!}{%
 \begin{tikzpicture}[
   font=\footnotesize,
-  component/.style={draw=black,rounded corners=1.5pt,align=center,fill=white,
-    line width=.45pt,minimum width=25mm,minimum height=9mm,inner xsep=3pt,inner ysep=3pt},
-  proposed/.style={component,double=black,double distance=.7pt},
-  state/.style={component,densely dashed,line width=.65pt,minimum width=27mm},
-  external/.style={component,line width=.7pt,minimum width=25mm},
-  plane/.style={draw=black!65,rounded corners=3pt,fill=white,
-    inner xsep=4mm,inner ysep=5mm},
-  audit/.style={draw=black,densely dotted,line width=.8pt,rounded corners=2pt,
-    fill=white,align=center,minimum height=9mm},
-  dataflow/.style={-{Latex[length=1.8mm]},draw=black,line width=.75pt,
-    rounded corners=2pt,line join=round,line cap=round},
-  control/.style={-{Latex[length=1.6mm]},draw=black,densely dashed,line width=.7pt,
-    rounded corners=2pt,line join=round,line cap=round},
-  evidence/.style={-{Latex[length=1.5mm]},draw=black,densely dotted,line width=.7pt,
-    rounded corners=2pt,line join=round,line cap=round}
+  component/.style={draw=black,rounded corners=1.8pt,align=center,fill=white,
+    line width=.50pt,minimum width=30mm,minimum height=11mm,
+    inner xsep=4pt,inner ysep=3.5pt},
+  proposed/.style={component,double=black,double distance=.75pt,line width=.65pt},
+  state/.style={component,densely dashed,line width=.70pt,minimum width=32mm},
+  audit/.style={draw=black,densely dotted,line width=.80pt,rounded corners=2pt,
+    fill=white,align=center,minimum height=12mm,inner xsep=5pt,inner ysep=4pt},
+  plane/.style={draw=black!70,rounded corners=3pt,fill=white,
+    line width=.45pt,inner xsep=4mm,inner ysep=5mm},
+  dataflow/.style={-{Latex[length=1.9mm]},draw=black,line width=.78pt,
+    rounded corners=2.5pt,line join=round,line cap=round},
+  control/.style={-{Latex[length=1.7mm]},draw=black,densely dashed,line width=.72pt,
+    rounded corners=2.5pt,line join=round,line cap=round},
+  evidence/.style={-{Latex[length=1.6mm]},draw=black,densely dotted,line width=.72pt,
+    rounded corners=2.5pt,line join=round,line cap=round}
 ]
-% External domains and execution plane.
-\node[external] (source) at (0,0) {外部事件域\\Git / Mail / Webhook};
-\node[component] (connector) at (3.1,0) {Connector\\标准化与身份适配};
-\node[proposed] (dispatch) at (6.1,0) {调度前 PEP\\契约与目标准入};
-\node[component] (runtime) at (9.1,0) {任务与智能体运行时\\A2A Task / Agent};
-\node[proposed] (mcppep) at (12.1,0) {调用时 PEP\\能力与工具验证};
-\node[external] (tool) at (15.2,0) {外部工具域\\MCP / Service / Device};
+% Four aligned columns keep the figure at its final journal width without scaling.
+\node[state] (registry) at (2.0,2.65)
+  {契约与策略库\\版本化持久状态};
+\node[proposed] (pdp) at (5.8,2.65)
+  {策略判定器 PDP\\allow $\cdot$ deny $\cdot$ approval};
+\node[proposed] (approval) at (9.5,2.65)
+  {审批状态机\\pending $\rightarrow$ 终态};
+\node[proposed] (grantmgr) at (13.2,2.65)
+  {能力授权器\\签发 $\cdot$ 过期 $\cdot$ 撤销};
 
-% Governance plane: columns align with the execution points they govern.
-\node[state] (registry) at (3.1,2.60) {契约与策略库\\版本化持久状态};
-\node[proposed] (pdp) at (6.1,2.60) {治理判定器\\PDP / 三态策略};
-\node[proposed] (approval) at (9.1,2.60) {审批管理器\\单次终态转移};
-\node[proposed] (grantmgr) at (12.1,2.60) {任务能力管理器\\签发 / 过期 / 撤销};
+\node[component,minimum width=34mm] (connector) at (2.0,0)
+  {事件接入 Connector\\Git / Mail / Webhook};
+\node[proposed] (dispatch) at (5.8,0)
+  {调度前 PEP\\契约与目标准入};
+\node[component,minimum width=31mm] (runtime) at (9.5,0)
+  {Agent 运行时\\A2A Task};
+\node[proposed] (mcppep) at (13.2,0)
+  {调用时 PEP / MCP Proxy\\能力与工具验证};
 
-% Evidence plane.  The collector spans all three execution evidence sources.
-\node[audit,minimum width=70mm] (trace) at (7.65,-2.45)
-  {执行证据汇聚：Event $\rightarrow$ Decision $\rightarrow$ Task / Approval $\rightarrow$ Grant $\rightarrow$ ToolCall};
-\node[state,minimum width=25mm] (auditstore) at (12.55,-2.45) {审计存储\\序号 / 前驱哈希};
-\node[component] (verifier) at (15.25,-2.45) {轨迹验证器\\性质与首错定位};
+\node[audit,minimum width=145mm] (trace) at (7.75,-2.40)
+  {执行证据汇聚\\Event $\rightarrow$ Decision $\rightarrow$ Task / Approval
+   $\rightarrow$ Grant $\rightarrow$ ToolCall};
+\node[state,minimum width=35mm] (auditstore) at (7.75,-3.92)
+  {审计存储\\序号 $+$ 前驱哈希};
+\node[component,minimum width=35mm] (verifier) at (12.05,-3.92)
+  {轨迹验证器\\性质检查与首错定位};
 
-% Primary execution data flow.
-\draw[dataflow] (source.east)--node[above,font=\scriptsize]{TB1}(connector.west);
+% Main execution path.  Trust-boundary labels live in the two external gaps.
+\coordinate (eventin) at (-0.20,0);
+\coordinate (toolout) at (15.80,0);
+\draw[dataflow] (eventin)--node[pos=.20,above,font=\scriptsize,fill=white,inner sep=1pt]{事件域}
+  node[pos=.20,below,font=\scriptsize,fill=white,inner sep=1pt]{TB1}(connector.west);
 \draw[dataflow] (connector.east)--(dispatch.west);
 \draw[dataflow] (dispatch.east)--(runtime.west);
 \draw[dataflow] (runtime.east)--(mcppep.west);
-\draw[dataflow] (mcppep.east)--node[above,font=\scriptsize]{TB2}(tool.west);
+\draw[dataflow] (mcppep.east)--node[pos=.80,above,font=\scriptsize,fill=white,inner sep=1pt]{工具域}
+  node[pos=.80,below,font=\scriptsize,fill=white,inner sep=1pt]{TB2}(toolout);
 
-% Governance/control relations, routed orthogonally.
+% Governance relations use one vertical track per enforcement column.
 \draw[control] (registry.east)--(pdp.west);
 \draw[control] (pdp.south)--(dispatch.north);
 \draw[control] (approval.south)--(runtime.north);
 \draw[control] (grantmgr.south)--(mcppep.north);
 
-% Evidence relations are vertical and terminate at separate collector anchors.
+% Audit writes are kept below the execution lane and never cross the main path.
 \draw[evidence] (dispatch.south)--(dispatch.south |- trace.north);
 \draw[evidence] (runtime.south)--(runtime.south |- trace.north);
-\draw[evidence] (mcppep.south)--++(0,-6mm)-|(trace.north east);
-\draw[evidence] (trace.east)--(auditstore.west);
+\draw[evidence] (mcppep.south)--(mcppep.south |- trace.north);
+\draw[dataflow] (trace.south)--(auditstore.north);
 \draw[dataflow] (auditstore.east)--(verifier.west);
 
-% Plane boundaries are in the background and do not cut through connectors.
 \begin{pgfonlayer}{background}
-  \node[plane,fit=(registry)(pdp)(approval)(grantmgr),
-    label={[font=\footnotesize\bfseries]above:治理平面（决策与授权状态）}] (govplane) {};
-  \node[plane,fit=(connector)(dispatch)(runtime)(mcppep),
-    label={[font=\footnotesize\bfseries]above left:执行平面（完整中介路径）}] (execplane) {};
-  \node[plane,fit=(trace)(auditstore)(verifier),
-    label={[font=\footnotesize\bfseries]below left:证据平面（可验证执行依赖）}] (evidenceplane) {};
+  \node[plane,fit=(registry)(pdp)(approval)(grantmgr)] (govplane) {};
+  \node[plane,fit=(connector)(dispatch)(runtime)(mcppep)] (execplane) {};
+  \node[plane,fit=(trace)(auditstore)(verifier)] (evidenceplane) {};
 \end{pgfonlayer}
-
-\node[below=4mm of evidenceplane,font=\scriptsize,align=center]
-  {单线框：既有执行组件\quad 双线框：E2AG 强制组件\quad 虚线框：持久状态\quad
-   实线箭头：执行数据\quad 虚线箭头：治理控制\quad 点线箭头：证据写入};
-\end{tikzpicture}%
-}
-\caption{E2AG 总体架构。治理平面拥有契约、策略、审批与任务能力，两个 PEP 在执行平面实施完整中介，证据平面记录并验证跨层对象依赖。}
+\node[font=\footnotesize\bfseries,fill=white,inner xsep=3pt]
+  at (7.75,3.50) {治理平面：决策与授权状态};
+\node[font=\footnotesize\bfseries,fill=white,inner xsep=3pt]
+  at (2.60,0.97) {执行平面：完整中介};
+\node[font=\footnotesize\bfseries,fill=white,inner xsep=3pt]
+  at (2.85,-1.52) {证据平面：可验证执行依赖};
+\end{tikzpicture}
+\caption{E2AG 总体架构。治理平面维护决策与授权状态，执行平面的两个 PEP 实施完整中介，证据平面记录并验证跨层对象依赖。双线框表示 E2AG 强制组件；虚线框、虚线箭头和点线箭头分别表示持久状态、治理控制和证据写入。}
 \label{fig:architecture-v11}
 \end{figure}
