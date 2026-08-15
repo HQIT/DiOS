@@ -14,8 +14,9 @@
   plane/.style={draw=black!70,rounded corners=3pt,fill=white,line width=.45pt},
   dataflow/.style={-{Latex[length=1.9mm]},draw=black,line width=.78pt,
     rounded corners=2.5pt,line join=round,line cap=round},
-  control/.style={-{Latex[open,length=1.9mm,width=1.6mm]},draw=black,line width=.68pt,
-    rounded corners=2.5pt,line join=round,line cap=round},
+  control/.style={-{Triangle[open,length=2.2mm,width=2.0mm]},draw=black,
+    line width=.68pt,shorten >=.6pt,rounded corners=2.5pt,
+    line join=round,line cap=round},
   evidence/.style={-{Stealth[open,length=1.9mm,width=1.6mm]},draw=black,
     densely dotted,line width=.65pt,rounded corners=2.5pt,
     line join=round,line cap=round}
@@ -34,8 +35,8 @@
   {工具副作用 $o$};
 
 % Conditional and terminal states are compact capsules, not competing boxes.
-\node[outcome] (deny) at (3.35,1.40) {拒绝终止};
-\node[outcome] (approval) at (5.85,1.40) {等待审批};
+\node[outcome] (deny) at (3.15,1.40) {拒绝终止};
+\node[outcome] (approval) at (6.05,1.40) {等待审批};
 \node[outcome] (denycall) at (10.90,1.40) {调用拒绝};
 
 % Primary left-to-right execution path.
@@ -47,18 +48,24 @@
 % Governance branches use explicit orthogonal tracks in the upper routing row.
 \draw[control] ($(admit.north)+(-7mm,0)$)
   -- ($(admit.north)+(-7mm,4mm)$)
-  -- (deny.south |- {$(admit.north)+(-7mm,4mm)$})
-  -- (deny.south);
+  -- (4.45,0.95)
+  -- (4.45,1.40)
+  -- (deny.east);
 \draw[control] ($(admit.north)+(7mm,0)$)
   -- ($(admit.north)+(7mm,4mm)$)
-  -- (approval.south |- {$(admit.north)+(7mm,4mm)$})
-  -- (approval.south);
+  -- (4.75,0.95)
+  -- (4.75,1.40)
+  -- (approval.west);
 \draw[control] (approval.east)
   -- ++(6mm,0)
   -- node[right,font=\scriptsize,fill=white,inner sep=1pt]{审批通过}
      ($(task.north)+(0,4mm)$)
   -- (task.north);
-\draw[control] (authorize.north)--(denycall.south);
+\draw[control] (authorize.north)
+  -- (10.90,0.95)
+  -- (9.60,0.95)
+  -- (9.60,1.40)
+  -- (denycall.west);
 
 % Evidence writes are visually secondary and terminate at one complete trace.
 \node[audit,minimum width=145mm] (auditlog) at (7.75,-2.50)
