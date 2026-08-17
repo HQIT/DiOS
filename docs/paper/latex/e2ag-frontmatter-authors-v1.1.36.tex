@@ -1,0 +1,45 @@
+\thispagestyle{josfirst}
+
+\noindent{\jostitlefont\fontsize{14pt}{18pt}\selectfont
+事件驱动智能体操作系统跨层能力治理方法\par}
+\vspace{2pt}
+\noindent{\jostitlefont\fontsize{10.5pt}{14pt}\selectfont
+（人工智能操作系统及其安全专刊）\par}
+
+\vspace{7pt}
+\noindent{\josauthorfont\fontsize{12pt}{16pt}\selectfont
+\mbox{徐刚$^{1,3}$}，\mbox{冯骐$^{2,*}$}，\mbox{姚俊杰$^{3}$}，\mbox{肖宇$^{3}$}，\mbox{陈铭松$^{3}$}，\mbox{王江涛$^{1,3}$}，\mbox{杨世光$^{3}$}，\mbox{饶振宇$^{3}$}，\mbox{王语欣$^{3}$}\par}
+
+\vspace{4pt}
+\begingroup\fontsize{8pt}{12pt}\selectfont
+\noindent$^{1}$（华东师范大学 国家可信嵌入式软件工程技术研究中心，上海）\par
+\noindent$^{2}$（华东师范大学 信息化治理办公室，上海）\par
+\noindent$^{3}$（华东师范大学 软件工程学院，上海）\par
+\noindent 通讯作者：冯骐，E-mail：\texttt{qfeng@admin.ecnu.edu.cn}\par
+\endgroup
+
+\begin{joszhabstract}
+事件驱动智能体操作系统将外部事件转化为自主任务并发起工具调用，但事件来源、任务创建与工具执行分属不同信任域，协议格式校验或单点动作过滤无法证明一次工具调用获得了完整链路授权。本文提出事件到智能体治理（Event-to-Agent Governance，E2AG）方法，将事件接入、任务创建和工具调用三个阶段的授权约束统一纳入任务作用域的能力生命周期。E2AG 通过来源--类型契约和目标策略完成任务准入，为获准任务签发对象绑定的短期能力，并在实际模型上下文协议（Model Context Protocol，MCP）调用抵达上游前实施第二次强制验证；统一执行证据用于检查授权依赖和定位治理失败。本文给出跨层授权状态模型、完整中介安全性质及其证明概要，并在事件驱动智能体操作系统原型上实现该方法。基于经盲表复核的冻结治理矩阵、合成压力集、持久化端到端执行、既有模型工具决策回放、自有设施治理一致性回归和并发故障注入进行评估。评估结果表明，在所测试场景中，完整方法保持了全部直接准入事件的可用性，并对冻结治理矩阵中全部非直接准入事件作出预期的拒绝或审批判定。消融实验显示，移除任一执行点都会使依赖该执行点上下文的未授权工具调用到达上游。
+\end{joszhabstract}
+\joskeywords{人工智能操作系统；智能体操作系统；能力治理；完整中介；执行溯源}
+\josclassification{TP311}
+
+\vspace{8pt}
+\noindent{\bfseries\fontsize{10.5pt}{13pt}\selectfont
+A Cross-Layer Capability Governance Method for Event-Driven Agent Operating Systems\par}
+\vspace{4pt}
+\noindent{\fontsize{9pt}{12pt}\selectfont
+\mbox{XU Gang$^{1,3}$}, \mbox{FENG Qi$^{2,*}$}, \mbox{YAO Junjie$^{3}$}, \mbox{XIAO Yu$^{3}$}, \mbox{CHEN Mingsong$^{3}$}, \mbox{WANG Jiangtao$^{1,3}$}, \mbox{YANG Shiguang$^{3}$}, \mbox{RAO Zhenyu$^{3}$}, \mbox{WANG Yuxin$^{3}$}\par}
+\vspace{3pt}
+\begingroup\fontsize{7.5pt}{10pt}\selectfont
+\noindent$^{1}$ (National Trusted Embedded Software Engineering Technology Research Center, East China Normal University, Shanghai, China)\par
+\noindent$^{2}$ (Information Governance Office, East China Normal University, Shanghai, China)\par
+\noindent$^{3}$ (School of Software Engineering, East China Normal University, Shanghai, China)\par
+\endgroup
+
+\begin{josenabstract}
+Event-driven agent operating systems transform external events into autonomous tasks and tool invocations. Event provenance, task creation, and tool execution nevertheless belong to distinct trust domains, so protocol validation or a single action filter cannot establish that a tool invocation is authorized by the complete execution chain. This paper presents Event-to-Agent Governance (E2AG), a cross-layer capability-governance method that organizes event-admission, task-creation, and tool-invocation authorization constraints into a task-scoped capability lifecycle. E2AG admits tasks through source--type contracts and target policies, issues an object-bound short-lived capability for each admitted task, and enforces the capability again before an actual Model Context Protocol (MCP) call reaches its upstream tool. Unified execution evidence checks authorization dependencies and localizes governance failures. We define a cross-layer authorization transition model and a complete-mediation safety property with a proof sketch, and implement E2AG in an event-driven agent operating system prototype. Evaluation uses a blindly reviewed frozen governance matrix, a synthetic stress suite, persistent end-to-end executions, replay of previously frozen model tool decisions, a governance-consistency regression on self-operated facilities, and concurrent fault injection. The results show that, in the tested scenarios, the complete method preserves the availability of all directly admissible events and produces the expected denial or approval decision for every non-directly admissible event in the frozen governance matrix. The ablation study shows that removing either enforcement point allows unauthorized tool invocations that depend on context available only at that point to reach the upstream tool.
+\end{josenabstract}
+\josenkeywords{artificial intelligence operating system; agent operating system; capability governance; complete mediation; execution provenance}
+
+\vspace{8pt}

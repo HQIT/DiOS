@@ -1,8 +1,8 @@
 # E2AG LaTeX 稿件
 
-当前作者投稿稿入口为 `e2ag-paper-v1.1.35-authors.tex`，首页信息为 `e2ag-frontmatter-authors-v1.1.35.tex`，正文入口为 `e2ag-body-v1.1.35.tex`（正文内容复用未改动的 v1.1.34），公共排版规则集中在 `jos2025-submission.sty`。该样式以官网“软件学报排版样例2025年版”为视觉参照，采用约 184 mm × 260 mm 版心、9 pt 正文字号、12 pt 行距、左对齐分级标题和样例化的中英文首页信息块；DOI、卷期、收稿日期和正式页码等编辑部字段不在初投稿稿中伪造。
+当前作者投稿稿入口为 `e2ag-paper-v1.1.36-authors.tex`，首页信息为 `e2ag-frontmatter-authors-v1.1.36.tex`，正文入口为 `e2ag-body-v1.1.36.tex`，公共排版规则集中在 `jos2025-submission.sty`。该样式以官网“软件学报排版样例2025年版”为视觉参照，采用约 184 mm × 260 mm 版心、9 pt 正文字号、12 pt 行距、左对齐分级标题和样例化的中英文首页信息块；DOI、卷期、收稿日期和正式页码等编辑部字段不在初投稿稿中伪造。
 
-最新可交付文件为 `E2AG-paper-authors-v1.1.35-20260817.pdf`，共15页，SHA-256 为 `C5F77E5C237E4D33A258A3DB850F5B9B0BF67207A8389767EEEAA6CB4DD63369`。该版删除中英文作者名单中的人工强制换行，把每位作者及其单位上标设为不可拆分单元，由版心在作者之间自然换行；字号、作者顺序、单位映射及正文均未改变。三遍 XeLaTeX 构建后无未解析引用或 Overfull；15页逐页检查未发现乱码、越界、重叠或图表缺失，全部字体均已嵌入并带 Unicode 映射。
+最新可交付文件为 `E2AG-paper-authors-v1.1.36-20260817.pdf`，共15页，SHA-256 为 `FD823B2FE43D7BBBDD0E90B0B8CE26F14B2662A01CA44B9ABC08FECE13FA56CC`。该版逐处审计“副作用”术语：授权对象统一为“工具调用权限”，实验观测统一为“上游调用可达性”，仅在确指外部资源状态改变时使用“外部状态变更”；形式化对象由 `effect(o)`/`Effect(c)` 改为调用转发事实 `forward(c)`/`Forwarded(c)`，图2同步标为“工具调用 c”。三遍 XeLaTeX 构建后无未解析引用或 Overfull；PDF 文本中“副作用”、`side effect` 和 `side-effect` 均为0处，全部字体均已嵌入并带 Unicode 映射，变更页复核未见乱码、越界、重叠或图表缺失。
 
 v1.1.33 的 DOCX 仅作为历史协作备份保留，不再同步维护。后续以 LaTeX 为唯一可维护源文件，以版本化 PDF 为投稿产物，不再进行 PDF 到 DOCX 的反向转换。
 
@@ -11,14 +11,14 @@ v1.1.33 的 DOCX 仅作为历史协作备份保留，不再同步维护。后续
 日常只检查首页排版时，可编译轻量入口：
 
 ```powershell
-xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-frontmatter-preview-v1.1.35.tex
+xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-frontmatter-preview-v1.1.36.tex
 ```
 
 阶段版本或投稿前再对作者稿完整构建两遍：
 
 ```powershell
-xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-paper-v1.1.35-authors.tex
-xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-paper-v1.1.35-authors.tex
+xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-paper-v1.1.36-authors.tex
+xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-paper-v1.1.36-authors.tex
 ```
 
 主稿显式使用 Windows 自带的 Noto Serif SC/Noto Sans SC 文件，避免依赖查看器本机字体。发布前应使用 `pdffonts` 确认中文字体 `emb=yes, uni=yes`，并用 `pdftotext -enc UTF-8` 验证中文可复制和检索。

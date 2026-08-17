@@ -31,8 +31,8 @@
   {A2A Task $t$\\任务能力 $g$};
 \node[proposed,minimum width=29mm] (authorize) at (10.90,0)
   {调用时 PEP\\状态 $+$ 绑定 $+$ 工具};
-\node[component] (effect) at (14.05,0)
-  {工具副作用 $o$};
+\node[component] (call) at (14.05,0)
+  {工具调用 $c$};
 
 % Conditional and terminal states are compact capsules, not competing boxes.
 \node[outcome] (deny) at (3.15,1.40) {拒绝终止};
@@ -43,7 +43,7 @@
 \draw[dataflow] (event.east)--(admit.west);
 \draw[dataflow] (admit.east)--(task.west);
 \draw[dataflow] (task.east)--(authorize.west);
-\draw[dataflow] (authorize.east)--(effect.west);
+\draw[dataflow] (authorize.east)--(call.west);
 
 % Governance branches use explicit orthogonal tracks in the upper routing row.
 \draw[control] ($(admit.north)+(-1.5mm,0)$)
