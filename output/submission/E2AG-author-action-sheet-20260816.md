@@ -17,9 +17,9 @@
 
 | 文件 | 用途 | SHA-256 |
 |---|---|---|
-| `E2AG-paper-anonymous-v1.1.22-20260817.pdf` | 匿名论文主件 | `FD52DB95B09C33CC4102E97382DC6077BE85C241B148968CFF018DF86F28CA1E` |
+| `E2AG-paper-anonymous-v1.1.23-20260817.pdf` | 匿名论文主件 | `60F38ED39E4A08516A092AE18814A451D0C3702E972AE0217B7A17E50A4D57B2` |
 | `E2AG-JOS-submission-statement-prefilled-v1.1.20-20260817.docx` | 打印签署源文件，不直接作为最终签署件上传 | `0F5B897C0F1587B6F2C8FCACFFA5DAA269988FA86377E01C6B7EEC27C8F7489F` |
-| `E2AG-online-submission-fields-20260816.md` | 在线字段复制卡 | `7DC92E71B6A3FC8973B95CBCEF4E4AA8C61EDAB59FBC98999A725E628F79C3B8` |
+| `E2AG-online-submission-fields-20260816.md` | 在线字段复制卡 | `4CD0859A8FCD14715791126F9D1C510FBF06D06468B712E0C93FB30859E2E6FD` |
 
 ## 最终确认页核对
 
@@ -28,7 +28,7 @@
 - 通讯作者为王江涛；
 - 所有系统必填的邮箱、单位、职称、邮编和手机均来自作者确认信息；
 - 投稿类型和专刊备注正确；
-- 匿名论文文件名以 `v1.1.22-20260817` 结尾，页面预览正常；
+- 匿名论文文件名以 `v1.1.23-20260817` 结尾，页面预览正常；
 - 上传的是签署扫描件，不是未签署的预填 Word；
 - 提交后保存稿件编号、系统确认页和确认邮件。
 

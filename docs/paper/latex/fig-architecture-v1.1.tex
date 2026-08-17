@@ -19,22 +19,22 @@
     line join=round,line cap=round}
 ]
 % Four aligned columns keep the figure at its final journal width without scaling.
-\node[state] (registry) at (2.35,2.25)
+\node[state] (registry) at (2.20,2.25)
   {契约与策略库\\版本化持久状态};
-\node[proposed] (pdp) at (5.95,2.25)
+\node[proposed] (pdp) at (5.70,2.25)
   {策略判定器 PDP\\allow $\cdot$ deny $\cdot$ approval};
-\node[proposed] (approval) at (9.45,2.25)
+\node[proposed] (approval) at (9.15,2.25)
   {审批状态机\\pending $\rightarrow$ 终态};
-\node[proposed] (grantmgr) at (12.95,2.25)
+\node[proposed] (grantmgr) at (12.85,2.25)
   {能力授权器\\签发 $\cdot$ 过期 $\cdot$ 撤销};
 
-\node[component,minimum width=34mm] (connector) at (2.35,0)
+\node[component,minimum width=34mm] (connector) at (2.20,0)
   {事件接入 Connector\\Git / Mail / Webhook};
-\node[proposed] (dispatch) at (5.95,0)
+\node[proposed] (dispatch) at (5.70,0)
   {调度前 PEP\\契约与目标准入};
-\node[component,minimum width=31mm] (runtime) at (9.45,0)
+\node[component,minimum width=31mm] (runtime) at (9.15,0)
   {Agent 运行时\\A2A Task};
-\node[proposed] (mcppep) at (12.95,0)
+\node[proposed] (mcppep) at (12.85,0)
   {调用时 PEP / MCP Proxy\\能力与工具验证};
 
 \node[audit,minimum width=135mm] (trace) at (7.75,-2.40)
@@ -48,13 +48,13 @@
 % Main execution path. Boundary labels sit above and below the uninterrupted
 % external segments so that neither the line nor either arrowhead is occluded.
 \coordinate (eventin) at (-0.50,0);
-\coordinate (toolout) at (15.95,0);
+\coordinate (toolout) at (16.00,0);
 % The domain and trust-boundary labels occupy dedicated exterior gutters;
 % their bounding boxes do not touch the execution-plane frame.
-\node[font=\scriptsize,anchor=south east,inner sep=0pt] at (0.38,0.14) {事件域};
-\node[font=\scriptsize,anchor=north east,inner sep=0pt] at (0.38,-0.14) {TB1};
-\node[font=\scriptsize,anchor=south west,inner sep=0pt] at (15.12,0.14) {工具域};
-\node[font=\scriptsize,anchor=north west,inner sep=0pt] at (15.12,-0.14) {TB2};
+\node[font=\scriptsize,anchor=south east,inner sep=0pt] at (0.20,0.14) {事件域};
+\node[font=\scriptsize,anchor=north east,inner sep=0pt] at (0.20,-0.14) {TB1};
+\node[font=\scriptsize,anchor=south west,inner sep=0pt] at (15.30,0.14) {工具域};
+\node[font=\scriptsize,anchor=north west,inner sep=0pt] at (15.30,-0.14) {TB2};
 \draw[dataflow,shorten >=1pt] (eventin)--(connector.west);
 \draw[dataflow] (connector.east)--(dispatch.west);
 \draw[dataflow] (dispatch.east)--(runtime.west);
@@ -75,19 +75,19 @@
 \draw[dataflow] (auditstore.east)--(verifier.west);
 
 \begin{pgfonlayer}{background}
-  \node[plane,minimum width=144mm,minimum height=18mm]
+  \node[plane,minimum width=150mm,minimum height=18mm]
     (govplane) at (7.75,2.25) {};
-  \node[plane,minimum width=144mm,minimum height=18mm]
+  \node[plane,minimum width=150mm,minimum height=18mm]
     (execplane) at (7.75,0) {};
-  \node[plane,minimum width=144mm,minimum height=34mm]
+  \node[plane,minimum width=150mm,minimum height=34mm]
     (evidenceplane) at (7.75,-3.05) {};
 \end{pgfonlayer}
 \node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
-  at (0.90,3.15) {治理平面：决策与授权状态};
+  at (0.60,3.15) {治理平面：决策与授权状态};
 \node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
-  at (0.90,0.90) {执行平面：完整中介};
+  at (0.60,0.90) {执行平面：完整中介};
 \node[font=\footnotesize\bfseries,anchor=west,fill=white,inner xsep=3pt]
-  at (0.90,-1.35) {证据平面：可验证执行依赖};
+  at (0.60,-1.35) {证据平面：可验证执行依赖};
 \end{tikzpicture}
 \caption{E2AG 总体架构。三个等宽平面按对象列对齐；实心箭头、空心三角箭头和点线空心燕尾箭头分别表示执行数据、治理控制和证据写入，双线框和虚线框分别表示 E2AG 强制组件和持久状态。}
 \label{fig:architecture-v11}
