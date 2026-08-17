@@ -2,7 +2,7 @@
 
 > **摘要：** 事件驱动智能体操作系统将外部事件转化为自主任务和工具副作用，但事件来源、任务创建与工具执行分属不同信任域，协议格式校验或单点动作过滤无法证明一次副作用获得了完整链路授权。本文提出事件到智能体治理（Event-to-Agent Governance，E2AG）方法，将事件声明权、任务创建权和工具副作用权组织为同一任务作用域能力生命周期。E2AG 通过来源–类型契约和目标策略完成任务准入，为获准任务签发对象绑定的短期能力，并在实际模型上下文协议（Model Context Protocol，MCP）调用抵达上游前实施第二次强制验证；统一执行证据用于检查授权依赖和定位治理失败。本文给出跨层授权状态模型、完整中介安全性质及其证明概要，并在事件驱动智能体操作系统原型上实现该方法。基于经盲表复核的冻结治理矩阵、合成压力集、持久化端到端执行、既有模型工具决策回放、自有设施治理一致性回归和并发故障注入的评估表明：完整方法在保持正常事件可用性的同时正确处理冻结矩阵中全部应拒绝或转审批事件；移除任一执行点都会重新引入与其可见上下文对应的未授权副作用。结果说明，跨层对象绑定与双执行点完整中介能够把模型的不确定决策约束在可验证的系统授权边界内。
 >
-> **关键词：** 人工智能操作系统；事件驱动智能体；能力治理；完整中介；执行溯源
+> **关键词：** 人工智能操作系统；智能体操作系统；能力治理；完整中介；执行溯源
 
 **中图法分类号：** TP309
 
@@ -28,7 +28,7 @@ Operating Systems**
 > dependencies and localizes governance failures. We define a
 > cross-layer authorization transition model and a complete-mediation
 > safety property with a proof sketch, and implement E2AG in an
-> event-driven agent operating-system prototype. Evaluation with a blindly reviewed
+> event-driven agent operating system prototype. Evaluation with a blindly reviewed
 > frozen governance matrix, a synthetic stress suite, persistent end-to-end
 > executions, replay of previously frozen model tool decisions, a
 > governance-consistency regression on self-operated facilities, and concurrent fault
@@ -40,17 +40,17 @@ Operating Systems**
 > nondeterministic model decisions within verifiable system
 > authorization boundaries.
 >
-> **Key words:** agent operating system; event-driven agent; capability
+> **Key words:** artificial intelligence operating system; agent operating system; capability
 > governance; complete mediation; execution provenance
 
 # 引言
 
-人工智能体操作系统（AI Agent Operating System，AIOS）将模型、记忆、工具和任务调度组织为共享运行环境，自主智能体研究则把规划、记忆、工具使用和环境交互视为持续执行的共同组成[1,2]。在事件驱动 AIOS 中，Git
+本文将人工智能操作系统（Artificial Intelligence Operating System，AIOS）作为上位概念，指以人工智能（Artificial Intelligence，AI）为原生能力、为模型、智能体与系统资源提供统一运行支撑的系统软件范式；将其中面向智能体工作负载，统一管理模型、记忆、工具、生命周期、任务调度和访问控制的具体形态称为智能体操作系统（Agent Operating System，Agent OS）[1]。自主智能体研究把规划、记忆、工具使用和环境交互视为持续执行的共同组成[2]。本文聚焦事件驱动 Agent OS：Git
 推送、邮件、监控告警和业务回调不再只是被动输入，而可以直接创建智能体任务。任务运行时读取事件载荷，调用模型选择工具，再由
-模型上下文协议（Model Context Protocol，MCP）
+MCP
 或其他连接器访问代码仓库、数据库、消息系统和设备。与传统请求–响应应用相比，这条链同时包含不可信事件输入、非确定性模型决策和可产生外部副作用的工具调用；治理问题因而不只是“模型选择了什么动作”，而是“该动作能否沿系统路径获得执行权”。
 
-考虑如下贯穿全文的例子。一个多智能体博弈平台在参与者向公开测试代码库推送提交后，向深度智能操作系统（Deep Intelligent Operation System，DiOS）测试服务器发送标准化的 `git.push` 事件 $`e`$。服务器选择变更分析智能体 $`a`$ 并创建任务 $`t`$；目标策略只允许该任务使用记录推送、记录评审和查询记录等工具，因此系统签发绑定 $`e,t,a`$ 与允许集合 $`U(g)`$ 的短期能力 $`g`$。运行时产生的工具调用 $`c`$ 若属于 $`U(g)`$，调用时策略执行点（policy enforcement point，PEP）才将其转发到上游；若模型选择固定的集合外状态修改工具，PEP 在接触上游前返回拒绝。该允许–拒绝配对对应本文自有设施上的治理一致性回归，但不用于估计自然流量中的模型违规概率。
+考虑如下贯穿全文的例子。一个多智能体博弈平台在参与者向公开测试代码库推送提交后，向本文 Agent OS 原型的隔离测试服务器发送标准化的 `git.push` 事件 $`e`$。服务器选择变更分析智能体 $`a`$ 并创建任务 $`t`$；目标策略只允许该任务使用记录推送、记录评审和查询记录等工具，因此系统签发绑定 $`e,t,a`$ 与允许集合 $`U(g)`$ 的短期能力 $`g`$。运行时产生的工具调用 $`c`$ 若属于 $`U(g)`$，调用时策略执行点（policy enforcement point，PEP）才将其转发到上游；若模型选择固定的集合外状态修改工具，PEP 在接触上游前返回拒绝。该允许–拒绝配对对应本文自有设施上的治理一致性回归，但不用于估计自然流量中的模型违规概率。
 
 同一例子给出两个单点机制无法覆盖的反事实分支。若事件伪造来源字段但最终选择集合内工具，仅位于调用时的 PEP 看不到来源声明权，必须由任务创建前的 PEP 阻断；若来源与任务均已获准，但运行时选择集合外工具，调度前 PEP 尚未观察到实际调用 $`c`$，必须由调用时 PEP 再次验证。两条分支分别对应第6节的任务准入消融和副作用可达性实验，说明问题不是重复增加规则，而是让授权依据随事件、任务和工具对象跨层传播。
 
@@ -58,12 +58,12 @@ CloudEvents、智能体间协议（Agent2Agent，A2A）和 MCP
 分别规定事件、任务和工具调用对象，但协议互操作不自动产生跨对象授权。间接提示词注入评测揭示了不可信内容改变工具决策的风险；AgentSpec
 和 CaMeL
 等工作把确定性约束置于模型之外。这些机制分别保护事件格式、运行时动作或数据流，却没有共同回答三个问题：谁有权声明某类事件，该事件能否创建指定智能体任务，以及任务实际选择的工具能否产生副作用。经典参考监控器要求安全相关访问受到不可绕过的完整中介；在事件驱动
-AIOS 中，单个执行点无法同时观察三个对象，完整中介必须跨层组织。
+Agent OS 中，单个执行点无法同时观察三个对象，完整中介必须跨层组织。
 
 本文把上述问题抽象为跨层授权传播：系统接收不可信事件后，应当逐步收缩而不是隐式扩大权限。事件来源只能声明契约允许的类型；获准事件只能创建目标策略允许的任务；任务只能使用绑定到其事件、智能体、MCP
 服务和工具集合的短期能力。任何到达上游的副作用，都应存在可验证的事件–任务–能力–调用依赖。该目标还要求审批、能力过期和事件重放采用单调、原子的状态转移，否则正确的策略判定仍可能被并发竞态破坏。
 
-基于这一抽象，本文提出事件到智能体治理（Event-to-Agent Governance，E2AG）方法。E2AG
+基于这一抽象，本文提出 E2AG 方法。E2AG
 由治理平面、执行平面和证据平面组成：治理平面拥有来源–类型契约、目标策略、审批和任务能力状态；执行平面在任务创建前与工具调用前设置两个不可绕过的
 PEP；证据平面把两个执行点及其对象依赖写入同一 trace。E2AG
 不检测自然语言是否恶意，而是在模型之外决定一次任务和一次副作用是否具有完整的系统授权。
@@ -74,7 +74,7 @@ Contract$`\times`$Policy
 
 本文的主要贡献如下：
 
-1.  提出事件驱动 AIOS
+1.  提出事件驱动 Agent OS
     的跨层授权问题，统一刻画事件声明权、任务创建权与工具副作用权，给出可由算法和实验共同检查的安全性质；
 
 2.  设计 E2AG
@@ -83,9 +83,9 @@ Contract$`\times`$Policy
 3.  在真实事件驱动智能体操作系统原型中实现
     E2AG，并通过完整消融、独立策略引擎基线、持久化端到端执行、既有模型决策配对回放、故障注入和并发状态实验验证各机制的独立作用与组合效果；
 
-4.  公开区分已验证范围与外部有效性边界：当前证据支持单一 AIOS
+4.  公开区分已验证范围与外部有效性边界：当前证据支持单一 Agent OS
     原型上的副作用可达性与治理状态性质，不外推为任意提示词注入检测、所有工具传输覆盖或跨
-    AIOS 通用性。
+    Agent OS 通用性。
 
 本文其余部分组织如下：第1节介绍相关协议、智能体运行时防护与访问控制基础；第2节给出系统模型、不可信输入能力和安全目标；第3节介绍
 E2AG
@@ -144,8 +144,8 @@ data-reference="tab:related-scope-v11">1</a>
 
 ## 问题胶囊与信任边界
 
-本文研究如下系统：多个外部事件源经 Connector 接入 AIOS，AIOS
-创建智能体任务，模型在任务中选择工具，工具调用对外部资源产生副作用。外部事件源及其载荷不可信；AIOS
+本文研究如下系统：多个外部事件源经 Connector 接入 Agent OS，Agent OS
+创建智能体任务，模型在任务中选择工具，工具调用对外部资源产生副作用。外部事件源及其载荷不可信；Agent OS
 治理代码、策略库和持久化状态属于可信计算基；模型输出不作为授权依据；外部工具只信任经过调用
 PEP
 的请求。被保护资产是任务创建权、工具凭据和外部副作用。不可信来源可能提交不一致事件字段、重复事件，或通过载荷改变模型工具选择；本文假设其不能直接修改治理代码、策略和数据库。目标是在不分析自然语言意图类别的前提下，使每个上游副作用都可追溯到合法事件、获准任务和有效任务能力。参数级数据流、治理主机失陷和外部存储整体回滚不在本文范围内。
@@ -166,7 +166,7 @@ EventLog、A2ATask、ToolGrant、Approval 和
 AuditEntry，而不是仅用于记号说明。
 
 事件接入域、智能体执行域和工具副作用域构成两个信任边界（trust boundary，TB）：TB1
-位于外部来源与 AIOS 之间，TB2 位于 AIOS 与外部工具之间。跨越 TB1
+位于外部来源与 Agent OS 之间，TB2 位于 Agent OS 与外部工具之间。跨越 TB1
 的结构化字段不自动获得事件类型的声明权；跨越 TB2
 的模型输出不自动获得工具执行权。
 
@@ -237,7 +237,7 @@ data-reference="eq:end-to-end-safety-v11">[eq:end-to-end-safety-v11]</a>
 
 <figure id="fig:architecture-v11" data-latex-placement="htbp">
 
-<figcaption>事件到智能体治理（Event-to-Agent Governance，E2AG）总体架构。三个等宽平面按对象列对齐；实心、空心三角和空心燕尾箭头分别表示执行数据、治理控制和证据写入，双线框和虚线框分别表示 E2AG 强制组件和持久状态。PDP、PEP、A2A、MCP 和 TB 分别表示 policy decision point、policy enforcement point、Agent2Agent、Model Context Protocol 和 trust boundary。</figcaption>
+<figcaption>E2AG 总体架构。三个等宽平面按对象列对齐；实心、空心三角和空心燕尾箭头分别表示执行数据、治理控制和证据写入，双线框和虚线框分别表示 E2AG 强制组件和持久状态。</figcaption>
 </figure>
 
 图 <a href="#fig:architecture-v11" data-reference-type="ref"
@@ -308,7 +308,7 @@ data-reference="fig:architecture-v11">1</a> 的静态组件关系分离。
 
 <figure id="fig:execution-flow-v11" data-latex-placement="htbp">
 
-<figcaption>事件到智能体治理（Event-to-Agent Governance，E2AG）跨层授权执行流程。两个等宽区域共享左右边界；实心、空心三角和空心燕尾箭头分别表示主路径、审批分支和证据写入。PEP、A2A 和 MCP 分别表示 policy enforcement point、Agent2Agent 和 Model Context Protocol。</figcaption>
+<figcaption>E2AG 跨层授权执行流程。两个等宽区域共享左右边界；实心、空心三角和空心燕尾箭头分别表示主路径、审批分支和证据写入。</figcaption>
 </figure>
 
 算法 <a href="#alg:e2ag-v11" data-reference-type="ref"
@@ -648,12 +648,12 @@ data-reference="tab:concurrency-v11">8</a>
 
 **内部有效性。**冻结矩阵按治理层构造，适合验证机制分工，不用于估计自然流量中的违规发生率。四名非构造者的盲表复核确认治理层和执行决策可以稳定复核，同时暴露4个审批敏感事件在攻击/正常二分标签上的语义分歧；因此本文以预期治理结果为主要标签，不用类别一致性证明自然流量代表性。既有模型结果采用固定提示和工具选择约束，保证相同决策可在不同治理配置下配对复用；它证明副作用可达性，不证明开放环境中的模型违规选择概率。49例 OPA 可调用切片由是否存在工具授权对象的结构规则选取，并同时报告全部排除编号，避免结果导向筛选；但 Rego 策略仍由本文按公开接口适配，只覆盖工具边界，不能替代 AgentSpec、OAP、ToolGuardian 或 Agent libOS 的原系统复现。
 
-**外部有效性与规模。**当前实现限于一个 AIOS 原型、一个模型、一个合成 HTTP MCP canary、一组公开仓库–自有设施配对回归和 SQLite。该回归证明真实 GitHub payload、任务运行时与外部 MCP 服务能够闭合，并为 grant–PEP 一致性提供一次现场证据，但单仓库、单组配对和共享上游状态不能代表自然工作负载。七类来源与压力变异扩大了输入机制覆盖，却不能替代多仓库 Connector 轨迹、更多工具类型或第二 AIOS。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
+**外部有效性与规模。**当前实现限于一个 Agent OS 原型、一个模型、一个合成 HTTP MCP canary、一组公开仓库–自有设施配对回归和 SQLite。该回归证明真实 GitHub payload、任务运行时与外部 MCP 服务能够闭合，并为 grant–PEP 一致性提供一次现场证据，但单仓库、单组配对和共享上游状态不能代表自然工作负载。七类来源与压力变异扩大了输入机制覆盖，却不能替代多仓库 Connector 轨迹、更多工具类型或第二种 Agent OS 实现。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
 
 **完整中介假设。**命题1依赖所有任务创建和外部副作用经过两个
 PEP。当前原型验证远程 Streamable HTTP 的任务模式 MCP
 路径；标准输入/输出（standard input/output，stdio）、服务器发送事件（Server-Sent Events，SSE）、Skill、内嵌服务和绕过 MCP
-的本地调用尚未纳入主张。移植到其他 AIOS
+的本地调用尚未纳入主张。移植到其他 Agent OS
 时，必须重新识别任务创建和副作用调用的系统窄腰。
 
 **证据强度。**哈希链保证已取得记录的内容和顺序，不能单独证明数据库未被整体回滚或截断。外部透明日志或周期性
@@ -661,7 +661,7 @@ Merkle 根锚定可以强化 I4，但不改变 I1–I3 的执行授权语义。
 
 # 总结
 
-本文针对事件驱动 AIOS
+本文针对事件驱动 Agent OS
 中事件来源、任务创建和工具副作用跨越不同信任域的问题，提出跨层能力治理方法
 E2AG。该方法用来源–类型契约建立事件声明权，用目标策略和审批控制任务创建，用任务作用域能力与调用时
 PEP
