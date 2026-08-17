@@ -152,7 +152,15 @@ PEP
 设来源主体集合、智能体集合和工具服务集合分别为
 $`\mathcal{S}`$、$`\mathcal{A}`$ 和 $`\mathcal{M}`$。一次执行涉及事件
 $`e`$、任务 $`t`$、任务能力 $`g`$、工具调用 $`c`$ 与外部副作用
-$`o`$。系统状态写为
+$`o`$。本文所称“层次”是授权对象在执行链中的语义层，而不是架构图中组件职责的平面。定义授权层集合
+``` math
+\begin{equation}
+\mathcal{H}=\{H_E,H_T,H_C\},\qquad
+\lambda(e)=H_E,\quad \lambda(t)=H_T,\quad \lambda(c)=H_C.
+\label{eq:authorization-layers-v11}
+\end{equation}
+```
+其中 $`H_E`$、$`H_T`$ 和 $`H_C`$ 分别表示事件声明、任务创建和工具调用层，$`\lambda`$ 给出对象所属层。“跨层治理”是前一层授权结论成为后一层对象创建或使用的必要前提，而不是三个架构平面之间的数据流。系统状态写为
 ``` math
 \begin{equation}
 \Sigma=\langle E,T,G,Q,L\rangle,
@@ -187,24 +195,23 @@ expired。允许产生副作用的状态迁移为
 \label{eq:transition-v11}
 \end{equation}
 ```
-任一前置条件失败都会进入拒绝、待审批或终止状态，不能跳过相应转换。第4节算法实现这些转换，第6节分别通过准入消融、双
-PEP 配对执行和并发状态实验检查其前置条件与单调性。
+式中的 $`\operatorname{admit}`$ 完成 $`H_E\rightarrow H_T`$ 的授权传递，$`\operatorname{issue}`$ 与 $`\operatorname{invoke}`$ 完成 $`H_T\rightarrow H_C`$ 的授权传递。任一前置条件失败都会进入拒绝、待审批或终止状态，不能跳过相应转换。第4节算法实现这些转换，第6节分别通过准入消融、双 PEP 配对执行和并发状态实验检查其前置条件与单调性。
 
 ## 端到端安全性质
 
-能力 $`g`$ 绑定 trace、事件、任务、智能体、MCP
-服务、工具集合、期限和状态。定义
+本文将任务作用域能力定义为由可信治理平面签发、授予特定任务在给定期限内调用指定工具集合的授权对象。它不是模型声明、工具名字符串或可脱离任务转用的凭据；其语义由签发依据、对象绑定和生命周期共同决定。令 $`\operatorname{Issued}(g,e,t,a,m,U,exp)`$ 表示 $`g`$ 由获准的 $`e,a`$ 创建任务 $`t`$ 后签发，并绑定服务 $`m`$、允许工具集合 $`U`$ 和期限 $`exp`$。定义
 ``` math
 \begin{align}
 \operatorname{Admit}(e,a) \triangleq {}& B_C(e)\land
 \bigl(D_P(e,a)=\mathsf{allow}\ \lor\ \operatorname{Approved}(e,a)\bigr), \\
 \operatorname{ValidGrant}(g,e,t,a,m,\tau) \triangleq {}&
+\operatorname{Issued}(g,e,t,a,m,U(g),exp(g))\land
 \operatorname{active}(g,\tau)\land
 \operatorname{bind}(g,e,t,a,m).
 \label{eq:predicates-v11}
 \end{align}
 ```
-本文要求系统满足以下可检查性质。
+其中 $`\tau`$ 为调用时刻，$`\operatorname{active}(g,\tau)`$ 要求 $`state(g)=\mathsf{active}`$ 且 $`\tau<exp(g)`$。原型通过持久化能力摘要和 PEP 校验实现上述语义；本文不据此声称能力具有独立于可信治理主机的密码学不可伪造性。本文要求系统满足以下可检查性质。
 
 1.  **任务来源闭包：**若创建 $`t`$，则存在 $`e,a`$ 使
     $`\operatorname{Admit}(e,a)`$ 成立且 $`t`$ 绑定 $`e,a`$；
@@ -228,39 +235,46 @@ PEP 配对执行和并发状态实验检查其前置条件与单调性。
 4.  **证据连续性：**对同一 trace 的证据序列
     $`L_\rho=\langle l_1,\ldots,l_n\rangle`$，序号连续、对象依赖满足状态迁移顺序，且每项前驱哈希等于上一项内容哈希。
 
-式 <a href="#eq:end-to-end-safety-v11" data-reference-type="eqref"
-data-reference="eq:end-to-end-safety-v11">[eq:end-to-end-safety-v11]</a>
-是本文的中心安全目标：它把来源、任务、能力和调用置于同一蕴含关系，而不是分别报告若干局部规则命中率。
+据此，把治理目标定义为安全保持、可用性保持和可问责性三者的合取：
+``` math
+\begin{equation}
+\operatorname{GovOK}(\pi,\mathcal{W})\triangleq
+\operatorname{Sound}_{\mathrm{I1:I3}}(\pi,\mathcal{W})\land
+\operatorname{Preserve}(\pi,\mathcal{W}_{allow})\land
+\operatorname{Accountable}_{\mathrm{I4}}(\pi,\mathcal{W}).
+\label{eq:governance-goal-v11}
+\end{equation}
+```
+其中策略配置 $`\pi`$ 在工作负载 $`\mathcal{W}`$ 上必须满足 I1–I3；对契约、策略和工具集合均允许且无外部故障的 $`\mathcal{W}_{allow}`$，不得由治理机制引入拒绝；每个治理终态还必须产生满足 I4 的证据。副作用安全式给出中心安全约束，治理目标式则避免以“全部拒绝”获得表面安全。第6节的 RQ1、RQ2 和 RQ3 分别检验三个目标分量。
 
 # E2AG 总体架构
 
 <figure id="fig:architecture-v11" data-latex-placement="htbp">
 
-<figcaption>E2AG 总体架构。三个等宽平面按对象列对齐；实心、空心三角和空心燕尾箭头分别表示执行数据、治理控制和证据写入，双线框和虚线框分别表示 E2AG 强制组件和持久状态。</figcaption>
+<figcaption>E2AG 总体架构。三个等宽平面按对象列对齐；实心箭头、空心三角箭头和点线空心燕尾箭头分别表示执行数据、治理控制和证据写入，双线框和虚线框分别表示 E2AG 强制组件和持久状态。</figcaption>
 </figure>
 
 图 <a href="#fig:architecture-v11" data-reference-type="ref"
 data-reference="fig:architecture-v11">1</a> 给出 E2AG
-的静态系统架构。治理平面拥有授权决策及其持久状态，执行平面只消费治理结果并实施完整中介，证据平面接收两个执行点和中间对象的状态变化。三个平面共享
-trace 和对象标识，但职责不同：PDP 计算策略，PEP
-阻止未获准状态迁移，证据平面证明一次决策依赖哪些对象。
+的静态系统架构。治理平面拥有授权决策及其持久状态，执行平面消费治理结果并实施完整中介，证据平面接收两个执行点和中间对象的状态变化。三个平面共享 trace 和对象标识，但职责不同：PDP 计算策略，PEP 阻止未获准状态迁移，证据平面记录一次决策依赖哪些对象。这里的“平面”回答组件由谁负责，“层次”回答授权约束哪个对象；一个平面可以同时服务多个授权层。
 
-## 治理平面
+## 治理平面与授权状态
 
-契约与策略库存储来源–类型绑定、目标智能体约束和版本；治理判定器产生
-allow、deny 或
-approval；审批管理器以条件更新完成一次性终态；任务能力管理器负责签发、过期和撤销。治理状态不暴露给模型修改，模型也不能自行扩大任务能力。
+治理平面的设计动机是把授权依据从模型上下文中分离，并为跨层迁移提供唯一的可信状态源。它拥有版本化来源–类型契约、目标智能体策略、审批终态和任务能力生命周期；输入为标准化事件、目标与环境上下文，输出为 allow、deny 或 approval 以及能力参数。契约与策略库存储 $`B_C`$ 和 $`D_P`$ 的判定依据，治理判定器计算结果，审批管理器以条件更新完成一次性终态，任务能力管理器负责签发、过期和撤销。
+
+治理状态不暴露给模型修改，模型只能消费与其任务绑定的能力，不能自行改变 $`U(g)`$、$`exp(g)`$ 或 $`state(g)`$。该约束为 I1、I2 提供持久状态基础，并在第4.1–4.3节分别落实为来源契约、目标策略和能力签发规则；第5节的 EventLog、Approval 与 ToolGrant 是这些状态的实现载体。
 
 ## 执行平面与完整中介
 
-调度前 PEP 位于所有 Connector
-汇合到任务创建的窄腰，拥有事件来源、类型、目标智能体和环境上下文；调用时
-PEP 位于 MCP
-上游凭据之前，拥有任务能力和模型最终选择的工具。前者不能预测任务创建后的工具选择，后者不能单独恢复来源声明权，因此两个执行点并非重复检查。
+执行平面的设计动机是让所有安全相关状态迁移经过可枚举且不可绕过的系统窄腰。调度前 PEP 位于所有 Connector 汇合到任务创建的位置，观察事件来源、类型、目标智能体和环境上下文；其输出是拒绝、待审批或绑定事件的任务。调用时 PEP 位于 MCP 上游凭据之前，观察任务能力、调用时刻和模型最终选择的工具；其输出是本地拒绝或转发后的工具结果。
+
+调度前 PEP 不能预测任务创建后的实际工具选择，调用时 PEP 也不能仅凭工具名恢复来源声明权，因此两个执行点并非重复检查。二者分别强制 $`H_E\rightarrow H_T`$ 和 $`H_T\rightarrow H_C`$ 的授权传递，共同保持 I1–I3；第4.4节算法给出其前置条件，第6.2节通过移除任一执行点构造可观测反例。
 
 ## 证据平面
 
-证据平面记录契约、策略、审批、任务、能力和工具结果。拒绝或待审批事件同样写入终态证据，但不伪造不存在的任务或能力；获准路径则继续追加对象依赖。验证器既检查哈希链接，也检查状态迁移是否缺少必须阶段。
+证据平面的设计动机是使治理结果能够由对象依赖复核，而不是依赖分散文本日志进行事后猜测。它接收两个 PEP 以及审批、任务和能力管理器产生的阶段事件，拥有按 trace 排序的追加记录和前驱哈希，输出链完整性结果、首个失败阶段及其关联对象。拒绝或待审批事件同样写入终态证据，但不伪造不存在的任务或能力；获准路径则继续追加事件、任务、能力、调用和结果依赖。
+
+验证器先检查记录内容和顺序，再依据授权状态迁移检查前驱阶段，因此证据平面保持 I4，并为 I1–I3 提供可复核的执行见证。第4.5节定义证据结构与验证边界，第6.3节通过阶段故障和链内篡改检验定位能力；外部整体回滚不在当前保证范围内。
 
 # 跨层能力治理机制
 
@@ -273,6 +287,8 @@ PEP 位于 MCP
 `source=webhook/attacker,type=git.push` 不能借用 Git Connector
 的事件语义。契约输出包含匹配契约、策略版本和稳定原因码，成为目标策略的可信输入及证据链首项。
 
+该机制拥有的是 $`H_E`$ 的事件声明权，而不是目标任务或工具的最终执行权。对事件 $`e`$，只有 $`B_C(e)`$ 成立才进入目标解析；拒绝结果直接形成终态证据，不创建 $`t`$ 或 $`g`$。因此来源–类型契约保持 I1 的第一个前置条件，并在 RQ1 的 ContractGuard 配置中与目标策略独立开关，以检验二者是否覆盖不同违规对象。
+
 ## 目标策略与审批状态
 
 对候选目标 $`a`$，E2AG
@@ -282,9 +298,11 @@ deny；风险条件命中返回 approval；其余返回 allow。approval
 approved 后才允许创建任务。rejected 和 expired
 均为不可逆终态，重复请求不能恢复为 pending。
 
+目标策略的输入包含已匹配契约、候选智能体及环境上下文，允许结果同时确定服务 $`m_a`$、工具集合 $`U_a`$ 和期限 $`exp_a`$，供能力签发使用。该设计把 $`H_E\rightarrow H_T`$ 的转移和后续能力参数放在同一次可审计决策中，避免任务创建后再由模型扩大范围；审批竞态则由条件更新保持单终态不变量，并在 RQ3 的 approve/reject 并发实验中检查。
+
 ## 任务作用域能力
 
-目标策略允许后，系统创建任务 $`t`$ 并签发
+目标策略允许后，系统创建任务 $`t`$ 并签发任务作用域能力
 ``` math
 \begin{equation}
 g=\langle \rho,id(e),id(t),id(a),id(m),U,exp,state,version\rangle.
@@ -292,41 +310,32 @@ g=\langle \rho,id(e),id(t),id(a),id(m),U,exp,state,version\rangle.
 \end{equation}
 ```
 式 <a href="#eq:grant-v11" data-reference-type="eqref"
-data-reference="eq:grant-v11">[eq:grant-v11]</a> 中每个字段都由调用时
-PEP 使用：$`\rho`$ 和对象标识检查跨层绑定，$`U`$
-检查工具成员关系，$`exp`$ 与 $`state`$ 检查时效和生命周期，$`version`$
-保留决策依据。能力令牌只在任务运行时可见，持久层保存摘要；任务完成、失败或取消后转为
-revoked，超过期限转为 expired。
+data-reference="eq:grant-v11">[eq:grant-v11]</a> 中，$`\rho`$ 为 trace 标识，$`id(\cdot)`$ 为对象标识，$`U`$、$`exp`$、$`state`$ 和 $`version`$ 分别表示允许工具集合、期限、生命周期状态和决策版本。签发要求 $`\operatorname{Admit}(e,a)`$ 成立、$`t`$ 绑定 $`e,a`$，且 $`m,U,exp`$ 来自该目标策略的允许结果；因此 $`\operatorname{Issued}`$ 不是任意构造元组的事实，而是可信任务创建分支产生的状态。
+
+调用时 PEP 使用 $`\rho`$ 和对象标识检查跨层绑定，以 $`U`$ 检查工具成员关系，并以 $`exp`$ 与 $`state`$ 检查时效和生命周期。能力令牌只在任务运行时可见，持久层保存摘要；任务完成、失败或取消后转为 revoked，超过期限转为 expired。这些使用条件与有效能力谓词共同闭合能力的签发、使用和终止语义。
 
 ## 双执行点授权算法
 
-图 <a href="#fig:execution-flow-v11" data-reference-type="ref"
-data-reference="fig:execution-flow-v11">2</a>
-只描述单个事件的动态流程，与图 <a href="#fig:architecture-v11" data-reference-type="ref"
-data-reference="fig:architecture-v11">1</a> 的静态组件关系分离。
-
 <figure id="fig:execution-flow-v11" data-latex-placement="htbp">
 
-<figcaption>E2AG 跨层授权执行流程。两个等宽区域共享左右边界；实心、空心三角和空心燕尾箭头分别表示主路径、审批分支和证据写入。</figcaption>
+<figcaption>E2AG 跨层授权执行流程。两个等宽平面共享左右边界；实心箭头表示主执行路径，空心三角箭头表示治理分支，点线空心燕尾箭头表示证据写入，圆角胶囊表示暂停或终止状态。</figcaption>
 </figure>
 
-算法 <a href="#alg:e2ag-v11" data-reference-type="ref"
-data-reference="alg:e2ag-v11">[alg:e2ag-v11]</a>
-将式 <a href="#eq:transition-v11" data-reference-type="eqref"
-data-reference="eq:transition-v11">[eq:transition-v11]</a>
-实现为两个不可绕过的过程。事件接入过程先验证契约，再对每个目标执行策略和审批状态转换；只有准入成功才创建任务和能力。调用过程在接触上游凭据前检查状态、期限、对象绑定和工具集合。两个过程均追加显式阶段结果。
+图2描述单个事件的动态流程，与图1的静态组件关系分离。算法将授权状态迁移实现为两个不可绕过的过程：事件接入过程先验证契约，再对每个目标执行策略和审批状态转换；只有准入成功才创建任务和能力。调用过程在接触上游凭据前检查状态、期限、对象绑定和工具集合。两个过程均追加显式阶段结果。
+
+算法记号在此统一定义。$`\mathcal{C}`$ 是版本化 Connector 契约集合，$`\mathcal{P}=\{P_a\mid a\in\mathcal{A}\}`$ 是目标策略族，$`targets(e)\subseteq\mathcal{A}`$ 是订阅与路由得到的候选目标集合，$`\tau`$ 是当前时刻。$`\operatorname{EvaluatePolicy}(e,P_a,\tau)`$ 返回 $`\langle d_a,m_a,U_a,exp_a\rangle`$：分别表示三态决策、获准服务、允许工具集合和能力期限。NewTrace 创建 trace，Append 原子追加证据，ConsumeApproval 消耗一次性审批终态，CreateTask 和 IssueCapability 创建绑定对象；Active、BindingsMatch 与 ForwardToUpstream 分别检查生命周期、检查对象绑定和执行上游调用。$`T_{new}`$ 与 $`r`$ 是过程内局部量。
 
 <div class="algorithm">
 
 <div class="algorithmic">
 
-$`\rho\gets\Call{NewTrace}{}`$ $`d_C\gets\Call{EvaluateContract}{e,C}`$;
-$`\Call{Append}{\rho,d_C}`$ $`\emptyset`$ $`T\gets\emptyset`$
-$`d_a\gets\Call{EvaluatePolicy}{e,P_a}`$; $`\Call{Append}{\rho,d_a}`$
+$`\rho\gets\Call{NewTrace}{}`$ $`d_C\gets\Call{EvaluateContract}{e,\mathcal{C}}`$;
+$`\Call{Append}{\rho,d_C}`$ $`\emptyset`$ $`T_{new}\gets\emptyset`$
+$`\langle d_a,m_a,U_a,exp_a\rangle\gets\Call{EvaluatePolicy}{e,P_a,\tau}`$; $`\Call{Append}{\rho,d_a}`$
 $`d_a\gets\Call{ConsumeApproval}{e,a,\rho}`$
 $`t\gets\Call{CreateTask}{e,a,\rho}`$
-$`g\gets\Call{IssueCapability}{e,t,a,m,U_a,exp}`$
-$`\Call{Append}{\rho,\langle t,g\rangle}`$; $`T\gets T\cup\{t\}`$ $`T`$
+$`g\gets\Call{IssueCapability}{\rho,e,t,a,m_a,U_a,exp_a}`$
+$`\Call{Append}{\rho,\langle t,g\rangle}`$; $`T_{new}\gets T_{new}\cup\{t\}`$ $`T_{new}`$
 $`\mathsf{deny}`$
 $`\Call{Append}{trace(t),\langle c,\mathsf{deny}\rangle}`$;
 $`\mathsf{deny}`$ $`r\gets\Call{ForwardToUpstream}{c}`$
@@ -353,8 +362,9 @@ data-reference="eq:audit-chain-v11">[eq:audit-chain-v11]</a>，再根据
 stage/outcome
 与对象标识检查式 <a href="#eq:transition-v11" data-reference-type="eqref"
 data-reference="eq:transition-v11">[eq:transition-v11]</a>
-所需的前驱阶段。哈希链检测已取得记录的修改、换序、插入和中间删除；没有外部
-head/count 锚点时，它不能检测整条链的尾截断。
+所需的前驱阶段。前一检查回答记录内容和顺序是否被改变，后一检查回答某个任务、能力或调用是否缺少授权前因；两者共同实现 I4，而不能由普通 trace 标识传播替代。
+
+哈希链能够检测已取得记录的修改、换序、插入和中间删除，但没有外部 head/count 锚点时不能检测整条链的尾截断。因而本方法提供的是可信存储假设下的执行依赖验证，不把局部哈希连续性表述为数据库不可回滚；RQ3 分别用阶段故障和链内篡改检查已声明保证，用讨论部分限定外部锚定缺失带来的剩余风险。
 
 ## 安全性与复杂度分析
 
@@ -369,9 +379,8 @@ data-reference="eq:end-to-end-safety-v11">[eq:end-to-end-safety-v11]</a>。
 **证明概要.** 设调用 $`c`$ 已产生外部副作用。由 A2，它必经过
 AuthorizeCall 且未在状态、期限、绑定或工具成员检查处返回
 deny，因此存在满足 $`\operatorname{ValidGrant}`$ 且 $`tool(c)\in U(g)`$
-的 $`g`$。能力只由 GovernEvent 在任务创建分支签发；由 A1
-和算法第2–14行，该分支只能在 $`B_C(e)`$
-成立且策略允许或审批已原子批准时执行，故 $`\operatorname{Admit}(e,a)`$
+的 $`g`$。能力只由 GovernEvent 在任务创建分支签发；由 A1，该分支只能在 $`B_C(e)`$
+成立且目标策略允许或审批已原子批准时执行，故 $`\operatorname{Admit}(e,a)`$ 与 $`\operatorname{Issued}(g,e,t,a,m,U(g),exp(g))`$
 成立，并建立 $`e\prec t\prec g`$。AuthorizeCall
 接收同一绑定对象并追加调用，得到
 $`e\prec t\prec g\prec c`$，从而式 <a href="#eq:end-to-end-safety-v11" data-reference-type="eqref"
@@ -379,9 +388,9 @@ data-reference="eq:end-to-end-safety-v11">[eq:end-to-end-safety-v11]</a>
 成立。若移除任一假设或
 PEP，可分别构造来源绑定不满足或任务后集合外请求的反例；第6节以配对执行观测这些反例的上游可达性。$`\square`$
 
-设契约数为 $`|C|`$、策略维度数为
+设契约数为 $`|\mathcal{C}|`$、策略维度数为
 $`k`$、允许工具集合使用哈希集合。朴素契约匹配为
-$`O(|C|)`$，目标策略判定为
+$`O(|\mathcal{C}|)`$，目标策略判定为
 $`O(k)`$，调用时状态、绑定和工具成员检查期望为 $`O(1)`$，每项证据追加为
 $`O(1)`$。该分析说明调用时 PEP 不随历史 trace
 长度线性扫描；实际端到端开销仍受数据库、模型和远程工具主导，本文不把本地微基准外推为生产性能。
@@ -597,6 +606,8 @@ data-reference="tab:rq2-live-v11">6</a> 与确定性结果一致：G1R0
 
 ## RQ3：证据定位与并发状态
 
+### 故障定位与链验证
+
 对契约拒绝、策略拒绝、审批过期、任务能力过期和 MCP
 工具拒绝各注入20次。表 <a href="#tab:rq3-trace-v11" data-reference-type="ref"
 data-reference="tab:rq3-trace-v11">7</a> 显示100条 trace
@@ -620,7 +631,9 @@ stage/outcome 和对象依赖，而不是事后从文本日志猜测根因。
 对内容修改、换序、trace
 替换、前驱哈希替换、插入和中间删除的链内篡改，验证器均拒绝；没有外部锚点时尾截断仍不可检测，符合式 <a href="#eq:audit-chain-v11" data-reference-type="eqref"
 data-reference="eq:audit-chain-v11">[eq:audit-chain-v11]</a>
-的能力边界。
+的能力边界。该结果支持的是已取得证据的阶段定位与链内完整性，不把日志存在本身等同于外部不可否认性。
+
+### 并发状态不变量
 
 并发实验首先发现原有先查后插去重在8并发的100轮中均产生重复
 EventLog，共创建588条记录。加入唯一去重声明后，表 <a href="#tab:concurrency-v11" data-reference-type="ref"
@@ -640,23 +653,31 @@ data-reference="tab:concurrency-v11">8</a>
 
 </div>
 
-# 讨论与有效性威胁
+# 讨论
 
-**方法边界。**E2AG
-保证调用不超出获准来源、目标和工具集合，不判定自然语言意图类别。若请求使用已授权工具和合法工具名，只在参数中携带不符合约束的数据，当前工具粒度能力无法区分；数据流能力或参数谓词可作为正交扩展。
+## 方法适用范围
 
-**内部有效性。**冻结矩阵按治理层构造，适合验证机制分工，不用于估计自然流量中的违规发生率。四名非构造者的盲表复核确认治理层和执行决策可以稳定复核，同时暴露4个审批敏感事件在攻击/正常二分标签上的语义分歧；因此本文以预期治理结果为主要标签，不用类别一致性证明自然流量代表性。既有模型结果采用固定提示和工具选择约束，保证相同决策可在不同治理配置下配对复用；它证明副作用可达性，不证明开放环境中的模型违规选择概率。49例 OPA 可调用切片由是否存在工具授权对象的结构规则选取，并同时报告全部排除编号，避免结果导向筛选；但 Rego 策略仍由本文按公开接口适配，只覆盖工具边界，不能替代 AgentSpec、OAP、ToolGuardian 或 Agent libOS 的原系统复现。
+E2AG 适用于外部事件经统一调度入口创建任务、外部副作用经可中介工具出口执行的 Agent OS。其治理目标是使调用不超出获准来源、目标和工具集合，而不是判定自然语言意图类别。若请求使用已授权工具和合法工具名，只在参数中携带不符合约束的数据，当前工具粒度能力无法区分；数据流能力或参数谓词可作为正交扩展，而不改变本文事件–任务–工具的授权层定义。
 
-**外部有效性与规模。**当前实现限于一个 Agent OS 原型、一个模型、一个合成 HTTP MCP canary、一组公开仓库–自有设施配对回归和 SQLite。该回归证明真实 GitHub payload、任务运行时与外部 MCP 服务能够闭合，并为 grant–PEP 一致性提供一次现场证据，但单仓库、单组配对和共享上游状态不能代表自然工作负载。七类来源与压力变异扩大了输入机制覆盖，却不能替代多仓库 Connector 轨迹、更多工具类型或第二种 Agent OS 实现。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
+命题1还依赖所有任务创建和外部副作用经过两个 PEP。当前原型验证远程 Streamable HTTP 的任务模式 MCP 路径；标准输入/输出（standard input/output，stdio）、服务器发送事件（Server-Sent Events，SSE）、Skill、内嵌服务和绕过 MCP 的本地调用尚未纳入主张。移植到其他 Agent OS 时，必须重新识别任务创建和副作用调用的系统窄腰，并验证假设 A1–A3 后才能沿用安全结论。
 
-**完整中介假设。**命题1依赖所有任务创建和外部副作用经过两个
-PEP。当前原型验证远程 Streamable HTTP 的任务模式 MCP
-路径；标准输入/输出（standard input/output，stdio）、服务器发送事件（Server-Sent Events，SSE）、Skill、内嵌服务和绕过 MCP
-的本地调用尚未纳入主张。移植到其他 Agent OS
-时，必须重新识别任务创建和副作用调用的系统窄腰。
+## 有效性威胁
 
-**证据强度。**哈希链保证已取得记录的内容和顺序，不能单独证明数据库未被整体回滚或截断。外部透明日志或周期性
-Merkle 根锚定可以强化 I4，但不改变 I1–I3 的执行授权语义。
+### 构念效度
+
+冻结矩阵按治理层构造，适合验证机制分工，却不能直接表示自然流量中的“攻击率”。四名未参与构造的复核者对治理层和预期决策完全一致，但在4个审批敏感事件的攻击/正常二分标签上出现语义分歧。为降低标签构念对结论的影响，本文以放行、拒绝或审批的预期治理结果为主要标签，并单独报告类别一致性；剩余风险是矩阵仍由预设治理规则定义，因此本文只主张规则可复核性和机制覆盖，不主张自然分布检测能力。
+
+### 内部有效性
+
+既有模型结果采用冻结提示与工具选择，使相同决策可以在不同治理配置下配对复用，从而隔离 PEP 布置对副作用可达性的影响。该控制减少模型随机性造成的混杂，但无法估计开放环境中的模型违规选择概率。OPA 可调用切片按是否存在工具授权对象的预先结构规则选取，并报告全部排除编号，以避免结果导向筛选；不过 Rego 策略仍由本文按公开接口适配且仅观察工具边界，因此该基线用于验证上下文可见性差异，不替代 AgentSpec、OAP、ToolGuardian 或 Agent libOS 的原系统复现。
+
+### 外部有效性
+
+当前实现限于一个 Agent OS 原型、一个模型、一个合成 HTTP MCP canary、一组公开仓库–自有设施配对回归和 SQLite。现场回归证明真实 GitHub payload、任务运行时与外部 MCP 服务能够闭合，并为 grant–PEP 一致性提供部署证据；七类来源和压力变异也扩大了输入机制覆盖。然而，单仓库、单组配对和共享上游状态不能代表自然工作负载，SQLite 结果亦不能外推到其他数据库或第二种 Agent OS。后续验证应优先增加仓库、Connector、工具传输和系统实现等独立维度，而不是增加相同确定性用例的重复次数。
+
+## 审计证据的保证范围
+
+哈希链保证已取得记录的内容和顺序，并由阶段验证器检查对象依赖；它不能单独证明数据库未被整体回滚或从尾部截断。当前实现以可信治理存储为前提，因此 RQ3 支持 I4 的链内完整性和失败定位，不构成跨组织不可否认性。外部透明日志或周期性 Merkle 根锚定可以强化证据新鲜性与完整性，但不改变 I1–I3 的执行授权语义。
 
 # 总结
 
