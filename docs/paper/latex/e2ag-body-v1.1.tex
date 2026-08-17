@@ -37,7 +37,9 @@ AgentSpec 通过领域专用规则描述触发条件、谓词和动作，在智�
 
 \subsection{协议、参考监控器与能力系统}
 
-CloudEvents、A2A 与 MCP 分别定义事件、任务和工具调用对象\cite{cloudevents,a2a,mcp}，但格式互操作不等于授权传播。策略决策点（policy decision point，PDP）与 PEP 分离支持在执行点实施结构化策略\cite{opa}；参考监控器和完整中介原则要求所有安全相关访问经过不可绕过且足够小的检查机制\cite{reference-monitor,saltzer-schroeder}；能力系统把访问权封装为可传递、可收缩的对象\cite{dennis-capability,cap-os,macaroons}。万维网联盟（World Wide Web Consortium，W3C）的 Trace Context 解决跨服务标识传播，哈希链接和 in-toto 用于验证过程记录的连续性与步骤依赖\cite{trace-context,haber-stornetta,in-toto}。E2AG 的贡献不是重新定义这些协议或密码结构，而是把它们组织为事件--任务--工具三层的授权传播和完整中介。
+CloudEvents、A2A 与 MCP 分别定义事件、任务和工具调用对象\cite{cloudevents,a2a,mcp}，但对象格式互操作本身不产生授权传播。仅有对象定义也不足以执行授权，因此策略决策点（policy decision point，PDP）与 PEP 的分离用于在执行点实施结构化策略\cite{opa}，参考监控器和完整中介原则进一步要求所有安全相关访问经过不可绕过且足够小的检查机制\cite{reference-monitor,saltzer-schroeder}；能力系统则把访问权封装为可传递、可收缩的对象\cite{dennis-capability,cap-os,macaroons}。在决策能够执行之后，跨层复核还需要关联其对象依赖：万维网联盟（World Wide Web Consortium，W3C）的 Trace Context 支持跨服务标识传播，哈希链接和 in-toto 用于验证过程记录的连续性与步骤依赖\cite{trace-context,haber-stornetta,in-toto}。E2AG 的贡献不是重新定义这些协议或密码结构，而是按“对象定义--授权执行--证据关联”的关系将其组织为事件--任务--工具三层的授权传播和完整中介。
+
+\subsection{比较维度与研究定位}
 
 表~\ref{tab:related-scope-v11} 按保护对象、执行点和证据类型比较代表性方法。协议标准不承担治理，现有运行时方法集中于动作、任务意图或数据流；E2AG 同时约束事件声明、系统任务创建和工具副作用，并把三个判定关联到同一执行证据。由于这些方法的输入主体和保护对象不同，本文不直接排序其公开结果；数值实验以共享代码路径隔离治理位置，并增加开放策略代理（Open Policy Agent，OPA）独立引擎的工具边界基线，用于区分策略执行器与跨层上下文覆盖。
 
@@ -74,14 +76,14 @@ E2AG & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 \lambda(e)=H_E,\quad \lambda(t)=H_T,\quad \lambda(c)=H_C,
 \label{eq:authorization-layers-v11}
 \end{equation}
-其中 $H_E$、$H_T$ 和 $H_C$ 分别表示事件声明、任务创建和工具调用层；$\lambda$ 给出对象所属层。“跨层治理”是前一层的授权结论成为后一层对象创建或使用的必要前提，而非三个平面之间的数据流。系统状态写为
+其中 $H_E$、$H_T$ 和 $H_C$ 分别表示事件声明、任务创建和工具调用层；$\lambda$ 给出对象所属层。“跨层治理”是前一层的授权结论成为后一层对象创建或使用的必要前提，而非三个平面之间的数据流。为刻画这些授权层之间的状态依赖，系统状态写为
 \begin{equation}
 \Sigma=\langle E,T,G,Q,L\rangle,
 \label{eq:system-state-v11}
 \end{equation}
 其中 $E,T,G,Q,L$ 分别保存事件、任务、能力、审批状态和执行证据。该状态直接对应第5节原型中的 EventLog、A2ATask、ToolGrant、Approval 和 AuditEntry，而不是仅用于记号说明。
 
-事件接入域、智能体执行域和工具副作用域构成两个信任边界（trust boundary，TB）：TB1 位于外部来源与 Agent OS 之间，TB2 位于 Agent OS 与外部工具之间。跨越 TB1 的结构化字段不自动获得事件类型的声明权；跨越 TB2 的模型输出不自动获得工具执行权。
+上述授权层描述对象语义；与之正交，系统部署还跨越事件接入域、智能体执行域和工具副作用域，由此形成两个信任边界（trust boundary，TB）：TB1 位于外部来源与 Agent OS 之间，TB2 位于 Agent OS 与外部工具之间。跨越 TB1 的结构化字段不自动获得事件类型的声明权；跨越 TB2 的模型输出不自动获得工具执行权。
 
 \subsection{跨层授权状态迁移}
 
@@ -151,19 +153,19 @@ E2AG & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 
 执行平面的设计动机是让所有安全相关状态迁移经过可枚举且不可绕过的系统窄腰。调度前 PEP 位于所有 Connector 汇合到任务创建的位置，观察事件来源、类型、目标智能体和环境上下文；其输出是拒绝、待审批或绑定事件的任务。调用时 PEP 位于 MCP 上游凭据之前，观察任务能力、调用时刻和模型最终选择的工具；其输出是本地拒绝或转发后的工具结果。
 
-调度前 PEP 不能预测任务创建后的实际工具选择，调用时 PEP 也不能仅凭工具名恢复来源声明权，因此两个执行点并非重复检查。二者分别强制 $H_E\rightarrow H_T$ 和 $H_T\rightarrow H_C$ 的授权传递，共同保持 I1--I3；第4.4节算法给出其前置条件，第6.2节通过移除任一执行点构造可观测反例。
+调度前 PEP 不能预测任务创建后的实际工具选择，调用时 PEP 也不能仅凭工具名恢复来源声明权，因此两个执行点并非重复检查。二者分别强制 $H_E\rightarrow H_T$ 和 $H_T\rightarrow H_C$ 的授权传递，共同保持 I1--I3；第4.4节算法给出其前置条件，RQ2 的双执行点配对实验通过移除任一执行点构造可观测反例。
 
 \subsection{证据平面}
 
 证据平面的设计动机是使治理结果能够由对象依赖复核，而不是依赖分散文本日志进行事后猜测。它接收两个 PEP 以及审批、任务和能力管理器产生的阶段事件，拥有按 trace 排序的追加记录和前驱哈希，输出链完整性结果、首个失败阶段及其关联对象。拒绝或待审批事件同样写入终态证据，但不伪造不存在的任务或能力；获准路径则继续追加事件、任务、能力、调用和结果依赖。
 
-验证器先检查记录内容和顺序，再依据式~\eqref{eq:transition-v11} 检查前驱阶段，因此证据平面保持 I4，并为 I1--I3 提供可复核的执行见证。第4.5节定义证据结构与验证边界，第6.3节通过阶段故障和链内篡改检验定位能力；外部整体回滚不在当前保证范围内。
+验证器先检查记录内容和顺序，再依据式~\eqref{eq:transition-v11} 检查前驱阶段，因此证据平面保持 I4，并为 I1--I3 提供可复核的执行见证。第4.5节定义证据结构与验证边界，RQ3 通过阶段故障和链内篡改检验定位能力；外部整体回滚不在当前保证范围内。
 
 \section{跨层能力治理机制}\label{sec:method-v11}
 
 \subsection{来源--类型能力契约}
 
-事件模式验证只回答字段是否合法。E2AG 在 Connector 描述中增加来源模式集合，并把它与 Connector 可声明的事件类型绑定。契约判定先检查基本 CloudEvent 结构，再查找同时满足来源与类型的版本化契约。未找到绑定时默认拒绝，因此结构合法的 \texttt{source=webhook/attacker,type=git.push} 不能借用 Git Connector 的事件语义。契约输出包含匹配契约、策略版本和稳定原因码，成为目标策略的可信输入及证据链首项。
+事件模式验证只回答字段是否合法。E2AG 在 Connector 描述中增加来源模式集合，并把它与 Connector 可声明的事件类型绑定。契约判定先检查基本 CloudEvent 结构，再查找同时满足来源与类型的版本化契约。未找到绑定时默认拒绝，因此结构合法的 \texttt{source=webhook/attacker,type=git.push} 不能借用 Git Connector 的事件语义；这对应引言贯穿示例中“伪造来源但选择集合内工具”的第一条反事实分支。契约输出包含匹配契约、策略版本和稳定原因码，成为目标策略的可信输入及证据链首项。
 
 该机制拥有的是 $H_E$ 的事件声明权，而不是目标任务或工具的最终执行权。对事件 $e$，只有 $B_C(e)$ 成立才进入目标解析；拒绝结果直接形成终态证据，不创建 $t$ 或 $g$。因此来源--类型契约保持 I1 的第一个前置条件，并在 RQ1 的 ContractGuard 配置中与目标策略独立开关，以检验二者是否覆盖不同违规对象。
 
@@ -190,7 +192,7 @@ g=\langle \rho,id(e),id(t),id(a),id(m),U,exp,state,version\rangle.
 
 图~\ref{fig:execution-flow-v11} 描述单个事件的动态流程，与图~\ref{fig:architecture-v11} 的静态组件关系分离。算法~\ref{alg:e2ag-v11} 将式~\eqref{eq:transition-v11} 实现为两个不可绕过的过程：事件接入过程先验证契约，再对每个目标执行策略和审批状态转换；只有准入成功才创建任务和能力。调用过程在接触上游凭据前检查状态、期限、对象绑定和工具集合。两个过程均追加显式阶段结果。
 
-算法记号在此统一定义。$\mathcal{C}$ 是版本化 Connector 契约集合，$\mathcal{P}=\{P_a\mid a\in\mathcal{A}\}$ 是目标策略族，$targets(e)\subseteq\mathcal{A}$ 是订阅与路由得到的候选目标集合，$\tau$ 是当前时刻。$\operatorname{EvaluatePolicy}(e,P_a,\tau)$ 返回 $\langle d_a,m_a,U_a,exp_a\rangle$：$d_a$ 为三态决策，$m_a$ 为获准服务，$U_a$ 为允许工具集合，$exp_a$ 为能力期限。$\operatorname{NewTrace}$ 创建 trace，$\operatorname{Append}$ 原子追加证据，$\operatorname{ConsumeApproval}$ 消耗一次性审批终态，$\operatorname{CreateTask}$ 和 $\operatorname{IssueCapability}$ 创建绑定对象；$\operatorname{Active}$、$\operatorname{BindingsMatch}$ 与 $\operatorname{ForwardToUpstream}$ 分别检查生命周期、检查对象绑定和执行上游调用。$T_{new}$ 与 $r$ 是过程内的任务集合和上游结果。
+为把图示流程写成可执行过程，下面先统一算法输入、返回值和辅助过程。$\mathcal{C}$ 是版本化 Connector 契约集合，$\mathcal{P}=\{P_a\mid a\in\mathcal{A}\}$ 是目标策略族，$targets(e)\subseteq\mathcal{A}$ 是订阅与路由得到的候选目标集合，$\tau$ 是当前时刻。$\operatorname{EvaluatePolicy}(e,P_a,\tau)$ 返回 $\langle d_a,m_a,U_a,exp_a\rangle$：$d_a$ 为三态决策，$m_a$ 为获准服务，$U_a$ 为允许工具集合，$exp_a$ 为能力期限。$\operatorname{NewTrace}$ 创建 trace，$\operatorname{Append}$ 原子追加证据，$\operatorname{ConsumeApproval}$ 消耗一次性审批终态，$\operatorname{CreateTask}$ 和 $\operatorname{IssueCapability}$ 创建绑定对象；$\operatorname{Active}$、$\operatorname{BindingsMatch}$ 与 $\operatorname{ForwardToUpstream}$ 分别检查生命周期、检查对象绑定和执行上游调用。$T_{new}$ 与 $r$ 是过程内的任务集合和上游结果。
 
 \begin{algorithm}[htbp]
 \caption{E2AG 双执行点跨层授权算法}
@@ -246,7 +248,7 @@ l_i.previous\_hash=h_{i-1}.
 \noindent\textbf{证明概要.}
 设调用 $c$ 已产生外部副作用。由 A2，它必经过 AuthorizeCall 且未在状态、期限、绑定或工具成员检查处返回 deny，因此存在满足 $\operatorname{ValidGrant}$ 且 $tool(c)\in U(g)$ 的 $g$。能力只由 GovernEvent 在任务创建分支签发；由 A1，该分支只能在 $B_C(e)$ 成立且目标策略允许或审批已原子批准时执行，故 $\operatorname{Admit}(e,a)$ 与 $\operatorname{Issued}(g,e,t,a,m,U(g),exp(g))$ 成立，并建立 $e\prec t\prec g$。AuthorizeCall 接收同一绑定对象并追加调用，得到 $e\prec t\prec g\prec c$，从而式~\eqref{eq:end-to-end-safety-v11} 成立。若移除任一假设或 PEP，可分别构造来源绑定不满足或任务后集合外请求的反例；第6节以配对执行观测这些反例的上游可达性。\hfill$\square$
 
-设契约数为 $|\mathcal{C}|$、策略维度数为 $k$、允许工具集合使用哈希集合。朴素契约匹配为 $O(|\mathcal{C}|)$，目标策略判定为 $O(k)$，调用时状态、绑定和工具成员检查期望为 $O(1)$，每项证据追加为 $O(1)$。该分析说明调用时 PEP 不随历史 trace 长度线性扫描；实际端到端开销仍受数据库、模型和远程工具主导，本文不把本地微基准外推为生产性能。
+在安全性之外，算法还需控制调用时检查成本。设契约数为 $|\mathcal{C}|$、策略维度数为 $k$、允许工具集合使用哈希集合。朴素契约匹配为 $O(|\mathcal{C}|)$，目标策略判定为 $O(k)$，调用时状态、绑定和工具成员检查期望为 $O(1)$，每项证据追加为 $O(1)$。该分析说明调用时 PEP 不随历史 trace 长度线性扫描；实际端到端开销仍受数据库、模型和远程工具主导，本文不把本地微基准外推为生产性能。
 
 \section{原型系统实现}\label{sec:implementation-v11}
 
@@ -256,7 +258,7 @@ l_i.previous\_hash=h_{i-1}.
 
 实现将纯判定与输入/输出（input/output，I/O）分离。纯函数负责契约和目标策略，dispatcher 负责对象创建与证据持久化，MCP PEP 负责副作用前授权。实验因此可以在同一执行路径上独立开关契约、目标策略和两个 PEP，保持数据、模型输出和上游工具一致。
 
-事件去重最初采用“先查询、后插入”，并发 replay 会绕过检查。修复后增加带期限的唯一 EventDedupClaim，数据库写入成为去重线性化点。审批使用 pending、approved、rejected、expired 四态和条件更新，使 approve/reject 竞争至多一个成功终态。这两项实现对应状态迁移模型的单调性要求。
+上述划分解决了判定位置和实验隔离问题，但并发状态仍可能破坏状态迁移的单调性。事件去重最初采用“先查询、后插入”，并发 replay 会绕过检查；修复后增加带期限的唯一 EventDedupClaim，使数据库写入成为去重线性化点。审批使用 pending、approved、rejected、expired 四态和条件更新，使 approve/reject 竞争至多一个成功终态。这两项实现对应状态迁移模型的单调性要求。
 
 \section{实验设计与结果分析}\label{sec:evaluation-v11}
 
@@ -340,9 +342,9 @@ C1P1 & 30/30 & 100.00\% & 30/30 & 100.00\% \\
 
 表~\ref{tab:rq1-v11} 显示 ContractGuard 只阻断来源--类型绑定违规，非直接放行事件处置率置信区间为[19.23\%, 51.22\%]；当来源具有合法契约但目标智能体不允许其动作或工具时，契约不产生作用。DispatchGuard 阻断16个目标能力不匹配事件，并将4个生产敏感事件转入审批，区间为[48.78\%, 80.77\%]，但无法识别来源绑定不匹配。完整组合覆盖两类互不重叠的治理原因，区间为[88.65\%, 100\%]。四组正常通过率相同，说明差异来自治理对象而不是普遍收紧接入。
 
-四名复核者对首个治理层和完整 E2AG 预期决策均达到60/60逐例全体一致，Fleiss $\kappa$ 均为1.00。事件类别有56/60例全体一致，原始一致度为0.966667，Fleiss $\kappa=0.933259$；4处分歧均来自审批敏感事件，其中一名复核者将其判断为“合规但高风险”的 benign，而作者及另三名复核者标为 attack。该复核者仍对这4例的治理层 \texttt{approval} 和决策 \texttt{approval\_required} 与其他复核者完全一致。四份表的冻结输入字段均未被修改，无缺失或非法值，且逐例备注在任意两名复核者间没有完全相同项。结果表明治理位置和执行结果具有可复核性，同时暴露了攻击/正常二分法对审批事件的语义歧义；本文因此不把该矩阵解释为自然流量攻击检测集。
+为确认上述预期决策并非仅由作者解释，四名未参与语料构造的复核者独立检查同一冻结矩阵。复核者对首个治理层和完整 E2AG 预期决策均达到60/60逐例全体一致，Fleiss $\kappa$ 均为1.00。事件类别有56/60例全体一致，原始一致度为0.966667，Fleiss $\kappa=0.933259$；4处分歧均来自审批敏感事件，其中一名复核者将其判断为“合规但高风险”的 benign，而作者及另三名复核者标为 attack。该复核者仍对这4例的治理层 \texttt{approval} 和决策 \texttt{approval\_required} 与其他复核者完全一致。四份表的冻结输入字段均未被修改，无缺失或非法值，且逐例备注在任意两名复核者间没有完全相同项。结果表明治理位置和执行结果具有可复核性，同时暴露了攻击/正常二分法对审批事件的语义歧义；本文因此不把该矩阵解释为自然流量攻击检测集。
 
-固定种子压力集对7种变异算子各执行100次。NoGuard、ContractGuard 和完整 E2AG 的精确决策率分别为0、57.14\%和100\%。ContractGuard 只覆盖必填字段、规范版本、来源--类型交叉和未知类型4类变异，完整方法继续覆盖需审批动作与目标能力不匹配。该结果验证实现对不同变异算子的稳定分工，但由于样本由规则生成，不用于估计真实分布中的检出率。
+在冻结矩阵之外，固定种子压力集进一步检查上述机制分工是否随输入变异而改变。压力集对7种变异算子各执行100次，NoGuard、ContractGuard 和完整 E2AG 的精确决策率分别为0、57.14\%和100\%。ContractGuard 只覆盖必填字段、规范版本、来源--类型交叉和未知类型4类变异，完整方法继续覆盖需审批动作与目标能力不匹配。该结果验证实现对不同变异算子的稳定分工，但由于样本由规则生成，不用于估计真实分布中的检出率。
 
 \subsection{RQ2：双执行点与上游副作用}
 
@@ -368,7 +370,9 @@ E2AG & 30/30 & 19/19 & 49/49 \\
 
 表~\ref{tab:rq2-opa-v11} 显示 OPA-Tool 保持30/30正常调用，并对19例违规中的4例返回非允许。分层结果为：工具策略层4/15非允许，审批层0/4非允许；前4例均可由工具集合不匹配在调用边界直接观察。其余15例的工具名本身在允许集合中，违规信息位于来源、事件类型、目标动作或审批状态，工具边界输入不足以区分。完整 E2AG 通过调度前 PEP 补充这些上下文，因而在相同切片上得到19/19非允许。该比较不表示 OPA 引擎弱于 E2AG：若向 OPA 提供完整跨层对象和相应策略，它可以作为 E2AG 的 PDP；本文所解决的是对象构造、上下文传播、能力生命周期和 PEP 布置。补充接口集中的8个\texttt{tools/call}请求上，OPA-Tool 与 RuntimeGuard 均正确处理4个集合内和4个集合外工具，证明工具允许集语义可由独立引擎复现；另2个非\texttt{tools/call}方法不计入该补充集。实验固定 OPA 发布件、策略、输入和投影结果哈希，不报告单机进程启动时延。
 
-确定性实验包含正常授权、来源不匹配、任务后集合外请求和需审批动作，在4种配置下各重复30次，共480条 dispatcher--SQLite--A2ATask--ToolGrant--MCP PEP 路径。表~\ref{tab:rq2-deterministic-v11} 报告真实上游可达性。
+\subsubsection{双执行点的确定性与模型决策配对执行}
+
+工具边界基线说明了输入可见性差异；进一步的问题是，该差异是否会转化为真实上游副作用。为此，确定性实验包含正常授权、来源不匹配、任务后集合外请求和需审批动作，在4种配置下各重复30次，共480条 dispatcher--SQLite--A2ATask--ToolGrant--MCP PEP 路径。表~\ref{tab:rq2-deterministic-v11} 报告真实上游可达性。
 
 \begin{table}[htbp]
 \centering
@@ -389,7 +393,7 @@ G1R1 & 30/30 & 0/30 & 0/30 & 0/30（审批） \\
 
 DispatchGuard 在任务创建前掌握来源和环境，因此拒绝来源不匹配事件并触发动作审批；任务创建后它不再观察模型实际工具，故集合外请求仍到达上游。RuntimeGuard 检查任务能力中的工具集合，阻断全部集合外请求，却不能判定一个获准工具是否由来源不匹配事件触发。完整 E2AG 保留正常副作用并阻断三类未授权副作用。该配对反例与命题1的两个完整中介假设一一对应。
 
-既有模型决策回放固定正常、任务后集合外请求和来源不匹配3个合成事件提示，每个场景含10个已经冻结的工具选择结果，共30个。每个不可变结果在 G1R0、G0R1 和 G1R1 中复用，形成90条配对执行路径；本版不重新调用模型，上游为真实 loopback HTTP MCP canary。
+确定性路径固定治理输入和期望副作用，仍未覆盖既有模型工具选择进入同一执行路径后的系统行为。为检查模型输出是否改变两个 PEP 的机制分工，本文进一步回放正常、任务后集合外请求和来源不匹配3个合成事件提示；每个场景含10个已经冻结的工具选择结果，共30个。每个不可变结果在 G1R0、G0R1 和 G1R1 中复用，形成90条配对执行路径；本版不重新调用模型，上游为真实 loopback HTTP MCP canary。
 
 \begin{table}[htbp]
 \centering
@@ -411,7 +415,7 @@ G1R1 & 10/10 & 0/10 & 0/10 \\
 
 \subsubsection{自有设施上的治理一致性与集合外请求回归}
 
-为排除全部证据仅来自进程内生成器的疑问，本文在一台自有设施上另行部署仅绑定回环端口、使用独立数据库和工作区的 E2AG 实例，并在自有工具端点上执行配对回归。正对照沿用公开测试仓库的真实 GitHub push，验证 Connector、任务容器、ToolGrant、MCP PEP 与外部工具可以闭合。负对照使用该仓库的另一条真实事件，但集合外请求的工具名与参数由固定脚本直接构造，不由模型生成或选择；后续复验也只由确定性测试 harness 触发。
+为排除全部证据仅来自进程内生成器的疑问，本文在一台自有设施上另行部署仅绑定回环端口、使用独立数据库和工作区的 E2AG 实例，并在自有工具端点上执行配对回归。正对照沿用公开测试仓库的真实 GitHub push，验证 Connector、任务容器、ToolGrant、MCP PEP 与外部工具可以闭合。负对照使用该仓库的另一条真实事件，但集合外请求的工具名与参数由固定脚本直接构造，不由模型生成或选择；该负对照对应引言贯穿示例中“获准任务选择集合外工具”的第二条反事实分支，后续复验也只由确定性测试 harness 触发。
 
 \begin{table}[htbp]
 \centering
