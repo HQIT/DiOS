@@ -15,21 +15,21 @@
 
 ## 中英文题名
 
-中文题名：面向事件驱动智能体操作系统的跨层能力治理方法
+中文题名：事件驱动智能体操作系统跨层能力治理方法
 
 英文题名：A Cross-Layer Capability Governance Method for Event-Driven Agent Operating Systems
 
 ## 中文摘要与关键词
 
-中文摘要：事件驱动智能体操作系统将外部事件转化为自主任务和工具副作用，但事件来源、任务创建与工具执行分属不同信任域，协议格式校验或单点动作过滤无法证明一次副作用获得了完整链路授权。本文提出跨层能力治理方法 E2AG，将事件声明权、任务创建权和工具副作用权组织为同一任务作用域能力生命周期。E2AG 通过来源–类型契约和目标策略完成任务准入，为获准任务签发对象绑定的短期能力，并在实际 MCP 调用抵达上游前实施第二次强制验证；统一执行证据用于检查授权依赖和定位治理失败。本文给出跨层授权状态模型、完整中介安全性质及其证明概要，并在事件驱动智能体操作系统原型上实现该方法。基于经盲表复核的冻结治理矩阵、合成压力集、持久化端到端执行、既有模型工具决策回放、自有设施治理一致性回归和并发故障注入的评估表明：完整方法在保持正常事件可用性的同时正确处理冻结矩阵中的全部违规事件；移除任一执行点都会重新引入与其可见上下文对应的未授权副作用。结果说明，跨层对象绑定与双执行点完整中介能够把模型的不确定决策约束在可验证的系统授权边界内。
+中文摘要：事件驱动智能体操作系统将外部事件转化为自主任务和工具副作用，但事件来源、任务创建与工具执行分属不同信任域，协议格式校验或单点动作过滤无法证明一次副作用获得了完整链路授权。本文提出事件到智能体治理（Event-to-Agent Governance，E2AG）方法，将事件声明权、任务创建权和工具副作用权组织为同一任务作用域能力生命周期。E2AG 通过来源–类型契约和目标策略完成任务准入，为获准任务签发对象绑定的短期能力，并在实际模型上下文协议（Model Context Protocol，MCP）调用抵达上游前实施第二次强制验证；统一执行证据用于检查授权依赖和定位治理失败。本文给出跨层授权状态模型、完整中介安全性质及其证明概要，并在事件驱动智能体操作系统原型上实现该方法。基于经盲表复核的冻结治理矩阵、合成压力集、持久化端到端执行、既有模型工具决策回放、自有设施治理一致性回归和并发故障注入的评估表明：完整方法在保持正常事件可用性的同时正确处理冻结矩阵中全部应拒绝或转审批事件；移除任一执行点都会重新引入与其可见上下文对应的未授权副作用。结果说明，跨层对象绑定与双执行点完整中介能够把模型的不确定决策约束在可验证的系统授权边界内。
 
-中文关键词：人工智能操作系统；事件驱动智能体；能力治理；完整中介；执行溯源
+中文关键词：人工智能操作系统；智能体操作系统；能力治理；完整中介；执行溯源
 
 ## English abstract and key words
 
-Abstract: Event-driven agent operating systems transform external events into autonomous tasks and tool side effects. Event provenance, task creation, and tool execution nevertheless belong to distinct trust domains, so protocol validation or a single action filter cannot establish that a side effect is authorized by the complete execution chain. This paper presents E2AG, a cross-layer capability-governance method that organizes event-declaration, task-creation, and tool-side-effect authorities into a task-scoped capability lifecycle. E2AG admits tasks through source-type contracts and target policies, issues an object-bound short-lived capability for each admitted task, and enforces the capability again before an actual MCP call reaches its upstream tool. Unified execution evidence checks authorization dependencies and localizes governance failures. We define a cross-layer authorization transition model and a complete-mediation safety property with a proof sketch, and implement E2AG in an event-driven agent-OS prototype. Evaluation with a blindly reviewed frozen governance matrix, a synthetic stress suite, persistent end-to-end executions, replay of previously frozen model tool decisions, a governance-consistency regression on self-operated facilities, and concurrent fault injection shows that the complete method correctly handles every policy-violating event in the frozen matrix while preserving benign availability; removing either enforcement point reintroduces the unauthorized side effects associated with the context visible at that point. The results indicate that cross-layer object binding and dual-point complete mediation can constrain nondeterministic model decisions within verifiable system authorization boundaries.
+Abstract: Event-driven agent operating systems transform external events into autonomous tasks and tool side effects. Event provenance, task creation, and tool execution nevertheless belong to distinct trust domains, so protocol validation or a single action filter cannot establish that a side effect is authorized by the complete execution chain. This paper presents Event-to-Agent Governance (E2AG), a cross-layer capability-governance method that organizes event-declaration, task-creation, and tool-side-effect authorities into a task-scoped capability lifecycle. E2AG admits tasks through source-type contracts and target policies, issues an object-bound short-lived capability for each admitted task, and enforces the capability again before an actual Model Context Protocol (MCP) call reaches its upstream tool. Unified execution evidence checks authorization dependencies and localizes governance failures. We define a cross-layer authorization transition model and a complete-mediation safety property with a proof sketch, and implement E2AG in an event-driven agent operating system prototype. Evaluation with a blindly reviewed frozen governance matrix, a synthetic stress suite, persistent end-to-end executions, replay of previously frozen model tool decisions, a governance-consistency regression on self-operated facilities, and concurrent fault injection shows that the complete method correctly handles every case requiring rejection or approval in the frozen matrix while preserving directly admissible events; removing either enforcement point reintroduces the unauthorized side effects associated with the context visible at that point. The results indicate that cross-layer object binding and dual-point complete mediation can constrain nondeterministic model decisions within verifiable system authorization boundaries.
 
-Key words: agent operating system; event-driven agent; capability governance; complete mediation; execution provenance
+Key words: artificial intelligence operating system; agent operating system; capability governance; complete mediation; execution provenance
 
 ## 作者顺序与单位映射
 
@@ -58,10 +58,10 @@ Key words: agent operating system; event-driven agent; capability governance; co
 
 ## 附件核对
 
-- 匿名论文：`E2AG-paper-anonymous-v1.1.15-20260816.pdf`
-  - SHA-256：`BCE4F8FE3B3E543A69A1E95A3DB6FDC19DD86FB66F583FFF23B06786C2A8EE30`
-- 投稿声明源文件：`E2AG-JOS-submission-statement-prefilled-20260816.docx`
-  - SHA-256：`2F8946555354A254A2706C4D02C1BA7CBBB8B135BDE649BE289D4DF5FDAA2F7E`
+- 匿名论文：`E2AG-paper-anonymous-v1.1.20-20260817.pdf`
+  - SHA-256：`006EAB770B66291D2776664B93520A03B03280116B2B086C83D796B68953DA7F`
+- 投稿声明源文件：`E2AG-JOS-submission-statement-prefilled-v1.1.20-20260817.docx`
+  - SHA-256：`0F5B897C0F1587B6F2C8FCACFFA5DAA269988FA86377E01C6B7EEC27C8F7489F`
   - 当前状态：待五位作者亲笔签名、填写日期并形成扫描件。
 
 ## 提交前不得遗漏

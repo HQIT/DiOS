@@ -62,7 +62,7 @@
 
 ## 4. 投稿声明所需确认
 
-官方投稿声明已预填至 `output/submission/E2AG-JOS-submission-statement-prefilled-20260816.docx`。专刊征文要求初投稿提交声明；五位作者仍需分别亲笔签名并填写日期，不能代签或使用电子签名。
+官方投稿声明已预填至 `output/submission/E2AG-JOS-submission-statement-prefilled-v1.1.20-20260817.docx`。专刊征文要求初投稿提交声明；五位作者仍需分别亲笔签名并填写日期，不能代签或使用电子签名。
 
 1. 本文是否未正式发表、未同时投往其他期刊或会议？
 
