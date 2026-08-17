@@ -47,7 +47,7 @@ Key words: artificial intelligence operating system; agent operating system; cap
 8. 饶振宇（Zhenyu Rao），51285902217@stu.ecnu.edu.cn；华东师范大学软件工程学院。职称、学位、ORCID 暂缺。
 9. 王语欣（Yuxin Wang），51285902161@stu.ecnu.edu.cn；华东师范大学软件工程学院。职称、学位、ORCID 暂缺。
 
-通讯作者：王江涛，jtwang@sei.ecnu.edu.cn；手机号码暂缺，必须在提交前补齐。
+通讯作者：冯骐，qfeng@admin.ecnu.edu.cn；手机号码暂缺，必须在提交前补齐。
 
 ## 单位信息
 
