@@ -67,9 +67,7 @@ Key words: artificial intelligence operating system; agent operating system; cap
 
 - 匿名论文：`E2AG-paper-anonymous-v1.1.29-20260817.pdf`
   - SHA-256：`2946D175678045645C7D7FE375A4304F5A53AA89B74BC6160889BAF2F8D36F7E`
-- 投稿声明源文件：`E2AG-JOS-submission-statement-prefilled-v1.1.31-20260817.docx`
-  - SHA-256：`8891513A76B8CE9E89EC0218ACCAF0AB7ADB92851419E6DE4CD07EF89C9360C1`
-  - 当前状态：已按最终九人顺序生成并通过单页 A4 渲染核验；待作者手写签名、填写日期和上传。
+- 投稿声明：使用作者自有模板；手写签名、填写日期和上传均由作者处理，仓库不生成声明文件。
 - 保密审查单：作者已准备，由作者在投稿时上传；无需在本仓库继续处理。
 
 ## 提交前不得遗漏

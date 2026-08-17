@@ -8,8 +8,8 @@
 ## 现在需要作者完成
 
 1. 提供通信作者王江涛的手机号码；该号码仅填写在线投稿系统，不写入匿名论文。
-2. 使用已确认的9位作者顺序；旧文件 `E2AG-JOS-submission-statement-prefilled-v1.1.20-20260817.docx` 不再使用。
-3. 使用新版 `E2AG-JOS-submission-statement-prefilled-v1.1.31-20260817.docx`，再由9位作者分别亲笔签名并填写日期。
+2. 使用已确认的9位作者顺序；仓库内自生成的投稿声明不再使用。
+3. 使用作者自有模板，由9位作者分别亲笔签名并填写日期。
 4. 将新版完整签署页扫描为清晰 PDF。若作者分别签署，应将完整声明内容及所有签字页合并为一个上传文件。
 5. 登录《软件学报》在线投稿系统，从 `E2AG-online-submission-fields-20260816.md` 复制题名、摘要、关键词、作者和单位信息。
 6. 投稿类型选择“专刊投稿”，备注填写“人工智能操作系统及其安全”。
@@ -24,7 +24,6 @@
 | 文件 | 用途 | SHA-256 |
 |---|---|---|
 | `E2AG-paper-anonymous-v1.1.29-20260817.pdf` | 匿名论文主件 | `2946D175678045645C7D7FE375A4304F5A53AA89B74BC6160889BAF2F8D36F7E` |
-| `E2AG-JOS-submission-statement-prefilled-v1.1.31-20260817.docx` | 九人投稿声明（待手写签名） | `8891513A76B8CE9E89EC0218ACCAF0AB7ADB92851419E6DE4CD07EF89C9360C1` |
 | `E2AG-JOS-submission-statement-prefilled-v1.1.20-20260817.docx` | 打印签署源文件，不直接作为最终签署件上传 | `0F5B897C0F1587B6F2C8FCACFFA5DAA269988FA86377E01C6B7EEC27C8F7489F` |
 | `E2AG-online-submission-fields-20260816.md` | 在线字段复制卡 | `FFE1D03AB4CD254E2DD4A8F738BBAE9B9DB69E7E4E663760466DCD58574AAE76` |
 
