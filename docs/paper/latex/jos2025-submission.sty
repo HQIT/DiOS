@@ -1,0 +1,138 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{jos2025-submission}[2026/08/17 Journal of Software 2025 sample approximation]
+
+% This package approximates the public 2025 Journal of Software typesetting
+% sample for initial PDF submission. Editorial metadata such as DOI, volume,
+% issue, received date and final page numbers is intentionally omitted.
+\RequirePackage{fontspec}
+\RequirePackage{geometry}
+\geometry{
+  paperwidth=184mm,
+  paperheight=260mm,
+  top=13mm,
+  bottom=20mm,
+  left=14.5mm,
+  right=14.5mm,
+  headheight=10pt,
+  headsep=5pt,
+  footskip=9mm
+}
+
+\setmainfont[
+  Path=C:/Windows/Fonts/,
+  BoldFont=timesbd.ttf,
+  ItalicFont=timesi.ttf,
+  BoldItalicFont=timesbi.ttf
+]{times.ttf}
+\setCJKmainfont[
+  Path=C:/Windows/Fonts/,
+  BoldFont=NotoSerifSC-VF.ttf,
+  ItalicFont=NotoSerifSC-VF.ttf
+]{NotoSerifSC-VF.ttf}
+\setCJKsansfont[
+  Path=C:/Windows/Fonts/,
+  BoldFont={Noto Sans SC Bold (TrueType).otf}
+]{Noto Sans SC (TrueType).otf}
+\setCJKmonofont[Path=C:/Windows/Fonts/]{Noto Sans SC (TrueType).otf}
+\newCJKfontfamily\jostitlefont[Path=C:/Windows/Fonts/]{simhei.ttf}
+\newCJKfontfamily\josauthorfont[Path=C:/Windows/Fonts/]{simfang.ttf}
+
+\RequirePackage{amsmath,amssymb,booktabs,longtable,array,graphicx,url}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds}
+\RequirePackage{algorithm}
+\RequirePackage{algpseudocode}
+\RequirePackage{float}
+\RequirePackage{enumitem}
+\RequirePackage{caption}
+\RequirePackage{etoolbox}
+\RequirePackage[hidelinks]{hyperref}
+
+\hypersetup{unicode=true,pdfencoding=auto}
+\floatname{algorithm}{算法}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\emergencystretch}{2em}
+\Urlmuskip=0mu plus 1mu
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setlist{nosep,leftmargin=2.2em}
+
+% The sample uses a compact 9 pt body on a 12 pt baseline.
+\AtBeginDocument{\fontsize{9pt}{12pt}\selectfont}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+
+\ctexset{
+  section={
+    format=\raggedright\jostitlefont\fontsize{10.5pt}{13pt}\selectfont,
+    beforeskip=8pt,
+    afterskip=5pt
+  },
+  subsection={
+    format=\raggedright\jostitlefont\fontsize{9pt}{12pt}\selectfont,
+    beforeskip=6pt,
+    afterskip=3pt
+  },
+  subsubsection={
+    format=\raggedright\jostitlefont\fontsize{9pt}{12pt}\selectfont,
+    beforeskip=4pt,
+    afterskip=2pt
+  }
+}
+
+\DeclareCaptionFont{joscaption}{\fontsize{8pt}{10pt}\selectfont}
+\captionsetup{
+  font=joscaption,
+  labelfont=normalfont,
+  labelsep=quad,
+  justification=centering,
+  singlelinecheck=false,
+  skip=4pt
+}
+
+\providecommand{\JOSShortAuthor}{作者}
+\providecommand{\JOSShortTitle}{论文题名}
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\fontsize{7.5pt}{9pt}\selectfont \JOSShortAuthor：\JOSShortTitle}
+\fancyhead[R]{\fontsize{7.5pt}{9pt}\selectfont \thepage}
+\renewcommand{\headrulewidth}{0.35pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{josfirst}{
+  \fancyhf{}
+  \fancyhead[L]{\fontsize{7.5pt}{9pt}\selectfont 软件学报 / Journal of Software}
+  \fancyhead[R]{\fontsize{7.5pt}{9pt}\selectfont 初投稿稿}
+  \fancyfoot[C]{\fontsize{7.5pt}{9pt}\selectfont \thepage}
+  \renewcommand{\headrulewidth}{0.35pt}
+}
+
+\newenvironment{joszhabstract}{%
+  \par\vspace{7pt}\begingroup\fontsize{9pt}{12pt}\selectfont
+  \noindent\jostitlefont 摘\quad 要：\normalfont
+}{\par\endgroup}
+
+\newenvironment{josenabstract}{%
+  \par\vspace{6pt}\begingroup\fontsize{7.5pt}{11pt}\selectfont
+  \noindent\textbf{Abstract:}\enspace
+}{\par\endgroup}
+
+\newcommand{\joskeywords}[1]{%
+  \par\noindent\fontsize{9pt}{12pt}\selectfont\jostitlefont 关键词：\normalfont #1\par
+}
+\newcommand{\josclassification}[1]{%
+  \par\noindent\fontsize{9pt}{12pt}\selectfont\jostitlefont 中图法分类号：\normalfont #1\par
+}
+\newcommand{\josenkeywords}[1]{%
+  \par\noindent\fontsize{7.5pt}{11pt}\selectfont\textbf{Key words:}\enspace #1\par
+}
+
+\renewcommand{\refname}{References}
+\AtBeginEnvironment{thebibliography}{%
+  \fontsize{7.5pt}{10pt}\selectfont
+  \setlength{\itemsep}{0pt}
+  \setlength{\parsep}{0pt}
+}
+
