@@ -2,7 +2,7 @@
 
 当前评审稿入口为 `e2ag-paper-v1.1.tex`，正文为 `e2ag-body-v1.1.tex`；`e2ag-paper.tex` 与 `e2ag-body.tex` 保留为上一版来源，不覆盖。构建产物写入 `build/`，不纳入版本控制；可交付 PDF 以版本号和日期另存于仓库根目录的 `output/pdf/`。
 
-最新可交付文件为 `E2AG-paper-anonymous-v1.1.16-20260817.pdf`。v1.1.16 将盲评面板更新为“保留1份、更新2份、新增1份”的四人结果：治理层与预期决策 Fleiss κ 均为1.00，事件类别 κ=0.933259，4处分歧均来自审批敏感事件。论文据此把冻结矩阵改述为30例直接放行、26例拒绝和4例审批，并以治理结果而非攻击/正常二分作为主要标签；引言新增匿名的“多智能体博弈平台→DiOS 测试服务器”贯穿示例，不使用 Qame、demogo 设施名。27条参考文献、匿名边界和既有实验结果保持不变。
+最新可交付文件为 `E2AG-paper-anonymous-v1.1.17-20260817.pdf`。v1.1.17 在 v1.1.16 的四人盲评结果和 motivating example 基础上完成全稿缩写核查：中英文摘要分别补齐 E2AG 与 MCP 原称；正文首次出现处补齐 AIOS、DiOS、PEP、A2A、OAP、CASA、libOS、PDP、W3C、OPA、TB、SHA-256、JSON、HTTP、I/O、RQ、IMAP、stdio 和 SSE；图1、图2图注补齐图内关键缩写原称。方法正式名称和参考文献原题名保持不变。该版共16页，SHA-256 为 `00BB1C604019A74841A64FC0F39739AD9A4243622D0A6DF0692EA953D8E2E5EA`。
 
 为确保中文字体和 Unicode 映射完整嵌入，发布 PDF 使用 MiKTeX XeLaTeX 构建两遍：
 

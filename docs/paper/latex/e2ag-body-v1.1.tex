@@ -1,17 +1,17 @@
 \section*{引言}\label{sec:introduction-v11}
 \addcontentsline{toc}{section}{引言}
 
-AIOS 将模型、记忆、工具和任务调度组织为共享运行环境，自主智能体研究则把规划、记忆、工具使用和环境交互视为持续执行的共同组成\cite{aios,agent-survey}。在事件驱动智能体操作系统（Agent OS/AIOS）中，Git 推送、邮件、监控告警和业务回调不再只是被动输入，而可以直接创建智能体任务。任务运行时读取事件载荷，调用模型选择工具，再由 MCP 或其他连接器访问代码仓库、数据库、消息系统和设备。与传统请求--响应应用相比，这条链同时包含不可信事件输入、非确定性模型决策和可产生外部副作用的工具调用；治理问题因而不只是“模型选择了什么动作”，而是“该动作能否沿系统路径获得执行权”。
+人工智能体操作系统（AI Agent Operating System，AIOS）将模型、记忆、工具和任务调度组织为共享运行环境，自主智能体研究则把规划、记忆、工具使用和环境交互视为持续执行的共同组成\cite{aios,agent-survey}。在事件驱动 AIOS 中，Git 推送、邮件、监控告警和业务回调不再只是被动输入，而可以直接创建智能体任务。任务运行时读取事件载荷，调用模型选择工具，再由模型上下文协议（Model Context Protocol，MCP）或其他连接器访问代码仓库、数据库、消息系统和设备。与传统请求--响应应用相比，这条链同时包含不可信事件输入、非确定性模型决策和可产生外部副作用的工具调用；治理问题因而不只是“模型选择了什么动作”，而是“该动作能否沿系统路径获得执行权”。
 
-考虑如下贯穿全文的例子。一个多智能体博弈平台在参与者向公开测试代码库推送提交后，向 DiOS 测试服务器发送标准化的 \texttt{git.push} 事件 $e$。服务器选择变更分析智能体 $a$ 并创建任务 $t$；目标策略只允许该任务使用记录推送、记录评审和查询记录等工具，因此系统签发绑定 $e,t,a$ 与允许集合 $U(g)$ 的短期能力 $g$。运行时产生的工具调用 $c$ 若属于 $U(g)$，调用时 PEP 才将其转发到上游；若模型选择固定的集合外状态修改工具，PEP 在接触上游前返回拒绝。该允许--拒绝配对对应本文自有设施上的治理一致性回归，但不用于估计自然流量中的模型违规概率。
+考虑如下贯穿全文的例子。一个多智能体博弈平台在参与者向公开测试代码库推送提交后，向深度智能操作系统（Deep Intelligent Operation System，DiOS）测试服务器发送标准化的 \texttt{git.push} 事件 $e$。服务器选择变更分析智能体 $a$ 并创建任务 $t$；目标策略只允许该任务使用记录推送、记录评审和查询记录等工具，因此系统签发绑定 $e,t,a$ 与允许集合 $U(g)$ 的短期能力 $g$。运行时产生的工具调用 $c$ 若属于 $U(g)$，调用时策略执行点（policy enforcement point，PEP）才将其转发到上游；若模型选择固定的集合外状态修改工具，PEP 在接触上游前返回拒绝。该允许--拒绝配对对应本文自有设施上的治理一致性回归，但不用于估计自然流量中的模型违规概率。
 
 同一例子给出两个单点机制无法覆盖的反事实分支。若事件伪造来源字段但最终选择集合内工具，仅位于调用时的 PEP 看不到来源声明权，必须由任务创建前的 PEP 阻断；若来源与任务均已获准，但运行时选择集合外工具，调度前 PEP 尚未观察到实际调用 $c$，必须由调用时 PEP 再次验证。两条分支分别对应第6节的任务准入消融和副作用可达性实验，说明问题不是重复增加规则，而是让授权依据随事件、任务和工具对象跨层传播。
 
-CloudEvents、A2A 和 MCP 分别规定事件、任务和工具调用对象\cite{cloudevents,a2a,mcp}，但协议互操作不自动产生跨对象授权。间接提示词注入评测揭示了不可信内容改变工具决策的风险\cite{indirect-pi,injecagent,agentdojo,toolemu}；AgentSpec 和 CaMeL 等工作把确定性约束置于模型之外\cite{agentspec,camel}。这些机制分别保护事件格式、运行时动作或数据流，却没有共同回答三个问题：谁有权声明某类事件，该事件能否创建指定智能体任务，以及任务实际选择的工具能否产生副作用。经典参考监控器要求安全相关访问受到不可绕过的完整中介\cite{reference-monitor,saltzer-schroeder}；在事件驱动 AIOS 中，单个执行点无法同时观察三个对象，完整中介必须跨层组织。
+CloudEvents、智能体间协议（Agent2Agent，A2A）和 MCP 分别规定事件、任务和工具调用对象\cite{cloudevents,a2a,mcp}，但协议互操作不自动产生跨对象授权。间接提示词注入评测揭示了不可信内容改变工具决策的风险\cite{indirect-pi,injecagent,agentdojo,toolemu}；AgentSpec 和 CaMeL 等工作把确定性约束置于模型之外\cite{agentspec,camel}。这些机制分别保护事件格式、运行时动作或数据流，却没有共同回答三个问题：谁有权声明某类事件，该事件能否创建指定智能体任务，以及任务实际选择的工具能否产生副作用。经典参考监控器要求安全相关访问受到不可绕过的完整中介\cite{reference-monitor,saltzer-schroeder}；在事件驱动 AIOS 中，单个执行点无法同时观察三个对象，完整中介必须跨层组织。
 
 本文把上述问题抽象为跨层授权传播：系统接收不可信事件后，应当逐步收缩而不是隐式扩大权限。事件来源只能声明契约允许的类型；获准事件只能创建目标策略允许的任务；任务只能使用绑定到其事件、智能体、MCP 服务和工具集合的短期能力。任何到达上游的副作用，都应存在可验证的事件--任务--能力--调用依赖。该目标还要求审批、能力过期和事件重放采用单调、原子的状态转移，否则正确的策略判定仍可能被并发竞态破坏。
 
-基于这一抽象，本文提出 E2AG（Event-to-Agent Governance）。E2AG 由治理平面、执行平面和证据平面组成：治理平面拥有来源--类型契约、目标策略、审批和任务能力状态；执行平面在任务创建前与工具调用前设置两个不可绕过的 PEP；证据平面把两个执行点及其对象依赖写入同一 trace。E2AG 不检测自然语言是否恶意，而是在模型之外决定一次任务和一次副作用是否具有完整的系统授权。
+基于这一抽象，本文提出事件到智能体治理（Event-to-Agent Governance，E2AG）方法。E2AG 由治理平面、执行平面和证据平面组成：治理平面拥有来源--类型契约、目标策略、审批和任务能力状态；执行平面在任务创建前与工具调用前设置两个不可绕过的 PEP；证据平面把两个执行点及其对象依赖写入同一 trace。E2AG 不检测自然语言是否恶意，而是在模型之外决定一次任务和一次副作用是否具有完整的系统授权。
 
 本文采用状态迁移系统描述事件接入、任务创建、能力签发与工具调用，给出端到端副作用安全性质和双执行点完整中介命题。该形式化不是装饰性符号：任务接入性质由 Contract$\times$Policy 消融检验，副作用安全性质由固定模型决策的配对执行检验，证据连续性和状态单调性分别由故障注入与并发竞态检验。
 
@@ -33,13 +33,13 @@ CloudEvents、A2A 和 MCP 分别规定事件、任务和工具调用对象\cite{
 
 \subsection{智能体运行时防护}
 
-AgentSpec 通过领域专用规则描述触发条件、谓词和动作，在智能体运行时强制执行动作规则\cite{agentspec}。CaMeL 从可信查询提取控制流和数据流，并用能力约束不可信数据对程序流与敏感数据外泄的影响\cite{camel}。二者说明安全决策需要位于模型之外的确定性系统层。新近工作进一步把授权置于工具调用或智能体运行时：OAP 在调用前执行声明式策略并生成签名审计记录\cite{oap}；ToolGuardian 结合工具准入表征与任务感知的声明式授权\cite{toolguardian}；CASA 将确定性消息约束与任务--工具语义匹配结合\cite{casa}；Agent libOS 则以显式能力中介进程、工具、资源和审批原语\cite{agent-libos}。这些方法共同证明了调用前授权的重要性，但其授权起点主要是用户任务、运行时进程或待调用工具。E2AG 进一步处理 Connector 外部事件的声明权，并把事件、系统任务和调用能力绑定为同一生命周期。对已授权工具的参数级数据流约束仍应由 CaMeL 类机制或参数谓词补充。
+AgentSpec 通过领域专用规则描述触发条件、谓词和动作，在智能体运行时强制执行动作规则\cite{agentspec}。CaMeL 从可信查询提取控制流和数据流，并用能力约束不可信数据对程序流与敏感数据外泄的影响\cite{camel}。二者说明安全决策需要位于模型之外的确定性系统层。新近工作进一步把授权置于工具调用或智能体运行时：开放智能体通行证（Open Agent Passport，OAP）在调用前执行声明式策略并生成签名审计记录\cite{oap}；ToolGuardian 结合工具准入表征与任务感知的声明式授权\cite{toolguardian}；持续智能体语义授权（Continuous Agent Semantic Authorization，CASA）将确定性消息约束与任务--工具语义匹配结合\cite{casa}；Agent libOS 中的 libOS 指库操作系统（library operating system），该方法以显式能力中介进程、工具、资源和审批原语\cite{agent-libos}。这些方法共同证明了调用前授权的重要性，但其授权起点主要是用户任务、运行时进程或待调用工具。E2AG 进一步处理 Connector 外部事件的声明权，并把事件、系统任务和调用能力绑定为同一生命周期。对已授权工具的参数级数据流约束仍应由 CaMeL 类机制或参数谓词补充。
 
 \subsection{协议、参考监控器与能力系统}
 
-CloudEvents、A2A 与 MCP 分别定义事件、任务和工具调用对象\cite{cloudevents,a2a,mcp}，但格式互操作不等于授权传播。PDP/PEP 分离支持在执行点实施结构化策略\cite{opa}；参考监控器和完整中介原则要求所有安全相关访问经过不可绕过且足够小的检查机制\cite{reference-monitor,saltzer-schroeder}；能力系统把访问权封装为可传递、可收缩的对象\cite{dennis-capability,cap-os,macaroons}。W3C Trace Context 解决跨服务标识传播，哈希链接和 in-toto 用于验证过程记录的连续性与步骤依赖\cite{trace-context,haber-stornetta,in-toto}。E2AG 的贡献不是重新定义这些协议或密码结构，而是把它们组织为事件--任务--工具三层的授权传播和完整中介。
+CloudEvents、A2A 与 MCP 分别定义事件、任务和工具调用对象\cite{cloudevents,a2a,mcp}，但格式互操作不等于授权传播。策略决策点（policy decision point，PDP）与 PEP 分离支持在执行点实施结构化策略\cite{opa}；参考监控器和完整中介原则要求所有安全相关访问经过不可绕过且足够小的检查机制\cite{reference-monitor,saltzer-schroeder}；能力系统把访问权封装为可传递、可收缩的对象\cite{dennis-capability,cap-os,macaroons}。万维网联盟（World Wide Web Consortium，W3C）的 Trace Context 解决跨服务标识传播，哈希链接和 in-toto 用于验证过程记录的连续性与步骤依赖\cite{trace-context,haber-stornetta,in-toto}。E2AG 的贡献不是重新定义这些协议或密码结构，而是把它们组织为事件--任务--工具三层的授权传播和完整中介。
 
-表~\ref{tab:related-scope-v11} 按保护对象、执行点和证据类型比较代表性方法。协议标准不承担治理，现有运行时方法集中于动作、任务意图或数据流；E2AG 同时约束事件声明、系统任务创建和工具副作用，并把三个判定关联到同一执行证据。由于这些方法的输入主体和保护对象不同，本文不直接排序其公开结果；数值实验以共享代码路径隔离治理位置，并增加 OPA 独立引擎的工具边界基线，用于区分策略执行器与跨层上下文覆盖。
+表~\ref{tab:related-scope-v11} 按保护对象、执行点和证据类型比较代表性方法。协议标准不承担治理，现有运行时方法集中于动作、任务意图或数据流；E2AG 同时约束事件声明、系统任务创建和工具副作用，并把三个判定关联到同一执行证据。由于这些方法的输入主体和保护对象不同，本文不直接排序其公开结果；数值实验以共享代码路径隔离治理位置，并增加开放策略代理（Open Policy Agent，OPA）独立引擎的工具边界基线，用于区分策略执行器与跨层上下文覆盖。
 
 \begin{table}[htbp]
 \centering
@@ -75,7 +75,7 @@ E2AG & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 \end{equation}
 其中 $E,T,G,Q,L$ 分别保存事件、任务、能力、审批状态和执行证据。该状态直接对应第5节原型中的 EventLog、A2ATask、ToolGrant、Approval 和 AuditEntry，而不是仅用于记号说明。
 
-事件接入域、智能体执行域和工具副作用域构成两个信任边界：TB1 位于外部来源与 AIOS 之间，TB2 位于 AIOS 与外部工具之间。跨越 TB1 的结构化字段不自动获得事件类型的声明权；跨越 TB2 的模型输出不自动获得工具执行权。
+事件接入域、智能体执行域和工具副作用域构成两个信任边界（trust boundary，TB）：TB1 位于外部来源与 AIOS 之间，TB2 位于 AIOS 与外部工具之间。跨越 TB1 的结构化字段不自动获得事件类型的声明权；跨越 TB2 的模型输出不自动获得工具执行权。
 
 \subsection{跨层授权状态迁移}
 
@@ -200,7 +200,7 @@ g=\langle \rho,id(e),id(t),id(a),id(m),U,exp,state,version\rangle.
 
 \subsection{执行证据与验证}
 
-每项证据 $l_i$ 包含 sequence、stage、outcome、对象标识、前驱哈希和内容哈希。令 $H$ 为 SHA-256，$\operatorname{canon}$ 为确定性 JSON 规范化，则
+每项证据 $l_i$ 包含 sequence、stage、outcome、对象标识、前驱哈希和内容哈希。令 $H$ 为256位安全散列算法（Secure Hash Algorithm 256-bit，SHA-256），$\operatorname{canon}$ 为 JavaScript 对象表示法（JavaScript Object Notation，JSON）的确定性规范化函数，则
 \begin{equation}
 h_i=H\bigl(\operatorname{canon}(l_i\setminus\{h_i\})\bigr),\qquad
 l_i.previous\_hash=h_{i-1}.
@@ -222,9 +222,9 @@ l_i.previous\_hash=h_{i-1}.
 
 本文在一个开源事件驱动智能体操作系统原型上实现 E2AG。为保持匿名评审，仓库、分支和部署地址在当前稿件中以角色名表示，解除匿名后公开。原型已有 Connector、CloudEvents 标准化、订阅匹配、事件调度、A2A Task 和 MCP 配置管理。E2AG 增加契约与策略判定器、调度前 PEP、审批管理器、任务能力管理器、MCP 调用 PEP 和执行证据验证器。
 
-调度前 PEP 位于所有 Connector 汇合到 A2ATask 创建的统一 dispatcher。EventLog 保存事件及契约判定，A2ATask 通过 context 和 trace 与事件关联，ToolGrant 保存式~\eqref{eq:grant-v11} 的能力摘要和生命周期状态。MCP PEP 代理 remote streamable HTTP：它先验证任务能力，再转发获准调用；\texttt{tools/list} 结果按任务允许集合裁剪，避免向任务暴露无权调用的工具。
+调度前 PEP 位于所有 Connector 汇合到 A2ATask 创建的统一 dispatcher。EventLog 保存事件及契约判定，A2ATask 通过 context 和 trace 与事件关联，ToolGrant 保存式~\eqref{eq:grant-v11} 的能力摘要和生命周期状态。MCP PEP 代理基于超文本传输协议（Hypertext Transfer Protocol，HTTP）的远程 Streamable HTTP 传输：它先验证任务能力，再转发获准调用；\texttt{tools/list} 结果按任务允许集合裁剪，避免向任务暴露无权调用的工具。
 
-实现将纯判定与 I/O 分离。纯函数负责契约和目标策略，dispatcher 负责对象创建与证据持久化，MCP PEP 负责副作用前授权。实验因此可以在同一执行路径上独立开关契约、目标策略和两个 PEP，保持数据、模型输出和上游工具一致。
+实现将纯判定与输入/输出（input/output，I/O）分离。纯函数负责契约和目标策略，dispatcher 负责对象创建与证据持久化，MCP PEP 负责副作用前授权。实验因此可以在同一执行路径上独立开关契约、目标策略和两个 PEP，保持数据、模型输出和上游工具一致。
 
 事件去重最初采用“先查询、后插入”，并发 replay 会绕过检查。修复后增加带期限的唯一 EventDedupClaim，数据库写入成为去重线性化点。审批使用 pending、approved、rejected、expired 四态和条件更新，使 approve/reject 竞争至多一个成功终态。这两项实现对应状态迁移模型的单调性要求。
 
@@ -232,7 +232,7 @@ l_i.previous\_hash=h_{i-1}.
 
 \subsection{研究问题}
 
-实验围绕性质而不是围绕脚本数量组织：
+实验围绕以下研究问题（research question，RQ）而不是围绕脚本数量组织：
 \begin{itemize}
   \item \textbf{RQ1：} 来源契约和目标策略是否分别提供独立安全收益，组合后能否保持正常事件可用性？对应 I1；
   \item \textbf{RQ2：} 两个执行点是否具有不可替代的上下文，完整方法能否阻止未授权副作用到达真实 HTTP 上游？对应 I2--I3；
@@ -264,7 +264,7 @@ l_i.previous\_hash=h_{i-1}.
 \end{tabular}
 \end{table}
 
-正式冻结矩阵包含 GitHub、GitLab、Gitea、IMAP、通用 Webhook、Manual 和 Cron，共含30个应直接放行事件、26个应拒绝事件和4个应转审批的生产敏感事件。冻结作者标签为便于早期消融，将后两类合并编码为 \texttt{attack}；盲评允许复核者独立判断事件类别。为避免把高风险但合规的审批事件等同于恶意攻击，本文以预期治理结果（放行、拒绝或审批）作为主要标签，并把事件类别一致性单独报告。所有样本满足基本 CloudEvent 结构，以避免把解析失败计为跨层治理收益。四名复核者仅接收移除作者标签的事件字段与目标治理声明，分别标注事件类别、首个治理层和完整 E2AG 预期决策。报告非直接放行事件处置率、正常通过率、Wilson 95\% 置信区间以及多复核者 Fleiss $\kappa$。
+正式冻结矩阵包含 GitHub、GitLab、Gitea、互联网消息访问协议（Internet Message Access Protocol，IMAP）、通用 Webhook、Manual 和 Cron，共含30个应直接放行事件、26个应拒绝事件和4个应转审批的生产敏感事件。冻结作者标签为便于早期消融，将后两类合并编码为 \texttt{attack}；盲评允许复核者独立判断事件类别。为避免把高风险但合规的审批事件等同于恶意攻击，本文以预期治理结果（放行、拒绝或审批）作为主要标签，并把事件类别一致性单独报告。所有样本满足基本 CloudEvent 结构，以避免把解析失败计为跨层治理收益。四名复核者仅接收移除作者标签的事件字段与目标治理声明，分别标注事件类别、首个治理层和完整 E2AG 预期决策。报告非直接放行事件处置率、正常通过率、Wilson 95\% 置信区间以及多复核者 Fleiss $\kappa$。
 
 \subsection{基准方法与公平性}
 
@@ -453,7 +453,7 @@ approve/reject & 32 & 3200 & 100 & 0 \\
 
 \textbf{外部有效性与规模。}当前实现限于一个 AIOS 原型、一个模型、一个合成 HTTP MCP canary、一组公开仓库--自有设施配对回归和 SQLite。该回归证明真实 GitHub payload、任务运行时与外部 MCP 服务能够闭合，并为 grant--PEP 一致性提供一次现场证据，但单仓库、单组配对和共享上游状态不能代表自然工作负载。七类来源与压力变异扩大了输入机制覆盖，却不能替代多仓库 Connector 轨迹、更多工具类型或第二 AIOS。后续实验应首先扩展这些独立维度，而不是增加相同确定性用例的重复次数。
 
-\textbf{完整中介假设。}命题1依赖所有任务创建和外部副作用经过两个 PEP。当前原型验证 remote streamable HTTP 的 task-mode MCP 路径；stdio、SSE、Skill、内嵌服务和绕过 MCP 的本地调用尚未纳入主张。移植到其他 AIOS 时，必须重新识别任务创建和副作用调用的系统窄腰。
+\textbf{完整中介假设。}命题1依赖所有任务创建和外部副作用经过两个 PEP。当前原型验证远程 Streamable HTTP 的任务模式 MCP 路径；标准输入/输出（standard input/output，stdio）、服务器发送事件（Server-Sent Events，SSE）、Skill、内嵌服务和绕过 MCP 的本地调用尚未纳入主张。移植到其他 AIOS 时，必须重新识别任务创建和副作用调用的系统窄腰。
 
 \textbf{证据强度。}哈希链保证已取得记录的内容和顺序，不能单独证明数据库未被整体回滚或截断。外部透明日志或周期性 Merkle 根锚定可以强化 I4，但不改变 I1--I3 的执行授权语义。
 
