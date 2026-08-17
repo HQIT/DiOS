@@ -339,7 +339,11 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     summary_path = args.output_dir / "independent_review_panel_summary.json"
     disagreements_path = args.output_dir / "independent_review_disagreements.csv"
-    summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    summary_path.write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     disagreement_fields = [
         "review_id", "case_id", "reviewer", "author_class", "reviewer_class", "author_layer",
         "reviewer_layer", "author_decision", "reviewer_decision", "final_resolution",

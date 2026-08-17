@@ -75,7 +75,7 @@ are not written to results. The default protocol makes 30 model requests and
 replays those immutable decisions across three governance configurations.
 
 `frozen_cases.jsonl` is immutable by protocol once reviewed. Its current
-SHA-256 is stored in `results/frozen_ablation_summary.json`. Three reviewers
+SHA-256 is stored in `results/frozen_ablation_summary.json`. Four reviewers
 who did not construct the matrix completed the blinded protocol; anonymized
 returns and the panel statistics are stored under `review/`.
 
@@ -97,8 +97,12 @@ Inputs are in `attack_cases.jsonl`. Outputs are overwritten deterministically in
 
 ## Scope and interpretation
 
-The frozen corpus contains 60 threat-driven cases: 30 attacks and 30 benign
-events. Results establish mechanism behavior on this matrix, not
+The frozen corpus contains 60 threat-driven cases: 30 directly admissible
+events, 26 cases expected to be denied, and 4 production-sensitive cases
+expected to enter approval. The frozen author map encodes the latter 30 as
+`attack` for backward-compatible ablation, but the paper reports governance
+outcomes separately because approval-required does not imply malicious intent.
+Results establish mechanism behavior on this matrix, not
 population-level detection accuracy. The original corpus contains 22
 development cases and remains a prototype sanity check.
 Latency is the in-process decision-core cost on the machine running the script;

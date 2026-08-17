@@ -18,7 +18,7 @@
 | 目标 Agent 的 source/type/tool/action allow-list | `evaluate_policy` 与 `capabilities.governance` | A06–A10；相应单测 | 已实现并有构造集证据 |
 | 高风险生产动作进入单次审批状态机 | policy + `e2ag_approval.py` | A11–A14；3 个 approval integration tests | 批准/拒绝/过期/单次消费已实现；身份强度依赖 API 门禁 |
 | deny/approval 不创建 A2ATask | `event_dispatcher.dispatch_event` | `test_e2ag_dispatcher.py` | 已验证 |
-| trace 贯通 EventLog/A2ATask/A2A message/MCP PEP | tables, dispatcher, a2a_service, tool gateway | A2ATask 与 gateway 集成测试；demogo/qame 配对回归 | EventLog/A2A/MCP PEP/DiAgent/Artifact 已在真实 Connector 路径贯通 |
+| trace 贯通 EventLog/A2ATask/A2A message/MCP PEP | tables, dispatcher, a2a_service, tool gateway | A2ATask 与 gateway 集成测试；多智能体博弈平台到 DiOS 测试服务器的配对回归 | EventLog/A2A/MCP PEP/DiAgent/Artifact 已在真实 Connector 路径贯通 |
 | 任务作用域 ToolGrant 绑定 trace/task/agent/server | `e2ag_tool_gateway.py`, `E2AGToolGrant` | grant hash/scope/expiry/revoke tests | 已实现于 event→task-mode remote MCP 路径 |
 | MCP 工具调用时强制与发现裁剪 | `api/internal/e2ag_mcp.py` | 7 个 gateway tests；`tool_gateway_summary.json` | streamable HTTP 已验证；其他传输禁止外推 |
 | 工具边界输入与跨层上下文的覆盖差异 | `baselines/opa_tool_allowlist.rego`、官方 OPA v1.17.0 | `opa_tool_baseline_summary.json`；49例可调用冻结切片+8例接口补充；选择规则、排除编号及二进制/策略/输入/投影哈希 | NoGuard、OPA-Tool、E2AG 总体对齐30/49、34/49、49/49；说明通用 PDP 可执行允许集规则，但只观察工具对象不能覆盖来源、动作、审批等跨层约束；不得解释为 OPA 引擎能力排名 |
@@ -26,9 +26,9 @@
 | 纯判定开销 | `run_experiment.py` | `results/summary.json` | P50/P95/P99 可写，需注明非端到端 |
 | dispatcher+SQLite 控制面增量 | `run_dispatch_benchmark.py` | `results/dispatch_benchmark.json` | 可写为内存 SQLite 微基准 |
 | 七类单因素变异下的机制互补性 | `run_mutation_experiment.py` | 固定种子 700 例 `mutation_summary.json` | 可写合成压力测试；禁止外推真实分布 |
-| Contract×Policy 独立贡献 | `run_frozen_ablation.py`、`summarize_independent_review.py` | 60 例冻结矩阵、三人盲表复核、四模式 `frozen_ablation_summary.json` | 30/30 正常通过；阻断率 0/33.33/66.67/100%；三项 Fleiss κ=1.00 |
+| Contract×Policy 独立贡献 | `run_frozen_ablation.py`、`summarize_independent_review.py` | 60例冻结矩阵、四人盲表复核、四模式 `frozen_ablation_summary.json` | 30/30直接放行；26例拒绝+4例审批的处置率为0/33.33/66.67/100%；治理层与决策 Fleiss κ=1.00，事件类别 κ=0.933259 |
 | 两个 PEP 阻止真实上游副作用 | `run_e2e_chain_experiment.py` | 480 次持久化执行，`e2e_chain_summary.json`/CSV | 确定性 Agent/MCP 替身；可写系统强制链，不可写开放环境模型风险评测 |
-| 真实 GitHub→DiAgent→外部 MCP 治理一致性 | demogo 隔离 Compose、task-mode runner、Streamable HTTP PEP、固定负向量 | `external_qame_demogo_summary.json`；`external_governance_regression_summary.json` | 允许路径证明部署闭合；集合外请求403、无上游状态且 canary 不变；不可写模型安全率或自然流量违规概率 |
+| 真实事件→DiAgent→外部 MCP 治理一致性 | DiOS 测试服务器隔离 Compose、task-mode runner、Streamable HTTP PEP、固定负向量 | `external_qame_demogo_summary.json`；`external_governance_regression_summary.json` | 允许路径证明部署闭合；集合外请求403、无上游状态且 canary 不变；不可写模型安全率或自然流量违规概率 |
 | 因果阶段定位 | `run_causal_audit_experiment.py` | 5 类故障×20 条 trace | 100/100 定位、链有效、阶段完整；仅显式治理阶段，不是通用根因分析 |
 | 相同事件 replay 不产生第二条日志 | `EventDedupClaim` + dispatcher | 修复前后 `concurrency_summary*.json` | 修复前 8 并发 100/100 轮违规；修复后 SQLite 8/32 并发各 100 轮零违规 |
 | 审批单次终态 | conditional update | SQLite 8/32 并发各 100 轮 | 零双重终态/重复 Task；禁止外推其他数据库 |

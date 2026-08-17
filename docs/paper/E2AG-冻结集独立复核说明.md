@@ -34,4 +34,4 @@ backend\.venv\Scripts\python.exe experiments\e2ag\summarize_independent_review.p
   --anonymized-dir experiments\e2ag\review\returned
 ```
 
-脚本校验60例 ID、冻结输入字段、完整性和枚举值，自动识别 UTF-8/GB18030 编码，输出逐人作者一致率、两两 Cohen's kappa、多评审者 Fleiss kappa、原始文件 SHA-256 和分歧表。匿名返回表只保留 Reviewer A/B/C。所有分歧必须记录最终标签、修改原因、处理人和日期。若冻结集发生修改，应重新计算语料 SHA-256、重跑 RQ1，并同步正文、Markdown、LaTeX 和 PDF。
+脚本校验60例 ID、冻结输入字段、完整性和枚举值，自动识别 UTF-8/GB18030 编码，输出逐人作者一致率、两两 Cohen's kappa、多评审者 Fleiss kappa、原始文件 SHA-256 和分歧表。当前匿名面板使用 Reviewer A/B/C/D；后续增加复核者时继续按生成顺序匿名编号。所有分歧必须记录最终标签、修改原因、处理人和日期。若冻结集发生修改，应重新计算语料 SHA-256、重跑 RQ1，并同步正文、Markdown、LaTeX 和 PDF。
