@@ -1,8 +1,10 @@
 # E2AG LaTeX 稿件
 
-当前作者投稿稿入口为 `e2ag-paper-v1.1.38-authors.tex`，首页信息复用未改动的 `e2ag-frontmatter-authors-v1.1.36.tex`，正文入口为 `e2ag-body-v1.1.38.tex`，公共排版规则集中在 `jos2025-submission.sty`。该样式以官网“软件学报排版样例2025年版”为视觉参照，采用约 184 mm × 260 mm 版心、9 pt 正文字号、12 pt 行距、左对齐分级标题和样例化的中英文首页信息块；DOI、卷期、收稿日期和正式页码等编辑部字段不在初投稿稿中伪造。
+当前作者投稿稿件入口为 `e2ag-paper-v1.1.39-authors.tex`，首页入口为 `e2ag-frontmatter-authors-v1.1.39.tex`，正文复用 `e2ag-body-v1.1.38.tex`，公共排版规则集中在 `jos2025-submission.sty`。该样式以官网“软件学报排版样例2025年版”为视觉参照，采用约 184 mm × 260 mm 版心、9 pt 正文字号、12 pt 行距、左对齐分级标题和样例化的中英文首页信息块；DOI、卷期、收稿日期和正式页码等编辑部字段不在投稿稿件中伪造。
 
-最新可交付文件为 `E2AG-paper-authors-v1.1.38-20260817.pdf`，共15页，SHA-256 为 `6BC8E7EE8D9655A5E4B2CE2CC54D96CD9609ED1CE1BD0733C5F52979D059CDDE`。该版清除“本版”“当前稿件”“当前实验”“当前覆盖”和“本研究早期”等修订过程措辞，改用“配对回放”“回放过程”“本文”和“覆盖范围”等研究对象表述，并同步 Markdown 与投稿清单。三遍 XeLaTeX 构建后无未解析引用或 Overfull；PDF 文本过程语言门禁全部为0处，全部字体均已嵌入并带 Unicode 映射，第9页和第12页复核未见乱码、越界、重叠或异常换行。
+最新可交付文件为 `E2AG-paper-authors-v1.1.39-20260817.pdf`，共15页，SHA-256 为 `1A9228C691BF4E89B4B2E2D61EC47C9EFBAD822C113154BB17ACBDE7476B82BE`。该版从稿件首页和 PDF 标题元数据中删除专刊名称，专刊名称仅在在线投稿字段中填写；同时删除首页右上角自拟的“初投稿稿”状态标签。三遍 XeLaTeX 构建后无未解析引用或 Overfull，首页渲染未见乱码、越界、重叠或异常空白。
+
+**提交记录：**上述 v1.1.39 作者稿已于 2026-08-17 提交《软件学报》“人工智能操作系统及其安全”专刊；后续修订必须建立新版本，不得覆盖该 PDF 及其源文件。
 
 v1.1.33 的 DOCX 仅作为历史协作备份保留，不再同步维护。后续以 LaTeX 为唯一可维护源文件，以版本化 PDF 为投稿产物，不再进行 PDF 到 DOCX 的反向转换。
 
@@ -17,8 +19,8 @@ xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-fro
 阶段版本或投稿前再对作者稿完整构建两遍：
 
 ```powershell
-xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-paper-v1.1.38-authors.tex
-xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-paper-v1.1.38-authors.tex
+xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-paper-v1.1.39-authors.tex
+xelatex -interaction=nonstopmode -halt-on-error -output-directory=build e2ag-paper-v1.1.39-authors.tex
 ```
 
 主稿显式使用 Windows 自带的 Noto Serif SC/Noto Sans SC 文件，避免依赖查看器本机字体。发布前应使用 `pdffonts` 确认中文字体 `emb=yes, uni=yes`，并用 `pdftotext -enc UTF-8` 验证中文可复制和检索。
