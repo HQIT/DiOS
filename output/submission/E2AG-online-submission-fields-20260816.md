@@ -15,7 +15,9 @@
 
 ## 中英文题名
 
-中文题名：事件驱动智能体操作系统跨层能力治理方法
+中文题名：事件驱动智能体操作系统跨层能力治理方法（人工智能操作系统及其安全专刊）
+
+专刊标注：已按投稿页面要求同步写入在线投稿字段、匿名稿首页和作者稿首页。
 
 英文题名：A Cross-Layer Capability Governance Method for Event-Driven Agent Operating Systems
 
@@ -35,11 +37,11 @@ Key words: artificial intelligence operating system; agent operating system; cap
 
 > 2026-08-17 更新：作者增至9人，以下为待排序草案；原5人投稿声明已失效，不能用于本次投稿。
 
-1. 徐刚（Gang Xu），高级工程师，工学硕士，gxu@sei.ecnu.edu.cn，ORCID 0000-0001-8203-0307；国家可信嵌入式软件工程技术研究中心。
+1. 徐刚（Gang Xu），高级工程师，工学硕士，gxu@sei.ecnu.edu.cn，ORCID 0000-0001-8203-0307；国家可信嵌入式软件工程技术研究中心、华东师范大学软件工程学院。
 2. 冯骐（Qi Feng），高级工程师，qfeng@admin.ecnu.edu.cn；华东师范大学信息化治理办公室。学位、ORCID 暂缺。
 3. 姚俊杰（Junjie Yao），副教授，junjie.yao@sei.ecnu.edu.cn；华东师范大学软件工程学院。学位、ORCID 暂缺。
 4. 陈铭松（Mingsong Chen），mschen@sei.ecnu.edu.cn；华东师范大学软件工程学院。职称、学位、ORCID 暂缺。
-5. 王江涛（Jiangtao Wang），教授级高级工程师，工学硕士，jtwang@sei.ecnu.edu.cn；国家可信嵌入式软件工程技术研究中心。ORCID 暂缺。
+5. 王江涛（Jiangtao Wang），教授级高级工程师，工学硕士，jtwang@sei.ecnu.edu.cn；国家可信嵌入式软件工程技术研究中心、华东师范大学软件工程学院。ORCID 暂缺。
 6. 饶振宇（Zhenyu Rao），51285902217@stu.ecnu.edu.cn；华东师范大学软件工程学院。职称、学位、ORCID 暂缺。
 7. 肖宇（Yu Xiao），yxiao@sei.ecnu.edu.cn；华东师范大学软件工程学院。职称、学位、ORCID 暂缺。
 8. 杨世光（Shiguang Yang），71265902107@stu.ecnu.edu.cn；华东师范大学软件工程学院。职称、学位、ORCID 暂缺。
@@ -63,16 +65,18 @@ Key words: artificial intelligence operating system; agent operating system; cap
 
 ## 附件核对
 
-- 匿名论文：`E2AG-paper-anonymous-v1.1.26-20260817.pdf`
-  - SHA-256：`EA75D005849F8409C1DE7F1829C840FBAA3531BA7F1423FBE254442A34550246`
+- 匿名论文：`E2AG-paper-anonymous-v1.1.29-20260817.pdf`
+  - SHA-256：`2946D175678045645C7D7FE375A4304F5A53AA89B74BC6160889BAF2F8D36F7E`
 - 投稿声明源文件：`E2AG-JOS-submission-statement-prefilled-v1.1.20-20260817.docx`
   - SHA-256：`0F5B897C0F1587B6F2C8FCACFFA5DAA269988FA86377E01C6B7EEC27C8F7489F`
   - 当前状态：**已失效**；该文件仅含原5位作者，待9位作者排序确认后重做。
+- 保密审查单：作者已准备，由作者在投稿时上传；无需在本仓库继续处理。
 
 ## 提交前不得遗漏
 
 1. 补通信作者手机号码；
 2. 若投稿系统将作者单位、邮编、职称或邮箱设为必填，补齐上述“暂缺”字段；
 3. 核对九位作者顺序与单位映射；
-4. 重新生成并签署九人投稿声明，再上传最终匿名 PDF 和新版声明；
-5. 在最终确认页逐项检查题名、摘要、关键词、作者顺序、通讯作者、投稿类型、专刊备注和附件。
+4. 作者顺序确认后重新生成九人投稿声明；保密审查单已由作者准备，全体手写签名和上传由作者处理；
+5. 核对原创性及既往公开发表情况；若存在会议前作，补交全文和新增创新点说明；
+6. 在最终确认页逐项检查题名及专刊标注、摘要、关键词、作者顺序、通讯作者、投稿类型和全部附件。
