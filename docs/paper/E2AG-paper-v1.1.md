@@ -44,7 +44,7 @@ Operating Systems**
 
 # 引言
 
-本文将人工智能操作系统（Artificial Intelligence Operating System，AIOS）作为上位概念，指以人工智能（Artificial Intelligence，AI）为原生能力、为模型、智能体与系统资源提供统一运行支撑的系统软件范式；将其中面向智能体工作负载，统一管理模型、记忆、工具、生命周期、任务调度和访问控制的具体形态称为智能体操作系统（Agent Operating System，Agent OS）[1]。自主智能体研究把规划、记忆、工具使用和环境交互视为持续执行的共同组成[2]。本文聚焦事件驱动 Agent OS：Git
+本文将人工智能操作系统（Artificial Intelligence Operating System，AIOS）作为上位概念，指以人工智能（Artificial Intelligence，AI）为原生能力、为模型、智能体与系统资源提供统一运行支撑的系统软件范式；将其中面向智能体工作负载，统一管理模型、记忆、工具、生命周期、任务调度和访问控制的具体形态称为智能体操作系统（Agent Operating System，Agent OS）。AIOS 工作以代理应用与内核资源隔离为出发点，在内核中提供调度、上下文、记忆、存储和访问控制等服务[1]；自主智能体综述则将画像、记忆、规划和行动概括为统一框架的主要模块，其中行动模块包括工具使用与环境交互[2]。本文聚焦事件驱动 Agent OS：Git
 推送、邮件、监控告警和业务回调不再只是被动输入，而可以直接创建智能体任务。任务运行时读取事件载荷，调用模型选择工具，再由
 MCP
 或其他连接器访问代码仓库、数据库、消息系统和设备。与传统请求–响应应用相比，这条链同时包含不可信事件输入、非确定性模型决策和可产生外部副作用的工具调用；治理问题因而不只是“模型选择了什么动作”，而是“该动作能否沿系统路径获得执行权”。
@@ -97,8 +97,8 @@ E2AG
 间接提示词注入源于智能体把不可信数据同时解释为内容和指令，因而可能改变模型行为。InjecAgent
 以工具集成任务评估间接注入，AgentDojo
 提供包含任务、工具和注入情形的动态环境，ToolEmu
-则以模型模拟工具执行结果以扩大长尾风险测试范围。国内研究从模型自身安全、生成内容安全、隐私泄露和智能体可信等角度形成了风险分类与缓解框架。这些工作主要观测模型是否产生违规工具决策；E2AG
-不判定自然语言意图类别，而是约束该决策在真实系统执行链中的可达性。
+则以模型模拟工具执行结果以扩大长尾风险测试范围。现有中文综述分别从不同对象梳理相关风险与防护方法：黄河燕等将大语言模型风险归为模型自身安全与生成内容安全，并综述风险评估、归因和缓解方法；牟奕洋等从敌手目标、知识和能力出发，总结安全威胁与防御技术以及隐私威胁与保护技术；张熙等归纳大模型智能体的信息泄露、模型攻击、幻觉、伦理和法律合规风险及其防护建议。上述工作提供风险分类或模型行为评测；E2AG
+则不判定自然语言意图类别，而是约束模型决策在真实系统执行链中的可达性。
 
 ## 智能体运行时防护
 
@@ -110,12 +110,10 @@ CaMeL 类机制或参数谓词补充。
 
 ## 协议、参考监控器与能力系统
 
-CloudEvents、A2A 与 MCP
-分别定义事件、任务和工具调用对象，但对象格式互操作本身不产生授权传播。仅有对象定义也不足以执行授权，因此策略决策点（policy decision point，PDP）与 PEP
-的分离用于在执行点实施结构化策略，参考监控器和完整中介原则进一步要求所有安全相关访问经过不可绕过且足够小的检查机制；能力系统则把访问权封装为可传递、可收缩的对象。在决策能够执行之后，跨层复核还需要关联其对象依赖：万维网联盟（World Wide Web Consortium，W3C）的
-Trace Context 支持跨服务标识传播，哈希链接和 in-toto
-用于验证过程记录的连续性与步骤依赖。E2AG
-的贡献不是重新定义这些协议或密码结构，而是按“对象定义–授权执行–证据关联”的关系将其组织为事件–任务–工具三层的授权传播和完整中介。
+CloudEvents 规定事件格式及上下文属性，A2A 规定智能体发现、消息交互和任务生命周期，MCP
+规定主机、客户端与服务器之间的工具发现和调用对象。这些规范各自包含安全要求，但其标准对象不会自动把一次事件的声明权转换为后续任务创建权和工具副作用权；这是本文基于三类规范边界作出的比较，而非规范自身的结论。仅有对象定义也不足以执行授权。OPA 将策略判定与策略实施解耦，使软件能够向外部策略引擎提交结构化输入并实施其判定；参考监控器和完整中介原则进一步要求安全相关访问始终经过不可绕过且可充分分析的检查机制。早期能力系统以能力表表达主体对对象的访问权，Macaroons 则允许持有者通过增加 caveat 对派生凭据进行授权衰减和上下文约束，能力访问控制也可在操作系统内核中进行形式化验证。在决策能够执行之后，跨层复核还需要关联其对象依赖：万维网联盟（World Wide Web Consortium，W3C）的
+Trace Context 支持跨服务传播跟踪标识和供应商状态；数字时间戳中的哈希链接使前后证书相互约束；in-toto 的布局和链接元数据则表达供应链步骤及产物依赖。E2AG
+不把这些机制解释为执行授权证明，而是按“对象定义–授权执行–证据关联”的关系将其组织为事件–任务–工具三层的授权传播和完整中介。
 
 ## 比较维度与研究定位
 
@@ -694,10 +692,11 @@ PEP
 
 <div class="thebibliography">
 
-99 Mei K, Zhu X, Xu W, et al. AIOS: LLM Agent Operating System.
-arXiv:2403.16971, 2024. Wang L, Ma C, Feng X, et al. A survey on large
+99 Mei K, Zhu X, Xu W, et al. AIOS: LLM agent operating system. In:
+Proc. of the 2nd Conf. on Language Modeling. Montreal: OpenReview, 2025.
+Wang L, Ma C, Feng X, et al. A survey on large
 language model based autonomous agents. Frontiers of Computer Science,
-2024, 18: 186345. \[doi: 10.1007/s11704-024-40231-1\] Huang HY, Li SL,
+2024, 18(6): 186345. \[doi: 10.1007/s11704-024-40231-1\] Huang HY, Li SL,
 Lan TW, et al. A survey on the safety of large language model:
 Classification, evaluation, attribution, mitigation and prospect. CAAI
 Transactions on Intelligent Systems, 2025, 20(1): 2–32 (in Chinese with
@@ -709,9 +708,11 @@ X, Li CZ, Xu N, Zhang LT. Security challenges and response mechanisms
 for trustworthy large language model agents. Information and
 Communications Technology and Policy, 2025, 51(1): 33–37 (in Chinese
 with English abstract). \[doi: 10.12267/j.issn.2096-5931.2025.01.005\]
-Greshake K, Abdelnabi S, Mishra S, et al. Not What You’ve Signed Up For:
-Compromising Real-World LLM-Integrated Applications with Indirect Prompt
-Injection. arXiv:2302.12173, 2023. Zhan Q, Liang Z, Ying Z, Kang D.
+Abdelnabi S, Greshake K, Mishra S, et al. Not what you’ve signed up for:
+Compromising real-world LLM-integrated applications with indirect prompt
+injection. In: Proc. of the 16th ACM Workshop on Artificial Intelligence
+and Security. New York: ACM, 2023. 79–90. \[doi:
+10.1145/3605764.3623985\] Zhan Q, Liang Z, Ying Z, Kang D.
 InjecAgent: Benchmarking indirect prompt injections in tool-integrated
 large language model agents. In: Proc. of the Findings of ACL 2024.
 Bangkok: Association for Computational Linguistics, 2024. 10471–10506.
@@ -726,7 +727,8 @@ H, Poskitt CM, Sun J. AgentSpec: Customizable runtime enforcement for
 safe and reliable LLM agents. In: Proc. of the 48th IEEE/ACM Int’l Conf.
 on Software Engineering. New York: ACM, 2026. 12 pages. \[doi:
 10.1145/3744916.3764546\] Debenedetti E, Shumailov I, Fan T, et al.
-Defeating Prompt Injections by Design. arXiv:2503.18813, 2025. Uchibeke
+Defeating prompt injections by design. In: Proc. of the IEEE Conf. on
+Secure and Trustworthy Machine Learning, 2026. Uchibeke
 U. Before the Tool Call: Deterministic Pre-Action Authorization for
 Autonomous AI Agents. arXiv:2603.20953, 2026. Ravindran A, Deochake S.
 ToolGuardian: Declarative Security for AI Agent-Tool Interactions.
@@ -737,13 +739,15 @@ Capability-Controlled Self-Evolving LLM Agents. arXiv:2606.03895v2,
 2026. Cloud
 Native Computing Foundation. CloudEvents Specification, Version 1.0.2,
 2022. <https://github.com/cloudevents/spec/tree/ce@v1.0.2>.
-\[2026-08-14\] A2A Protocol Working Group. Agent2Agent Protocol
-Specification. <https://a2a-protocol.org/latest/>. \[2026-08-14\] Model
+\[2026-08-14\] A2A Protocol Project. Agent2Agent Protocol, Version
+1.0.0, 2026. <https://a2a-protocol.org/v1.0.0/>. \[2026-08-17\] Model
 Context Protocol Contributors. Model Context Protocol Specification,
 Revision 2025-06-18.
 <https://modelcontextprotocol.io/specification/2025-06-18/>.
-\[2026-08-14\] Open Policy Agent. OPA Documentation: Policy Decision and
-Enforcement. <https://www.openpolicyagent.org/docs>. \[2026-08-14\]
+\[2026-08-14\] Open Policy Agent. OPA documentation; Release v1.17.0.
+<https://www.openpolicyagent.org/docs>;
+<https://github.com/open-policy-agent/opa/releases/tag/v1.17.0>.
+\[2026-08-17\]
 Anderson JP. Computer Security Technology Planning Study. Technical
 Report ESD-TR-73-51, 1972. Saltzer JH, Schroeder MD. The protection of
 information in computer systems. Proc. of the IEEE, 1975, 63(9):
