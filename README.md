@@ -1,19 +1,50 @@
 # DiOS
 
-> **NANA**（**N**etwork **A**ttached **N**ative **A**gent）是一类产品的统称，类似 NAS 之于网络存储——泛指可通过网络接入的本地化 AI Agent 设备或系统。
->
-> 我们的 NANA 产品基于 **DiOS** + **DiAgent** 构建，属于 [DiFlow](https://github.com/HQIT) 工具链体系。
+> 单机部署的事件驱动 Agent 控制平面：接入事件、调度 Agent、管理资源，并记录每次执行。
 
-DiOS 是 DiFlow 工具链中面向 Agent 的事件驱动操作层，基于 [DiAgent](https://github.com/HQIT/DiAgent)，负责将外部事件路由到对应的 Agent 并驱动其自动执行任务。
+DiOS 管理 Agent，Agent 完成工作。它基于 [DiAgent](https://github.com/HQIT/DiAgent)，把 Git、邮件、Webhook 或定时任务路由给合适的 Agent，在隔离容器中执行。
 
-## 功能
+<p align="center">
+  <img src="docs/readme/dios-overview.svg" alt="DiOS 工作流程：事件接入、路由治理、Agent 执行与审计" width="100%">
+</p>
 
-- **Agent 管理**：创建和配置多个 AI Agent，为每个 Agent 设置角色、系统提示词、使用的语言模型以及可调用的 Skills 和 MCP 工具
-- **事件接入**：支持接入 GitHub / GitLab / Gitea Webhook、IMAP 邮件轮询及通用 HTTP Webhook 等多种事件来源
-- **事件订阅**：为每个 Agent 配置订阅规则，包括事件来源匹配、事件类型过滤、字段条件及定时触发（Cron）
-- **自动执行**：事件触发后自动为匹配的 Agent 启动隔离容器执行任务，并记录运行状态与日志
-- **模型管理**：统一管理多个 LLM 接入端点，供 Agent 按需选用
-- **MCP 集成**：管理 MCP Server 配置，为 Agent 提供丰富的外部工具能力
+## 能做什么
+
+| 接入与路由 | 执行与治理 |
+| --- | --- |
+| GitHub / GitLab / Gitea Webhook、IMAP、HTTP、Cron | service 常驻 Agent 与 task 一次性 Agent |
+| CloudEvents 标准化、订阅规则、条件匹配与去重 | LLM、MCP、Skills、工具授权、审批、日志与审计 |
+
+## 界面
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/video-assets/screenshots/S-05-console-connectors.png" alt="Connector 管理"></td>
+    <td width="50%"><img src="docs/video-assets/screenshots/S-01-console-agents.png" alt="Agent 管理"></td>
+  </tr>
+  <tr>
+    <td align="center">统一管理事件来源</td>
+    <td align="center">配置与查看 Agent</td>
+  </tr>
+</table>
+
+## 快速启动
+
+需要 Docker 和 Docker Compose：
+
+```bash
+git clone --recurse-submodules https://github.com/HQIT/DiOS.git
+cd DiOS
+docker compose up -d
+```
+
+打开 `http://localhost:3000`。API 默认位于 `http://localhost:8000`。
+
+进一步了解：[Roadmap](ROADMAP.md) · [架构说明](docs/architecture.md) · [Connector 契约](docs/adr/0001-connector-plugin-contract.md)
+
+## 项目边界
+
+DiOS 负责事件、资源、调度和治理；DiAgent 负责单个 Agent 的推理与工具调用。当前路线以单机、单实例和可信操作者为边界，多租户与集群化暂缓。
 
 ## License
 
