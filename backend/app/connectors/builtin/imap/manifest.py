@@ -27,6 +27,7 @@ MANIFEST = ConnectorManifest(
     order=20,
     config_schema={
         "type": "object",
+        "additionalProperties": False,
         "required": ["host", "user", "password"],
         "properties": {
             "host": {"type": "string", "title": "IMAP 主机"},

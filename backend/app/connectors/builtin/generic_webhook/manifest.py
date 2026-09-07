@@ -40,7 +40,7 @@ MANIFEST = ConnectorManifest(
     capabilities=(CAPABILITY_WEBHOOK,),
     # 兜底 detect 恒为真，必须排在所有类型之后
     order=1000,
-    config_schema={"type": "object", "properties": {}},
+    config_schema={"type": "object", "properties": {}, "additionalProperties": False},
     event_sources=(
         EventSourceDecl(id="webhook", name="通用 Webhook", description="其他 HTTP Webhook"),
     ),

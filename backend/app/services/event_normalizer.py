@@ -9,12 +9,6 @@ from __future__ import annotations
 import hashlib
 
 from app.connectors import registry
-from app.connectors.builtin.generic_webhook.manifest import GenericNormalizer
-from app.connectors.builtin.git_webhook.normalizers import (
-    GiteaNormalizer,
-    GitHubNormalizer,
-    GitLabNormalizer,
-)
 from app.connectors.contracts import BaseWebhookAdapter, CloudEvent
 from app.connectors.events import make_event
 
@@ -25,10 +19,6 @@ BaseNormalizer = BaseWebhookAdapter
 __all__ = [
     "CloudEvent",
     "BaseNormalizer",
-    "GitHubNormalizer",
-    "GitLabNormalizer",
-    "GiteaNormalizer",
-    "GenericNormalizer",
     "compute_dedup_hash",
     "detect_and_normalize",
     "get_event_catalog",
@@ -147,4 +137,4 @@ def detect_and_normalize(
 
         return adapter.normalize(headers_lower, payload)
 
-    return GenericNormalizer().normalize(headers_lower, payload)
+    raise ValueError("No registered webhook connector accepted the request")

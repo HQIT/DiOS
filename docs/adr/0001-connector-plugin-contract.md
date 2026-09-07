@@ -61,7 +61,7 @@ backend/config/event-namespaces.json
 
 ## 取舍
 
-- **只做进程内注册表**，不做外部包安装、entry points 或 sidecar。扩展包的分发、签名与准入属于 ROADMAP Phase 4。
+- **只做进程内注册表**，不做外部包安装、entry points 或 sidecar。扩展包的分发、签名与准入属于 ROADMAP Phase 3。
 - **不改数据库 schema**：`connectors` 表仍是 `type` + `config` JSON，零迁移。
 - **保留历史 type 别名**：`github` / `gitlab` / `gitea` 旧数据由 manifest 的 `aliases` 承接，不做数据迁移。
 - **入站归 Connector，出站归 MCP**：Connector 暂不实现对外投递能力，避免与 MCP 职责重叠。
@@ -74,16 +74,18 @@ backend/config/event-namespaces.json
 - 新增契约、注册表与四个内建声明
 - `event_normalizer` / `connector_capabilities` 改为委托注册表，对外行为零变化（事件目录 25 项、source pattern 列表、webhook 解析结果与去重哈希均逐字节一致）
 - `ai4r.*` 移出 OS 核心代码
+- `api/os/connectors.py` 从注册表获取可创建类型，并依据 manifest JSON Schema 校验配置
+- 新增 `GET /connectors/types`，向 Console 暴露不含可执行对象的公开 manifest
+- `api/os/events.py` 通过 manifest 汇总 Webhook Secret 和 Connector 配置状态
+- Console 根据公开 manifest 动态生成类型卡片和基础配置表单
+- 新增 Connector 契约测试，覆盖动态注册、非法配置拒绝和历史别名兼容
 
 尚未完成（后续接线）：
 
-- `api/os/connectors.py` 白名单改用 `registry.instantiable_types()`，配置校验改用 manifest schema，新增 `GET /connectors/types`
-- `api/os/events.py` 的 secret 聚合与 catalog 状态改为遍历 manifest
 - `imap_poller` 改为通用轮询运行时，驱动所有具备 `poll` 能力的 manifest
-- Console 表单按 manifest schema 动态渲染，移除 `PRESETS`
 
-在上述接线完成前，Phase 0 退出门槛尚未真正达成：新增 Connector 目录虽然能被注册表发现，但仍需在 API 白名单与前端表单处放行。
+Webhook Connector 已达到“新增类型不修改通用 CRUD、事件目录和 Console 类型列表”的门槛。轮询类 Connector 仍需完成通用 Poll Runtime，才能达到全部 Connector 能力的退出门槛。
 
 ## 验证
 
-仓库暂无测试目录。本次以「行为快照对比」作为回归手段：改动前后分别导出事件目录、source pattern 列表、代表性 webhook 的标准化结果与去重哈希，逐字节比对一致，并在容器镜像内完成真实导入检查。后续应把该快照固化为契约测试。
+初始注册表改动以行为快照验证。本次接线新增 `backend/tests/test_connector_registry.py`，动态注册一个测试 Connector，并通过未修改的通用 API 创建实例；同时验证类型目录可序列化、JSON Schema 拒绝非法配置、历史别名仍能提供 Secret 和事件目录状态。

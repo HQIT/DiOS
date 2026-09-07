@@ -38,6 +38,32 @@ export interface Connector {
   created_at: string;
 }
 
+export interface ConnectorConfigProperty {
+  type?: "string" | "integer" | "number" | "boolean";
+  title?: string;
+  description?: string;
+  default?: unknown;
+  enum?: Array<string | number>;
+  writeOnly?: boolean;
+}
+
+export interface ConnectorType {
+  type: string;
+  label: string;
+  description: string;
+  capabilities: string[];
+  aliases: string[];
+  config_schema: {
+    type?: string;
+    required?: string[];
+    properties?: Record<string, ConnectorConfigProperty>;
+  };
+  secret_fields: string[];
+  event_sources: EventCatalogSource[];
+  event_types: Array<{ type: string; description: string }>;
+  accepted_source_patterns: string[];
+}
+
 export interface ConnectorSourcePattern {
   source_pattern: string;
   label: string;
