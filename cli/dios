@@ -1,0 +1,540 @@
+#!/usr/bin/env python3
+"""DiOS 管理 CLI（Hybrid, human-friendly）：
+- 人类用户优先：高层子命令（config / agent）
+- 低层 request 仅保留给自动化（隐藏）
+- 高风险操作要求 HIL 二次确认
+- 记录本地审计日志
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import hashlib
+import json
+import os
+import secrets
+import sys
+import urllib.error
+import urllib.request
+from pathlib import Path
+from typing import Any
+
+
+CLI_HOME = Path(os.environ.get("DIOS_CLI_HOME", "~/.dios-cli")).expanduser()
+PROFILE_PATH = CLI_HOME / "profile.json"
+PENDING_PATH = CLI_HOME / "pending_actions.json"
+AUDIT_PATH = CLI_HOME / "audit.log"
+DEFAULT_BASE_URL = os.environ.get("DIOS_API", "http://localhost:8080")
+HIL_TTL_SECONDS = 600
+
+
+def _ensure_home() -> None:
+    CLI_HOME.mkdir(parents=True, exist_ok=True)
+
+
+def _load_json(path: Path, default: Any) -> Any:
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def _save_json(path: Path, data: Any) -> None:
+    _ensure_home()
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _get_base_url() -> str:
+    profile = _load_json(PROFILE_PATH, {})
+    return str(profile.get("base_url") or DEFAULT_BASE_URL).rstrip("/")
+
+
+def _actor() -> str:
+    return os.environ.get("USER") or os.environ.get("USERNAME") or "unknown"
+
+
+def _append_audit(record: dict[str, Any]) -> None:
+    _ensure_home()
+    line = json.dumps(record, ensure_ascii=False)
+    with AUDIT_PATH.open("a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
+
+def _request(base_url: str, method: str, path: str, data: dict | None) -> tuple[int, str]:
+    url = f"{base_url}{path}"
+    body = None if data is None else json.dumps(data).encode("utf-8")
+    req = urllib.request.Request(
+        url=url,
+        method=method.upper(),
+        data=body,
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req) as resp:
+            text = resp.read().decode("utf-8", errors="replace")
+            return resp.status, text
+    except urllib.error.HTTPError as e:
+        text = e.read().decode("utf-8", errors="replace")
+        return e.code, text
+
+
+def _request_json(base_url: str, method: str, path: str, data: dict | None) -> tuple[int, Any]:
+    status, text = _request(base_url, method, path, data)
+    try:
+        return status, json.loads(text) if text else None
+    except Exception:
+        return status, text
+
+
+def _is_high_risk(method: str, path: str) -> bool:
+    m = method.upper()
+    p = path.strip()
+    if m == "DELETE":
+        return True
+    if m in {"PUT", "PATCH"} and p.startswith("/api/os/"):
+        return True
+    if m == "POST" and (
+        p.startswith("/api/os/models")
+        or p.startswith("/api/os/mcp-servers")
+        or p.startswith("/api/os/skills")
+        or p.startswith("/api/os/agents")
+    ):
+        return True
+    return False
+
+
+def _is_allowed_path(path: str) -> bool:
+    p = path.strip()
+    allowed_prefixes = (
+        "/api/os/agents",
+        "/api/os/subscriptions",
+        "/api/os/connectors",
+        "/api/os/models",
+        "/api/os/mcp-servers",
+        "/api/os/skills",
+        "/api/os/events",
+    )
+    return any(p.startswith(prefix) for prefix in allowed_prefixes)
+
+
+def _payload_digest(method: str, path: str, data: dict | None) -> str:
+    raw = json.dumps({"m": method.upper(), "p": path, "d": data or {}}, sort_keys=True)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _create_pending(method: str, path: str, data: dict | None) -> str:
+    token = secrets.token_urlsafe(16)
+    items = _load_json(PENDING_PATH, [])
+    now = dt.datetime.now(dt.timezone.utc)
+    expires = now + dt.timedelta(seconds=HIL_TTL_SECONDS)
+    items = [x for x in items if x.get("expires_at", "") > now.isoformat()]
+    items.append(
+        {
+            "token": token,
+            "digest": _payload_digest(method, path, data),
+            "method": method.upper(),
+            "path": path,
+            "data": data or {},
+            "created_at": now.isoformat(),
+            "expires_at": expires.isoformat(),
+            "actor": _actor(),
+        }
+    )
+    _save_json(PENDING_PATH, items)
+    return token
+
+
+def _verify_pending(confirm: str, method: str, path: str, data: dict | None) -> bool:
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    digest = _payload_digest(method, path, data)
+    items = _load_json(PENDING_PATH, [])
+    kept = []
+    matched = False
+    for x in items:
+        if x.get("expires_at", "") <= now:
+            continue
+        if x.get("token") == confirm and x.get("digest") == digest:
+            matched = True
+            continue
+        kept.append(x)
+    _save_json(PENDING_PATH, kept)
+    return matched
+
+
+def _consume_pending(confirm: str) -> dict[str, Any] | None:
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    items = _load_json(PENDING_PATH, [])
+    kept = []
+    matched: dict[str, Any] | None = None
+    for x in items:
+        if x.get("expires_at", "") <= now:
+            continue
+        if x.get("token") == confirm and matched is None:
+            matched = x
+            continue
+        kept.append(x)
+    _save_json(PENDING_PATH, kept)
+    return matched
+
+
+def cmd_profile(args: argparse.Namespace) -> int:
+    profile = _load_json(PROFILE_PATH, {})
+    if args.set_base_url:
+        profile["base_url"] = args.set_base_url.rstrip("/")
+        _save_json(PROFILE_PATH, profile)
+        print(json.dumps({"ok": True, "base_url": profile["base_url"]}, ensure_ascii=False))
+        return 0
+    print(json.dumps(profile or {"base_url": DEFAULT_BASE_URL}, ensure_ascii=False, indent=2))
+    return 0
+
+
+def cmd_config_get(args: argparse.Namespace) -> int:
+    profile = _load_json(PROFILE_PATH, {"base_url": DEFAULT_BASE_URL})
+    key = args.key
+    if key:
+        print(profile.get(key, ""))
+    else:
+        print(json.dumps(profile, ensure_ascii=False, indent=2))
+    return 0
+
+
+def cmd_config_set(args: argparse.Namespace) -> int:
+    profile = _load_json(PROFILE_PATH, {})
+    profile[args.key] = args.value.rstrip("/") if args.key == "base_url" else args.value
+    _save_json(PROFILE_PATH, profile)
+    print(json.dumps({"ok": True, "key": args.key, "value": profile[args.key]}, ensure_ascii=False))
+    return 0
+
+
+def _resolve_agent_selector(base_url: str, selector: str) -> dict[str, Any] | None:
+    status, data = _request_json(base_url, "GET", "/api/os/agents", None)
+    if status < 200 or status >= 300 or not isinstance(data, list):
+        return None
+    for item in data:
+        if item.get("id") == selector:
+            return item
+    for item in data:
+        if item.get("name") == selector:
+            return item
+    return None
+
+
+def _safe_print(obj: Any) -> None:
+    print(json.dumps(obj, ensure_ascii=False, indent=2))
+
+
+def _perform_managed_request(
+    *,
+    base_url: str,
+    method: str,
+    path: str,
+    data: dict | None = None,
+    confirm: str | None = None,
+    print_success_json: bool = True,
+    human_next_cmd: str = "",
+) -> int:
+    if not _is_allowed_path(path):
+        print("path is not in allowed management scope", file=sys.stderr)
+        return 2
+    high_risk = _is_high_risk(method, path)
+    if high_risk and not confirm:
+        token = _create_pending(method, path, data)
+        out = {
+            "status": "pending_hil",
+            "message": "高风险操作需要二次确认",
+            "method": method.upper(),
+            "path": path,
+            "token": token,
+            "expires_in_seconds": HIL_TTL_SECONDS,
+            "next_command": f"{human_next_cmd} --confirm {token}".strip(),
+        }
+        _safe_print(out)
+        return 3
+    if high_risk and confirm and not _verify_pending(confirm, method, path, data):
+        print("invalid/expired confirm token or payload mismatch", file=sys.stderr)
+        return 4
+
+    status, body = _request_json(base_url, method, path, data)
+    _append_audit(
+        {
+            "time": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "actor": _actor(),
+            "method": method.upper(),
+            "path": path,
+            "data": data or {},
+            "status": status,
+            "high_risk": high_risk,
+            "confirmed": bool(confirm),
+        }
+    )
+    if print_success_json:
+        _safe_print(body)
+    return 0 if 200 <= status < 300 else 1
+
+
+def cmd_agent_list(args: argparse.Namespace) -> int:
+    base_url = args.base_url.rstrip("/") if args.base_url else _get_base_url()
+    status, data = _request_json(base_url, "GET", "/api/os/agents", None)
+    if status < 200 or status >= 300:
+        _safe_print(data)
+        return 1
+    agents = data if isinstance(data, list) else []
+    if args.mode:
+        agents = [a for a in agents if a.get("mode") == args.mode]
+    if args.group:
+        agents = [a for a in agents if a.get("group") == args.group]
+    if args.simple:
+        for a in agents:
+            print(f"{a.get('id')}  {a.get('name')}  mode={a.get('mode')}  group={a.get('group','')}")
+        return 0
+    _safe_print(agents)
+    return 0
+
+
+def cmd_agent_show(args: argparse.Namespace) -> int:
+    base_url = args.base_url.rstrip("/") if args.base_url else _get_base_url()
+    agent = _resolve_agent_selector(base_url, args.selector)
+    if not agent:
+        print(f"agent not found: {args.selector}", file=sys.stderr)
+        return 1
+    _safe_print(agent)
+    return 0
+
+
+def cmd_agent_set_prompt(args: argparse.Namespace) -> int:
+    base_url = args.base_url.rstrip("/") if args.base_url else _get_base_url()
+    agent = _resolve_agent_selector(base_url, args.selector)
+    if not agent:
+        print(f"agent not found: {args.selector}", file=sys.stderr)
+        return 1
+    if not args.text and not args.file:
+        print("must provide --text or --file", file=sys.stderr)
+        return 2
+    prompt = args.text if args.text is not None else Path(args.file).read_text(encoding="utf-8")
+    path = f"/api/os/agents/{agent['id']}"
+    data = {"system_prompt": prompt}
+    next_cmd = f'dios agent set-prompt "{args.selector}"'
+    if args.text is not None:
+        next_cmd += f' --text "{args.text}"'
+    if args.file:
+        next_cmd += f' --file "{args.file}"'
+    return _perform_managed_request(
+        base_url=base_url,
+        method="PUT",
+        path=path,
+        data=data,
+        confirm=args.confirm,
+        human_next_cmd=next_cmd,
+    )
+
+
+def cmd_agent_set_capabilities(args: argparse.Namespace) -> int:
+    base_url = args.base_url.rstrip("/") if args.base_url else _get_base_url()
+    agent = _resolve_agent_selector(base_url, args.selector)
+    if not agent:
+        print(f"agent not found: {args.selector}", file=sys.stderr)
+        return 1
+    if not args.json and not args.file:
+        print("must provide --json or --file", file=sys.stderr)
+        return 2
+    if args.json:
+        capabilities = json.loads(args.json)
+    else:
+        capabilities = json.loads(Path(args.file).read_text(encoding="utf-8"))
+    if not isinstance(capabilities, dict):
+        print("capabilities must be a JSON object", file=sys.stderr)
+        return 2
+    path = f"/api/os/agents/{agent['id']}"
+    data = {"capabilities": capabilities}
+    next_cmd = f'dios agent set-capabilities "{args.selector}"'
+    if args.json:
+        next_cmd += f" --json '{json.dumps(capabilities, ensure_ascii=False)}'"
+    if args.file:
+        next_cmd += f' --file "{args.file}"'
+    return _perform_managed_request(
+        base_url=base_url,
+        method="PUT",
+        path=path,
+        data=data,
+        confirm=args.confirm,
+        human_next_cmd=next_cmd,
+    )
+
+
+def cmd_agent_delete(args: argparse.Namespace) -> int:
+    base_url = args.base_url.rstrip("/") if args.base_url else _get_base_url()
+    agent = _resolve_agent_selector(base_url, args.selector)
+    if not agent:
+        print(f"agent not found: {args.selector}", file=sys.stderr)
+        return 1
+    path = f"/api/os/agents/{agent['id']}"
+    next_cmd = f'dios agent delete "{args.selector}"'
+    return _perform_managed_request(
+        base_url=base_url,
+        method="DELETE",
+        path=path,
+        data=None,
+        confirm=args.confirm,
+        human_next_cmd=next_cmd,
+    )
+
+
+def cmd_request(args: argparse.Namespace) -> int:
+    base_url = args.base_url.rstrip("/") if args.base_url else _get_base_url()
+    if args.confirm_token:
+        pending = _consume_pending(args.confirm_token)
+        if not pending:
+            print("invalid/expired confirm token", file=sys.stderr)
+            return 4
+        method = str(pending.get("method") or "").upper()
+        path = str(pending.get("path") or "")
+        data = pending.get("data") or {}
+        if not method or not path:
+            print("pending action is invalid", file=sys.stderr)
+            return 4
+    else:
+        method = (args.method or "").upper()
+        path = args.path or ""
+        data = None
+        if args.data:
+            try:
+                data = json.loads(args.data)
+            except Exception:
+                print("invalid --data json", file=sys.stderr)
+                return 2
+
+    if not _is_allowed_path(path):
+        print("path is not in allowed management scope", file=sys.stderr)
+        return 2
+
+    high_risk = _is_high_risk(method, path)
+    if high_risk and not args.confirm and not args.confirm_token:
+        token = _create_pending(method, path, data)
+        print(
+            json.dumps(
+                {
+                    "status": "pending_hil",
+                    "message": "high-risk action requires HIL confirmation",
+                    "method": method,
+                    "path": path,
+                    "token": token,
+                    "confirm_token": token,
+                    "expires_in_seconds": HIL_TTL_SECONDS,
+                    "next_command": f'dios request --method {method} --path "{path}"'
+                    + (f" --data '{json.dumps(data, ensure_ascii=False)}'" if data is not None else "")
+                    + f" --confirm {token}",
+                    "next_confirm_command": f"dios request --confirm-token {token}",
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 3
+
+    if high_risk and args.confirm and not _verify_pending(args.confirm, method, path, data):
+        print("invalid/expired confirm token or payload mismatch", file=sys.stderr)
+        return 4
+
+    status, text = _request(base_url, method, path, data)
+    _append_audit(
+        {
+            "time": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "actor": _actor(),
+            "method": method,
+            "path": path,
+            "data": data or {},
+            "status": status,
+            "high_risk": high_risk,
+            "confirmed": bool(args.confirm),
+            "confirmed_by_token_only": bool(args.confirm_token),
+        }
+    )
+    print(text)
+    return 0 if 200 <= status < 300 else 1
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="dios", description="DiOS management CLI")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    p_profile = sub.add_parser("profile", help="get/set local cli profile (legacy)")
+    p_profile.add_argument("--set-base-url", help="set default DiOS API base url")
+    p_profile.set_defaults(func=cmd_profile)
+
+    p_config = sub.add_parser("config", help="manage cli config (openclaw style)")
+    sub_config = p_config.add_subparsers(dest="config_cmd", required=True)
+    p_cfg_get = sub_config.add_parser("get", help="get config value")
+    p_cfg_get.add_argument("key", nargs="?", default="", help="config key, e.g. base_url")
+    p_cfg_get.set_defaults(func=cmd_config_get)
+    p_cfg_set = sub_config.add_parser("set", help="set config value")
+    p_cfg_set.add_argument("key", help="config key")
+    p_cfg_set.add_argument("value", help="config value")
+    p_cfg_set.set_defaults(func=cmd_config_set)
+
+    p_agent = sub.add_parser("agent", help="manage agents")
+    sub_agent = p_agent.add_subparsers(dest="agent_cmd", required=True)
+    p_agent_list = sub_agent.add_parser("list", help="list agents")
+    p_agent_list.add_argument("--mode", help="filter by mode")
+    p_agent_list.add_argument("--group", help="filter by group")
+    p_agent_list.add_argument("--simple", action="store_true", help="simple line output")
+    p_agent_list.add_argument("--base-url", help="override base url for this command")
+    p_agent_list.set_defaults(func=cmd_agent_list)
+
+    p_agent_show = sub_agent.add_parser("show", help="show agent by id or name")
+    p_agent_show.add_argument("selector", help="agent id or name")
+    p_agent_show.add_argument("--base-url", help="override base url for this command")
+    p_agent_show.set_defaults(func=cmd_agent_show)
+
+    p_set_prompt = sub_agent.add_parser("set-prompt", help="set system prompt for agent")
+    p_set_prompt.add_argument("selector", help="agent id or name")
+    p_set_prompt.add_argument("--text", help="prompt text")
+    p_set_prompt.add_argument("--file", help="read prompt from file")
+    p_set_prompt.add_argument("--confirm", help="HIL confirm token")
+    p_set_prompt.add_argument("--base-url", help="override base url for this command")
+    p_set_prompt.set_defaults(func=cmd_agent_set_prompt)
+
+    p_set_cap = sub_agent.add_parser("set-capabilities", help="set capabilities JSON for agent")
+    p_set_cap.add_argument("selector", help="agent id or name")
+    p_set_cap.add_argument("--json", help="capabilities JSON string")
+    p_set_cap.add_argument("--file", help="capabilities JSON file")
+    p_set_cap.add_argument("--confirm", help="HIL confirm token")
+    p_set_cap.add_argument("--base-url", help="override base url for this command")
+    p_set_cap.set_defaults(func=cmd_agent_set_capabilities)
+
+    p_agent_del = sub_agent.add_parser("delete", help="delete agent (high-risk)")
+    p_agent_del.add_argument("selector", help="agent id or name")
+    p_agent_del.add_argument("--confirm", help="HIL confirm token")
+    p_agent_del.add_argument("--base-url", help="override base url for this command")
+    p_agent_del.set_defaults(func=cmd_agent_delete)
+
+    return p
+
+
+def build_request_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="dios request", description="internal low-level request command")
+    p.add_argument("--method", help="HTTP method")
+    p.add_argument("--path", help="API path, e.g. /api/os/agents")
+    p.add_argument("--data", help="JSON request body")
+    p.add_argument("--confirm", help="HIL confirm token for high-risk actions")
+    p.add_argument("--confirm-token", help="confirm and execute pending action by token only")
+    p.add_argument("--base-url", help="override base url for this request")
+    return p
+
+
+def main() -> int:
+    # 低层入口：仅保留给自动化/agent，不在 dios --help 暴露
+    if len(sys.argv) > 1 and sys.argv[1] == "request":
+        req_args = build_request_parser().parse_args(sys.argv[2:])
+        return cmd_request(req_args)
+
+    parser = build_parser()
+    args = parser.parse_args()
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+

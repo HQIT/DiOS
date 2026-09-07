@@ -56,6 +56,8 @@ class AgentCreate(BaseModel):
     mcp_config_path: str = ""
     mcp_server_ids: list[str] = []
     workspace_path: str = ""
+    capabilities: dict = {}
+    env: dict = {}
 
 
 class AgentUpdate(BaseModel):
@@ -70,6 +72,8 @@ class AgentUpdate(BaseModel):
     mcp_config_path: Optional[str] = None
     mcp_server_ids: Optional[list[str]] = None
     workspace_path: Optional[str] = None
+    capabilities: Optional[dict] = None
+    env: Optional[dict] = None
 
 
 class AgentOut(BaseModel):
@@ -85,6 +89,8 @@ class AgentOut(BaseModel):
     mcp_config_path: str
     mcp_server_ids: list[str]
     workspace_path: str
+    capabilities: dict = {}
+    env: dict = {}
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -121,13 +127,19 @@ class ConnectorOut(BaseModel):
 
 class McpServerCreate(BaseModel):
     name: str
-    command: str
+    transport: str = "stdio"  # stdio | streamable_http | sse | http
+    url: str = ""
+    headers: dict = {}
+    command: str = ""
     args: list = []
     env: dict = {}
 
 
 class McpServerUpdate(BaseModel):
     name: Optional[str] = None
+    transport: Optional[str] = None
+    url: Optional[str] = None
+    headers: Optional[dict] = None
     command: Optional[str] = None
     args: Optional[list] = None
     env: Optional[dict] = None
@@ -136,9 +148,12 @@ class McpServerUpdate(BaseModel):
 class McpServerOut(BaseModel):
     id: str
     name: str
-    command: str
-    args: list
-    env: dict
+    transport: str = "stdio"
+    url: str = ""
+    headers: dict = {}
+    command: str = ""
+    args: list = []
+    env: dict = {}
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -212,11 +227,68 @@ class EventLogOut(BaseModel):
     cloud_event: dict
     matched_agent_ids: list[str]
     status: str
+    trace_id: str = ""
+    contract_decision: dict = {}
+    policy_decision: dict = {}
+    audit_chain: list = []
     created_at: datetime
     retry_count: int = 0
     max_retries: int = 3
     next_retry_at: Optional[datetime] = None
     error_message: str = ""
     dedup_hash: str = ""
+
+    model_config = {"from_attributes": True}
+
+
+class E2AGApprovalOut(BaseModel):
+    id: str
+    event_log_id: str
+    trace_id: str
+    status: str
+    expires_at: datetime
+    decided_at: Optional[datetime] = None
+    actor: str = ""
+    reason: str = ""
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class EventActivityItemOut(BaseModel):
+    task_id: str
+    agent_id: str
+    agent_name: str
+    status: str
+    started_at: datetime
+    ended_at: Optional[datetime] = None
+    duration_ms: int
+    error: str = ""
+    artifacts_count: int = 0
+
+
+class EventActivityOverviewOut(BaseModel):
+    event_id: str
+    event_type: str
+    source: str
+    status: str
+    timeline_start: datetime
+    timeline_end: datetime
+    items: list[EventActivityItemOut]
+
+
+# ── A2A Task ──
+
+class A2ATaskOut(BaseModel):
+    id: str
+    agent_id: str
+    context_id: str
+    trace_id: str = ""
+    status: str  # submitted | working | completed | failed | canceled
+    message: dict
+    artifacts: list
+    error: str
+    created_at: datetime
+    updated_at: datetime
 
     model_config = {"from_attributes": True}

@@ -1,0 +1,16 @@
+{
+  "$comment": "场景事件命名空间声明。这些事件由 Agent 通过 publish_event 自行发布，DiOS 只负责允许订阅，不解析其内容。删除条目即卸载对应场景。",
+  "namespaces": [
+    {
+      "source_pattern": "ai4r/*",
+      "description": "AI4R 论文写作流水线（scripts/configure_ai4r_scenario.sh）",
+      "event_types": [
+        { "type": "ai4r.draft.submitted", "description": "AI4R 稿件提交" },
+        { "type": "ai4r.experiment.completed", "description": "AI4R 实验完成" },
+        { "type": "ai4r.experiment.requested", "description": "AI4R 请求实验" },
+        { "type": "ai4r.review.completed", "description": "AI4R 评审完成" },
+        { "type": "ai4r.topic.proposed", "description": "AI4R 选题提出" }
+      ]
+    }
+  ]
+}

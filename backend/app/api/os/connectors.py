@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.models.tables import Connector
 from app.models.schemas import ConnectorCreate, ConnectorUpdate, ConnectorOut
+from app.services.connector_capabilities import build_source_pattern_items
 
 router = APIRouter(prefix="/connectors", tags=["connectors"])
 
@@ -20,6 +21,26 @@ _GIT_PLATFORMS = ("github", "gitlab", "gitea")
 async def list_connectors(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Connector).order_by(Connector.type, Connector.created_at))
     return result.scalars().all()
+
+
+@router.get("/source-patterns", response_model=list[dict])
+async def list_connector_source_patterns(db: AsyncSession = Depends(get_db)):
+    """返回当前可用于订阅的 source pattern（由 Connector 统一定义）。"""
+    result = await db.execute(select(Connector).order_by(Connector.type, Connector.created_at))
+    connectors = list(result.scalars().all())
+    items = build_source_pattern_items(connectors, enabled_only=True, include_internal=True)
+    return [
+        {
+            "source_pattern": i.source_pattern,
+            "label": i.label,
+            "event_types": i.event_types,
+            "connector_id": i.connector_id,
+            "connector_name": i.connector_name,
+            "connector_type": i.connector_type,
+            "kind": i.kind,
+        }
+        for i in items
+    ]
 
 
 @router.post("", response_model=ConnectorOut, status_code=201)

@@ -1,6 +1,6 @@
-# NANA-OS 架构
+# DiOS 架构
 
-> NANA = Network Attached Native Agent
+> **NANA**（**N**etwork **A**ttached **N**ative **A**gent）是一类产品的统称，类似 NAS 之于网络存储——泛指可通过网络接入的本地化 AI Agent 设备或系统。DiOS 是 NANA 产品的操作系统层，与 DiAgent 同属 DiFlow 工具链。
 
 ## 分层架构
 
@@ -11,7 +11,7 @@ App 层    ──  Chat App / Console App / CLI / Pipeline / ...
 Agent 层  ──  DiAgent 实例 (常驻 / 一次性)
                │ (从 OS 获取资源)
                ▼
-OS 层     ──  NANA-OS
+OS 层     ──  DiOS
                ├── 调度：Agent 生命周期管理、事件路由
                ├── 资源：LLM 端点、MCP Server、Skills
                ├── 运行时：容器隔离、执行环境（常驻服务 + 一次性任务）
@@ -20,7 +20,7 @@ OS 层     ──  NANA-OS
 
 ## 各层职责
 
-### OS 层（NANA-OS）
+### OS 层（DiOS）
 
 管资源、管调度、不干活。类比操作系统内核。
 
@@ -91,9 +91,9 @@ frontend/
 
 ## 操作系统类比
 
-| OS 概念 | NANA-OS 对应 |
+| OS 概念 | DiOS 对应 |
 |---------|-------------|
-| 内核 + 系统调用 | NANA-OS 核心（调度 + 资源管理），API: `/api/os/*` |
+| 内核 + 系统调用 | DiOS 核心（调度 + 资源管理），API: `/api/os/*` |
 | CPU / GPU | LLM 端点 |
 | 文件系统、网络、设备 | Skills、MCP Server |
 | 进程 | Agent（DiAgent 实例） |
@@ -114,7 +114,7 @@ OS 层核心服务，为每个 `mode=service` 的 Agent 按需启动独立的 Di
 
 **数据表 `agent_runtimes`：** `agent_id` (PK) / `container_id` / `url` / `status` / `started_at`
 
-**配置：** `NANAOS_DIAGENT_SERVICE_IMAGE` 指定服务模式镜像（默认 `nana-os-diagent:latest`）
+**配置：** `DIOS_DIAGENT_SERVICE_IMAGE` 指定服务模式镜像（默认 `dios-diagent:latest`）
 
 **Docker Compose：** 固定的 `diagent` 服务已移除，改为 `diagent-build` profile 仅构建镜像，Runtime Manager 动态管理容器。
 

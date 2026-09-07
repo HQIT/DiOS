@@ -19,12 +19,93 @@ def _add_agent_mcp_server_ids(sync_conn):
         pass
 
 
+def _add_agent_capabilities(sync_conn):
+    try:
+        from sqlalchemy import text
+        sync_conn.execute(text("ALTER TABLE agents ADD COLUMN capabilities TEXT DEFAULT '{}'"))
+    except Exception:
+        pass
+
+
+def _add_agent_env(sync_conn):
+    try:
+        from sqlalchemy import text
+        sync_conn.execute(text("ALTER TABLE agents ADD COLUMN env TEXT DEFAULT '{}'"))
+    except Exception:
+        pass
+
+
+def _add_mcp_remote_columns(sync_conn):
+    from sqlalchemy import text
+
+    alters = [
+        "ALTER TABLE mcp_servers ADD COLUMN transport TEXT DEFAULT 'stdio'",
+        "ALTER TABLE mcp_servers ADD COLUMN url TEXT DEFAULT ''",
+        "ALTER TABLE mcp_servers ADD COLUMN headers TEXT DEFAULT '{}'",
+    ]
+    for sql in alters:
+        try:
+            sync_conn.execute(text(sql))
+        except Exception:
+            pass
+
+
+def _add_e2ag_columns(sync_conn):
+    from sqlalchemy import text
+
+    alters = [
+        "ALTER TABLE event_logs ADD COLUMN trace_id TEXT DEFAULT ''",
+        "ALTER TABLE event_logs ADD COLUMN contract_decision TEXT DEFAULT '{}'",
+        "ALTER TABLE event_logs ADD COLUMN policy_decision TEXT DEFAULT '{}'",
+        "ALTER TABLE event_logs ADD COLUMN audit_chain TEXT DEFAULT '[]'",
+        "ALTER TABLE a2a_tasks ADD COLUMN trace_id TEXT DEFAULT ''",
+    ]
+    for sql in alters:
+        try:
+            sync_conn.execute(text(sql))
+        except Exception:
+            pass
+    for sql in (
+        "CREATE INDEX IF NOT EXISTS ix_event_logs_trace_id ON event_logs (trace_id)",
+        "CREATE INDEX IF NOT EXISTS ix_a2a_tasks_trace_id ON a2a_tasks (trace_id)",
+    ):
+        try:
+            sync_conn.execute(text(sql))
+        except Exception:
+            pass
+
+
+def _bootstrap_master_agent(sync_conn):
+    """启动时把历史默认 Agent `SayHi` 升级为 `Master`（仅改名，不改其余配置）。"""
+    try:
+        from sqlalchemy import text
+        has_master = sync_conn.execute(
+            text("SELECT 1 FROM agents WHERE name = 'Master' LIMIT 1")
+        ).fetchone()
+        if has_master:
+            return
+        has_sayhi = sync_conn.execute(
+            text("SELECT 1 FROM agents WHERE name = 'SayHi' LIMIT 1")
+        ).fetchone()
+        if has_sayhi:
+            sync_conn.execute(
+                text("UPDATE agents SET name = 'Master' WHERE name = 'SayHi'")
+            )
+    except Exception:
+        pass
+
+
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     if "sqlite" in settings.database_url:
         async with engine.connect() as conn:
             await conn.run_sync(_add_agent_mcp_server_ids)
+            await conn.run_sync(_add_agent_capabilities)
+            await conn.run_sync(_add_agent_env)
+            await conn.run_sync(_add_mcp_remote_columns)
+            await conn.run_sync(_add_e2ag_columns)
+            await conn.run_sync(_bootstrap_master_agent)
             await conn.commit()
 
 

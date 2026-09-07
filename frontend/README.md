@@ -1,6 +1,6 @@
-# NANA-OS Frontend
+# DiOS Frontend
 
-NANA-OS Agent Teams 管理工具的 Web UI，基于 React + TypeScript + Vite。
+DiOS 管理工具的 Web UI，基于 React + TypeScript + Vite。
 
 ## 开发
 

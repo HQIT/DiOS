@@ -1,0 +1,10 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1a1d27', 'primaryTextColor': '#e4e6eb', 'lineColor': '#6c8eef'}}}%%
+flowchart LR
+    H([Human 发邮件<br/>开始写论文]) --> EG[DiOS Event Gateway]
+    EG --> M[主控 Agent]
+    M --> E[实验 Agent<br/>跑数据]
+    E --> W[写作 Agent<br/>撰写论文]
+    W --> R[评审 Agent<br/>修改意见]
+    R -->|未通过| W
+    R -->|通过| H2([邮件通知 Human<br/>论文完成])
+    E -.->|结果写入| WS[(共享 workspace)]

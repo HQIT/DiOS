@@ -1,0 +1,28 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1a1d27', 'primaryTextColor': '#e4e6eb', 'lineColor': '#6c8eef'}}}%%
+flowchart TB
+    subgraph ext["外部系统"]
+        GH[GitHub / GitLab / Gitea]
+        EM[Email IMAP]
+        WH[通用 Webhook]
+    end
+
+    subgraph gw["DiOS Event Gateway"]
+        R[Webhook Receiver]
+        N[事件标准化 CloudEvents]
+        RT[订阅匹配 + 路由]
+        D[投递 Dispatcher]
+        R --> N --> RT --> D
+    end
+
+    subgraph agents["Agent 层"]
+        T1[task Agent 容器]
+        T2[task Agent 容器]
+        SVC[service Agent 容器]
+    end
+
+    GH --> R
+    EM --> R
+    WH --> R
+    D --> T1
+    D --> T2
+    D -.->|可选| SVC

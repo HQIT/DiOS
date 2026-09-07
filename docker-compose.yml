@@ -2,22 +2,22 @@ version: "3.8"
 
 services:
   backend:
-    image: ghcr.io/hqit/nana-os/backend:main
+    image: ghcr.io/hqit/dios/backend:main
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./workspace:/workspace
-      - nanaos-data:/data
+      - dios-data:/data
     environment:
-      - NANAOS_WORKSPACE_ROOT=/workspace
-      - NANAOS_HOST_WORKSPACE_ROOT=${PWD}/workspace
-      - NANAOS_DATABASE_URL=sqlite+aiosqlite:////data/nanaos.db
-      - NANAOS_DIAGENT_IMAGE=ghcr.io/hqit/diagent/agent-task:latest
+      - DIOS_WORKSPACE_ROOT=/workspace
+      - DIOS_HOST_WORKSPACE_ROOT=${PWD}/workspace
+      - DIOS_DATABASE_URL=sqlite+aiosqlite:////data/dios.db
+      - DIOS_DIAGENT_IMAGE=ghcr.io/hqit/diagent/agent-task:latest
     ports:
       - "8000:8000"
 
   frontend:
-    image: ghcr.io/hqit/nana-os/frontend:main
+    image: ghcr.io/hqit/dios/frontend:main
     restart: unless-stopped
     ports:
       - "3000:80"
@@ -25,4 +25,4 @@ services:
       - backend
 
 volumes:
-  nanaos-data:
+  dios-data:

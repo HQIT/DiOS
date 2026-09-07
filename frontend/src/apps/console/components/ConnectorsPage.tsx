@@ -105,7 +105,7 @@ export default function ConnectorsPage() {
   return (
     <div className="panel">
       <p className="text-muted" style={{ marginBottom: 12 }}>
-        事件源负责将外部事件（Webhook、邮件等）接入 NANA-OS，用于触发 Agent。
+        事件源负责将外部事件（Webhook、邮件等）接入 DiOS，用于触发 Agent。
       </p>
 
       <div className="card-grid">
@@ -157,13 +157,17 @@ export default function ConnectorsPage() {
               placeholder="可选"
             />
 
-            <label>Callback URL（请填入 Git 平台的 Webhook 设置）</label>
+            <label>Webhook 路径（填到 Git 平台时前缀加公网域名）</label>
             <input
               readOnly
-              value={`${window.location.origin}/api/events/webhook/${(localConfig.platform as string) || "github"}`}
+              value={`/api/os/events/webhook/${(localConfig.platform as string) || "github"}`}
               onClick={(e) => (e.target as HTMLInputElement).select()}
               style={{ color: "var(--color-info)", cursor: "pointer" }}
             />
+            <p className="text-muted" style={{ fontSize: 12 }}>
+              示例：<code>https://&lt;你的公网域名&gt;/api/os/events/webhook/{(localConfig.platform as string) || "github"}</code>
+              。本地开发可用 Tailscale Funnel / cloudflared / ngrok 得到公网地址。
+            </p>
 
             <div className="drawer-actions">
               <button onClick={saveConfig}>保存</button>
@@ -211,14 +215,14 @@ export default function ConnectorsPage() {
 
         {editType === "generic" && (
           <div className="drawer-form">
-            <label>Callback URL</label>
+            <label>Webhook 路径（前缀加公网域名）</label>
             <input
               readOnly
-              value={`${window.location.origin}/api/events/webhook/generic`}
+              value={`/api/os/events/webhook/generic`}
               onClick={(e) => (e.target as HTMLInputElement).select()}
               style={{ color: "var(--color-info)", cursor: "pointer" }}
             />
-            <p className="text-muted">通用 Webhook 无需额外配置，启用后即可接收任意 POST 请求。</p>
+            <p className="text-muted" style={{ fontSize: 12 }}>通用 Webhook 无需额外配置，启用后即可接收任意 POST 请求。示例：<code>https://&lt;你的公网域名&gt;/api/os/events/webhook/generic</code></p>
             <div className="drawer-actions">
               <button onClick={saveConfig}>保存</button>
               <button className="btn-secondary" onClick={() => setEditType(null)}>取消</button>

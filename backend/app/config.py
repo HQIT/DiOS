@@ -3,14 +3,15 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    database_url: str = "sqlite+aiosqlite:///./nanaos.db"
+    database_url: str = "sqlite+aiosqlite:///./dios.db"
     workspace_root: Path = Path(__file__).resolve().parent.parent.parent / "workspace"
     # Docker Socket 模式下，宿主机上 workspace 的真实路径
     # 容器内 /workspace 和宿主机路径不同，挂载给兄弟容器时需要宿主机路径
     host_workspace_root: str = ""
     diagent_image: str = "ghcr.io/hqit/diagent/agent-task:latest"
-    diagent_service_image: str = "nana-os-diagent:latest"
+    diagent_service_image: str = "dios-diagent-service:latest"
     diagent_service_url: str = "http://localhost:8001"  # fallback, runtime manager 会动态获取
+    docker_network: str = ""
     max_concurrent_runs: int = 5
 
     # Webhook 签名验证密钥，按平台名存储
@@ -25,7 +26,18 @@ class Settings(BaseSettings):
     event_dedup_window_hours: int = 1
     event_dedup_exclude_types: list[str] = ["cron.tick", "manual.trigger"]
 
-    model_config = {"env_prefix": "NANAOS_"}
+    # E2AG enforcement: off | contract | enforce
+    e2ag_mode: str = "enforce"
+    e2ag_tool_grant_ttl_seconds: int = 900
+    e2ag_approval_ttl_seconds: int = 3600
+    # One-shot DiAgent containers are Docker siblings, not Compose services.
+    # The host-gateway mapping in docker_runner makes this URL portable.
+    e2ag_internal_base_url: str = "http://host.docker.internal:8000"
+
+    # 非空时启用 API Access Token（Authorization: Bearer 或 X-DiOS-Access-Token）
+    access_token: str = ""
+
+    model_config = {"env_prefix": "DIOS_"}
 
 
 settings = Settings()
