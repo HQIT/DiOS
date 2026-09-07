@@ -9,8 +9,7 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_DEFAULT_TIMEOUT=120
 
 COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip \
-    if [ -n "$PIP_INDEX_URL" ]; then \
+RUN if [ -n "$PIP_INDEX_URL" ]; then \
       pip install -i "$PIP_INDEX_URL" -r requirements.txt; \
     else \
       pip install -r requirements.txt; \
