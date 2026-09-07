@@ -26,6 +26,7 @@ services:
     environment:
       - DIOS_WORKSPACE_ROOT=/workspace
       - DIOS_HOST_WORKSPACE_ROOT=${PWD}/workspace
+      - DIOS_HOST_SHARED_CLI_ROOT=${PWD}/cli
       - DIOS_DATABASE_URL=sqlite+aiosqlite:////data/dios.db
       - DIOS_DIAGENT_IMAGE=dios-diagent-task:latest
       - DIOS_DIAGENT_SERVICE_IMAGE=dios-diagent-service:latest

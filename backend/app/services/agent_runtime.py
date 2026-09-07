@@ -92,7 +92,7 @@ def _start_container(agent: Agent, env: dict[str, str]) -> tuple[str, str]:
     host_ws = _host_path(Path(agent.workspace_path))
 
     host_shared_skills = _host_path(settings.workspace_root / "skills")
-    host_shared_cli = _host_path(settings.workspace_root / "cli")
+    host_shared_cli = settings.host_shared_cli_root or _host_path(settings.shared_cli_root)
 
     container = client.containers.run(
         image=settings.diagent_service_image,

@@ -40,6 +40,15 @@ docker compose up -d
 
 打开 `http://localhost:3000`。API 默认位于 `http://localhost:8000`。
 
+CLI 与 Console 使用同一组控制面 API：
+
+```bash
+python cli/dios registry mcp github
+python cli/dios registry skills mcp
+python cli/dios registry plugins
+python cli/dios connector types
+```
+
 进一步了解：[Roadmap](ROADMAP.md) · [架构说明](docs/architecture.md) · [Connector 契约](docs/adr/0001-connector-plugin-contract.md)
 
 ## 项目边界

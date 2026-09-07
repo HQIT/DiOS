@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """DiOS 管理 CLI（Hybrid, human-friendly）：
-- 人类用户优先：高层子命令（config / agent）
+- 人类用户优先：高层子命令（config / agent / registry / resources）
 - 低层 request 仅保留给自动化（隐藏）
 - 高风险操作要求 HIL 二次确认
 - 记录本地审计日志
@@ -16,6 +16,7 @@ import os
 import secrets
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -224,6 +225,67 @@ def _resolve_agent_selector(base_url: str, selector: str) -> dict[str, Any] | No
 
 def _safe_print(obj: Any) -> None:
     print(json.dumps(obj, ensure_ascii=False, indent=2))
+
+
+def _command_base_url(args: argparse.Namespace) -> str:
+    return args.base_url.rstrip("/") if args.base_url else _get_base_url()
+
+
+def _registry_limit(value: str) -> int:
+    limit = int(value)
+    if not 1 <= limit <= 100:
+        raise argparse.ArgumentTypeError("limit must be between 1 and 100")
+    return limit
+
+
+def _get_and_print(args: argparse.Namespace, path: str) -> int:
+    status, data = _request_json(_command_base_url(args), "GET", path, None)
+    _safe_print(data)
+    return 0 if 200 <= status < 300 else 1
+
+
+def cmd_registry_mcp(args: argparse.Namespace) -> int:
+    query = urllib.parse.urlencode({"q": args.query, "limit": args.limit})
+    return _get_and_print(args, f"/api/os/mcp-registry/search?{query}")
+
+
+def cmd_registry_skills(args: argparse.Namespace) -> int:
+    query = urllib.parse.urlencode({"q": args.query})
+    return _get_and_print(args, f"/api/os/skills/registry?{query}")
+
+
+def cmd_registry_plugins(args: argparse.Namespace) -> int:
+    _safe_print(
+        {
+            "status": "compatibility_preview",
+            "registered": 0,
+            "format_target": "Open Plugins",
+            "install_channel": "phase_3",
+            "single_machine_policy": "registration_does_not_grant_permissions",
+            "components": [
+                {"name": "Skills", "status": "mappable"},
+                {"name": "MCP Servers", "status": "mappable"},
+                {"name": "Agents", "status": "pending_adapter"},
+                {"name": "Hooks / LSP", "status": "phase_3"},
+            ],
+        }
+    )
+    return 0
+
+
+def cmd_resource_list(args: argparse.Namespace) -> int:
+    return _get_and_print(args, args.api_path)
+
+
+def cmd_skill_import(args: argparse.Namespace) -> int:
+    return _perform_managed_request(
+        base_url=_command_base_url(args),
+        method="POST",
+        path="/api/os/skills/import-git",
+        data={"url": args.url},
+        confirm=args.confirm,
+        human_next_cmd=f'dios skill import-git "{args.url}"',
+    )
 
 
 def _perform_managed_request(
@@ -510,6 +572,41 @@ def build_parser() -> argparse.ArgumentParser:
     p_agent_del.add_argument("--base-url", help="override base url for this command")
     p_agent_del.set_defaults(func=cmd_agent_delete)
 
+    p_registry = sub.add_parser("registry", help="discover MCP, Skill, and Plugin capabilities")
+    sub_registry = p_registry.add_subparsers(dest="registry_cmd", required=True)
+    p_registry_mcp = sub_registry.add_parser("mcp", help="search the Official MCP Registry")
+    p_registry_mcp.add_argument("query", nargs="?", default="", help="search query")
+    p_registry_mcp.add_argument("--limit", type=_registry_limit, default=20)
+    p_registry_mcp.add_argument("--base-url", help="override base url for this command")
+    p_registry_mcp.set_defaults(func=cmd_registry_mcp)
+    p_registry_skills = sub_registry.add_parser("skills", help="search the DiOS curated Skill registry")
+    p_registry_skills.add_argument("query", nargs="?", default="", help="search query")
+    p_registry_skills.add_argument("--base-url", help="override base url for this command")
+    p_registry_skills.set_defaults(func=cmd_registry_skills)
+    p_registry_plugins = sub_registry.add_parser("plugins", help="show Plugin compatibility status")
+    p_registry_plugins.set_defaults(func=cmd_registry_plugins)
+
+    for command, help_text, api_path in (
+        ("connector", "inspect Connector capabilities", "/api/os/connectors"),
+        ("mcp", "inspect registered MCP Servers", "/api/os/mcp-servers"),
+        ("skill", "inspect and import Skills", "/api/os/skills"),
+    ):
+        resource = sub.add_parser(command, help=help_text)
+        resource_sub = resource.add_subparsers(dest=f"{command}_cmd", required=True)
+        resource_list = resource_sub.add_parser("list", help=f"list registered {command} resources")
+        resource_list.add_argument("--base-url", help="override base url for this command")
+        resource_list.set_defaults(func=cmd_resource_list, api_path=api_path)
+        if command == "connector":
+            resource_types = resource_sub.add_parser("types", help="list installable Connector manifests")
+            resource_types.add_argument("--base-url", help="override base url for this command")
+            resource_types.set_defaults(func=cmd_resource_list, api_path="/api/os/connectors/types")
+        if command == "skill":
+            resource_import = resource_sub.add_parser("import-git", help="validate and import one Agent Skill")
+            resource_import.add_argument("url", help="Git repository or GitHub tree URL containing SKILL.md")
+            resource_import.add_argument("--confirm", help="HIL confirm token")
+            resource_import.add_argument("--base-url", help="override base url for this command")
+            resource_import.set_defaults(func=cmd_skill_import)
+
     return p
 
 
@@ -537,4 +634,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

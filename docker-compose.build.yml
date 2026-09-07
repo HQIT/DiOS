@@ -14,6 +14,7 @@ services:
     environment:
       - DIOS_WORKSPACE_ROOT=/workspace
       - DIOS_HOST_WORKSPACE_ROOT=/opt/dios/workspace
+      - DIOS_HOST_SHARED_CLI_ROOT=/opt/dios/cli
       - DIOS_DATABASE_URL=sqlite+aiosqlite:////data/dios.db
       - DIOS_DIAGENT_IMAGE=ghcr.io/hqit/diagent/agent-task:latest
       - DIOS_ACCESS_TOKEN=${DIOS_ACCESS_TOKEN:-}
