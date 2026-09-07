@@ -109,12 +109,14 @@ async def create_task(
     agent_id: str,
     message: dict[str, Any],
     context_id: str = "",
+    trace_id: str = "",
 ) -> A2ATask:
     """在 DB 创建一个 A2ATask，初始状态 submitted。"""
     task = A2ATask(
         id=uuid.uuid4().hex,
         agent_id=agent_id,
         context_id=context_id,
+        trace_id=trace_id or uuid.uuid4().hex,
         status="submitted",
         message=message,
         artifacts=[],
@@ -137,6 +139,7 @@ def task_to_a2a_dict(task: A2ATask) -> dict[str, Any]:
         "artifacts": task.artifacts or [],
         "history": [task.message] if task.message else [],
         "error": task.error or None,
+        "_e2ag": {"trace_id": task.trace_id} if task.trace_id else {},
     }
 
 
@@ -148,6 +151,7 @@ async def send_message(
     agent_id: str,
     message: dict[str, Any],
     context_id: str = "",
+    trace_id: str = "",
 ) -> A2ATask:
     """A2A message/send 方法入口。
     - service 模式：HTTP 转发到运行中的 DiAgent 容器
@@ -157,7 +161,13 @@ async def send_message(
     if not agent:
         raise ValueError(f"Agent {agent_id} not found")
 
-    task = await create_task(db, agent_id=agent_id, message=message, context_id=context_id)
+    task = await create_task(
+        db,
+        agent_id=agent_id,
+        message=message,
+        context_id=context_id,
+        trace_id=trace_id,
+    )
 
     try:
         if agent.mode == "service":
@@ -169,6 +179,10 @@ async def send_message(
         task.status = "failed"
         task.error = f"{type(e).__name__}: {e}"
         task.updated_at = _now()
+        from app.services.e2ag_tool_gateway import revoke_task_grants
+        await revoke_task_grants(db, task.id)
+        if agent.workspace_path:
+            _remove_task_secret_config(agent.workspace_path, task.id[:12])
         await db.commit()
         await db.refresh(task)
 
@@ -296,14 +310,21 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
         mcp_result = await db.execute(select(McpServer).where(McpServer.id.in_(mcp_ids)))
         mcp_servers = list(mcp_result.scalars().all())
         if mcp_servers:
-            from app.services.mcp_config import servers_to_mcp_config
+            from app.services.e2ag_tool_gateway import issue_task_mcp_config
 
-            mcp_cfg = servers_to_mcp_config(mcp_servers)
+            mcp_cfg, omissions = await issue_task_mcp_config(
+                db, agent=agent, task=task, servers=mcp_servers,
+            )
             config_dir = workspace / "config"
             config_dir.mkdir(parents=True, exist_ok=True)
             mcp_file = config_dir / f"mcp_servers_{run_id}.json"
             mcp_file.write_text(json.dumps(mcp_cfg, ensure_ascii=False, indent=2), encoding="utf-8")
             mcp_override = f"/workspace/config/mcp_servers_{run_id}.json"
+            if omissions:
+                logger.warning(
+                    "E2AG withheld %d MCP server(s) for task %s: %s",
+                    len(omissions), task.id, omissions,
+                )
 
     config = _build_proxy_task_config(
         agent=agent,
@@ -319,7 +340,11 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
     config_path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
     (workspace / "output" / "events" / run_id).mkdir(parents=True, exist_ok=True)
 
-    container_id = start_container(run_id, workspace, extra_env=agent.env or {})
+    # Docker SDK calls are synchronous. Keep image checks and container creation
+    # off the ASGI event loop so one slow daemon call cannot stall every API.
+    container_id = await asyncio.to_thread(
+        start_container, run_id, workspace, agent.env or {}
+    )
     logger.info(
         "Start task container: task_id=%s agent_id=%s run_id=%s container_id=%s context_id=%s",
         task.id, agent.id, run_id, container_id, task.context_id,
@@ -339,20 +364,27 @@ async def _poll_task_container(task_id: str, run_id: str, container_id: str, wor
     from app.services.docker_runner import (
         get_container_status,
         get_container_exit_code,
+        get_container_logs,
         remove_container,
     )
 
     while True:
         await asyncio.sleep(5)
-        status = get_container_status(container_id)
+        status = await asyncio.to_thread(get_container_status, container_id)
         if status is None or status == "exited":
             break
 
-    exit_code = get_container_exit_code(container_id)
-    remove_container(container_id)
+    exit_code = await asyncio.to_thread(get_container_exit_code, container_id)
+    container_logs = await asyncio.to_thread(get_container_logs, container_id)
+    await asyncio.to_thread(remove_container, container_id)
 
     artifacts: list[dict[str, Any]] = []
-    result_file = Path(workspace_path) / "output" / "events" / run_id / "task_result.md"
+    result_root = Path(workspace_path) / "output" / "events" / run_id
+    result_file = result_root / "task_result.md"
+    if not result_file.exists() and result_root.exists():
+        nested_results = list(result_root.glob("*/task_result.md"))
+        if nested_results:
+            result_file = max(nested_results, key=lambda path: path.stat().st_mtime_ns)
     if result_file.exists():
         try:
             content = result_file.read_text(encoding="utf-8")
@@ -368,13 +400,38 @@ async def _poll_task_container(task_id: str, run_id: str, container_id: str, wor
         task = await db.get(A2ATask, task_id)
         if task is None:
             logger.warning("Task %s disappeared during polling", task_id)
+            _remove_task_secret_config(workspace_path, run_id)
             return
         task.artifacts = artifacts
         task.status = "completed" if exit_code == 0 else "failed"
         if exit_code != 0:
+            log_tail = container_logs[-4000:].strip()
             task.error = f"container exit code {exit_code}"
+            if log_tail:
+                task.error += f"\ncontainer log tail:\n{log_tail}"
         task.updated_at = _now()
+        from app.services.e2ag_tool_gateway import revoke_task_grants
+        await revoke_task_grants(db, task.id)
+        if task.context_id:
+            from app.models.tables import EventLog
+            from app.services.e2ag import append_audit_entry
+
+            event_log = await db.get(EventLog, task.context_id)
+            if event_log is not None:
+                event_log.audit_chain = append_audit_entry(
+                    event_log.audit_chain or [],
+                    trace_id=task.trace_id,
+                    stage="a2a_task",
+                    outcome=task.status,
+                    evidence={
+                        "task_id": task.id,
+                        "agent_id": task.agent_id,
+                        "exit_code": exit_code,
+                        "artifact_count": len(artifacts),
+                    },
+                )
         await db.commit()
+    _remove_task_secret_config(workspace_path, run_id)
     logger.info(
         "A2A task finished: task_id=%s run_id=%s exit=%s status=%s context_id=%s artifacts=%s",
         task_id,
@@ -486,6 +543,14 @@ def _build_proxy_task_config(
     return {"models": models_section, "task": task_section}
 
 
+def _remove_task_secret_config(workspace_path: str, run_id: str) -> None:
+    """Delete the exact per-task MCP file that contains the bearer ToolGrant."""
+    try:
+        (Path(workspace_path) / "config" / f"mcp_servers_{run_id}.json").unlink(missing_ok=True)
+    except OSError as exc:
+        logger.warning("Failed to remove task MCP secret config for run %s: %s", run_id, exc)
+
+
 async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
     """取消 Task。Phase 1C 先仅做状态变更，容器层面的中断在后续补全。"""
     task = await db.get(A2ATask, task_id)
@@ -495,6 +560,11 @@ async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
         return task
     task.status = "canceled"
     task.updated_at = _now()
+    from app.services.e2ag_tool_gateway import revoke_task_grants
+    await revoke_task_grants(db, task.id)
+    agent = await db.get(Agent, task.agent_id)
+    if agent and agent.workspace_path:
+        _remove_task_secret_config(agent.workspace_path, task.id[:12])
     await db.commit()
     await db.refresh(task)
     return task
@@ -503,7 +573,7 @@ async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
 # ── 工具：CloudEvent -> A2A Message ────────────────────────────────
 
 
-def cloudevent_to_a2a_message(event: dict[str, Any]) -> dict[str, Any]:
+def cloudevent_to_a2a_message(event: dict[str, Any], trace_id: str = "") -> dict[str, Any]:
     """把 CloudEvent 封装为 A2A Message，用于 event_dispatcher 通过 A2A 投递。"""
     summary = (
         f"[Event type={event.get('type')} source={event.get('source')} "
@@ -523,4 +593,5 @@ def cloudevent_to_a2a_message(event: dict[str, Any]) -> dict[str, Any]:
             "type": event.get("type") or "",
             "source": event.get("source") or "",
         },
+        "_e2ag": {"trace_id": trace_id} if trace_id else {},
     }

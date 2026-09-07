@@ -39,6 +39,7 @@ MANIFEST = ConnectorManifest(
     secret_fields=("password",),
     event_sources=(EventSourceDecl(id="email", name="邮件", description="IMAP 收取邮件"),),
     event_types=(EventTypeDecl(type="email.received", description="邮件收取（IMAP）"),),
+    accepted_source_patterns=("imap/*",),
     subscribable_categories=("email",),
     source_patterns=_source_patterns,
 )

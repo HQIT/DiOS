@@ -156,7 +156,11 @@ class EventLog(Base):
     subject: Mapped[str] = mapped_column(String(256), default="")
     cloud_event: Mapped[dict] = mapped_column(JSON, nullable=False)
     matched_agent_ids: Mapped[list] = mapped_column(JSON, default=list)
-    status: Mapped[str] = mapped_column(String(16), default="received")  # received, dispatching, dispatched, failed, dead_letter
+    status: Mapped[str] = mapped_column(String(32), default="received")  # includes E2AG denied / approval_required
+    trace_id: Mapped[str] = mapped_column(String(32), index=True, default=lambda: uuid.uuid4().hex)
+    contract_decision: Mapped[dict] = mapped_column(JSON, default=dict)
+    policy_decision: Mapped[dict] = mapped_column(JSON, default=dict)
+    audit_chain: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     
     # 重试机制字段
@@ -167,6 +171,18 @@ class EventLog(Base):
     
     # 幂等性去重字段
     dedup_hash: Mapped[str] = mapped_column(String(64), index=True, default="")
+
+
+class EventDedupClaim(Base):
+    """Atomic time-bounded ownership of one event deduplication hash."""
+
+    __tablename__ = "event_dedup_claims"
+
+    dedup_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    owner_token: Mapped[str] = mapped_column(String(32), nullable=False)
+    event_log_id: Mapped[str] = mapped_column(String(12), default="", index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
 # ── A2A Task（Agent-to-Agent 协议任务） ──
@@ -183,9 +199,46 @@ class A2ATask(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
     agent_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
     context_id: Mapped[str] = mapped_column(String(64), default="", index=True)  # 关联源（EventLog.id / chat_session_id 等）
+    trace_id: Mapped[str] = mapped_column(String(32), index=True, default=lambda: uuid.uuid4().hex)
     status: Mapped[str] = mapped_column(String(16), default="submitted")  # submitted | working | completed | failed | canceled
     message: Mapped[dict] = mapped_column(JSON, nullable=False)  # A2A Message 入参
     artifacts: Mapped[list] = mapped_column(JSON, default=list)  # A2A Artifact[] 输出
     error: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class E2AGToolGrant(Base):
+    """Short-lived authorization for one task to call one remote MCP server."""
+
+    __tablename__ = "e2ag_tool_grants"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    trace_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    task_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    event_log_id: Mapped[str] = mapped_column(String(12), default="", index=True)
+    agent_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
+    mcp_server_id: Mapped[str] = mapped_column(String(12), nullable=False)
+    allowed_tools: Mapped[list] = mapped_column(JSON, default=list)
+    status: Mapped[str] = mapped_column(String(16), default="active")
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    call_count: Mapped[int] = mapped_column(default=0)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class E2AGApproval(Base):
+    """Single-transition human decision for one approval-held event."""
+
+    __tablename__ = "e2ag_approvals"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
+    event_log_id: Mapped[str] = mapped_column(String(12), nullable=False, unique=True, index=True)
+    trace_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(16), default="pending", index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    actor: Mapped[str] = mapped_column(String(128), default="")
+    reason: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

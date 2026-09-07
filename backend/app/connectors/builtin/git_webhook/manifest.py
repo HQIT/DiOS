@@ -93,6 +93,7 @@ MANIFEST = ConnectorManifest(
         EventSourceDecl(id="git", name="Git Webhook", description="GitHub / GitLab / Gitea 等"),
     ),
     event_types=_event_types(),
+    accepted_source_patterns=("github/*", "gitlab/*", "gitea/*"),
     subscribable_categories=("git",),
     source_patterns=_source_patterns,
     webhook_adapters=(GitHubNormalizer(), GitLabNormalizer(), GiteaNormalizer()),

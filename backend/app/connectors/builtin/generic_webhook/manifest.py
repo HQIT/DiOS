@@ -45,6 +45,7 @@ MANIFEST = ConnectorManifest(
         EventSourceDecl(id="webhook", name="通用 Webhook", description="其他 HTTP Webhook"),
     ),
     event_types=(EventTypeDecl(type="webhook.received", description="通用 Webhook"),),
+    accepted_source_patterns=("webhook/*",),
     subscribable_categories=("webhook",),
     source_patterns=_source_patterns,
     webhook_adapters=(GenericNormalizer(),),

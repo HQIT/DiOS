@@ -98,6 +98,7 @@ class ConnectorManifest:
         secret_fields: config 中的敏感字段，不应回显或写日志
         event_sources: 事件目录中的来源分类
         event_types: 本类型可能产出的事件类型
+        accepted_source_patterns: 运行时接入契约允许的 CloudEvent source 模式
         subscribable_categories: 允许订阅的事件类型分类，留空则取 event_types 的分类
         event_namespaces: 不依赖实例的可订阅 source namespace
         source_patterns: 由实例配置推导可订阅的 source namespace
@@ -116,6 +117,7 @@ class ConnectorManifest:
     secret_fields: tuple[str, ...] = ()
     event_sources: tuple[EventSourceDecl, ...] = ()
     event_types: tuple[EventTypeDecl, ...] = ()
+    accepted_source_patterns: tuple[str, ...] = ()
     subscribable_categories: tuple[str, ...] = ()
     event_namespaces: tuple[EventNamespaceDecl, ...] = ()
     source_patterns: Callable[[Any], list[str]] | None = None

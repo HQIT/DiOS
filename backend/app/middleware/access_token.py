@@ -12,6 +12,7 @@ _PUBLIC_PREFIXES = (
     "/health",
     "/api/auth/status",
     "/api/os/events/webhook/",
+    "/api/internal/e2ag/mcp/",
 )
 
 

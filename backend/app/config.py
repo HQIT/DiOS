@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     diagent_image: str = "ghcr.io/hqit/diagent/agent-task:latest"
     diagent_service_image: str = "dios-diagent-service:latest"
     diagent_service_url: str = "http://localhost:8001"  # fallback, runtime manager 会动态获取
+    docker_network: str = ""
     max_concurrent_runs: int = 5
 
     # Webhook 签名验证密钥，按平台名存储
@@ -24,6 +25,14 @@ class Settings(BaseSettings):
     event_dedup_enabled: bool = True
     event_dedup_window_hours: int = 1
     event_dedup_exclude_types: list[str] = ["cron.tick", "manual.trigger"]
+
+    # E2AG enforcement: off | contract | enforce
+    e2ag_mode: str = "enforce"
+    e2ag_tool_grant_ttl_seconds: int = 900
+    e2ag_approval_ttl_seconds: int = 3600
+    # One-shot DiAgent containers are Docker siblings, not Compose services.
+    # The host-gateway mapping in docker_runner makes this URL portable.
+    e2ag_internal_base_url: str = "http://host.docker.internal:8000"
 
     # 非空时启用 API Access Token（Authorization: Bearer 或 X-DiOS-Access-Token）
     access_token: str = ""
