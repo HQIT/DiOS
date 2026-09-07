@@ -1,0 +1,29 @@
+# 服务器从源码构建部署（配合 docker-compose.prod.yml 端口绑定）
+services:
+  backend:
+    build:
+      context: ./backend
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-}
+    image: dios-backend:local
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./workspace:/workspace
+      - dios-data:/data
+    environment:
+      - DIOS_WORKSPACE_ROOT=/workspace
+      - DIOS_HOST_WORKSPACE_ROOT=/opt/dios/workspace
+      - DIOS_DATABASE_URL=sqlite+aiosqlite:////data/dios.db
+      - DIOS_DIAGENT_IMAGE=ghcr.io/hqit/diagent/agent-task:latest
+      - DIOS_ACCESS_TOKEN=${DIOS_ACCESS_TOKEN:-}
+
+  frontend:
+    build: ./frontend
+    image: dios-frontend:local
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+volumes:
+  dios-data:

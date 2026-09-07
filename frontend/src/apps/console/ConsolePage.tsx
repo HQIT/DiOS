@@ -54,7 +54,7 @@ function Content({ sub }: { sub: string }) {
       {tab === "agents" && <AgentList />}
       {tab === "events" && (
         <EventLogList
-          subTab={subTab === "logs" ? "logs" : "catalog"}
+          subTab={subTab === "logs" || subTab === "activity" ? (subTab as "logs" | "activity") : "catalog"}
           onSubTabChange={navigate}
         />
       )}

@@ -18,6 +18,9 @@ def build_task_config(
 ) -> dict[str, Any]:
     model_map = {m.name: m for m in llm_models}
     used_model = model_override or agent.model
+    capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
+    reasoning = capabilities.get("reasoning", {}) if isinstance(capabilities.get("reasoning"), dict) else {}
+    subagents = capabilities.get("subagents", []) if isinstance(capabilities.get("subagents"), list) else []
 
     all_model_names = {used_model}
     all_model_names.discard("")
@@ -53,8 +56,13 @@ def build_task_config(
         },
         "output_dir": f"output/runs/{run_id}",
         "trigger": {"mode": "once"},
-        "recursion_limit": 100,
+        "recursion_limit": int(reasoning.get("recursion_limit") or 100),
     }
+
+    if "max_tool_rounds" in reasoning:
+        task_section["max_tool_rounds"] = reasoning.get("max_tool_rounds")
+    if "middleware" in reasoning:
+        task_section["middleware_config"] = reasoning.get("middleware")
 
     if agent.system_prompt:
         task_section["system_prompt"] = agent.system_prompt
@@ -62,6 +70,29 @@ def build_task_config(
         task_section["skill_names"] = agent.skills
     if agent.mcp_config_path:
         task_section["mcp_config_path"] = agent.mcp_config_path
+    if subagents:
+        converted: list[dict[str, Any]] = []
+        for s in subagents:
+            if not isinstance(s, dict):
+                continue
+            prompt = s.get("prompt") or s.get("system_prompt")
+            if not (s.get("name") and s.get("description") and prompt):
+                continue
+            converted.append(
+                {
+                    "name": s.get("name"),
+                    "description": s.get("description"),
+                    "prompt": prompt,
+                    "tools": s.get("tools", []),
+                    "model": s.get("model"),
+                    "task": s.get("task"),
+                    "mcp_config_path": s.get("mcp_config_path"),
+                    "skills_dir": s.get("skills_dir"),
+                    "skill_names": s.get("skill_names"),
+                }
+            )
+        if converted:
+            task_section["subagents"] = converted
 
     return {"models": models_section, "task": task_section}
 
