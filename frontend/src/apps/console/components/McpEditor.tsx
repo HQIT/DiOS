@@ -30,7 +30,7 @@ export default function McpEditor({ agentId, mcpServerIds, onSave }: Props) {
   return (
     <div className="sub-editor">
       {servers.length === 0 ? (
-        <p className="empty-hint">暂无 MCP 服务。请前往顶部导航「MCP」页面添加。</p>
+        <p className="empty-hint">暂无 MCP 服务。请前往「Registry → MCP Servers」注册。</p>
       ) : (
         <div className="skills-grid">
           {servers.map((s) => (
