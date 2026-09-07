@@ -4,17 +4,31 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.connectors import registry
 from app.db.database import get_db
 from app.models.tables import Connector
-from app.models.schemas import ConnectorCreate, ConnectorUpdate, ConnectorOut
+from app.models.schemas import ConnectorCreate, ConnectorUpdate, ConnectorOut, ConnectorTypeOut
 from app.services.connector_capabilities import build_source_pattern_items
 
 router = APIRouter(prefix="/connectors", tags=["connectors"])
 
-CONNECTOR_TYPES = ("git_webhook", "imap", "generic")
-# 兼容旧数据
-_LEGACY_GIT_TYPES = ("github", "gitlab", "gitea")
-_GIT_PLATFORMS = ("github", "gitlab", "gitea")
+def _manifest_or_400(connector_type: str, *, canonical_only: bool = False):
+    manifest = registry.manifest_for(connector_type)
+    allowed = registry.instantiable_types()
+    if (
+        manifest is None
+        or not manifest.instantiable
+        or (canonical_only and connector_type != manifest.type)
+    ):
+        raise HTTPException(400, f"type must be one of {allowed}")
+    return manifest
+
+
+def _validate_config_or_400(manifest, config: dict, *, connector_type: str) -> None:
+    try:
+        registry.validate_config(manifest, config, connector_type=connector_type)
+    except ValueError as exc:
+        raise HTTPException(400, f"Invalid {manifest.type} configuration: {exc}") from exc
 
 
 @router.get("", response_model=list[ConnectorOut])
@@ -43,14 +57,16 @@ async def list_connector_source_patterns(db: AsyncSession = Depends(get_db)):
     ]
 
 
+@router.get("/types", response_model=list[ConnectorTypeOut])
+async def list_connector_types():
+    """返回注册表中可创建的 Connector 类型及其配置契约。"""
+    return list(registry.instantiable_manifests())
+
+
 @router.post("", response_model=ConnectorOut, status_code=201)
 async def create_connector(body: ConnectorCreate, db: AsyncSession = Depends(get_db)):
-    if body.type not in CONNECTOR_TYPES:
-        raise HTTPException(400, f"type must be one of {CONNECTOR_TYPES}")
-    if body.type == "git_webhook":
-        platform = (body.config or {}).get("platform", "")
-        if platform not in _GIT_PLATFORMS:
-            raise HTTPException(400, f"git_webhook config.platform must be one of {_GIT_PLATFORMS}")
+    manifest = _manifest_or_400(body.type, canonical_only=True)
+    _validate_config_or_400(manifest, body.config or {}, connector_type=body.type)
     conn = Connector(type=body.type, name=body.name, enabled=body.enabled, config=body.config)
     db.add(conn)
     await db.commit()
@@ -77,13 +93,9 @@ async def update_connector(
         raise HTTPException(404, "Connector not found")
     updates = body.model_dump(exclude_unset=True)
     new_type = updates.get("type", conn.type)
-    if "type" in updates and new_type not in (*CONNECTOR_TYPES, *_LEGACY_GIT_TYPES):
-        raise HTTPException(400, f"type must be one of {CONNECTOR_TYPES}")
-    if new_type == "git_webhook":
-        cfg = updates.get("config", conn.config) or {}
-        platform = cfg.get("platform", "")
-        if platform and platform not in _GIT_PLATFORMS:
-            raise HTTPException(400, f"git_webhook config.platform must be one of {_GIT_PLATFORMS}")
+    manifest = _manifest_or_400(new_type)
+    config = updates.get("config", conn.config) or {}
+    _validate_config_or_400(manifest, config, connector_type=new_type)
     for k, v in updates.items():
         setattr(conn, k, v)
     await db.commit()

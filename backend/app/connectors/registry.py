@@ -14,7 +14,10 @@ import json
 import logging
 import os
 import pkgutil
+from copy import deepcopy
 from pathlib import Path
+
+from jsonschema import Draft202012Validator
 
 from app.connectors.contracts import (
     CAPABILITY_WEBHOOK,
@@ -36,6 +39,9 @@ _loaded = False
 def register(manifest: ConnectorManifest) -> None:
     """注册一种 Connector 类型，重复 type 以后者覆盖。"""
     global _manifests
+    if not manifest.type or manifest.type.strip() != manifest.type:
+        raise ValueError("connector manifest type must be a non-empty canonical identifier")
+    Draft202012Validator.check_schema(manifest.config_schema or {"type": "object"})
     _manifests = [m for m in _manifests if m.type != manifest.type]
     _manifests.append(manifest)
     _manifests.sort(key=lambda m: (m.order, m.type))
@@ -111,6 +117,64 @@ def manifest_for(connector_type: str) -> ConnectorManifest | None:
 def instantiable_types() -> tuple[str, ...]:
     """可用于创建 Connector 实例的类型。"""
     return tuple(m.type for m in all_manifests() if m.instantiable)
+
+
+def public_manifest(manifest: ConnectorManifest) -> dict:
+    """返回可供 API 和 Console 使用的稳定、无可执行对象 manifest。"""
+    schema = deepcopy(manifest.config_schema)
+    properties = schema.get("properties")
+    if isinstance(properties, dict):
+        for field_name in manifest.secret_fields:
+            field_schema = properties.get(field_name)
+            if isinstance(field_schema, dict):
+                field_schema["writeOnly"] = True
+    return {
+        "type": manifest.type,
+        "label": manifest.label,
+        "description": manifest.description,
+        "capabilities": list(manifest.capabilities),
+        "aliases": list(manifest.aliases),
+        "config_schema": schema,
+        "secret_fields": list(manifest.secret_fields),
+        "event_sources": [
+            {"id": source.id, "name": source.name, "description": source.description}
+            for source in manifest.event_sources
+        ],
+        "event_types": [
+            {"type": event.type, "description": event.description}
+            for event in manifest.event_types
+        ],
+        "accepted_source_patterns": list(manifest.accepted_source_patterns),
+    }
+
+
+def instantiable_manifests() -> tuple[dict, ...]:
+    """返回所有可创建 Connector 类型的公开 manifest。"""
+    return tuple(public_manifest(m) for m in all_manifests() if m.instantiable)
+
+
+def validate_config(
+    manifest: ConnectorManifest,
+    config: dict,
+    *,
+    connector_type: str | None = None,
+) -> None:
+    """依据 Connector 自己声明的 JSON Schema 校验实例配置。"""
+    schema = deepcopy(manifest.config_schema or {"type": "object"})
+    if connector_type in manifest.aliases:
+        # 历史别名的数据结构可能早于当前必填项，只校验已有字段。
+        schema.pop("required", None)
+    Draft202012Validator.check_schema(schema)
+    errors = sorted(
+        Draft202012Validator(schema).iter_errors(config),
+        key=lambda error: tuple(str(part) for part in error.absolute_path),
+    )
+    if not errors:
+        return
+    error = errors[0]
+    path = ".".join(str(part) for part in error.absolute_path)
+    location = f"config.{path}" if path else "config"
+    raise ValueError(f"{location}: {error.message}")
 
 
 def webhook_adapters() -> tuple:

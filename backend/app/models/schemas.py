@@ -123,6 +123,19 @@ class ConnectorOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ConnectorTypeOut(BaseModel):
+    type: str
+    label: str
+    description: str
+    capabilities: list[str]
+    aliases: list[str]
+    config_schema: dict
+    secret_fields: list[str]
+    event_sources: list[dict]
+    event_types: list[dict]
+    accepted_source_patterns: list[str]
+
+
 # ── McpServer ──
 
 class McpServerCreate(BaseModel):

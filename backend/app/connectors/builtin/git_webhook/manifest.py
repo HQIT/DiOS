@@ -74,6 +74,7 @@ MANIFEST = ConnectorManifest(
     order=10,
     config_schema={
         "type": "object",
+        "additionalProperties": False,
         "required": ["platform"],
         "properties": {
             "platform": {

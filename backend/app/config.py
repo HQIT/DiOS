@@ -5,9 +5,11 @@ from pathlib import Path
 class Settings(BaseSettings):
     database_url: str = "sqlite+aiosqlite:///./dios.db"
     workspace_root: Path = Path(__file__).resolve().parent.parent.parent / "workspace"
+    shared_cli_root: Path = Path(__file__).resolve().parent.parent.parent / "cli"
     # Docker Socket 模式下，宿主机上 workspace 的真实路径
     # 容器内 /workspace 和宿主机路径不同，挂载给兄弟容器时需要宿主机路径
     host_workspace_root: str = ""
+    host_shared_cli_root: str = ""
     diagent_image: str = "ghcr.io/hqit/diagent/agent-task:latest"
     diagent_service_image: str = "dios-diagent-service:latest"
     diagent_service_url: str = "http://localhost:8001"  # fallback, runtime manager 会动态获取

@@ -54,7 +54,7 @@ def start_container(
                 continue
             env[str(k)] = str(v)
     host_shared_skills = _host_path(settings.workspace_root / "skills")
-    host_shared_cli = _host_path(settings.workspace_root / "cli")
+    host_shared_cli = settings.host_shared_cli_root or _host_path(settings.shared_cli_root)
     run_options = {}
     if settings.docker_network:
         run_options["network"] = settings.docker_network

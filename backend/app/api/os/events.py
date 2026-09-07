@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.connectors import registry
 from app.db.database import get_db
 from app.models.tables import Subscription, EventLog, Connector, A2ATask, Agent, E2AGApproval
 from app.models.schemas import EventLogOut, EventActivityOverviewOut, EventActivityItemOut, E2AGApprovalOut
@@ -24,22 +25,11 @@ router = APIRouter(prefix="/events", tags=["events"])
 async def _webhook_secrets(db: AsyncSession) -> dict[str, str]:
     """优先从 Connector 表取 webhook secret，否则用 settings。"""
     out = dict(settings.webhook_secrets)
-    result = await db.execute(
-        select(Connector).where(
-            Connector.enabled == True,  # noqa: E712
-            Connector.type.in_(["github", "gitlab", "gitea", "git_webhook"]),
-        )
-    )
+    result = await db.execute(select(Connector).where(Connector.enabled == True))  # noqa: E712
     for c in result.scalars().all():
-        secret = (c.config or {}).get("secret") or ""
-        if not secret:
-            continue
-        if c.type == "git_webhook":
-            platform = (c.config or {}).get("platform", "")
-            if platform:
-                out[platform] = secret
-        else:
-            out[c.type] = secret
+        manifest = registry.manifest_for(c.type)
+        if manifest:
+            out.update(manifest.secrets_for(c))
     return out
 
 
@@ -118,16 +108,16 @@ async def event_catalog(db: AsyncSession = Depends(get_db)):
     )
     connectors = list(result.scalars().all())
 
-    configured: set[str] = set()
+    configured: set[str] = {
+        source.id
+        for manifest in registry.all_manifests()
+        if not manifest.instantiable
+        for source in manifest.event_sources
+    }
     for c in connectors:
-        if c.type in ("git_webhook", "github", "gitlab", "gitea"):
-            configured.add("git")
-        elif c.type == "imap":
-            configured.add("email")
-        elif c.type == "generic":
-            configured.add("webhook")
-
-    configured.update(["manual", "cron"])
+        manifest = registry.manifest_for(c.type)
+        if manifest:
+            configured.update(source.id for source in manifest.event_sources)
 
     connector_status = {s["id"]: s["id"] in configured for s in catalog["sources"]}
     catalog["connector_status"] = connector_status

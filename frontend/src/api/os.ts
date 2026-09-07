@@ -85,6 +85,7 @@ export const api = {
 
   // Connectors
   listConnectors: () => request<import("../types").Connector[]>("/connectors"),
+  listConnectorTypes: () => request<import("../types").ConnectorType[]>("/connectors/types"),
   listConnectorSourcePatterns: () =>
     request<import("../types").ConnectorSourcePattern[]>("/connectors/source-patterns"),
   createConnector: (data: Record<string, unknown>) =>

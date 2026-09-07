@@ -2,7 +2,7 @@
 
 > 状态：讨论稿
 >
-> 更新日期：2026-09-07（Phase 0 进行中：Connector 契约与注册表已落地，见 [ADR 0001](docs/adr/0001-connector-plugin-contract.md)）
+> 更新日期：2026-09-07（Phase 0 进行中：Connector 契约、注册表及 API/Console 接线已落地，见 [ADR 0001](docs/adr/0001-connector-plugin-contract.md)）
 >
 > 适用范围：DiOS、DiAgent 及其 App、Connector 和 Runtime 生态
 >
@@ -102,7 +102,7 @@ DiOS 当前要成为可靠的单机 Agent 控制平面：统一注册、部署�
 - 缺少稳定的实例访问令牌、Secret 引用和凭据轮换机制
 - Agent 配置尚未形成不可变 Revision 与可回滚 Deployment
 - SQLite、Docker 和本地文件的迁移、备份、恢复流程尚未固化
-- Connector 和 Runtime 仍存在类型硬编码，缺少插件契约（Connector 契约与注册表已落地，API 与 Console 尚未接线，见 ADR 0001）
+- Connector API、事件目录和 Console 已由注册表驱动；IMAP 轮询仍是专用服务，Runtime Adapter 契约尚未落地
 - 缺少统一 Policy、Approval、Quota 和 Budget
 - 缺少端到端 Trace、结构化审计和成本归因
 - 缺少持久队列、并发控制、重启恢复和可验证升级策略
@@ -254,7 +254,7 @@ Remote DiAgent 与 Kubernetes Job / Deployment 延后到单机阶段完成后评
 
 交付：
 
-- 完成 Connector 注册表到 API、事件目录和 Console 动态表单的接线
+- 完成 Connector 注册表到 API、事件目录和 Console 动态表单的接线（已完成，2026-09-07）
 - 定义 Local Docker Runtime Adapter，统一 service 与 task 状态机
 - 建立正式数据库 Migration，并提供 SQLite、配置和 workspace 的备份恢复命令
 - AgentDefinition、AgentRevision、AgentDeployment、AgentRun 最小模型

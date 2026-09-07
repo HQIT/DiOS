@@ -3,23 +3,24 @@ import AgentList from "./components/AgentList";
 import ModelManager from "./components/ModelManager";
 import EventLogList from "./components/EventLogList";
 import ConnectorsPage from "./components/ConnectorsPage";
-import McpServersPage from "./components/McpServersPage";
-import SkillsPage from "./components/SkillsPage";
+import RegistryPage from "./components/RegistryPage";
 import TopologyPage from "./components/TopologyPage";
 
-type ConsoleTab = "agents" | "models" | "events" | "connectors" | "mcp" | "skills" | "topology";
+type ConsoleTab = "agents" | "models" | "events" | "connectors" | "registry" | "topology";
 const TABS: { key: ConsoleTab; label: string }[] = [
   { key: "agents", label: "Agents" },
   { key: "events", label: "Events" },
   { key: "models", label: "Models" },
   { key: "connectors", label: "Connectors" },
-  { key: "mcp", label: "MCP" },
-  { key: "skills", label: "Skills" },
+  { key: "registry", label: "Registry" },
   { key: "topology", label: "Topology" },
 ];
 
 function parseSub(sub: string): { tab: ConsoleTab; rest: string } {
   const parts = sub.split("/").filter(Boolean);
+  if (parts[0] === "mcp" || parts[0] === "skills") {
+    return { tab: "registry", rest: parts[0] };
+  }
   const tab = TABS.some((t) => t.key === parts[0]) ? (parts[0] as ConsoleTab) : "agents";
   return { tab, rest: parts.slice(1).join("/") };
 }
@@ -60,8 +61,7 @@ function Content({ sub }: { sub: string }) {
       )}
       {tab === "models" && <ModelManager />}
       {tab === "connectors" && <ConnectorsPage />}
-      {tab === "mcp" && <McpServersPage />}
-      {tab === "skills" && <SkillsPage />}
+      {tab === "registry" && <RegistryPage sub={rest} />}
       {tab === "topology" && <TopologyPage />}
     </div>
   );
