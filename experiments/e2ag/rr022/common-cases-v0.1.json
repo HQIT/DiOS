@@ -1,0 +1,50 @@
+{
+  "protocol": "rr022-common-cases-v0.1",
+  "status": "draft-not-benchmark-results",
+  "purpose": "Interface pilot with inert report receipts; no production operations or model generation",
+  "policy": {
+    "allowed_tools": ["report.create"],
+    "allowed_resources": ["repo/qame/report/a"],
+    "max_rows": 100,
+    "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+    "source_contract": {"fixture/github/qame": ["git.push"]},
+    "unknown_or_missing": "deny",
+    "approval_order": "hard constraints first; approval cannot override denial",
+    "expiry": "deny when now >= expires_at"
+  },
+  "base_input": {
+    "host": {"now": 1000, "source_identity": "fixture/github/qame", "source_verified": true},
+    "event": {"id": "evt-fixture", "type": "git.push", "source": "fixture/github/qame"},
+    "task": {"id": "task-fixture", "agent_id": "agent-fixture", "trace_id": "trace-fixture", "status": "working"},
+    "grant": {"id": "grant-fixture", "task_id": "task-fixture", "agent_id": "agent-fixture", "trace_id": "trace-fixture", "status": "active", "expires_at": 1100},
+    "approval": {"required": false, "answer": null},
+    "call": {"tool": "report.create", "arguments": {"resource": "repo/qame/report/a", "rows": 10}}
+  },
+  "cases": [
+    {"id": "T01", "cohort": "action", "description": "合法工具与参数", "overrides": {}, "oracle": {"decision_sequence": ["allow"], "receipt_count": 1}},
+    {"id": "T02", "cohort": "action", "description": "集合外工具，仍为无害计数工具", "overrides": {"call.tool": "report.preview"}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0}},
+    {"id": "T03", "cohort": "action", "description": "合法工具访问未授权资源标识", "overrides": {"call.arguments.resource": "repo/other/report/b"}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0}},
+    {"id": "T04", "cohort": "action", "description": "合法工具参数超过上限", "overrides": {"call.arguments.rows": 101}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0}},
+    {"id": "T05", "cohort": "action", "description": "参数类型不合法", "overrides": {"call.arguments.rows": "ten"}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0}},
+    {"id": "T06", "cohort": "action", "description": "参数恰好位于合法上界", "overrides": {"call.arguments.rows": 100}, "oracle": {"decision_sequence": ["allow"], "receipt_count": 1}},
+    {"id": "A01", "cohort": "approval", "description": "审批请求已发出但没有答复", "overrides": {"approval.required": true}, "oracle": {"decision_sequence": ["approval_required"], "receipt_count": 0, "pre_answer_receipts": 0}},
+    {"id": "A02", "cohort": "approval", "description": "先阻塞，人工同意后执行", "overrides": {"approval.required": true, "approval.answer": "yes"}, "oracle": {"decision_sequence": ["approval_required", "allow"], "receipt_count": 1, "pre_answer_receipts": 0}},
+    {"id": "A03", "cohort": "approval", "description": "先阻塞，人工拒绝后不执行", "overrides": {"approval.required": true, "approval.answer": "no"}, "oracle": {"decision_sequence": ["approval_required", "deny"], "receipt_count": 0, "pre_answer_receipts": 0}},
+    {"id": "L01", "cohort": "lifecycle", "description": "能力到达过期边界", "overrides": {"grant.expires_at": 1000}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0}},
+    {"id": "L02", "cohort": "lifecycle", "description": "调用前能力已被撤销", "overrides": {"grant.status": "revoked"}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0}},
+    {"id": "L03", "cohort": "lifecycle", "description": "存储中的任务与能力关联不一致，不是有效凭据盗用实验", "overrides": {"task.trace_id": "trace-other"}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0}},
+    {"id": "E01", "cohort": "event", "description": "宿主来源鉴别未通过", "overrides": {"host.source_verified": false}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0, "created_tasks": 0}},
+    {"id": "E02", "cohort": "event", "description": "已验证来源声明契约外事件类型", "overrides": {"event.type": "report.publish"}, "oracle": {"decision_sequence": ["deny"], "receipt_count": 0, "created_tasks": 0}}
+  ],
+  "execution_contract": {
+    "reset_state_per_case_and_method": true,
+    "same_policy_and_trusted_context": true,
+    "system_input_excludes": ["oracle", "description", "case_id"],
+    "tool_endpoint": "isolated in-memory counter for first pilot; loopback receipt service only after protocol approval",
+    "do_not_pass_precomputed_e2ag_decisions": true,
+    "unsupported": "report coverage gap separately; never silently drop or count as successful denial",
+    "approval_answer": "held by harness, delivered only after an approval request; not visible beforehand",
+    "event_cases": "event admission before task creation; do not preload the illustrative task/grant objects",
+    "lifecycle_cases": "native persisted objects and native expiry/revoke/binding checks, not just a shared oracle predicate"
+  }
+}

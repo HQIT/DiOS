@@ -1,0 +1,126 @@
+{
+  "scope": "local known paper evidence and two named local databases; remote inventory not performed",
+  "entries": [
+    {
+      "kind": "handcrafted_frozen_matrix",
+      "cases": 60,
+      "reviewers": 4,
+      "reviewed_cases": 60,
+      "source": {
+        "path": "experiments\\e2ag\\frozen_cases.jsonl",
+        "sha256": "8c0074fcffa6a7eefbff8ff4cd73f6d555d1bfa0e7fe8bb45dabebbb48a096a6"
+      },
+      "review_source": {
+        "path": "experiments/e2ag/review/independent_review_panel_summary.json",
+        "sha256": "65cf499017bfb2eebf20d4886e42fb793561c3550b6eb7b177ce1d55af9e5f98"
+      },
+      "reusable_for": "mechanism coverage and label-review evidence",
+      "independent_natural_holdout": false
+    },
+    {
+      "kind": "synthetic_mutations",
+      "base_cases": 8,
+      "generated_cases": 700,
+      "operators": 7,
+      "source": {
+        "path": "experiments/e2ag/results/mutation_summary.json",
+        "sha256": "529faf42f69347815f22aa9f41b6314e24c4637f530fed5d9b7202386ed48569"
+      },
+      "reusable_for": "robustness of authored rule families",
+      "independent_natural_holdout": false
+    },
+    {
+      "kind": "deterministic_e2e",
+      "scenarios": 4,
+      "executions": 480,
+      "source": {
+        "path": "experiments/e2ag/results/e2e_chain_summary.json",
+        "sha256": "16cb5be8c61898e2c1bbfbda19d3ead9c57daa48403f348a41261609ec4acb46"
+      },
+      "reusable_for": "host execution/ablation regression",
+      "independent_natural_holdout": false
+    },
+    {
+      "kind": "prior_model_outputs",
+      "scenarios": 3,
+      "model_calls": 30,
+      "executions": 90,
+      "source": {
+        "path": "experiments/e2ag/results/live_llm_chain_summary.json",
+        "sha256": "ddaab2309adba50463a13e6020a881c89c0aa2e9cbc982edb8e9b0117a9225f3"
+      },
+      "reusable_for": "fixed model-output replay; no fresh model requests",
+      "independent_natural_holdout": false
+    },
+    {
+      "kind": "field_positive_trace",
+      "trace_count": 1,
+      "tool_calls": 5,
+      "source": {
+        "path": "experiments/e2ag/results/external_qame_demogo_summary.json",
+        "sha256": "07179031637d2eea33b206b9ee42800bab154bb051b21aae829ef8cc4ad913ad"
+      },
+      "reusable_for": "previously seen field-chain deployment evidence",
+      "independent_natural_holdout": false
+    },
+    {
+      "kind": "field_fixed_negative_control",
+      "negative_count": 1,
+      "source": {
+        "path": "experiments/e2ag/results/external_governance_regression_summary.json",
+        "sha256": "a453c1823f75f8283a6004685bfa3dfc1f518f485b8b40ab70ab0e8ec31a36f5"
+      },
+      "positive_references_same_trace": true,
+      "reusable_for": "owned-facility deterministic governance regression",
+      "independent_natural_holdout": false
+    }
+  ],
+  "local_databases": [
+    {
+      "path": "backend/dios.db",
+      "exists": true,
+      "mode": "SQLite mode=ro + query_only; no payload export",
+      "event_table_present": false,
+      "event_count": 0,
+      "natural_provenance_verified": false
+    },
+    {
+      "path": "backend/e2ag-api-smoke.db",
+      "exists": true,
+      "mode": "SQLite mode=ro + query_only; no payload export",
+      "event_table_present": true,
+      "event_count": 1,
+      "groups": [
+        {
+          "source": "manual/smoke",
+          "type": "manual.trigger",
+          "count": 1
+        }
+      ],
+      "natural_provenance_verified": false
+    }
+  ],
+  "verified_unused_natural_holdout_count": 0,
+  "warning": "Zero verified is not a claim that no events exist remotely. Human review of synthetic cases does not make them natural traffic.",
+  "next_collection": {
+    "read_only_inventory_first": true,
+    "fields": [
+      "source/type aggregate counts",
+      "time range",
+      "unique delivery IDs",
+      "workflows/tools represented"
+    ],
+    "exclude": [
+      "experimental branch/control events",
+      "duplicate/redelivered event IDs",
+      "already used calibration traces"
+    ],
+    "separate": [
+      "natural base events",
+      "controlled negative variants",
+      "repeats"
+    ],
+    "no_event_bodies_or_secrets_at_inventory_stage": true
+  },
+  "script_sha256": "f68e150d1ed8aad0739f698f716821df7dac90de62a19059f7f9929a15e36e68"
+}

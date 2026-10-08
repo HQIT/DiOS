@@ -1,0 +1,125 @@
+{
+  "status": "development_pretrial_complete",
+  "profile": "process-check",
+  "warmup_seconds": 0,
+  "measurement_seconds": 0.5,
+  "rounds": 1,
+  "random_seed": 20260930,
+  "planned_order": [
+    [
+      "issue",
+      "G2",
+      1
+    ]
+  ],
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 197 Stepping 2, GenuineIntel",
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "cpu_logical": 16,
+    "cpu_physical": 16,
+    "memory_total": 33752997888,
+    "sqlite": "3.49.1",
+    "dependencies": {
+      "httpx": "0.28.1",
+      "fastapi": "0.141.1",
+      "uvicorn": "0.52.1",
+      "SQLAlchemy": "2.0.52",
+      "aiosqlite": "0.22.1",
+      "psutil": "7.0.0"
+    }
+  },
+  "source_sha256": {
+    "experiments\\e2ag\\rr022\\performance_pretrial.py": "3ee52c29bea9ba19bc765efb29a2ed9eb5171d298b3abf47ee3a55ee32ab34cf",
+    "backend\\app\\api\\os\\events.py": "b62b3b0b723d810f332b9570ae30f5d2232663ab0b29e07a459030ffdcb3dd2c",
+    "backend\\app\\api\\internal\\e2ag_mcp.py": "0254e02ca872be83cf4d96dbe025da93edff08f9d9974f9c236fad25e7a0abdb",
+    "backend\\app\\services\\e2ag.py": "2a44d6379a470a1500f674046b4bd1f39e5b95b1a4df7dd0cac12e4962bfc122",
+    "backend\\app\\services\\e2ag_arguments.py": "6e45de5f9b298f732b2b6249a48f3cf76d41d13e7e7936e27d2277d3053fc548",
+    "backend\\app\\services\\e2ag_tool_gateway.py": "43693a5136a377b4189935379521d767889b6a4559d76c89ef7aee1bddee6d52",
+    "backend\\app\\services\\event_dispatcher.py": "a92acd25df3eeb93d90089c4c69984213694455bcd88e81bd72c6d56f7cdfb8c",
+    "backend\\app\\services\\a2a_service.py": "ae286126af3e73132a4c5c0931813c0a7fce8640ad7af0d374d0e1d2d007a75c",
+    "experiments\\e2ag\\rr022\\run_issue_intake_pilot.py": "69e651e9b3871d5038329ce6e03f9225f34d3999d1ba480500e1524f83aa2b67",
+    "experiments\\e2ag\\rr022\\pr_manifest_workload.py": "7f7a4826a6196345a080fe4a3b35827ab10fa45f97d07c0f95f4bcb3f5d2e71e"
+  },
+  "rows": [
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 1,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-2ehm7rbw",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 37700,
+          "service_pid": 24688
+        },
+        {
+          "role": "app",
+          "launcher_pid": 37484,
+          "service_pid": 24712
+        }
+      ],
+      "summary": {
+        "measured_attempts": 1,
+        "completed": 1,
+        "errors": 0,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {},
+        "warmup_attempts": 0,
+        "admission": {
+          "n": 1,
+          "p50_ms": 79.0381,
+          "p95_ms": 79.0381
+        },
+        "workflow": {
+          "n": 1,
+          "p50_ms": 502.8637,
+          "p95_ms": 502.8637
+        },
+        "read": {
+          "n": 1,
+          "p50_ms": 224.2455,
+          "p95_ms": 224.2455
+        },
+        "write": {
+          "n": 1,
+          "p50_ms": 193.014,
+          "p95_ms": 193.014
+        },
+        "completed_inside_window": 0,
+        "completion_rate_inside_window": 0.0,
+        "drain_seconds": 0.0034656,
+        "actual_launch_and_drain_seconds": 0.5034656
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 1,
+        "tasks": 1,
+        "grants": 1,
+        "reads": 1,
+        "writes": 1,
+        "database_bytes": 217088,
+        "server_span_count": 28,
+        "sql_commit_spans": 7,
+        "evidence_sha256": {
+          "operations.jsonl": "db37d2bb39025d853dd403f1419c85a045736ab762345bdc4c31909b104662d3",
+          "reports.jsonl": "0fc801d58693ecb4aae530159ae53ef05a7ff969b609bb8be6d54c07a79475ea",
+          "server-spans.json": "da08e2059fea367ae4dbc349340fb9888c5a8572a872d1cd498114e365e4b5f5"
+        }
+      },
+      "raw_sha256": "43af3b1c2c1f666ca80f6145b9760500ceb0de6f893771270cbb3c33f58bab0d",
+      "payload_bytes": 6016
+    }
+  ],
+  "boundary": "Development only. Closed-loop, three local processes, SQLite FULL/DELETE, one app worker. New DB/processes per cell, warmed DB retained. No model, holdout, autonomous lifecycle, p99, capacity, or external-engine speed claim.",
+  "elapsed_seconds": 3.485000000000582
+}

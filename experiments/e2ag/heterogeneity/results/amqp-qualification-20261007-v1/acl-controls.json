@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "records": [
+    {
+      "case": "wrong_password",
+      "denied": true,
+      "exception": "ProbableAuthenticationError"
+    },
+    {
+      "case": "foreign_queue",
+      "denied": true,
+      "reply_code": 403,
+      "reply_text": "ACCESS_REFUSED - read access to queue 'foreign_queue' in vhost 'e2ag' refused for user 'e2ag_consumer'"
+    },
+    {
+      "case": "foreign_exchange",
+      "denied": true,
+      "reply_code": 403,
+      "reply_text": "ACCESS_REFUSED - write access to exchange 'foreign.events' in vhost 'e2ag' refused for user 'e2ag_producer'"
+    }
+  ]
+}

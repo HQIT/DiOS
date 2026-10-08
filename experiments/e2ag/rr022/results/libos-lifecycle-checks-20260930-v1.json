@@ -1,0 +1,49 @@
+{
+  "kind": "paired lifecycle interface validation, not statistical comparison",
+  "source_result_sha256": "8c76a806208d75b1a8f0ba588a3a9b4297a1c666c9469ade325a797fe10f21dc",
+  "checker_sha256": "b2217095e7379d1dbdf60a22c8cd93bdbc6d02cd90e530829ae21079ced39729",
+  "rows": [
+    {
+      "case": "T01",
+      "decision": [
+        "allow"
+      ],
+      "receipts_each": 1,
+      "e2ag_call_audit_entries": 1,
+      "libos_new_audit_entries": 9,
+      "pass": true
+    },
+    {
+      "case": "L01",
+      "decision": [
+        "deny"
+      ],
+      "receipts_each": 0,
+      "e2ag_call_audit_entries": 1,
+      "libos_new_audit_entries": 0,
+      "pass": true
+    },
+    {
+      "case": "L02",
+      "decision": [
+        "deny"
+      ],
+      "receipts_each": 0,
+      "e2ag_call_audit_entries": 1,
+      "libos_new_audit_entries": 0,
+      "pass": true
+    },
+    {
+      "case": "CTRL_BEFORE_EXPIRY",
+      "decision": [
+        "allow"
+      ],
+      "receipts_each": 1,
+      "e2ag_call_audit_entries": 1,
+      "libos_new_audit_entries": 9,
+      "pass": true
+    }
+  ],
+  "pass": true,
+  "interpretation": "Same execution outcomes. Audit observations are limited to this native MCP entry point and pinned configuration; do not imply libOS lacks audit capability."
+}

@@ -1,0 +1,445 @@
+{
+  "scope": "Offline enforced POST tools/call evidence relationships, not a complete I4 or physical-execution proof",
+  "manifest_sha256": "53bd7b04001b2d7f3d952ebe19a1e6eceb23e63d98a17949c5181113b33da2ae",
+  "snapshots": [
+    {
+      "case": "intent_commit",
+      "database": "tmp\\rr022-perf-pretrial-haeqm2w8\\state.db",
+      "sha256": "594cf0f2d1ce6736c9548b078e5e3981401529ed8af017fce0b7f65638750101",
+      "unchanged": true,
+      "results": [
+        {
+          "event_id": "86f750dd5bf5",
+          "result": {
+            "valid": true,
+            "hash_valid": true,
+            "errors": [],
+            "unsupported": [],
+            "unknown_invocations": [],
+            "checked": {
+              "tasks": 1,
+              "grants": 1,
+              "invocations": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "read_result_commit",
+      "database": "tmp\\rr022-perf-pretrial-rlz3pu5q\\state.db",
+      "sha256": "01dbba146bd4d0e462c84f6ce0e30ab87a9bc0fb7bb20f18a23dbb31d57de5fa",
+      "unchanged": true,
+      "results": [
+        {
+          "event_id": "d6f28d91757a",
+          "result": {
+            "valid": true,
+            "hash_valid": true,
+            "errors": [],
+            "unsupported": [],
+            "unknown_invocations": [
+              "a94b14e2f630468bbc48fee0f0abf80c"
+            ],
+            "checked": {
+              "tasks": 1,
+              "grants": 1,
+              "invocations": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "write_result_commit",
+      "database": "tmp\\rr022-perf-pretrial-93d4pdrn\\state.db",
+      "sha256": "92b536022eb58b1187e09568bba04573d878c18ae83613b09d624fc233c393e4",
+      "unchanged": true,
+      "results": [
+        {
+          "event_id": "7758c6862ce8",
+          "result": {
+            "valid": true,
+            "hash_valid": true,
+            "errors": [],
+            "unsupported": [],
+            "unknown_invocations": [
+              "769d9f9ad2a84a1f805a08df00e9d6fa"
+            ],
+            "checked": {
+              "tasks": 1,
+              "grants": 1,
+              "invocations": 2
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "semantic_counterexamples": [
+    {
+      "case": "missing_grant",
+      "expected": "INVOCATION_GRANT_MISSING",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "ORPHAN_GRANT_RECORD",
+          "INVOCATION_GRANT_MISSING:j",
+          "INTENT_WITHOUT_PRIOR_GRANT:j",
+          "CALL_GRANT_MISSING"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 0,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "missing_task",
+      "expected": "GRANT_TASK_MISSING",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "ORPHAN_TASK_RECORD",
+          "GRANT_TASK_MISSING:g"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 0,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "missing_issuance",
+      "expected": "TOOL_GRANT_GRANT_ISSUED_COUNT",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "TOOL_GRANT_GRANT_ISSUED_COUNT:g",
+          "INTENT_WITHOUT_PRIOR_GRANT:j"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "missing_intent",
+      "expected": "TOOL_INTENT_OUTCOME_UNKNOWN_COUNT",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "TOOL_INTENT_OUTCOME_UNKNOWN_COUNT:j"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "wrong_call_task",
+      "expected": "CALL_TASK_ID_MISMATCH",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "CALL_TASK_ID_MISMATCH",
+          "RESPONSE_TASK_ID_MISMATCH"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "wrong_call_grant",
+      "expected": "CALL_GRANT_MISSING",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "CALL_GRANT_MISSING",
+          "RESPONSE_GRANT_ID_MISMATCH"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "wrong_task_event",
+      "expected": "TASK_EVENT_BINDING",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "TASK_EVENT_BINDING:t"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "wrong_grant_agent",
+      "expected": "GRANT_AGENT_BINDING",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "GRANT_AGENT_BINDING:g",
+          "GRANT_RECORD_AGENT_ID:g",
+          "CALL_AGENT_ID_MISMATCH"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "wrong_invocation_trace",
+      "expected": "INVOCATION_EVENT_BINDING",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "INVOCATION_EVENT_BINDING:j"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "wrong_request_digest",
+      "expected": "INTENT_REQUEST_SHA256",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "INTENT_REQUEST_SHA256:j"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "response_before_intent",
+      "expected": "RESPONSE_BEFORE_INTENT",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "RESPONSE_BEFORE_INTENT:j"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "duplicate_intent",
+      "expected": "TOOL_INTENT_OUTCOME_UNKNOWN_COUNT",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "TOOL_INTENT_OUTCOME_UNKNOWN_COUNT:j"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "wrong_response_status",
+      "expected": "RESPONSE_UPSTREAM_STATUS_MISMATCH",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "RESPONSE_UPSTREAM_STATUS_MISMATCH"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "missing_response",
+      "expected": "RESPONSE_RECORD_MISSING",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "RESPONSE_RECORD_MISSING:j"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "false_unknown",
+      "expected": "UNKNOWN_WITH_RESPONSE",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "UNKNOWN_WITH_RESPONSE:j",
+          "ALLOW_WITHOUT_RECEIVED_RESPONSE"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [
+          "j"
+        ],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "missing_policy",
+      "expected": "POLICY_COUNT",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "POLICY_COUNT",
+          "GRANT_BEFORE_POLICY"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "unselected_agent",
+      "expected": "TASK_TARGET_BINDING",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "TASK_TARGET_BINDING:t"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    },
+    {
+      "case": "orphan_response",
+      "expected": "ALLOW_WITHOUT_INVOCATION",
+      "passed": true,
+      "result": {
+        "valid": false,
+        "hash_valid": true,
+        "errors": [
+          "RESPONSE_RECORD_MISSING:j",
+          "ALLOW_WITHOUT_INVOCATION"
+        ],
+        "unsupported": [],
+        "unknown_invocations": [],
+        "checked": {
+          "tasks": 1,
+          "grants": 1,
+          "invocations": 1
+        }
+      }
+    }
+  ],
+  "source_sha256": {
+    "experiments\\e2ag\\rr022\\check_evidence_relations.py": "4efa7107f2b96889f1979c09b390e79c14a54cbc5a965a25b9670f79452ffaea",
+    "backend\\app\\services\\e2ag_evidence.py": "f48f19379a879bce96d630cca9647ab758037df1776e016f1e18b560dfb79ac9",
+    "backend\\app\\services\\e2ag.py": "2a44d6379a470a1500f674046b4bd1f39e5b95b1a4df7dd0cac12e4962bfc122",
+    "backend\\app\\services\\e2ag_arguments.py": "6e45de5f9b298f732b2b6249a48f3cf76d41d13e7e7936e27d2277d3053fc548",
+    "backend\\tests\\test_e2ag_evidence.py": "fba3ab57e6167ce564095d4ab3c359df33d7427d34be82641ef5146670750305"
+  },
+  "passed": true
+}

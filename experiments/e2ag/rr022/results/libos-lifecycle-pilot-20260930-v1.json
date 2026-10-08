@@ -1,0 +1,1755 @@
+{
+  "protocol": "rr022-libos-lifecycle-pilot-v1",
+  "harness_sha256": "edc355dfdb8d848833aa1ec18dd5f193fccfad2464aa57d9aedaf0b293e62496",
+  "cases_sha256": "ac8d6b53a0941a98dd6842f0948a55f3331e6f18e56116cc5ec34af492c78732",
+  "shared_harness_sha256": "98fd58042383ed78101e56ca8eac59935df5550f22c562918d19a38f39c6ea3b",
+  "receipt_helper_sha256": "b11dbf1726bca173468e35540f32d90f07c93bee58d7f23644f597cc2ba4aa47",
+  "e2ag_source_sha256": {
+    "backend/app/services/e2ag_tool_gateway.py": "03192e0e428ac118d5dcfce5a3fd6af995c861e7cf3b83b686420d31c272c13a",
+    "backend/app/api/internal/e2ag_mcp.py": "dcd4b4b5ac9d6322f3e82b95a241d0a9bde288193b9adc8830935cbfedd9979c"
+  },
+  "rows": [
+    {
+      "case": "T01",
+      "method": "e2ag",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1100
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "receipt_count": 1
+      },
+      "observed": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "response": {
+          "status": 200,
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "tool": "report.create",
+              "arguments": {
+                "resource": "repo/qame/report/a",
+                "rows": 10
+              },
+              "sequence": 1
+            }
+          }
+        },
+        "tool_receipts": [
+          {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            },
+            "sequence": 1
+          }
+        ],
+        "grant_status": "active",
+        "grant_task_binding": {
+          "task_trace": "trace-fixture",
+          "grant_trace": "trace-fixture"
+        },
+        "grant_call_count": 1,
+        "state_operations": [],
+        "audit_before_call": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "8b9a882642f14166a8e5b3fc0683962a",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "b8d2852ecc363606a81dc8260d537c778e6db25c2af4f709d01e4b8922cb553e"
+          }
+        ],
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "8b9a882642f14166a8e5b3fc0683962a",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "b8d2852ecc363606a81dc8260d537c778e6db25c2af4f709d01e4b8922cb553e"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "8b9a882642f14166a8e5b3fc0683962a",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "MCP_TOOL_GRANTED",
+              "upstream_status": 200
+            },
+            "previous_hash": "b8d2852ecc363606a81dc8260d537c778e6db25c2af4f709d01e4b8922cb553e",
+            "entry_hash": "3a9156822f3cc3d22016f8965ca4587b5b0b9ca83454f8ae81e6e7c17f55828a"
+          }
+        ],
+        "audit_added_by_call": [
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "8b9a882642f14166a8e5b3fc0683962a",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "MCP_TOOL_GRANTED",
+              "upstream_status": 200
+            },
+            "previous_hash": "b8d2852ecc363606a81dc8260d537c778e6db25c2af4f709d01e4b8922cb553e",
+            "entry_hash": "3a9156822f3cc3d22016f8965ca4587b5b0b9ca83454f8ae81e6e7c17f55828a"
+          }
+        ],
+        "audit_verification": true,
+        "input_sha256": "2d3d3cbbb355fc92f774f8b86d7bccbcfe0256c5a3ac1c07a4a018b9af7a1784",
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "aiosqlite": "0.22.1",
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.14.2",
+          "certifi": "2026.7.22",
+          "charset-normalizer": "3.5.0",
+          "click": "8.4.2",
+          "colorama": "0.4.6",
+          "croniter": "6.2.4",
+          "docker": "7.2.0",
+          "fastapi": "0.141.1",
+          "greenlet": "3.5.5",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httptools": "0.8.0",
+          "httpx": "0.28.1",
+          "idna": "3.18",
+          "iniconfig": "2.3.0",
+          "packaging": "26.3",
+          "pip": "25.0.1",
+          "pluggy": "1.6.0",
+          "pydantic": "2.13.4",
+          "pydantic_core": "2.46.4",
+          "pydantic-settings": "2.15.0",
+          "Pygments": "2.20.0",
+          "pytest": "9.1.1",
+          "python-dateutil": "2.9.0.post0",
+          "python-dotenv": "1.2.2",
+          "pywin32": "312",
+          "PyYAML": "6.0.3",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "SQLAlchemy": "2.0.52",
+          "starlette": "1.6.0",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "urllib3": "2.7.0",
+          "uvicorn": "0.52.1",
+          "watchfiles": "1.2.0",
+          "websockets": "17.0.1"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "T01",
+      "method": "libos",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1100
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "receipt_count": 1
+      },
+      "observed": {
+        "error": "Traceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\local.py\", line 8219, in _bounded_mcp_getaddrinfo\n    return _bounded_provider_getaddrinfo(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\base.py\", line 95, in _bounded_provider_getaddrinfo\n    raise error\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\base.py\", line 63, in resolve\n    outcome[\"infos\"] = socket.getaddrinfo(\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\socket.py\", line 978, in getaddrinfo\n    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsocket.gaierror: [Errno 11001] getaddrinfo failed\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\rr022\\run_libos_lifecycle_pilot.py\", line 139, in worker\n    result = run_libos(job) if method == \"libos\" else asyncio.run(e2ag_lifecycle(job))\n             ^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\rr022\\run_libos_lifecycle_pilot.py\", line 105, in run_libos\n    native_result = runtime.mcp.call_tool(pid, \"rr022-receipt\", CATALOG[data[\"call\"][\"tool\"]], data[\"call\"][\"arguments\"])\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\runtime\\boundary_installer.py\", line 209, in sync_wrapper\n    return method(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\runtime\\operation_manager.py\", line 1878, in sync_wrapper\n    result = function(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\primitives\\mcp.py\", line 7700, in call_tool\n    return self._call_tool(\n           ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\primitives\\mcp.py\", line 7894, in _call_tool\n    self._dispatch_legacy_runtime_resolution(protected, spec, deadline)\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\primitives\\mcp.py\", line 8271, in _dispatch_legacy_runtime_resolution\n    protected.call(\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\sdk\\protected_operations.py\", line 1896, in call\n    result = function(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\primitives\\mcp.py\", line 12611, in _validate_runtime_resolution\n    addresses = _allowed_mcp_connect_addresses(\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\local.py\", line 8202, in _allowed_mcp_connect_addresses\n    infos = _bounded_mcp_getaddrinfo(host, port, deadline=deadline)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\local.py\", line 8226, in _bounded_mcp_getaddrinfo\n    raise ValidationError(f\"MCP host could not be resolved: {host}\") from error\nagent_libos.models.exceptions.ValidationError: MCP host could not be resolved: receipt.invalid\n",
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "attrs": "26.1.0",
+          "certifi": "2026.7.22",
+          "colorama": "0.4.6",
+          "distro": "1.9.0",
+          "execnet": "2.1.2",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.0",
+          "jiter": "0.17.0",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "openai": "2.54.0",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "psutil": "7.2.2",
+          "pydantic": "2.13.5",
+          "pydantic_core": "2.46.5",
+          "Pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "pytest-timeout": "2.4.0",
+          "pytest-xdist": "3.8.0",
+          "PyYAML": "6.0.3",
+          "referencing": "0.37.0",
+          "regex": "2026.9.29",
+          "rpds-py": "2026.6.3",
+          "sniffio": "1.3.1",
+          "tqdm": "4.70.1",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": false
+    },
+    {
+      "case": "L01",
+      "method": "e2ag",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1000
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "receipt_count": 0
+      },
+      "observed": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "response": {
+          "status": 403,
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+              "code": -32001,
+              "message": "E2AG tool grant rejected",
+              "data": {
+                "reason": "TOOL_GRANT_EXPIRED"
+              }
+            }
+          }
+        },
+        "tool_receipts": [],
+        "grant_status": "expired",
+        "grant_task_binding": {
+          "task_trace": "trace-fixture",
+          "grant_trace": "trace-fixture"
+        },
+        "grant_call_count": 1,
+        "state_operations": [],
+        "audit_before_call": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "732b94664133494b81ac52ba6869c221",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "ef1c9c68c8a85fe948db1e9428c4e0c809fedb9b5bb4f4869940e9bc197a9ee9"
+          }
+        ],
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "732b94664133494b81ac52ba6869c221",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "ef1c9c68c8a85fe948db1e9428c4e0c809fedb9b5bb4f4869940e9bc197a9ee9"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_expired",
+            "evidence": {
+              "grant_id": "732b94664133494b81ac52ba6869c221",
+              "task_id": "task-fixture"
+            },
+            "previous_hash": "ef1c9c68c8a85fe948db1e9428c4e0c809fedb9b5bb4f4869940e9bc197a9ee9",
+            "entry_hash": "ef0ea8ecda582cdcda943e6f6183979bae784141856297938d906f10d0bc79b1"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "732b94664133494b81ac52ba6869c221",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "TOOL_GRANT_EXPIRED",
+              "upstream_status": null
+            },
+            "previous_hash": "ef0ea8ecda582cdcda943e6f6183979bae784141856297938d906f10d0bc79b1",
+            "entry_hash": "e957cc33c495bda06146e84413686d5900171800548d30be801d087f59e360ab"
+          }
+        ],
+        "audit_added_by_call": [
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_expired",
+            "evidence": {
+              "grant_id": "732b94664133494b81ac52ba6869c221",
+              "task_id": "task-fixture"
+            },
+            "previous_hash": "ef1c9c68c8a85fe948db1e9428c4e0c809fedb9b5bb4f4869940e9bc197a9ee9",
+            "entry_hash": "ef0ea8ecda582cdcda943e6f6183979bae784141856297938d906f10d0bc79b1"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "732b94664133494b81ac52ba6869c221",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "TOOL_GRANT_EXPIRED",
+              "upstream_status": null
+            },
+            "previous_hash": "ef0ea8ecda582cdcda943e6f6183979bae784141856297938d906f10d0bc79b1",
+            "entry_hash": "e957cc33c495bda06146e84413686d5900171800548d30be801d087f59e360ab"
+          }
+        ],
+        "audit_verification": true,
+        "input_sha256": "e01c42b6d79b3509c9006565a4c916987f19a39d1882ca782005c3aea7422e8b",
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "aiosqlite": "0.22.1",
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.14.2",
+          "certifi": "2026.7.22",
+          "charset-normalizer": "3.5.0",
+          "click": "8.4.2",
+          "colorama": "0.4.6",
+          "croniter": "6.2.4",
+          "docker": "7.2.0",
+          "fastapi": "0.141.1",
+          "greenlet": "3.5.5",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httptools": "0.8.0",
+          "httpx": "0.28.1",
+          "idna": "3.18",
+          "iniconfig": "2.3.0",
+          "packaging": "26.3",
+          "pip": "25.0.1",
+          "pluggy": "1.6.0",
+          "pydantic": "2.13.4",
+          "pydantic_core": "2.46.4",
+          "pydantic-settings": "2.15.0",
+          "Pygments": "2.20.0",
+          "pytest": "9.1.1",
+          "python-dateutil": "2.9.0.post0",
+          "python-dotenv": "1.2.2",
+          "pywin32": "312",
+          "PyYAML": "6.0.3",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "SQLAlchemy": "2.0.52",
+          "starlette": "1.6.0",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "urllib3": "2.7.0",
+          "uvicorn": "0.52.1",
+          "watchfiles": "1.2.0",
+          "websockets": "17.0.1"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "L01",
+      "method": "libos",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1000
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "receipt_count": 0
+      },
+      "observed": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "tool_receipts": [],
+        "input_sha256": "e01c42b6d79b3509c9006565a4c916987f19a39d1882ca782005c3aea7422e8b",
+        "native_result": null,
+        "rejection": {
+          "type": "CapabilityDenied",
+          "message": "pid_16a86c16bedc4fe6 lacks MCP call authority on mcp:rr022-receipt:report_create"
+        },
+        "provider_calls": {
+          "call_tool": 0,
+          "validate_and_call": 0,
+          "discover": [],
+          "list_tools": []
+        },
+        "native_manifest": {
+          "schema_version": 2,
+          "server_id": "rr022-receipt",
+          "protocol_mode": "auto",
+          "transport": {
+            "type": "streamable_http",
+            "url": null,
+            "headers": {}
+          },
+          "stdio_authority_resource": null,
+          "tools": [
+            {
+              "tool_id": "report_create",
+              "mcp_name": "report.create",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_create",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            },
+            {
+              "tool_id": "report_preview",
+              "mcp_name": "report.preview",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_preview",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            }
+          ],
+          "timeout_s": 5.0,
+          "max_request_bytes": 65536,
+          "max_response_bytes": 1048576,
+          "metadata": {},
+          "registered_by": "rr022-host",
+          "created_at": "2026-09-30T01:45:26.543281+00:00",
+          "updated_at": "2026-09-30T01:45:26.543281+00:00"
+        },
+        "native_process_id": "pid_16a86c16bedc4fe6",
+        "capabilities_issued": [
+          {
+            "cap_id": "cap_af37e1e9692a482f",
+            "subject": "pid_16a86c16bedc4fe6",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-09-30T01:45:26.567045+00:00",
+            "expires_at": "2026-01-01T00:00:00+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_before_call": [
+          {
+            "cap_id": "cap_af37e1e9692a482f",
+            "subject": "pid_16a86c16bedc4fe6",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-09-30T01:45:26.567045+00:00",
+            "expires_at": "2026-01-01T00:00:00+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_after_call": [
+          {
+            "cap_id": "cap_af37e1e9692a482f",
+            "subject": "pid_16a86c16bedc4fe6",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-09-30T01:45:26.567045+00:00",
+            "expires_at": "2026-01-01T00:00:00+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "audit_added_by_call": [],
+        "external_effects": [],
+        "upstream_commit": "85e8ff94c1e562bfb1f891714e3bf4bed9795690",
+        "upstream_source_modified": false,
+        "clock_adapter": "datetime.now in native capability evaluator fixed to NOW; native expiry predicate unchanged",
+        "fixture_sha256": "17d57c60df78d82eff9adb60f4f0d045f2aba2493d51af395cd733377646d26a",
+        "working_directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\libos-lifecycle-qpi4gji9",
+        "semantics": "Host bootstraps native process capability over a registered MCP tool; read-only inert tool, no external mutation",
+        "source_sha256": {
+          "agent_libos/primitives/mcp.py": "16f4de8fe62689ef82f212c0855f99b66d3f77f8d36ee55bb5367076c8a1a0cd",
+          "agent_libos/capability/manager.py": "e67524edcbdc11cf21f3e9c4d66b59628313feff573409091685fc8c0b39f680",
+          "agent_libos/capability/evaluator.py": "be8e85621dab31c59090b74e5cac42c39d0a613eb2ea14ec4ba62e847e91016a",
+          "agent_libos/capability/mutation.py": "518e8d52715c1e48e4daa589aa7c7f0ed9c9d8891031ebfc1b3f438b38c87dd4"
+        },
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "attrs": "26.1.0",
+          "certifi": "2026.7.22",
+          "colorama": "0.4.6",
+          "distro": "1.9.0",
+          "execnet": "2.1.2",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.0",
+          "jiter": "0.17.0",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "openai": "2.54.0",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "psutil": "7.2.2",
+          "pydantic": "2.13.5",
+          "pydantic_core": "2.46.5",
+          "Pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "pytest-timeout": "2.4.0",
+          "pytest-xdist": "3.8.0",
+          "PyYAML": "6.0.3",
+          "referencing": "0.37.0",
+          "regex": "2026.9.29",
+          "rpds-py": "2026.6.3",
+          "sniffio": "1.3.1",
+          "tqdm": "4.70.1",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "L02",
+      "method": "e2ag",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "revoked",
+            "expires_at": 1100
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "receipt_count": 0
+      },
+      "observed": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "response": {
+          "status": 403,
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+              "code": -32001,
+              "message": "E2AG tool grant rejected",
+              "data": {
+                "reason": "TOOL_GRANT_NOT_ACTIVE"
+              }
+            }
+          }
+        },
+        "tool_receipts": [],
+        "grant_status": "revoked",
+        "grant_task_binding": {
+          "task_trace": "trace-fixture",
+          "grant_trace": "trace-fixture"
+        },
+        "grant_call_count": 1,
+        "state_operations": [
+          "native revoke_task_grants before invocation"
+        ],
+        "audit_before_call": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "992e894ed8b846b18ab46f7a79f80c33",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "3429c1f928a814a3959cfc29ff365f7baf8cb1a2eedecc943e7f54ce3bf884f6"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_revoked",
+            "evidence": {
+              "grant_id": "992e894ed8b846b18ab46f7a79f80c33",
+              "task_id": "task-fixture",
+              "reason": "task_lifecycle"
+            },
+            "previous_hash": "3429c1f928a814a3959cfc29ff365f7baf8cb1a2eedecc943e7f54ce3bf884f6",
+            "entry_hash": "ba9a3f0c6cee6396dfb5b8fad4e03b50e0947ce6237f6be0c7eecd23308d079c"
+          }
+        ],
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "992e894ed8b846b18ab46f7a79f80c33",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "3429c1f928a814a3959cfc29ff365f7baf8cb1a2eedecc943e7f54ce3bf884f6"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_revoked",
+            "evidence": {
+              "grant_id": "992e894ed8b846b18ab46f7a79f80c33",
+              "task_id": "task-fixture",
+              "reason": "task_lifecycle"
+            },
+            "previous_hash": "3429c1f928a814a3959cfc29ff365f7baf8cb1a2eedecc943e7f54ce3bf884f6",
+            "entry_hash": "ba9a3f0c6cee6396dfb5b8fad4e03b50e0947ce6237f6be0c7eecd23308d079c"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "992e894ed8b846b18ab46f7a79f80c33",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "TOOL_GRANT_NOT_ACTIVE",
+              "upstream_status": null
+            },
+            "previous_hash": "ba9a3f0c6cee6396dfb5b8fad4e03b50e0947ce6237f6be0c7eecd23308d079c",
+            "entry_hash": "89ef82972e8368fe066ffc117371bb16a48429abac1a54d4117ab551bc9aaba1"
+          }
+        ],
+        "audit_added_by_call": [
+          {
+            "sequence": 2,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "992e894ed8b846b18ab46f7a79f80c33",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "TOOL_GRANT_NOT_ACTIVE",
+              "upstream_status": null
+            },
+            "previous_hash": "ba9a3f0c6cee6396dfb5b8fad4e03b50e0947ce6237f6be0c7eecd23308d079c",
+            "entry_hash": "89ef82972e8368fe066ffc117371bb16a48429abac1a54d4117ab551bc9aaba1"
+          }
+        ],
+        "audit_verification": true,
+        "input_sha256": "b12624c78f5f5be60ae221947a353c459c632f3125eec6f05bc84a00ca1c7c76",
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "aiosqlite": "0.22.1",
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.14.2",
+          "certifi": "2026.7.22",
+          "charset-normalizer": "3.5.0",
+          "click": "8.4.2",
+          "colorama": "0.4.6",
+          "croniter": "6.2.4",
+          "docker": "7.2.0",
+          "fastapi": "0.141.1",
+          "greenlet": "3.5.5",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httptools": "0.8.0",
+          "httpx": "0.28.1",
+          "idna": "3.18",
+          "iniconfig": "2.3.0",
+          "packaging": "26.3",
+          "pip": "25.0.1",
+          "pluggy": "1.6.0",
+          "pydantic": "2.13.4",
+          "pydantic_core": "2.46.4",
+          "pydantic-settings": "2.15.0",
+          "Pygments": "2.20.0",
+          "pytest": "9.1.1",
+          "python-dateutil": "2.9.0.post0",
+          "python-dotenv": "1.2.2",
+          "pywin32": "312",
+          "PyYAML": "6.0.3",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "SQLAlchemy": "2.0.52",
+          "starlette": "1.6.0",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "urllib3": "2.7.0",
+          "uvicorn": "0.52.1",
+          "watchfiles": "1.2.0",
+          "websockets": "17.0.1"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "L02",
+      "method": "libos",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "revoked",
+            "expires_at": 1100
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "receipt_count": 0
+      },
+      "observed": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "tool_receipts": [],
+        "input_sha256": "b12624c78f5f5be60ae221947a353c459c632f3125eec6f05bc84a00ca1c7c76",
+        "native_result": null,
+        "rejection": {
+          "type": "CapabilityDenied",
+          "message": "pid_678803baf2d442cd lacks MCP call authority on mcp:rr022-receipt:report_create"
+        },
+        "provider_calls": {
+          "call_tool": 0,
+          "validate_and_call": 0,
+          "discover": [],
+          "list_tools": []
+        },
+        "native_manifest": {
+          "schema_version": 2,
+          "server_id": "rr022-receipt",
+          "protocol_mode": "auto",
+          "transport": {
+            "type": "streamable_http",
+            "url": null,
+            "headers": {}
+          },
+          "stdio_authority_resource": null,
+          "tools": [
+            {
+              "tool_id": "report_create",
+              "mcp_name": "report.create",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_create",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            },
+            {
+              "tool_id": "report_preview",
+              "mcp_name": "report.preview",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_preview",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            }
+          ],
+          "timeout_s": 5.0,
+          "max_request_bytes": 65536,
+          "max_response_bytes": 1048576,
+          "metadata": {},
+          "registered_by": "rr022-host",
+          "created_at": "2026-09-30T01:45:31.790287+00:00",
+          "updated_at": "2026-09-30T01:45:31.790287+00:00"
+        },
+        "native_process_id": "pid_678803baf2d442cd",
+        "capabilities_issued": [
+          {
+            "cap_id": "cap_7c1010b7f4ac4927",
+            "subject": "pid_678803baf2d442cd",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-09-30T01:45:31.808571+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_before_call": [
+          {
+            "cap_id": "cap_7c1010b7f4ac4927",
+            "subject": "pid_678803baf2d442cd",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-09-30T01:45:31.808571+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "revoked",
+            "metadata": {}
+          }
+        ],
+        "capabilities_after_call": [
+          {
+            "cap_id": "cap_7c1010b7f4ac4927",
+            "subject": "pid_678803baf2d442cd",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-09-30T01:45:31.808571+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "revoked",
+            "metadata": {}
+          }
+        ],
+        "audit_added_by_call": [],
+        "external_effects": [],
+        "upstream_commit": "85e8ff94c1e562bfb1f891714e3bf4bed9795690",
+        "upstream_source_modified": false,
+        "clock_adapter": "datetime.now in native capability evaluator fixed to NOW; native expiry predicate unchanged",
+        "fixture_sha256": "17d57c60df78d82eff9adb60f4f0d045f2aba2493d51af395cd733377646d26a",
+        "working_directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\libos-lifecycle-_tw9rzxu",
+        "semantics": "Host bootstraps native process capability over a registered MCP tool; read-only inert tool, no external mutation",
+        "source_sha256": {
+          "agent_libos/primitives/mcp.py": "16f4de8fe62689ef82f212c0855f99b66d3f77f8d36ee55bb5367076c8a1a0cd",
+          "agent_libos/capability/manager.py": "e67524edcbdc11cf21f3e9c4d66b59628313feff573409091685fc8c0b39f680",
+          "agent_libos/capability/evaluator.py": "be8e85621dab31c59090b74e5cac42c39d0a613eb2ea14ec4ba62e847e91016a",
+          "agent_libos/capability/mutation.py": "518e8d52715c1e48e4daa589aa7c7f0ed9c9d8891031ebfc1b3f438b38c87dd4"
+        },
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "attrs": "26.1.0",
+          "certifi": "2026.7.22",
+          "colorama": "0.4.6",
+          "distro": "1.9.0",
+          "execnet": "2.1.2",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.0",
+          "jiter": "0.17.0",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "openai": "2.54.0",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "psutil": "7.2.2",
+          "pydantic": "2.13.5",
+          "pydantic_core": "2.46.5",
+          "Pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "pytest-timeout": "2.4.0",
+          "pytest-xdist": "3.8.0",
+          "PyYAML": "6.0.3",
+          "referencing": "0.37.0",
+          "regex": "2026.9.29",
+          "rpds-py": "2026.6.3",
+          "sniffio": "1.3.1",
+          "tqdm": "4.70.1",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "CTRL_BEFORE_EXPIRY",
+      "method": "e2ag",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1001
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "receipt_count": 1
+      },
+      "observed": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "response": {
+          "status": 200,
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "tool": "report.create",
+              "arguments": {
+                "resource": "repo/qame/report/a",
+                "rows": 10
+              },
+              "sequence": 1
+            }
+          }
+        },
+        "tool_receipts": [
+          {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            },
+            "sequence": 1
+          }
+        ],
+        "grant_status": "active",
+        "grant_task_binding": {
+          "task_trace": "trace-fixture",
+          "grant_trace": "trace-fixture"
+        },
+        "grant_call_count": 1,
+        "state_operations": [],
+        "audit_before_call": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "2e5c78dc0fa544a68349d3194dcfb606",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "d27181f4d9113cffdcec8adc4f37ff9ed098958497cbd0911ae337ecb2655184"
+          }
+        ],
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "2e5c78dc0fa544a68349d3194dcfb606",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "d27181f4d9113cffdcec8adc4f37ff9ed098958497cbd0911ae337ecb2655184"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "2e5c78dc0fa544a68349d3194dcfb606",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "MCP_TOOL_GRANTED",
+              "upstream_status": 200
+            },
+            "previous_hash": "d27181f4d9113cffdcec8adc4f37ff9ed098958497cbd0911ae337ecb2655184",
+            "entry_hash": "008fe47d825b684e130005b69a76f57c98602ef54fb55bea75fed12886ac31b8"
+          }
+        ],
+        "audit_added_by_call": [
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "2e5c78dc0fa544a68349d3194dcfb606",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "MCP_TOOL_GRANTED",
+              "upstream_status": 200
+            },
+            "previous_hash": "d27181f4d9113cffdcec8adc4f37ff9ed098958497cbd0911ae337ecb2655184",
+            "entry_hash": "008fe47d825b684e130005b69a76f57c98602ef54fb55bea75fed12886ac31b8"
+          }
+        ],
+        "audit_verification": true,
+        "input_sha256": "7c3d75dfc84994d388207f2cc6b91231f6bac5d94c442b404801689143b9e555",
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "aiosqlite": "0.22.1",
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.14.2",
+          "certifi": "2026.7.22",
+          "charset-normalizer": "3.5.0",
+          "click": "8.4.2",
+          "colorama": "0.4.6",
+          "croniter": "6.2.4",
+          "docker": "7.2.0",
+          "fastapi": "0.141.1",
+          "greenlet": "3.5.5",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httptools": "0.8.0",
+          "httpx": "0.28.1",
+          "idna": "3.18",
+          "iniconfig": "2.3.0",
+          "packaging": "26.3",
+          "pip": "25.0.1",
+          "pluggy": "1.6.0",
+          "pydantic": "2.13.4",
+          "pydantic_core": "2.46.4",
+          "pydantic-settings": "2.15.0",
+          "Pygments": "2.20.0",
+          "pytest": "9.1.1",
+          "python-dateutil": "2.9.0.post0",
+          "python-dotenv": "1.2.2",
+          "pywin32": "312",
+          "PyYAML": "6.0.3",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "SQLAlchemy": "2.0.52",
+          "starlette": "1.6.0",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "urllib3": "2.7.0",
+          "uvicorn": "0.52.1",
+          "watchfiles": "1.2.0",
+          "websockets": "17.0.1"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "CTRL_BEFORE_EXPIRY",
+      "method": "libos",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1001
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "receipt_count": 1
+      },
+      "observed": {
+        "error": "Traceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\local.py\", line 8219, in _bounded_mcp_getaddrinfo\n    return _bounded_provider_getaddrinfo(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\base.py\", line 95, in _bounded_provider_getaddrinfo\n    raise error\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\base.py\", line 63, in resolve\n    outcome[\"infos\"] = socket.getaddrinfo(\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\socket.py\", line 978, in getaddrinfo\n    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsocket.gaierror: [Errno 11001] getaddrinfo failed\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\rr022\\run_libos_lifecycle_pilot.py\", line 139, in worker\n    result = run_libos(job) if method == \"libos\" else asyncio.run(e2ag_lifecycle(job))\n             ^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\rr022\\run_libos_lifecycle_pilot.py\", line 105, in run_libos\n    native_result = runtime.mcp.call_tool(pid, \"rr022-receipt\", CATALOG[data[\"call\"][\"tool\"]], data[\"call\"][\"arguments\"])\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\runtime\\boundary_installer.py\", line 209, in sync_wrapper\n    return method(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\runtime\\operation_manager.py\", line 1878, in sync_wrapper\n    result = function(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\primitives\\mcp.py\", line 7700, in call_tool\n    return self._call_tool(\n           ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\primitives\\mcp.py\", line 7894, in _call_tool\n    self._dispatch_legacy_runtime_resolution(protected, spec, deadline)\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\primitives\\mcp.py\", line 8271, in _dispatch_legacy_runtime_resolution\n    protected.call(\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\sdk\\protected_operations.py\", line 1896, in call\n    result = function(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\primitives\\mcp.py\", line 12611, in _validate_runtime_resolution\n    addresses = _allowed_mcp_connect_addresses(\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\local.py\", line 8202, in _allowed_mcp_connect_addresses\n    infos = _bounded_mcp_getaddrinfo(host, port, deadline=deadline)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\Agent-libOS\\agent_libos\\substrate\\local.py\", line 8226, in _bounded_mcp_getaddrinfo\n    raise ValidationError(f\"MCP host could not be resolved: {host}\") from error\nagent_libos.models.exceptions.ValidationError: MCP host could not be resolved: receipt.invalid\n",
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "attrs": "26.1.0",
+          "certifi": "2026.7.22",
+          "colorama": "0.4.6",
+          "distro": "1.9.0",
+          "execnet": "2.1.2",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.0",
+          "jiter": "0.17.0",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "openai": "2.54.0",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "psutil": "7.2.2",
+          "pydantic": "2.13.5",
+          "pydantic_core": "2.46.5",
+          "Pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "pytest-timeout": "2.4.0",
+          "pytest-xdist": "3.8.0",
+          "PyYAML": "6.0.3",
+          "referencing": "0.37.0",
+          "regex": "2026.9.29",
+          "rpds-py": "2026.6.3",
+          "sniffio": "1.3.1",
+          "tqdm": "4.70.1",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": false
+    }
+  ],
+  "passed": 6,
+  "total": 8,
+  "coverage": "T01/L01/L02 paired, plus one pre-expiry fixture control; L03 not comparable without separate binding protocol",
+  "limits": "No real network/model. Pinned upstream protocol fixture receipts contain synthetic byte/time values; never use for performance. Native authority and MCP entry points used; no lifecycle surrogate decision."
+}

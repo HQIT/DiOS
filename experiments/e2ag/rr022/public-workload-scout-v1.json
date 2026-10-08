@@ -1,0 +1,18 @@
+{
+  "purpose": "feasibility_only_not_formal_test_set",
+  "created": "2026-09-30",
+  "selection": "Two Mondays preceding collection; UTC 00, 06, 12, 18. Fixed before downloading event bodies. No outcome-based selection.",
+  "hours": ["2026-09-21-0", "2026-09-21-6", "2026-09-21-12", "2026-09-21-18", "2026-09-28-0", "2026-09-28-6", "2026-09-28-12", "2026-09-28-18"],
+  "repositories": [
+    {"name": "deepseek-ai/deepseek-harness", "role": "user_suggested_agent_harness"},
+    {"name": "langchain-ai/langgraph", "role": "agent_workflow_framework"},
+    {"name": "microsoft/autogen", "role": "multi_agent_framework"},
+    {"name": "EleutherAI/lm-evaluation-harness", "role": "evaluation_infrastructure"},
+    {"name": "fastapi/fastapi", "role": "non_agent_web_framework"},
+    {"name": "microsoft/vscode", "role": "non_agent_developer_tool"},
+    {"name": "HQIT/qame", "role": "known_project_reference_not_independent_holdout"}
+  ],
+  "limits": {"max_compressed_bytes_per_hour": 150000000, "max_total_compressed_bytes": 600000000},
+  "privacy": "Keep whole public archive only in ignored tmp cache; export allowlisted scalar metadata, field availability and raw-line hashes for matching repositories. No issue bodies, actor identities or email exports.",
+  "boundary": "Events API records are not original Webhook deliveries. Missing records do not imply repository inactivity. No GitHub writes, forks, model calls or governance runs."
+}

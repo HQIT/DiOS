@@ -1,0 +1,226 @@
+{
+  "case": "pending",
+  "mode": "pending",
+  "cut": null,
+  "first": {
+    "disposition": "recorded",
+    "acknowledge": true,
+    "event_log_id": "6378a6d330ca",
+    "native_status": "approval_required"
+  },
+  "repeat": {
+    "disposition": "duplicate",
+    "acknowledge": true,
+    "event_log_id": "6378a6d330ca"
+  },
+  "conflict": null,
+  "checks": {
+    "native_task_count": true,
+    "native_event_count": true,
+    "tool_receipts": true,
+    "audit_hashes": true,
+    "repeat_handled": true,
+    "recovery_result": true,
+    "conflict_record": true,
+    "artifact_content": true,
+    "approval_pending": true
+  },
+  "passed": true,
+  "snapshot": {
+    "events": [
+      {
+        "id": "6378a6d330ca",
+        "source": "file/fixture",
+        "event_type": "file.received",
+        "subject": "delivery-1",
+        "cloud_event": {
+          "specversion": "1.0",
+          "id": "delivery-1",
+          "source": "file/fixture",
+          "type": "file.received",
+          "subject": "delivery-1",
+          "data": {
+            "text": "governance receipt",
+            "environment": "production",
+            "requested_action": "secret.read"
+          },
+          "deliverysubject": "Qualification task",
+          "deliverydigest": "931d3c7cc7c875db96c74cfad2c92bccd31ce3d3b5314052770750b3604cea66"
+        },
+        "matched_agent_ids": [
+          "file-agent"
+        ],
+        "status": "approval_required",
+        "trace_id": "46d98e54dae64cc38827b88a5163928c",
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "file-qualification",
+          "latency_us": 204,
+          "evidence": {
+            "source_pattern": "file/fixture",
+            "event_type": "file.received"
+          }
+        },
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "approval_required",
+          "reason_codes": [
+            "POLICY_PRODUCTION_SENSITIVE_ACTION"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "file-qualification",
+          "latency_us": 216,
+          "evidence": {
+            "action": "secret.read",
+            "tool": "",
+            "resource": "",
+            "environment": "production"
+          },
+          "effective_decision": "approval_required"
+        },
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "46d98e54dae64cc38827b88a5163928c",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "file-qualification",
+              "latency_us": 204,
+              "evidence": {
+                "source_pattern": "file/fixture",
+                "event_type": "file.received"
+              }
+            },
+            "previous_hash": "",
+            "entry_hash": "b8d4f703145359cd9a752b300f2badc50688d9827e4b86c44c20f12c0b3bd35f"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "46d98e54dae64cc38827b88a5163928c",
+            "stage": "policy",
+            "outcome": "approval_required",
+            "evidence": {
+              "stage": "policy",
+              "decision": "approval_required",
+              "reason_codes": [
+                "POLICY_PRODUCTION_SENSITIVE_ACTION"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "file-qualification",
+              "latency_us": 216,
+              "evidence": {
+                "action": "secret.read",
+                "tool": "",
+                "resource": "",
+                "environment": "production"
+              }
+            },
+            "previous_hash": "b8d4f703145359cd9a752b300f2badc50688d9827e4b86c44c20f12c0b3bd35f",
+            "entry_hash": "5ee94e7329de9c62dc71bd06334a14913ba8e6e5a86d4f8874acce07c027b2e7"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "46d98e54dae64cc38827b88a5163928c",
+            "stage": "dispatch",
+            "outcome": "blocked",
+            "evidence": {
+              "reason_codes": [
+                "POLICY_PRODUCTION_SENSITIVE_ACTION"
+              ]
+            },
+            "previous_hash": "5ee94e7329de9c62dc71bd06334a14913ba8e6e5a86d4f8874acce07c027b2e7",
+            "entry_hash": "05c3d4efaeff4a58930df809347ae72c0e56679403e9416e914c8141c91ed081"
+          },
+          {
+            "sequence": 3,
+            "trace_id": "46d98e54dae64cc38827b88a5163928c",
+            "stage": "approval",
+            "outcome": "pending",
+            "evidence": {
+              "approval_id": "fc7075ca762e4ae9a9c73f3a664fd006",
+              "expires_at": "2026-10-07T07:56:50.585978+00:00"
+            },
+            "previous_hash": "05c3d4efaeff4a58930df809347ae72c0e56679403e9416e914c8141c91ed081",
+            "entry_hash": "0f18950a23587077fdbcffed9d1a813380024e47a2a3f891e4c4db83edacdc3f"
+          }
+        ],
+        "created_at": "2026-10-07T06:56:50.543041",
+        "retry_count": 0,
+        "max_retries": 3,
+        "next_retry_at": null,
+        "error_message": "POLICY_PRODUCTION_SENSITIVE_ACTION",
+        "dedup_hash": "cadc4c1c1c95e6fc3ef2f32f04e30b6a8fa2239d66fc49ad552d29e5e86aca9c"
+      }
+    ],
+    "tasks": [],
+    "approvals": [
+      {
+        "id": "fc7075ca762e4ae9a9c73f3a664fd006",
+        "event_log_id": "6378a6d330ca",
+        "trace_id": "46d98e54dae64cc38827b88a5163928c",
+        "status": "pending",
+        "expires_at": "2026-10-07T07:56:50.585978",
+        "decided_at": null,
+        "actor": "",
+        "reason": "",
+        "created_at": "2026-10-07T06:56:50.587976"
+      }
+    ],
+    "grants": [],
+    "invocations": [],
+    "receipts": [
+      {
+        "identity": "b8664604abbbc241db60f5810a3d5fdeff0bcc89147a85236e6f00b11eb1cd74",
+        "source": "file/fixture",
+        "event_id": "delivery-1",
+        "digest": "931d3c7cc7c875db96c74cfad2c92bccd31ce3d3b5314052770750b3604cea66",
+        "phase": "recorded",
+        "event_log_id": "6378a6d330ca"
+      }
+    ],
+    "conflicts": [],
+    "audit_valid": true
+  },
+  "tool_operations": [],
+  "processes": [
+    {
+      "op": "setup",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"setup\": true}\n"
+    },
+    {
+      "op": "consume",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"disposition\": \"recorded\", \"acknowledge\": true, \"event_log_id\": \"6378a6d330ca\", \"native_status\": \"approval_required\"}\n"
+    },
+    {
+      "op": "consume",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"disposition\": \"duplicate\", \"acknowledge\": true, \"event_log_id\": \"6378a6d330ca\"}\n"
+    },
+    {
+      "op": "snapshot",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"events\": [{\"id\": \"6378a6d330ca\", \"source\": \"file/fixture\", \"event_type\": \"file.received\", \"subject\": \"delivery-1\", \"cloud_event\": {\"specversion\": \"1.0\", \"id\": \"delivery-1\", \"source\": \"file/fixture\", \"type\": \"file.received\", \"subject\": \"delivery-1\", \"data\": {\"text\": \"governance receipt\", \"environment\": \"production\", \"requested_action\": \"secret.read\"}, \"deliverysubject\": \"Qualification task\", \"deliverydigest\": \"931d3c7cc7c875db96c74cfad2c92bccd31ce3d3b5314052770750b3604cea66\"}, \"matched_agent_ids\": [\"file-agent\"], \"status\": \"approval_required\", \"trace_id\": \"46d98e54dae64cc38827b88a5163928c\", \"contract_decision\": {\"mode\": \"enforce\", \"stage\": \"contract\", \"decision\": \"allow\", \"reason_codes\": [\"CONTRACT_BOUND\"], \"policy_version\": \"e2ag-2026-08-12.1\", \"contract_type\": \"file-qualification\", \"latency_us\": 204, \"evidence\": {\"source_pattern\": \"file/fixture\", \"event_type\": \"file.received\"}}, \"policy_decision\": {\"mode\": \"enforce\", \"stage\": \"policy\", \"decision\": \"approval_required\", \"reason_codes\": [\"POLICY_PRODUCTION_SENSITIVE_ACTION\"], \"policy_version\": \"e2ag-2026-08-12.1\", \"contract_type\": \"file-qualification\", \"latency_us\": 216, \"evidence\": {\"action\": \"secret.read\", \"tool\": \"\", \"resource\": \"\", \"environment\": \"production\"}, \"effective_decision\": \"approval_required\"}, \"audit_chain\": [{\"sequence\": 0, \"trace_id\": \"46d98e54dae64cc38827b88a5163928c\", \"stage\": \"contract\", \"outcome\": \"allow\", \"evidence\": {\"stage\": \"contract\", \"decision\": \"allow\", \"reason_codes\": [\"CONTRACT_BOUND\"], \"policy_version\": \"e2ag-2026-08-12.1\", \"contract_type\": \"file-qualification\", \"latency_us\": 204, \"evidence\": {\"source_pattern\": \"file/fixture\", \"event_type\": \"file.received\"}}, \"previous_hash\": \"\", \"entry_hash\": \"b8d4f703145359cd9a752b300f2badc50688d9827e4b86c44c20f12c0b3bd35f\"}, {\"sequence\": 1, \"trace_id\": \"46d98e54dae64cc38827b88a5163928c\", \"stage\": \"policy\", \"outcome\": \"approval_required\", \"evidence\": {\"stage\": \"policy\", \"decision\": \"approval_required\", \"reason_codes\": [\"POLICY_PRODUCTION_SENSITIVE_ACTION\"], \"policy_version\": \"e2ag-2026-08-12.1\", \"contract_type\": \"file-qualification\", \"latency_us\": 216, \"evidence\": {\"action\": \"secret.read\", \"tool\": \"\", \"resource\": \"\", \"environment\": \"production\"}}, \"previous_hash\": \"b8d4f703145359cd9a752b300f2badc50688d9827e4b86c44c20f12c0b3bd35f\", \"entry_hash\": \"5ee94e7329de9c62dc71bd06334a14913ba8e6e5a86d4f8874acce07c027b2e7\"}, {\"sequence\": 2, \"trace_id\": \"46d98e54dae64cc38827b88a5163928c\", \"stage\": \"dispatch\", \"outcome\": \"blocked\", \"evidence\": {\"reason_codes\": [\"POLICY_PRODUCTION_SENSITIVE_ACTION\"]}, \"previous_hash\": \"5ee94e7329de9c62dc71bd06334a14913ba8e6e5a86d4f8874acce07c027b2e7\", \"entry_hash\": \"05c3d4efaeff4a58930df809347ae72c0e56679403e9416e914c8141c91ed081\"}, {\"sequence\": 3, \"trace_id\": \"46d98e54dae64cc38827b88a5163928c\", \"stage\": \"approval\", \"outcome\": \"pending\", \"evidence\": {\"approval_id\": \"fc7075ca762e4ae9a9c73f3a664fd006\", \"expires_at\": \"2026-10-07T07:56:50.585978+00:00\"}, \"previous_hash\": \"05c3d4efaeff4a58930df809347ae72c0e56679403e9416e914c8141c91ed081\", \"entry_hash\": \"0f18950a23587077fdbcffed9d1a813380024e47a2a3f891e4c4db83edacdc3f\"}], \"created_at\": \"2026-10-07T06:56:50.543041\", \"retry_count\": 0, \"max_retries\": 3, \"next_retry_at\": null, \"error_message\": \"POLICY_PRODUCTION_SENSITIVE_ACTION\", \"dedup_hash\": \"cadc4c1c1c95e6fc3ef2f32f04e30b6a8fa2239d66fc49ad552d29e5e86aca9c\"}], \"tasks\": [], \"approvals\": [{\"id\": \"fc7075ca762e4ae9a9c73f3a664fd006\", \"event_log_id\": \"6378a6d330ca\", \"trace_id\": \"46d98e54dae64cc38827b88a5163928c\", \"status\": \"pending\", \"expires_at\": \"2026-10-07T07:56:50.585978\", \"decided_at\": null, \"actor\": \"\", \"reason\": \"\", \"created_at\": \"2026-10-07T06:56:50.587976\"}], \"grants\": [], \"invocations\": [], \"receipts\": [{\"identity\": \"b8664604abbbc241db60f5810a3d5fdeff0bcc89147a85236e6f00b11eb1cd74\", \"source\": \"file/fixture\", \"event_id\": \"delivery-1\", \"digest\": \"931d3c7cc7c875db96c74cfad2c92bccd31ce3d3b5314052770750b3604cea66\", \"phase\": \"recorded\", \"event_log_id\": \"6378a6d330ca\"}], \"conflicts\": [], \"audit_valid\": true}\n"
+    }
+  ],
+  "business_complete": false
+}

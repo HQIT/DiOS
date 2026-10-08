@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "result_sha256": "ac248c180e3eec426a3bfc33fc6d2bbb2107db3cef6466eeff81feb784d187c7",
+  "source_sha256": {
+    "experiments\\e2ag\\rr022\\check_pr_manifest_controls.py": "3cc3a369fc1415d7542e77af8ea9deb512e3c92b70978790738d6a85918038dc",
+    "experiments\\e2ag\\rr022\\pr_manifest_workload.py": "7f7a4826a6196345a080fe4a3b35827ab10fa45f97d07c0f95f4bcb3f5d2e71e",
+    "experiments\\e2ag\\rr022\\run_archive_workflow_pilot.py": "d641be941729bff89d6c11503517687e381fd7d76b4f9da7c8dcbd277068a792"
+  },
+  "no_gate_controls": [
+    {
+      "case": "other_read_object",
+      "passed": true,
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\pr-no-gate-63rekz4a\\operations.jsonl",
+      "ledger_sha256": "5196e8a6d2b9987772e8cc7c1937c723ced3e6fe790693eaaae394f42adc4555",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\pr-no-gate-63rekz4a\\reports.jsonl",
+      "reports_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/pr/337123-test-alias",
+            "version": "44612f1d18a66e3cb7e3ac522f86b01b69fc4411aa8e5e6e46b6a5169a8edaa2",
+            "source_event_id": "15454802241"
+          },
+          "content_sha256": "44612f1d18a66e3cb7e3ac522f86b01b69fc4411aa8e5e6e46b6a5169a8edaa2",
+          "byte_count": 7278098,
+          "line_count": 1
+        }
+      ]
+    },
+    {
+      "case": "wrong_read_version",
+      "passed": true,
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\pr-no-gate-wxv5b2k4\\operations.jsonl",
+      "ledger_sha256": "5a58c28b273cf41a9df2b4cc36c357d67e54533133f5abf8a64d36e838d3ec35",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\pr-no-gate-wxv5b2k4\\reports.jsonl",
+      "reports_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/pr/337123",
+            "version": "controlled-test-version-alias",
+            "source_event_id": "15454802241"
+          },
+          "content_sha256": "44612f1d18a66e3cb7e3ac522f86b01b69fc4411aa8e5e6e46b6a5169a8edaa2",
+          "byte_count": 7278098,
+          "line_count": 1
+        }
+      ]
+    },
+    {
+      "case": "other_write_object",
+      "passed": true,
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\pr-no-gate-cwhfvv59\\operations.jsonl",
+      "ledger_sha256": "67a8634d2f8188488f2dc874f674c60a2915ecdbb91ae5bb51a002337d884e01",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\pr-no-gate-cwhfvv59\\reports.jsonl",
+      "reports_sha256": "607a7b700b4aad870173047caed5c58f5c208943c36fe820a9df1f025fde75c5",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/pr/337123",
+            "version": "44612f1d18a66e3cb7e3ac522f86b01b69fc4411aa8e5e6e46b6a5169a8edaa2",
+            "source_event_id": "15454802241"
+          },
+          "content_sha256": "44612f1d18a66e3cb7e3ac522f86b01b69fc4411aa8e5e6e46b6a5169a8edaa2",
+          "byte_count": 7278098,
+          "line_count": 1
+        },
+        {
+          "sequence": 1,
+          "tool": "report.write",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/pr/337123/other-changes",
+            "version": "44612f1d18a66e3cb7e3ac522f86b01b69fc4411aa8e5e6e46b6a5169a8edaa2",
+            "source_event_id": "15454802241",
+            "report": "{\"base\": \"cceb427ea1f907448b93a1ea3fdeba8c7f755435\", \"changes\": [{\"after\": {\"mode\": \"100644\", \"sha\": \"c05cc813187a0dcd326deda8a83a6c6872077131\", \"type\": \"blob\"}, \"before\": {\"mode\": \"100644\", \"sha\": \"47b48de75cb7cbee95ae51ce0b6bf92741adcaef\", \"type\": \"blob\"}, \"change\": \"modified\", \"path\": \"src/vs/workbench/contrib/chat/browser/aiCustomization/mcpListWidget.ts\"}, {\"after\": {\"mode\": \"100644\", \"sha\": \"fa3e69adaf9381753f62dcc0b21b90ed75e292f5\", \"type\": \"blob\"}, \"before\": {\"mode\": \"100644\", \"sha\": \"7d8d3898c458927d857c360d3730a080a9ecef09\", \"type\": \"blob\"}, \"change\": \"modified\", \"path\": \"src/vs/workbench/contrib/chat/browser/aiCustomization/media/aiCustomizationManagement.css\"}, {\"after\": {\"mode\": \"100644\", \"sha\": \"59ce402b631330a4997a2ad524f45d9f9470aca3\", \"type\": \"blob\"}, \"before\": {\"mode\": \"100644\", \"sha\": \"539197b19dd78319284c3a589cbe91567a08ee3d\", \"type\": \"blob\"}, \"change\": \"modified\", \"path\": \"src/vs/workbench/contrib/chat/test/browser/aiCustomization/mcpListWidget.test.ts\"}, {\"after\": {\"mode\": \"100644\", \"sha\": \"d690374a928896ae365101879a5c5d1da4a55da1\", \"type\": \"blob\"}, \"before\": {\"mode\": \"100644\", \"sha\": \"dc39d038e53565607c8a90dac4c7892cffec259f\", \"type\": \"blob\"}, \"change\": \"modified\", \"path\": \"src/vs/workbench/test/browser/componentFixtures/sessions/aiCustomizationManagementEditor.fixture.ts\"}], \"counts\": {\"added\": 0, \"deleted\": 0, \"modified\": 4, \"submodule_paths\": 0}, \"head\": \"a2e8b65859eb1e1d095cf8c28347734c181ac705\", \"merge_base\": \"58d7d2545f59d6584205ab1f83a8b05e247992c5\", \"number\": 337123, \"repository\": \"microsoft/vscode\"}"
+          }
+        }
+      ]
+    }
+  ],
+  "synthetic_response_dependency_control": true,
+  "boundary": "Three HTTP bypass controls and one synthetic response dependency check. Not additional independent workload objects."
+}

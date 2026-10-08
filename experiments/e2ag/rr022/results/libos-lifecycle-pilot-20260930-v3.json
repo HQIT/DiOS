@@ -1,0 +1,3729 @@
+{
+  "protocol": "rr022-libos-lifecycle-pilot-v1",
+  "harness_sha256": "79ea35d27879a50458baed8d6afebe287f2eed163acb61d0dd3a22749a0911da",
+  "cases_sha256": "ac8d6b53a0941a98dd6842f0948a55f3331e6f18e56116cc5ec34af492c78732",
+  "shared_harness_sha256": "98fd58042383ed78101e56ca8eac59935df5550f22c562918d19a38f39c6ea3b",
+  "receipt_helper_sha256": "b11dbf1726bca173468e35540f32d90f07c93bee58d7f23644f597cc2ba4aa47",
+  "e2ag_source_sha256": {
+    "backend/app/services/e2ag_tool_gateway.py": "03192e0e428ac118d5dcfce5a3fd6af995c861e7cf3b83b686420d31c272c13a",
+    "backend/app/api/internal/e2ag_mcp.py": "dcd4b4b5ac9d6322f3e82b95a241d0a9bde288193b9adc8830935cbfedd9979c"
+  },
+  "rows": [
+    {
+      "case": "T01",
+      "method": "e2ag",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1100
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "receipt_count": 1
+      },
+      "observed": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "response": {
+          "status": 200,
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "tool": "report.create",
+              "arguments": {
+                "resource": "repo/qame/report/a",
+                "rows": 10
+              },
+              "sequence": 1
+            }
+          }
+        },
+        "tool_receipts": [
+          {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            },
+            "sequence": 1
+          }
+        ],
+        "grant_status": "active",
+        "grant_task_binding": {
+          "task_trace": "trace-fixture",
+          "grant_trace": "trace-fixture"
+        },
+        "grant_call_count": 1,
+        "state_operations": [],
+        "audit_before_call": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "46cab4b58c8a444cacee91f6a74e6864",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "c73f1df28e973e9f16ed52134e543b39bcdd6526242057c53750dc3fae7f17d4"
+          }
+        ],
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "46cab4b58c8a444cacee91f6a74e6864",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "c73f1df28e973e9f16ed52134e543b39bcdd6526242057c53750dc3fae7f17d4"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "46cab4b58c8a444cacee91f6a74e6864",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "MCP_TOOL_GRANTED",
+              "upstream_status": 200
+            },
+            "previous_hash": "c73f1df28e973e9f16ed52134e543b39bcdd6526242057c53750dc3fae7f17d4",
+            "entry_hash": "cbe57dfc161748303172ea46737c2ef3df1bf1a85e548e6fbfbb6cbb54fa5477"
+          }
+        ],
+        "audit_added_by_call": [
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "46cab4b58c8a444cacee91f6a74e6864",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "MCP_TOOL_GRANTED",
+              "upstream_status": 200
+            },
+            "previous_hash": "c73f1df28e973e9f16ed52134e543b39bcdd6526242057c53750dc3fae7f17d4",
+            "entry_hash": "cbe57dfc161748303172ea46737c2ef3df1bf1a85e548e6fbfbb6cbb54fa5477"
+          }
+        ],
+        "audit_verification": true,
+        "input_sha256": "2d3d3cbbb355fc92f774f8b86d7bccbcfe0256c5a3ac1c07a4a018b9af7a1784",
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "aiosqlite": "0.22.1",
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.14.2",
+          "certifi": "2026.7.22",
+          "charset-normalizer": "3.5.0",
+          "click": "8.4.2",
+          "colorama": "0.4.6",
+          "croniter": "6.2.4",
+          "docker": "7.2.0",
+          "fastapi": "0.141.1",
+          "greenlet": "3.5.5",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httptools": "0.8.0",
+          "httpx": "0.28.1",
+          "idna": "3.18",
+          "iniconfig": "2.3.0",
+          "packaging": "26.3",
+          "pip": "25.0.1",
+          "pluggy": "1.6.0",
+          "pydantic": "2.13.4",
+          "pydantic_core": "2.46.4",
+          "pydantic-settings": "2.15.0",
+          "Pygments": "2.20.0",
+          "pytest": "9.1.1",
+          "python-dateutil": "2.9.0.post0",
+          "python-dotenv": "1.2.2",
+          "pywin32": "312",
+          "PyYAML": "6.0.3",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "SQLAlchemy": "2.0.52",
+          "starlette": "1.6.0",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "urllib3": "2.7.0",
+          "uvicorn": "0.52.1",
+          "watchfiles": "1.2.0",
+          "websockets": "17.0.1"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "T01",
+      "method": "libos",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1100
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "receipt_count": 1
+      },
+      "observed": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "tool_receipts": [
+          {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            },
+            "sequence": 1
+          }
+        ],
+        "input_sha256": "2d3d3cbbb355fc92f774f8b86d7bccbcfe0256c5a3ac1c07a4a018b9af7a1784",
+        "native_result": {
+          "server_id": "rr022-receipt",
+          "tool_id": "report_create",
+          "mcp_name": "report.create",
+          "status": "ok",
+          "ok": true,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "in-memory receipt"
+              }
+            ],
+            "structured_content": {
+              "tool": "report.create",
+              "arguments": {
+                "resource": "repo/qame/report/a",
+                "rows": 10
+              },
+              "sequence": 1
+            }
+          },
+          "error": null,
+          "response_bytes": 185,
+          "duration_s": 0.02,
+          "connection": {
+            "protocol_mode": "auto",
+            "protocol_era": "modern",
+            "protocol_revision": "2026-07-28",
+            "sessionless": true,
+            "fallback_used": false,
+            "server_name": "contract-fixture",
+            "server_version": "1.0",
+            "capabilities": [
+              "tools"
+            ],
+            "unsupported_capabilities": [
+              "prompts"
+            ]
+          },
+          "receipts": [
+            {
+              "phase": "server/discover",
+              "request_bytes": 0,
+              "response_bytes": 0,
+              "duration_s": 0.0,
+              "call_started": true
+            },
+            {
+              "phase": "tools/list",
+              "request_bytes": 16,
+              "response_bytes": 173,
+              "duration_s": 0.0,
+              "call_started": true
+            },
+            {
+              "phase": "tools/call",
+              "request_bytes": 32,
+              "response_bytes": 185,
+              "duration_s": 0.02,
+              "call_started": true
+            }
+          ],
+          "dispatch_state": "started",
+          "retry_class": "not_applicable",
+          "automatic_retry_disabled": true
+        },
+        "rejection": null,
+        "provider_calls": {
+          "call_tool": 0,
+          "validate_and_call": 1,
+          "discover": [],
+          "list_tools": []
+        },
+        "native_manifest": {
+          "schema_version": 2,
+          "server_id": "rr022-receipt",
+          "protocol_mode": "auto",
+          "transport": {
+            "type": "streamable_http",
+            "url": null,
+            "headers": {}
+          },
+          "stdio_authority_resource": null,
+          "tools": [
+            {
+              "tool_id": "report_create",
+              "mcp_name": "report.create",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_create",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            },
+            {
+              "tool_id": "report_preview",
+              "mcp_name": "report.preview",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_preview",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            }
+          ],
+          "timeout_s": 5.0,
+          "max_request_bytes": 65536,
+          "max_response_bytes": 1048576,
+          "metadata": {},
+          "registered_by": "rr022-host",
+          "created_at": "2026-09-30T01:47:20.055500+00:00",
+          "updated_at": "2026-09-30T01:47:20.055500+00:00"
+        },
+        "native_process_id": "pid_a85f1de22f644730",
+        "capabilities_issued": [
+          {
+            "cap_id": "cap_856de440ba4642a1",
+            "subject": "pid_a85f1de22f644730",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_before_call": [
+          {
+            "cap_id": "cap_856de440ba4642a1",
+            "subject": "pid_a85f1de22f644730",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_after_call": [
+          {
+            "cap_id": "cap_856de440ba4642a1",
+            "subject": "pid_a85f1de22f644730",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "audit_before_call_count": 235,
+        "audit_after_call_count": 244,
+        "audit_added_by_call": [
+          {
+            "record_id": "audit_39bb80a3d9c44922",
+            "timestamp": "2026-09-30T01:47:20.079584+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_19fe1f6697f64428",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance precheck passed",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_eb2fff49ed2347f2",
+            "timestamp": "2026-09-30T01:47:20.080336+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "capability.authorize",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [
+              "cap_856de440ba4642a1"
+            ],
+            "decision": {
+              "allowed": true,
+              "constraint_results": {},
+              "consume_capability_id": null,
+              "context": {
+                "arguments_observation": {
+                  "bytes": 58,
+                  "preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+                  "redacted": true,
+                  "sha256": "843eb8ad5e694baf582f959b042653c67b789173f90d6ba7e73b7169ad534fb9",
+                  "truncated": false
+                },
+                "arguments_preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+                "arguments_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+                "authority_operation": "mcp.call",
+                "mcp_name": "report.create",
+                "operation": "mcp.call",
+                "pid": "pid_a85f1de22f644730",
+                "primitive": "runtime.mcp.call",
+                "protocol_mode": "auto",
+                "registry_generation": 1,
+                "registry_spec_sha256": "1b99172749b83eb6d62fc1a9eca3e8d8e7d13ad972e8b7c0e55a236f23138f57",
+                "right": "read",
+                "server_id": "rr022-receipt",
+                "tool_id": "report_create",
+                "transport": "streamable_http"
+              },
+              "effect": "allow",
+              "human_request_id": null,
+              "issuer_chain": [
+                "cap_856de440ba4642a1"
+              ],
+              "matched_capability_ids": [
+                "cap_856de440ba4642a1"
+              ],
+              "policy": "always_allow",
+              "reason": "capability allowed operation",
+              "resource": "mcp:rr022-receipt:report_create",
+              "right": "read",
+              "selected_capability_id": "cap_856de440ba4642a1",
+              "subject": "pid_a85f1de22f644730"
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_1f48cac0603946f3",
+            "timestamp": "2026-09-30T01:47:20.084029+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_b5464c5ca2824855",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_a6fa9537a3f9464b",
+            "timestamp": "2026-09-30T01:47:20.084552+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_49696ecab6104f81",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_fc8be9bfba7b463c",
+            "timestamp": "2026-09-30T01:47:20.085558+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_d7c2e3020ee24ff9",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_8f02cea3c35641ca",
+            "timestamp": "2026-09-30T01:47:20.087558+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_78d16209fb024d16",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_fbaa590d4da74da5",
+            "timestamp": "2026-09-30T01:47:20.090515+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_5d1822d9f9034781",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_fa6d31e1f5b04d84",
+            "timestamp": "2026-09-30T01:47:20.092169+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "primitive.mcp.call",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [
+              "cap_856de440ba4642a1"
+            ],
+            "decision": {
+              "arguments_observation": {
+                "bytes": 58,
+                "preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+                "redacted": true,
+                "sha256": "843eb8ad5e694baf582f959b042653c67b789173f90d6ba7e73b7169ad534fb9",
+                "truncated": false
+              },
+              "arguments_preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+              "arguments_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "automatic_retry_disabled": true,
+              "connection": {
+                "capabilities": [
+                  "tools"
+                ],
+                "fallback_used": false,
+                "protocol_era": "modern",
+                "protocol_mode": "auto",
+                "protocol_revision": "2026-07-28",
+                "server_name": "contract-fixture",
+                "server_version": "1.0",
+                "sessionless": true,
+                "unsupported_capabilities": [
+                  "prompts"
+                ]
+              },
+              "dispatch_state": "started",
+              "duration_s": 0.02,
+              "mcp_name": "report.create",
+              "ok": true,
+              "protocol_revision": "2026-07-28",
+              "receipts": [
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "server/discover",
+                  "request_bytes": 0,
+                  "response_bytes": 0
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "tools/list",
+                  "request_bytes": 16,
+                  "response_bytes": 173
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.02,
+                  "phase": "tools/call",
+                  "request_bytes": 32,
+                  "response_bytes": 185
+                }
+              ],
+              "response_bytes": 185,
+              "retry_class": "not_applicable",
+              "right": "read",
+              "sandbox_profile": {
+                "effect": "allow",
+                "operation": "mcp.call",
+                "resource": "mcp:rr022-receipt:report_create",
+                "restrictions": {
+                  "caller_supplied_transport": false,
+                  "registered_server_only": true,
+                  "server_id": "rr022-receipt",
+                  "tool_id": "report_create"
+                },
+                "risk": "high",
+                "rule_id": null
+              },
+              "server_id": "rr022-receipt",
+              "status": "ok",
+              "tool_id": "report_create"
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_5ac952d88ea140c1",
+            "timestamp": "2026-09-30T01:47:20.095395+00:00",
+            "actor": "pid_a85f1de22f644730",
+            "action": "resource.charge",
+            "target": "process:pid_a85f1de22f644730",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "charged_pids": [
+                "pid_a85f1de22f644730"
+              ],
+              "context": {
+                "call_started": true,
+                "receipts": [
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "server/discover",
+                    "request_bytes": 0,
+                    "response_bytes": 0
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "tools/list",
+                    "request_bytes": 16,
+                    "response_bytes": 173
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.02,
+                    "phase": "tools/call",
+                    "request_bytes": 32,
+                    "response_bytes": 185
+                  }
+                ],
+                "request_bytes": 48,
+                "reservation_id": "usage_reservation_e871963a842a4fc7",
+                "response_bytes": 358,
+                "server_id": "rr022-receipt",
+                "settlement": "settled",
+                "status": "ok",
+                "tool_id": "report_create"
+              },
+              "source": "primitive.mcp.call",
+              "usage": {
+                "child_processes": 0,
+                "context_materialized_tokens": 0,
+                "deno_syscalls": 0,
+                "external_read_bytes": 0,
+                "external_write_bytes": 0,
+                "jsonrpc_request_bytes": 0,
+                "jsonrpc_response_bytes": 0,
+                "llm_calls": 0,
+                "llm_completion_tokens": 0,
+                "llm_prompt_tokens": 0,
+                "llm_total_tokens": 0,
+                "mcp_request_bytes": 48,
+                "mcp_response_bytes": 358,
+                "runtime_seconds": 0.0,
+                "subprocess_cpu_seconds": 0.0,
+                "subprocess_peak_memory_bytes": 0,
+                "subprocess_wall_seconds": 0.0,
+                "tool_calls": 0
+              }
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          }
+        ],
+        "external_effects": [
+          {
+            "effect_id": "effintent_e110e931cff04a2b",
+            "record_id": "audit_fa6d31e1f5b04d84",
+            "event_id": "evt_335a4e9f52494d5a",
+            "pid": "pid_a85f1de22f644730",
+            "provider": "mcp",
+            "operation": "call_tool",
+            "target": "mcp:rr022-receipt:report_create",
+            "rollback_class": "no_rollback_required",
+            "rollback_status": "not_required",
+            "state_mutation": false,
+            "information_flow": true,
+            "provider_metadata": {
+              "automatic_retry_disabled": true,
+              "connection": {
+                "capabilities": [
+                  "tools"
+                ],
+                "fallback_used": false,
+                "protocol_era": "modern",
+                "protocol_mode": "auto",
+                "protocol_revision": "2026-07-28",
+                "server_name": "contract-fixture",
+                "server_version": "1.0",
+                "sessionless": true,
+                "unsupported_capabilities": [
+                  "prompts"
+                ]
+              },
+              "context": {
+                "arguments_observation": {
+                  "bytes": 58,
+                  "preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+                  "redacted": true,
+                  "sha256": "843eb8ad5e694baf582f959b042653c67b789173f90d6ba7e73b7169ad534fb9",
+                  "truncated": false
+                },
+                "arguments_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+                "information_flow": true,
+                "mcp_name": "report.create",
+                "protocol_mode": "auto",
+                "request_bytes": 86,
+                "right": "read",
+                "rollback_class": "no_rollback_required",
+                "rollback_status": null,
+                "server_id": "rr022-receipt",
+                "state_mutation": false,
+                "tool_id": "report_create",
+                "transport": "streamable_http"
+              },
+              "data_flow": {
+                "decision_id": "dfd_5d1822d9f9034781",
+                "direction": "egress",
+                "labels": {
+                  "declassification_authority": null,
+                  "integrity": "unknown",
+                  "origin": "local",
+                  "principal": null,
+                  "sensitivity": "normal",
+                  "tenant": null,
+                  "trust_level": "unknown"
+                },
+                "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+                "minimum_egress_integrity": "untrusted",
+                "outcome": "allow",
+                "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+                "reason": "Sink clearance allows data sensitivity and identity",
+                "registry_generation": 0,
+                "release_capability_id": null,
+                "sink": "mcp:rr022-receipt:report_create",
+                "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+                "sink_trust_identity": "mcp:rr022-receipt:report_create",
+                "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+                "source_refs": [],
+                "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+                "trust_id": null,
+                "trust_sha256": null
+              },
+              "dispatch_state": "started",
+              "duration_s": 0.02,
+              "effect_state": "finalized",
+              "ok": true,
+              "protected_operation": {
+                "actor": "pid_a85f1de22f644730",
+                "contract_name": "primitive.mcp.call",
+                "minimum_egress_integrity": "untrusted",
+                "prepared_recovery": null,
+                "reservation_ids": []
+              },
+              "protocol_revision": "2026-07-28",
+              "provider_phases": [
+                {
+                  "commits_authority": false,
+                  "information_flow": false,
+                  "name": "dns_resolution",
+                  "state_mutation": false
+                },
+                {
+                  "commits_authority": true,
+                  "information_flow": true,
+                  "name": "provider_validate_and_call",
+                  "state_mutation": false
+                }
+              ],
+              "provider_receipt": {
+                "connection": {
+                  "capabilities": [
+                    "tools"
+                  ],
+                  "fallback_used": false,
+                  "protocol_era": "modern",
+                  "protocol_mode": "auto",
+                  "protocol_revision": "2026-07-28",
+                  "server_name": "contract-fixture",
+                  "server_version": "1.0",
+                  "sessionless": true,
+                  "unsupported_capabilities": [
+                    "prompts"
+                  ]
+                },
+                "duration_s": 0.02,
+                "fallback_used": false,
+                "operation_response_bytes": 358,
+                "protocol_era": "modern",
+                "protocol_revision": "2026-07-28",
+                "receipts": [
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "server/discover",
+                    "request_bytes": 0,
+                    "response_bytes": 0
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "tools/list",
+                    "request_bytes": 16,
+                    "response_bytes": 173
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.02,
+                    "phase": "tools/call",
+                    "request_bytes": 32,
+                    "response_bytes": 185
+                  }
+                ],
+                "request_bytes": 48,
+                "response_bytes": 185
+              },
+              "receipts": [
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "server/discover",
+                  "request_bytes": 0,
+                  "response_bytes": 0
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "tools/list",
+                  "request_bytes": 16,
+                  "response_bytes": 173
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.02,
+                  "phase": "tools/call",
+                  "request_bytes": 32,
+                  "response_bytes": 185
+                }
+              ],
+              "response_bytes": 185,
+              "result": {
+                "automatic_retry_disabled": true,
+                "connection": {
+                  "capabilities": [
+                    "tools"
+                  ],
+                  "fallback_used": false,
+                  "protocol_era": "modern",
+                  "protocol_mode": "auto",
+                  "protocol_revision": "2026-07-28",
+                  "server_name": "contract-fixture",
+                  "server_version": "1.0",
+                  "sessionless": true,
+                  "unsupported_capabilities": [
+                    "prompts"
+                  ]
+                },
+                "dispatch_state": "started",
+                "duration_s": 0.02,
+                "ok": true,
+                "protocol_revision": "2026-07-28",
+                "receipts": [
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "server/discover",
+                    "request_bytes": 0,
+                    "response_bytes": 0
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "tools/list",
+                    "request_bytes": 16,
+                    "response_bytes": 173
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.02,
+                    "phase": "tools/call",
+                    "request_bytes": 32,
+                    "response_bytes": 185
+                  }
+                ],
+                "response_bytes": 185,
+                "retry_class": "not_applicable",
+                "status": "ok"
+              },
+              "retry_class": "not_applicable",
+              "status": "ok"
+            },
+            "created_at": "2026-09-30T01:47:20.092700+00:00",
+            "effect_state": "finalized",
+            "transaction_state": "committed",
+            "canonical_args_hash": "63516bfcb15649477f69cac29f4b03a8c4d6d4f16815de532551aabcd966bbf9",
+            "idempotency_key": "deeb203149d32a816fcb2ecb4b31f81e7b013edec951e0597e90685e715ad248",
+            "provider_receipt": {
+              "connection": {
+                "capabilities": [
+                  "tools"
+                ],
+                "fallback_used": false,
+                "protocol_era": "modern",
+                "protocol_mode": "auto",
+                "protocol_revision": "2026-07-28",
+                "server_name": "contract-fixture",
+                "server_version": "1.0",
+                "sessionless": true,
+                "unsupported_capabilities": [
+                  "prompts"
+                ]
+              },
+              "duration_s": 0.02,
+              "fallback_used": false,
+              "operation_response_bytes": 358,
+              "protocol_era": "modern",
+              "protocol_revision": "2026-07-28",
+              "receipts": [
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "server/discover",
+                  "request_bytes": 0,
+                  "response_bytes": 0
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "tools/list",
+                  "request_bytes": 16,
+                  "response_bytes": 173
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.02,
+                  "phase": "tools/call",
+                  "request_bytes": 32,
+                  "response_bytes": 185
+                }
+              ],
+              "request_bytes": 48,
+              "response_bytes": 185
+            },
+            "updated_at": "2026-09-30T01:47:20.092701+00:00",
+            "payload_retention_schema_version": 1,
+            "payload_retention_tier": "full",
+            "payload_retention_sha256": null
+          }
+        ],
+        "upstream_commit": "85e8ff94c1e562bfb1f891714e3bf4bed9795690",
+        "upstream_source_modified": false,
+        "clock_adapter": "Evaluator datetime.now and capability issuance utc_now fixed to NOW; native comparison and state transitions unchanged. Audit wall-clock timestamps are separate.",
+        "fixture_sha256": "17d57c60df78d82eff9adb60f4f0d045f2aba2493d51af395cd733377646d26a",
+        "working_directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\libos-lifecycle-94pqd6ke",
+        "semantics": "Host bootstraps native process capability over a registered MCP tool; read-only inert tool, no external mutation",
+        "source_sha256": {
+          "agent_libos/primitives/mcp.py": "16f4de8fe62689ef82f212c0855f99b66d3f77f8d36ee55bb5367076c8a1a0cd",
+          "agent_libos/capability/manager.py": "e67524edcbdc11cf21f3e9c4d66b59628313feff573409091685fc8c0b39f680",
+          "agent_libos/capability/evaluator.py": "be8e85621dab31c59090b74e5cac42c39d0a613eb2ea14ec4ba62e847e91016a",
+          "agent_libos/capability/mutation.py": "518e8d52715c1e48e4daa589aa7c7f0ed9c9d8891031ebfc1b3f438b38c87dd4"
+        },
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "attrs": "26.1.0",
+          "certifi": "2026.7.22",
+          "colorama": "0.4.6",
+          "distro": "1.9.0",
+          "execnet": "2.1.2",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.0",
+          "jiter": "0.17.0",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "openai": "2.54.0",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "psutil": "7.2.2",
+          "pydantic": "2.13.5",
+          "pydantic_core": "2.46.5",
+          "Pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "pytest-timeout": "2.4.0",
+          "pytest-xdist": "3.8.0",
+          "PyYAML": "6.0.3",
+          "referencing": "0.37.0",
+          "regex": "2026.9.29",
+          "rpds-py": "2026.6.3",
+          "sniffio": "1.3.1",
+          "tqdm": "4.70.1",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "L01",
+      "method": "e2ag",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1000
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "receipt_count": 0
+      },
+      "observed": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "response": {
+          "status": 403,
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+              "code": -32001,
+              "message": "E2AG tool grant rejected",
+              "data": {
+                "reason": "TOOL_GRANT_EXPIRED"
+              }
+            }
+          }
+        },
+        "tool_receipts": [],
+        "grant_status": "expired",
+        "grant_task_binding": {
+          "task_trace": "trace-fixture",
+          "grant_trace": "trace-fixture"
+        },
+        "grant_call_count": 1,
+        "state_operations": [],
+        "audit_before_call": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "ecf9387cdedd4d7e9b40f66298c93c92",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "012cb36fe95abcdee104fc1c10139385918fcb29ced377bd2e8d3973fd2a15ff"
+          }
+        ],
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "ecf9387cdedd4d7e9b40f66298c93c92",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "012cb36fe95abcdee104fc1c10139385918fcb29ced377bd2e8d3973fd2a15ff"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_expired",
+            "evidence": {
+              "grant_id": "ecf9387cdedd4d7e9b40f66298c93c92",
+              "task_id": "task-fixture"
+            },
+            "previous_hash": "012cb36fe95abcdee104fc1c10139385918fcb29ced377bd2e8d3973fd2a15ff",
+            "entry_hash": "913911ccf4d8d74114ac7a9a160ce55c720ceaf2985662d0fdb2cdea22c1cc8f"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "ecf9387cdedd4d7e9b40f66298c93c92",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "TOOL_GRANT_EXPIRED",
+              "upstream_status": null
+            },
+            "previous_hash": "913911ccf4d8d74114ac7a9a160ce55c720ceaf2985662d0fdb2cdea22c1cc8f",
+            "entry_hash": "672aa592cb677128ee88f38847e1e527f185c1d1bef071b91ed9b7f8ae4125eb"
+          }
+        ],
+        "audit_added_by_call": [
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_expired",
+            "evidence": {
+              "grant_id": "ecf9387cdedd4d7e9b40f66298c93c92",
+              "task_id": "task-fixture"
+            },
+            "previous_hash": "012cb36fe95abcdee104fc1c10139385918fcb29ced377bd2e8d3973fd2a15ff",
+            "entry_hash": "913911ccf4d8d74114ac7a9a160ce55c720ceaf2985662d0fdb2cdea22c1cc8f"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "ecf9387cdedd4d7e9b40f66298c93c92",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "TOOL_GRANT_EXPIRED",
+              "upstream_status": null
+            },
+            "previous_hash": "913911ccf4d8d74114ac7a9a160ce55c720ceaf2985662d0fdb2cdea22c1cc8f",
+            "entry_hash": "672aa592cb677128ee88f38847e1e527f185c1d1bef071b91ed9b7f8ae4125eb"
+          }
+        ],
+        "audit_verification": true,
+        "input_sha256": "e01c42b6d79b3509c9006565a4c916987f19a39d1882ca782005c3aea7422e8b",
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "aiosqlite": "0.22.1",
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.14.2",
+          "certifi": "2026.7.22",
+          "charset-normalizer": "3.5.0",
+          "click": "8.4.2",
+          "colorama": "0.4.6",
+          "croniter": "6.2.4",
+          "docker": "7.2.0",
+          "fastapi": "0.141.1",
+          "greenlet": "3.5.5",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httptools": "0.8.0",
+          "httpx": "0.28.1",
+          "idna": "3.18",
+          "iniconfig": "2.3.0",
+          "packaging": "26.3",
+          "pip": "25.0.1",
+          "pluggy": "1.6.0",
+          "pydantic": "2.13.4",
+          "pydantic_core": "2.46.4",
+          "pydantic-settings": "2.15.0",
+          "Pygments": "2.20.0",
+          "pytest": "9.1.1",
+          "python-dateutil": "2.9.0.post0",
+          "python-dotenv": "1.2.2",
+          "pywin32": "312",
+          "PyYAML": "6.0.3",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "SQLAlchemy": "2.0.52",
+          "starlette": "1.6.0",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "urllib3": "2.7.0",
+          "uvicorn": "0.52.1",
+          "watchfiles": "1.2.0",
+          "websockets": "17.0.1"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "L01",
+      "method": "libos",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1000
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "receipt_count": 0
+      },
+      "observed": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "tool_receipts": [],
+        "input_sha256": "e01c42b6d79b3509c9006565a4c916987f19a39d1882ca782005c3aea7422e8b",
+        "native_result": null,
+        "rejection": {
+          "type": "CapabilityDenied",
+          "message": "pid_efb5ef43fc35415e lacks MCP call authority on mcp:rr022-receipt:report_create"
+        },
+        "provider_calls": {
+          "call_tool": 0,
+          "validate_and_call": 0,
+          "discover": [],
+          "list_tools": []
+        },
+        "native_manifest": {
+          "schema_version": 2,
+          "server_id": "rr022-receipt",
+          "protocol_mode": "auto",
+          "transport": {
+            "type": "streamable_http",
+            "url": null,
+            "headers": {}
+          },
+          "stdio_authority_resource": null,
+          "tools": [
+            {
+              "tool_id": "report_create",
+              "mcp_name": "report.create",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_create",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            },
+            {
+              "tool_id": "report_preview",
+              "mcp_name": "report.preview",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_preview",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            }
+          ],
+          "timeout_s": 5.0,
+          "max_request_bytes": 65536,
+          "max_response_bytes": 1048576,
+          "metadata": {},
+          "registered_by": "rr022-host",
+          "created_at": "2026-09-30T01:47:24.815373+00:00",
+          "updated_at": "2026-09-30T01:47:24.815373+00:00"
+        },
+        "native_process_id": "pid_efb5ef43fc35415e",
+        "capabilities_issued": [
+          {
+            "cap_id": "cap_49c80777245a408b",
+            "subject": "pid_efb5ef43fc35415e",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:00:00+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_before_call": [
+          {
+            "cap_id": "cap_49c80777245a408b",
+            "subject": "pid_efb5ef43fc35415e",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:00:00+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_after_call": [
+          {
+            "cap_id": "cap_49c80777245a408b",
+            "subject": "pid_efb5ef43fc35415e",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:00:00+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "audit_before_call_count": 235,
+        "audit_after_call_count": 235,
+        "audit_added_by_call": [],
+        "external_effects": [],
+        "upstream_commit": "85e8ff94c1e562bfb1f891714e3bf4bed9795690",
+        "upstream_source_modified": false,
+        "clock_adapter": "Evaluator datetime.now and capability issuance utc_now fixed to NOW; native comparison and state transitions unchanged. Audit wall-clock timestamps are separate.",
+        "fixture_sha256": "17d57c60df78d82eff9adb60f4f0d045f2aba2493d51af395cd733377646d26a",
+        "working_directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\libos-lifecycle-5t_i2d18",
+        "semantics": "Host bootstraps native process capability over a registered MCP tool; read-only inert tool, no external mutation",
+        "source_sha256": {
+          "agent_libos/primitives/mcp.py": "16f4de8fe62689ef82f212c0855f99b66d3f77f8d36ee55bb5367076c8a1a0cd",
+          "agent_libos/capability/manager.py": "e67524edcbdc11cf21f3e9c4d66b59628313feff573409091685fc8c0b39f680",
+          "agent_libos/capability/evaluator.py": "be8e85621dab31c59090b74e5cac42c39d0a613eb2ea14ec4ba62e847e91016a",
+          "agent_libos/capability/mutation.py": "518e8d52715c1e48e4daa589aa7c7f0ed9c9d8891031ebfc1b3f438b38c87dd4"
+        },
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "attrs": "26.1.0",
+          "certifi": "2026.7.22",
+          "colorama": "0.4.6",
+          "distro": "1.9.0",
+          "execnet": "2.1.2",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.0",
+          "jiter": "0.17.0",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "openai": "2.54.0",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "psutil": "7.2.2",
+          "pydantic": "2.13.5",
+          "pydantic_core": "2.46.5",
+          "Pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "pytest-timeout": "2.4.0",
+          "pytest-xdist": "3.8.0",
+          "PyYAML": "6.0.3",
+          "referencing": "0.37.0",
+          "regex": "2026.9.29",
+          "rpds-py": "2026.6.3",
+          "sniffio": "1.3.1",
+          "tqdm": "4.70.1",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "L02",
+      "method": "e2ag",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "revoked",
+            "expires_at": 1100
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "receipt_count": 0
+      },
+      "observed": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "response": {
+          "status": 403,
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+              "code": -32001,
+              "message": "E2AG tool grant rejected",
+              "data": {
+                "reason": "TOOL_GRANT_NOT_ACTIVE"
+              }
+            }
+          }
+        },
+        "tool_receipts": [],
+        "grant_status": "revoked",
+        "grant_task_binding": {
+          "task_trace": "trace-fixture",
+          "grant_trace": "trace-fixture"
+        },
+        "grant_call_count": 1,
+        "state_operations": [
+          "native revoke_task_grants before invocation"
+        ],
+        "audit_before_call": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "76092bc3ab604f8c932edbaa692dc2c1",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "95ea1ddfdd7f5ffc0bac6e53320aee85a8d8a7aea9477b79c272438aa0ebc730"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_revoked",
+            "evidence": {
+              "grant_id": "76092bc3ab604f8c932edbaa692dc2c1",
+              "task_id": "task-fixture",
+              "reason": "task_lifecycle"
+            },
+            "previous_hash": "95ea1ddfdd7f5ffc0bac6e53320aee85a8d8a7aea9477b79c272438aa0ebc730",
+            "entry_hash": "f1f0b015ba8099e59b2c429e82690894bcf90308d252cb7eb7bbb19726d7f3a0"
+          }
+        ],
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "76092bc3ab604f8c932edbaa692dc2c1",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "95ea1ddfdd7f5ffc0bac6e53320aee85a8d8a7aea9477b79c272438aa0ebc730"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_revoked",
+            "evidence": {
+              "grant_id": "76092bc3ab604f8c932edbaa692dc2c1",
+              "task_id": "task-fixture",
+              "reason": "task_lifecycle"
+            },
+            "previous_hash": "95ea1ddfdd7f5ffc0bac6e53320aee85a8d8a7aea9477b79c272438aa0ebc730",
+            "entry_hash": "f1f0b015ba8099e59b2c429e82690894bcf90308d252cb7eb7bbb19726d7f3a0"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "76092bc3ab604f8c932edbaa692dc2c1",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "TOOL_GRANT_NOT_ACTIVE",
+              "upstream_status": null
+            },
+            "previous_hash": "f1f0b015ba8099e59b2c429e82690894bcf90308d252cb7eb7bbb19726d7f3a0",
+            "entry_hash": "ec33c4ea671a2020d1eaa02fcd80500dce3fd83605758e9ae76bb5f1abd95185"
+          }
+        ],
+        "audit_added_by_call": [
+          {
+            "sequence": 2,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "76092bc3ab604f8c932edbaa692dc2c1",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "TOOL_GRANT_NOT_ACTIVE",
+              "upstream_status": null
+            },
+            "previous_hash": "f1f0b015ba8099e59b2c429e82690894bcf90308d252cb7eb7bbb19726d7f3a0",
+            "entry_hash": "ec33c4ea671a2020d1eaa02fcd80500dce3fd83605758e9ae76bb5f1abd95185"
+          }
+        ],
+        "audit_verification": true,
+        "input_sha256": "b12624c78f5f5be60ae221947a353c459c632f3125eec6f05bc84a00ca1c7c76",
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "aiosqlite": "0.22.1",
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.14.2",
+          "certifi": "2026.7.22",
+          "charset-normalizer": "3.5.0",
+          "click": "8.4.2",
+          "colorama": "0.4.6",
+          "croniter": "6.2.4",
+          "docker": "7.2.0",
+          "fastapi": "0.141.1",
+          "greenlet": "3.5.5",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httptools": "0.8.0",
+          "httpx": "0.28.1",
+          "idna": "3.18",
+          "iniconfig": "2.3.0",
+          "packaging": "26.3",
+          "pip": "25.0.1",
+          "pluggy": "1.6.0",
+          "pydantic": "2.13.4",
+          "pydantic_core": "2.46.4",
+          "pydantic-settings": "2.15.0",
+          "Pygments": "2.20.0",
+          "pytest": "9.1.1",
+          "python-dateutil": "2.9.0.post0",
+          "python-dotenv": "1.2.2",
+          "pywin32": "312",
+          "PyYAML": "6.0.3",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "SQLAlchemy": "2.0.52",
+          "starlette": "1.6.0",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "urllib3": "2.7.0",
+          "uvicorn": "0.52.1",
+          "watchfiles": "1.2.0",
+          "websockets": "17.0.1"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "L02",
+      "method": "libos",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "revoked",
+            "expires_at": 1100
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "receipt_count": 0
+      },
+      "observed": {
+        "decision_sequence": [
+          "deny"
+        ],
+        "tool_receipts": [],
+        "input_sha256": "b12624c78f5f5be60ae221947a353c459c632f3125eec6f05bc84a00ca1c7c76",
+        "native_result": null,
+        "rejection": {
+          "type": "CapabilityDenied",
+          "message": "pid_b9ee8f85eb5c4b5e lacks MCP call authority on mcp:rr022-receipt:report_create"
+        },
+        "provider_calls": {
+          "call_tool": 0,
+          "validate_and_call": 0,
+          "discover": [],
+          "list_tools": []
+        },
+        "native_manifest": {
+          "schema_version": 2,
+          "server_id": "rr022-receipt",
+          "protocol_mode": "auto",
+          "transport": {
+            "type": "streamable_http",
+            "url": null,
+            "headers": {}
+          },
+          "stdio_authority_resource": null,
+          "tools": [
+            {
+              "tool_id": "report_create",
+              "mcp_name": "report.create",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_create",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            },
+            {
+              "tool_id": "report_preview",
+              "mcp_name": "report.preview",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_preview",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            }
+          ],
+          "timeout_s": 5.0,
+          "max_request_bytes": 65536,
+          "max_response_bytes": 1048576,
+          "metadata": {},
+          "registered_by": "rr022-host",
+          "created_at": "2026-09-30T01:47:29.573237+00:00",
+          "updated_at": "2026-09-30T01:47:29.573237+00:00"
+        },
+        "native_process_id": "pid_b9ee8f85eb5c4b5e",
+        "capabilities_issued": [
+          {
+            "cap_id": "cap_a0b5a85239d84932",
+            "subject": "pid_b9ee8f85eb5c4b5e",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_before_call": [
+          {
+            "cap_id": "cap_a0b5a85239d84932",
+            "subject": "pid_b9ee8f85eb5c4b5e",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "revoked",
+            "metadata": {}
+          }
+        ],
+        "capabilities_after_call": [
+          {
+            "cap_id": "cap_a0b5a85239d84932",
+            "subject": "pid_b9ee8f85eb5c4b5e",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:01:40+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "revoked",
+            "metadata": {}
+          }
+        ],
+        "audit_before_call_count": 236,
+        "audit_after_call_count": 236,
+        "audit_added_by_call": [],
+        "external_effects": [],
+        "upstream_commit": "85e8ff94c1e562bfb1f891714e3bf4bed9795690",
+        "upstream_source_modified": false,
+        "clock_adapter": "Evaluator datetime.now and capability issuance utc_now fixed to NOW; native comparison and state transitions unchanged. Audit wall-clock timestamps are separate.",
+        "fixture_sha256": "17d57c60df78d82eff9adb60f4f0d045f2aba2493d51af395cd733377646d26a",
+        "working_directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\libos-lifecycle-_gx8yc96",
+        "semantics": "Host bootstraps native process capability over a registered MCP tool; read-only inert tool, no external mutation",
+        "source_sha256": {
+          "agent_libos/primitives/mcp.py": "16f4de8fe62689ef82f212c0855f99b66d3f77f8d36ee55bb5367076c8a1a0cd",
+          "agent_libos/capability/manager.py": "e67524edcbdc11cf21f3e9c4d66b59628313feff573409091685fc8c0b39f680",
+          "agent_libos/capability/evaluator.py": "be8e85621dab31c59090b74e5cac42c39d0a613eb2ea14ec4ba62e847e91016a",
+          "agent_libos/capability/mutation.py": "518e8d52715c1e48e4daa589aa7c7f0ed9c9d8891031ebfc1b3f438b38c87dd4"
+        },
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "attrs": "26.1.0",
+          "certifi": "2026.7.22",
+          "colorama": "0.4.6",
+          "distro": "1.9.0",
+          "execnet": "2.1.2",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.0",
+          "jiter": "0.17.0",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "openai": "2.54.0",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "psutil": "7.2.2",
+          "pydantic": "2.13.5",
+          "pydantic_core": "2.46.5",
+          "Pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "pytest-timeout": "2.4.0",
+          "pytest-xdist": "3.8.0",
+          "PyYAML": "6.0.3",
+          "referencing": "0.37.0",
+          "regex": "2026.9.29",
+          "rpds-py": "2026.6.3",
+          "sniffio": "1.3.1",
+          "tqdm": "4.70.1",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "CTRL_BEFORE_EXPIRY",
+      "method": "e2ag",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1001
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "receipt_count": 1
+      },
+      "observed": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "response": {
+          "status": 200,
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "tool": "report.create",
+              "arguments": {
+                "resource": "repo/qame/report/a",
+                "rows": 10
+              },
+              "sequence": 1
+            }
+          }
+        },
+        "tool_receipts": [
+          {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            },
+            "sequence": 1
+          }
+        ],
+        "grant_status": "active",
+        "grant_task_binding": {
+          "task_trace": "trace-fixture",
+          "grant_trace": "trace-fixture"
+        },
+        "grant_call_count": 1,
+        "state_operations": [],
+        "audit_before_call": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "0cb0635e110d4aacb838b924d359109a",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "ba7e8a138c6612c2e6f98c15960cd7af03ac5142f3ab65d8c5fdb5e6b3148eb1"
+          }
+        ],
+        "audit_chain": [
+          {
+            "sequence": 0,
+            "trace_id": "trace-fixture",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "0cb0635e110d4aacb838b924d359109a",
+              "agent_id": "agent-fixture",
+              "task_id": "task-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "allowed_tools": [
+                "report.create"
+              ]
+            },
+            "previous_hash": "",
+            "entry_hash": "ba7e8a138c6612c2e6f98c15960cd7af03ac5142f3ab65d8c5fdb5e6b3148eb1"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "0cb0635e110d4aacb838b924d359109a",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "MCP_TOOL_GRANTED",
+              "upstream_status": 200
+            },
+            "previous_hash": "ba7e8a138c6612c2e6f98c15960cd7af03ac5142f3ab65d8c5fdb5e6b3148eb1",
+            "entry_hash": "1cfc6f6a137319dc77c2ae15cfa172d0445120645ae8b5ab980841fd4acd30a5"
+          }
+        ],
+        "audit_added_by_call": [
+          {
+            "sequence": 1,
+            "trace_id": "trace-fixture",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "0cb0635e110d4aacb838b924d359109a",
+              "task_id": "task-fixture",
+              "agent_id": "agent-fixture",
+              "mcp_server_id": "mcp-fixture",
+              "method": "tools/call",
+              "tool": "report.create",
+              "reason": "MCP_TOOL_GRANTED",
+              "upstream_status": 200
+            },
+            "previous_hash": "ba7e8a138c6612c2e6f98c15960cd7af03ac5142f3ab65d8c5fdb5e6b3148eb1",
+            "entry_hash": "1cfc6f6a137319dc77c2ae15cfa172d0445120645ae8b5ab980841fd4acd30a5"
+          }
+        ],
+        "audit_verification": true,
+        "input_sha256": "7c3d75dfc84994d388207f2cc6b91231f6bac5d94c442b404801689143b9e555",
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "aiosqlite": "0.22.1",
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.14.2",
+          "certifi": "2026.7.22",
+          "charset-normalizer": "3.5.0",
+          "click": "8.4.2",
+          "colorama": "0.4.6",
+          "croniter": "6.2.4",
+          "docker": "7.2.0",
+          "fastapi": "0.141.1",
+          "greenlet": "3.5.5",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httptools": "0.8.0",
+          "httpx": "0.28.1",
+          "idna": "3.18",
+          "iniconfig": "2.3.0",
+          "packaging": "26.3",
+          "pip": "25.0.1",
+          "pluggy": "1.6.0",
+          "pydantic": "2.13.4",
+          "pydantic_core": "2.46.4",
+          "pydantic-settings": "2.15.0",
+          "Pygments": "2.20.0",
+          "pytest": "9.1.1",
+          "python-dateutil": "2.9.0.post0",
+          "python-dotenv": "1.2.2",
+          "pywin32": "312",
+          "PyYAML": "6.0.3",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "SQLAlchemy": "2.0.52",
+          "starlette": "1.6.0",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "urllib3": "2.7.0",
+          "uvicorn": "0.52.1",
+          "watchfiles": "1.2.0",
+          "websockets": "17.0.1"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "case": "CTRL_BEFORE_EXPIRY",
+      "method": "libos",
+      "job": {
+        "policy": {
+          "allowed_tools": [
+            "report.create"
+          ],
+          "allowed_resources": [
+            "repo/qame/report/a"
+          ],
+          "max_rows": 100,
+          "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+          "source_contract": {
+            "fixture/github/qame": [
+              "git.push"
+            ]
+          },
+          "unknown_or_missing": "deny",
+          "approval_order": "hard constraints first; approval cannot override denial",
+          "expiry": "deny when now >= expires_at"
+        },
+        "input": {
+          "host": {
+            "now": 1000,
+            "source_identity": "fixture/github/qame",
+            "source_verified": true
+          },
+          "event": {
+            "id": "evt-fixture",
+            "type": "git.push",
+            "source": "fixture/github/qame"
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "grant": {
+            "id": "grant-fixture",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "active",
+            "expires_at": 1001
+          },
+          "approval": {
+            "required": false
+          },
+          "call": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "receipt_count": 1
+      },
+      "observed": {
+        "decision_sequence": [
+          "allow"
+        ],
+        "tool_receipts": [
+          {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            },
+            "sequence": 1
+          }
+        ],
+        "input_sha256": "7c3d75dfc84994d388207f2cc6b91231f6bac5d94c442b404801689143b9e555",
+        "native_result": {
+          "server_id": "rr022-receipt",
+          "tool_id": "report_create",
+          "mcp_name": "report.create",
+          "status": "ok",
+          "ok": true,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "in-memory receipt"
+              }
+            ],
+            "structured_content": {
+              "tool": "report.create",
+              "arguments": {
+                "resource": "repo/qame/report/a",
+                "rows": 10
+              },
+              "sequence": 1
+            }
+          },
+          "error": null,
+          "response_bytes": 185,
+          "duration_s": 0.02,
+          "connection": {
+            "protocol_mode": "auto",
+            "protocol_era": "modern",
+            "protocol_revision": "2026-07-28",
+            "sessionless": true,
+            "fallback_used": false,
+            "server_name": "contract-fixture",
+            "server_version": "1.0",
+            "capabilities": [
+              "tools"
+            ],
+            "unsupported_capabilities": [
+              "prompts"
+            ]
+          },
+          "receipts": [
+            {
+              "phase": "server/discover",
+              "request_bytes": 0,
+              "response_bytes": 0,
+              "duration_s": 0.0,
+              "call_started": true
+            },
+            {
+              "phase": "tools/list",
+              "request_bytes": 16,
+              "response_bytes": 173,
+              "duration_s": 0.0,
+              "call_started": true
+            },
+            {
+              "phase": "tools/call",
+              "request_bytes": 32,
+              "response_bytes": 185,
+              "duration_s": 0.02,
+              "call_started": true
+            }
+          ],
+          "dispatch_state": "started",
+          "retry_class": "not_applicable",
+          "automatic_retry_disabled": true
+        },
+        "rejection": null,
+        "provider_calls": {
+          "call_tool": 0,
+          "validate_and_call": 1,
+          "discover": [],
+          "list_tools": []
+        },
+        "native_manifest": {
+          "schema_version": 2,
+          "server_id": "rr022-receipt",
+          "protocol_mode": "auto",
+          "transport": {
+            "type": "streamable_http",
+            "url": null,
+            "headers": {}
+          },
+          "stdio_authority_resource": null,
+          "tools": [
+            {
+              "tool_id": "report_create",
+              "mcp_name": "report.create",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_create",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            },
+            {
+              "tool_id": "report_preview",
+              "mcp_name": "report.preview",
+              "right": "read",
+              "resource": "mcp:rr022-receipt:report_preview",
+              "rollback_class": "no_rollback_required",
+              "rollback_status": "not_required",
+              "state_mutation": false,
+              "information_flow": true,
+              "input_schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "rows"
+                ],
+                "type": "object"
+              },
+              "metadata": {}
+            }
+          ],
+          "timeout_s": 5.0,
+          "max_request_bytes": 65536,
+          "max_response_bytes": 1048576,
+          "metadata": {},
+          "registered_by": "rr022-host",
+          "created_at": "2026-09-30T01:47:34.268038+00:00",
+          "updated_at": "2026-09-30T01:47:34.268038+00:00"
+        },
+        "native_process_id": "pid_6c5c086abbbd4fc9",
+        "capabilities_issued": [
+          {
+            "cap_id": "cap_473d2e54f1fb4a6a",
+            "subject": "pid_6c5c086abbbd4fc9",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:00:01+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_before_call": [
+          {
+            "cap_id": "cap_473d2e54f1fb4a6a",
+            "subject": "pid_6c5c086abbbd4fc9",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:00:01+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "capabilities_after_call": [
+          {
+            "cap_id": "cap_473d2e54f1fb4a6a",
+            "subject": "pid_6c5c086abbbd4fc9",
+            "resource": "mcp:rr022-receipt:report_create",
+            "rights": [
+              "read"
+            ],
+            "constraints": {},
+            "issued_by": "rr022-host",
+            "issued_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-01T00:00:01+00:00",
+            "delegable": false,
+            "revocable": true,
+            "effect": "allow",
+            "issuer_cap_id": null,
+            "parent_cap_id": null,
+            "delegation_depth": 0,
+            "max_delegation_depth": null,
+            "uses_remaining": null,
+            "status": "active",
+            "metadata": {}
+          }
+        ],
+        "audit_before_call_count": 235,
+        "audit_after_call_count": 244,
+        "audit_added_by_call": [
+          {
+            "record_id": "audit_2faeb7d662414541",
+            "timestamp": "2026-09-30T01:47:34.299622+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_9c40c71d5d5c4d61",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance precheck passed",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_2a23af8c488d434a",
+            "timestamp": "2026-09-30T01:47:34.299625+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "capability.authorize",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [
+              "cap_473d2e54f1fb4a6a"
+            ],
+            "decision": {
+              "allowed": true,
+              "constraint_results": {},
+              "consume_capability_id": null,
+              "context": {
+                "arguments_observation": {
+                  "bytes": 58,
+                  "preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+                  "redacted": true,
+                  "sha256": "843eb8ad5e694baf582f959b042653c67b789173f90d6ba7e73b7169ad534fb9",
+                  "truncated": false
+                },
+                "arguments_preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+                "arguments_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+                "authority_operation": "mcp.call",
+                "mcp_name": "report.create",
+                "operation": "mcp.call",
+                "pid": "pid_6c5c086abbbd4fc9",
+                "primitive": "runtime.mcp.call",
+                "protocol_mode": "auto",
+                "registry_generation": 1,
+                "registry_spec_sha256": "1b99172749b83eb6d62fc1a9eca3e8d8e7d13ad972e8b7c0e55a236f23138f57",
+                "right": "read",
+                "server_id": "rr022-receipt",
+                "tool_id": "report_create",
+                "transport": "streamable_http"
+              },
+              "effect": "allow",
+              "human_request_id": null,
+              "issuer_chain": [
+                "cap_473d2e54f1fb4a6a"
+              ],
+              "matched_capability_ids": [
+                "cap_473d2e54f1fb4a6a"
+              ],
+              "policy": "always_allow",
+              "reason": "capability allowed operation",
+              "resource": "mcp:rr022-receipt:report_create",
+              "right": "read",
+              "selected_capability_id": "cap_473d2e54f1fb4a6a",
+              "subject": "pid_6c5c086abbbd4fc9"
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_34a846fc2ff74923",
+            "timestamp": "2026-09-30T01:47:34.303132+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_d5148016dbc44617",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_a9a7ea47b26d4db3",
+            "timestamp": "2026-09-30T01:47:34.304151+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_0a3aa86235b74865",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_a26dbee617cc4265",
+            "timestamp": "2026-09-30T01:47:34.306142+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_821e8d5e27f44c68",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_f4ad9d8d44bb41b3",
+            "timestamp": "2026-09-30T01:47:34.309139+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_ce38a21b65894a13",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_11e522a4e0ab4461",
+            "timestamp": "2026-09-30T01:47:34.311172+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "data_flow.egress",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "decision_id": "dfd_6df997da696b40df",
+              "direction": "egress",
+              "labels": {
+                "declassification_authority": null,
+                "integrity": "unknown",
+                "origin": "local",
+                "principal": null,
+                "sensitivity": "normal",
+                "tenant": null,
+                "trust_level": "unknown"
+              },
+              "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+              "outcome": "allow",
+              "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "reason": "Sink clearance allows data sensitivity and identity",
+              "registry_generation": 0,
+              "release_capability_id": null,
+              "sink": "mcp:rr022-receipt:report_create",
+              "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "sink_trust_identity": "mcp:rr022-receipt:report_create",
+              "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+              "source_refs": [],
+              "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "trust_id": null,
+              "trust_sha256": null
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_7e6ea23c724d43b4",
+            "timestamp": "2026-09-30T01:47:34.312179+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "primitive.mcp.call",
+            "target": "mcp:rr022-receipt:report_create",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [
+              "cap_473d2e54f1fb4a6a"
+            ],
+            "decision": {
+              "arguments_observation": {
+                "bytes": 58,
+                "preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+                "redacted": true,
+                "sha256": "843eb8ad5e694baf582f959b042653c67b789173f90d6ba7e73b7169ad534fb9",
+                "truncated": false
+              },
+              "arguments_preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+              "arguments_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+              "automatic_retry_disabled": true,
+              "connection": {
+                "capabilities": [
+                  "tools"
+                ],
+                "fallback_used": false,
+                "protocol_era": "modern",
+                "protocol_mode": "auto",
+                "protocol_revision": "2026-07-28",
+                "server_name": "contract-fixture",
+                "server_version": "1.0",
+                "sessionless": true,
+                "unsupported_capabilities": [
+                  "prompts"
+                ]
+              },
+              "dispatch_state": "started",
+              "duration_s": 0.02,
+              "mcp_name": "report.create",
+              "ok": true,
+              "protocol_revision": "2026-07-28",
+              "receipts": [
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "server/discover",
+                  "request_bytes": 0,
+                  "response_bytes": 0
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "tools/list",
+                  "request_bytes": 16,
+                  "response_bytes": 173
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.02,
+                  "phase": "tools/call",
+                  "request_bytes": 32,
+                  "response_bytes": 185
+                }
+              ],
+              "response_bytes": 185,
+              "retry_class": "not_applicable",
+              "right": "read",
+              "sandbox_profile": {
+                "effect": "allow",
+                "operation": "mcp.call",
+                "resource": "mcp:rr022-receipt:report_create",
+                "restrictions": {
+                  "caller_supplied_transport": false,
+                  "registered_server_only": true,
+                  "server_id": "rr022-receipt",
+                  "tool_id": "report_create"
+                },
+                "risk": "high",
+                "rule_id": null
+              },
+              "server_id": "rr022-receipt",
+              "status": "ok",
+              "tool_id": "report_create"
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          },
+          {
+            "record_id": "audit_3368e00a26d44301",
+            "timestamp": "2026-09-30T01:47:34.314181+00:00",
+            "actor": "pid_6c5c086abbbd4fc9",
+            "action": "resource.charge",
+            "target": "process:pid_6c5c086abbbd4fc9",
+            "input_refs": [],
+            "output_refs": [],
+            "capability_refs": [],
+            "decision": {
+              "charged_pids": [
+                "pid_6c5c086abbbd4fc9"
+              ],
+              "context": {
+                "call_started": true,
+                "receipts": [
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "server/discover",
+                    "request_bytes": 0,
+                    "response_bytes": 0
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "tools/list",
+                    "request_bytes": 16,
+                    "response_bytes": 173
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.02,
+                    "phase": "tools/call",
+                    "request_bytes": 32,
+                    "response_bytes": 185
+                  }
+                ],
+                "request_bytes": 48,
+                "reservation_id": "usage_reservation_b64c913dd96e43af",
+                "response_bytes": 358,
+                "server_id": "rr022-receipt",
+                "settlement": "settled",
+                "status": "ok",
+                "tool_id": "report_create"
+              },
+              "source": "primitive.mcp.call",
+              "usage": {
+                "child_processes": 0,
+                "context_materialized_tokens": 0,
+                "deno_syscalls": 0,
+                "external_read_bytes": 0,
+                "external_write_bytes": 0,
+                "jsonrpc_request_bytes": 0,
+                "jsonrpc_response_bytes": 0,
+                "llm_calls": 0,
+                "llm_completion_tokens": 0,
+                "llm_prompt_tokens": 0,
+                "llm_total_tokens": 0,
+                "mcp_request_bytes": 48,
+                "mcp_response_bytes": 358,
+                "runtime_seconds": 0.0,
+                "subprocess_cpu_seconds": 0.0,
+                "subprocess_peak_memory_bytes": 0,
+                "subprocess_wall_seconds": 0.0,
+                "tool_calls": 0
+              }
+            },
+            "correlation_id": null,
+            "parent_record_id": null
+          }
+        ],
+        "external_effects": [
+          {
+            "effect_id": "effintent_23b1c739ffbd4668",
+            "record_id": "audit_7e6ea23c724d43b4",
+            "event_id": "evt_470cdc83bf4b4894",
+            "pid": "pid_6c5c086abbbd4fc9",
+            "provider": "mcp",
+            "operation": "call_tool",
+            "target": "mcp:rr022-receipt:report_create",
+            "rollback_class": "no_rollback_required",
+            "rollback_status": "not_required",
+            "state_mutation": false,
+            "information_flow": true,
+            "provider_metadata": {
+              "automatic_retry_disabled": true,
+              "connection": {
+                "capabilities": [
+                  "tools"
+                ],
+                "fallback_used": false,
+                "protocol_era": "modern",
+                "protocol_mode": "auto",
+                "protocol_revision": "2026-07-28",
+                "server_name": "contract-fixture",
+                "server_version": "1.0",
+                "sessionless": true,
+                "unsupported_capabilities": [
+                  "prompts"
+                ]
+              },
+              "context": {
+                "arguments_observation": {
+                  "bytes": 58,
+                  "preview": "{\"arguments\": {\"preview\": \"[redacted]\", \"redacted\": true}}",
+                  "redacted": true,
+                  "sha256": "843eb8ad5e694baf582f959b042653c67b789173f90d6ba7e73b7169ad534fb9",
+                  "truncated": false
+                },
+                "arguments_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+                "information_flow": true,
+                "mcp_name": "report.create",
+                "protocol_mode": "auto",
+                "request_bytes": 86,
+                "right": "read",
+                "rollback_class": "no_rollback_required",
+                "rollback_status": null,
+                "server_id": "rr022-receipt",
+                "state_mutation": false,
+                "tool_id": "report_create",
+                "transport": "streamable_http"
+              },
+              "data_flow": {
+                "decision_id": "dfd_6df997da696b40df",
+                "direction": "egress",
+                "labels": {
+                  "declassification_authority": null,
+                  "integrity": "unknown",
+                  "origin": "local",
+                  "principal": null,
+                  "sensitivity": "normal",
+                  "tenant": null,
+                  "trust_level": "unknown"
+                },
+                "labels_sha256": "22e36eec59822af90fdac9d138fe5153c18621faa766ce5469cbeffcd1bbd8a4",
+                "minimum_egress_integrity": "untrusted",
+                "outcome": "allow",
+                "payload_sha256": "8748e0903ad98a98b9c043a01a3663f2a46e958402a019673bc91aced1601c1f",
+                "reason": "Sink clearance allows data sensitivity and identity",
+                "registry_generation": 0,
+                "release_capability_id": null,
+                "sink": "mcp:rr022-receipt:report_create",
+                "sink_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+                "sink_trust_identity": "mcp:rr022-receipt:report_create",
+                "sink_trust_identity_sha256": "b75f4182a68ab4909518a7829d9abb3d9964b83151a483d60cb747977434de5d",
+                "source_refs": [],
+                "source_refs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+                "trust_id": null,
+                "trust_sha256": null
+              },
+              "dispatch_state": "started",
+              "duration_s": 0.02,
+              "effect_state": "finalized",
+              "ok": true,
+              "protected_operation": {
+                "actor": "pid_6c5c086abbbd4fc9",
+                "contract_name": "primitive.mcp.call",
+                "minimum_egress_integrity": "untrusted",
+                "prepared_recovery": null,
+                "reservation_ids": []
+              },
+              "protocol_revision": "2026-07-28",
+              "provider_phases": [
+                {
+                  "commits_authority": false,
+                  "information_flow": false,
+                  "name": "dns_resolution",
+                  "state_mutation": false
+                },
+                {
+                  "commits_authority": true,
+                  "information_flow": true,
+                  "name": "provider_validate_and_call",
+                  "state_mutation": false
+                }
+              ],
+              "provider_receipt": {
+                "connection": {
+                  "capabilities": [
+                    "tools"
+                  ],
+                  "fallback_used": false,
+                  "protocol_era": "modern",
+                  "protocol_mode": "auto",
+                  "protocol_revision": "2026-07-28",
+                  "server_name": "contract-fixture",
+                  "server_version": "1.0",
+                  "sessionless": true,
+                  "unsupported_capabilities": [
+                    "prompts"
+                  ]
+                },
+                "duration_s": 0.02,
+                "fallback_used": false,
+                "operation_response_bytes": 358,
+                "protocol_era": "modern",
+                "protocol_revision": "2026-07-28",
+                "receipts": [
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "server/discover",
+                    "request_bytes": 0,
+                    "response_bytes": 0
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "tools/list",
+                    "request_bytes": 16,
+                    "response_bytes": 173
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.02,
+                    "phase": "tools/call",
+                    "request_bytes": 32,
+                    "response_bytes": 185
+                  }
+                ],
+                "request_bytes": 48,
+                "response_bytes": 185
+              },
+              "receipts": [
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "server/discover",
+                  "request_bytes": 0,
+                  "response_bytes": 0
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "tools/list",
+                  "request_bytes": 16,
+                  "response_bytes": 173
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.02,
+                  "phase": "tools/call",
+                  "request_bytes": 32,
+                  "response_bytes": 185
+                }
+              ],
+              "response_bytes": 185,
+              "result": {
+                "automatic_retry_disabled": true,
+                "connection": {
+                  "capabilities": [
+                    "tools"
+                  ],
+                  "fallback_used": false,
+                  "protocol_era": "modern",
+                  "protocol_mode": "auto",
+                  "protocol_revision": "2026-07-28",
+                  "server_name": "contract-fixture",
+                  "server_version": "1.0",
+                  "sessionless": true,
+                  "unsupported_capabilities": [
+                    "prompts"
+                  ]
+                },
+                "dispatch_state": "started",
+                "duration_s": 0.02,
+                "ok": true,
+                "protocol_revision": "2026-07-28",
+                "receipts": [
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "server/discover",
+                    "request_bytes": 0,
+                    "response_bytes": 0
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.0,
+                    "phase": "tools/list",
+                    "request_bytes": 16,
+                    "response_bytes": 173
+                  },
+                  {
+                    "call_started": true,
+                    "duration_s": 0.02,
+                    "phase": "tools/call",
+                    "request_bytes": 32,
+                    "response_bytes": 185
+                  }
+                ],
+                "response_bytes": 185,
+                "retry_class": "not_applicable",
+                "status": "ok"
+              },
+              "retry_class": "not_applicable",
+              "status": "ok"
+            },
+            "created_at": "2026-09-30T01:47:34.313177+00:00",
+            "effect_state": "finalized",
+            "transaction_state": "committed",
+            "canonical_args_hash": "f18543cc32ab9e594f09ce7387fa1a2285416a08fe9cfa3db9aaf07306eeba46",
+            "idempotency_key": "af25e0b947f5dacfcd03d0453ee2e8fa29e34e776bead3ded48d3fbfb8fae564",
+            "provider_receipt": {
+              "connection": {
+                "capabilities": [
+                  "tools"
+                ],
+                "fallback_used": false,
+                "protocol_era": "modern",
+                "protocol_mode": "auto",
+                "protocol_revision": "2026-07-28",
+                "server_name": "contract-fixture",
+                "server_version": "1.0",
+                "sessionless": true,
+                "unsupported_capabilities": [
+                  "prompts"
+                ]
+              },
+              "duration_s": 0.02,
+              "fallback_used": false,
+              "operation_response_bytes": 358,
+              "protocol_era": "modern",
+              "protocol_revision": "2026-07-28",
+              "receipts": [
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "server/discover",
+                  "request_bytes": 0,
+                  "response_bytes": 0
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.0,
+                  "phase": "tools/list",
+                  "request_bytes": 16,
+                  "response_bytes": 173
+                },
+                {
+                  "call_started": true,
+                  "duration_s": 0.02,
+                  "phase": "tools/call",
+                  "request_bytes": 32,
+                  "response_bytes": 185
+                }
+              ],
+              "request_bytes": 48,
+              "response_bytes": 185
+            },
+            "updated_at": "2026-09-30T01:47:34.313178+00:00",
+            "payload_retention_schema_version": 1,
+            "payload_retention_tier": "full",
+            "payload_retention_sha256": null
+          }
+        ],
+        "upstream_commit": "85e8ff94c1e562bfb1f891714e3bf4bed9795690",
+        "upstream_source_modified": false,
+        "clock_adapter": "Evaluator datetime.now and capability issuance utc_now fixed to NOW; native comparison and state transitions unchanged. Audit wall-clock timestamps are separate.",
+        "fixture_sha256": "17d57c60df78d82eff9adb60f4f0d045f2aba2493d51af395cd733377646d26a",
+        "working_directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\libos-lifecycle-o_wf18wr",
+        "semantics": "Host bootstraps native process capability over a registered MCP tool; read-only inert tool, no external mutation",
+        "source_sha256": {
+          "agent_libos/primitives/mcp.py": "16f4de8fe62689ef82f212c0855f99b66d3f77f8d36ee55bb5367076c8a1a0cd",
+          "agent_libos/capability/manager.py": "e67524edcbdc11cf21f3e9c4d66b59628313feff573409091685fc8c0b39f680",
+          "agent_libos/capability/evaluator.py": "be8e85621dab31c59090b74e5cac42c39d0a613eb2ea14ec4ba62e847e91016a",
+          "agent_libos/capability/mutation.py": "518e8d52715c1e48e4daa589aa7c7f0ed9c9d8891031ebfc1b3f438b38c87dd4"
+        },
+        "error": null,
+        "stdout": "",
+        "python": "3.12.10",
+        "dependencies": {
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "attrs": "26.1.0",
+          "certifi": "2026.7.22",
+          "colorama": "0.4.6",
+          "distro": "1.9.0",
+          "execnet": "2.1.2",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.0",
+          "jiter": "0.17.0",
+          "jsonschema": "4.26.0",
+          "jsonschema-specifications": "2025.9.1",
+          "openai": "2.54.0",
+          "packaging": "26.3",
+          "pluggy": "1.6.0",
+          "psutil": "7.2.2",
+          "pydantic": "2.13.5",
+          "pydantic_core": "2.46.5",
+          "Pygments": "2.21.0",
+          "pytest": "9.1.1",
+          "pytest-timeout": "2.4.0",
+          "pytest-xdist": "3.8.0",
+          "PyYAML": "6.0.3",
+          "referencing": "0.37.0",
+          "regex": "2026.9.29",
+          "rpds-py": "2026.6.3",
+          "sniffio": "1.3.1",
+          "tqdm": "4.70.1",
+          "typing_extensions": "4.16.0",
+          "typing-inspection": "0.4.4"
+        },
+        "model_calls": 0
+      },
+      "stderr": "",
+      "pass": true
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "coverage": "T01/L01/L02 paired, plus one pre-expiry fixture control; L03 not comparable without separate binding protocol",
+  "limits": "No real network/model. Pinned upstream protocol fixture receipts contain synthetic byte/time values; never use for performance. Native authority and MCP entry points used; no lifecycle surrogate decision."
+}

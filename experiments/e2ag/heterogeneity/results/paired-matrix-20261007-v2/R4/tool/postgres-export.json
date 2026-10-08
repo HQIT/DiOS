@@ -1,0 +1,1143 @@
+{
+  "backend": "postgresql",
+  "database": "e2ag_r4_tool",
+  "version": "PostgreSQL 16.13 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "tables": {
+    "events": [
+      {
+        "id": "7c35c22b7c05",
+        "source": "http/fixture",
+        "status": "failed",
+        "subject": "delivery-1",
+        "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+        "created_at": "2026-10-07T08:14:08.267576+00:00",
+        "dedup_hash": "ccacbca383e5739ff37fddfcdd701ef5490b45d6108f9ee3b812d2a29dec22f3",
+        "event_type": "http.received",
+        "audit_chain": [
+          {
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "evidence": {
+                "event_type": "http.received",
+                "source_pattern": "http/fixture"
+              },
+              "latency_us": 155,
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "contract_type": "http-qualification",
+              "policy_version": "e2ag-2026-08-12.1"
+            },
+            "sequence": 0,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "12a7d4816e032ebb1695e96f4fc9653df73bdad8aa6ec3e4ac3c3e60b07d37f3",
+            "previous_hash": ""
+          },
+          {
+            "stage": "policy",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "policy",
+              "decision": "allow",
+              "evidence": {
+                "tool": "",
+                "action": "report.create",
+                "resource": "",
+                "environment": "production"
+              },
+              "latency_us": 105,
+              "reason_codes": [
+                "POLICY_ALLOWED"
+              ],
+              "contract_type": "http-qualification",
+              "policy_version": "e2ag-2026-08-12.1"
+            },
+            "sequence": 1,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "516db04ba9cea18f018826b686755084fa80d0b9b9b08b7199d01d2e45b80485",
+            "previous_hash": "12a7d4816e032ebb1695e96f4fc9653df73bdad8aa6ec3e4ac3c3e60b07d37f3"
+          },
+          {
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+              "agent_id": "file-agent",
+              "grant_id": "fe0ab10aaa504559bd11582d3174a70c",
+              "allowed_tools": [
+                "report.write"
+              ],
+              "mcp_server_id": "file-tool",
+              "argument_constraints_sha256": "6b7f33942674dbcc26bacf7853d132882aafe5b989cf50db926b055cae6315af"
+            },
+            "sequence": 2,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "35e38074cb513d2f5489e50c74ed9d0fd9cad295ee0555dd9a1c9a9c380ca7a1",
+            "previous_hash": "516db04ba9cea18f018826b686755084fa80d0b9b9b08b7199d01d2e45b80485"
+          },
+          {
+            "stage": "tool_intent",
+            "outcome": "outcome_unknown",
+            "evidence": {
+              "tool": "",
+              "method": "initialize",
+              "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+              "grant_id": "fe0ab10aaa504559bd11582d3174a70c",
+              "invocation_id": "04174af33c9a4003a42bcf007239df21",
+              "request_sha256": "cabe8da3484c82db957143a35c85a46612dc07ddc233fca3e3b991bdc3e90130"
+            },
+            "sequence": 3,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "130969e6506742edbdbd59d71d4323207c144e5d217dc1b8d6f241ec62b1eb8d",
+            "previous_hash": "35e38074cb513d2f5489e50c74ed9d0fd9cad295ee0555dd9a1c9a9c380ca7a1"
+          },
+          {
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "tool": "",
+              "method": "initialize",
+              "reason": "MCP_CONTROL_METHOD_ALLOWED",
+              "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+              "agent_id": "file-agent",
+              "grant_id": "fe0ab10aaa504559bd11582d3174a70c",
+              "invocation_id": "04174af33c9a4003a42bcf007239df21",
+              "mcp_server_id": "file-tool",
+              "upstream_status": 200,
+              "argument_constraints_sha256": "6b7f33942674dbcc26bacf7853d132882aafe5b989cf50db926b055cae6315af"
+            },
+            "sequence": 4,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "b37e1a88901d8cb9901922f8bdca35ef9747574cd39d7a77a2b402cd7f2f1ea5",
+            "previous_hash": "130969e6506742edbdbd59d71d4323207c144e5d217dc1b8d6f241ec62b1eb8d"
+          },
+          {
+            "stage": "tool_intent",
+            "outcome": "outcome_unknown",
+            "evidence": {
+              "tool": "",
+              "method": "notifications/initialized",
+              "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+              "grant_id": "fe0ab10aaa504559bd11582d3174a70c",
+              "invocation_id": "9e53c9689c694beba0cd182c11f17a07",
+              "request_sha256": "59951ca0b212b103876fa23a9e58bcbbc8fbcc0120e3f5ee7214461e2bd1cd5e"
+            },
+            "sequence": 5,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "72a7e0d43f0b7350a8edd120a3a3b2822efa5867ca74350a1d70a24d00afc508",
+            "previous_hash": "b37e1a88901d8cb9901922f8bdca35ef9747574cd39d7a77a2b402cd7f2f1ea5"
+          },
+          {
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "tool": "",
+              "method": "notifications/initialized",
+              "reason": "MCP_CONTROL_METHOD_ALLOWED",
+              "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+              "agent_id": "file-agent",
+              "grant_id": "fe0ab10aaa504559bd11582d3174a70c",
+              "invocation_id": "9e53c9689c694beba0cd182c11f17a07",
+              "mcp_server_id": "file-tool",
+              "upstream_status": 202,
+              "argument_constraints_sha256": "6b7f33942674dbcc26bacf7853d132882aafe5b989cf50db926b055cae6315af"
+            },
+            "sequence": 6,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "16e0e693642092e49004be8bd4b11b978f6f7823463a63fb7a5847d15b8b1fbf",
+            "previous_hash": "72a7e0d43f0b7350a8edd120a3a3b2822efa5867ca74350a1d70a24d00afc508"
+          },
+          {
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "tool": "other.write",
+              "method": "tools/call",
+              "reason": "MCP_TOOL_NOT_GRANTED",
+              "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+              "agent_id": "file-agent",
+              "grant_id": "fe0ab10aaa504559bd11582d3174a70c",
+              "mcp_server_id": "file-tool",
+              "upstream_status": null,
+              "argument_constraints_sha256": "6b7f33942674dbcc26bacf7853d132882aafe5b989cf50db926b055cae6315af"
+            },
+            "sequence": 7,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "542cd6a29cf60ec79c5ae59b823c58e5931c5f1a7f20db6aa0a5d46fd8362127",
+            "previous_hash": "16e0e693642092e49004be8bd4b11b978f6f7823463a63fb7a5847d15b8b1fbf"
+          },
+          {
+            "stage": "tool_grant",
+            "outcome": "grant_revoked",
+            "evidence": {
+              "reason": "task_lifecycle",
+              "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+              "grant_id": "fe0ab10aaa504559bd11582d3174a70c"
+            },
+            "sequence": 8,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "f91b112e5abc0e9f7771e91b22b1bbb51308fd7a238f1d42ffef2e50189dbf07",
+            "previous_hash": "542cd6a29cf60ec79c5ae59b823c58e5931c5f1a7f20db6aa0a5d46fd8362127"
+          },
+          {
+            "stage": "a2a_task",
+            "outcome": "failed",
+            "evidence": {
+              "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+              "agent_id": "file-agent"
+            },
+            "sequence": 9,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "7cf65d5903d78ae2771204087ba2735d62f36a2571546612950b3cb22a7b014b",
+            "previous_hash": "f91b112e5abc0e9f7771e91b22b1bbb51308fd7a238f1d42ffef2e50189dbf07"
+          },
+          {
+            "stage": "dispatch",
+            "outcome": "failed",
+            "evidence": {
+              "error": "Agent file-agent: ",
+              "matched_agent_ids": [
+                "file-agent"
+              ]
+            },
+            "sequence": 10,
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+            "entry_hash": "a044762c195a1df6b696e14aaafdd491533ff59fc884a1cc74db26bf899f56ff",
+            "previous_hash": "7cf65d5903d78ae2771204087ba2735d62f36a2571546612950b3cb22a7b014b"
+          }
+        ],
+        "cloud_event": {
+          "id": "delivery-1",
+          "data": {
+            "text": "governance receipt",
+            "environment": "production",
+            "requested_action": "report.create"
+          },
+          "type": "http.received",
+          "source": "http/fixture",
+          "subject": "delivery-1",
+          "specversion": "1.0",
+          "deliverydigest": "6d028e71efa100c6d4a7239b568ca60b2bfb4ecda292d4d7c33a95ed6b724484",
+          "deliverysubject": "Qualification task"
+        },
+        "max_retries": 3,
+        "retry_count": 0,
+        "error_message": "Agent file-agent: ",
+        "next_retry_at": "2026-10-07T08:15:08.265575+00:00",
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "allow",
+          "evidence": {
+            "tool": "",
+            "action": "report.create",
+            "resource": "",
+            "environment": "production"
+          },
+          "latency_us": 105,
+          "reason_codes": [
+            "POLICY_ALLOWED"
+          ],
+          "contract_type": "http-qualification",
+          "policy_version": "e2ag-2026-08-12.1",
+          "effective_decision": "allow"
+        },
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "evidence": {
+            "event_type": "http.received",
+            "source_pattern": "http/fixture"
+          },
+          "latency_us": 155,
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "contract_type": "http-qualification",
+          "policy_version": "e2ag-2026-08-12.1"
+        },
+        "matched_agent_ids": [
+          "file-agent"
+        ]
+      }
+    ],
+    "tasks": [
+      {
+        "id": "cbe75d6142ba4667bf7ce261baf6dd36",
+        "error": "",
+        "status": "failed",
+        "message": {
+          "role": "user",
+          "_e2ag": {
+            "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5"
+          },
+          "parts": [
+            {
+              "kind": "text",
+              "text": "[Event type=http.received source=http/fixture subject=delivery-1]"
+            },
+            {
+              "data": {
+                "text": "governance receipt",
+                "environment": "production",
+                "requested_action": "report.create"
+              },
+              "kind": "data"
+            }
+          ],
+          "_source": {
+            "id": "delivery-1",
+            "kind": "cloudevent",
+            "type": "http.received",
+            "source": "http/fixture"
+          },
+          "messageId": "1f20db776b854c35bd4e22fe172ea683"
+        },
+        "agent_id": "file-agent",
+        "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+        "artifacts": [
+          {
+            "response": {
+              "id": 2,
+              "error": {
+                "code": -32003,
+                "data": {
+                  "tool": "other.write",
+                  "reason": "MCP_TOOL_NOT_GRANTED",
+                  "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5"
+                },
+                "message": "E2AG policy denied MCP request"
+              },
+              "jsonrpc": "2.0"
+            },
+            "qualification_call_status": 403
+          }
+        ],
+        "context_id": "7c35c22b7c05",
+        "created_at": "2026-10-07T08:14:08.30511+00:00",
+        "updated_at": "2026-10-07T08:14:08.30511+00:00"
+      }
+    ],
+    "grants": [
+      {
+        "id": "fe0ab10aaa504559bd11582d3174a70c",
+        "status": "revoked",
+        "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+        "agent_id": "file-agent",
+        "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+        "call_count": 1,
+        "created_at": "2026-10-07T08:14:08.356878+00:00",
+        "expires_at": "2026-10-07T08:29:08.354878+00:00",
+        "event_log_id": "7c35c22b7c05",
+        "last_used_at": "2026-10-07T08:14:09.115901+00:00",
+        "allowed_tools": [
+          "report.write"
+        ],
+        "mcp_server_id": "file-tool",
+        "argument_constraints": {
+          "tools": {
+            "report.write": {
+              "report": {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1
+              },
+              "resource": {
+                "enum": [
+                  "report/allowed"
+                ],
+                "type": "string"
+              }
+            }
+          },
+          "version": 2
+        }
+      }
+    ],
+    "approvals": [],
+    "invocations": [
+      {
+        "id": "04174af33c9a4003a42bcf007239df21",
+        "state": "response_received",
+        "method": "initialize",
+        "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+        "grant_id": "fe0ab10aaa504559bd11582d3174a70c",
+        "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+        "tool_name": "",
+        "created_at": "2026-10-07T08:14:08.411206+00:00",
+        "finished_at": "2026-10-07T08:14:08.801447+00:00",
+        "event_log_id": "7c35c22b7c05",
+        "request_sha256": "cabe8da3484c82db957143a35c85a46612dc07ddc233fca3e3b991bdc3e90130",
+        "response_sha256": "29be6f4a4b2718b68520477c42bd284301b18511b2d48e3ea09f34fe807fea31",
+        "upstream_status": 200
+      },
+      {
+        "id": "9e53c9689c694beba0cd182c11f17a07",
+        "state": "response_received",
+        "method": "notifications/initialized",
+        "task_id": "cbe75d6142ba4667bf7ce261baf6dd36",
+        "grant_id": "fe0ab10aaa504559bd11582d3174a70c",
+        "trace_id": "5b771ddd042d4aaa92520f7daef7bfa5",
+        "tool_name": "",
+        "created_at": "2026-10-07T08:14:08.835251+00:00",
+        "finished_at": "2026-10-07T08:14:09.080822+00:00",
+        "event_log_id": "7c35c22b7c05",
+        "request_sha256": "59951ca0b212b103876fa23a9e58bcbbc8fbcc0120e3f5ee7214461e2bd1cd5e",
+        "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "upstream_status": 202
+      }
+    ],
+    "receipts": [
+      {
+        "phase": "recorded",
+        "digest": "6d028e71efa100c6d4a7239b568ca60b2bfb4ecda292d4d7c33a95ed6b724484",
+        "source": "http/fixture",
+        "event_id": "delivery-1",
+        "identity": "71f6c1722976819bb97eafa74793c6f67c79f96fb1219fb6e6b92db2d806fabe",
+        "event_log_id": "7c35c22b7c05"
+      }
+    ],
+    "conflicts": []
+  },
+  "column_types": [
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "context_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "message",
+      "data_type": "json"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "artifacts",
+      "data_type": "json"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "error",
+      "data_type": "text"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "container_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "url",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "started_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "mode",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "group",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "role",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "description",
+      "data_type": "text"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "model",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "system_prompt",
+      "data_type": "text"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "skills",
+      "data_type": "json"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "mcp_config_path",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "mcp_server_ids",
+      "data_type": "json"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "workspace_path",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "capabilities",
+      "data_type": "json"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "env",
+      "data_type": "json"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "session_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "role",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "content",
+      "data_type": "text"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "title",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "type",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "enabled",
+      "data_type": "boolean"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "config",
+      "data_type": "json"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "decided_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "actor",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "reason",
+      "data_type": "text"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "token_hash",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "task_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "mcp_server_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "allowed_tools",
+      "data_type": "json"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "argument_constraints",
+      "data_type": "json"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "call_count",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "last_used_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "grant_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "task_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "method",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "tool_name",
+      "data_type": "text"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "request_sha256",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "state",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "upstream_status",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "response_sha256",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "finished_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "dedup_hash",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "owner_token",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "source",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "event_type",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "subject",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "cloud_event",
+      "data_type": "json"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "matched_agent_ids",
+      "data_type": "json"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "contract_decision",
+      "data_type": "json"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "policy_decision",
+      "data_type": "json"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "audit_chain",
+      "data_type": "jsonb"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "retry_count",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "max_retries",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "next_retry_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "error_message",
+      "data_type": "text"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "dedup_hash",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_conflicts",
+      "column_name": "key",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_conflicts",
+      "column_name": "identity",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_conflicts",
+      "column_name": "expected_digest",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_conflicts",
+      "column_name": "observed_digest",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "identity",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "source",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "event_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "digest",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "phase",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "transport",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "url",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "headers",
+      "data_type": "json"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "command",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "args",
+      "data_type": "json"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "env",
+      "data_type": "json"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "models",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "provider",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "model",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "base_url",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "api_key",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "display_name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "description",
+      "data_type": "text"
+    },
+    {
+      "table_name": "models",
+      "column_name": "context_length",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "models",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "description",
+      "data_type": "text"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "source_url",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "content",
+      "data_type": "text"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "source_pattern",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "event_types",
+      "data_type": "json"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "filter_rules",
+      "data_type": "json"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "cron_expression",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "enabled",
+      "data_type": "boolean"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    }
+  ]
+}

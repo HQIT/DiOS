@@ -1,0 +1,876 @@
+{
+  "backend": "postgresql",
+  "database": "e2ag_expiry_regression",
+  "version": "PostgreSQL 16.13 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "tables": {
+    "events": [
+      {
+        "id": "exp_app",
+        "source": "file/fixture",
+        "status": "dispatched",
+        "subject": "terminal state probe",
+        "trace_id": "trace_approved",
+        "created_at": "2026-10-07T07:49:52.452489+00:00",
+        "dedup_hash": "",
+        "event_type": "file.received",
+        "audit_chain": [
+          {
+            "stage": "approval",
+            "outcome": "pending",
+            "evidence": {
+              "expires_at": "2026-10-07T08:49:52.462487+00:00",
+              "approval_id": "03d0de7ff3354288970c65394dadb7f1"
+            },
+            "sequence": 0,
+            "trace_id": "trace_approved",
+            "entry_hash": "965a39c6a46301de97a41bdde002281b840891d231697afa8c0165c397ad0876",
+            "previous_hash": ""
+          },
+          {
+            "stage": "approval",
+            "outcome": "approved",
+            "evidence": {
+              "actor": "first-reviewer",
+              "reason": "",
+              "approval_id": "03d0de7ff3354288970c65394dadb7f1"
+            },
+            "sequence": 1,
+            "trace_id": "trace_approved",
+            "entry_hash": "58c8ca7e01c44d03246a2fded4da38edfb87def6b054183d057c37c5af0ea156",
+            "previous_hash": "965a39c6a46301de97a41bdde002281b840891d231697afa8c0165c397ad0876"
+          },
+          {
+            "stage": "dispatch",
+            "outcome": "no_target_after_approval",
+            "evidence": {
+              "matched_agent_ids": []
+            },
+            "sequence": 2,
+            "trace_id": "trace_approved",
+            "entry_hash": "0680c52c2315d2b1391ac67d28af3f003fd6628dd82231b17d1c8f6404460b98",
+            "previous_hash": "58c8ca7e01c44d03246a2fded4da38edfb87def6b054183d057c37c5af0ea156"
+          }
+        ],
+        "cloud_event": {},
+        "max_retries": 3,
+        "retry_count": 0,
+        "error_message": "",
+        "next_retry_at": null,
+        "policy_decision": {},
+        "contract_decision": {},
+        "matched_agent_ids": []
+      },
+      {
+        "id": "exp_rej",
+        "source": "file/fixture",
+        "status": "approval_rejected",
+        "subject": "terminal state probe",
+        "trace_id": "trace_rejected",
+        "created_at": "2026-10-07T07:49:52.581172+00:00",
+        "dedup_hash": "",
+        "event_type": "file.received",
+        "audit_chain": [
+          {
+            "stage": "approval",
+            "outcome": "pending",
+            "evidence": {
+              "expires_at": "2026-10-07T08:49:52.587172+00:00",
+              "approval_id": "759de1f02d82419cb419c6b1a5c023d7"
+            },
+            "sequence": 0,
+            "trace_id": "trace_rejected",
+            "entry_hash": "ab4fd39f4ba56ce0e59a596a61c96b140ec82d1e5f36a3fd7bbf4c8179a2c5d5",
+            "previous_hash": ""
+          },
+          {
+            "stage": "approval",
+            "outcome": "rejected",
+            "evidence": {
+              "actor": "first-reviewer",
+              "reason": "",
+              "approval_id": "759de1f02d82419cb419c6b1a5c023d7"
+            },
+            "sequence": 1,
+            "trace_id": "trace_rejected",
+            "entry_hash": "ddbf7369a854ee61ee911b6f28f131e125f22643fea912eda9eb845a6bcf68cb",
+            "previous_hash": "ab4fd39f4ba56ce0e59a596a61c96b140ec82d1e5f36a3fd7bbf4c8179a2c5d5"
+          }
+        ],
+        "cloud_event": {},
+        "max_retries": 3,
+        "retry_count": 0,
+        "error_message": "",
+        "next_retry_at": null,
+        "policy_decision": {},
+        "contract_decision": {},
+        "matched_agent_ids": []
+      }
+    ],
+    "tasks": [],
+    "grants": [],
+    "approvals": [
+      {
+        "id": "03d0de7ff3354288970c65394dadb7f1",
+        "actor": "first-reviewer",
+        "reason": "",
+        "status": "approved",
+        "trace_id": "trace_approved",
+        "created_at": "2026-10-07T07:49:52.462487+00:00",
+        "decided_at": "2026-10-07T07:49:52.528231+00:00",
+        "expires_at": "2026-10-07T08:49:52.462487+00:00",
+        "event_log_id": "exp_app"
+      },
+      {
+        "id": "759de1f02d82419cb419c6b1a5c023d7",
+        "actor": "first-reviewer",
+        "reason": "",
+        "status": "rejected",
+        "trace_id": "trace_rejected",
+        "created_at": "2026-10-07T07:49:52.588173+00:00",
+        "decided_at": "2026-10-07T07:49:52.606688+00:00",
+        "expires_at": "2026-10-07T08:49:52.587172+00:00",
+        "event_log_id": "exp_rej"
+      }
+    ],
+    "invocations": [],
+    "receipts": [],
+    "conflicts": []
+  },
+  "column_types": [
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "context_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "message",
+      "data_type": "json"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "artifacts",
+      "data_type": "json"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "error",
+      "data_type": "text"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "a2a_tasks",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "container_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "url",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agent_runtimes",
+      "column_name": "started_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "mode",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "group",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "role",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "description",
+      "data_type": "text"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "model",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "system_prompt",
+      "data_type": "text"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "skills",
+      "data_type": "json"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "mcp_config_path",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "mcp_server_ids",
+      "data_type": "json"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "workspace_path",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "capabilities",
+      "data_type": "json"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "env",
+      "data_type": "json"
+    },
+    {
+      "table_name": "agents",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "session_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "role",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "content",
+      "data_type": "text"
+    },
+    {
+      "table_name": "chat_messages",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "title",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "chat_sessions",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "type",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "enabled",
+      "data_type": "boolean"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "config",
+      "data_type": "json"
+    },
+    {
+      "table_name": "connectors",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "decided_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "actor",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "reason",
+      "data_type": "text"
+    },
+    {
+      "table_name": "e2ag_approvals",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "token_hash",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "task_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "mcp_server_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "allowed_tools",
+      "data_type": "json"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "argument_constraints",
+      "data_type": "json"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "call_count",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "last_used_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_grants",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "grant_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "task_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "method",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "tool_name",
+      "data_type": "text"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "request_sha256",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "state",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "upstream_status",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "response_sha256",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "e2ag_tool_invocations",
+      "column_name": "finished_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "dedup_hash",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "owner_token",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_dedup_claims",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "source",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "event_type",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "subject",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "cloud_event",
+      "data_type": "json"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "matched_agent_ids",
+      "data_type": "json"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "status",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "trace_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "contract_decision",
+      "data_type": "json"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "policy_decision",
+      "data_type": "json"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "audit_chain",
+      "data_type": "jsonb"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "retry_count",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "max_retries",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "next_retry_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "error_message",
+      "data_type": "text"
+    },
+    {
+      "table_name": "event_logs",
+      "column_name": "dedup_hash",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_conflicts",
+      "column_name": "key",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_conflicts",
+      "column_name": "identity",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_conflicts",
+      "column_name": "expected_digest",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_conflicts",
+      "column_name": "observed_digest",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "identity",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "source",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "event_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "digest",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "phase",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "hetero_receipts",
+      "column_name": "event_log_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "transport",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "url",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "headers",
+      "data_type": "json"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "command",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "args",
+      "data_type": "json"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "env",
+      "data_type": "json"
+    },
+    {
+      "table_name": "mcp_servers",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "models",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "provider",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "model",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "base_url",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "api_key",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "display_name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "models",
+      "column_name": "description",
+      "data_type": "text"
+    },
+    {
+      "table_name": "models",
+      "column_name": "context_length",
+      "data_type": "integer"
+    },
+    {
+      "table_name": "models",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "description",
+      "data_type": "text"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "source_url",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "content",
+      "data_type": "text"
+    },
+    {
+      "table_name": "skills",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "agent_id",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "source_pattern",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "event_types",
+      "data_type": "json"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "filter_rules",
+      "data_type": "json"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "cron_expression",
+      "data_type": "character varying"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "enabled",
+      "data_type": "boolean"
+    },
+    {
+      "table_name": "subscriptions",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    }
+  ]
+}

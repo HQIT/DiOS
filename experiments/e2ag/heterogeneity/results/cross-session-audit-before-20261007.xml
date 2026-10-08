@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="4.120" timestamp="2026-10-07T15:40:15.357777+08:00" hostname="Gang-Laptop"><testcase classname="tests.test_e2ag_cross_session_audit.CrossSessionAuditTests" name="test_approval_resume_preserves_other_session_evidence" time="1.812"><failure message="AssertionError: 1 != 0 : Dispatch overwrote another session's committed evidence">self = &lt;test_e2ag_cross_session_audit.CrossSessionAuditTests testMethod=test_approval_resume_preserves_other_session_evidence&gt;
+
+    async def test_approval_resume_preserves_other_session_evidence(self):
+        async with self.sessions() as db:
+            await self.prepare(db)
+            log, _ = await dispatch_event(base_tests.event("github/acme/repo", "git.push",
+                {"requested_action": "secret.read", "environment": "production"}), ["failed-agent"], db)
+            approval = (await db.execute(select(E2AGApproval))).scalar_one()
+            with patch("app.services.a2a_service._send_to_task_agent", self.independently_recorded_execution):
+                _, log = await decide_approval(db, approval.id, decision="approved", actor="qualification")
+&gt;           self.check_evidence(log)
+
+tests\test_e2ag_cross_session_audit.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_e2ag_cross_session_audit.py:30: in check_evidence
+    self.assertEqual(1, len(probes), "Dispatch overwrote another session's committed evidence")
+E   AssertionError: 1 != 0 : Dispatch overwrote another session's committed evidence</failure></testcase><testcase classname="tests.test_e2ag_cross_session_audit.CrossSessionAuditTests" name="test_dispatch_preserves_other_session_evidence" time="1.328"><failure message="AssertionError: 1 != 0 : Dispatch overwrote another session's committed evidence">self = &lt;test_e2ag_cross_session_audit.CrossSessionAuditTests testMethod=test_dispatch_preserves_other_session_evidence&gt;
+
+    async def test_dispatch_preserves_other_session_evidence(self):
+        async with self.sessions() as db:
+            await self.prepare(db)
+            with patch("app.services.a2a_service._send_to_task_agent", self.independently_recorded_execution):
+                log, _ = await dispatch_event(base_tests.event("github/acme/repo", "git.push",
+                    {"requested_action": "report.create"}), ["failed-agent"], db)
+&gt;           self.check_evidence(log)
+
+tests\test_e2ag_cross_session_audit.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_e2ag_cross_session_audit.py:30: in check_evidence
+    self.assertEqual(1, len(probes), "Dispatch overwrote another session's committed evidence")
+E   AssertionError: 1 != 0 : Dispatch overwrote another session's committed evidence</failure></testcase></testsuite></testsuites>

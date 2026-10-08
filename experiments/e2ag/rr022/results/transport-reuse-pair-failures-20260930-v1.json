@@ -1,0 +1,171 @@
+{
+  "status": "read_only_failure_audit",
+  "input_sha256": "9877cd1913373b5c8d6082438df2ea8169bb2d06b636ecc717a5bfc29a5e078b",
+  "cells": [
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 1,
+      "warmup_attempts": 2,
+      "warmup_failures": 0,
+      "measured_attempts": 7,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 1,
+      "warmup_attempts": 7,
+      "warmup_failures": 0,
+      "measured_attempts": 29,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "warmup_attempts": 13,
+      "warmup_failures": 0,
+      "measured_attempts": 38,
+      "measured_failures": 1,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "warmup_attempts": 8,
+      "warmup_failures": 0,
+      "measured_attempts": 13,
+      "measured_failures": 2,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "failures": [
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "request_id": "measurement-4-1",
+      "phase": "measurement",
+      "admission_status": 200,
+      "call_statuses": [
+        {
+          "tool": "snapshot.read",
+          "status": 503,
+          "error_data": {
+            "reason": "MCP_RESULT_PERSIST_FAILED",
+            "invocation_id": "69d5529314b94882a8cda2a3cc6d2533",
+            "execution_outcome": "unknown",
+            "automatic_retry": false
+          }
+        }
+      ],
+      "error": "HTTPStatusError: Server error '503 Service Unavailable' for url 'http://127.0.0.1:51024/api/internal/e2ag/mcp/fd12f437a32d4ac380f463c6675b3411'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503",
+      "event_id": "b3308fa7c04f",
+      "event_attribution_known": true,
+      "upstream_operations": {
+        "snapshot.read": 1
+      },
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {
+        "snapshot.read": 1
+      },
+      "invocation_schema_present": true,
+      "invocation_states": {
+        "outcome_unknown": 1
+      },
+      "upstream_operations_without_durable_intent": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "request_id": "measurement-0-1",
+      "phase": "measurement",
+      "admission_status": 200,
+      "call_statuses": [
+        {
+          "tool": "snapshot.read",
+          "status": 503,
+          "error_data": {
+            "reason": "MCP_INTENT_PERSIST_FAILED",
+            "forwarded": false
+          }
+        }
+      ],
+      "error": "HTTPStatusError: Server error '503 Service Unavailable' for url 'http://127.0.0.1:51064/api/internal/e2ag/mcp/6e29c8b48203449fbc028bed76cba006'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503",
+      "event_id": "965d29fdee07",
+      "event_attribution_known": true,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {},
+      "invocation_schema_present": true,
+      "invocation_states": {},
+      "upstream_operations_without_durable_intent": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "request_id": "measurement-3-1",
+      "phase": "measurement",
+      "admission_status": 200,
+      "call_statuses": [
+        {
+          "tool": "snapshot.read",
+          "status": 200,
+          "error_data": null
+        },
+        {
+          "tool": "report.write",
+          "status": 503,
+          "error_data": {
+            "reason": "MCP_RESULT_PERSIST_FAILED",
+            "invocation_id": "1c7f820c029f452199282decd078e04e",
+            "execution_outcome": "unknown",
+            "automatic_retry": false
+          }
+        }
+      ],
+      "error": "HTTPStatusError: Server error '503 Service Unavailable' for url 'http://127.0.0.1:51064/api/internal/e2ag/mcp/14e96fa85c35406b924da35fd9762c9b'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503",
+      "event_id": "b7a98bcc0cb7",
+      "event_attribution_known": true,
+      "upstream_operations": {
+        "snapshot.read": 1,
+        "report.write": 1
+      },
+      "persisted_reports": 1,
+      "persisted_tool_audit": {
+        "snapshot.read": 1
+      },
+      "upstream_operations_without_tool_audit": {
+        "report.write": 1
+      },
+      "invocation_schema_present": true,
+      "invocation_states": {
+        "response_received": 1,
+        "outcome_unknown": 1
+      },
+      "upstream_operations_without_durable_intent": {}
+    }
+  ],
+  "summary": {
+    "failed_requests": 3,
+    "measured_failed_requests": 3,
+    "warmup_failed_requests": 0,
+    "failed_requests_with_upstream_activity": 2,
+    "failed_requests_with_persisted_reports": 1,
+    "failed_g2_requests_with_audit_gap": 2,
+    "failed_g2_requests_with_missing_intent": 0,
+    "failed_requests_with_durable_unknown": 2
+  }
+}

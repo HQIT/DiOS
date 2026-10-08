@@ -1,0 +1,2224 @@
+{
+  "status": "passed",
+  "pilot_sha256": "5ca7f6ccfbb056b287f94d1c855c13c0fa5167f1f17112dadc77f80c6b7a679a",
+  "source_sha256": {
+    "experiments\\e2ag\\rr022\\check_bounded_content_controls.py": "337385012a6924ef6f2d6477068ea1cba9e3934248124cc6eb9fc88af95bd389",
+    "experiments\\e2ag\\rr022\\bounded_baseline_adapters.py": "4e6bc13fe82fad07f5ad3ccd51526c20e213eeafa5cadf36ce75956df9265ddc",
+    "experiments\\e2ag\\rr022\\opa_bounded_strings_v2.rego": "e1cadb3f8844842d261011a24f66f21ebed0abaf74ccad2f42fffdf25ce206f2",
+    "experiments\\e2ag\\rr022\\opa_call_context.rego": "ba6864c8aa698194a1d086219af20d894b445abc549f953e71ab50d6ba25d6df",
+    "experiments\\e2ag\\rr022\\run_archive_workflow_pilot.py": "d641be941729bff89d6c11503517687e381fd7d76b4f9da7c8dcbd277068a792",
+    "backend\\app\\services\\e2ag_arguments.py": "6e45de5f9b298f732b2b6249a48f3cf76d41d13e7e7936e27d2277d3053fc548"
+  },
+  "boundary_probes": [
+    {
+      "case": "minimum",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "a"
+      },
+      "expected": true,
+      "e2ag": true,
+      "opa": true,
+      "agentspec_predicate": true,
+      "reasons": [
+        "MCP_ARGUMENTS_GRANTED",
+        "MCP_ARGUMENTS_GRANTED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "maximum",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "abcd"
+      },
+      "expected": true,
+      "e2ag": true,
+      "opa": true,
+      "agentspec_predicate": true,
+      "reasons": [
+        "MCP_ARGUMENTS_GRANTED",
+        "MCP_ARGUMENTS_GRANTED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "overflow",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "abcde"
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_LENGTH_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "empty",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": ""
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_LENGTH_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "chinese",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "\u4e2d\u6587"
+      },
+      "expected": true,
+      "e2ag": true,
+      "opa": true,
+      "agentspec_predicate": true,
+      "reasons": [
+        "MCP_ARGUMENTS_GRANTED",
+        "MCP_ARGUMENTS_GRANTED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "emoji",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "\ud83d\ude42"
+      },
+      "expected": true,
+      "e2ag": true,
+      "opa": true,
+      "agentspec_predicate": true,
+      "reasons": [
+        "MCP_ARGUMENTS_GRANTED",
+        "MCP_ARGUMENTS_GRANTED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "combining",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "e\u0301"
+      },
+      "expected": true,
+      "e2ag": true,
+      "opa": true,
+      "agentspec_predicate": true,
+      "reasons": [
+        "MCP_ARGUMENTS_GRANTED",
+        "MCP_ARGUMENTS_GRANTED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "unicode_maximum",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "\u4e2d\u6587\ud83d\ude42e"
+      },
+      "expected": true,
+      "e2ag": true,
+      "opa": true,
+      "agentspec_predicate": true,
+      "reasons": [
+        "MCP_ARGUMENTS_GRANTED",
+        "MCP_ARGUMENTS_GRANTED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "unicode_overflow",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "\u4e2d\u6587\ud83d\ude42e\u0301"
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_LENGTH_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "integer",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": 42
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_TYPE_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "boolean",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": true
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_TYPE_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "null",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": null
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_TYPE_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "array",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": [
+          "a"
+        ]
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_TYPE_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "object",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": {
+          "a": 1
+        }
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_TYPE_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "surrogate",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "\ud800"
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_UNICODE_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "wrong_resource",
+      "candidate": {
+        "resource": "isolated/other",
+        "report": "a"
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_ENUM_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "missing_field",
+      "candidate": {
+        "resource": "isolated/report"
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_FIELDS_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "extra_field",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "a",
+        "extra": 1
+      },
+      "expected": false,
+      "e2ag": false,
+      "opa": false,
+      "agentspec_predicate": false,
+      "reasons": [
+        "MCP_ARGUMENT_FIELDS_DENIED",
+        "MCP_ARGUMENTS_DENIED"
+      ],
+      "passed": true
+    },
+    {
+      "case": "relaxed_length_control",
+      "candidate": {
+        "resource": "isolated/report",
+        "report": "abcde"
+      },
+      "expected": true,
+      "e2ag": true,
+      "opa": true,
+      "agentspec_predicate": true,
+      "passed": true
+    }
+  ],
+  "opa_evaluations": [
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "a"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": true,
+        "reason": "MCP_ARGUMENTS_GRANTED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "abcd"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": true,
+        "reason": "MCP_ARGUMENTS_GRANTED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "abcde"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": ""
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "\u4e2d\u6587"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": true,
+        "reason": "MCP_ARGUMENTS_GRANTED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "\ud83d\ude42"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": true,
+        "reason": "MCP_ARGUMENTS_GRANTED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "e\u0301"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": true,
+        "reason": "MCP_ARGUMENTS_GRANTED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "\u4e2d\u6587\ud83d\ude42e"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": true,
+        "reason": "MCP_ARGUMENTS_GRANTED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "\u4e2d\u6587\ud83d\ude42e\u0301"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": 42
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "int"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": true
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "bool"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": null
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "NoneType"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": [
+              "a"
+            ]
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "list"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": {
+              "a": 1
+            }
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "dict"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "\ud800"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "invalid_unicode"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/other",
+            "report": "a"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report"
+          }
+        },
+        "argument_types": {
+          "resource": "str"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "a",
+            "extra": 1
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str",
+          "extra": "int"
+        }
+      },
+      "result": {
+        "allow": false,
+        "reason": "MCP_ARGUMENTS_DENIED"
+      },
+      "error": null
+    },
+    {
+      "input": {
+        "phase": "call",
+        "authenticated": true,
+        "now": 1790726400.0,
+        "grant": {
+          "id": "bb7dec445de44f28b91340e747875c07",
+          "task_id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "event_log_id": "d7bcdec08f1c",
+          "mcp_server_id": "archive-snapshot-server",
+          "status": "active",
+          "allowed_tools": [
+            "report.write"
+          ],
+          "argument_constraints": {
+            "version": 2,
+            "tools": {
+              "report.write": {
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "isolated/report"
+                  ]
+                },
+                "report": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 5
+                }
+              }
+            }
+          },
+          "expires_at": 1790727300.0
+        },
+        "task": {
+          "id": "bfd79891eb6f4b6db3d5a876a6eabc60",
+          "agent_id": "archive-agent",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "status": "submitted"
+        },
+        "event": {
+          "id": "d7bcdec08f1c",
+          "source": "github/microsoft/vscode",
+          "event_type": "git.issue.opened",
+          "trace_id": "0c6d0425f81447d990d82736b6fa2d14",
+          "contract_decision": {
+            "mode": "enforce",
+            "stage": "contract",
+            "decision": "allow",
+            "reason_codes": [
+              "CONTRACT_BOUND"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            }
+          },
+          "policy_decision": {
+            "mode": "enforce",
+            "stage": "policy",
+            "decision": "allow",
+            "reason_codes": [
+              "POLICY_ALLOWED"
+            ],
+            "policy_version": "rr022-opa-admission-v1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "rego_sha256": "dc294ddac204a4cafeb3dd57ad7445e26f993f56c567852c93ce9f782f136d00"
+            },
+            "effective_decision": "allow"
+          }
+        },
+        "call": {
+          "method": "tools/call",
+          "name": "report.write",
+          "arguments": {
+            "resource": "isolated/report",
+            "report": "abcde"
+          }
+        },
+        "argument_types": {
+          "resource": "str",
+          "report": "str"
+        }
+      },
+      "result": {
+        "allow": true,
+        "reason": "MCP_ARGUMENTS_GRANTED"
+      },
+      "error": null
+    }
+  ],
+  "no_gate_controls": [
+    {
+      "case": "other_read_object",
+      "tool": "snapshot.read",
+      "candidate": {
+        "resource": "rr022-dev/microsoft/vscode/issue/337178-test-alias",
+        "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+        "source_event_id": "15466644884"
+      },
+      "passed": true,
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-phj5ovxy\\operations.jsonl",
+      "ledger_sha256": "215cfb9258256ce5ce33b94ff382345aa356764724a7964079a311af2f9fd690",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-phj5ovxy\\reports.jsonl",
+      "reports_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "wrong_read_version",
+      "tool": "snapshot.read",
+      "candidate": {
+        "resource": "rr022-dev/microsoft/vscode/issue/337178",
+        "version": "controlled-test-version-alias",
+        "source_event_id": "15466644884"
+      },
+      "passed": true,
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-aq1pe0lm\\operations.jsonl",
+      "ledger_sha256": "b5de2e65b8644dda7e368fd08df6a94b667344430253f51f729c834b869d17ad",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-aq1pe0lm\\reports.jsonl",
+      "reports_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "other_write_object",
+      "tool": "report.write",
+      "candidate": {
+        "resource": "rr022-dev/microsoft/vscode/issue/337178/other-intake",
+        "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+        "source_event_id": "15466644884",
+        "report": "{\"diagnostic\":true}"
+      },
+      "passed": true,
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-_11m1l_x\\operations.jsonl",
+      "ledger_sha256": "d43071a736ebe8b6b39eb25b87751248519de7e42e6d43c7f2c1af4b5e2d5642",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-_11m1l_x\\reports.jsonl",
+      "reports_sha256": "4f2634eca853e4448d8bc427863864298a63787ba05e4320e567803362e6b8cf"
+    },
+    {
+      "case": "oversize_report",
+      "tool": "report.write",
+      "candidate": {
+        "resource": "rr022-dev/microsoft/vscode/issue/337178/intake",
+        "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+        "source_event_id": "15466644884",
+        "report": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "passed": true,
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-5qdpkp8u\\operations.jsonl",
+      "ledger_sha256": "73523a0a3c2cb7afdc0433e97a2cfa7c0e1a24e8aa1e6ec530bfd57d7f31098e",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-5qdpkp8u\\reports.jsonl",
+      "reports_sha256": "830bfea795da852e8a28c36e0b32cb282f38141b5a48b9d8047f1d4c57cad487"
+    },
+    {
+      "case": "wrong_report_type",
+      "tool": "report.write",
+      "candidate": {
+        "resource": "rr022-dev/microsoft/vscode/issue/337178/intake",
+        "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+        "source_event_id": "15466644884",
+        "report": 42
+      },
+      "passed": true,
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-9j6eueti\\operations.jsonl",
+      "ledger_sha256": "6646e004d25b0a33e2bee1f135b7309a1951264738db99f9e1ae93a110d736a6",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\intake-no-gate-9j6eueti\\reports.jsonl",
+      "reports_sha256": "f29f8bc0624e8ee8d08f4042b4cd681751f002ba74667500ee453661009f461b"
+    }
+  ],
+  "scope": "19 predicate-level probes; AgentSpec custom predicate only here, official executor covered separately by pilot. Valid frozen schemas, not arbitrary schema equivalence. Five controls reuse the same HTTP tool without enforcement."
+}

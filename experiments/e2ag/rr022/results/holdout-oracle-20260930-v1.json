@@ -1,0 +1,745 @@
+{
+  "status": "oracle_frozen_not_for_reviewers",
+  "objects": [
+    {
+      "object_id": "H001",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 123,
+        "body_characters": 1655,
+        "labels": [
+          "documentation",
+          "in progress",
+          "severity:minor",
+          "timeseries"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H002",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 169,
+        "body_characters": 4742,
+        "labels": [
+          "bug",
+          "engine",
+          "severity:major",
+          "sql"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H003",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 147,
+        "body_characters": 1981,
+        "labels": [
+          "bug",
+          "engine",
+          "severity:minor",
+          "storage"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H004",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 187,
+        "body_characters": 6126,
+        "labels": [
+          "bug",
+          "concurrency",
+          "ha",
+          "security",
+          "severity:minor"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H005",
+      "expected_report": {
+        "repository": "ArcadeData/arcadedb",
+        "number": 8319,
+        "base": "3440a871a9d2296ee573c933ea1c22700df811a0",
+        "head": "24e1c564567219bc1eecdf4f643ef70b906f781c",
+        "merge_base": "16d934cc2602495337138d63db83a63d7bde23d1",
+        "changes": [
+          {
+            "path": "engine/src/main/java/com/arcadedb/database/DatabaseInternal.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "45fbad4922bcd1a86b772e46430735f41e376727"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "9fb85e5fbe4a602ac616889a1d0f1bacb2a7bc53"
+            }
+          },
+          {
+            "path": "engine/src/main/java/com/arcadedb/database/ImmutableDocument.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "69c87ff3b001b22a6a76f541b77a6b1bf0880f22"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "913dc5c74783895ffcf4d2c5eda856a7d2b52f0f"
+            }
+          },
+          {
+            "path": "engine/src/main/java/com/arcadedb/database/LocalDatabase.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "2d67cce4f59d609f4556e90df8b11d2cda099743"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "3c2f5ea8a9e68a5aadf9633184b6a254fa79a106"
+            }
+          },
+          {
+            "path": "engine/src/main/java/com/arcadedb/engine/BucketIterator.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "3766f46f4ef61b32ed14b83c5bb35cfe9cbfd555"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "6d9b82399d2feba50717a29e96612844fb8c313c"
+            }
+          },
+          {
+            "path": "engine/src/main/java/com/arcadedb/engine/LocalBucket.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "2eba9fbce09b1cf7ab6a0b2c4e1b0db0a024bde2"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "562f17f2306e327ad2400d9c9e3cc23ad2826525"
+            }
+          },
+          {
+            "path": "engine/src/main/java/com/arcadedb/graph/ImmutableEdge.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "e1bfec900d9a42b429e7e41fc0d3aff67a574603"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "5b89a27bb7730a35892b921678f202a63fde22a1"
+            }
+          },
+          {
+            "path": "engine/src/main/java/com/arcadedb/graph/ImmutableVertex.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "d8c41ea9eda914a5a532706ac63e5fcafec1dd18"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "b1afe4f98de8d3de14c782c7b9d28dd9b71a8d2a"
+            }
+          },
+          {
+            "path": "engine/src/test/java/com/arcadedb/engine/Issue8312ScanEagerRecordTest.java",
+            "change": "added",
+            "before": null,
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "0200b7c25b11a2997f16a29acd53420f91ec2d05"
+            }
+          }
+        ],
+        "counts": {
+          "added": 1,
+          "deleted": 0,
+          "modified": 7,
+          "submodule_paths": 0
+        }
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H006",
+      "expected_report": {
+        "repository": "ArcadeData/arcadedb",
+        "number": 8315,
+        "base": "6b06e55e362ef56d874038440556235a9e84aa79",
+        "head": "db9b82f5d7ceb09097584586702732389742bff9",
+        "merge_base": "16d934cc2602495337138d63db83a63d7bde23d1",
+        "changes": [
+          {
+            "path": "postgresw/src/main/java/com/arcadedb/postgres/PostgresNetworkExecutor.java",
+            "change": "modified",
+            "before": {
+              "mode": "100755",
+              "type": "blob",
+              "sha": "5aeb2361cdb0828592ac9bdb97ccc0348bd2b5c8"
+            },
+            "after": {
+              "mode": "100755",
+              "type": "blob",
+              "sha": "d35176beabd3e7c1fb26b27e6d2a3f75f6d2328a"
+            }
+          },
+          {
+            "path": "postgresw/src/main/java/com/arcadedb/postgres/PostgresPortal.java",
+            "change": "modified",
+            "before": {
+              "mode": "100755",
+              "type": "blob",
+              "sha": "d7bc3d7937c1f8b06541b99078221ab4b68fa5d9"
+            },
+            "after": {
+              "mode": "100755",
+              "type": "blob",
+              "sha": "05412e741a111279ec23a1a3d70f1bcd04d6db0c"
+            }
+          },
+          {
+            "path": "postgresw/src/main/java/com/arcadedb/postgres/PostgresSessionSettings.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "2409916b9d7b73d33aee79bc98e295da5324bd3e"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "cdc2c7dfd8340f33db3551d4b5794b930dda1a65"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/Issue6458PortalSuspensionIT.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "602cef29479f478803b6471d1ae101719bf983ac"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "ac2468ed148bf60db0dfb7aebe4fe69e49b8f90f"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/Issue6698PreparedStatementCloseIT.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "cf58262309820465bcf72f9883abc3990b5d0454"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "3bb711d50607e5211dfbf4a2ef2681522c1eae60"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/Issue6701SetSessionLocalIT.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "f23f7d03f8747f1206e019dc4bc8bfbe959a193d"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "45e87e9fe6a871a17cf5e7e1a61db16ddd5b6ed8"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/Issue7188CopyToStdoutIT.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "142524916b758c1619af8018f7737248e9e49bcb"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "6ff37738852526ebb486a831f42841d5d6b6e484"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/Issue8135SetAppliedAtExecuteIT.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "854a4173b3414f0d26d1cc7ee6092bdce1ec40fc"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "63b5d2aaa7b917807fe4f53ded7247ef23446fae"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/Issue8211Issue8212PortalLifecycleIT.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "9644669636cbcb4ff50e4dad4b1fa6d90726318f"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "4a9cee35aba1c2f1a46348d6194b703cea38ca84"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/Issue8241Issue8242Issue8244Issue8306SetAndExecuteIT.java",
+            "change": "added",
+            "before": null,
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "59c47c9244e0ad910ad55320927f0ab020cb8835"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/PostgresPortalTest.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "d4836d3a623f3d9dd60e3e703e2d20f7c53bd512"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "845743b1c341507922a2b89e0f9b90d69186c4fb"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/PostgresSessionSettingsTest.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "247bdd941ab35e76c997e7b45e2e4c5d3a89b223"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "f56b33571aeaca665dfa74cc45134b55f24e206c"
+            }
+          },
+          {
+            "path": "postgresw/src/test/java/com/arcadedb/postgres/PostgresSetCommandParsingTest.java",
+            "change": "modified",
+            "before": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "c0b026e6b9d733e1def2bcc8156645428ff3f275"
+            },
+            "after": {
+              "mode": "100644",
+              "type": "blob",
+              "sha": "993e5d682553f7395faef06b22687a837a8f1838"
+            }
+          }
+        ],
+        "counts": {
+          "added": 1,
+          "deleted": 0,
+          "modified": 12,
+          "submodule_paths": 0
+        }
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H007",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 202,
+        "body_characters": 6018,
+        "labels": [
+          "Team:SharedUX",
+          "failed-test"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H008",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 125,
+        "body_characters": 2160,
+        "labels": [
+          "Project:Serverless",
+          "Team: SecuritySolution",
+          "Team:Entity Analytics",
+          "bug",
+          "impact:high",
+          "triage_needed",
+          "v9.6.0"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H009",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 103,
+        "body_characters": 2982,
+        "labels": [
+          "needs-team"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H010",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 155,
+        "body_characters": 2998,
+        "labels": [
+          "Project:Accessibility",
+          "Team: SecuritySolution",
+          "WCAG A",
+          "defect-level-2"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    },
+    {
+      "object_id": "H011",
+      "expected_report": {
+        "title_present": true,
+        "title_characters": 66,
+        "body_characters": 1955,
+        "labels": [
+          "Team:agent-builder",
+          "bug"
+        ],
+        "queue": "awaiting_triage"
+      },
+      "cases": [
+        {
+          "case": "normal",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u662f"
+        },
+        {
+          "case": "other_read_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        },
+        {
+          "case": "other_write_object",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u662f",
+          "write_should_execute": "\u5426"
+        },
+        {
+          "case": "wrong_read_version",
+          "task_should_be_created": "\u662f",
+          "read_should_execute": "\u5426",
+          "write_should_execute": "\u524d\u5e8f\u5e94\u7ec8\u6b62"
+        }
+      ]
+    }
+  ]
+}

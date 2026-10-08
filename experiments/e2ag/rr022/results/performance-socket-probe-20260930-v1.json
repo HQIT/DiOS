@@ -1,0 +1,1867 @@
+{
+  "status": "socket_paths_qualified_not_performance_results",
+  "source_sha256": {
+    "experiments\\e2ag\\rr022\\performance_socket_probe.py": "ef8ddeb09ae46984eacffb8a7d5188960b6fa89942bbcfe151fb8a79e04bbd49",
+    "experiments\\e2ag\\rr022\\run_issue_intake_pilot.py": "69e651e9b3871d5038329ce6e03f9225f34d3999d1ba480500e1524f83aa2b67",
+    "experiments\\e2ag\\rr022\\run_archive_workflow_pilot.py": "d641be941729bff89d6c11503517687e381fd7d76b4f9da7c8dcbd277068a792",
+    "backend\\app\\api\\os\\events.py": "b62b3b0b723d810f332b9570ae30f5d2232663ab0b29e07a459030ffdcb3dd2c",
+    "backend\\app\\api\\internal\\e2ag_mcp.py": "0254e02ca872be83cf4d96dbe025da93edff08f9d9974f9c236fad25e7a0abdb",
+    "backend\\app\\services\\event_dispatcher.py": "a92acd25df3eeb93d90089c4c69984213694455bcd88e81bd72c6d56f7cdfb8c",
+    "backend\\app\\services\\event_router.py": "39eda3a6f1d8fdc49fbbe9bb5819f60d25286a6609d112eba82ffcbb542bb539",
+    "backend\\app\\services\\event_normalizer.py": "8c2d782c333013cf91089b7a9f07e8f75935308c50e8304614a9264bbce0b49a",
+    "backend\\app\\services\\a2a_service.py": "ae286126af3e73132a4c5c0931813c0a7fce8640ad7af0d374d0e1d2d007a75c",
+    "backend\\app\\services\\e2ag_tool_gateway.py": "43693a5136a377b4189935379521d767889b6a4559d76c89ef7aee1bddee6d52"
+  },
+  "rows": [
+    {
+      "mode": "G0",
+      "case": "normal",
+      "passed": true,
+      "event": {
+        "event_id": "b1e8022fd0d2",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "dispatched",
+        "trace_id": "bb95e72e822a45f7a61d9357ab30e9b5",
+        "contract_decision": {
+          "mode": "off",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "E2AG_DISABLED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {}
+        },
+        "policy_decision": {
+          "mode": "off",
+          "stage": "policy",
+          "decision": "allow",
+          "reason_codes": [
+            "E2AG_DISABLED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {},
+          "effective_decision": "allow"
+        },
+        "error": null
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "bb95e72e822a45f7a61d9357ab30e9b5",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "E2AG_DISABLED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "",
+              "latency_us": 0,
+              "evidence": {}
+            },
+            "previous_hash": "",
+            "entry_hash": "119a1bb11ddee7f95d8b7c6415cf68b0e850bc0279d1daad460edf0cc2011613"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "bb95e72e822a45f7a61d9357ab30e9b5",
+            "stage": "policy",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "policy",
+              "decision": "allow",
+              "reason_codes": [
+                "E2AG_DISABLED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "",
+              "latency_us": 0,
+              "evidence": {}
+            },
+            "previous_hash": "119a1bb11ddee7f95d8b7c6415cf68b0e850bc0279d1daad460edf0cc2011613",
+            "entry_hash": "3d89349ae6fa3523ac13ebf680d081382d1bd54e0c4a6700f34a6a5fb3fa4740"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "bb95e72e822a45f7a61d9357ab30e9b5",
+            "stage": "a2a_task",
+            "outcome": "submitted",
+            "evidence": {
+              "task_id": "90fbb62c92ec4189821f3bd3e234e40d",
+              "agent_id": "perf-agent"
+            },
+            "previous_hash": "3d89349ae6fa3523ac13ebf680d081382d1bd54e0c4a6700f34a6a5fb3fa4740",
+            "entry_hash": "86ccd4dad22b0e27eedcda6be24ad3c1e3bd5724b95037ee3e81f54b61d87520"
+          },
+          {
+            "sequence": 3,
+            "trace_id": "bb95e72e822a45f7a61d9357ab30e9b5",
+            "stage": "dispatch",
+            "outcome": "dispatched",
+            "evidence": {
+              "matched_agent_ids": [
+                "perf-agent"
+              ],
+              "error": ""
+            },
+            "previous_hash": "86ccd4dad22b0e27eedcda6be24ad3c1e3bd5724b95037ee3e81f54b61d87520",
+            "entry_hash": "bd530ea97f7f32fda3d1285210a6d015944de9d74fe7f5752731487398ecf329"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "90fbb62c92ec4189821f3bd3e234e40d",
+            "event_id": "b1e8022fd0d2",
+            "trace_id": "bb95e72e822a45f7a61d9357ab30e9b5",
+            "status": "submitted"
+          }
+        ],
+        "grants": [],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67464859128100,
+            "end_ns": 67464865428100
+          },
+          {
+            "stage": "task_and_optional_grant",
+            "event_id": "b1e8022fd0d2",
+            "start_ns": 67464923121800,
+            "task_committed_ns": 67464938560000,
+            "end_ns": 67464938562300
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67464872625600,
+            "end_ns": 67464953373500
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/b1e8022fd0d2",
+            "status": 200,
+            "start_ns": 67464957036000,
+            "end_ns": 67464961976300
+          }
+        ]
+      },
+      "calls": [
+        {
+          "tool": "snapshot.read",
+          "status": 200,
+          "start_ns": 67464962448500,
+          "end_ns": 67464982865300
+        },
+        {
+          "tool": "report.write",
+          "status": 200,
+          "start_ns": 67464982954400,
+          "end_ns": 67465014742700
+        }
+      ],
+      "client_ticks": {
+        "start_ns": 67464871564200,
+        "admitted_ns": 67464956283000,
+        "workflow_observed_ns": 67465014743700
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-ijtqp2y4\\operations.jsonl",
+      "ledger_sha256": "5c8710f147907c575e598240fdee81461d5370b9fa8dca496467e50e839bffd8",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-ijtqp2y4\\reports.jsonl",
+      "reports_sha256": "ca546cdae2fdb4d49b4baf5a562396fe60bbf96c61eb8cbe51a6931387e27bc5",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-ijtqp2y4\\state.db",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884"
+          },
+          "content_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+          "byte_count": 6016,
+          "line_count": 1
+        },
+        {
+          "sequence": 1,
+          "tool": "report.write",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178/intake",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884",
+            "report": "{\"body_characters\": 219, \"labels\": [\"automations\", \"debt\"], \"queue\": \"awaiting_triage\", \"title_characters\": 37, \"title_present\": true}"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "G0",
+      "case": "other_read_object",
+      "passed": true,
+      "event": {
+        "event_id": "0bd3463f858b",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "dispatched",
+        "trace_id": "2cce8e917392410fb45c819696abdabe",
+        "contract_decision": {
+          "mode": "off",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "E2AG_DISABLED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {}
+        },
+        "policy_decision": {
+          "mode": "off",
+          "stage": "policy",
+          "decision": "allow",
+          "reason_codes": [
+            "E2AG_DISABLED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {},
+          "effective_decision": "allow"
+        },
+        "error": null
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "2cce8e917392410fb45c819696abdabe",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "E2AG_DISABLED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "",
+              "latency_us": 0,
+              "evidence": {}
+            },
+            "previous_hash": "",
+            "entry_hash": "cc3b861861890a753e9f0b47d3b194617a627150169347865d9315090217419a"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "2cce8e917392410fb45c819696abdabe",
+            "stage": "policy",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "policy",
+              "decision": "allow",
+              "reason_codes": [
+                "E2AG_DISABLED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "",
+              "latency_us": 0,
+              "evidence": {}
+            },
+            "previous_hash": "cc3b861861890a753e9f0b47d3b194617a627150169347865d9315090217419a",
+            "entry_hash": "484eb2d67d460426849cd4b7dc60800cf960b053ec83f4e3baa8e19c8b30eaa9"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "2cce8e917392410fb45c819696abdabe",
+            "stage": "a2a_task",
+            "outcome": "submitted",
+            "evidence": {
+              "task_id": "a1180c16f4f040539280041da675bcec",
+              "agent_id": "perf-agent"
+            },
+            "previous_hash": "484eb2d67d460426849cd4b7dc60800cf960b053ec83f4e3baa8e19c8b30eaa9",
+            "entry_hash": "0fbf344ac64ea86cb95827974e4b1c295836d3ad8b929b731e58693d5e2aaa7c"
+          },
+          {
+            "sequence": 3,
+            "trace_id": "2cce8e917392410fb45c819696abdabe",
+            "stage": "dispatch",
+            "outcome": "dispatched",
+            "evidence": {
+              "matched_agent_ids": [
+                "perf-agent"
+              ],
+              "error": ""
+            },
+            "previous_hash": "0fbf344ac64ea86cb95827974e4b1c295836d3ad8b929b731e58693d5e2aaa7c",
+            "entry_hash": "5cc2b616a4ae9634d7283cb104d2c3b14e2aec53f6e25ab195a0fe295684d800"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "a1180c16f4f040539280041da675bcec",
+            "event_id": "0bd3463f858b",
+            "trace_id": "2cce8e917392410fb45c819696abdabe",
+            "status": "submitted"
+          }
+        ],
+        "grants": [],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67466760208600,
+            "end_ns": 67466767706500
+          },
+          {
+            "stage": "task_and_optional_grant",
+            "event_id": "0bd3463f858b",
+            "start_ns": 67466799309800,
+            "task_committed_ns": 67466814815400,
+            "end_ns": 67466814817500
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67466768969700,
+            "end_ns": 67466829028100
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/0bd3463f858b",
+            "status": 200,
+            "start_ns": 67466830039000,
+            "end_ns": 67466834717900
+          }
+        ]
+      },
+      "calls": [
+        {
+          "tool": "snapshot.read",
+          "status": 200,
+          "start_ns": 67466835226300,
+          "end_ns": 67466842600800
+        },
+        {
+          "tool": "report.write",
+          "status": 200,
+          "start_ns": 67466842723700,
+          "end_ns": 67466855625300
+        }
+      ],
+      "client_ticks": {
+        "start_ns": 67466768430800,
+        "admitted_ns": 67466829534900,
+        "workflow_observed_ns": 67466855626800
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-tfbvxbht\\operations.jsonl",
+      "ledger_sha256": "50c154d6a0d7a518657ef5d7f22ae16a9efa35345fe21f6675878d26fa6b870b",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-tfbvxbht\\reports.jsonl",
+      "reports_sha256": "ca546cdae2fdb4d49b4baf5a562396fe60bbf96c61eb8cbe51a6931387e27bc5",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-tfbvxbht\\state.db",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178-test-alias",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884"
+          },
+          "content_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+          "byte_count": 6016,
+          "line_count": 1
+        },
+        {
+          "sequence": 1,
+          "tool": "report.write",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178/intake",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884",
+            "report": "{\"body_characters\": 219, \"labels\": [\"automations\", \"debt\"], \"queue\": \"awaiting_triage\", \"title_characters\": 37, \"title_present\": true}"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "G0",
+      "case": "admission_denied",
+      "passed": true,
+      "event": {
+        "event_id": "5ab7a81f89bc",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "dispatched",
+        "trace_id": "3d2af3f804d446b8b584b94460ba3848",
+        "contract_decision": {
+          "mode": "off",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "E2AG_DISABLED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {}
+        },
+        "policy_decision": {
+          "mode": "off",
+          "stage": "policy",
+          "decision": "allow",
+          "reason_codes": [
+            "E2AG_DISABLED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {},
+          "effective_decision": "allow"
+        },
+        "error": null
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "3d2af3f804d446b8b584b94460ba3848",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "E2AG_DISABLED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "",
+              "latency_us": 0,
+              "evidence": {}
+            },
+            "previous_hash": "",
+            "entry_hash": "3672d5137c6d22dd0ff0161f213e18f3279f079c04920cc8184a06f19ae0ed60"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "3d2af3f804d446b8b584b94460ba3848",
+            "stage": "policy",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "policy",
+              "decision": "allow",
+              "reason_codes": [
+                "E2AG_DISABLED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "",
+              "latency_us": 0,
+              "evidence": {}
+            },
+            "previous_hash": "3672d5137c6d22dd0ff0161f213e18f3279f079c04920cc8184a06f19ae0ed60",
+            "entry_hash": "109dd0e89d3e1f553117eb741b50f7256ecc566eb71dcf7bc46482be353e51a9"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "3d2af3f804d446b8b584b94460ba3848",
+            "stage": "a2a_task",
+            "outcome": "submitted",
+            "evidence": {
+              "task_id": "7dd90571c56b49a991646f57a3deb730",
+              "agent_id": "perf-agent"
+            },
+            "previous_hash": "109dd0e89d3e1f553117eb741b50f7256ecc566eb71dcf7bc46482be353e51a9",
+            "entry_hash": "c3051e6ac1837f0a05f07fdb15225871c2ff4f63a557101d8786357b6329837c"
+          },
+          {
+            "sequence": 3,
+            "trace_id": "3d2af3f804d446b8b584b94460ba3848",
+            "stage": "dispatch",
+            "outcome": "dispatched",
+            "evidence": {
+              "matched_agent_ids": [
+                "perf-agent"
+              ],
+              "error": ""
+            },
+            "previous_hash": "c3051e6ac1837f0a05f07fdb15225871c2ff4f63a557101d8786357b6329837c",
+            "entry_hash": "f0cb9f94a49157ca9c1e34e790417c6c639e76b278a9415ca6ceb6cbd967c0ad"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "7dd90571c56b49a991646f57a3deb730",
+            "event_id": "5ab7a81f89bc",
+            "trace_id": "3d2af3f804d446b8b584b94460ba3848",
+            "status": "submitted"
+          }
+        ],
+        "grants": [],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67468797836100,
+            "end_ns": 67468804264400
+          },
+          {
+            "stage": "task_and_optional_grant",
+            "event_id": "5ab7a81f89bc",
+            "start_ns": 67468849883100,
+            "task_committed_ns": 67468866373600,
+            "end_ns": 67468866375600
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67468810804300,
+            "end_ns": 67468883881000
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/5ab7a81f89bc",
+            "status": 200,
+            "start_ns": 67468885146300,
+            "end_ns": 67468892586800
+          }
+        ]
+      },
+      "calls": [
+        {
+          "tool": "snapshot.read",
+          "status": 200,
+          "start_ns": 67468893122700,
+          "end_ns": 67468903936500
+        },
+        {
+          "tool": "report.write",
+          "status": 200,
+          "start_ns": 67468904057200,
+          "end_ns": 67468940783300
+        }
+      ],
+      "client_ticks": {
+        "start_ns": 67468808816800,
+        "admitted_ns": 67468884519300,
+        "workflow_observed_ns": 67468940784400
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-w216ap3d\\operations.jsonl",
+      "ledger_sha256": "5c8710f147907c575e598240fdee81461d5370b9fa8dca496467e50e839bffd8",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-w216ap3d\\reports.jsonl",
+      "reports_sha256": "ca546cdae2fdb4d49b4baf5a562396fe60bbf96c61eb8cbe51a6931387e27bc5",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-w216ap3d\\state.db",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884"
+          },
+          "content_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+          "byte_count": 6016,
+          "line_count": 1
+        },
+        {
+          "sequence": 1,
+          "tool": "report.write",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178/intake",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884",
+            "report": "{\"body_characters\": 219, \"labels\": [\"automations\", \"debt\"], \"queue\": \"awaiting_triage\", \"title_characters\": 37, \"title_present\": true}"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "G1",
+      "case": "normal",
+      "passed": true,
+      "event": {
+        "event_id": "c8db5443645e",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "dispatched",
+        "trace_id": "99b8add3458c4b70b7088a871eccfdd7",
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 102,
+          "evidence": {
+            "source_pattern": "github/*",
+            "event_type": "git.issue.opened"
+          }
+        },
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "allow",
+          "reason_codes": [
+            "POLICY_ALLOWED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 130,
+          "evidence": {
+            "action": "report.create",
+            "tool": "snapshot.read",
+            "resource": "",
+            "environment": "test"
+          },
+          "effective_decision": "allow"
+        },
+        "error": null
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "99b8add3458c4b70b7088a871eccfdd7",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 102,
+              "evidence": {
+                "source_pattern": "github/*",
+                "event_type": "git.issue.opened"
+              }
+            },
+            "previous_hash": "",
+            "entry_hash": "06829908012ef9fc94de6fa2ec41ccb8b55cbbc632515bfb7a36eade07885c14"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "99b8add3458c4b70b7088a871eccfdd7",
+            "stage": "policy",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "policy",
+              "decision": "allow",
+              "reason_codes": [
+                "POLICY_ALLOWED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 130,
+              "evidence": {
+                "action": "report.create",
+                "tool": "snapshot.read",
+                "resource": "",
+                "environment": "test"
+              }
+            },
+            "previous_hash": "06829908012ef9fc94de6fa2ec41ccb8b55cbbc632515bfb7a36eade07885c14",
+            "entry_hash": "659ec2e539de3458fd955fe7c18df96056c0eedd5238b86eabcf6a69eae98c68"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "99b8add3458c4b70b7088a871eccfdd7",
+            "stage": "a2a_task",
+            "outcome": "submitted",
+            "evidence": {
+              "task_id": "39a6ba7ce3b147ccbd6c2b7b813217d3",
+              "agent_id": "perf-agent"
+            },
+            "previous_hash": "659ec2e539de3458fd955fe7c18df96056c0eedd5238b86eabcf6a69eae98c68",
+            "entry_hash": "489b1a0113e21a4417993bcaab2fbebca7b2cdd0269a4bea66833e772e501683"
+          },
+          {
+            "sequence": 3,
+            "trace_id": "99b8add3458c4b70b7088a871eccfdd7",
+            "stage": "dispatch",
+            "outcome": "dispatched",
+            "evidence": {
+              "matched_agent_ids": [
+                "perf-agent"
+              ],
+              "error": ""
+            },
+            "previous_hash": "489b1a0113e21a4417993bcaab2fbebca7b2cdd0269a4bea66833e772e501683",
+            "entry_hash": "8368e787d34ed5bbae6c2a96a05206fb0cc8423bc42454e13cda04f78468122d"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "39a6ba7ce3b147ccbd6c2b7b813217d3",
+            "event_id": "c8db5443645e",
+            "trace_id": "99b8add3458c4b70b7088a871eccfdd7",
+            "status": "submitted"
+          }
+        ],
+        "grants": [],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67470817850300,
+            "end_ns": 67470824919600
+          },
+          {
+            "stage": "task_and_optional_grant",
+            "event_id": "c8db5443645e",
+            "start_ns": 67470891112300,
+            "task_committed_ns": 67470909649500,
+            "end_ns": 67470909651400
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67470833858400,
+            "end_ns": 67470925895100
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/c8db5443645e",
+            "status": 200,
+            "start_ns": 67470926813700,
+            "end_ns": 67470932332600
+          }
+        ]
+      },
+      "calls": [
+        {
+          "tool": "snapshot.read",
+          "status": 200,
+          "start_ns": 67470932939000,
+          "end_ns": 67470940946000
+        },
+        {
+          "tool": "report.write",
+          "status": 200,
+          "start_ns": 67470941036000,
+          "end_ns": 67470955526300
+        }
+      ],
+      "client_ticks": {
+        "start_ns": 67470832214100,
+        "admitted_ns": 67470926406600,
+        "workflow_observed_ns": 67470955527200
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-_o7ivtb5\\operations.jsonl",
+      "ledger_sha256": "5c8710f147907c575e598240fdee81461d5370b9fa8dca496467e50e839bffd8",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-_o7ivtb5\\reports.jsonl",
+      "reports_sha256": "ca546cdae2fdb4d49b4baf5a562396fe60bbf96c61eb8cbe51a6931387e27bc5",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-_o7ivtb5\\state.db",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884"
+          },
+          "content_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+          "byte_count": 6016,
+          "line_count": 1
+        },
+        {
+          "sequence": 1,
+          "tool": "report.write",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178/intake",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884",
+            "report": "{\"body_characters\": 219, \"labels\": [\"automations\", \"debt\"], \"queue\": \"awaiting_triage\", \"title_characters\": 37, \"title_present\": true}"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "G1",
+      "case": "other_read_object",
+      "passed": true,
+      "event": {
+        "event_id": "be50d98cc501",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "dispatched",
+        "trace_id": "30e58b879d3e4e3181c2e8c1e5341401",
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 89,
+          "evidence": {
+            "source_pattern": "github/*",
+            "event_type": "git.issue.opened"
+          }
+        },
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "allow",
+          "reason_codes": [
+            "POLICY_ALLOWED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 132,
+          "evidence": {
+            "action": "report.create",
+            "tool": "snapshot.read",
+            "resource": "",
+            "environment": "test"
+          },
+          "effective_decision": "allow"
+        },
+        "error": null
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "30e58b879d3e4e3181c2e8c1e5341401",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 89,
+              "evidence": {
+                "source_pattern": "github/*",
+                "event_type": "git.issue.opened"
+              }
+            },
+            "previous_hash": "",
+            "entry_hash": "c7cdccab4a9984c7c4a79fb285846156f7f04ed44d974b1d1f8cfb3ad8b3c887"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "30e58b879d3e4e3181c2e8c1e5341401",
+            "stage": "policy",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "policy",
+              "decision": "allow",
+              "reason_codes": [
+                "POLICY_ALLOWED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 132,
+              "evidence": {
+                "action": "report.create",
+                "tool": "snapshot.read",
+                "resource": "",
+                "environment": "test"
+              }
+            },
+            "previous_hash": "c7cdccab4a9984c7c4a79fb285846156f7f04ed44d974b1d1f8cfb3ad8b3c887",
+            "entry_hash": "611a51d34803172a232b14d9e7c1dae337877ee3edd3d8c014bf4e7ae48c46d3"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "30e58b879d3e4e3181c2e8c1e5341401",
+            "stage": "a2a_task",
+            "outcome": "submitted",
+            "evidence": {
+              "task_id": "6a4749856406440d8c7e8047cbbbec93",
+              "agent_id": "perf-agent"
+            },
+            "previous_hash": "611a51d34803172a232b14d9e7c1dae337877ee3edd3d8c014bf4e7ae48c46d3",
+            "entry_hash": "6f6eaa944b83b69cf93f55c6a32c3fa881c7d73abd4f3aea2e0a2e420362258e"
+          },
+          {
+            "sequence": 3,
+            "trace_id": "30e58b879d3e4e3181c2e8c1e5341401",
+            "stage": "dispatch",
+            "outcome": "dispatched",
+            "evidence": {
+              "matched_agent_ids": [
+                "perf-agent"
+              ],
+              "error": ""
+            },
+            "previous_hash": "6f6eaa944b83b69cf93f55c6a32c3fa881c7d73abd4f3aea2e0a2e420362258e",
+            "entry_hash": "05c0eeefd8fc4fcb2821328a52674dff5e537eee9661df94254274a26e670771"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "6a4749856406440d8c7e8047cbbbec93",
+            "event_id": "be50d98cc501",
+            "trace_id": "30e58b879d3e4e3181c2e8c1e5341401",
+            "status": "submitted"
+          }
+        ],
+        "grants": [],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67472814622200,
+            "end_ns": 67472820988100
+          },
+          {
+            "stage": "task_and_optional_grant",
+            "event_id": "be50d98cc501",
+            "start_ns": 67472852204100,
+            "task_committed_ns": 67472867319300,
+            "end_ns": 67472867321700
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67472823478900,
+            "end_ns": 67472879405200
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/be50d98cc501",
+            "status": 200,
+            "start_ns": 67472880656100,
+            "end_ns": 67472886343500
+          }
+        ]
+      },
+      "calls": [
+        {
+          "tool": "snapshot.read",
+          "status": 200,
+          "start_ns": 67472887045600,
+          "end_ns": 67472892323200
+        },
+        {
+          "tool": "report.write",
+          "status": 200,
+          "start_ns": 67472892431700,
+          "end_ns": 67472903477700
+        }
+      ],
+      "client_ticks": {
+        "start_ns": 67472822826800,
+        "admitted_ns": 67472880195100,
+        "workflow_observed_ns": 67472903478800
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-8o9_kvih\\operations.jsonl",
+      "ledger_sha256": "50c154d6a0d7a518657ef5d7f22ae16a9efa35345fe21f6675878d26fa6b870b",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-8o9_kvih\\reports.jsonl",
+      "reports_sha256": "ca546cdae2fdb4d49b4baf5a562396fe60bbf96c61eb8cbe51a6931387e27bc5",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-8o9_kvih\\state.db",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178-test-alias",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884"
+          },
+          "content_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+          "byte_count": 6016,
+          "line_count": 1
+        },
+        {
+          "sequence": 1,
+          "tool": "report.write",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178/intake",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884",
+            "report": "{\"body_characters\": 219, \"labels\": [\"automations\", \"debt\"], \"queue\": \"awaiting_triage\", \"title_characters\": 37, \"title_present\": true}"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "G1",
+      "case": "admission_denied",
+      "passed": true,
+      "event": {
+        "event_id": "4431bcf12705",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "denied",
+        "trace_id": "bc0645b916a246139fff3b3e0f6e2bff",
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 92,
+          "evidence": {
+            "source_pattern": "github/*",
+            "event_type": "git.issue.opened"
+          }
+        },
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "deny",
+          "reason_codes": [
+            "POLICY_TARGET_CAPABILITY_VIOLATION"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 137,
+          "evidence": {
+            "violations": [
+              {
+                "agent_id": "perf-agent",
+                "dimension": "action"
+              }
+            ],
+            "action": "outside-policy",
+            "tool": "snapshot.read"
+          },
+          "effective_decision": "deny"
+        },
+        "error": "POLICY_TARGET_CAPABILITY_VIOLATION"
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "bc0645b916a246139fff3b3e0f6e2bff",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 92,
+              "evidence": {
+                "source_pattern": "github/*",
+                "event_type": "git.issue.opened"
+              }
+            },
+            "previous_hash": "",
+            "entry_hash": "e02ea1c83fa3a34eedea9b296b565f10ca9d1239326d256abb9d8d21c137384e"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "bc0645b916a246139fff3b3e0f6e2bff",
+            "stage": "policy",
+            "outcome": "deny",
+            "evidence": {
+              "stage": "policy",
+              "decision": "deny",
+              "reason_codes": [
+                "POLICY_TARGET_CAPABILITY_VIOLATION"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 137,
+              "evidence": {
+                "violations": [
+                  {
+                    "agent_id": "perf-agent",
+                    "dimension": "action"
+                  }
+                ],
+                "action": "outside-policy",
+                "tool": "snapshot.read"
+              }
+            },
+            "previous_hash": "e02ea1c83fa3a34eedea9b296b565f10ca9d1239326d256abb9d8d21c137384e",
+            "entry_hash": "df67137ca20c5d8ad71f4d342cda626b47dff355bb15b38b0af3df9176afceab"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "bc0645b916a246139fff3b3e0f6e2bff",
+            "stage": "dispatch",
+            "outcome": "blocked",
+            "evidence": {
+              "reason_codes": [
+                "POLICY_TARGET_CAPABILITY_VIOLATION"
+              ]
+            },
+            "previous_hash": "df67137ca20c5d8ad71f4d342cda626b47dff355bb15b38b0af3df9176afceab",
+            "entry_hash": "c75841bf2d798a51337ca7068deb15949d123d391033c4b367fb192a38d61c01"
+          }
+        ],
+        "tasks": [],
+        "grants": [],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67474809982300,
+            "end_ns": 67474816364600
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67474817568200,
+            "end_ns": 67474873404700
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/4431bcf12705",
+            "status": 200,
+            "start_ns": 67474874595200,
+            "end_ns": 67474879932600
+          }
+        ]
+      },
+      "calls": [],
+      "client_ticks": {
+        "start_ns": 67474817070700,
+        "admitted_ns": 67474874119500,
+        "workflow_observed_ns": 67474880427500
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-rkrjkhms\\operations.jsonl",
+      "ledger_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-rkrjkhms\\reports.jsonl",
+      "reports_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-rkrjkhms\\state.db",
+      "operations": []
+    },
+    {
+      "mode": "G2",
+      "case": "normal",
+      "passed": true,
+      "event": {
+        "event_id": "b6ee02711bca",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "dispatched",
+        "trace_id": "cfe33015408e4f15a69094ef00838a92",
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 78,
+          "evidence": {
+            "source_pattern": "github/*",
+            "event_type": "git.issue.opened"
+          }
+        },
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "allow",
+          "reason_codes": [
+            "POLICY_ALLOWED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 129,
+          "evidence": {
+            "action": "report.create",
+            "tool": "snapshot.read",
+            "resource": "",
+            "environment": "test"
+          },
+          "effective_decision": "allow"
+        },
+        "error": null
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "cfe33015408e4f15a69094ef00838a92",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 78,
+              "evidence": {
+                "source_pattern": "github/*",
+                "event_type": "git.issue.opened"
+              }
+            },
+            "previous_hash": "",
+            "entry_hash": "612fd885d59138470bea7905b361ce9d87fdb71e0d33016803c779ceacbea805"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "cfe33015408e4f15a69094ef00838a92",
+            "stage": "policy",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "policy",
+              "decision": "allow",
+              "reason_codes": [
+                "POLICY_ALLOWED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 129,
+              "evidence": {
+                "action": "report.create",
+                "tool": "snapshot.read",
+                "resource": "",
+                "environment": "test"
+              }
+            },
+            "previous_hash": "612fd885d59138470bea7905b361ce9d87fdb71e0d33016803c779ceacbea805",
+            "entry_hash": "8b932ab622bcec38138386e091ff9985f07a213c46de31fe439d62aed50391f9"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "cfe33015408e4f15a69094ef00838a92",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "d8f6e7edc1294947b697fe6e163f381e",
+              "agent_id": "perf-agent",
+              "task_id": "79864daed1fb434682085f1b08ec6389",
+              "mcp_server_id": "perf-tool",
+              "allowed_tools": [
+                "snapshot.read",
+                "report.write"
+              ],
+              "argument_constraints_sha256": "b89a676f8c5607f237189531bfdad28da403fefe0dce3df6044aa12a2c685624"
+            },
+            "previous_hash": "8b932ab622bcec38138386e091ff9985f07a213c46de31fe439d62aed50391f9",
+            "entry_hash": "d7da096c1843f06801c1775a0f2c1a50e4107ee389d338b2d860390bb272c180"
+          },
+          {
+            "sequence": 3,
+            "trace_id": "cfe33015408e4f15a69094ef00838a92",
+            "stage": "a2a_task",
+            "outcome": "submitted",
+            "evidence": {
+              "task_id": "79864daed1fb434682085f1b08ec6389",
+              "agent_id": "perf-agent"
+            },
+            "previous_hash": "d7da096c1843f06801c1775a0f2c1a50e4107ee389d338b2d860390bb272c180",
+            "entry_hash": "1d296d6dd4995d759e9ba40a008ca8f217099665ba32ab1ec4a272aab40ffe9b"
+          },
+          {
+            "sequence": 4,
+            "trace_id": "cfe33015408e4f15a69094ef00838a92",
+            "stage": "dispatch",
+            "outcome": "dispatched",
+            "evidence": {
+              "matched_agent_ids": [
+                "perf-agent"
+              ],
+              "error": ""
+            },
+            "previous_hash": "1d296d6dd4995d759e9ba40a008ca8f217099665ba32ab1ec4a272aab40ffe9b",
+            "entry_hash": "00bf6bfb3e2c9c805305cadbf7df47ca1afe95730d967f6a31595f938a8c3fd0"
+          },
+          {
+            "sequence": 5,
+            "trace_id": "cfe33015408e4f15a69094ef00838a92",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "d8f6e7edc1294947b697fe6e163f381e",
+              "task_id": "79864daed1fb434682085f1b08ec6389",
+              "agent_id": "perf-agent",
+              "mcp_server_id": "perf-tool",
+              "method": "tools/call",
+              "tool": "snapshot.read",
+              "reason": "MCP_ARGUMENTS_GRANTED",
+              "upstream_status": 200,
+              "argument_constraints_sha256": "b89a676f8c5607f237189531bfdad28da403fefe0dce3df6044aa12a2c685624"
+            },
+            "previous_hash": "00bf6bfb3e2c9c805305cadbf7df47ca1afe95730d967f6a31595f938a8c3fd0",
+            "entry_hash": "137192e1f909aa6402f142969b5e1fb80a4dcb56873d49e7ce19e992e54bd285"
+          },
+          {
+            "sequence": 6,
+            "trace_id": "cfe33015408e4f15a69094ef00838a92",
+            "stage": "tool_call",
+            "outcome": "allow",
+            "evidence": {
+              "grant_id": "d8f6e7edc1294947b697fe6e163f381e",
+              "task_id": "79864daed1fb434682085f1b08ec6389",
+              "agent_id": "perf-agent",
+              "mcp_server_id": "perf-tool",
+              "method": "tools/call",
+              "tool": "report.write",
+              "reason": "MCP_ARGUMENTS_GRANTED",
+              "upstream_status": 200,
+              "argument_constraints_sha256": "b89a676f8c5607f237189531bfdad28da403fefe0dce3df6044aa12a2c685624"
+            },
+            "previous_hash": "137192e1f909aa6402f142969b5e1fb80a4dcb56873d49e7ce19e992e54bd285",
+            "entry_hash": "82873b4e571870e061d691dada8174b2a8c6a45371d463123856090fe31bdb3d"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "79864daed1fb434682085f1b08ec6389",
+            "event_id": "b6ee02711bca",
+            "trace_id": "cfe33015408e4f15a69094ef00838a92",
+            "status": "submitted"
+          }
+        ],
+        "grants": [
+          {
+            "id": "d8f6e7edc1294947b697fe6e163f381e",
+            "task_id": "79864daed1fb434682085f1b08ec6389",
+            "call_count": 2
+          }
+        ],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67476756871800,
+            "end_ns": 67476763442000
+          },
+          {
+            "stage": "task_and_optional_grant",
+            "event_id": "b6ee02711bca",
+            "start_ns": 67476794552700,
+            "task_committed_ns": 67476811683500,
+            "end_ns": 67476830954900
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67476766422200,
+            "end_ns": 67476851117800
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/b6ee02711bca",
+            "status": 200,
+            "start_ns": 67476852083900,
+            "end_ns": 67476857962100
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/internal/e2ag/mcp/d8f6e7edc1294947b697fe6e163f381e",
+            "status": 200,
+            "start_ns": 67476859115700,
+            "end_ns": 67477101125200
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/internal/e2ag/mcp/d8f6e7edc1294947b697fe6e163f381e",
+            "status": 200,
+            "start_ns": 67477103948800,
+            "end_ns": 67477326080700
+          }
+        ]
+      },
+      "calls": [
+        {
+          "tool": "snapshot.read",
+          "status": 200,
+          "start_ns": 67476858618500,
+          "end_ns": 67477102934300
+        },
+        {
+          "tool": "report.write",
+          "status": 200,
+          "start_ns": 67477103079000,
+          "end_ns": 67477330512200
+        }
+      ],
+      "client_ticks": {
+        "start_ns": 67476765566700,
+        "admitted_ns": 67476851708000,
+        "workflow_observed_ns": 67477330514600
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-caj608h7\\operations.jsonl",
+      "ledger_sha256": "5c8710f147907c575e598240fdee81461d5370b9fa8dca496467e50e839bffd8",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-caj608h7\\reports.jsonl",
+      "reports_sha256": "ca546cdae2fdb4d49b4baf5a562396fe60bbf96c61eb8cbe51a6931387e27bc5",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-caj608h7\\state.db",
+      "operations": [
+        {
+          "sequence": 0,
+          "tool": "snapshot.read",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884"
+          },
+          "content_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+          "byte_count": 6016,
+          "line_count": 1
+        },
+        {
+          "sequence": 1,
+          "tool": "report.write",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178/intake",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884",
+            "report": "{\"body_characters\": 219, \"labels\": [\"automations\", \"debt\"], \"queue\": \"awaiting_triage\", \"title_characters\": 37, \"title_present\": true}"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "G2",
+      "case": "other_read_object",
+      "passed": true,
+      "event": {
+        "event_id": "a37e502c844a",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "dispatched",
+        "trace_id": "8a791390fd984ab7b7b095e86f8d40cf",
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 78,
+          "evidence": {
+            "source_pattern": "github/*",
+            "event_type": "git.issue.opened"
+          }
+        },
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "allow",
+          "reason_codes": [
+            "POLICY_ALLOWED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 133,
+          "evidence": {
+            "action": "report.create",
+            "tool": "snapshot.read",
+            "resource": "",
+            "environment": "test"
+          },
+          "effective_decision": "allow"
+        },
+        "error": null
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "8a791390fd984ab7b7b095e86f8d40cf",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 78,
+              "evidence": {
+                "source_pattern": "github/*",
+                "event_type": "git.issue.opened"
+              }
+            },
+            "previous_hash": "",
+            "entry_hash": "8d3dd141f4b538499682c1236fa21dc633e0b878222541d412627f5f1d8b2d34"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "8a791390fd984ab7b7b095e86f8d40cf",
+            "stage": "policy",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "policy",
+              "decision": "allow",
+              "reason_codes": [
+                "POLICY_ALLOWED"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 133,
+              "evidence": {
+                "action": "report.create",
+                "tool": "snapshot.read",
+                "resource": "",
+                "environment": "test"
+              }
+            },
+            "previous_hash": "8d3dd141f4b538499682c1236fa21dc633e0b878222541d412627f5f1d8b2d34",
+            "entry_hash": "72055bf1be288b6dc77bd03b53db0de912ea8737637fde56eb67bcf3c252b5b9"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "8a791390fd984ab7b7b095e86f8d40cf",
+            "stage": "tool_grant",
+            "outcome": "grant_issued",
+            "evidence": {
+              "grant_id": "0ae6965e823549358a897e5c96c977b7",
+              "agent_id": "perf-agent",
+              "task_id": "7cbb0e2bdd5f497499e2cb8b9191ca97",
+              "mcp_server_id": "perf-tool",
+              "allowed_tools": [
+                "snapshot.read",
+                "report.write"
+              ],
+              "argument_constraints_sha256": "b89a676f8c5607f237189531bfdad28da403fefe0dce3df6044aa12a2c685624"
+            },
+            "previous_hash": "72055bf1be288b6dc77bd03b53db0de912ea8737637fde56eb67bcf3c252b5b9",
+            "entry_hash": "0b602da7acffff0d18ec361ac357aa58903f7202d4ce72ba13c7c01cb0e00cf7"
+          },
+          {
+            "sequence": 3,
+            "trace_id": "8a791390fd984ab7b7b095e86f8d40cf",
+            "stage": "a2a_task",
+            "outcome": "submitted",
+            "evidence": {
+              "task_id": "7cbb0e2bdd5f497499e2cb8b9191ca97",
+              "agent_id": "perf-agent"
+            },
+            "previous_hash": "0b602da7acffff0d18ec361ac357aa58903f7202d4ce72ba13c7c01cb0e00cf7",
+            "entry_hash": "892d63bf0b3d3cf8c6b93850825b53475aaec298ab2d799a356d4256eb30ff30"
+          },
+          {
+            "sequence": 4,
+            "trace_id": "8a791390fd984ab7b7b095e86f8d40cf",
+            "stage": "dispatch",
+            "outcome": "dispatched",
+            "evidence": {
+              "matched_agent_ids": [
+                "perf-agent"
+              ],
+              "error": ""
+            },
+            "previous_hash": "892d63bf0b3d3cf8c6b93850825b53475aaec298ab2d799a356d4256eb30ff30",
+            "entry_hash": "7f3252f78dc6d7938a9be8ef998e5174a09a77b72c5b423f3ba7fc10550e8d8b"
+          },
+          {
+            "sequence": 5,
+            "trace_id": "8a791390fd984ab7b7b095e86f8d40cf",
+            "stage": "tool_call",
+            "outcome": "deny",
+            "evidence": {
+              "grant_id": "0ae6965e823549358a897e5c96c977b7",
+              "task_id": "7cbb0e2bdd5f497499e2cb8b9191ca97",
+              "agent_id": "perf-agent",
+              "mcp_server_id": "perf-tool",
+              "method": "tools/call",
+              "tool": "snapshot.read",
+              "reason": "MCP_ARGUMENT_ENUM_DENIED",
+              "upstream_status": null,
+              "argument_constraints_sha256": "b89a676f8c5607f237189531bfdad28da403fefe0dce3df6044aa12a2c685624"
+            },
+            "previous_hash": "7f3252f78dc6d7938a9be8ef998e5174a09a77b72c5b423f3ba7fc10550e8d8b",
+            "entry_hash": "546c03c7b4d6649ba976bb4206831c77791af5299e2d5b32687e8eb6e2708d3b"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "7cbb0e2bdd5f497499e2cb8b9191ca97",
+            "event_id": "a37e502c844a",
+            "trace_id": "8a791390fd984ab7b7b095e86f8d40cf",
+            "status": "submitted"
+          }
+        ],
+        "grants": [
+          {
+            "id": "0ae6965e823549358a897e5c96c977b7",
+            "task_id": "7cbb0e2bdd5f497499e2cb8b9191ca97",
+            "call_count": 1
+          }
+        ],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67479207596500,
+            "end_ns": 67479214132000
+          },
+          {
+            "stage": "task_and_optional_grant",
+            "event_id": "a37e502c844a",
+            "start_ns": 67479243209200,
+            "task_committed_ns": 67479259376300,
+            "end_ns": 67479301585800
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67479215278900,
+            "end_ns": 67479336846000
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/a37e502c844a",
+            "status": 200,
+            "start_ns": 67479337984700,
+            "end_ns": 67479343841500
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/internal/e2ag/mcp/0ae6965e823549358a897e5c96c977b7",
+            "status": 403,
+            "start_ns": 67479345078600,
+            "end_ns": 67479365683200
+          }
+        ]
+      },
+      "calls": [
+        {
+          "tool": "snapshot.read",
+          "status": 403,
+          "start_ns": 67479344614200,
+          "end_ns": 67479366142200
+        }
+      ],
+      "client_ticks": {
+        "start_ns": 67479214784600,
+        "admitted_ns": 67479337426500,
+        "workflow_observed_ns": 67479366143400
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-v31w5nqn\\operations.jsonl",
+      "ledger_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-v31w5nqn\\reports.jsonl",
+      "reports_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-v31w5nqn\\state.db",
+      "operations": []
+    },
+    {
+      "mode": "G2",
+      "case": "admission_denied",
+      "passed": true,
+      "event": {
+        "event_id": "e63ac4c8f0fb",
+        "type": "git.issue.opened",
+        "source": "github/microsoft/vscode",
+        "matched_agents": [
+          "perf-agent"
+        ],
+        "status": "denied",
+        "trace_id": "f685449ec0834578ac15a3a9a8dff785",
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 86,
+          "evidence": {
+            "source_pattern": "github/*",
+            "event_type": "git.issue.opened"
+          }
+        },
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "deny",
+          "reason_codes": [
+            "POLICY_TARGET_CAPABILITY_VIOLATION"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "git_webhook",
+          "latency_us": 130,
+          "evidence": {
+            "violations": [
+              {
+                "agent_id": "perf-agent",
+                "dimension": "action"
+              }
+            ],
+            "action": "outside-policy",
+            "tool": "snapshot.read"
+          },
+          "effective_decision": "deny"
+        },
+        "error": "POLICY_TARGET_CAPABILITY_VIOLATION"
+      },
+      "observed": {
+        "chain": [
+          {
+            "sequence": 0,
+            "trace_id": "f685449ec0834578ac15a3a9a8dff785",
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 86,
+              "evidence": {
+                "source_pattern": "github/*",
+                "event_type": "git.issue.opened"
+              }
+            },
+            "previous_hash": "",
+            "entry_hash": "17bf06003c9e447496fe325adb6b05c20d739d5347f3bc5416ede2f806407acd"
+          },
+          {
+            "sequence": 1,
+            "trace_id": "f685449ec0834578ac15a3a9a8dff785",
+            "stage": "policy",
+            "outcome": "deny",
+            "evidence": {
+              "stage": "policy",
+              "decision": "deny",
+              "reason_codes": [
+                "POLICY_TARGET_CAPABILITY_VIOLATION"
+              ],
+              "policy_version": "e2ag-2026-08-12.1",
+              "contract_type": "git_webhook",
+              "latency_us": 130,
+              "evidence": {
+                "violations": [
+                  {
+                    "agent_id": "perf-agent",
+                    "dimension": "action"
+                  }
+                ],
+                "action": "outside-policy",
+                "tool": "snapshot.read"
+              }
+            },
+            "previous_hash": "17bf06003c9e447496fe325adb6b05c20d739d5347f3bc5416ede2f806407acd",
+            "entry_hash": "5484986da971b612e15113e7e6dbf6bf442043a72bd47fef07ca9e8f9b19fd62"
+          },
+          {
+            "sequence": 2,
+            "trace_id": "f685449ec0834578ac15a3a9a8dff785",
+            "stage": "dispatch",
+            "outcome": "blocked",
+            "evidence": {
+              "reason_codes": [
+                "POLICY_TARGET_CAPABILITY_VIOLATION"
+              ]
+            },
+            "previous_hash": "5484986da971b612e15113e7e6dbf6bf442043a72bd47fef07ca9e8f9b19fd62",
+            "entry_hash": "c80afd6ccb275d26115adab042482ea430c0bb737434b4fb4f4200fd3396ebce"
+          }
+        ],
+        "tasks": [],
+        "grants": [],
+        "spans": [
+          {
+            "stage": "http_route",
+            "path": "/probe/ready",
+            "status": 200,
+            "start_ns": 67481219405800,
+            "end_ns": 67481225854800
+          },
+          {
+            "stage": "http_route",
+            "path": "/api/os/events/webhook/github",
+            "status": 200,
+            "start_ns": 67481227269000,
+            "end_ns": 67481272339900
+          },
+          {
+            "stage": "http_route",
+            "path": "/probe/event/e63ac4c8f0fb",
+            "status": 200,
+            "start_ns": 67481273249400,
+            "end_ns": 67481279354200
+          }
+        ]
+      },
+      "calls": [],
+      "client_ticks": {
+        "start_ns": 67481226829600,
+        "admitted_ns": 67481272851200,
+        "workflow_observed_ns": 67481279814400
+      },
+      "ledger": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-rto2584v\\operations.jsonl",
+      "ledger_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reports": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-rto2584v\\reports.jsonl",
+      "reports_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "database": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\perf-socket-probe-rto2584v\\state.db",
+      "operations": []
+    }
+  ],
+  "boundary": "Socket qualification, no latency/throughput conclusions. Isolated route app, not full main-app middleware. Native task+optional grant; fixed parent runner, upstream thread; not autonomous Agent or native task terminal transition."
+}

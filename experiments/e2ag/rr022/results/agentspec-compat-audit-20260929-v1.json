@@ -1,0 +1,683 @@
+{
+  "protocol": "agentspec-finish-compat-differential-v1",
+  "upstream_commit": "e6fa3902e2cfb9681f454b355691b771f70543f8",
+  "smoke_script_sha256": "a9d41c2fe7911adfd597e61346c6cd3b4e270694640217f233859e40cf521a30",
+  "compat_class_sha256": "ee87b0ee613aba562dcfed541ab3e4acf3636cff76ba7b3a6c147d35914b8f90",
+  "audit_script_sha256": "66a25bc6a5d09b94e7aca6844e60faa03b49fca22dd3daf6625043e5a46b3804",
+  "cases": [
+    {
+      "event": "PutObject",
+      "action": "PutObject",
+      "input": null,
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "PutObject",
+      "input": "",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "PutObject",
+      "input": "PutObject payload",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "PutObject",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "OtherAction",
+      "input": null,
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "OtherAction",
+      "input": "",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "OtherAction",
+      "input": "PutObject payload",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "OtherAction",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "finish",
+      "input": null,
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": true,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "finish",
+      "input": "",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "finish",
+      "input": "PutObject payload",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "PutObject",
+      "action": "finish",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "PutObject",
+      "input": null,
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "PutObject",
+      "input": "",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "PutObject",
+      "input": "PutObject payload",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "PutObject",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "OtherAction",
+      "input": null,
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "OtherAction",
+      "input": "",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "OtherAction",
+      "input": "PutObject payload",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "OtherAction",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "finish",
+      "input": null,
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": true,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "finish",
+      "input": "",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "finish",
+      "input": "PutObject payload",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "OtherAction",
+      "action": "finish",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "PutObject",
+      "input": null,
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "PutObject",
+      "input": "",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "PutObject",
+      "input": "PutObject payload",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "PutObject",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "OtherAction",
+      "input": null,
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'NoneType' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "OtherAction",
+      "input": "",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "OtherAction",
+      "input": "PutObject payload",
+      "native": {
+        "return": false
+      },
+      "adapted": {
+        "return": false
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "OtherAction",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "adapted": {
+        "error_type": "AttributeError",
+        "message": "'dict' object has no attribute 'strip'"
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "finish",
+      "input": null,
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "finish",
+      "input": "",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "finish",
+      "input": "PutObject payload",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "finish",
+      "action": "finish",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "PutObject",
+      "input": null,
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "PutObject",
+      "input": "",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "PutObject",
+      "input": "PutObject payload",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "PutObject",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "OtherAction",
+      "input": null,
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "OtherAction",
+      "input": "",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "OtherAction",
+      "input": "PutObject payload",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "OtherAction",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "finish",
+      "input": null,
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "finish",
+      "input": "",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "finish",
+      "input": "PutObject payload",
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    },
+    {
+      "event": "any",
+      "action": "finish",
+      "input": {
+        "resource": "fixture"
+      },
+      "native": {
+        "return": true
+      },
+      "adapted": {
+        "return": true
+      },
+      "intended_change": false,
+      "pass": true
+    }
+  ],
+  "total": 48,
+  "passed": 48,
+  "intended_changes": 2,
+  "limits": "Finite API-level boundary checks only, not exhaustive proof or security-effectiveness evidence."
+}

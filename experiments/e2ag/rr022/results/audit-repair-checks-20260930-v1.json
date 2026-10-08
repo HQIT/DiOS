@@ -1,0 +1,55 @@
+{
+  "kind": "audit repair regression, not new independent experimental samples",
+  "before_sha256": "fc96c52a1f0af7096f97857d14eec2fef28478bf83f59a1d5968a2f0d1dce93c",
+  "after_sha256": "54f04d2e998a55a058862eec18afa2865690edbbf6806a5bd8db3652b2bd8f3d",
+  "checker_sha256": "de3b20b09aa3be846870f7513f376d6631b30b6968f718ead3528f2b51095f82",
+  "lifecycle_pairs": [
+    {
+      "case": "L01",
+      "response_unchanged": true,
+      "receipts": 0,
+      "before_call_entries": 0,
+      "after_call_entries": 1,
+      "reason": "TOOL_GRANT_EXPIRED"
+    },
+    {
+      "case": "L02",
+      "response_unchanged": true,
+      "receipts": 0,
+      "before_call_entries": 0,
+      "after_call_entries": 1,
+      "reason": "TOOL_GRANT_NOT_ACTIVE"
+    },
+    {
+      "case": "L03",
+      "response_unchanged": true,
+      "receipts": 0,
+      "before_call_entries": 0,
+      "after_call_entries": 1,
+      "reason": "TOOL_GRANT_TASK_MISMATCH"
+    }
+  ],
+  "unittest": {
+    "command": [
+      "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\backend\\.venv\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_e2ag*.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "test_audit_chain_detects_tampering (test_e2ag.E2AGDecisionTests.test_audit_chain_detects_tampering) ... ok\ntest_declared_source_type_pair_is_allowed (test_e2ag.E2AGDecisionTests.test_declared_source_type_pair_is_allowed) ... ok\ntest_declared_type_from_wrong_source_is_denied (test_e2ag.E2AGDecisionTests.test_declared_type_from_wrong_source_is_denied) ... ok\ntest_missing_cloudevent_field_is_denied (test_e2ag.E2AGDecisionTests.test_missing_cloudevent_field_is_denied) ... ok\ntest_required_action_cannot_be_omitted (test_e2ag.E2AGDecisionTests.test_required_action_cannot_be_omitted) ... ok\ntest_sensitive_non_production_action_is_not_escalated (test_e2ag.E2AGDecisionTests.test_sensitive_non_production_action_is_not_escalated) ... ok\ntest_sensitive_production_action_requires_approval (test_e2ag.E2AGDecisionTests.test_sensitive_production_action_requires_approval) ... ok\ntest_target_action_allowlist_is_enforced (test_e2ag.E2AGDecisionTests.test_target_action_allowlist_is_enforced) ... ok\ntest_target_event_allowlist_is_enforced (test_e2ag.E2AGDecisionTests.test_target_event_allowlist_is_enforced) ... ok\ntest_target_tool_allowlist_is_enforced (test_e2ag.E2AGDecisionTests.test_target_tool_allowlist_is_enforced) ... ok\ntest_target_without_governance_contract_is_denied (test_e2ag.E2AGDecisionTests.test_target_without_governance_contract_is_denied) ... ok\ntest_unknown_event_type_is_denied (test_e2ag.E2AGDecisionTests.test_unknown_event_type_is_denied) ... ok\ntest_approval_resumes_same_trace_exactly_once (test_e2ag_approval.E2AGApprovalTests.test_approval_resumes_same_trace_exactly_once) ... ok\ntest_expired_approval_cannot_resume (test_e2ag_approval.E2AGApprovalTests.test_expired_approval_cannot_resume) ... ok\ntest_pending_approval_is_created_and_rejection_is_final (test_e2ag_approval.E2AGApprovalTests.test_pending_approval_is_created_and_rejection_is_final) ... ok\ntest_ablation_modes_change_effective_enforcement (test_e2ag_dispatcher.DispatcherGovernanceTests.test_ablation_modes_change_effective_enforcement) ... ok\ntest_approval_event_is_held_without_a2a_task (test_e2ag_dispatcher.DispatcherGovernanceTests.test_approval_event_is_held_without_a2a_task) ... ok\ntest_denied_event_is_audited_without_a2a_task (test_e2ag_dispatcher.DispatcherGovernanceTests.test_denied_event_is_audited_without_a2a_task) ... ok\ntest_replayed_event_is_deduplicated_without_second_log (test_e2ag_dispatcher.DispatcherGovernanceTests.test_replayed_event_is_deduplicated_without_second_log) ... ok\ntest_trace_id_is_persisted_on_a2a_task (test_e2ag_dispatcher.DispatcherGovernanceTests.test_trace_id_is_persisted_on_a2a_task) ... ok\ntest_valid_unmatched_event_is_audited_as_dispatched (test_e2ag_dispatcher.DispatcherGovernanceTests.test_valid_unmatched_event_is_audited_as_dispatched) ... ok\ntest_allowed_tool_is_forwarded_with_upstream_credentials (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_allowed_tool_is_forwarded_with_upstream_credentials) ... ok\ntest_denied_tool_never_reaches_upstream (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_denied_tool_never_reaches_upstream) ... ok\ntest_expired_and_terminal_task_grants_are_rejected (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_expired_and_terminal_task_grants_are_rejected) ... ok\ntest_expired_call_has_rejection_audit (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_expired_call_has_rejection_audit) ... ok\ntest_grant_is_hashed_scoped_and_audited (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_grant_is_hashed_scoped_and_audited) ... ok\ntest_malformed_tools_list_fails_closed (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_malformed_tools_list_fails_closed) ... ok\ntest_mismatched_call_has_rejection_audit (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_mismatched_call_has_rejection_audit) ... ok\ntest_missing_task_call_has_rejection_audit (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_missing_task_call_has_rejection_audit) ... ok\ntest_rejected_call_does_not_write_to_mismatched_event_trace (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_rejected_call_does_not_write_to_mismatched_event_trace) ... ok\ntest_rejection_audit_failure_never_forwards (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_rejection_audit_failure_never_forwards) ... ok\ntest_repeated_rejected_attempts_have_separate_audit_entries (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_repeated_rejected_attempts_have_separate_audit_entries) ... ok\ntest_revoked_call_has_rejection_audit (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_revoked_call_has_rejection_audit) ... ok\ntest_stdio_server_is_withheld_in_enforce_mode (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_stdio_server_is_withheld_in_enforce_mode) ... ok\ntest_task_grants_are_revoked_explicitly (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_task_grants_are_revoked_explicitly) ... ok\ntest_task_secret_config_is_removed_by_exact_run_id (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_task_secret_config_is_removed_by_exact_run_id) ... ok\ntest_terminal_task_call_has_rejection_audit (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_terminal_task_call_has_rejection_audit) ... ok\ntest_tools_list_exposes_only_granted_tools (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_tools_list_exposes_only_granted_tools) ... ok\ntest_tools_list_preserves_sse_framing (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_tools_list_preserves_sse_framing) ... ok\ntest_unverified_requests_do_not_pollute_grant_audit (test_e2ag_tool_gateway.E2AGToolGatewayTests.test_unverified_requests_do_not_pollute_grant_audit) ... ok\n\n----------------------------------------------------------------------\nRan 40 tests in 27.882s\n\nOK\n"
+  },
+  "source_sha256": {
+    "backend/app/services/e2ag_tool_gateway.py": "03192e0e428ac118d5dcfce5a3fd6af995c861e7cf3b83b686420d31c272c13a",
+    "backend/app/api/internal/e2ag_mcp.py": "dcd4b4b5ac9d6322f3e82b95a241d0a9bde288193b9adc8830935cbfedd9979c",
+    "backend/tests/test_e2ag_tool_gateway.py": "7d175ef685f8f76361639fb94b3ba70307523e0bc2c95095667b99ee04998b65"
+  },
+  "pass": true,
+  "scope": "POST requests with parsed object payload and authenticated grant/event association; unauthenticated, malformed, GET/DELETE and concurrent audit append coverage not added."
+}

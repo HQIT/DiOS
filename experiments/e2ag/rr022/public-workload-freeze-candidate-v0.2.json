@@ -1,0 +1,38 @@
+{
+  "protocol_id": "rr022-public-workload-v0.2",
+  "status": "candidate_not_frozen",
+  "author_approval": null,
+  "formal_execution_enabled": false,
+  "window": {"start_utc": "2026-09-22T00:00:00Z", "end_utc_exclusive": "2026-09-25T00:00:00Z", "hours": 72},
+  "development_repositories": ["microsoft/vscode", "HQIT/qame"],
+  "holdout_repositories": ["langchain-ai/langgraph", "fastapi/fastapi", "microsoft/autogen", "deepseek-ai/deepseek-harness", "EleutherAI/lm-evaluation-harness"],
+  "exploration_dates": ["2026-09-21", "2026-09-28"],
+  "exploration_results": ["results/public-workload-scout-20260930-v1.json", "results/public-workload-scout-20260930-v2.json"],
+  "selection": {
+    "seed": "rr022-holdout-v0.2-20260930",
+    "workflows": ["issue_intake", "pr_change_manifest"],
+    "actions": {"IssuesEvent": "opened", "PullRequestEvent": "opened"},
+    "max_objects_per_repository_per_workflow": 10,
+    "max_objects": 100,
+    "object_representative": "earliest created_at then numeric event_id",
+    "rank": "sha256(seed + LF + lowercase repository + LF + workflow + LF + object_group)",
+    "exclude_seen": ["event_id", "object_group", "head_sha"],
+    "content_unavailable": "retain selected denominator; no replacement; record source failure",
+    "window_extension": "none_without_protocol_amendment",
+    "outcome_based_selection": false
+  },
+  "comparison": {
+    "methods": ["e2ag", "opa_in_dios", "agentspec_in_dios"],
+    "shared_agentspec_admission": true,
+    "main_cases": ["normal", "other_read_object", "other_write_object", "wrong_read_version"],
+    "max_paired_runs": 1200,
+    "admission_cases_separate": true,
+    "native_agent_completion_claim": false,
+    "performance_claim": false
+  },
+  "review": {"independent_reviewers_min": 1, "objects_per_nonempty_stratum": 1, "max_objects": 10, "max_case_judgments": 40, "blinded_to_method_and_outcome": true, "answers_prefilled": false},
+  "limits": {"archive_compressed_bytes": 2000000000, "archive_bytes_per_hour": 150000000, "historical_api_attempts": 300, "snapshot_cache_bytes": 500000000, "max_experiment_wall_seconds": 21600, "max_paired_runs": 1200, "max_auxiliary_runs": 230},
+  "required_before_sampling": ["author_protocol_approval", "development_business_workflows_passed", "source_and_policy_hashes_frozen", "all_72_archive_hours_complete", "seen_object_exclusion_manifest_written"],
+  "required_before_method_execution": ["sample_and_exclusion_hashes_frozen", "independent_label_review_complete", "review_disagreements_resolved_without_method_outcomes", "same_input_and_rule_semantics_checked", "source_availability_and_no_guard_controls_checked"],
+  "boundaries": ["public Events API archive, not original webhook deliveries", "experimental tasks and permissions, not historical upstream policies", "no model calls or upstream writes", "no project-specific policy branches", "equal outcomes are valid outcomes"]
+}

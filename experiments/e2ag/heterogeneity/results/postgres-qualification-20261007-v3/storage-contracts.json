@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "checks": {
+    "single_claim": true,
+    "audit_both_updates": true,
+    "audit_hashes": true,
+    "simultaneous_audit_reads": true
+  },
+  "claim_rowcounts": [
+    0,
+    1
+  ],
+  "audit_chain": [
+    {
+      "stage": "storage_probe",
+      "outcome": "observed",
+      "evidence": {
+        "actor": "writer-2"
+      },
+      "sequence": 0,
+      "trace_id": "trace-storage",
+      "entry_hash": "a5ab6fd74efa9b97120cf53149e79ffcc10cae0167764d102252d5b069dcc756",
+      "previous_hash": ""
+    },
+    {
+      "stage": "storage_probe",
+      "outcome": "observed",
+      "evidence": {
+        "actor": "writer-1"
+      },
+      "sequence": 1,
+      "trace_id": "trace-storage",
+      "entry_hash": "200b07a199f345f5eed9d0d5ab59ef623dbab2cf50e201e30ccda13f2d1f817b",
+      "previous_hash": "a5ab6fd74efa9b97120cf53149e79ffcc10cae0167764d102252d5b069dcc756"
+    }
+  ],
+  "scope": "native conditional claim and audit CAS; two synchronized DB sessions, not performance or full multi-consumer recovery"
+}

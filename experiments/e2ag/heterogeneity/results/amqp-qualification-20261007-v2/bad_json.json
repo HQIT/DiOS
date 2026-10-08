@@ -1,0 +1,92 @@
+{
+  "case": "bad_json",
+  "mode": "normal",
+  "cut": null,
+  "first": {
+    "rejected": true,
+    "error": "file_ingress.IngressError: INVALID_JSON"
+  },
+  "repeat": {
+    "rejected": true,
+    "error": "file_ingress.IngressError: INVALID_JSON"
+  },
+  "extra": null,
+  "checks": {
+    "event_count": true,
+    "task_count": true,
+    "tool_count": true,
+    "audit_valid": true,
+    "source_binding": true,
+    "artifact_content": true,
+    "queue_disposition": true,
+    "explicit_input_rejection": true,
+    "no_durable_handoff": true
+  },
+  "passed": true,
+  "snapshot": {
+    "events": [],
+    "tasks": [],
+    "approvals": [],
+    "grants": [],
+    "invocations": [],
+    "receipts": [],
+    "conflicts": [],
+    "audit_valid": true
+  },
+  "tool_operations": [],
+  "processes": [
+    {
+      "op": "setup",
+      "cut": null,
+      "recover": false,
+      "exit_code": 0,
+      "stdout": "{\"setup\": true}\n",
+      "stderr": ""
+    },
+    {
+      "op": "consume",
+      "cut": null,
+      "recover": false,
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\file_ingress.py\", line 91, in normalize_envelope\n    envelope = json.loads(raw.decode(\"utf-8\"), object_pairs_hook=_unique_object,\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\__init__.py\", line 359, in loads\n    return cls(**kw).decode(s)\n           ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\decoder.py\", line 338, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\decoder.py\", line 354, in raw_decode\n    obj, end = self.scan_once(s, idx)\n               ^^^^^^^^^^^^^^^^^^^^^^\njson.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\run_file_recovery.py\", line 343, in <module>\n    main()\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\run_file_recovery.py\", line 305, in main\n    print(json.dumps(asyncio.run(worker(args)), ensure_ascii=False))\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\run_file_recovery.py\", line 189, in worker\n    event = delivery.event() if delivery else read_ready_event(folder, \"input.ready.json\", \"fixture\")\n            ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\amqp_ingress.py\", line 47, in event\n    event = normalize_envelope(self.body, \"fixture\", \"amqp\")\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\file_ingress.py\", line 94, in normalize_envelope\n    raise IngressError(\"INVALID_JSON\") from exc\nfile_ingress.IngressError: INVALID_JSON\n"
+    },
+    {
+      "op": "consume",
+      "cut": null,
+      "recover": false,
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\file_ingress.py\", line 91, in normalize_envelope\n    envelope = json.loads(raw.decode(\"utf-8\"), object_pairs_hook=_unique_object,\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\__init__.py\", line 359, in loads\n    return cls(**kw).decode(s)\n           ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\decoder.py\", line 338, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\decoder.py\", line 354, in raw_decode\n    obj, end = self.scan_once(s, idx)\n               ^^^^^^^^^^^^^^^^^^^^^^\njson.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\run_file_recovery.py\", line 343, in <module>\n    main()\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\run_file_recovery.py\", line 305, in main\n    print(json.dumps(asyncio.run(worker(args)), ensure_ascii=False))\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\run_file_recovery.py\", line 189, in worker\n    event = delivery.event() if delivery else read_ready_event(folder, \"input.ready.json\", \"fixture\")\n            ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\amqp_ingress.py\", line 47, in event\n    event = normalize_envelope(self.body, \"fixture\", \"amqp\")\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\heterogeneity\\file_ingress.py\", line 94, in normalize_envelope\n    raise IngressError(\"INVALID_JSON\") from exc\nfile_ingress.IngressError: INVALID_JSON\n"
+    },
+    {
+      "op": "snapshot",
+      "cut": null,
+      "recover": false,
+      "exit_code": 0,
+      "stdout": "{\"events\": [], \"tasks\": [], \"approvals\": [], \"grants\": [], \"invocations\": [], \"receipts\": [], \"conflicts\": [], \"audit_valid\": true}\n",
+      "stderr": ""
+    }
+  ],
+  "publications": [
+    {
+      "body_utf8": "{not-json",
+      "message_id": "delivery-1",
+      "publisher_confirmed": true
+    }
+  ],
+  "queue_states": [
+    {
+      "stage": "after_first",
+      "ready_messages": 1,
+      "consumers": 0
+    },
+    {
+      "stage": "after_repeat",
+      "ready_messages": 1,
+      "consumers": 0
+    }
+  ],
+  "business_complete": false,
+  "invalid_delivery_retained": true
+}

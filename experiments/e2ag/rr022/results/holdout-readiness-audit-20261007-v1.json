@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-07",
+  "status": "not_ready_for_formal_execution",
+  "mode": "read_only_integrity_audit_no_method_execution",
+  "source_count": 28,
+  "unchanged_sources": 26,
+  "source_drift": [
+    {
+      "path": "backend\\app\\services\\e2ag_tool_gateway.py",
+      "expected": "43693a5136a377b4189935379521d767889b6a4559d76c89ef7aee1bddee6d52",
+      "actual": "971db32946035afd2e53b10412ad65d8c4c464cdf65e6cdf596f2fdfc6c947b3",
+      "match": false
+    },
+    {
+      "path": "backend\\app\\api\\internal\\e2ag_mcp.py",
+      "expected": "0254e02ca872be83cf4d96dbe025da93edff08f9d9974f9c236fad25e7a0abdb",
+      "actual": "b9f9b2089a91481db42ca7e3d19f4294f47fb4147e25759bcff4fd268ce2b249",
+      "match": false
+    }
+  ],
+  "linked_hash_checks": {
+    "protocol": true,
+    "exclusions": true,
+    "collection_freeze": true,
+    "inputs_freeze": true,
+    "inputs_collection": true,
+    "input_preparation_script": true
+  },
+  "cache_counts": {
+    "hour_archive": 72,
+    "api_cache": 7,
+    "object_snapshot": 11
+  },
+  "cache_failures": [],
+  "selected_objects": 11,
+  "ready_objects": 11,
+  "cases_per_object": [
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4
+  ],
+  "object_ids_match_oracle": true,
+  "recorded_formal_runs": 0,
+  "workbook_sha256": "43f4a02ecc0995d35273cae9eee9392ef9e6a13394aced891fc6cd2bac51adee",
+  "workbook_unchanged_from_issued": true,
+  "current_input_and_oracle_sha256": {
+    "holdout-inputs-20260930-v1.json": "70769342f5949ffc24125c8e14b839ce30ccfa8721b16867ec3026e02c124235",
+    "holdout-oracle-20260930-v1.json": "bdb738fa135577e0a3c69f7ab0a58439ecdee94ef14311a8df925dda76d1aa8b"
+  },
+  "limits": [
+    "Current oracle hash is a checkpoint, not independent human review.",
+    "A new execution snapshot and review resolution are required by the original protocol.",
+    "Source drift must not be silently labeled identical to collection-time code."
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "protocol": "rr022-agentspec-feasibility-v2",
+  "upstream_commit": "e6fa3902e2cfb9681f454b355691b771f70543f8",
+  "harness_sha256": "a9d41c2fe7911adfd597e61346c6cd3b4e270694640217f233859e40cf521a30",
+  "finish_compat_enabled": false,
+  "compat_scope": "Non-finish/non-any rule returns false for finish with None; no action policy changes",
+  "python": "3.12.10",
+  "upstream_source_modified": false,
+  "preexisting_generated_bytecode": [
+    "?? src/__pycache__/agent.cpython-312.pyc",
+    "?? src/__pycache__/controlled_agent_excector.cpython-312.pyc",
+    "?? src/__pycache__/enforcement.cpython-312.pyc",
+    "?? src/__pycache__/interpreter.cpython-312.pyc",
+    "?? src/__pycache__/rule.cpython-312.pyc",
+    "?? src/__pycache__/state.cpython-312.pyc",
+    "?? src/rules/manual/__pycache__/embodied.cpython-312.pyc",
+    "?? src/rules/manual/__pycache__/pythonrepl.cpython-312.pyc",
+    "?? src/rules/manual/__pycache__/table.cpython-312.pyc",
+    "?? src/spec_lang/__pycache__/AgentSpecLexer.cpython-312.pyc",
+    "?? src/spec_lang/__pycache__/AgentSpecListener.cpython-312.pyc",
+    "?? src/spec_lang/__pycache__/AgentSpecParser.cpython-312.pyc"
+  ],
+  "dependencies": {
+    "agentspec": "0.1.0",
+    "annotated-types": "0.8.0",
+    "antlr4-python3-runtime": "4.13.0",
+    "anyio": "4.15.1",
+    "certifi": "2026.7.22",
+    "charset-normalizer": "3.5.1",
+    "h11": "0.16.0",
+    "httpcore": "1.0.9",
+    "httpx": "0.28.1",
+    "idna": "3.20",
+    "jsonpatch": "1.33",
+    "jsonpointer": "3.1.1",
+    "langchain": "0.3.25",
+    "langchain-core": "0.3.81",
+    "langchain-text-splitters": "0.3.11",
+    "langsmith": "0.3.45",
+    "orjson": "3.12.0",
+    "packaging": "25.0",
+    "pydantic": "2.13.5",
+    "pydantic_core": "2.46.5",
+    "PyYAML": "6.0.3",
+    "requests": "2.34.2",
+    "requests-toolbelt": "1.0.0",
+    "SQLAlchemy": "2.1.1",
+    "tenacity": "9.1.4",
+    "typing_extensions": "4.16.0",
+    "typing-inspection": "0.4.4",
+    "urllib3": "2.8.0",
+    "zstandard": "0.23.0"
+  },
+  "source_sha256": {
+    "src/agent.py": "d84c82076fdf5c2a2f84026eb82ae7b5de98cfe7d5f81378eda41c4268007014",
+    "src/code_agent.py": "4f4813ba392bb143cf12e6703ffdccc13895428556dd148ecec3a14cb27474e0",
+    "src/controlled_agent_excector.py": "f477adea5cdb20787cc8f312709b3ab067604044a6deed7924070a31a7fa12b8",
+    "src/controlled_emulation_executor.py": "48c98dbcc90fe46467d527c3030fb085da89c029070cad9c5b67236b0472c0ee",
+    "src/demos.py": "09e1b17a2e03fa8fee4028bd866449f18eae7c6703f546a5b1d7593a670fc7fa",
+    "src/embodied_agent.py": "e49f7a6de5f24b0cc3896997d1ceef33c72795de7f2821a3430a6501451e5159",
+    "src/enforcement.py": "8be2b544ac6748685369407025f98e593bb957c69c62e757297a27ce5b26775d",
+    "src/gen.py": "7264f41a50f27ae70b5b9e224b2250a7168332219c14d6d5d44bdda264f49a78",
+    "src/gmail_assistant.py": "5b224460ca345dc60f47a21461c9bd07411a27a432989f8e31c453eb9edd1b2b",
+    "src/interpreter.py": "ebf69b5e22416e8c410a74a37c7269984746764123223c61b1d7ae1ca37d212f",
+    "src/low_level_controller.py": "1766bd25ba3e408dfccd247f48586d9d994c6cf4d7c5ede27efcc541a2e6ea8f",
+    "src/rule.py": "b2120f12518758aa0d959990a83ff6db7a1bdf36328ffa904a6131fc2cd40738",
+    "src/rules/llm/embodied_rules.py": "d26f66028b6876664de7b2ee7935c38534130507fa6010c2d728f787774dbff7",
+    "src/rules/llm/evaluate.py": "f5f5c65f0e83a14c6e6ff16adba560a79250a753cf26f10c28668240c377e6c0",
+    "src/rules/llm/generate.py": "47aa65f940bb2ab519ead886fa5f40250a56726eae94e87e9fe515d53356e30c",
+    "src/rules/manual/embodied.py": "06991603fddd800e141ce5d850d4c6ad9608a1aea2d818e554af643a7e0c9734",
+    "src/rules/manual/loc.py": "7e13eef915b5beb11779ecc0d29934ab69ea04991d9c174fec18619570780983",
+    "src/rules/manual/pythonrepl.py": "15214ecb6f170b95f904a39c25e93cc52189b9852ac41fed47b1185bada0794d",
+    "src/rules/manual/table.py": "21eaf6c3f7baff2aa23f0c53786ead8b752f84e306158cc4d4e94d20f0bcd5fc",
+    "src/rules/manual/terminal.py": "a42c03bfa478a4ebc795b3d769dea9709e8f63ef4bd217b43a4d8b6bf76c6a31",
+    "src/rules/manual/toolemu.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/rules/manual/util.py": "17a6ebc8ca8261639209eb48f2deb6a44023093647e49e1ec1312e2e80cd03b2",
+    "src/spec_lang/AgentSpecLexer.py": "231f15a64138e3342c66c1ac84655ff9d19d06e4d03c4da5c25f647a8828f2e2",
+    "src/spec_lang/AgentSpecListener.py": "fc8314587af14e26cbea3198c41ecaf09bf1402e702c8ebce3236d8e43b89301",
+    "src/spec_lang/AgentSpecParser.py": "612dce5e0c5c835eec5d4163922f6ef9cca52f848088de7fb15dfd2f05f23650",
+    "src/spec_lang/driver.py": "a5f779a26fc65f1b4fe36f49851c067d43b29c223fb6b5238bf54d4769f7a3ae",
+    "src/spec_lang/test_parse.py": "4a89114fa376c99c7af91664192a8fc800b361268c91d9da610bd46cf46b10d2",
+    "src/state.py": "9bced77ffee5c6c6adb0304f2b7a0733e2450cf91c5305b48534779efd34cfb9",
+    "src/translator.py": "5660119cab0b61a082680b318154bd335d0aed370757e4961fe9bccf185f1769"
+  },
+  "network": "socket connections blocked",
+  "model_calls": 0,
+  "approval": "scripted yes/no; not asynchronous durable approval",
+  "tool": "in-memory append, no actual object operation",
+  "cases": [
+    {
+      "id": "false_predicate_allows",
+      "rule": "rule @probe\ntrigger PutObject\ncheck false\nenforce stop\nend",
+      "input": "put book shelf",
+      "history_observations": [],
+      "approval_answer": null,
+      "approval_prompts": [],
+      "expected_tool_calls": 1,
+      "actual_tool_calls": 1,
+      "tool_receipts": [
+        "put book shelf"
+      ],
+      "yielded_types": [
+        "AgentAction",
+        "AgentStep"
+      ],
+      "pass": true,
+      "stdout": "",
+      "error": null
+    },
+    {
+      "id": "true_predicate_stops",
+      "rule": "rule @probe\ntrigger PutObject\ncheck true\nenforce stop\nend",
+      "input": "put book shelf",
+      "history_observations": [],
+      "approval_answer": null,
+      "approval_prompts": [],
+      "expected_tool_calls": 0,
+      "actual_tool_calls": 0,
+      "tool_receipts": [],
+      "yielded_types": [
+        "AgentFinish"
+      ],
+      "pass": true,
+      "stdout": "",
+      "error": null
+    },
+    {
+      "id": "true_predicate_skips",
+      "rule": "rule @probe\ntrigger PutObject\ncheck true\nenforce skip\nend",
+      "input": "put book shelf",
+      "history_observations": [],
+      "approval_answer": null,
+      "approval_prompts": [],
+      "expected_tool_calls": 0,
+      "actual_tool_calls": 0,
+      "tool_receipts": [],
+      "yielded_types": [
+        "AgentStep"
+      ],
+      "pass": true,
+      "stdout": "",
+      "error": null
+    },
+    {
+      "id": "approval_yes",
+      "rule": "rule @probe\ntrigger PutObject\ncheck true\nenforce user_inspection\nend",
+      "input": "put book shelf",
+      "history_observations": [],
+      "approval_answer": "yes",
+      "approval_prompts": [
+        {
+          "prompt": "name='PutObject' input='put book shelf' action=AgentAction(tool='PutObject', tool_input='put book shelf', log='fixed inert action')\n Do you want to perform the above action? (yes/no)\n",
+          "tool_calls_at_prompt": 0
+        }
+      ],
+      "expected_tool_calls": 1,
+      "actual_tool_calls": 1,
+      "tool_receipts": [
+        "put book shelf"
+      ],
+      "yielded_types": [
+        "AgentAction",
+        "AgentStep"
+      ],
+      "pass": true,
+      "stdout": "Action confirmed. Proceeding...\n",
+      "error": null
+    },
+    {
+      "id": "approval_no",
+      "rule": "rule @probe\ntrigger PutObject\ncheck true\nenforce user_inspection\nend",
+      "input": "put book shelf",
+      "history_observations": [],
+      "approval_answer": "no",
+      "approval_prompts": [
+        {
+          "prompt": "name='PutObject' input='put book shelf' action=AgentAction(tool='PutObject', tool_input='put book shelf', log='fixed inert action')\n Do you want to perform the above action? (yes/no)\n",
+          "tool_calls_at_prompt": 0
+        }
+      ],
+      "expected_tool_calls": 0,
+      "actual_tool_calls": 0,
+      "tool_receipts": [],
+      "yielded_types": [
+        "AgentStep"
+      ],
+      "pass": true,
+      "stdout": "Action declined. Exiting...\n",
+      "error": null
+    },
+    {
+      "id": "unmatched_trigger",
+      "rule": "rule @probe\ntrigger OtherAction\ncheck true\nenforce stop\nend",
+      "input": "put book shelf",
+      "history_observations": [],
+      "approval_answer": null,
+      "approval_prompts": [],
+      "expected_tool_calls": 1,
+      "actual_tool_calls": 1,
+      "tool_receipts": [
+        "put book shelf"
+      ],
+      "yielded_types": [
+        "AgentAction",
+        "AgentStep"
+      ],
+      "pass": true,
+      "stdout": "",
+      "error": null
+    },
+    {
+      "id": "native_predicate_allowed",
+      "rule": "rule @probe\ntrigger PutObject\ncheck is_unsafe_put\nenforce stop\nend",
+      "input": "put shelf",
+      "history_observations": [
+        {
+          "success": true,
+          "action": "pick book"
+        }
+      ],
+      "approval_answer": null,
+      "approval_prompts": [],
+      "expected_tool_calls": 1,
+      "actual_tool_calls": 1,
+      "tool_receipts": [
+        "put shelf"
+      ],
+      "yielded_types": [
+        "AgentAction",
+        "AgentStep"
+      ],
+      "pass": true,
+      "stdout": "PutObject\nis_unsafe_put\n",
+      "error": null
+    },
+    {
+      "id": "native_predicate_denied",
+      "rule": "rule @probe\ntrigger PutObject\ncheck is_unsafe_put\nenforce stop\nend",
+      "input": "put bathtub",
+      "history_observations": [
+        {
+          "success": true,
+          "action": "pick candle"
+        }
+      ],
+      "approval_answer": null,
+      "approval_prompts": [],
+      "expected_tool_calls": 0,
+      "actual_tool_calls": 0,
+      "tool_receipts": [],
+      "yielded_types": [
+        "AgentFinish"
+      ],
+      "pass": true,
+      "stdout": "PutObject\nis_unsafe_put\n",
+      "error": null
+    }
+  ],
+  "one_step_passed": 8,
+  "one_step_total": 8,
+  "full_completion_probe": {
+    "pass": false,
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\experiments\\e2ag\\rr022\\run_agentspec_smoke.py\", line 141, in main\n    result = executor.invoke({\"input\": \"put book shelf\"})\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\AgentSpec\\src\\controlled_agent_excector.py\", line 43, in invoke\n    return super().invoke(input, config, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\.venv-agentspec\\Lib\\site-packages\\langchain\\chains\\base.py\", line 167, in invoke\n    raise e\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\.venv-agentspec\\Lib\\site-packages\\langchain\\chains\\base.py\", line 157, in invoke\n    self._call(inputs, run_manager=run_manager)\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\.venv-agentspec\\Lib\\site-packages\\langchain\\agents\\agent.py\", line 1620, in _call\n    next_step_output = self._take_next_step(\n                       ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\.venv-agentspec\\Lib\\site-packages\\langchain\\agents\\agent.py\", line 1328, in _take_next_step\n    for a in self._iter_next_step(\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\AgentSpec\\src\\controlled_agent_excector.py\", line 164, in _iter_next_step\n    rule, action = self.validate_and_enforce(action, state)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\AgentSpec\\src\\controlled_agent_excector.py\", line 86, in validate_and_enforce\n    if action.is_finish() and rule.trigger_finished() or rule.triggered(action.name, action.input):\n                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-baselines\\AgentSpec\\src\\rule.py\", line 28, in triggered\n    return self.event == \"any\" or action_name == self.event or input.strip().startswith(self.event.replace(\"_\",' '))\n                                                               ^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'strip'\n",
+    "tool_calls": 1
+  },
+  "limits": "Feasibility only; not E2AG comparison, safety rate, performance, or full paper reproduction."
+}

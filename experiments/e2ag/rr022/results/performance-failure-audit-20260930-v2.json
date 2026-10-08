@@ -1,0 +1,423 @@
+{
+  "status": "read_only_failure_audit",
+  "input_sha256": "ab33a408517135495b64438e9d561903ce1a89ba1d8ca0249cee46ae8655f01e",
+  "cells": [
+    {
+      "kind": "issue",
+      "mode": "G0",
+      "concurrency": 1,
+      "warmup_attempts": 18,
+      "warmup_failures": 0,
+      "measured_attempts": 63,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 1,
+      "warmup_attempts": 2,
+      "warmup_failures": 0,
+      "measured_attempts": 8,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G1",
+      "concurrency": 1,
+      "warmup_attempts": 16,
+      "warmup_failures": 0,
+      "measured_attempts": 61,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G1",
+      "concurrency": 8,
+      "warmup_attempts": 30,
+      "warmup_failures": 0,
+      "measured_attempts": 109,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G0",
+      "concurrency": 8,
+      "warmup_attempts": 29,
+      "warmup_failures": 0,
+      "measured_attempts": 106,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "warmup_attempts": 8,
+      "warmup_failures": 0,
+      "measured_attempts": 13,
+      "measured_failures": 1,
+      "sqlite_locked_messages": 1,
+      "app_log_sha256": "71791977be29aefdccb7851eb7c6150a3e4faff9f69e0985d4a0a84450826033"
+    },
+    {
+      "kind": "issue",
+      "mode": "G0",
+      "concurrency": 32,
+      "warmup_attempts": 48,
+      "warmup_failures": 0,
+      "measured_attempts": 127,
+      "measured_failures": 1,
+      "sqlite_locked_messages": 1,
+      "app_log_sha256": "5317e9f93fc53e2b49fe1144fcab0bcf05bff83ee8c98eae4159cddf97c80b24"
+    },
+    {
+      "kind": "issue",
+      "mode": "G1",
+      "concurrency": 32,
+      "warmup_attempts": 48,
+      "warmup_failures": 0,
+      "measured_attempts": 128,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 0,
+      "app_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "warmup_attempts": 32,
+      "warmup_failures": 15,
+      "measured_attempts": 0,
+      "measured_failures": 0,
+      "sqlite_locked_messages": 15,
+      "app_log_sha256": "e574151a5ee314a65aed6ff0d1544485b3412e1348d60dbf460697a0262a767a"
+    }
+  ],
+  "failures": [
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "request_id": "measurement-2-1",
+      "phase": "measurement",
+      "admission_status": 200,
+      "call_statuses": [
+        {
+          "tool": "snapshot.read",
+          "status": 500
+        }
+      ],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61605/api/internal/e2ag/mcp/0387e2c70095443e8adc4928cf30b39a'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": "88d46add9bff",
+      "event_attribution_known": true,
+      "upstream_operations": {
+        "snapshot.read": 1
+      },
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {
+        "snapshot.read": 1
+      }
+    },
+    {
+      "kind": "issue",
+      "mode": "G0",
+      "concurrency": 32,
+      "request_id": "measurement-22-2",
+      "phase": "measurement",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61809/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": null
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-13-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-10-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-6-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-14-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-5-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-11-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-22-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": "1e03f6e68a24",
+      "event_attribution_known": true,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-8-1",
+      "phase": "warmup",
+      "admission_status": 200,
+      "call_statuses": [
+        {
+          "tool": "snapshot.read",
+          "status": 500
+        }
+      ],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/internal/e2ag/mcp/d8731776f0ab49f8a4336fca971a0bf5'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": "538e4e8bd6e1",
+      "event_attribution_known": true,
+      "upstream_operations": {
+        "snapshot.read": 1
+      },
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {
+        "snapshot.read": 1
+      }
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-19-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-20-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-21-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": "7633987e09af",
+      "event_attribution_known": true,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-18-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": null,
+      "event_attribution_known": false,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-25-1",
+      "phase": "warmup",
+      "admission_status": 500,
+      "call_statuses": [],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/os/events/webhook/github'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": "2a9d07fd93d8",
+      "event_attribution_known": true,
+      "upstream_operations": {},
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {}
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-0-1",
+      "phase": "warmup",
+      "admission_status": 200,
+      "call_statuses": [
+        {
+          "tool": "snapshot.read",
+          "status": 500
+        }
+      ],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/internal/e2ag/mcp/028b099c6f4e4df59fa489a1c1eac114'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": "da1a11a63ac5",
+      "event_attribution_known": true,
+      "upstream_operations": {
+        "snapshot.read": 1
+      },
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {
+        "snapshot.read": 1
+      }
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "request_id": "warmup-30-1",
+      "phase": "warmup",
+      "admission_status": 200,
+      "call_statuses": [
+        {
+          "tool": "snapshot.read",
+          "status": 500
+        }
+      ],
+      "error": "HTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:61947/api/internal/e2ag/mcp/386b7e37c9834158b8576f35f95668ee'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+      "event_id": "f0efa0ce3414",
+      "event_attribution_known": true,
+      "upstream_operations": {
+        "snapshot.read": 1
+      },
+      "persisted_reports": 0,
+      "persisted_tool_audit": {},
+      "upstream_operations_without_tool_audit": {
+        "snapshot.read": 1
+      }
+    }
+  ],
+  "summary": {
+    "failed_requests": 17,
+    "measured_failed_requests": 2,
+    "warmup_failed_requests": 15,
+    "failed_requests_with_upstream_activity": 4,
+    "failed_requests_with_persisted_reports": 0,
+    "failed_g2_requests_with_audit_gap": 4
+  }
+}

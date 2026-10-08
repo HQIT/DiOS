@@ -1,0 +1,476 @@
+{
+  "kind": "state pilot evidence validation; control checks are not independent workloads",
+  "original_result_sha256": "fc96c52a1f0af7096f97857d14eec2fef28478bf83f59a1d5968a2f0d1dce93c",
+  "checker_sha256": "f483ff24920e5594dc207a382279f0faaa2efa2a48d1bb023616953a500ae5bf",
+  "state_harness_sha256": "98fd58042383ed78101e56ca8eac59935df5550f22c562918d19a38f39c6ea3b",
+  "approval_input_and_order_checks": [
+    {
+      "case": "A01",
+      "method": "e2ag",
+      "message_order": [
+        "approval_requested"
+      ],
+      "pass": true
+    },
+    {
+      "case": "A01",
+      "method": "agentspec",
+      "message_order": [
+        "approval_requested"
+      ],
+      "pass": true
+    },
+    {
+      "case": "A02",
+      "method": "e2ag",
+      "message_order": [
+        "approval_requested",
+        "harness_answer_delivered",
+        "result"
+      ],
+      "pass": true
+    },
+    {
+      "case": "A02",
+      "method": "agentspec",
+      "message_order": [
+        "approval_requested",
+        "harness_answer_delivered",
+        "result"
+      ],
+      "pass": true
+    },
+    {
+      "case": "A03",
+      "method": "e2ag",
+      "message_order": [
+        "approval_requested",
+        "harness_answer_delivered",
+        "result"
+      ],
+      "pass": true
+    },
+    {
+      "case": "A03",
+      "method": "agentspec",
+      "message_order": [
+        "approval_requested",
+        "harness_answer_delivered",
+        "result"
+      ],
+      "pass": true
+    }
+  ],
+  "lifecycle_audit_coverage": [
+    {
+      "case": "L01",
+      "reason": "TOOL_GRANT_EXPIRED",
+      "native_chain_valid": true,
+      "new_audit_entries": 1,
+      "dedicated_tool_call_entry": false
+    },
+    {
+      "case": "L02",
+      "reason": "TOOL_GRANT_NOT_ACTIVE",
+      "native_chain_valid": true,
+      "new_audit_entries": 0,
+      "dedicated_tool_call_entry": false
+    },
+    {
+      "case": "L03",
+      "reason": "TOOL_GRANT_TASK_MISMATCH",
+      "native_chain_valid": true,
+      "new_audit_entries": 0,
+      "dedicated_tool_call_entry": false
+    }
+  ],
+  "pre_expiry_positive_control": {
+    "job": {
+      "policy": {
+        "allowed_tools": [
+          "report.create"
+        ],
+        "allowed_resources": [
+          "repo/qame/report/a"
+        ],
+        "max_rows": 100,
+        "parameter_schema": "rows is an integer, not bool, and 1 <= rows <= 100",
+        "source_contract": {
+          "fixture/github/qame": [
+            "git.push"
+          ]
+        },
+        "unknown_or_missing": "deny",
+        "approval_order": "hard constraints first; approval cannot override denial",
+        "expiry": "deny when now >= expires_at"
+      },
+      "input": {
+        "host": {
+          "now": 1000,
+          "source_identity": "fixture/github/qame",
+          "source_verified": true
+        },
+        "event": {
+          "id": "evt-fixture",
+          "type": "git.push",
+          "source": "fixture/github/qame"
+        },
+        "task": {
+          "id": "task-fixture",
+          "agent_id": "agent-fixture",
+          "trace_id": "trace-fixture",
+          "status": "working"
+        },
+        "grant": {
+          "id": "grant-fixture",
+          "task_id": "task-fixture",
+          "agent_id": "agent-fixture",
+          "trace_id": "trace-fixture",
+          "status": "active",
+          "expires_at": 1001
+        },
+        "approval": {
+          "required": false
+        },
+        "call": {
+          "tool": "report.create",
+          "arguments": {
+            "resource": "repo/qame/report/a",
+            "rows": 10
+          }
+        }
+      }
+    },
+    "observed": {
+      "decision_sequence": [
+        "allow"
+      ],
+      "response": {
+        "status": 200,
+        "body": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "result": {
+            "tool": "report.create",
+            "arguments": {
+              "resource": "repo/qame/report/a",
+              "rows": 10
+            },
+            "sequence": 1
+          }
+        }
+      },
+      "tool_receipts": [
+        {
+          "tool": "report.create",
+          "arguments": {
+            "resource": "repo/qame/report/a",
+            "rows": 10
+          },
+          "sequence": 1
+        }
+      ],
+      "grant_status": "active",
+      "grant_task_binding": {
+        "task_trace": "trace-fixture",
+        "grant_trace": "trace-fixture"
+      },
+      "grant_call_count": 1,
+      "state_operations": [],
+      "audit_before_call": [
+        {
+          "sequence": 0,
+          "trace_id": "trace-fixture",
+          "stage": "tool_grant",
+          "outcome": "grant_issued",
+          "evidence": {
+            "grant_id": "1502b4e3ec244a53a37dade813f0085d",
+            "agent_id": "agent-fixture",
+            "task_id": "task-fixture",
+            "mcp_server_id": "mcp-fixture",
+            "allowed_tools": [
+              "report.create"
+            ]
+          },
+          "previous_hash": "",
+          "entry_hash": "4cc2b5a4a77e99c2bf6d4bdcd67deea8d65a5338a55b6095e9c5d323454e3a7d"
+        }
+      ],
+      "audit_chain": [
+        {
+          "sequence": 0,
+          "trace_id": "trace-fixture",
+          "stage": "tool_grant",
+          "outcome": "grant_issued",
+          "evidence": {
+            "grant_id": "1502b4e3ec244a53a37dade813f0085d",
+            "agent_id": "agent-fixture",
+            "task_id": "task-fixture",
+            "mcp_server_id": "mcp-fixture",
+            "allowed_tools": [
+              "report.create"
+            ]
+          },
+          "previous_hash": "",
+          "entry_hash": "4cc2b5a4a77e99c2bf6d4bdcd67deea8d65a5338a55b6095e9c5d323454e3a7d"
+        },
+        {
+          "sequence": 1,
+          "trace_id": "trace-fixture",
+          "stage": "tool_call",
+          "outcome": "allow",
+          "evidence": {
+            "grant_id": "1502b4e3ec244a53a37dade813f0085d",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "mcp_server_id": "mcp-fixture",
+            "method": "tools/call",
+            "tool": "report.create",
+            "reason": "MCP_TOOL_GRANTED",
+            "upstream_status": 200
+          },
+          "previous_hash": "4cc2b5a4a77e99c2bf6d4bdcd67deea8d65a5338a55b6095e9c5d323454e3a7d",
+          "entry_hash": "c5ef157f96aadbae620fd708d260f9cf36c98200e074803d58e2449fee171825"
+        }
+      ],
+      "audit_added_by_call": [
+        {
+          "sequence": 1,
+          "trace_id": "trace-fixture",
+          "stage": "tool_call",
+          "outcome": "allow",
+          "evidence": {
+            "grant_id": "1502b4e3ec244a53a37dade813f0085d",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "mcp_server_id": "mcp-fixture",
+            "method": "tools/call",
+            "tool": "report.create",
+            "reason": "MCP_TOOL_GRANTED",
+            "upstream_status": 200
+          },
+          "previous_hash": "4cc2b5a4a77e99c2bf6d4bdcd67deea8d65a5338a55b6095e9c5d323454e3a7d",
+          "entry_hash": "c5ef157f96aadbae620fd708d260f9cf36c98200e074803d58e2449fee171825"
+        }
+      ],
+      "audit_verification": true,
+      "input_sha256": "7c3d75dfc84994d388207f2cc6b91231f6bac5d94c442b404801689143b9e555",
+      "error": null,
+      "stdout": "",
+      "python": "3.12.10",
+      "model_calls": 0,
+      "dependencies": {
+        "aiosqlite": "0.22.1",
+        "annotated-doc": "0.0.5",
+        "annotated-types": "0.8.0",
+        "anyio": "4.14.2",
+        "certifi": "2026.7.22",
+        "charset-normalizer": "3.5.0",
+        "click": "8.4.2",
+        "colorama": "0.4.6",
+        "croniter": "6.2.4",
+        "docker": "7.2.0",
+        "fastapi": "0.141.1",
+        "greenlet": "3.5.5",
+        "h11": "0.16.0",
+        "httpcore": "1.0.9",
+        "httptools": "0.8.0",
+        "httpx": "0.28.1",
+        "idna": "3.18",
+        "iniconfig": "2.3.0",
+        "packaging": "26.3",
+        "pip": "25.0.1",
+        "pluggy": "1.6.0",
+        "pydantic": "2.13.4",
+        "pydantic_core": "2.46.4",
+        "pydantic-settings": "2.15.0",
+        "Pygments": "2.20.0",
+        "pytest": "9.1.1",
+        "python-dateutil": "2.9.0.post0",
+        "python-dotenv": "1.2.2",
+        "pywin32": "312",
+        "PyYAML": "6.0.3",
+        "requests": "2.34.2",
+        "six": "1.17.0",
+        "SQLAlchemy": "2.0.52",
+        "starlette": "1.6.0",
+        "typing_extensions": "4.16.0",
+        "typing-inspection": "0.4.4",
+        "urllib3": "2.7.0",
+        "uvicorn": "0.52.1",
+        "watchfiles": "1.2.0",
+        "websockets": "17.0.1"
+      }
+    },
+    "pipe_trace": [
+      {
+        "type": "result",
+        "observed": {
+          "decision_sequence": [
+            "allow"
+          ],
+          "response": {
+            "status": 200,
+            "body": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "tool": "report.create",
+                "arguments": {
+                  "resource": "repo/qame/report/a",
+                  "rows": 10
+                },
+                "sequence": 1
+              }
+            }
+          },
+          "tool_receipts": [
+            {
+              "tool": "report.create",
+              "arguments": {
+                "resource": "repo/qame/report/a",
+                "rows": 10
+              },
+              "sequence": 1
+            }
+          ],
+          "grant_status": "active",
+          "grant_task_binding": {
+            "task_trace": "trace-fixture",
+            "grant_trace": "trace-fixture"
+          },
+          "grant_call_count": 1,
+          "state_operations": [],
+          "audit_before_call": [
+            {
+              "sequence": 0,
+              "trace_id": "trace-fixture",
+              "stage": "tool_grant",
+              "outcome": "grant_issued",
+              "evidence": {
+                "grant_id": "1502b4e3ec244a53a37dade813f0085d",
+                "agent_id": "agent-fixture",
+                "task_id": "task-fixture",
+                "mcp_server_id": "mcp-fixture",
+                "allowed_tools": [
+                  "report.create"
+                ]
+              },
+              "previous_hash": "",
+              "entry_hash": "4cc2b5a4a77e99c2bf6d4bdcd67deea8d65a5338a55b6095e9c5d323454e3a7d"
+            }
+          ],
+          "audit_chain": [
+            {
+              "sequence": 0,
+              "trace_id": "trace-fixture",
+              "stage": "tool_grant",
+              "outcome": "grant_issued",
+              "evidence": {
+                "grant_id": "1502b4e3ec244a53a37dade813f0085d",
+                "agent_id": "agent-fixture",
+                "task_id": "task-fixture",
+                "mcp_server_id": "mcp-fixture",
+                "allowed_tools": [
+                  "report.create"
+                ]
+              },
+              "previous_hash": "",
+              "entry_hash": "4cc2b5a4a77e99c2bf6d4bdcd67deea8d65a5338a55b6095e9c5d323454e3a7d"
+            },
+            {
+              "sequence": 1,
+              "trace_id": "trace-fixture",
+              "stage": "tool_call",
+              "outcome": "allow",
+              "evidence": {
+                "grant_id": "1502b4e3ec244a53a37dade813f0085d",
+                "task_id": "task-fixture",
+                "agent_id": "agent-fixture",
+                "mcp_server_id": "mcp-fixture",
+                "method": "tools/call",
+                "tool": "report.create",
+                "reason": "MCP_TOOL_GRANTED",
+                "upstream_status": 200
+              },
+              "previous_hash": "4cc2b5a4a77e99c2bf6d4bdcd67deea8d65a5338a55b6095e9c5d323454e3a7d",
+              "entry_hash": "c5ef157f96aadbae620fd708d260f9cf36c98200e074803d58e2449fee171825"
+            }
+          ],
+          "audit_added_by_call": [
+            {
+              "sequence": 1,
+              "trace_id": "trace-fixture",
+              "stage": "tool_call",
+              "outcome": "allow",
+              "evidence": {
+                "grant_id": "1502b4e3ec244a53a37dade813f0085d",
+                "task_id": "task-fixture",
+                "agent_id": "agent-fixture",
+                "mcp_server_id": "mcp-fixture",
+                "method": "tools/call",
+                "tool": "report.create",
+                "reason": "MCP_TOOL_GRANTED",
+                "upstream_status": 200
+              },
+              "previous_hash": "4cc2b5a4a77e99c2bf6d4bdcd67deea8d65a5338a55b6095e9c5d323454e3a7d",
+              "entry_hash": "c5ef157f96aadbae620fd708d260f9cf36c98200e074803d58e2449fee171825"
+            }
+          ],
+          "audit_verification": true,
+          "input_sha256": "7c3d75dfc84994d388207f2cc6b91231f6bac5d94c442b404801689143b9e555",
+          "error": null,
+          "stdout": "",
+          "python": "3.12.10",
+          "model_calls": 0,
+          "dependencies": {
+            "aiosqlite": "0.22.1",
+            "annotated-doc": "0.0.5",
+            "annotated-types": "0.8.0",
+            "anyio": "4.14.2",
+            "certifi": "2026.7.22",
+            "charset-normalizer": "3.5.0",
+            "click": "8.4.2",
+            "colorama": "0.4.6",
+            "croniter": "6.2.4",
+            "docker": "7.2.0",
+            "fastapi": "0.141.1",
+            "greenlet": "3.5.5",
+            "h11": "0.16.0",
+            "httpcore": "1.0.9",
+            "httptools": "0.8.0",
+            "httpx": "0.28.1",
+            "idna": "3.18",
+            "iniconfig": "2.3.0",
+            "packaging": "26.3",
+            "pip": "25.0.1",
+            "pluggy": "1.6.0",
+            "pydantic": "2.13.4",
+            "pydantic_core": "2.46.4",
+            "pydantic-settings": "2.15.0",
+            "Pygments": "2.20.0",
+            "pytest": "9.1.1",
+            "python-dateutil": "2.9.0.post0",
+            "python-dotenv": "1.2.2",
+            "pywin32": "312",
+            "PyYAML": "6.0.3",
+            "requests": "2.34.2",
+            "six": "1.17.0",
+            "SQLAlchemy": "2.0.52",
+            "starlette": "1.6.0",
+            "typing_extensions": "4.16.0",
+            "typing-inspection": "0.4.4",
+            "urllib3": "2.7.0",
+            "uvicorn": "0.52.1",
+            "watchfiles": "1.2.0",
+            "websockets": "17.0.1"
+          }
+        }
+      }
+    ],
+    "stderr": [],
+    "pass": true
+  },
+  "execution_checks_pass": true,
+  "audit_followup": "L02/L03 have no new rejection audit entry; L01 records grant_expired but no dedicated tool_call entry. Do not equate valid chain with complete evidence."
+}

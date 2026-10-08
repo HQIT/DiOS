@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="25" time="8.554" timestamp="2026-10-07T16:01:21.881196+08:00" hostname="Gang-Laptop"><testcase classname="tests.test_heterogeneity_mapping.MappingTests" name="test_actual_junction_inbox_rejected" time="0.601"><failure message="AssertionError: 0 != 1 : New-Item : Cannot bind argument to parameter 'Path' because it is null.&#10;At line:1 char:35&#10;+ New-Item -ItemType Junction -Path $args[0] -Target $args[1] | Out-Nul ...&#10;+                                   ~~~~~~~~&#10;    + CategoryInfo          : InvalidData: (:) [New-Item], ParameterBindingValidationException&#10;    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.NewItemComm &#10;   and">self = &lt;test_heterogeneity_mapping.MappingTests testMethod=test_actual_junction_inbox_rejected&gt;
+
+    @unittest.skipUnless(os.name == "nt", "Windows junction/reparse boundary")
+    def test_actual_junction_inbox_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target, junction = root / "target", root / "linked"
+            target.mkdir()
+            (target / "input.ready.json").write_text('{"id":"e1","subject":"s","data":{}}')
+            # Paths are test-owned temporary children, passed as arguments; no
+            # command string is constructed from external event data.
+            result = subprocess.run(["powershell", "-NoProfile", "-Command",
+                "New-Item -ItemType Junction -Path $args[0] -Target $args[1] | Out-Null", str(junction), str(target)],
+                capture_output=True, text=True)
+            try:
+&gt;               self.assertEqual(0, result.returncode, result.stderr)
+E               AssertionError: 0 != 1 : New-Item : Cannot bind argument to parameter 'Path' because it is null.
+E               At line:1 char:35
+E               + New-Item -ItemType Junction -Path $args[0] -Target $args[1] | Out-Nul ...
+E               +                                   ~~~~~~~~
+E                   + CategoryInfo          : InvalidData: (:) [New-Item], ParameterBindingValidationException
+E                   + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.NewItemComm 
+E                  and
+
+tests\test_heterogeneity_mapping.py:47: AssertionError</failure></testcase><testcase classname="tests.test_heterogeneity_mapping.MappingTests" name="test_same_authorization_fields_across_adapters" time="0.001" /><testcase classname="tests.test_heterogeneity_mapping.MappingTests" name="test_signature_covers_body_and_required_secret" time="0.001" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_bounded_size" time="0.004" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_directory_and_hardlink_rejected" time="0.004" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_malformed_missing_duplicate_and_nonfinite_rejected" time="0.010" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_overflow_and_surrogate_rejected" time="0.023" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_paths_rejected" time="0.002" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_publish_makes_visible" time="0.006" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_reserved_envelope_fields_rejected" time="0.018" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_source_bound_and_payload_preserved" time="0.005" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_stable_identity_and_content_digest" time="0.029" /><testcase classname="tests.test_file_ingress_qualification.FileEnvelopeTests" name="test_unpublished_skipped" time="0.003" /><testcase classname="tests.test_file_ingress_qualification.FileAdmissionTests" name="test_allowed_file_creates_linked_task" time="1.635" /><testcase classname="tests.test_file_ingress_qualification.FileAdmissionTests" name="test_approval_holds_task" time="1.626" /><testcase classname="tests.test_file_ingress_qualification.FileAdmissionTests" name="test_repeat_scan_does_not_create_second_task" time="1.456" /><testcase classname="tests.test_file_ingress_qualification.FileAdmissionTests" name="test_target_denial_creates_no_task" time="1.489" /></testsuite></testsuites>

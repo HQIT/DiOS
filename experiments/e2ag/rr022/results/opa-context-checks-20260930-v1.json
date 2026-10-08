@@ -1,0 +1,181 @@
+{
+  "paired_checks_passed": true,
+  "main_cases": 9,
+  "diagnostic_controls": 9,
+  "result_sha256": "9cb4683f12a7cdd9eb9b5c30ecbd53572af3fdf7071d3e1597b387ff811dcde4",
+  "checker_sha256": "69ed3bb26464c106477d895774186ce011d8811832bc05f4ea8086304f8292f0",
+  "rego_check": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "additional_context_checks": [
+    {
+      "name": "task_agent_mismatch",
+      "observed": {
+        "allow": false,
+        "reason": "TOOL_GRANT_TASK_MISMATCH"
+      }
+    },
+    {
+      "name": "task_completed",
+      "observed": {
+        "allow": false,
+        "reason": "TOOL_GRANT_TASK_TERMINAL"
+      }
+    },
+    {
+      "name": "authentication_false",
+      "observed": {
+        "allow": false,
+        "reason": "TOOL_GRANT_INVALID"
+      }
+    },
+    {
+      "name": "missing_time",
+      "observed": {
+        "allow": false,
+        "reason": "OPA_CONTEXT_INVALID"
+      }
+    }
+  ],
+  "adapter_fault_probes": [
+    {
+      "name": "nonzero_exit",
+      "result": {
+        "allow": false,
+        "reason": "OPA_EVAL_ERROR"
+      },
+      "error": "RuntimeError: OPA failed (2): injected process failure"
+    },
+    {
+      "name": "undefined",
+      "result": {
+        "allow": false,
+        "reason": "OPA_EVAL_ERROR"
+      },
+      "error": "IndexError: list index out of range"
+    },
+    {
+      "name": "malformed",
+      "result": {
+        "allow": false,
+        "reason": "OPA_EVAL_ERROR"
+      },
+      "error": "TypeError: 'bool' object is not iterable"
+    },
+    {
+      "name": "timeout",
+      "result": {
+        "allow": false,
+        "reason": "OPA_EVAL_ERROR"
+      },
+      "error": "TimeoutExpired: Command 'inert-fault-probe' timed out after 20 seconds"
+    }
+  ],
+  "integration_engine_failure": {
+    "decision": "deny",
+    "response": {
+      "status": 403,
+      "body": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "error": {
+          "code": -32001,
+          "message": "E2AG tool grant rejected",
+          "data": {
+            "reason": "OPA_EVAL_ERROR"
+          }
+        }
+      }
+    },
+    "tool_receipts": [],
+    "input_sha256": "2d3d3cbbb355fc92f774f8b86d7bccbcfe0256c5a3ac1c07a4a018b9af7a1784",
+    "grant_status": "active",
+    "grant_call_count": 0,
+    "audit_added": [],
+    "audit_verification": true,
+    "call_audit_count": 0,
+    "opa_evaluations": [
+      {
+        "input": {
+          "phase": "grant",
+          "authenticated": true,
+          "now": 1767225600.0,
+          "grant": {
+            "id": "dd9720452b9d413181e8be53e6f7b4fc",
+            "task_id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "event_log_id": "evt-fixture",
+            "mcp_server_id": "mcp-fixture",
+            "status": "active",
+            "allowed_tools": [
+              "report.create"
+            ],
+            "argument_constraints": {
+              "version": 1,
+              "tools": {
+                "report.create": {
+                  "resource": {
+                    "type": "string",
+                    "enum": [
+                      "repo/qame/report/a"
+                    ]
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                }
+              }
+            },
+            "expires_at": 1767225700.0
+          },
+          "task": {
+            "id": "task-fixture",
+            "agent_id": "agent-fixture",
+            "trace_id": "trace-fixture",
+            "status": "working"
+          },
+          "event": {
+            "id": "evt-fixture",
+            "source": "fixture/github/qame",
+            "event_type": "git.push",
+            "trace_id": "trace-fixture",
+            "contract_decision": {},
+            "policy_decision": {}
+          }
+        },
+        "result": {
+          "allow": false,
+          "reason": "OPA_EVAL_ERROR"
+        },
+        "error": "FileNotFoundError: [WinError 2] 系统找不到指定的文件。"
+      }
+    ],
+    "engine_errors": [
+      "FileNotFoundError: [WinError 2] 系统找不到指定的文件。"
+    ],
+    "stored_constraints": {
+      "version": 1,
+      "tools": {
+        "report.create": {
+          "resource": {
+            "type": "string",
+            "enum": [
+              "repo/qame/report/a"
+            ]
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      }
+    }
+  },
+  "remaining_gap": "Engine failure denies and creates no receipt, but the shared native rejection-audit whitelist does not record OPA_EVAL_ERROR. Engine errors must be reported separately, not counted as successful policy denials."
+}

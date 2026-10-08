@@ -1,0 +1,18 @@
+{
+  "purpose": "feasibility_only_not_formal_test_set",
+  "created": "2026-09-30",
+  "selection": "After the sparse 8-hour v1 inventory, expand to all 24 UTC hours on the first sampled Monday, 2026-09-21. Exploratory expansion based on availability, not governance outcomes. Preserve v1; all these dates and objects excluded from formal holdout.",
+  "hours": ["2026-09-21-0", "2026-09-21-1", "2026-09-21-2", "2026-09-21-3", "2026-09-21-4", "2026-09-21-5", "2026-09-21-6", "2026-09-21-7", "2026-09-21-8", "2026-09-21-9", "2026-09-21-10", "2026-09-21-11", "2026-09-21-12", "2026-09-21-13", "2026-09-21-14", "2026-09-21-15", "2026-09-21-16", "2026-09-21-17", "2026-09-21-18", "2026-09-21-19", "2026-09-21-20", "2026-09-21-21", "2026-09-21-22", "2026-09-21-23"],
+  "repositories": [
+    {"name": "deepseek-ai/deepseek-harness", "role": "user_suggested_agent_harness"},
+    {"name": "langchain-ai/langgraph", "role": "agent_workflow_framework"},
+    {"name": "microsoft/autogen", "role": "multi_agent_framework"},
+    {"name": "EleutherAI/lm-evaluation-harness", "role": "evaluation_infrastructure"},
+    {"name": "fastapi/fastapi", "role": "non_agent_web_framework"},
+    {"name": "microsoft/vscode", "role": "non_agent_developer_tool"},
+    {"name": "HQIT/qame", "role": "known_project_reference_not_independent_holdout"}
+  ],
+  "limits": {"max_compressed_bytes_per_hour": 150000000, "max_total_compressed_bytes": 600000000},
+  "privacy": "Cache raw archives only in ignored tmp; export allowlisted metadata without bodies or actors.",
+  "boundary": "Public event records, not original webhook delivery or complete natural traffic. No writes to external projects, model calls or governance tests."
+}

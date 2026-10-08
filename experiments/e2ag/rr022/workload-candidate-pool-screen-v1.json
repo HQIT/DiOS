@@ -1,0 +1,17 @@
+{
+  "purpose": "exploratory_repository_availability_not_formal_sampling",
+  "source": "results/public-workload-scout-20260930-v2.json",
+  "window": "2026-09-21 UTC full day, already explored, always excluded from holdout",
+  "universe": "all repository names with public issue/PR opened events in the 24 frozen archives",
+  "input_gate": "same issue/PR identity and business-field validation as audit_workload_selection.py",
+  "minimum_unique_objects_each_workflow": 3,
+  "threshold_reason": "a small availability gate for both workflows, not statistical power or project quality",
+  "rank": "sha256(seed + LF + lowercase_repository)",
+  "seed": "rr022-exploration-pool-20260930-v1",
+  "shortlist_limit": 10,
+  "excluded_development_repositories": ["microsoft/vscode", "HQIT/qame"],
+  "forbidden_selection_inputs": ["stars", "brand", "governance_verdict", "model_success"],
+  "later_required": ["original_repository_not_fork", "public_project_metadata", "historical_content_feasibility", "independent_objects", "author_protocol_confirmation"],
+  "no_fallback_if_empty": true,
+  "formal_runs": 0
+}

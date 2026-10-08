@@ -1,0 +1,435 @@
+{
+  "status": "saved_records_verified",
+  "source_sha256": "9877cd1913373b5c8d6082438df2ea8169bb2d06b636ecc717a5bfc29a5e078b",
+  "completed_cells": 4,
+  "planned_cells": 4,
+  "rows": [
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 1,
+      "status": "pretrial_checked",
+      "proxy_transport": "per-call",
+      "measured_attempts": 7,
+      "successful": 7,
+      "errors": 0,
+      "stages": {
+        "normalization": {
+          "n": 7,
+          "median_ms": 0.1504,
+          "max_ms": 0.1621
+        },
+        "subscription_matching": {
+          "n": 7,
+          "median_ms": 0.0563,
+          "max_ms": 0.1049
+        },
+        "contract_pdp": {
+          "n": 7,
+          "median_ms": 0.0691,
+          "max_ms": 0.0847
+        },
+        "target_pdp": {
+          "n": 7,
+          "median_ms": 0.0495,
+          "max_ms": 0.0732
+        },
+        "db_commit": {
+          "n": 56,
+          "median_ms": 16.01425,
+          "max_ms": 28.9904
+        },
+        "native_task_create": {
+          "n": 7,
+          "median_ms": 20.3193,
+          "max_ms": 27.4103
+        },
+        "grant_ready": {
+          "n": 7,
+          "median_ms": 29.8466,
+          "max_ms": 49.8623
+        },
+        "http_route": {
+          "n": 28,
+          "median_ms": 298.71595,
+          "max_ms": 539.3524
+        },
+        "proxy_validate_grant": {
+          "n": 14,
+          "median_ms": 6.390700000000001,
+          "max_ms": 15.3892
+        },
+        "proxy_authorize": {
+          "n": 14,
+          "median_ms": 0.07305,
+          "max_ms": 0.2263
+        },
+        "proxy_client_init": {
+          "n": 14,
+          "median_ms": 367.86025,
+          "max_ms": 422.7019
+        },
+        "proxy_upstream_post": {
+          "n": 14,
+          "median_ms": 49.3267,
+          "max_ms": 63.5102
+        },
+        "proxy_client_close": {
+          "n": 14,
+          "median_ms": 1.504,
+          "max_ms": 2.4215
+        }
+      },
+      "commit_counts_by_request_phase": {
+        "admission": 28,
+        "read": 14,
+        "write": 14
+      },
+      "processes": [
+        {
+          "role": "driver",
+          "max_rss_bytes": 49799168,
+          "max_cpu_percent_one_core": 91.7
+        },
+        {
+          "role": "upstream",
+          "max_rss_bytes": 35233792,
+          "max_cpu_percent_one_core": 6.2
+        },
+        {
+          "role": "app",
+          "max_rss_bytes": 94375936,
+          "max_cpu_percent_one_core": 90.6
+        }
+      ],
+      "service_resource_identity_verified": true,
+      "service_resource_limitation": null,
+      "min_memory_available_fraction": 0.2799600945479134,
+      "min_disk_free": 51779166208,
+      "report_content_digests": [
+        "f7a9c699a873831e580638344b8fe332b5b5fabee16050c7ecd653187d42ad16"
+      ]
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 1,
+      "status": "pretrial_checked",
+      "proxy_transport": "shared",
+      "measured_attempts": 29,
+      "successful": 29,
+      "errors": 0,
+      "stages": {
+        "normalization": {
+          "n": 29,
+          "median_ms": 0.1497,
+          "max_ms": 0.4159
+        },
+        "subscription_matching": {
+          "n": 29,
+          "median_ms": 0.0451,
+          "max_ms": 0.0721
+        },
+        "contract_pdp": {
+          "n": 29,
+          "median_ms": 0.065,
+          "max_ms": 0.1134
+        },
+        "target_pdp": {
+          "n": 29,
+          "median_ms": 0.0464,
+          "max_ms": 0.0652
+        },
+        "db_commit": {
+          "n": 232,
+          "median_ms": 13.95365,
+          "max_ms": 29.1167
+        },
+        "native_task_create": {
+          "n": 29,
+          "median_ms": 19.7069,
+          "max_ms": 22.3879
+        },
+        "grant_ready": {
+          "n": 29,
+          "median_ms": 27.1539,
+          "max_ms": 38.7229
+        },
+        "http_route": {
+          "n": 116,
+          "median_ms": 72.63085000000001,
+          "max_ms": 126.8071
+        },
+        "proxy_validate_grant": {
+          "n": 58,
+          "median_ms": 5.10735,
+          "max_ms": 8.534
+        },
+        "proxy_authorize": {
+          "n": 58,
+          "median_ms": 0.059649999999999995,
+          "max_ms": 0.3612
+        },
+        "proxy_client_init": {
+          "n": 58,
+          "median_ms": 0.16675,
+          "max_ms": 0.3626
+        },
+        "proxy_upstream_post": {
+          "n": 58,
+          "median_ms": 13.791,
+          "max_ms": 24.2244
+        },
+        "proxy_client_close": {
+          "n": 58,
+          "median_ms": 0.0094,
+          "max_ms": 0.0149
+        }
+      },
+      "commit_counts_by_request_phase": {
+        "admission": 116,
+        "read": 58,
+        "write": 58
+      },
+      "processes": [
+        {
+          "role": "driver",
+          "max_rss_bytes": 52588544,
+          "max_cpu_percent_one_core": 99.8
+        },
+        {
+          "role": "upstream",
+          "max_rss_bytes": 34942976,
+          "max_cpu_percent_one_core": 6.2
+        },
+        {
+          "role": "app",
+          "max_rss_bytes": 90804224,
+          "max_cpu_percent_one_core": 60.7
+        }
+      ],
+      "service_resource_identity_verified": true,
+      "service_resource_limitation": null,
+      "min_memory_available_fraction": 0.28000657243426896,
+      "min_disk_free": 51778191360,
+      "report_content_digests": [
+        "f7a9c699a873831e580638344b8fe332b5b5fabee16050c7ecd653187d42ad16"
+      ]
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "status": "pretrial_checked",
+      "proxy_transport": "shared",
+      "measured_attempts": 38,
+      "successful": 37,
+      "errors": 1,
+      "stages": {
+        "normalization": {
+          "n": 38,
+          "median_ms": 0.15065,
+          "max_ms": 0.263
+        },
+        "subscription_matching": {
+          "n": 38,
+          "median_ms": 0.045899999999999996,
+          "max_ms": 0.083
+        },
+        "contract_pdp": {
+          "n": 38,
+          "median_ms": 0.07300000000000001,
+          "max_ms": 0.164
+        },
+        "target_pdp": {
+          "n": 38,
+          "median_ms": 0.04925,
+          "max_ms": 0.0849
+        },
+        "db_commit": {
+          "n": 301,
+          "median_ms": 16.0487,
+          "max_ms": 3159.1856
+        },
+        "native_task_create": {
+          "n": 38,
+          "median_ms": 47.4932,
+          "max_ms": 3163.7326
+        },
+        "grant_ready": {
+          "n": 38,
+          "median_ms": 79.6485,
+          "max_ms": 557.7457
+        },
+        "http_route": {
+          "n": 151,
+          "median_ms": 269.5981,
+          "max_ms": 6320.3911
+        },
+        "proxy_validate_grant": {
+          "n": 75,
+          "median_ms": 27.1025,
+          "max_ms": 196.6904
+        },
+        "proxy_authorize": {
+          "n": 75,
+          "median_ms": 0.0637,
+          "max_ms": 0.1535
+        },
+        "proxy_client_init": {
+          "n": 75,
+          "median_ms": 0.1625,
+          "max_ms": 0.333
+        },
+        "proxy_upstream_post": {
+          "n": 75,
+          "median_ms": 15.4317,
+          "max_ms": 26.7074
+        },
+        "proxy_client_close": {
+          "n": 75,
+          "median_ms": 0.0097,
+          "max_ms": 0.0143
+        }
+      },
+      "commit_counts_by_request_phase": {
+        "admission": 152,
+        "read": 75,
+        "write": 74
+      },
+      "processes": [
+        {
+          "role": "driver",
+          "max_rss_bytes": 55701504,
+          "max_cpu_percent_one_core": 96.0
+        },
+        {
+          "role": "upstream",
+          "max_rss_bytes": 35155968,
+          "max_cpu_percent_one_core": 9.1
+        },
+        {
+          "role": "app",
+          "max_rss_bytes": 95150080,
+          "max_cpu_percent_one_core": 84.4
+        }
+      ],
+      "service_resource_identity_verified": true,
+      "service_resource_limitation": null,
+      "min_memory_available_fraction": 0.28778160684368065,
+      "min_disk_free": 51776192512,
+      "report_content_digests": [
+        "f7a9c699a873831e580638344b8fe332b5b5fabee16050c7ecd653187d42ad16"
+      ]
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "status": "pretrial_checked",
+      "proxy_transport": "per-call",
+      "measured_attempts": 13,
+      "successful": 11,
+      "errors": 2,
+      "stages": {
+        "normalization": {
+          "n": 13,
+          "median_ms": 0.1422,
+          "max_ms": 0.2432
+        },
+        "subscription_matching": {
+          "n": 13,
+          "median_ms": 0.0469,
+          "max_ms": 0.068
+        },
+        "contract_pdp": {
+          "n": 13,
+          "median_ms": 0.0823,
+          "max_ms": 0.0947
+        },
+        "target_pdp": {
+          "n": 13,
+          "median_ms": 0.0561,
+          "max_ms": 0.074
+        },
+        "db_commit": {
+          "n": 99,
+          "median_ms": 20.2623,
+          "max_ms": 4592.3776
+        },
+        "native_task_create": {
+          "n": 13,
+          "median_ms": 47.6991,
+          "max_ms": 4606.8826
+        },
+        "grant_ready": {
+          "n": 13,
+          "median_ms": 135.2626,
+          "max_ms": 2233.9378
+        },
+        "http_route": {
+          "n": 51,
+          "median_ms": 982.6763,
+          "max_ms": 6956.7955
+        },
+        "proxy_validate_grant": {
+          "n": 25,
+          "median_ms": 21.7659,
+          "max_ms": 439.115
+        },
+        "proxy_authorize": {
+          "n": 25,
+          "median_ms": 0.0589,
+          "max_ms": 0.0982
+        },
+        "proxy_client_init": {
+          "n": 24,
+          "median_ms": 363.54835,
+          "max_ms": 439.2605
+        },
+        "proxy_upstream_post": {
+          "n": 24,
+          "median_ms": 51.8647,
+          "max_ms": 75.4274
+        },
+        "proxy_client_close": {
+          "n": 24,
+          "median_ms": 1.50285,
+          "max_ms": 3.4442
+        }
+      },
+      "commit_counts_by_request_phase": {
+        "admission": 52,
+        "read": 24,
+        "write": 23
+      },
+      "processes": [
+        {
+          "role": "driver",
+          "max_rss_bytes": 58327040,
+          "max_cpu_percent_one_core": 95.4
+        },
+        {
+          "role": "upstream",
+          "max_rss_bytes": 34811904,
+          "max_cpu_percent_one_core": 9.1
+        },
+        {
+          "role": "app",
+          "max_rss_bytes": 104718336,
+          "max_cpu_percent_one_core": 106.0
+        }
+      ],
+      "service_resource_identity_verified": true,
+      "service_resource_limitation": null,
+      "min_memory_available_fraction": 0.2884570530981334,
+      "min_disk_free": 51773784064,
+      "report_content_digests": [
+        "f7a9c699a873831e580638344b8fe332b5b5fabee16050c7ecd653187d42ad16"
+      ]
+    }
+  ],
+  "measured_attempts": 87,
+  "successful": 84,
+  "errors": 3
+}

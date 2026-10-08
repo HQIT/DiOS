@@ -1,0 +1,1345 @@
+{
+  "status": "development_examples_built_not_governance_results",
+  "selection": "Earliest UTC time then event id per PushEvent/PR opened/Issue opened in microsoft/vscode; selected before adapting; no skip on failure.",
+  "inventory_sha256": "5bf84fb6822d99b12f9160562f2678c66e03ee9e8d95766b945e6c094701a750",
+  "source_hashes": {
+    "build_archive_development_examples.py": "aa19a19cc77742be7d9106515ee3c4b4656589025f0064b1d17d26d125e7ea0f",
+    "archive_development_adapter.py": "ebdc382bc982e4f3230ddf1dbf39f3a57b87ebac16ba624943e8d89abeb319d0",
+    "normalizers.py": "716e2b18867bca4cdc16cf7a41f92c96ea83482143702254212c19e6af01bdc7"
+  },
+  "examples": [
+    {
+      "source_record": {
+        "event_id": "21694813990",
+        "repository": "microsoft/vscode",
+        "event_type": "PushEvent",
+        "created_at": "2026-09-21T00:40:53Z",
+        "action": null,
+        "object_number": null,
+        "object_group": "microsoft/vscode:push:44113728747",
+        "ref": "refs/heads/main",
+        "head": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+        "before": "21293c5a0898a51cb6eb1a7b967ce8be990f60bd",
+        "pr_head_sha": null,
+        "pr_base_sha": null,
+        "payload_keys": [
+          "before",
+          "head",
+          "push_id",
+          "ref",
+          "repository_id"
+        ],
+        "has_pr_body": false,
+        "has_issue_body": false,
+        "has_comment_body": false,
+        "commit_entries": 0,
+        "archive_hour": "2026-09-21-0",
+        "line": 84753,
+        "raw_line_sha256": "eee68513053ef0c70ef03ae5223d143ba6eb29587bf9ccbd6abe1cfacf9caac3"
+      },
+      "adaptation": {
+        "source_fields": {
+          "event_id": "21694813990",
+          "repository": "microsoft/vscode",
+          "created_at": "2026-09-21T00:40:53Z",
+          "event_type": "PushEvent",
+          "action": null,
+          "ref": "refs/heads/main",
+          "head": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+          "before": "21293c5a0898a51cb6eb1a7b967ce8be990f60bd",
+          "push_id": 44113728747
+        },
+        "target": {
+          "kind": "push",
+          "repository": "microsoft/vscode",
+          "push_id": 44113728747,
+          "ref": "refs/heads/main",
+          "before": "21293c5a0898a51cb6eb1a7b967ce8be990f60bd",
+          "head": "fc0256deff8a612de2bdb07b3d748299f15f2b63"
+        },
+        "version": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+        "projected_payload": {
+          "repository": {
+            "full_name": "microsoft/vscode"
+          },
+          "ref": "refs/heads/main",
+          "before": "21293c5a0898a51cb6eb1a7b967ce8be990f60bd",
+          "after": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+          "_archive_provenance": {
+            "mode": "offline_public_event_replay",
+            "archive_url": "https://data.gharchive.org/2026-09-21-0.json.gz",
+            "archive_sha256": "303a388d8ec328c6a7be2b5040901fb6eb2d18cad49622418b26c55a5523133f",
+            "line": 84753,
+            "raw_line_sha256": "eee68513053ef0c70ef03ae5223d143ba6eb29587bf9ccbd6abe1cfacf9caac3",
+            "original_webhook_signature_verified": false
+          }
+        },
+        "normalizer_event_name": "push",
+        "expected_normalized_type": "git.push",
+        "transformations": [
+          "payload.head -> projected.after; original retained in source_fields"
+        ],
+        "trust": {
+          "mode": "local_archive_replay",
+          "original_webhook_signature_verified": false
+        },
+        "content_scope": "metadata registration only; no code review, semantic summary or upstream writes"
+      },
+      "normalized_event": {
+        "specversion": "1.0",
+        "id": "gharchive:21694813990",
+        "source": "github/microsoft/vscode",
+        "type": "git.push",
+        "subject": "refs/heads/main",
+        "time": "2026-09-21T00:40:53Z",
+        "data": {
+          "repository": {
+            "full_name": "microsoft/vscode"
+          },
+          "ref": "refs/heads/main",
+          "before": "21293c5a0898a51cb6eb1a7b967ce8be990f60bd",
+          "after": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+          "_archive_provenance": {
+            "mode": "offline_public_event_replay",
+            "archive_url": "https://data.gharchive.org/2026-09-21-0.json.gz",
+            "archive_sha256": "303a388d8ec328c6a7be2b5040901fb6eb2d18cad49622418b26c55a5523133f",
+            "line": 84753,
+            "raw_line_sha256": "eee68513053ef0c70ef03ae5223d143ba6eb29587bf9ccbd6abe1cfacf9caac3",
+            "original_webhook_signature_verified": false
+          }
+        }
+      },
+      "task": {
+        "description": "Register one source-attributed event snapshot in an isolated report store",
+        "policy_origin": "experiment_defined_not_upstream_repository_authorization",
+        "policy": {
+          "tool": "event.record",
+          "resource": "rr022-dev/microsoft/vscode/push/44113728747",
+          "version": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+          "source_event_id": "21694813990",
+          "record_count": 1
+        },
+        "call": {
+          "tool": "event.record",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/push/44113728747",
+            "version": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+            "source_event_id": "21694813990",
+            "record_count": 1
+          }
+        },
+        "expected_artifact": {
+          "source": {
+            "event_id": "21694813990",
+            "repository": "microsoft/vscode",
+            "created_at": "2026-09-21T00:40:53Z",
+            "event_type": "PushEvent",
+            "action": null,
+            "ref": "refs/heads/main",
+            "head": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+            "before": "21293c5a0898a51cb6eb1a7b967ce8be990f60bd",
+            "push_id": 44113728747
+          },
+          "target": {
+            "kind": "push",
+            "repository": "microsoft/vscode",
+            "push_id": 44113728747,
+            "ref": "refs/heads/main",
+            "before": "21293c5a0898a51cb6eb1a7b967ce8be990f60bd",
+            "head": "fc0256deff8a612de2bdb07b3d748299f15f2b63"
+          },
+          "operation": "register_event_metadata"
+        }
+      },
+      "expected_cases": [
+        {
+          "name": "normal",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/push/44113728747",
+              "version": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+              "source_event_id": "21694813990",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": true,
+            "reason": "contract_satisfied"
+          },
+          "expected_receipts": 1
+        },
+        {
+          "name": "different_object",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/pr/337123",
+              "version": "fc0256deff8a612de2bdb07b3d748299f15f2b63",
+              "source_event_id": "21694813990",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": false,
+            "reason": "resource_mismatch"
+          },
+          "expected_receipts": 0
+        },
+        {
+          "name": "different_version_or_snapshot",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/push/44113728747",
+              "version": "21293c5a0898a51cb6eb1a7b967ce8be990f60bd",
+              "source_event_id": "21694813990",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": false,
+            "reason": "version_mismatch"
+          },
+          "expected_receipts": 0
+        }
+      ]
+    },
+    {
+      "source_record": {
+        "event_id": "15454802241",
+        "repository": "microsoft/vscode",
+        "event_type": "PullRequestEvent",
+        "created_at": "2026-09-21T19:07:47Z",
+        "action": "opened",
+        "object_number": 337123,
+        "object_group": "microsoft/vscode:pr:337123",
+        "ref": null,
+        "head": null,
+        "before": null,
+        "pr_head_sha": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+        "pr_base_sha": "cceb427ea1f907448b93a1ea3fdeba8c7f755435",
+        "payload_keys": [
+          "action",
+          "number",
+          "pull_request"
+        ],
+        "has_pr_body": false,
+        "has_issue_body": false,
+        "has_comment_body": false,
+        "commit_entries": 0,
+        "archive_hour": "2026-09-21-19",
+        "line": 4254,
+        "raw_line_sha256": "956e6ba7fca5c5f3b927b3ac25040a5199b23dba9dd50a5037eaa4f1cbe09713"
+      },
+      "adaptation": {
+        "source_fields": {
+          "event_id": "15454802241",
+          "repository": "microsoft/vscode",
+          "created_at": "2026-09-21T19:07:47Z",
+          "event_type": "PullRequestEvent",
+          "action": "opened",
+          "number": 337123,
+          "head": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+          "base": "cceb427ea1f907448b93a1ea3fdeba8c7f755435"
+        },
+        "target": {
+          "kind": "pr",
+          "repository": "microsoft/vscode",
+          "number": 337123,
+          "head": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+          "base": "cceb427ea1f907448b93a1ea3fdeba8c7f755435"
+        },
+        "version": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+        "projected_payload": {
+          "repository": {
+            "full_name": "microsoft/vscode"
+          },
+          "action": "opened",
+          "number": 337123,
+          "pull_request": {
+            "number": 337123,
+            "head": {
+              "sha": "a2e8b65859eb1e1d095cf8c28347734c181ac705"
+            },
+            "base": {
+              "sha": "cceb427ea1f907448b93a1ea3fdeba8c7f755435"
+            }
+          },
+          "_archive_provenance": {
+            "mode": "offline_public_event_replay",
+            "archive_url": "https://data.gharchive.org/2026-09-21-19.json.gz",
+            "archive_sha256": "03da204541b2a643ec24e031119b0bfee6b1dc77502cb0f5d8d34b16b2011dc3",
+            "line": 4254,
+            "raw_line_sha256": "956e6ba7fca5c5f3b927b3ac25040a5199b23dba9dd50a5037eaa4f1cbe09713",
+            "original_webhook_signature_verified": false
+          }
+        },
+        "normalizer_event_name": "pull_request",
+        "expected_normalized_type": "git.pull_request.created",
+        "transformations": [
+          "outer payload.number -> projected.pull_request.number when absent; reject conflicting values"
+        ],
+        "trust": {
+          "mode": "local_archive_replay",
+          "original_webhook_signature_verified": false
+        },
+        "content_scope": "metadata registration only; no code review, semantic summary or upstream writes"
+      },
+      "normalized_event": {
+        "specversion": "1.0",
+        "id": "gharchive:15454802241",
+        "source": "github/microsoft/vscode",
+        "type": "git.pull_request.created",
+        "subject": "pr/337123",
+        "time": "2026-09-21T19:07:47Z",
+        "data": {
+          "repository": {
+            "full_name": "microsoft/vscode"
+          },
+          "action": "opened",
+          "number": 337123,
+          "pull_request": {
+            "number": 337123,
+            "head": {
+              "sha": "a2e8b65859eb1e1d095cf8c28347734c181ac705"
+            },
+            "base": {
+              "sha": "cceb427ea1f907448b93a1ea3fdeba8c7f755435"
+            }
+          },
+          "_archive_provenance": {
+            "mode": "offline_public_event_replay",
+            "archive_url": "https://data.gharchive.org/2026-09-21-19.json.gz",
+            "archive_sha256": "03da204541b2a643ec24e031119b0bfee6b1dc77502cb0f5d8d34b16b2011dc3",
+            "line": 4254,
+            "raw_line_sha256": "956e6ba7fca5c5f3b927b3ac25040a5199b23dba9dd50a5037eaa4f1cbe09713",
+            "original_webhook_signature_verified": false
+          }
+        }
+      },
+      "task": {
+        "description": "Register one source-attributed event snapshot in an isolated report store",
+        "policy_origin": "experiment_defined_not_upstream_repository_authorization",
+        "policy": {
+          "tool": "event.record",
+          "resource": "rr022-dev/microsoft/vscode/pr/337123",
+          "version": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+          "source_event_id": "15454802241",
+          "record_count": 1
+        },
+        "call": {
+          "tool": "event.record",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/pr/337123",
+            "version": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+            "source_event_id": "15454802241",
+            "record_count": 1
+          }
+        },
+        "expected_artifact": {
+          "source": {
+            "event_id": "15454802241",
+            "repository": "microsoft/vscode",
+            "created_at": "2026-09-21T19:07:47Z",
+            "event_type": "PullRequestEvent",
+            "action": "opened",
+            "number": 337123,
+            "head": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+            "base": "cceb427ea1f907448b93a1ea3fdeba8c7f755435"
+          },
+          "target": {
+            "kind": "pr",
+            "repository": "microsoft/vscode",
+            "number": 337123,
+            "head": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+            "base": "cceb427ea1f907448b93a1ea3fdeba8c7f755435"
+          },
+          "operation": "register_event_metadata"
+        }
+      },
+      "expected_cases": [
+        {
+          "name": "normal",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/pr/337123",
+              "version": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+              "source_event_id": "15454802241",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": true,
+            "reason": "contract_satisfied"
+          },
+          "expected_receipts": 1
+        },
+        {
+          "name": "different_object",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/push/44113728747",
+              "version": "a2e8b65859eb1e1d095cf8c28347734c181ac705",
+              "source_event_id": "15454802241",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": false,
+            "reason": "resource_mismatch"
+          },
+          "expected_receipts": 0
+        },
+        {
+          "name": "different_version_or_snapshot",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/pr/337123",
+              "version": "cceb427ea1f907448b93a1ea3fdeba8c7f755435",
+              "source_event_id": "15454802241",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": false,
+            "reason": "version_mismatch"
+          },
+          "expected_receipts": 0
+        }
+      ]
+    },
+    {
+      "source_record": {
+        "event_id": "15466644884",
+        "repository": "microsoft/vscode",
+        "event_type": "IssuesEvent",
+        "created_at": "2026-09-21T22:48:30Z",
+        "action": "opened",
+        "object_number": 337178,
+        "object_group": "microsoft/vscode:issue:337178",
+        "ref": null,
+        "head": null,
+        "before": null,
+        "pr_head_sha": null,
+        "pr_base_sha": null,
+        "payload_keys": [
+          "action",
+          "issue"
+        ],
+        "has_pr_body": false,
+        "has_issue_body": true,
+        "has_comment_body": false,
+        "commit_entries": 0,
+        "archive_hour": "2026-09-21-22",
+        "line": 19266,
+        "raw_line_sha256": "5ca5531055c4e0413bfa733fc739fa32eb6eb578a422b36973ee5315ded00c71"
+      },
+      "adaptation": {
+        "source_fields": {
+          "event_id": "15466644884",
+          "repository": "microsoft/vscode",
+          "created_at": "2026-09-21T22:48:30Z",
+          "event_type": "IssuesEvent",
+          "action": "opened",
+          "number": 337178,
+          "issue_snapshot_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62"
+        },
+        "target": {
+          "kind": "issue",
+          "repository": "microsoft/vscode",
+          "number": 337178,
+          "snapshot_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62"
+        },
+        "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+        "projected_payload": {
+          "repository": {
+            "full_name": "microsoft/vscode"
+          },
+          "action": "opened",
+          "issue": {
+            "number": 337178
+          },
+          "_archive_provenance": {
+            "mode": "offline_public_event_replay",
+            "archive_url": "https://data.gharchive.org/2026-09-21-22.json.gz",
+            "archive_sha256": "b4047353b11c1ffa7e286ccf84712a39bc9da8e69ec8f0add9089056e82ff573",
+            "line": 19266,
+            "raw_line_sha256": "5ca5531055c4e0413bfa733fc739fa32eb6eb578a422b36973ee5315ded00c71",
+            "original_webhook_signature_verified": false
+          }
+        },
+        "normalizer_event_name": "issues",
+        "expected_normalized_type": "git.issue.opened",
+        "transformations": [
+          "issue snapshot -> canonical JSON SHA-256 (derived, not GitHub version)"
+        ],
+        "trust": {
+          "mode": "local_archive_replay",
+          "original_webhook_signature_verified": false
+        },
+        "content_scope": "metadata registration only; no code review, semantic summary or upstream writes"
+      },
+      "normalized_event": {
+        "specversion": "1.0",
+        "id": "gharchive:15466644884",
+        "source": "github/microsoft/vscode",
+        "type": "git.issue.opened",
+        "subject": "issue/337178",
+        "time": "2026-09-21T22:48:30Z",
+        "data": {
+          "repository": {
+            "full_name": "microsoft/vscode"
+          },
+          "action": "opened",
+          "issue": {
+            "number": 337178
+          },
+          "_archive_provenance": {
+            "mode": "offline_public_event_replay",
+            "archive_url": "https://data.gharchive.org/2026-09-21-22.json.gz",
+            "archive_sha256": "b4047353b11c1ffa7e286ccf84712a39bc9da8e69ec8f0add9089056e82ff573",
+            "line": 19266,
+            "raw_line_sha256": "5ca5531055c4e0413bfa733fc739fa32eb6eb578a422b36973ee5315ded00c71",
+            "original_webhook_signature_verified": false
+          }
+        }
+      },
+      "task": {
+        "description": "Register one source-attributed event snapshot in an isolated report store",
+        "policy_origin": "experiment_defined_not_upstream_repository_authorization",
+        "policy": {
+          "tool": "event.record",
+          "resource": "rr022-dev/microsoft/vscode/issue/337178",
+          "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+          "source_event_id": "15466644884",
+          "record_count": 1
+        },
+        "call": {
+          "tool": "event.record",
+          "arguments": {
+            "resource": "rr022-dev/microsoft/vscode/issue/337178",
+            "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+            "source_event_id": "15466644884",
+            "record_count": 1
+          }
+        },
+        "expected_artifact": {
+          "source": {
+            "event_id": "15466644884",
+            "repository": "microsoft/vscode",
+            "created_at": "2026-09-21T22:48:30Z",
+            "event_type": "IssuesEvent",
+            "action": "opened",
+            "number": 337178,
+            "issue_snapshot_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62"
+          },
+          "target": {
+            "kind": "issue",
+            "repository": "microsoft/vscode",
+            "number": 337178,
+            "snapshot_sha256": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62"
+          },
+          "operation": "register_event_metadata"
+        }
+      },
+      "expected_cases": [
+        {
+          "name": "normal",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/issue/337178",
+              "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+              "source_event_id": "15466644884",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": true,
+            "reason": "contract_satisfied"
+          },
+          "expected_receipts": 1
+        },
+        {
+          "name": "different_object",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/push/44113728747",
+              "version": "ce34365056136f5c3db38cb4e1930720cb029ffa1478d5507ba86b68b5f71d62",
+              "source_event_id": "15466644884",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": false,
+            "reason": "resource_mismatch"
+          },
+          "expected_receipts": 0
+        },
+        {
+          "name": "different_version_or_snapshot",
+          "call": {
+            "tool": "event.record",
+            "arguments": {
+              "resource": "rr022-dev/microsoft/vscode/issue/337178",
+              "version": "0000000000000000000000000000000000000000000000000000000000000000",
+              "source_event_id": "15466644884",
+              "record_count": 1
+            }
+          },
+          "expected": {
+            "allow": false,
+            "reason": "version_mismatch"
+          },
+          "expected_receipts": 0
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "event_id": "15395995837",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15395997410",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "21694813990",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15397442788",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15400037482",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15400291532",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15404815627",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15413764845",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15416727648",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "21724543750",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15417276035",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15417702065",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15417873788",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15418066444",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "21725788445",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "21725856003",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15419408658",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15420105255",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15420882692",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15421072243",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "21729911816",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15424279050",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15438258761",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15439051197",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15440790780",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15447840309",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15447840325",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15447903276",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15448465201",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15448784079",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15449734442",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15450131034",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15451192413",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15451805953",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15451968545",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15452631841",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15452829486",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15452892073",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15452892167",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15452974894",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15453104712",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15453176720",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15453183090",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15453407026",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15453526560",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15453672127",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15453869013",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15454305680",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15454312424",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15454380029",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15454594259",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15454677757",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15454802241",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15454949395",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15455063309",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15455121969",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15455431667",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15455431853",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15455493778",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15455779018",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15455795063",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15455801233",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15455885985",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15455960120",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15456485226",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15456653673",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15457035008",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15457045659",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15457107737",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15457118223",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15457272820",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15457334585",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15457388772",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15457391080",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15457466633",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15457636480",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15457655297",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15457675835",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15457675977",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15457834621",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15458027460",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15458027646",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15458027699",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15458120186",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15458413596",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15458589888",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15458602736",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15458604803",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15458604886",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15458626480",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15458878479",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15459527863",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15459890164",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15459961604",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15460063185",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15460075916",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15460075956",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15460076013",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15460076091",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15460398612",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15460610979",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15461092398",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15461201522",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15461287784",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15461288546",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15461394028",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15461518802",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15461695604",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15461712785",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15461792009",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15461792030",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15461891086",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15462076321",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15462133374",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15462282956",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15462452216",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15463083715",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15463128587",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15463139427",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15463228618",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15463848285",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15463870013",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15464040307",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15464141156",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15464379803",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15464542274",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15465143574",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15465190117",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15465368300",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15465667993",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15465890757",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15465961336",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "21780243358",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15466207880",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15466505635",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15466644884",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15466649054",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15466649064",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15466822825",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15466890468",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "21781857169",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15466990266",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15467303413",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "21782857042",
+      "status": "adaptable"
+    },
+    {
+      "event_id": "15468049786",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15468130922",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15468221386",
+      "status": "unsupported",
+      "reason": "unsupported_action"
+    },
+    {
+      "event_id": "15468618060",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    },
+    {
+      "event_id": "15469221482",
+      "status": "unsupported",
+      "reason": "unsupported_event_type"
+    }
+  ],
+  "coverage_summary": {
+    "unsupported:unsupported_event_type": 91,
+    "adaptable:": 12,
+    "unsupported:unsupported_action": 46
+  },
+  "boundary": "Native normalizer exercised for three projected metadata events; no PEP, approval, task runtime, grant, actual tool or external baseline executed. Labels await independent review."
+}

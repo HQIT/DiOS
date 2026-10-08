@@ -1,0 +1,43 @@
+{
+  "protocol_id": "rr022-public-workload-v0.4",
+  "status": "candidate_not_frozen",
+  "author_approval": null,
+  "formal_execution_enabled": false,
+  "window": {"start_utc": "2026-09-22T00:00:00Z", "end_utc_exclusive": "2026-09-25T00:00:00Z", "hours": 72},
+  "development_repositories": ["microsoft/vscode", "hqit/qame"],
+  "strata": [
+    {"repository": "arcadedata/arcadedb", "workflow": "issue_intake", "maximum_objects": 10},
+    {"repository": "arcadedata/arcadedb", "workflow": "pr_change_manifest", "maximum_objects": 10},
+    {"repository": "elastic/kibana", "workflow": "issue_intake", "maximum_objects": 10}
+  ],
+  "repository_selection": "Purposive minimum within existing shortlist; not random repository sampling or selection by method results. Kibana PR omitted before holdout because exposed feasibility probe did not pass bounded tree retrieval.",
+  "exposure_sources": ["results/public-workload-scout-20260930-v1.json", "results/public-workload-scout-20260930-v2.json", "results/workload-candidate-pool-screen-20260930-v1.json"],
+  "exploration_dates": ["2026-09-21", "2026-09-28"],
+  "selection": {
+    "seed": "rr022-holdout-v0.4-20260930",
+    "actions": {"IssuesEvent": "opened", "PullRequestEvent": "opened"},
+    "representative": "earliest created_at then numeric event_id per lowercase repository:type:number",
+    "rank": "sha256(seed + LF + lowercase repository + LF + workflow + LF + object_group)",
+    "shared_head": "keep lexically first object_group globally; record all merged groups before within-stratum sampling",
+    "exclude": ["exploration dates", "seen event_id", "seen object_group", "seen PR head or push head"],
+    "replacement": "none for unavailable/truncated/over-budget selected objects",
+    "minimum_sample_guarantee": null,
+    "auto_expand_repository_or_window": false
+  },
+  "workflows": {"issue_intake": {"report_max_codepoints": 2048, "copy_raw_title_or_body": false}, "pr_change_manifest": {"report_max_codepoints": 65536, "base": "merge_base_to_head", "renames": "delete_plus_add", "truncated_tree": "source_unavailable"}},
+  "comparison": {
+    "methods": ["e2ag", "opa_in_dios", "agentspec_in_dios"],
+    "main_cases": ["normal", "other_read_object", "other_write_object", "wrong_read_version"],
+    "max_objects": 30, "max_paired_runs": 360,
+    "shared_agentspec_admission": true,
+    "auxiliary": {"no_gate_requests_per_object": 3, "admission_and_wrong_content_per_nonempty_stratum_per_method": 2, "max_requests_or_runs": 108},
+    "normal_report_over_budget": "retain denominator as task_budget_failure, not successful governance rejection",
+    "native_agent_completion_claim": false, "performance_claim": false
+  },
+  "review": {"independent_reviewers_min": 1, "objects_per_nonempty_stratum": 1, "max_objects": 3, "max_case_judgments": 12, "answers_prefilled": false, "blinded_to_method_and_outcome": true},
+  "limits": {"archive_compressed_bytes": 2000000000, "archive_bytes_per_hour": 150000000, "historical_api_attempts": 60, "historical_response_bytes": 12000000, "snapshot_cache_bytes": 300000000, "run_wall_seconds": 21600},
+  "required_before_sampling": ["explicit_author_confirmation", "development_tests_and_source_hashes_frozen", "exposure_union_written", "complete_archive_window_before_object_selection"],
+  "required_before_method_execution": ["source_availability_and_all_selected_denominators_recorded", "sample_and_policy_hashes_frozen", "independent_label_review_complete", "paired_inputs_equal"],
+  "unclosed_review_dimensions": ["other Connector or transport", "other database or Agent OS environment", "non-MCP egress", "full-path performance"],
+  "formal_runs": 0
+}

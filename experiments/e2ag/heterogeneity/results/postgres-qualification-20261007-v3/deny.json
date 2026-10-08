@@ -1,0 +1,211 @@
+{
+  "case": "deny",
+  "mode": "deny",
+  "cut": null,
+  "tool_transport": "streamable_http",
+  "approval_race": null,
+  "first": {
+    "disposition": "recorded",
+    "acknowledge": true,
+    "event_log_id": "1e52e969ea75",
+    "native_status": "denied"
+  },
+  "repeat": {
+    "disposition": "duplicate",
+    "acknowledge": true,
+    "event_log_id": "1e52e969ea75"
+  },
+  "conflict": null,
+  "checks": {
+    "native_task_count": true,
+    "native_event_count": true,
+    "tool_receipts": true,
+    "audit_hashes": true,
+    "repeat_handled": true,
+    "recovery_result": true,
+    "conflict_record": true,
+    "artifact_content": true
+  },
+  "passed": true,
+  "snapshot": {
+    "events": [
+      {
+        "id": "1e52e969ea75",
+        "source": "file/fixture",
+        "event_type": "file.received",
+        "subject": "delivery-1",
+        "cloud_event": {
+          "specversion": "1.0",
+          "id": "delivery-1",
+          "source": "file/fixture",
+          "type": "file.received",
+          "subject": "delivery-1",
+          "data": {
+            "text": "governance receipt",
+            "environment": "production",
+            "requested_action": "report.create"
+          },
+          "deliverysubject": "Qualification task",
+          "deliverydigest": "6d028e71efa100c6d4a7239b568ca60b2bfb4ecda292d4d7c33a95ed6b724484"
+        },
+        "matched_agent_ids": [
+          "file-agent"
+        ],
+        "status": "denied",
+        "trace_id": "d6efe00449b84708a6b4aaebf2e0a57e",
+        "contract_decision": {
+          "mode": "enforce",
+          "stage": "contract",
+          "decision": "allow",
+          "reason_codes": [
+            "CONTRACT_BOUND"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "file-qualification",
+          "latency_us": 116,
+          "evidence": {
+            "source_pattern": "file/fixture",
+            "event_type": "file.received"
+          }
+        },
+        "policy_decision": {
+          "mode": "enforce",
+          "stage": "policy",
+          "decision": "deny",
+          "reason_codes": [
+            "POLICY_TARGET_CAPABILITY_VIOLATION"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "file-qualification",
+          "latency_us": 102,
+          "evidence": {
+            "violations": [
+              {
+                "agent_id": "file-agent",
+                "dimension": "source"
+              }
+            ],
+            "action": "report.create",
+            "tool": ""
+          },
+          "effective_decision": "deny"
+        },
+        "audit_chain": [
+          {
+            "stage": "contract",
+            "outcome": "allow",
+            "evidence": {
+              "stage": "contract",
+              "decision": "allow",
+              "evidence": {
+                "event_type": "file.received",
+                "source_pattern": "file/fixture"
+              },
+              "latency_us": 116,
+              "reason_codes": [
+                "CONTRACT_BOUND"
+              ],
+              "contract_type": "file-qualification",
+              "policy_version": "e2ag-2026-08-12.1"
+            },
+            "sequence": 0,
+            "trace_id": "d6efe00449b84708a6b4aaebf2e0a57e",
+            "entry_hash": "922a5456eb6150456f52e234cbd3f75575e0ec1e678d86f0bc48885318852da1",
+            "previous_hash": ""
+          },
+          {
+            "stage": "policy",
+            "outcome": "deny",
+            "evidence": {
+              "stage": "policy",
+              "decision": "deny",
+              "evidence": {
+                "tool": "",
+                "action": "report.create",
+                "violations": [
+                  {
+                    "agent_id": "file-agent",
+                    "dimension": "source"
+                  }
+                ]
+              },
+              "latency_us": 102,
+              "reason_codes": [
+                "POLICY_TARGET_CAPABILITY_VIOLATION"
+              ],
+              "contract_type": "file-qualification",
+              "policy_version": "e2ag-2026-08-12.1"
+            },
+            "sequence": 1,
+            "trace_id": "d6efe00449b84708a6b4aaebf2e0a57e",
+            "entry_hash": "879d813c14dfa00c35ca79fba907ce51fd1c8a47dfb5118518f24db24793328e",
+            "previous_hash": "922a5456eb6150456f52e234cbd3f75575e0ec1e678d86f0bc48885318852da1"
+          },
+          {
+            "stage": "dispatch",
+            "outcome": "blocked",
+            "evidence": {
+              "reason_codes": [
+                "POLICY_TARGET_CAPABILITY_VIOLATION"
+              ]
+            },
+            "sequence": 2,
+            "trace_id": "d6efe00449b84708a6b4aaebf2e0a57e",
+            "entry_hash": "2378be51fe1b2f6ee674554de069dc959ee3824cff039054b28148a28cd8b59d",
+            "previous_hash": "879d813c14dfa00c35ca79fba907ce51fd1c8a47dfb5118518f24db24793328e"
+          }
+        ],
+        "created_at": "2026-10-07T07:44:24.765451+00:00",
+        "retry_count": 0,
+        "max_retries": 3,
+        "next_retry_at": null,
+        "error_message": "POLICY_TARGET_CAPABILITY_VIOLATION",
+        "dedup_hash": "cadc4c1c1c95e6fc3ef2f32f04e30b6a8fa2239d66fc49ad552d29e5e86aca9c"
+      }
+    ],
+    "tasks": [],
+    "approvals": [],
+    "grants": [],
+    "invocations": [],
+    "receipts": [
+      {
+        "identity": "b8664604abbbc241db60f5810a3d5fdeff0bcc89147a85236e6f00b11eb1cd74",
+        "source": "file/fixture",
+        "event_id": "delivery-1",
+        "digest": "6d028e71efa100c6d4a7239b568ca60b2bfb4ecda292d4d7c33a95ed6b724484",
+        "phase": "recorded",
+        "event_log_id": "1e52e969ea75"
+      }
+    ],
+    "conflicts": [],
+    "audit_valid": true
+  },
+  "tool_operations": [],
+  "processes": [
+    {
+      "op": "setup",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"setup\": true}\n"
+    },
+    {
+      "op": "consume",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"disposition\": \"recorded\", \"acknowledge\": true, \"event_log_id\": \"1e52e969ea75\", \"native_status\": \"denied\"}\n"
+    },
+    {
+      "op": "consume",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"disposition\": \"duplicate\", \"acknowledge\": true, \"event_log_id\": \"1e52e969ea75\"}\n"
+    },
+    {
+      "op": "snapshot",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"events\": [{\"id\": \"1e52e969ea75\", \"source\": \"file/fixture\", \"event_type\": \"file.received\", \"subject\": \"delivery-1\", \"cloud_event\": {\"specversion\": \"1.0\", \"id\": \"delivery-1\", \"source\": \"file/fixture\", \"type\": \"file.received\", \"subject\": \"delivery-1\", \"data\": {\"text\": \"governance receipt\", \"environment\": \"production\", \"requested_action\": \"report.create\"}, \"deliverysubject\": \"Qualification task\", \"deliverydigest\": \"6d028e71efa100c6d4a7239b568ca60b2bfb4ecda292d4d7c33a95ed6b724484\"}, \"matched_agent_ids\": [\"file-agent\"], \"status\": \"denied\", \"trace_id\": \"d6efe00449b84708a6b4aaebf2e0a57e\", \"contract_decision\": {\"mode\": \"enforce\", \"stage\": \"contract\", \"decision\": \"allow\", \"reason_codes\": [\"CONTRACT_BOUND\"], \"policy_version\": \"e2ag-2026-08-12.1\", \"contract_type\": \"file-qualification\", \"latency_us\": 116, \"evidence\": {\"source_pattern\": \"file/fixture\", \"event_type\": \"file.received\"}}, \"policy_decision\": {\"mode\": \"enforce\", \"stage\": \"policy\", \"decision\": \"deny\", \"reason_codes\": [\"POLICY_TARGET_CAPABILITY_VIOLATION\"], \"policy_version\": \"e2ag-2026-08-12.1\", \"contract_type\": \"file-qualification\", \"latency_us\": 102, \"evidence\": {\"violations\": [{\"agent_id\": \"file-agent\", \"dimension\": \"source\"}], \"action\": \"report.create\", \"tool\": \"\"}, \"effective_decision\": \"deny\"}, \"audit_chain\": [{\"stage\": \"contract\", \"outcome\": \"allow\", \"evidence\": {\"stage\": \"contract\", \"decision\": \"allow\", \"evidence\": {\"event_type\": \"file.received\", \"source_pattern\": \"file/fixture\"}, \"latency_us\": 116, \"reason_codes\": [\"CONTRACT_BOUND\"], \"contract_type\": \"file-qualification\", \"policy_version\": \"e2ag-2026-08-12.1\"}, \"sequence\": 0, \"trace_id\": \"d6efe00449b84708a6b4aaebf2e0a57e\", \"entry_hash\": \"922a5456eb6150456f52e234cbd3f75575e0ec1e678d86f0bc48885318852da1\", \"previous_hash\": \"\"}, {\"stage\": \"policy\", \"outcome\": \"deny\", \"evidence\": {\"stage\": \"policy\", \"decision\": \"deny\", \"evidence\": {\"tool\": \"\", \"action\": \"report.create\", \"violations\": [{\"agent_id\": \"file-agent\", \"dimension\": \"source\"}]}, \"latency_us\": 102, \"reason_codes\": [\"POLICY_TARGET_CAPABILITY_VIOLATION\"], \"contract_type\": \"file-qualification\", \"policy_version\": \"e2ag-2026-08-12.1\"}, \"sequence\": 1, \"trace_id\": \"d6efe00449b84708a6b4aaebf2e0a57e\", \"entry_hash\": \"879d813c14dfa00c35ca79fba907ce51fd1c8a47dfb5118518f24db24793328e\", \"previous_hash\": \"922a5456eb6150456f52e234cbd3f75575e0ec1e678d86f0bc48885318852da1\"}, {\"stage\": \"dispatch\", \"outcome\": \"blocked\", \"evidence\": {\"reason_codes\": [\"POLICY_TARGET_CAPABILITY_VIOLATION\"]}, \"sequence\": 2, \"trace_id\": \"d6efe00449b84708a6b4aaebf2e0a57e\", \"entry_hash\": \"2378be51fe1b2f6ee674554de069dc959ee3824cff039054b28148a28cd8b59d\", \"previous_hash\": \"879d813c14dfa00c35ca79fba907ce51fd1c8a47dfb5118518f24db24793328e\"}], \"created_at\": \"2026-10-07T07:44:24.765451+00:00\", \"retry_count\": 0, \"max_retries\": 3, \"next_retry_at\": null, \"error_message\": \"POLICY_TARGET_CAPABILITY_VIOLATION\", \"dedup_hash\": \"cadc4c1c1c95e6fc3ef2f32f04e30b6a8fa2239d66fc49ad552d29e5e86aca9c\"}], \"tasks\": [], \"approvals\": [], \"grants\": [], \"invocations\": [], \"receipts\": [{\"identity\": \"b8664604abbbc241db60f5810a3d5fdeff0bcc89147a85236e6f00b11eb1cd74\", \"source\": \"file/fixture\", \"event_id\": \"delivery-1\", \"digest\": \"6d028e71efa100c6d4a7239b568ca60b2bfb4ecda292d4d7c33a95ed6b724484\", \"phase\": \"recorded\", \"event_log_id\": \"1e52e969ea75\"}], \"conflicts\": [], \"audit_valid\": true}\n"
+    }
+  ],
+  "business_complete": false
+}

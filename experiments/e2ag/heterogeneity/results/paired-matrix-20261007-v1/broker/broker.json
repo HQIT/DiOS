@@ -1,0 +1,38 @@
+{
+  "container": "e2ag-rr022-amqp-20261007-ebb57a5d",
+  "container_id": "d39ebbb32b1f7ecdf99c4ee2c15978964efdb7749abe4079a667452ed3c3bce1",
+  "image_id": "sha256:1031d41f3f1611f61f0fe9011e26201967f460f93f96f92d5be0e823d59e7541",
+  "rabbitmq_version": "3.13.7",
+  "pika_version": "1.3.2",
+  "ports": {
+    "15671/tcp": null,
+    "15672/tcp": [
+      {
+        "HostIp": "127.0.0.1",
+        "HostPort": "32769"
+      }
+    ],
+    "15691/tcp": null,
+    "15692/tcp": null,
+    "25672/tcp": null,
+    "4369/tcp": null,
+    "5671/tcp": null,
+    "5672/tcp": [
+      {
+        "HostIp": "127.0.0.1",
+        "HostPort": "32768"
+      }
+    ]
+  },
+  "transport": "AMQP 0-9-1; loopback; no TLS",
+  "consumer_permissions": {
+    "configure": "(?!)",
+    "write": "(?!)",
+    "read": "^e2agq_.*$"
+  },
+  "producer_permissions": {
+    "configure": "(?!)",
+    "write": "^e2ag.events$",
+    "read": "(?!)"
+  }
+}

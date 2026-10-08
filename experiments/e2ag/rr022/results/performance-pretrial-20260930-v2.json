@@ -1,0 +1,826 @@
+{
+  "status": "development_pretrial_incomplete",
+  "profile": "pretrial",
+  "warmup_seconds": 2,
+  "measurement_seconds": 8,
+  "rounds": 1,
+  "random_seed": 20260930,
+  "planned_order": [
+    [
+      "issue",
+      "G0",
+      1
+    ],
+    [
+      "issue",
+      "G2",
+      1
+    ],
+    [
+      "issue",
+      "G1",
+      1
+    ],
+    [
+      "issue",
+      "G1",
+      8
+    ],
+    [
+      "issue",
+      "G0",
+      8
+    ],
+    [
+      "issue",
+      "G2",
+      8
+    ],
+    [
+      "issue",
+      "G0",
+      32
+    ],
+    [
+      "issue",
+      "G1",
+      32
+    ],
+    [
+      "issue",
+      "G2",
+      32
+    ],
+    [
+      "pr",
+      "G0",
+      1
+    ],
+    [
+      "pr",
+      "G1",
+      1
+    ],
+    [
+      "pr",
+      "G2",
+      1
+    ],
+    [
+      "pr",
+      "G1",
+      8
+    ],
+    [
+      "pr",
+      "G2",
+      8
+    ],
+    [
+      "pr",
+      "G0",
+      8
+    ],
+    [
+      "pr",
+      "G0",
+      32
+    ],
+    [
+      "pr",
+      "G1",
+      32
+    ],
+    [
+      "pr",
+      "G2",
+      32
+    ]
+  ],
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 197 Stepping 2, GenuineIntel",
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "cpu_logical": 16,
+    "cpu_physical": 16,
+    "memory_total": 33752997888,
+    "sqlite": "3.49.1",
+    "dependencies": {
+      "httpx": "0.28.1",
+      "fastapi": "0.141.1",
+      "uvicorn": "0.52.1",
+      "SQLAlchemy": "2.0.52",
+      "aiosqlite": "0.22.1",
+      "psutil": "7.0.0"
+    }
+  },
+  "source_sha256": {
+    "experiments\\e2ag\\rr022\\performance_pretrial.py": "3ee52c29bea9ba19bc765efb29a2ed9eb5171d298b3abf47ee3a55ee32ab34cf",
+    "backend\\app\\api\\os\\events.py": "b62b3b0b723d810f332b9570ae30f5d2232663ab0b29e07a459030ffdcb3dd2c",
+    "backend\\app\\api\\internal\\e2ag_mcp.py": "0254e02ca872be83cf4d96dbe025da93edff08f9d9974f9c236fad25e7a0abdb",
+    "backend\\app\\services\\e2ag.py": "2a44d6379a470a1500f674046b4bd1f39e5b95b1a4df7dd0cac12e4962bfc122",
+    "backend\\app\\services\\e2ag_arguments.py": "6e45de5f9b298f732b2b6249a48f3cf76d41d13e7e7936e27d2277d3053fc548",
+    "backend\\app\\services\\e2ag_tool_gateway.py": "43693a5136a377b4189935379521d767889b6a4559d76c89ef7aee1bddee6d52",
+    "backend\\app\\services\\event_dispatcher.py": "a92acd25df3eeb93d90089c4c69984213694455bcd88e81bd72c6d56f7cdfb8c",
+    "backend\\app\\services\\a2a_service.py": "ae286126af3e73132a4c5c0931813c0a7fce8640ad7af0d374d0e1d2d007a75c",
+    "experiments\\e2ag\\rr022\\run_issue_intake_pilot.py": "69e651e9b3871d5038329ce6e03f9225f34d3999d1ba480500e1524f83aa2b67",
+    "experiments\\e2ag\\rr022\\pr_manifest_workload.py": "7f7a4826a6196345a080fe4a3b35827ab10fa45f97d07c0f95f4bcb3f5d2e71e"
+  },
+  "rows": [
+    {
+      "kind": "issue",
+      "mode": "G0",
+      "concurrency": 1,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-apwl931c",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 32128,
+          "service_pid": 36208
+        },
+        {
+          "role": "app",
+          "launcher_pid": 31772,
+          "service_pid": 31064
+        }
+      ],
+      "summary": {
+        "measured_attempts": 63,
+        "completed": 63,
+        "errors": 0,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {},
+        "warmup_attempts": 18,
+        "admission": {
+          "n": 63,
+          "p50_ms": 83.7147,
+          "p95_ms": 113.4195
+        },
+        "workflow": {
+          "n": 63,
+          "p50_ms": 125.0029,
+          "p95_ms": 155.5497
+        },
+        "read": {
+          "n": 63,
+          "p50_ms": 11.8801,
+          "p95_ms": 15.7327
+        },
+        "write": {
+          "n": 63,
+          "p50_ms": 15.1048,
+          "p95_ms": 19.3746
+        },
+        "completed_inside_window": 62,
+        "completion_rate_inside_window": 7.75,
+        "drain_seconds": 0.042303,
+        "actual_launch_and_drain_seconds": 8.042303
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 81,
+        "tasks": 81,
+        "grants": 0,
+        "reads": 81,
+        "writes": 81,
+        "database_bytes": 659456,
+        "server_span_count": 650,
+        "sql_commit_spans": 244,
+        "evidence_sha256": {
+          "operations.jsonl": "f99f7dbe0f1d2a05db92f307c78c7482a1392ab81552607a30e692cb2daa834e",
+          "reports.jsonl": "629ae1049e8a302fa9a5b5f8d1b25190b8d3d0c6780ebfddde388b84cdfd7ea3",
+          "server-spans.json": "ec2b72df6cdaf5f5ea8817bd5e0b4a72de820b43a22675cd934082549b8fa5d5"
+        }
+      },
+      "raw_sha256": "bce6080d79ebc02ce0478629d2c1037c3a4723b1da67c3877fee24bcecf8a1b2",
+      "payload_bytes": 6016
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 1,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-btnhg8_d",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 20848,
+          "service_pid": 40156
+        },
+        {
+          "role": "app",
+          "launcher_pid": 40064,
+          "service_pid": 41232
+        }
+      ],
+      "summary": {
+        "measured_attempts": 8,
+        "completed": 8,
+        "errors": 0,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {},
+        "warmup_attempts": 2,
+        "admission": {
+          "n": 8,
+          "p50_ms": 117.2733,
+          "p95_ms": 127.6765
+        },
+        "workflow": {
+          "n": 8,
+          "p50_ms": 990.5224,
+          "p95_ms": 1118.2762
+        },
+        "read": {
+          "n": 8,
+          "p50_ms": 429.9356,
+          "p95_ms": 449.6935
+        },
+        "write": {
+          "n": 8,
+          "p50_ms": 441.4124,
+          "p95_ms": 536.2264
+        },
+        "completed_inside_window": 7,
+        "completion_rate_inside_window": 0.875,
+        "drain_seconds": 0.056139,
+        "actual_launch_and_drain_seconds": 8.056139
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 10,
+        "tasks": 10,
+        "grants": 10,
+        "reads": 10,
+        "writes": 10,
+        "database_bytes": 323584,
+        "server_span_count": 262,
+        "sql_commit_spans": 61,
+        "evidence_sha256": {
+          "operations.jsonl": "27a949e828a9913fef06af98564dca89c35a949946801ca7c6f82cfbd71efe1c",
+          "reports.jsonl": "3686902be9896eda8caa88e906fbc9539020e8ad3163ceac516d1d9b9189b12c",
+          "server-spans.json": "fa422a9ac35ff31101dba747ff9db831ea8eaa62a64e96390d434580e7a62f95"
+        }
+      },
+      "raw_sha256": "9ce4d6ff3eb949e000ad29e991b2b5de4767482af847259ed3813c6b06c009b1",
+      "payload_bytes": 6016
+    },
+    {
+      "kind": "issue",
+      "mode": "G1",
+      "concurrency": 1,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-ochlu_mb",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 27960,
+          "service_pid": 38676
+        },
+        {
+          "role": "app",
+          "launcher_pid": 35032,
+          "service_pid": 36112
+        }
+      ],
+      "summary": {
+        "measured_attempts": 61,
+        "completed": 61,
+        "errors": 0,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {},
+        "warmup_attempts": 16,
+        "admission": {
+          "n": 61,
+          "p50_ms": 85.5957,
+          "p95_ms": 107.0943
+        },
+        "workflow": {
+          "n": 61,
+          "p50_ms": 129.1644,
+          "p95_ms": 157.0056
+        },
+        "read": {
+          "n": 61,
+          "p50_ms": 13.6498,
+          "p95_ms": 17.5387
+        },
+        "write": {
+          "n": 61,
+          "p50_ms": 16.1687,
+          "p95_ms": 22.7902
+        },
+        "completed_inside_window": 60,
+        "completion_rate_inside_window": 7.5,
+        "drain_seconds": 0.0903733,
+        "actual_launch_and_drain_seconds": 8.0903733
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 77,
+        "tasks": 77,
+        "grants": 0,
+        "reads": 77,
+        "writes": 77,
+        "database_bytes": 638976,
+        "server_span_count": 772,
+        "sql_commit_spans": 232,
+        "evidence_sha256": {
+          "operations.jsonl": "c770dccfbd47696baaa86d5e7ac47f878a63755145cecf82834c571e10b5965b",
+          "reports.jsonl": "73235757f6f5d601d35b2dbc38ec568eb08fb4fe1e2903f41c1f60d743b7cae6",
+          "server-spans.json": "50ccdf5a4d8a7d9fb3a288fe30c8f8d1f572a6d6d700753e08aa4e65a3a6f1bd"
+        }
+      },
+      "raw_sha256": "2eec16df9f2544d7deedd229389a109c8e784ec2d13ded774962c44077ff0248",
+      "payload_bytes": 6016
+    },
+    {
+      "kind": "issue",
+      "mode": "G1",
+      "concurrency": 8,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-ioc0ck3b",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 41316,
+          "service_pid": 14864
+        },
+        {
+          "role": "app",
+          "launcher_pid": 41816,
+          "service_pid": 26528
+        }
+      ],
+      "summary": {
+        "measured_attempts": 109,
+        "completed": 109,
+        "errors": 0,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {},
+        "warmup_attempts": 30,
+        "admission": {
+          "n": 109,
+          "p50_ms": 391.8826,
+          "p95_ms": 1625.4769
+        },
+        "workflow": {
+          "n": 109,
+          "p50_ms": 431.878,
+          "p95_ms": 1675.5267
+        },
+        "read": {
+          "n": 109,
+          "p50_ms": 14.508,
+          "p95_ms": 37.1687
+        },
+        "write": {
+          "n": 109,
+          "p50_ms": 18.6261,
+          "p95_ms": 32.3254
+        },
+        "completed_inside_window": 101,
+        "completion_rate_inside_window": 12.625,
+        "drain_seconds": 0.4920921,
+        "actual_launch_and_drain_seconds": 8.4920921
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 139,
+        "tasks": 139,
+        "grants": 0,
+        "reads": 139,
+        "writes": 139,
+        "database_bytes": 1007616,
+        "server_span_count": 1392,
+        "sql_commit_spans": 418,
+        "evidence_sha256": {
+          "operations.jsonl": "1c6637f6a104c9e1ef4d08b8f3df101f36293201251d701ced508effd1b5b7e9",
+          "reports.jsonl": "379d8152cf24ae07b27393c3dee8458fd6af40b1ab06b82193d8c99d10e953a2",
+          "server-spans.json": "c3d778fffb2d6bb1ca67ac7241451f327e2cf687b0cf4c7ff19baf25494d78f1"
+        }
+      },
+      "raw_sha256": "9f80729e473a762d2175b16de117822406394e4efe83959a686cd292e318403c",
+      "payload_bytes": 6016
+    },
+    {
+      "kind": "issue",
+      "mode": "G0",
+      "concurrency": 8,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-crvh51hh",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 41016,
+          "service_pid": 31184
+        },
+        {
+          "role": "app",
+          "launcher_pid": 39460,
+          "service_pid": 11668
+        }
+      ],
+      "summary": {
+        "measured_attempts": 106,
+        "completed": 106,
+        "errors": 0,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {},
+        "warmup_attempts": 29,
+        "admission": {
+          "n": 106,
+          "p50_ms": 347.4261,
+          "p95_ms": 1901.0531
+        },
+        "workflow": {
+          "n": 106,
+          "p50_ms": 399.203,
+          "p95_ms": 1940.1107
+        },
+        "read": {
+          "n": 106,
+          "p50_ms": 14.5983,
+          "p95_ms": 29.7903
+        },
+        "write": {
+          "n": 106,
+          "p50_ms": 18.441,
+          "p95_ms": 27.9732
+        },
+        "completed_inside_window": 98,
+        "completion_rate_inside_window": 12.25,
+        "drain_seconds": 0.5292863,
+        "actual_launch_and_drain_seconds": 8.5292863
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 135,
+        "tasks": 135,
+        "grants": 0,
+        "reads": 135,
+        "writes": 135,
+        "database_bytes": 983040,
+        "server_span_count": 1082,
+        "sql_commit_spans": 406,
+        "evidence_sha256": {
+          "operations.jsonl": "51f1a2090c30ba64cce9bb0dd04cb70cd6be8a9864d9eee0ec97d4d40af80029",
+          "reports.jsonl": "d942c0d42d38ebf5d80151257b5d4d4d4eddee514c4497b062a0eba3406a7b81",
+          "server-spans.json": "20bdf4afce0135a0ae8e33ae6a47049b829e96a4bc82ff417e194d2142a8b9fc"
+        }
+      },
+      "raw_sha256": "712db10f4353d25901555f8f919416c12e27f5240d0b121756d49695274eee99",
+      "payload_bytes": 6016
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 8,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-ruut61q2",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 30848,
+          "service_pid": 13340
+        },
+        {
+          "role": "app",
+          "launcher_pid": 10632,
+          "service_pid": 20120
+        }
+      ],
+      "summary": {
+        "measured_attempts": 13,
+        "completed": 12,
+        "errors": 1,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {
+          "HTTPStatusError": 1
+        },
+        "warmup_attempts": 8,
+        "admission": {
+          "n": 12,
+          "p50_ms": 2803.689,
+          "p95_ms": 9538.6741
+        },
+        "workflow": {
+          "n": 12,
+          "p50_ms": 5391.9309,
+          "p95_ms": 11404.9461
+        },
+        "read": {
+          "n": 12,
+          "p50_ms": 914.8834,
+          "p95_ms": 4190.7265
+        },
+        "write": {
+          "n": 12,
+          "p50_ms": 915.4102,
+          "p95_ms": 4206.4605
+        },
+        "completed_inside_window": 5,
+        "completion_rate_inside_window": 0.625,
+        "drain_seconds": 4.8198842,
+        "actual_launch_and_drain_seconds": 12.8198842
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 21,
+        "tasks": 21,
+        "grants": 21,
+        "reads": 21,
+        "writes": 20,
+        "database_bytes": 430080,
+        "server_span_count": 539,
+        "sql_commit_spans": 125,
+        "evidence_sha256": {
+          "operations.jsonl": "ad96772c2ec9d67ad2efd67b15784ee86ce7677f1817a196b8bb19fceae92a08",
+          "reports.jsonl": "dd669994f5b416d8bcf7e430bcd9d107bae08ebbb892ae78f86fe4b6260b984c",
+          "server-spans.json": "fdc19c514a7aefa9b98fc56c6259f2bc1d8773e15cd8f0dd82faa3c1353d1900"
+        }
+      },
+      "raw_sha256": "8096a14967b5b811c80e0b999084c2f52a2d16a79bd3f641699cef2069cec9a0",
+      "payload_bytes": 6016
+    },
+    {
+      "kind": "issue",
+      "mode": "G0",
+      "concurrency": 32,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-4m7pnfeo",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 38564,
+          "service_pid": 19432
+        },
+        {
+          "role": "app",
+          "launcher_pid": 6760,
+          "service_pid": 9460
+        }
+      ],
+      "summary": {
+        "measured_attempts": 127,
+        "completed": 126,
+        "errors": 1,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {
+          "HTTPStatusError": 1
+        },
+        "warmup_attempts": 48,
+        "admission": {
+          "n": 126,
+          "p50_ms": 1624.3804,
+          "p95_ms": 5353.2432
+        },
+        "workflow": {
+          "n": 126,
+          "p50_ms": 1747.8498,
+          "p95_ms": 5419.0446
+        },
+        "read": {
+          "n": 126,
+          "p50_ms": 17.7593,
+          "p95_ms": 138.5602
+        },
+        "write": {
+          "n": 126,
+          "p50_ms": 21.2195,
+          "p95_ms": 154.0393
+        },
+        "completed_inside_window": 95,
+        "completion_rate_inside_window": 11.875,
+        "drain_seconds": 2.0875772,
+        "actual_launch_and_drain_seconds": 10.0875772
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 174,
+        "tasks": 174,
+        "grants": 0,
+        "reads": 174,
+        "writes": 174,
+        "database_bytes": 1200128,
+        "server_span_count": 1397,
+        "sql_commit_spans": 524,
+        "evidence_sha256": {
+          "operations.jsonl": "a9c1fc56cd6142d55dad69b6f64c6375db6fe6d6004a03d423ac088062491ebf",
+          "reports.jsonl": "b3615b407d7a6a223d4add10cdca59f10d47dd7af4ed98ada6a215be83d7f7d4",
+          "server-spans.json": "b57dd2095d4c2f11a350b8ff006c36ee96c815387343c4ca63bc98888f07125f"
+        }
+      },
+      "raw_sha256": "7b7b1d401d80bbb81163cf24a8e4bd426c65915b848b8eadd0246255fbbd06fc",
+      "payload_bytes": 6016
+    },
+    {
+      "kind": "issue",
+      "mode": "G1",
+      "concurrency": 32,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-qr09a9hh",
+      "status": "pretrial_checked",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 28596,
+          "service_pid": 41072
+        },
+        {
+          "role": "app",
+          "launcher_pid": 27884,
+          "service_pid": 42276
+        }
+      ],
+      "summary": {
+        "measured_attempts": 128,
+        "completed": 128,
+        "errors": 0,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {},
+        "warmup_attempts": 48,
+        "admission": {
+          "n": 128,
+          "p50_ms": 1704.0708,
+          "p95_ms": 4809.0038
+        },
+        "workflow": {
+          "n": 128,
+          "p50_ms": 1776.9195,
+          "p95_ms": 4853.3945
+        },
+        "read": {
+          "n": 128,
+          "p50_ms": 16.9093,
+          "p95_ms": 130.6979
+        },
+        "write": {
+          "n": 128,
+          "p50_ms": 20.881,
+          "p95_ms": 95.0446
+        },
+        "completed_inside_window": 96,
+        "completion_rate_inside_window": 12.0,
+        "drain_seconds": 2.0139222,
+        "actual_launch_and_drain_seconds": 10.0139222
+      },
+      "stop_reason": null,
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 176,
+        "tasks": 176,
+        "grants": 0,
+        "reads": 176,
+        "writes": 176,
+        "database_bytes": 1212416,
+        "server_span_count": 1762,
+        "sql_commit_spans": 529,
+        "evidence_sha256": {
+          "operations.jsonl": "9120060134a59f5ffe5d67f1146c73df04cf7d4793f135f915cee4679b0c6962",
+          "reports.jsonl": "02a79e3a1046b9ce9e8fd9c8c7709e9aac8e2f9e8e1ddaef5f28fa76380268b3",
+          "server-spans.json": "daafedecd1f4caf94f9b4feed74dc8e67e3466858a1311c5d5e33154666bc13f"
+        }
+      },
+      "raw_sha256": "7f0ea7b6a2ac8ccfa33f3bc3b88d833219fd5a1242850b95dbec7792baa99d38",
+      "payload_bytes": 6016
+    },
+    {
+      "kind": "issue",
+      "mode": "G2",
+      "concurrency": 32,
+      "directory": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\rr022-perf-pretrial-qax8nxre",
+      "status": "pretrial_failed_or_stopped",
+      "database_settings": {
+        "journal_mode": "delete",
+        "synchronous": 2,
+        "busy_timeout": 5000,
+        "page_size": 4096
+      },
+      "process_identity": [
+        {
+          "role": "upstream",
+          "launcher_pid": 30012,
+          "service_pid": 5324
+        },
+        {
+          "role": "app",
+          "launcher_pid": 3212,
+          "service_pid": 40580
+        }
+      ],
+      "summary": {
+        "measured_attempts": 0,
+        "completed": 0,
+        "errors": 0,
+        "latency_population": "successful complete workflows only; failures retained separately",
+        "errors_by_type": {},
+        "warmup_attempts": 32,
+        "admission": {
+          "n": 0,
+          "p50_ms": null,
+          "p95_ms": null
+        },
+        "workflow": {
+          "n": 0,
+          "p50_ms": null,
+          "p95_ms": null
+        },
+        "read": {
+          "n": 0,
+          "p50_ms": null,
+          "p95_ms": null
+        },
+        "write": {
+          "n": 0,
+          "p50_ms": null,
+          "p95_ms": null
+        }
+      },
+      "stop_reason": "error_rate_above_5pct_for_10s",
+      "verification": {
+        "verified": true,
+        "failures": [],
+        "events": 24,
+        "tasks": 23,
+        "grants": 21,
+        "reads": 20,
+        "writes": 17,
+        "database_bytes": 438272,
+        "server_span_count": 565,
+        "sql_commit_spans": 133,
+        "evidence_sha256": {
+          "operations.jsonl": "b729c5643d41c99447d5979b3505292efbc035a2dc2abce5966dbadd891309a5",
+          "reports.jsonl": "2a49ec27e60c94846726d73a9614b6dd71c1e64444681c14501ac2c1afae7c4d",
+          "server-spans.json": "b95794d837f8ab08cdd53b119af7e00cb1e334b844308741844657d251f44839"
+        }
+      },
+      "raw_sha256": "77b8c34e62af106ac7e9a5f1f1bd2c26adc5857f68f924dcaaa1e14e7b34cab7",
+      "payload_bytes": 6016
+    }
+  ],
+  "boundary": "Development only. Closed-loop, three local processes, SQLite FULL/DELETE, one app worker. New DB/processes per cell, warmed DB retained. No model, holdout, autonomous lifecycle, p99, capacity, or external-engine speed claim.",
+  "elapsed_seconds": 166.64100000000326
+}
