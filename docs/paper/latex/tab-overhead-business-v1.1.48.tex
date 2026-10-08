@@ -1,0 +1,32 @@
+\begin{table}[!htb]
+\centering
+\caption{同路径对照的端到端结果及配对增量}
+\label{tab:overhead-business-rr022}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+业务 & 并发数 & 配置 & p50/ms & p95/ms & 完成速率/(次/s) & 请求数 \\
+\midrule
+issue & 1 & G0 & 116.09 & 124.06 & 8.48 & 7638 \\
+issue & 1 & G2 & 144.35 & 152.26 & 7.07 & 6376 \\
+issue & 8 & G0 & 144.30 & 182.80 & 57.24 & 51581 \\
+issue & 8 & G2 & 256.96 & 319.80 & 31.05 & 27924 \\
+PR & 1 & G0 & 419.84 & 440.23 & 2.38 & 2141 \\
+PR & 1 & G2 & 446.40 & 466.61 & 2.27 & 2042 \\
+PR & 8 & G0 & 2488.48 & 3328.48 & 3.18 & 2900 \\
+PR & 8 & G2 & 2611.48 & 3254.11 & 3.05 & 2787 \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{tabular}{llrrrr}
+\toprule
+业务 & 并发数 & 增量/ms & 轮次范围/ms & 增量/\% & 轮次范围/\% \\
+\midrule
+issue & 1 & 28.26 & 28.09--28.38 & 24.34 & 24.20--24.45 \\
+issue & 8 & 112.50 & 110.21--117.83 & 77.88 & 76.29--81.66 \\
+PR & 1 & 27.81 & 22.32--31.66 & 6.62 & 5.26--7.61 \\
+PR & 8 & 114.72 & 74.33--149.38 & 4.62 & 2.99--6.03 \\
+\bottomrule
+\end{tabular}
+\par\smallskip{\footnotesize 增量按每轮G2相对G0的p50配对计算，列出5轮中位数和最小--最大范围。}
+\end{table}

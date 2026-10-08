@@ -1,0 +1,20 @@
+\begin{table}[!htb]
+\centering
+\caption{同路径对照的端到端延迟与业务完成情况}
+\label{tab:overhead-business-rr022}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+业务 & 并发数 & 配置 & p50/ms & p95/ms & 完成速率/(次/s) & 请求数 \\
+\midrule
+issue & 1 & G0 & 116.09 & 124.06 & 8.48 & 7638 \\
+issue & 1 & G2 & 144.35 & 152.26 & 7.07 & 6376 \\
+issue & 8 & G0 & 144.30 & 182.80 & 57.24 & 51581 \\
+issue & 8 & G2 & 256.96 & 319.80 & 31.05 & 27924 \\
+PR & 1 & G0 & 419.84 & 440.23 & 2.38 & 2141 \\
+PR & 1 & G2 & 446.40 & 466.61 & 2.27 & 2042 \\
+PR & 8 & G0 & 2488.48 & 3328.48 & 3.18 & 2900 \\
+PR & 8 & G2 & 2611.48 & 3254.11 & 3.05 & 2787 \\
+\bottomrule
+\end{tabular}
+\end{table}

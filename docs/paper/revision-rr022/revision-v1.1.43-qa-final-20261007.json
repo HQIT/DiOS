@@ -1,0 +1,150 @@
+{
+  "status": "automated_and_visual_checks_passed",
+  "visual_review": "Reviewed all 19 clean and 22 marked pages via contact sheets; inspected clean pages 1, 8, 16 and marked page 10 at readable resolution. Chinese text, algorithm statements, table 13 and change marks are legible; no clipping or overlap observed. The marked algorithm float uses a separate page; the clean manuscript does not force that layout.",
+  "font_review": "All fonts in both final PDFs are embedded with Unicode maps. Final logs have no Overfull, undefined-reference or missing-character diagnostics.",
+  "result_sha256": "b0fa81a99445395a8b7e5f3731bc940f61d4c088f5a4109c97d3603505b4c62c",
+  "strata": {
+    "arcadedata/arcadedb:issue": {
+      "objects": 4,
+      "runs": 48,
+      "normal_reports": 12
+    },
+    "arcadedata/arcadedb:pr": {
+      "objects": 2,
+      "runs": 24,
+      "normal_reports": 6
+    },
+    "elastic/kibana:issue": {
+      "objects": 5,
+      "runs": 60,
+      "normal_reports": 15
+    }
+  },
+  "unique_task_ids": 141,
+  "unique_snapshots": 11,
+  "pdfs": [
+    {
+      "path": "output\\pdf\\E2AG-paper-authors-v1.1.43-working-20261007.pdf",
+      "sha256": "128d696ffe42966123a8aa1c3ebc69de3615faed33d804677f75b905026eae02",
+      "pages": 19,
+      "replacement_characters": 0,
+      "cjk_characters": 19487,
+      "contact_sheets": [
+        "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\pdfs\\e2ag-v1.1.43-final\\clean-contact-1.png",
+        "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\pdfs\\e2ag-v1.1.43-final\\clean-contact-2.png"
+      ],
+      "section_pages": {
+        "6.5.6": [
+          15
+        ],
+        "6.6.3": [
+          16
+        ],
+        "6.7": [
+          17
+        ],
+        "7.1": [
+          12,
+          17
+        ],
+        "表13": [],
+        "表16": []
+      }
+    },
+    {
+      "path": "output\\pdf\\E2AG-paper-authors-v1.1.43-marked-from-v1.1.39-20261007.pdf",
+      "sha256": "f8be3289717312e74cfac6ffc09f8decfabe3359b723f18e7f2355e5cdf1a9b1",
+      "pages": 22,
+      "replacement_characters": 0,
+      "cjk_characters": 22368,
+      "contact_sheets": [
+        "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\pdfs\\e2ag-v1.1.43-final\\marked-contact-1.png",
+        "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\tmp\\pdfs\\e2ag-v1.1.43-final\\marked-contact-2.png"
+      ],
+      "section_pages": {
+        "6.5.6": [
+          18
+        ],
+        "6.6.3": [
+          19
+        ],
+        "6.7": [
+          20
+        ],
+        "7.1": [
+          15,
+          20
+        ],
+        "表13": [],
+        "表16": []
+      }
+    }
+  ],
+  "baseline_unchanged": true,
+  "prose_candidates": [
+    {
+      "kind": "one-sentence-paragraph",
+      "file": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\docs\\paper\\latex\\e2ag-body-v1.1.43.tex",
+      "line": 25,
+      "heading": "引言",
+      "detail": "115 text characters",
+      "preview": "本文其余部分组织如下：第1节介绍相关协议、智能体运行时防护与访问控制基础；第2节给出系统模型、不可信输入能力和安全目标；第3节介绍 E2AG 总体架构；第4节给出跨层治理机制、算法与性质分析；第5节说明原型实现；第6节报告实验；第7节讨论适"
+    },
+    {
+      "kind": "thin-subsection",
+      "file": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\docs\\paper\\latex\\e2ag-body-v1.1.43.tex",
+      "line": 29,
+      "heading": "智能体风险与评测",
+      "detail": "382 text characters; 1 prose paragraphs",
+      "preview": "间接提示词注入源于智能体把不可信数据同时解释为内容和指令，因而可能改变模型行为。InjecAgent 以工具集成任务评估间接注入，AgentDojo 提供包含任务、工具和注入情形的动态环境，ToolEmu 则以模型模拟工具执行结果以扩大长尾"
+    },
+    {
+      "kind": "thin-subsection",
+      "file": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\docs\\paper\\latex\\e2ag-body-v1.1.43.tex",
+      "line": 331,
+      "heading": "研究问题",
+      "detail": "208 text characters; 1 prose paragraphs",
+      "preview": "实验围绕以下三个研究问题（research question，RQ）展开： itemize RQ1： 来源契约和目标策略是否分别提供独立安全收益，组合后能否保持正常事件可用性？对应 I1； RQ2： 在相同输入与工具端点下，准入和调用两个位"
+    },
+    {
+      "kind": "thin-subsection",
+      "file": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\docs\\paper\\latex\\e2ag-body-v1.1.43.tex",
+      "line": 617,
+      "heading": "并发状态不变量",
+      "detail": "244 text characters; 1 prose paragraphs",
+      "preview": "并发实验首先发现原有先查后插去重在8并发的100轮中均产生重复 EventLog，共创建588条记录。加入唯一去重声明后，表 tab:concurrency-v11 的四组实验均满足单日志或单终态不变量。该结果证明安全性质还依赖数据库状态转"
+    },
+    {
+      "kind": "thin-subsection",
+      "file": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\docs\\paper\\latex\\e2ag-body-v1.1.43.tex",
+      "line": 682,
+      "heading": "构念效度",
+      "detail": "174 text characters; 1 prose paragraphs",
+      "preview": "冻结矩阵按治理层构造，适合验证机制分工，却不能直接表示自然流量中的“攻击率”。四名未参与构造的复核者对治理层和预期决策完全一致，但在4个审批敏感事件的攻击/正常二分标签上出现语义分歧。为降低标签构念对结论的影响，本文以放行、拒绝或审批的预期"
+    },
+    {
+      "kind": "thin-subsection",
+      "file": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\docs\\paper\\latex\\e2ag-body-v1.1.43.tex",
+      "line": 686,
+      "heading": "内部有效性",
+      "detail": "185 text characters; 1 prose paragraphs",
+      "preview": "既有模型结果采用冻结提示与工具选择，使相同决策能够在不同配置下配对复用，隔离 PEP 布置对上游调用可达性的影响。历史业务比较固定输入、政策和工具服务，并通过原始记录及独立实现的内容核验减少输出自证风险。不过，核验器仍由同一研究团队编写，可"
+    },
+    {
+      "kind": "thin-subsection",
+      "file": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\docs\\paper\\latex\\e2ag-body-v1.1.43.tex",
+      "line": 690,
+      "heading": "外部有效性",
+      "detail": "186 text characters; 1 prose paragraphs",
+      "preview": "实验实现基于一个 Agent OS 原型与 SQLite，模型回放涉及一个模型。现场回归和三种 Connector 的原生测试分别检验部署链路与适配入口，跨项目实验扩大了历史业务输入范围，但项目选择有目的性，样本数量较小，且大仓库 PR 受"
+    },
+    {
+      "kind": "thin-subsection",
+      "file": "C:\\Users\\sugar\\Documents\\ChatGPT\\DiOS\\HQIT-DiOS-e2ag\\docs\\paper\\latex\\e2ag-body-v1.1.43.tex",
+      "line": 694,
+      "heading": "审计证据的保证范围",
+      "detail": "209 text characters; 1 prose paragraphs",
+      "preview": "在可信记录端与存储的前提下，哈希链检查已取得记录的内容和顺序，关系验证器进一步检查任务、能力、审批与调用记录的绑定和必要前驱。19项语义反例说明这两类义务不能互相替代；三份持久轨迹的复核也区分了结果未知与响应已观察状态。由于原始参数、历史策"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+\begin{table}[!htb]
+\centering
+\caption{准入及工具调用的分阶段墙钟时间（ms）}
+\label{tab:overhead-stages-rr022}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+业务 & 并发数 & 配置 & 准入路径 & 调用前处理 & 工具往返 & 调用后处理 \\
+\midrule
+issue & 1 & G0 & 10.40 & 1.99 & 47.49 & 0.15 \\
+issue & 1 & G2 & 17.31 & 6.55 & 47.60 & 5.98 \\
+issue & 8 & G0 & 20.93 & 4.85 & 49.76 & 0.69 \\
+issue & 8 & G2 & 65.14 & 25.05 & 50.43 & 18.37 \\
+PR & 1 & G0 & 10.47 & 2.12 & 58.26 & 0.16 \\
+PR & 1 & G2 & 17.38 & 7.03 & 58.07 & 11.49 \\
+PR & 8 & G0 & 21.82 & 5.11 & 117.11 & 0.23 \\
+PR & 8 & G2 & 52.56 & 22.36 & 114.43 & 12.67 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,42 @@
+\thispagestyle{josfirst}
+
+\noindent{\jostitlefont\fontsize{14pt}{18pt}\selectfont
+事件驱动智能体操作系统跨层能力治理方法\par}
+
+\vspace{7pt}
+\noindent{\josauthorfont\fontsize{12pt}{16pt}\selectfont
+\mbox{徐刚$^{1,3}$}，\mbox{冯骐$^{2,*}$}，\mbox{姚俊杰$^{3}$}，\mbox{肖宇$^{3}$}，\mbox{陈铭松$^{3}$}，\mbox{王江涛$^{1,3}$}，\mbox{杨世光$^{3}$}，\mbox{饶振宇$^{3}$}，\mbox{王语欣$^{3}$}\par}
+
+\vspace{4pt}
+\begingroup\fontsize{8pt}{12pt}\selectfont
+\noindent$^{1}$（华东师范大学 国家可信嵌入式软件工程技术研究中心，上海）\par
+\noindent$^{2}$（华东师范大学 信息化治理办公室，上海）\par
+\noindent$^{3}$（华东师范大学 软件工程学院，上海）\par
+\noindent 通讯作者：冯骐，E-mail：\texttt{qfeng@admin.ecnu.edu.cn}\par
+\endgroup
+
+\begin{joszhabstract}
+事件驱动智能体操作系统将外部事件转化为任务并发起工具调用，事件来源、任务创建与工具执行分属不同信任域，需要建立贯穿执行链的授权依据。本文提出事件到智能体治理（Event-to-Agent Governance，E2AG）方法，以任务作用域能力绑定事件、任务与调用权限，在任务创建前和工具转发前分别实施授权检查，并通过关联执行记录复核授权依赖。来源--类型契约与目标策略决定任务准入，对象绑定的短期能力约束实际模型上下文协议（Model Context Protocol，MCP）调用。本文给出跨层授权状态模型及完整中介性质，并在事件驱动智能体操作系统原型中实现该方法。通过消融、外部机制对照、历史事件回放、异构配置实验及同路径测量，检验授权约束、执行证据及治理开销。实验中，完整方法保持正常业务可用并阻断指定未授权调用，移除任一执行检查点则出现相应违规调用到达上游的情况。提供相同授权上下文时，现有策略引擎和运行时规则获得一致的判定结果，支持将跨层对象关联和授权实施位置与具体判定机制分离。分阶段测量表明，治理增量主要集中于状态访问和证据持久化路径，其相对影响随业务计算量及并发条件变化。
+\end{joszhabstract}
+\joskeywords{人工智能操作系统；智能体操作系统；能力治理；完整中介；执行溯源}
+\josclassification{TP311}
+
+\vspace{8pt}
+\noindent{\bfseries\fontsize{10.5pt}{13pt}\selectfont
+A Cross-Layer Capability Governance Method for Event-Driven Agent Operating Systems\par}
+\vspace{4pt}
+\noindent{\fontsize{9pt}{12pt}\selectfont
+\mbox{XU Gang$^{1,3}$}, \mbox{FENG Qi$^{2,*}$}, \mbox{YAO Junjie$^{3}$}, \mbox{XIAO Yu$^{3}$}, \mbox{CHEN Mingsong$^{3}$}, \mbox{WANG Jiangtao$^{1,3}$}, \mbox{YANG Shiguang$^{3}$}, \mbox{RAO Zhenyu$^{3}$}, \mbox{WANG Yuxin$^{3}$}\par}
+\vspace{3pt}
+\begingroup\fontsize{7.5pt}{10pt}\selectfont
+\noindent$^{1}$ (National Trusted Embedded Software Engineering Technology Research Center, East China Normal University, Shanghai, China)\par
+\noindent$^{2}$ (Information Governance Office, East China Normal University, Shanghai, China)\par
+\noindent$^{3}$ (School of Software Engineering, East China Normal University, Shanghai, China)\par
+\endgroup
+
+\begin{josenabstract}
+Event-driven agent operating systems transform external events into tasks and tool invocations across distinct trust domains, requiring authorization that spans the execution chain. This paper presents Event-to-Agent Governance (E2AG), which binds events, tasks, and invocation permissions through task-scoped capabilities, enforces authorization before task creation and tool forwarding, and links execution records for authorization-dependency verification. Source--type contracts and target policies govern task admission, while object-bound, short-lived capabilities constrain actual Model Context Protocol (MCP) calls. We define a cross-layer authorization state model and a complete-mediation property, and implement E2AG in an agent operating system prototype. Ablations, external-mechanism comparisons, historical-event replay, heterogeneous-configuration experiments, and same-path measurements evaluate authorization constraints, execution evidence, and governance overhead. The complete method preserves normal workflows and blocks the specified unauthorized calls; removing either enforcement point allows corresponding violations to reach upstream tools. With the same authorization context, existing policy engines and runtime rules produce consistent decisions, supporting the separation of cross-layer object relationships and enforcement placement from the decision mechanism. Stage-level measurements show that additional processing time is concentrated in state access and evidence persistence, with relative overhead varying by workload computation and concurrency.
+\end{josenabstract}
+\josenkeywords{artificial intelligence operating system; agent operating system; capability governance; complete mediation; execution provenance}
+
+\vspace{8pt}
