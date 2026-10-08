@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import httpx
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -262,6 +262,135 @@ class E2AGToolGatewayTests(unittest.IsolatedAsyncioTestCase):
             await db.refresh(event_log)
             self.assertEqual("grant_revoked", event_log.audit_chain[-1]["outcome"])
             self.assertTrue(verify_audit_chain(event_log.audit_chain))
+
+    async def _assert_rejected_grant_audit(self, scenario, reason):
+        async with self.sessions() as db:
+            _, _, event, task, grant, token, _ = await self._fixtures(db)
+            if scenario == "expired":
+                grant.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+            elif scenario == "revoked":
+                await revoke_task_grants(db, task.id)
+            elif scenario == "mismatch":
+                task.trace_id = "other-task-trace"
+            elif scenario == "missing_task":
+                await db.delete(task)
+            elif scenario == "terminal":
+                task.status = "completed"
+            await db.commit()
+            await db.refresh(event)
+            before = len(event.audit_chain)
+            payload = {"jsonrpc": "2.0", "id": 4, "method": "tools/call",
+                       "params": {"name": "ledger.record_push", "arguments": {"private": "do-not-log"}}}
+            with patch("app.api.internal.e2ag_mcp.httpx.AsyncClient", FakeAsyncClient):
+                response = await proxy_mcp_call(grant.id, request_for(payload, token), db)
+            self.assertEqual(403, response.status_code)
+            self.assertEqual(reason, json.loads(response.body)["error"]["data"]["reason"])
+            self.assertEqual([], FakeAsyncClient.calls)
+            await db.refresh(event)
+            await db.refresh(grant)
+            added = event.audit_chain[before:]
+            calls = [entry for entry in added if entry["stage"] == "tool_call"]
+            self.assertEqual(1, len(calls))
+            self.assertEqual("deny", calls[0]["outcome"])
+            self.assertEqual(reason, calls[0]["evidence"]["reason"])
+            self.assertEqual(grant.task_id, calls[0]["evidence"]["task_id"])
+            self.assertEqual("ledger.record_push", calls[0]["evidence"]["tool"])
+            self.assertEqual(1, grant.call_count)  # authenticated attempt, not execution
+            self.assertTrue(verify_audit_chain(event.audit_chain))
+            serialized = json.dumps(added)
+            self.assertNotIn(token, serialized)
+            self.assertNotIn("do-not-log", serialized)
+            # Evidence must survive a separate session, not merely the identity map.
+            async with self.sessions() as reader:
+                stored = await reader.get(EventLog, event.id)
+                self.assertEqual(event.audit_chain, stored.audit_chain)
+
+    async def test_expired_call_has_rejection_audit(self):
+        await self._assert_rejected_grant_audit("expired", "TOOL_GRANT_EXPIRED")
+
+    async def test_revoked_call_has_rejection_audit(self):
+        await self._assert_rejected_grant_audit("revoked", "TOOL_GRANT_NOT_ACTIVE")
+
+    async def test_mismatched_call_has_rejection_audit(self):
+        await self._assert_rejected_grant_audit("mismatch", "TOOL_GRANT_TASK_MISMATCH")
+
+    async def test_missing_task_call_has_rejection_audit(self):
+        await self._assert_rejected_grant_audit("missing_task", "TOOL_GRANT_TASK_MISMATCH")
+
+    async def test_terminal_task_call_has_rejection_audit(self):
+        await self._assert_rejected_grant_audit("terminal", "TOOL_GRANT_TASK_TERMINAL")
+
+    async def test_unverified_requests_do_not_pollute_grant_audit(self):
+        async with self.sessions() as db:
+            _, _, event, task, grant, token, _ = await self._fixtures(db)
+            # A real token for a different grant must not authorize attribution.
+            agent = await db.get(Agent, task.agent_id)
+            server = await db.get(McpServer, grant.mcp_server_id)
+            config, _ = await issue_task_mcp_config(db, agent=agent, task=task, servers=[server])
+            other_token = config[server.name]["headers"]["Authorization"].removeprefix("Bearer ")
+            await revoke_task_grants(db, task.id)
+            await db.refresh(event)
+            before = list(event.audit_chain)
+            payload = {"jsonrpc": "2.0", "id": 5, "method": "tools/call",
+                       "params": {"name": "ledger.record_push", "arguments": {}}}
+            for identity, presented in [(grant.id, "wrong-token"), (grant.id, ""), (grant.id, other_token), ("unknown-grant", token)]:
+                with patch("app.api.internal.e2ag_mcp.httpx.AsyncClient", FakeAsyncClient):
+                    response = await proxy_mcp_call(identity, request_for(payload, presented), db)
+                self.assertEqual(403, response.status_code)
+                self.assertEqual("TOOL_GRANT_INVALID", json.loads(response.body)["error"]["data"]["reason"])
+            await db.refresh(event)
+            await db.refresh(grant)
+            self.assertEqual(before, event.audit_chain)
+            self.assertEqual(0, grant.call_count)
+            self.assertEqual([], FakeAsyncClient.calls)
+
+    async def test_rejected_call_does_not_write_to_mismatched_event_trace(self):
+        async with self.sessions() as db:
+            _, _, event, task, grant, token, _ = await self._fixtures(db)
+            await revoke_task_grants(db, task.id)
+            event.trace_id = "other-event-trace"
+            await db.commit()
+            before = list(event.audit_chain)
+            payload = {"jsonrpc": "2.0", "id": 6, "method": "tools/call", "params": {"name": "ledger.record_push"}}
+            with patch("app.api.internal.e2ag_mcp.httpx.AsyncClient", FakeAsyncClient):
+                response = await proxy_mcp_call(grant.id, request_for(payload, token), db)
+            self.assertEqual(403, response.status_code)
+            await db.refresh(event)
+            await db.refresh(grant)
+            self.assertEqual(before, event.audit_chain)
+            self.assertEqual(0, grant.call_count)
+            self.assertEqual([], FakeAsyncClient.calls)
+
+    async def test_rejection_audit_failure_never_forwards(self):
+        async with self.sessions() as db:
+            _, _, _, task, grant, token, _ = await self._fixtures(db)
+            await revoke_task_grants(db, task.id)
+            payload = {"jsonrpc": "2.0", "id": 7, "method": "tools/call", "params": {"name": "ledger.record_push"}}
+            with patch("app.services.e2ag_tool_gateway.record_tool_decision", AsyncMock(side_effect=RuntimeError("audit unavailable"))), \
+                 patch("app.api.internal.e2ag_mcp.httpx.AsyncClient", FakeAsyncClient):
+                with self.assertRaisesRegex(RuntimeError, "audit unavailable"):
+                    await proxy_mcp_call(grant.id, request_for(payload, token), db)
+            self.assertEqual([], FakeAsyncClient.calls)
+
+    async def test_repeated_rejected_attempts_have_separate_audit_entries(self):
+        async with self.sessions() as db:
+            _, _, event, task, grant, token, _ = await self._fixtures(db)
+            await revoke_task_grants(db, task.id)
+            await db.refresh(event)
+            before = len(event.audit_chain)
+            payload = {"jsonrpc": "2.0", "id": 8, "method": "tools/call", "params": {"name": "ledger.record_push"}}
+            with patch("app.api.internal.e2ag_mcp.httpx.AsyncClient", FakeAsyncClient):
+                for _ in range(2):
+                    response = await proxy_mcp_call(grant.id, request_for(payload, token), db)
+                    self.assertEqual(403, response.status_code)
+            await db.refresh(event)
+            await db.refresh(grant)
+            added = event.audit_chain[before:]
+            self.assertEqual(2, len(added))
+            self.assertTrue(all(e["stage"] == "tool_call" and e["outcome"] == "deny" for e in added))
+            self.assertTrue(verify_audit_chain(event.audit_chain))
+            self.assertEqual(2, grant.call_count)
+            self.assertEqual([], FakeAsyncClient.calls)
 
     async def test_task_secret_config_is_removed_by_exact_run_id(self):
         with tempfile.TemporaryDirectory() as root:

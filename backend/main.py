@@ -14,6 +14,8 @@ from app.services.imap_poller import imap_poller
 from app.services.event_retry_worker import retry_worker
 from app.middleware.access_token import AccessTokenMiddleware
 from app.config import settings
+from app.services.e2ag_http_transport import mcp_transport_lifespan
+from app.services.e2ag_stdio_transport import stdio_transport_lifespan
 
 
 @asynccontextmanager
@@ -22,7 +24,8 @@ async def lifespan(app: FastAPI):
     await cron_scheduler.start()
     await imap_poller.start()
     retry_worker.start()
-    yield
+    async with mcp_transport_lifespan(app, enabled=settings.e2ag_reuse_mcp_transport), stdio_transport_lifespan(app):
+        yield
     retry_worker.stop()
     await imap_poller.stop()
     await cron_scheduler.stop()

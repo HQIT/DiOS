@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.models.tables import Agent, EventDedupClaim, EventLog
 from app.services.e2ag import Decision, append_audit_entry, evaluate_contract, evaluate_policy
+from app.services.e2ag_tool_gateway import _append_event_audit
 from app.services.event_normalizer import CloudEvent, compute_dedup_hash
 from app.services.metrics import metrics
 from app.services import a2a_service
@@ -271,18 +272,19 @@ async def dispatch_event(
                 context_id=event_log.id,
                 trace_id=event_log.trace_id,
             )
+            # Creation is a causal fact even when launch/execution failed.
+            await _append_event_audit(
+                db, event_log.id,
+                trace_id=event_log.trace_id,
+                stage="a2a_task",
+                outcome=task.status,
+                evidence={"task_id": task.id, "agent_id": agent_id},
+            )
             if task.status in ("failed",):
                 reasons.append(f"Agent {agent_id}: {task.error}")
                 logger.warning("A2A dispatch to agent %s returned failed: %s", agent_id, task.error)
             else:
                 dispatched = True
-                event_log.audit_chain = append_audit_entry(
-                    event_log.audit_chain,
-                    trace_id=event_log.trace_id,
-                    stage="a2a_task",
-                    outcome=task.status,
-                    evidence={"task_id": task.id, "agent_id": agent_id},
-                )
                 logger.info(
                     "Dispatched event %s(type=%s) to agent %s via A2A (task=%s status=%s context=%s)",
                     event_log.id, event_type, agent_id, task.id, task.status, task.context_id,
@@ -298,8 +300,8 @@ async def dispatch_event(
     if not dispatched:
         event_log.error_message = error_detail or "Failed to dispatch to any agent"
 
-    event_log.audit_chain = append_audit_entry(
-        event_log.audit_chain,
+    await _append_event_audit(
+        db, event_log.id,
         trace_id=event_log.trace_id,
         stage="dispatch",
         outcome=event_log.status,
@@ -348,21 +350,21 @@ async def resume_approved_event(event_log: EventLog, db: AsyncSession) -> None:
                 context_id=event_log.id,
                 trace_id=event_log.trace_id,
             )
+            await _append_event_audit(
+                db, event_log.id, trace_id=event_log.trace_id,
+                stage="a2a_task", outcome=task.status,
+                evidence={"task_id": task.id, "agent_id": agent_id, "after_approval": True},
+            )
             if task.status == "failed":
                 reasons.append(f"Agent {agent_id}: {task.error}")
                 continue
             dispatched = True
-            event_log.audit_chain = append_audit_entry(
-                event_log.audit_chain or [], trace_id=event_log.trace_id,
-                stage="a2a_task", outcome=task.status,
-                evidence={"task_id": task.id, "agent_id": agent_id, "after_approval": True},
-            )
         except Exception as exc:
             reasons.append(f"Agent {agent_id}: {type(exc).__name__}: {exc}")
     event_log.status = "dispatched" if dispatched else "failed"
     event_log.error_message = "; ".join(reasons)
-    event_log.audit_chain = append_audit_entry(
-        event_log.audit_chain or [], trace_id=event_log.trace_id,
+    await _append_event_audit(
+        db, event_log.id, trace_id=event_log.trace_id,
         stage="dispatch", outcome=event_log.status,
         evidence={
             "matched_agent_ids": event_log.matched_agent_ids,

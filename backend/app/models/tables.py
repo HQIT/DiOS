@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import Boolean, String, Text, DateTime, JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.database import Base
@@ -160,7 +161,9 @@ class EventLog(Base):
     trace_id: Mapped[str] = mapped_column(String(32), index=True, default=lambda: uuid.uuid4().hex)
     contract_decision: Mapped[dict] = mapped_column(JSON, default=dict)
     policy_decision: Mapped[dict] = mapped_column(JSON, default=dict)
-    audit_chain: Mapped[list] = mapped_column(JSON, default=list)
+    # Audit compare-and-swap requires equality, available on PostgreSQL JSONB.
+    # SQLite keeps its existing JSON representation and schema semantics.
+    audit_chain: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"), default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     
     # 重试机制字段
@@ -221,11 +224,37 @@ class E2AGToolGrant(Base):
     agent_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
     mcp_server_id: Mapped[str] = mapped_column(String(12), nullable=False)
     allowed_tools: Mapped[list] = mapped_column(JSON, default=list)
+    # None means legacy tool-only grant; otherwise an issuance-time snapshot.
+    argument_constraints: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="active")
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     call_count: Mapped[int] = mapped_column(default=0)
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class E2AGToolInvocation(Base):
+    """Durable intent, not an exactly-once guarantee for an external tool.
+
+    outcome_unknown includes a crash before sending and a lost response after
+    execution. Never infer non-execution from an unfinished record.
+    """
+
+    __tablename__ = "e2ag_tool_invocations"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    grant_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    event_log_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
+    trace_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    task_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    method: Mapped[str] = mapped_column(String(64), nullable=False)
+    tool_name: Mapped[str] = mapped_column(Text, default="")
+    request_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    state: Mapped[str] = mapped_column(String(32), default="outcome_unknown")
+    upstream_status: Mapped[int | None] = mapped_column(nullable=True)
+    response_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class E2AGApproval(Base):

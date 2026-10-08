@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     e2ag_mode: str = "enforce"
     e2ag_tool_grant_ttl_seconds: int = 900
     e2ag_approval_ttl_seconds: int = 3600
+    # Opt-in pending qualification; POST pools connections, not request identity.
+    e2ag_reuse_mcp_transport: bool = False
+    # Opt-in, administrator-configured subprocess tools; never direct Agent exec.
+    e2ag_stdio_server_ids: list[str] = []
     # One-shot DiAgent containers are Docker siblings, not Compose services.
     # The host-gateway mapping in docker_runner makes this URL portable.
     e2ag_internal_base_url: str = "http://host.docker.internal:8000"

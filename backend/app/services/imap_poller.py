@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import email
+import hashlib
 import imaplib
 import logging
 
@@ -40,7 +41,14 @@ def _parse_message(raw: bytes) -> dict:
             body = (msg.get_payload(decode=True) or b"").decode("utf-8", errors="replace")[:2000]
         except Exception:
             pass
-    return {"from": from_, "to": to_, "subject": subject, "body_preview": body}
+    # Preserve delivery identity for the shared email deduplication path. This
+    # identifier is not proof of sender identity. Without Message-ID, exact
+    # raw-message equality is our bounded fallback, not mailbox UID identity.
+    message_id = str(msg.get("Message-ID", "")).strip()
+    if not message_id:
+        message_id = "raw-sha256:" + hashlib.sha256(raw).hexdigest()
+    return {"from": from_, "to": to_, "subject": subject, "body_preview": body,
+            "message_id": message_id}
 
 
 async def _poll_imap_connector(conn: Connector, db: AsyncSession) -> None:

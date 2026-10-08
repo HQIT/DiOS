@@ -62,8 +62,15 @@ async def decide_approval(
     if approval.status != "pending":
         raise ValueError("APPROVAL_ALREADY_DECIDED")
     if _aware(approval.expires_at) <= now:
-        approval.status = "expired"
-        approval.decided_at = now
+        # Expiry is a terminal transition too; a stale ORM snapshot must not
+        # overwrite another session's committed approval/rejection.
+        expired = await db.execute(update(E2AGApproval).where(
+            E2AGApproval.id == approval_id, E2AGApproval.status == "pending",
+        ).values(status="expired", decided_at=now))
+        if expired.rowcount != 1:
+            await db.rollback()
+            raise ValueError("APPROVAL_ALREADY_DECIDED")
+        await db.refresh(approval)
         event_log.status = "approval_expired"
         event_log.audit_chain = append_audit_entry(
             event_log.audit_chain or [], trace_id=event_log.trace_id,

@@ -75,6 +75,18 @@ def _add_e2ag_columns(sync_conn):
             pass
 
 
+def _add_e2ag_argument_constraints(sync_conn):
+    """Add the nullable snapshot without rewriting any existing authorization.
+
+    SQLite legacy bootstrap only. Do not swallow migration errors: failure to
+    install this column must stop initialization, not downgrade enforcement.
+    """
+    from sqlalchemy import inspect, text
+    columns = {column["name"] for column in inspect(sync_conn).get_columns("e2ag_tool_grants")}
+    if "argument_constraints" not in columns:
+        sync_conn.execute(text("ALTER TABLE e2ag_tool_grants ADD COLUMN argument_constraints JSON"))
+
+
 def _bootstrap_master_agent(sync_conn):
     """启动时把历史默认 Agent `SayHi` 升级为 `Master`（仅改名，不改其余配置）。"""
     try:
@@ -105,6 +117,7 @@ async def init_db():
             await conn.run_sync(_add_agent_env)
             await conn.run_sync(_add_mcp_remote_columns)
             await conn.run_sync(_add_e2ag_columns)
+            await conn.run_sync(_add_e2ag_argument_constraints)
             await conn.run_sync(_bootstrap_master_agent)
             await conn.commit()
 
