@@ -1,0 +1,64 @@
+{
+  "version": "1.0.0",
+  "status": "benchmark_design",
+  "decision": "backend_unselected",
+  "reference": "sqlite-postgresql-workspace-serialized",
+  "candidates": [
+    "relational-object-scoped",
+    "transactional-kv",
+    "distributed-sql",
+    "coordination-and-durable-journal"
+  ],
+  "concurrency": [
+    1,
+    8,
+    32,
+    128
+  ],
+  "arrival_models": [
+    "closed_loop",
+    "open_loop"
+  ],
+  "workloads": [
+    "uniform_runs",
+    "same_run_hotspot",
+    "approval_race",
+    "long_evidence_trace",
+    "revocation_burst"
+  ],
+  "invariants": [
+    "authorization_inheritance",
+    "single_approval_consumption",
+    "intent_durable_before_forward",
+    "revocation_dispatch_order",
+    "monotonic_fencing",
+    "no_success_for_unknown_outcome",
+    "state_event_atomic_recovery",
+    "evidence_object_binding"
+  ],
+  "metrics": [
+    "throughput",
+    "p50_ms",
+    "p95_ms",
+    "p99_ms",
+    "lock_wait_ms",
+    "commit_ms",
+    "transactions_per_action",
+    "bytes_per_action",
+    "conflict_retries",
+    "revocation_ms",
+    "recovery_seconds",
+    "cpu",
+    "memory",
+    "disk",
+    "unit_cost"
+  ],
+  "controlled_factors": [
+    "cpu_memory_disk_network",
+    "policy_input_tool_response",
+    "durability_ack",
+    "replication_failure_tolerance",
+    "warmup_measurement_drain_windows"
+  ],
+  "results": null
+}

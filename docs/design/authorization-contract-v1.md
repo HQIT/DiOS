@@ -103,3 +103,6 @@ E2AG 的缓存、批处理或异步证据优化必须保持当前代次校验、
 ## 8. 标准依据
 
 [RFC 8693](https://www.rfc-editor.org/rfc/rfc8693.html) 提供 subject/actor 与委托表达参考；[RFC 7662](https://www.rfc-editor.org/rfc/rfc7662.html) 提供活跃令牌与权限查询语义；[RFC 8705](https://www.rfc-editor.org/rfc/rfc8705.html) 提供 mTLS 和证书绑定思路。DiOS 的内部授权 Profile 按上述语义组织，具体认证 Provider 的协议符合性单独验证。[ACP 工具调用规范](https://agentclientprotocol.com/protocol/v1/tool-calls) 区分执行通知与权限请求，适配能力以 #57 固定版本和后续实测为准。
+
+
+实现选择见 [ADR 0008](../adr/0008-governance-semantics-and-provider-selection.md)：本契约的原子消费、持久确认与撤销顺序是语义要求，可由事务库、事务 KV 或等价权威状态机实现。

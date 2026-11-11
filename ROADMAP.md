@@ -204,3 +204,6 @@ E2AG 增量集成只纳入产品运行代码、必要测试和使用说明。兼
 - [ADR 0002：扩展边界](docs/adr/0002-agent-extension-boundaries.md)
 
 P0—P4 的编号替代此前按月份划分的阶段安排。原单机可靠性作为 P1 起步基线，企业管理进入 P2/P3，开放扩展与可扩展部署贯穿 P3/P4；已完成的 Connector Registry 接线继续复用。
+
+
+#30/#32 已进入实现，参考持久层通过隔离回归；生产存储选型按 [E2AG 实现与后端评估](docs/design/e2ag-runtime-implementation-options.md) 推进。下一步先固定后端中立原子契约、改进冲突粒度并比较实现；治理原型和 PostgreSQL 均作为候选，业务接管在联合验收后安排。

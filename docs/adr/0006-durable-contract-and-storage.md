@@ -23,3 +23,6 @@
 [领域设计](../design/domain-api-contract-v1.md) 与 [容量设计](../design/capacity-slo-v1.md) 定义输入、公式、失败与迁移口径。#30/#32 实现事务竞争、fencing、迁移与 outbox，#56/#58 验证真实 Agent，#52/#53/#54 完成企业部署与达标证据。接受记录见 [联合交付记录](../design/review-f25-f26.md)。
 
 出现事务库性能瓶颈、协议版本变化、对象所有权改变或 E2AG 强制执行语义变化时复审。具体产品补丁版本与生产切换由对应实现/交付任务固定。
+
+
+2026-11-11：后端选型结论由 [ADR 0008](0008-governance-semantics-and-provider-selection.md) 替代；PostgreSQL 作为参考候选，生产后端按一致性与性能实验确定。其余领域与持久语义保持。

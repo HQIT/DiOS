@@ -526,6 +526,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_profile.add_argument("--set-base-url", help="set default DiOS API base url")
     p_profile.set_defaults(func=cmd_profile)
 
+    sub.add_parser("runtime", help="local durable runtime administration; runtime --help")
+
     p_config = sub.add_parser("config", help="manage cli config (openclaw style)")
     sub_config = p_config.add_subparsers(dest="config_cmd", required=True)
     p_cfg_get = sub_config.add_parser("get", help="get config value")
@@ -621,7 +623,20 @@ def build_request_parser() -> argparse.ArgumentParser:
     return p
 
 
+def cmd_runtime(args) -> int:
+    import subprocess
+    backend = Path(__file__).resolve().parents[1] / "backend"
+    python = backend / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    if not python.exists():
+        print("Runtime CLI requires backend/.venv and backend/requirements.txt", file=sys.stderr)
+        return 2
+    env = dict(os.environ, PYTHONPATH=str(backend))
+    return subprocess.run([str(python), "-m", "app.runtime.cli", *args], env=env).returncode
+
+
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "runtime":
+        return cmd_runtime(sys.argv[2:])
     # 低层入口：仅保留给自动化/agent，不在 dios --help 暴露
     if len(sys.argv) > 1 and sys.argv[1] == "request":
         req_args = build_request_parser().parse_args(sys.argv[2:])

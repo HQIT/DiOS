@@ -75,3 +75,6 @@ Issue → 设计/ADR → PR → 验收证据 → 发布形成追踪链。PR 说�
 
 
 授权详细设计：[身份委托与 E2AG 契约](../design/authorization-contract-v1.md)、[ADR 0007](../adr/0007-workload-authorization-and-e2ag-enforcement.md)、[#27 交付记录](../design/review-f27.md)。
+
+
+运行实现：[持久层参考实现](../design/runtime-foundation-30-32.md)、[E2AG 实现选择](../design/e2ag-runtime-implementation-options.md)、[ADR 0008](../adr/0008-governance-semantics-and-provider-selection.md)。
