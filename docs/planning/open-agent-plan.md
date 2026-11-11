@@ -1,6 +1,6 @@
 # 开放智能体接入：计划调整与下一批工作
 
-日期：2026-11-11 · 适用基线：ARCH-BASELINE-0.2 · 任务状态以 [GitHub Project](https://github.com/orgs/HQIT/projects/2) 为准。
+日期：2026-11-11 · 适用基线：ARCH-BASELINE-0.3 · 任务状态以 [GitHub Project](https://github.com/orgs/HQIT/projects/2) 为准。
 
 ## 建设主线
 
@@ -26,7 +26,7 @@ DiOS 作为治理底座接入自研和第三方 Agent，loop/harness 由具体�
 
 ## 依赖与阶段门槛
 
-F01-3 能力勘察可与 F01-0 架构评审并行，为基线收口和详细设计提供证据。F01-1 在 G0 与能力勘察完成后固定领域/API 契约；F01-2 在 G0 后推进容量设计；F02-1 承接领域设计形成可实现的授权契约。
+F01-3 能力勘察和 F01-0 架构基线已完成，G0 通过。F01-1 在 G0 与能力勘察完成后固定领域/API 契约；F01-2 在 G0 后推进容量设计；F02-1 承接领域设计形成可实现的授权契约。
 
 K01-2 持久调度依赖领域与容量契约；K01-1 Local Docker Adapter 是托管实现。K01-4 协议适配依赖统一契约、持久运行和凭据服务，可按远端路径独立推进。K03-2 基础治理使用可控 Adapter 验证。K01-5 汇合生命周期、协议和治理，作为第三方运行进入员工服务与交付的前置验收。
 
@@ -34,13 +34,13 @@ P1 退出门槛包含两个来源 Agent 的受控执行与恢复证据；P2 验�
 
 ## 下一步：P0 智能体接入能力与契约
 
-**F01-3 #57 能力勘察已完成。** 五类候选的版本、证据、首轮组合和未知项已形成交付；下一主项为 [F01-0 #55](https://github.com/HQIT/DiOS/issues/55) 架构基线收口，然后固定领域和授权契约。
+**F01-3 #57 能力勘察已完成。** 五类候选的版本、证据、首轮组合和未知项已形成交付；[F01-0 #55](https://github.com/HQIT/DiOS/issues/55) 架构基线 v0.3 已通过 G0；下一步并行推进 #25 领域/API 契约与 #26 容量设计。
 
 当前交付：[能力矩阵与验证样例](../design/agent-integration-capability-matrix.md)、[持续代码静态评审接入设计](../design/continuous-code-review-assessment.md)、[E2AG 接入与扩展](../design/e2ag-agent-integration.md)。Cursor 已实测合成代码 JSON 输出及同进程 load；Codex 本机 Schema、dsh/厂商 Adapter 固定提交已登记。E2AG 原分支 10 项与候选快照 54 项测试通过。活动中取消、跨进程恢复、第三方严格只读与 E2AG 联合执行由 #30/#34/#56/#58 验收。
 
 持续评审加入跨层验收场景：F01-1 固定任务/尝试/会话与覆盖引用，F01-2 增加历史增长及断网缓存容量，F02-1 固定源码只读和外发边界；K01-2/K02/K03 承接租约、恢复、数据和身份，K01-4/K01-5 承接真实协议与故障验收。L3 负责范围、覆盖账本和评审质量，详细业务实施与切换排期待设计评审后安排。
 
-能力矩阵按“实测 / 文档声明 / 待验证 / 不支持”标记，提出最小 Agent 接入契约和待决差异。以这些材料收口 [架构基线 #55](https://github.com/HQIT/DiOS/issues/55)，随后推进 [领域/API #25](https://github.com/HQIT/DiOS/issues/25) 与 [容量设计 #26](https://github.com/HQIT/DiOS/issues/26)，再完成 [授权契约 #27](https://github.com/HQIT/DiOS/issues/27)。
+能力矩阵按“实测 / 文档声明 / 待验证 / 不支持”标记，提出最小 Agent 接入契约和待决差异。[架构基线 #55](https://github.com/HQIT/DiOS/issues/55) 已接受这些材料，下一步推进 [领域/API #25](https://github.com/HQIT/DiOS/issues/25) 与 [容量设计 #26](https://github.com/HQIT/DiOS/issues/26)，再完成 [授权契约 #27](https://github.com/HQIT/DiOS/issues/27)。
 
 实施顺序为基础运行/凭据 → [协议适配 #56](https://github.com/HQIT/DiOS/issues/56) 与基础治理 → [跨智能体验收 #58](https://github.com/HQIT/DiOS/issues/58)。各任务按自身依赖启动。
 

@@ -196,22 +196,47 @@
       "stage": "P0",
       "layer": "跨层",
       "title": "形成并评审架构原则、图解与工程基线",
-      "status": "In Progress",
+      "status": "Done",
       "scope": [
-        "形成架构原则、分层与对象归属、授权执行、部署演进、开放智能体接入五视图及需求追踪",
+        "形成架构原则、分层/对象/执行/部署/开放智能体/E2AG 六类视图，并关联持续评审参考场景与需求追踪",
         "建立文档/ADR/Issue/PR/验收/发布追踪与 G0—G3 评审门槛",
         "交付 docs/architecture、docs/engineering、docs/templates 和可维护 SVG 图；以提交版本记录基线",
-        "当前 v0.2 为待评审草案，包含 A2A/ACP、厂商适配与独立 loop/harness 边界；形成决议后解锁详细设计"
+        "接受 v0.3 架构基线，纳入 #57 的能力证据与 E2AG 集成、提升、扩展要求；固定 G0 决议与后续详细设计门槛"
       ],
       "accept": [
         "原则有依据、工程约束和验证方式，图文语义一致",
         "长期身份/业务工作/技术运行、数据归属和授权边界清晰",
         "开放行业与多节点企业部署方向明确，待决选型有后续任务承接",
         "工程文档生命周期、评审责任、开工/合并/发布门槛可执行",
-        "责任人完成 docs/architecture/review-v0.2.md 决议，关闭阻断问题并记录基线提交 SHA"
+        "形成 docs/architecture/review-v0.3.md 决议，统一承接 v0.1/v0.2 确认项，关闭架构阻断并记录基线提交 SHA"
       ],
       "deps": [],
-      "priority": "最高"
+      "priority": "最高",
+      "completion": {
+        "date": "2026-11-11",
+        "summary": "架构基线 v0.3 通过 G0；#57 能力结论及 E2AG 集成、提升与扩展纳入原则、七张图、ADR、工程规则和计划。",
+        "checks": [
+          "明确 L1/L2/L3、Run/Attempt/Worker/Process/Session、技术校验与业务验收的责任。",
+          "E2AG 策略/控制点/证据、续期/委派/原生工具/性能扩展与任务逐项对应；第三方联合验收由 #58 承接。",
+          "完成图文实际渲染、链接与编码、计划依赖和状态一致性检查。"
+        ],
+        "evidence_paths": [
+          "docs/architecture/review-v0.3.md",
+          "docs/architecture/README.md",
+          "docs/architecture/system-design.md",
+          "docs/architecture/principles.md",
+          "docs/architecture/traceability.md",
+          "docs/adr/0004-open-agent-harness-interoperability.md",
+          "docs/adr/0005-e2ag-integration-evolution.md",
+          "docs/engineering/handbook.md",
+          "docs/planning/open-agent-plan.md"
+        ],
+        "remaining_tasks": [
+          "F01-1",
+          "F01-2",
+          "F02-1"
+        ]
+      }
     },
     {
       "id": "F01-1",
@@ -281,14 +306,16 @@
         "定义权限交集、资源作用域、审批参数绑定与时效",
         "定义访问撤销、会话/凭据生命周期和策略拒绝语义",
         "定义平台身份到外部账号的委托映射、ACP 权限请求、远端准入与数据外发；记录工具控制点覆盖范围",
-        "固定静态评审的源码只读、受控检索、禁止业务构建/执行、模型外发和跨主机身份边界；可信静态工具版本与配置纳入授权"
+        "固定静态评审的源码只读、受控检索、禁止业务构建/执行、模型外发和跨主机身份边界；可信静态工具版本与配置纳入授权",
+        "固定 E2AG PDP/PEP/证据契约、Run/Attempt/Session/epoch 绑定、受管负载准入、续期/委派/撤销与受限降级条件"
       ],
       "accept": [
         "标签与可验证授权分离",
         "伪造身份、越权、审批重放/参数改变、撤销均有输入和预期结果",
         "API、Console、CLI、工具边界使用相同授权规则",
         "区分入口授权与内部动作约束；取消请求/远端确认、凭据撤销与既有数据留存分别验收",
-        "提示词/模式声明与实际控制测试分开；源码写入、仓库脚本执行、越权检索和外发均有拒绝样例"
+        "提示词/模式声明与实际控制测试分开；源码写入、仓库脚本执行、越权检索和外发均有拒绝样例",
+        "每条 Agent 工具路径有实际控制点及拒绝证据要求；长任务续期重评当前权限，性能优化保留撤销及持久确认语义"
       ],
       "deps": [
         "F01-1"

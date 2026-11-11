@@ -1,6 +1,6 @@
 # 开放智能体与 Harness 接入
 
-版本：0.2 · 状态：待评审 · 关联：AP-07/AP-12、AR-11、F01-1、K01-4、K03-2。
+版本：0.3 · 状态：已接受（G0） · 关联：AP-07/AP-12、AR-11、F01-1、K01-4、K03-2。
 
 ## 责任边界
 
@@ -29,10 +29,10 @@ A2A 面向独立智能体协作，允许远端内部实现保持不透明；ACP 
 
 | 智能体 | 已确认的接入依据 | DiOS 后续工作 |
 | --- | --- | --- |
-| DiAgent | 当前 DiOS 已有 service/task 运行路径 | 纳入统一契约与治理验收。 |
+| DiAgent | 当前 service/task 路径；A2A 0.3.0 有界检查 11 项中 8 项差异 | 保留现有路径，#25 固定目标协议版本，#56 修正并补充标准参考端点验收。 |
 | DeepSeek Harness（dsh） | 官方固定提交提供原生 ACP Profile，支持持久会话 list/resume/close | 验证取消、恢复、权限和产物；resume 与历史重放分别建模。 |
-| Cursor | ACP 官方 Agent 名录列出 Cursor | 验证所选版本、认证、会话和权限能力。 |
-| Codex | ACP 官方名录列出通过 Adapter 接入的 Codex CLI | 固定 Adapter 与后端版本，验证状态、审批、取消和恢复。 |
+| Cursor | 2026.11.05-86047df 已实测 ACP 认证、建会话、合成代码 JSON 输出及同进程 load | 首轮 ACP；活动中取消、跨进程恢复、排空和严格只读进入联合验收。 |
+| Codex | 本机 app-server Schema 已提取；ACP Adapter 固定提交已登记 | 固定 Adapter 与后端版本，验证状态、审批、取消和恢复。 |
 | Claude Code（CC） | ACP 名录列出通过 SDK Adapter 接入的 Claude Agent | 核对目标 CLI/SDK 组合与能力差异，形成映射和测试。 |
 | 其他智能体 | 标准端点或明确的 SDK/API/CLI 契约 | 通过同一发现、准入、授权和验收过程加入。 |
 
@@ -65,3 +65,10 @@ L1 Run 是平台调用与治理记录；远端 Task/Session ID 及其状态保�
 首轮验收选择至少两个不同来源的 Agent，其中包含一个第三方 harness；覆盖可用的 A2A 任务路径和 ACP 交互路径。验证会话/任务关联、流式输出、产物、取消、断连重连、重复消息、审批拒绝和权限撤销。高风险任务必须证明实际执行约束；不透明端点在能力矩阵中标明可见与可控制范围。
 
 任务安排：F01-3 勘察真实接口与能力并确定首轮组合；F01-1 固定接入契约，F02-1 固定跨边界授权；K01-4 实现协议适配，K03-2 实现基础治理，K01-5 完成跨智能体联合验收。见 [整体计划与下一批工作](../planning/open-agent-plan.md) 和 [ADR 0004](../adr/0004-open-agent-harness-interoperability.md)。
+
+
+## G0 采用的能力结论
+
+#57 的固定证据版本为 `fda9e550f4b584a8b7769cb8abbad6ec139e9370`。Cursor 是首个第三方 ACP 对象，dsh 是原生 ACP 替换对象；Codex 与 Claude Adapter 作为后续兼容组合。dsh、Claude 的供应方声明和 Codex Schema 与实际运行证据分别记录。A2A 0.3.0 为本次有界检查基准，目标协议版本由 #25 固定。
+
+E2AG 原分支 10 项、候选快照 54 项测试通过，覆盖 HTTP 模拟上游、真实 stdio fixture、参数约束及调用意图持久化；候选快照尚待产品集成。第三方 Agent → E2AG → 实际工具的端到端结果由 #58 形成。默认 900 秒授权对长任务需要续期；未配置治理的兼容路径通过受管负载准入规则约束。E2AG 的集成与扩展遵循 [ADR 0005](../adr/0005-e2ag-integration-evolution.md)。

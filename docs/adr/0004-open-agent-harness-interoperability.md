@@ -1,6 +1,6 @@
 # ADR 0004：开放智能体与 Harness 互操作
 
-状态：提议 / 待评审 · 日期：2026-11-11
+状态：已接受（G0） · 日期：2026-11-11
 依据：用户确认的开放智能体接入方向；AP-07/AP-12、AR-11。
 关系：补充 ADR 0002 的 AgentRuntime 协议映射与 ADR 0003 的执行边界；其余分层决策继续适用。
 
@@ -8,7 +8,7 @@
 
 数字员工需要使用不同来源的智能体。DiOS 的运行治理需适用于自研 Runtime、第三方 harness 和独立远端 Agent。
 
-## 决策提案
+## 决策
 
 1. Agent loop/harness 由具体智能体实现；DiOS 管理执行契约、授权、资源与证据。
 2. 建立独立的协议 Adapter 与生命周期 Runtime Adapter。优先采用 A2A、ACP（Agent Client Protocol），厂商 SDK/API/CLI 通过插件适配。
@@ -26,4 +26,4 @@ A2A 和 ACP 分别服务任务委派和交互会话，按使用场景组合；MC
 
 F01-3 提供能力证据与首轮组合；F01-1、F02-1 承接详细设计；K01-4、K03-2 分别实现协议与基础治理，K01-5 完成联合验收。至少两个不同来源 Agent 的跨实现验收，并验证真实权限拒绝、审批和取消语义。协议重大变化、远端治理能力变化或身份映射改变时复审。
 
-详细说明与来源：[开放智能体接入](../architecture/agent-interoperability.md)。评审决议、责任人、基线 SHA 待填写。
+详细说明与来源：[开放智能体接入](../architecture/agent-interoperability.md)。决议与固定版本见 [G0 评审记录](../architecture/review-v0.3.md)。E2AG 接入与持续扩展遵循 [ADR 0005](0005-e2ag-integration-evolution.md)。
