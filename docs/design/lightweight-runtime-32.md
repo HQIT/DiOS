@@ -35,4 +35,4 @@ Database.close 停止接收新写入，等待已接收的写入结束后释放�
 
 ## 下一步
 
-[有界 Worker 报告 spool](worker-report-spool-30-32.md) 已接入 RuntimeStore 受信接收接口和 CLI 状态查询。优先推进 #32 的历史关联/API 投影，再补备份/恢复、升级失败和排空切换验收。#30 接入真实 Worker 的持久调度与恢复，#34 继续完整 E2AG 治理。跨主机 Worker 通过认证 API 调用控制服务，多副本控制面按共享事务与故障模型验收；当前不扩大数据库候选实验。
+[有界 Worker 报告 spool](worker-report-spool-30-32.md) 已接入 RuntimeStore 受信接收接口和 CLI 状态查询，[历史关联投影](history-query-32.md) 已交付受信查询接口与 CLI。下一步推进备份/恢复、升级失败和排空切换验收。#30 接入真实 Worker 的持久调度与恢复，#34 继续完整 E2AG 治理。跨主机 Worker 通过认证 API 调用控制服务，多副本控制面按共享事务与故障模型验收；当前不扩大数据库候选实验。

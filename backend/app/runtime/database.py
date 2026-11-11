@@ -88,6 +88,7 @@ class Database:
             raise RuntimeErrorCode('MIGRATION_CHECKSUM_MISMATCH')
 
     async def migrate(self):
+        from .history_schema import migrate as migrate_history
         async with self.transaction('__runtime_migration__', check=False) as c:
             existing = await c.run_sync(lambda s: inspect(s).get_table_names())
             if 'runtime_schema' in existing:
@@ -99,12 +100,14 @@ class Database:
                     columns = await c.run_sync(lambda s, n=name: inspect(s).get_columns(n))
                     if not set(table.columns.keys()).issubset({col['name'] for col in columns}):
                         raise RuntimeErrorCode('SCHEMA_INCOMPLETE')
-                return {'version': SCHEMA_VERSION, 'changed': False}
+                changed = await migrate_history(c)
+                return {'version': SCHEMA_VERSION, 'history_version': 1, 'changed': changed}
             if any(n.startswith('runtime_') for n in existing):
                 raise RuntimeErrorCode('UNVERSIONED_RUNTIME_SCHEMA')
             await c.run_sync(metadata.create_all)
             await c.execute(versions.insert().values(version=SCHEMA_VERSION, checksum=SCHEMA_CHECKSUM))
-            return {'version': SCHEMA_VERSION, 'changed': True}
+            await migrate_history(c)
+            return {'version': SCHEMA_VERSION, 'history_version': 1, 'changed': True}
 
     async def now(self, c):
         query = "SELECT (julianday('now') - 2440587.5) * 86400.0" if c.dialect.name == 'sqlite' else 'SELECT EXTRACT(EPOCH FROM clock_timestamp())'

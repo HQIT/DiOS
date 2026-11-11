@@ -9,6 +9,7 @@ from .database import Database, RuntimeErrorCode
 from .store import RuntimeStore
 from .schema import runs
 from .spool import ReportSpool
+from .history import HistoryQueries
 
 async def execute(args):
     if args.command == 'spool-status':
@@ -18,6 +19,18 @@ async def execute(args):
     db = Database(args.database_url)
     try:
         if args.command == 'migrate': return await db.migrate()
+        if args.command == 'history':
+            query = HistoryQueries(db, args.scope)
+            if args.history_command == 'list':
+                return await query.list_imported(source=args.source, kind=args.kind, limit=args.limit, cursor=args.cursor)
+            if args.history_command == 'show':
+                return await query.imported(args.source, args.kind, args.source_id, include_record=args.record)
+            if args.history_command == 'links':
+                return await query.related(args.source, args.kind, args.source_id,
+                    direction=args.direction, limit=args.limit, cursor=args.cursor)
+            if args.history_command == 'run':
+                return await query.run(args.run_id, limit=args.limit,
+                    attempt_cursor=args.attempt_cursor, artifact_cursor=args.artifact_cursor)
         store = RuntimeStore(db, args.scope)
         if args.command == 'submit':
             return await store.submit(args.key, json.loads(Path(args.file).read_text(encoding='utf-8')))
@@ -48,6 +61,21 @@ def main(argv=None):
     listing = commands.add_parser('list');listing.add_argument('--limit',type=int,default=100)
     events = commands.add_parser('events');events.add_argument('--consumer',required=True);events.add_argument('--limit',type=int,default=100)
     drain = commands.add_parser('drain');drain.add_argument('worker_id')
+    history = commands.add_parser('history', help='query native execution and imported identity relationships')
+    history_commands = history.add_subparsers(dest='history_command', required=True)
+    history_list = history_commands.add_parser('list', help='page imported identities without original records')
+    history_list.add_argument('--source');history_list.add_argument('--kind')
+    history_show = history_commands.add_parser('show', help='inspect an imported identity; raw record is opt-in')
+    history_show.add_argument('--record', action='store_true')
+    history_links = history_commands.add_parser('links', help='page explicit source-adapter relationships')
+    history_links.add_argument('--direction', choices=['outgoing','incoming'], default='outgoing')
+    for command in (history_show, history_links):
+        command.add_argument('source');command.add_argument('kind');command.add_argument('source_id')
+    for command in (history_list, history_links):
+        command.add_argument('--limit', type=int, default=50);command.add_argument('--cursor')
+    history_run = history_commands.add_parser('run', help='read a native Run with paged attempts and artifact references')
+    history_run.add_argument('run_id');history_run.add_argument('--limit', type=int, default=50)
+    history_run.add_argument('--attempt-cursor');history_run.add_argument('--artifact-cursor')
     args = p.parse_args(argv)
     if hasattr(args,'limit') and not 1 <= args.limit <= 1000:p.error('limit must be 1..1000')
     try:

@@ -514,16 +514,18 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-11",
-        "summary": "SQLite 轻量默认与有界写入口已接入；Worker 阶段报告新增有界持久缓冲、按原身份补报、旧租约/撤销隔离、输出时间保留和只读 CLI 查询，子进程 transport 清理已补齐。",
+        "summary": "SQLite 轻量默认、有界写入口和离线报告已交付；新增原生 Run/Attempt/Session/Artifact 查询、导入历史双向关系与分页 CLI，原始身份和 legacy_unverified 标记保持。基础 Schema v1 不变，History 组件增量迁移已验证。完整后端回归 136 项通过、0 跳过。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
           "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
           "docs/design/evidence/lightweight-runtime-regression-20261111.json",
           "docs/design/worker-report-spool-30-32.md",
-          "docs/design/evidence/worker-spool-regression-20261111.json"
+          "docs/design/evidence/worker-spool-regression-20261111.json",
+          "docs/design/history-query-32.md",
+          "docs/design/evidence/history-query-regression-20261111.json"
         ],
-        "remaining": "优先推进历史关联/API 投影，补备份恢复、升级排空及待对账报告处置；继续认证传输、真实 Worker 调度恢复和完整 E2AG 工作授权。多副本控制面按实际拓扑独立验收，#30/#32 保持进行中。"
+        "remaining": "优先推进备份恢复与升级排空，继续真实 Worker 调度恢复、认证 API/传输、来源 Adapter 与待对账报告处置；#33 凭据和 #34 完整 E2AG 工作授权按既定依赖推进。多副本控制面按实际拓扑独立验收，#30/#32 保持进行中。"
       }
     },
     {
@@ -606,16 +608,18 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-11",
-        "summary": "SQLite 轻量默认与有界写入口已接入；Worker 阶段报告新增有界持久缓冲、按原身份补报、旧租约/撤销隔离、输出时间保留和只读 CLI 查询，子进程 transport 清理已补齐。",
+        "summary": "SQLite 轻量默认、有界写入口和离线报告已交付；新增原生 Run/Attempt/Session/Artifact 查询、导入历史双向关系与分页 CLI，原始身份和 legacy_unverified 标记保持。基础 Schema v1 不变，History 组件增量迁移已验证。完整后端回归 136 项通过、0 跳过。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
           "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
           "docs/design/evidence/lightweight-runtime-regression-20261111.json",
           "docs/design/worker-report-spool-30-32.md",
-          "docs/design/evidence/worker-spool-regression-20261111.json"
+          "docs/design/evidence/worker-spool-regression-20261111.json",
+          "docs/design/history-query-32.md",
+          "docs/design/evidence/history-query-regression-20261111.json"
         ],
-        "remaining": "优先推进历史关联/API 投影，补备份恢复、升级排空及待对账报告处置；继续认证传输、真实 Worker 调度恢复和完整 E2AG 工作授权。多副本控制面按实际拓扑独立验收，#30/#32 保持进行中。"
+        "remaining": "优先推进备份恢复与升级排空，继续真实 Worker 调度恢复、认证 API/传输、来源 Adapter 与待对账报告处置；#33 凭据和 #34 完整 E2AG 工作授权按既定依赖推进。多副本控制面按实际拓扑独立验收，#30/#32 保持进行中。"
       }
     },
     {
