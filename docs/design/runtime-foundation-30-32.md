@@ -53,4 +53,4 @@ Windows 已设置隐藏子进程标志；Windows 进程树及计划任务实测�
 
 ## 后续阶段性选择
 
-[ADR 0010](../adr/0010-lightweight-runtime-default.md) 确认 SQLite 为轻量 Runtime 当前默认，有界 FIFO 写入与基本混合查询已验收。[Worker 离线阶段报告](worker-report-spool-30-32.md) 已提供有界持久缓冲、身份校验补报、只读 CLI 和进程 transport 清理。[历史关联投影](history-query-32.md) 已补齐受信查询接口与 CLI，独立 History Schema v1 以增量方式维护，基础 Schema v1 保持不变。共享状态与高可用部署按实际故障模型独立验收。下一步推进备份恢复、升级排空与真实 Worker 接入。
+[ADR 0010](../adr/0010-lightweight-runtime-default.md) 确认 SQLite 为轻量 Runtime 当前默认，有界 FIFO 写入与基本混合查询已验收。[Worker 离线阶段报告](worker-report-spool-30-32.md) 已提供有界持久缓冲、身份校验补报、只读 CLI 和进程 transport 清理。[历史关联投影](history-query-32.md) 已补齐受信查询接口与 CLI，独立 History Schema v1 以增量方式维护，基础 Schema v1 保持不变。[恢复与排空基线](../operations/runtime-recovery.md) 通过独立 Lifecycle Schema v1 保存作用域排空和恢复调度关闭，提供 SQLite/本地产物恢复包。下一主项为真实 Worker 接入；共享状态与高可用部署按实际故障模型独立验收。

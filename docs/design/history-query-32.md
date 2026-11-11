@@ -65,4 +65,4 @@ backend/.venv/bin/python cli/dios runtime --scope local history run run-id --lim
 
 测试覆盖 SQLite / PostgreSQL 的双向关系、共享来源、缺失对象后续解析、重复登记、scope/来源隔离、游标绑定、分页、原始记录不变、原生重试与会话句柄复用；SQLite 另验证组件升级、失败回滚和 CLI。新增 18 项检查，完整后端回归 136 项通过、0 跳过，见 [检查记录](evidence/history-query-regression-20261111.json)。
 
-本交付完成 #32 的基础关联查询部分。下一步优先完成备份恢复与升级排空演练，并继续 #30 真实 Worker 调度恢复、#33 凭据与 #34 完整 E2AG 工作授权；认证 API/Console 和真实评审历史接入随对应门槛推进。#30/#32 保持进行中。
+本交付完成 #32 的基础关联查询部分。[恢复与排空基线](../operations/runtime-recovery.md) 已完成首轮实现和演练。下一主项为 #30 真实 Worker 调度恢复，结合 #33 凭据与 #34 完整 E2AG 工作授权；认证 API/Console 和真实评审历史接入随对应门槛推进。#30/#32 保持进行中。

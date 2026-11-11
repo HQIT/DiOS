@@ -513,8 +513,8 @@
       "priority": "最高",
       "status": "In Progress",
       "progress": {
-        "date": "2026-11-11",
-        "summary": "SQLite 轻量默认、有界写入口和离线报告已交付；新增原生 Run/Attempt/Session/Artifact 查询、导入历史双向关系与分页 CLI，原始身份和 legacy_unverified 标记保持。基础 Schema v1 不变，History 组件增量迁移已验证。完整后端回归 136 项通过、0 跳过。",
+        "date": "2026-11-12",
+        "summary": "轻量存储、离线报告和历史关联已交付；新增持久作用域排空、SQLite/本地产物校验恢复包和恢复副本全局调度关闭。全后端回归 154 项通过、0 跳过，合成恢复演练通过。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
@@ -523,9 +523,12 @@
           "docs/design/worker-report-spool-30-32.md",
           "docs/design/evidence/worker-spool-regression-20261111.json",
           "docs/design/history-query-32.md",
-          "docs/design/evidence/history-query-regression-20261111.json"
+          "docs/design/evidence/history-query-regression-20261111.json",
+          "docs/operations/runtime-recovery.md",
+          "docs/design/evidence/recovery-drain-regression-20261111.json",
+          "docs/design/evidence/recovery-drill-20261111.json"
         ],
-        "remaining": "优先推进备份恢复与升级排空，继续真实 Worker 调度恢复、认证 API/传输、来源 Adapter 与待对账报告处置；#33 凭据和 #34 完整 E2AG 工作授权按既定依赖推进。多副本控制面按实际拓扑独立验收，#30/#32 保持进行中。"
+        "remaining": "下一主项为 #30 真实 Worker 调度、进程/会话观测与对账，结合 #33 凭据和 #34 E2AG 工作授权；继续认证 API/传输、真实来源 Adapter、待对账处置与完整恢复交付集，多节点恢复按实际拓扑独立验收。"
       }
     },
     {
@@ -607,8 +610,8 @@
       "priority": "最高",
       "status": "In Progress",
       "progress": {
-        "date": "2026-11-11",
-        "summary": "SQLite 轻量默认、有界写入口和离线报告已交付；新增原生 Run/Attempt/Session/Artifact 查询、导入历史双向关系与分页 CLI，原始身份和 legacy_unverified 标记保持。基础 Schema v1 不变，History 组件增量迁移已验证。完整后端回归 136 项通过、0 跳过。",
+        "date": "2026-11-12",
+        "summary": "轻量存储、离线报告和历史关联已交付；新增持久作用域排空、SQLite/本地产物校验恢复包和恢复副本全局调度关闭。全后端回归 154 项通过、0 跳过，合成恢复演练通过。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
@@ -617,9 +620,12 @@
           "docs/design/worker-report-spool-30-32.md",
           "docs/design/evidence/worker-spool-regression-20261111.json",
           "docs/design/history-query-32.md",
-          "docs/design/evidence/history-query-regression-20261111.json"
+          "docs/design/evidence/history-query-regression-20261111.json",
+          "docs/operations/runtime-recovery.md",
+          "docs/design/evidence/recovery-drain-regression-20261111.json",
+          "docs/design/evidence/recovery-drill-20261111.json"
         ],
-        "remaining": "优先推进备份恢复与升级排空，继续真实 Worker 调度恢复、认证 API/传输、来源 Adapter 与待对账报告处置；#33 凭据和 #34 完整 E2AG 工作授权按既定依赖推进。多副本控制面按实际拓扑独立验收，#30/#32 保持进行中。"
+        "remaining": "下一主项为 #30 真实 Worker 调度、进程/会话观测与对账，结合 #33 凭据和 #34 E2AG 工作授权；继续认证 API/传输、真实来源 Adapter、待对账处置与完整恢复交付集，多节点恢复按实际拓扑独立验收。"
       }
     },
     {
@@ -644,7 +650,18 @@
         "K02-2"
       ],
       "priority": "最高",
-      "existing": 11
+      "existing": 11,
+      "status": "In Progress",
+      "progress": {
+        "evidence_paths": [
+          "docs/operations/runtime-recovery.md",
+          "docs/design/evidence/recovery-drain-regression-20261111.json",
+          "docs/design/evidence/recovery-drill-20261111.json"
+        ],
+        "date": "2026-11-12",
+        "summary": "基于 #32 已交付存储子集，完成 SQLite/本地产物恢复基线及恢复调度关闭；新目录恢复保留身份、事件与历史关联。154 项后端回归和合成恢复演练通过。",
+        "remaining": "完整交付仍依赖 #32/#30 联合验收；外置配置/workspace、Secret 服务与 Worker spool 的备份策略、远端重认证/对账后启用、Windows ACL、PostgreSQL 与多节点恢复待完成。"
+      }
     },
     {
       "id": "K03-1",

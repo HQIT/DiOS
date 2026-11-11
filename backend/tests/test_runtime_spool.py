@@ -141,6 +141,8 @@ class SpoolTests(unittest.IsolatedAsyncioTestCase):
     async def test_throttle_backoff_and_independent_attempt_progress(self):
         self.put()
         self.put(2, 'creating_session')
+        # Independent streams share no FIFO tie-break guarantee at identical timestamps.
+        self.now += .1
         self.spool.enqueue('test', 'other-run', 'other-attempt', 'worker2', 'instance2', 1, 1, 'preparing')
         calls = []
         async def throttled(delivery):

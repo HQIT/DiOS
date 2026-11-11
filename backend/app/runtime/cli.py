@@ -10,15 +10,27 @@ from .store import RuntimeStore
 from .schema import runs
 from .spool import ReportSpool
 from .history import HistoryQueries
+from .lifecycle import Lifecycle
+from .recovery import backup_sqlite, verify_backup, restore_sqlite
 
 async def execute(args):
     if args.command == 'spool-status':
         return await asyncio.to_thread(ReportSpool.inspect, args.file)
+    if args.command == 'backup-verify': return await asyncio.to_thread(verify_backup,args.bundle)
+    if args.command == 'restore': return await restore_sqlite(args.bundle,args.destination)
     if not args.database_url:
         raise RuntimeErrorCode('RUNTIME_DATABASE_URL_REQUIRED')
+    if args.command == 'backup':
+        return await asyncio.to_thread(backup_sqlite,args.database_url,args.artifacts,args.destination,timeout=args.timeout)
     db = Database(args.database_url)
     try:
         if args.command == 'migrate': return await db.migrate()
+        if args.command == 'upgrade':
+            lifecycle=Lifecycle(db,args.scope)
+            if args.upgrade_command=='drain':return await lifecycle.begin_drain()
+            if args.upgrade_command=='status':return await lifecycle.status()
+            if args.upgrade_command=='wait':return await lifecycle.wait_drained(args.timeout)
+            if args.upgrade_command=='resume':return await lifecycle.resume(args.revision)
         if args.command == 'history':
             query = HistoryQueries(db, args.scope)
             if args.history_command == 'list':
@@ -53,6 +65,17 @@ def main(argv=None):
     p.add_argument('--scope',default='local')
     commands = p.add_subparsers(dest='command',required=True)
     commands.add_parser('migrate',help='explicit additive migration; backup existing database first')
+    backup=commands.add_parser('backup',help='snapshot SQLite and referenced local artifacts to a new directory')
+    backup.add_argument('--artifacts',required=True);backup.add_argument('--destination',required=True)
+    backup.add_argument('--timeout',type=float,default=60)
+    verify=commands.add_parser('backup-verify');verify.add_argument('bundle')
+    restore=commands.add_parser('restore',help='restore into a new directory with scheduling held')
+    restore.add_argument('bundle');restore.add_argument('destination')
+    upgrade=commands.add_parser('upgrade',help='persistent scope drain; active work finishes naturally')
+    upgrades=upgrade.add_subparsers(dest='upgrade_command',required=True)
+    upgrades.add_parser('drain');upgrades.add_parser('status')
+    waiting=upgrades.add_parser('wait');waiting.add_argument('--timeout',type=float,default=30)
+    resume=upgrades.add_parser('resume');resume.add_argument('--revision',type=int,required=True)
     spool = commands.add_parser('spool-status', help='inspect retained Worker reports without payloads or network calls')
     spool.add_argument('--file', required=True)
     submit = commands.add_parser('submit',help='queue metadata only; does not launch an Agent')

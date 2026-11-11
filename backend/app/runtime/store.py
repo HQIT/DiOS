@@ -6,6 +6,7 @@ from uuid import uuid4
 from sqlalchemy import select, and_, exists
 from .database import RuntimeErrorCode
 from .schema import runs, workers, attempts, events, acks, projections, artifacts, imports
+from .lifecycle import admission
 
 TERMINAL = {'succeeded', 'failed', 'cancelled'}
 ACTIVE_ATTEMPTS = {'claimed', 'preparing', 'creating_session', 'waiting_model', 'streaming', 'validating'}
@@ -60,6 +61,7 @@ class RuntimeStore:
                 if existing['input_digest'] != hashed:
                     raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
                 return dict(existing)
+            if not await admission(c, self.scope): raise RuntimeErrorCode('RUNTIME_DRAINING')
             now = await self.db.now(c)
             record = dict(id=str(uuid4()), scope=self.scope, idempotency_key=key, input_digest=hashed,
                 input=value, state='queued', version=0, epoch=0, attempt_id=None, authorization_epoch=1,
@@ -92,6 +94,7 @@ class RuntimeStore:
     async def claim(self, worker_id, instance, lease_seconds=60):
         if not 1 <= lease_seconds <= 60: raise RuntimeErrorCode('INVALID_LEASE')
         async with self.db.transaction(self.scope) as c:
+            if not await admission(c, self.scope): return None
             now = await self.db.now(c)
             w = (await c.execute(select(workers).where(workers.c.id == worker_id, workers.c.scope == self.scope))).mappings().first()
             if not w or w['instance'] != instance: raise RuntimeErrorCode('WORKER_MISMATCH')
@@ -116,6 +119,7 @@ class RuntimeStore:
             return record
 
     async def _owned(self, c, run_id, attempt_id, worker_id, instance, epoch, *, authorize=False):
+        await admission(c, self.scope, ownership=True)
         run = await self._run(c, run_id)
         a = (await c.execute(select(attempts).where(attempts.c.id == attempt_id, attempts.c.run_id == run_id))).mappings().first()
         now = await self.db.now(c)

@@ -206,4 +206,4 @@ E2AG 增量集成只纳入产品运行代码、必要测试和使用说明。兼
 P0—P4 的编号替代此前按月份划分的阶段安排。原单机可靠性作为 P1 起步基线，企业管理进入 P2/P3，开放扩展与可扩展部署贯穿 P3/P4；已完成的 Connector Registry 接线继续复用。
 
 
-#30/#32 已进入实现，SQLite 按 [ADR 0010](docs/adr/0010-lightweight-runtime-default.md) 作为轻量阶段性默认，有界写队列和基本混合查询已验收。[Worker 离线报告](docs/design/worker-report-spool-30-32.md) 支持有界持久缓冲、补报去重、旧租约隔离和 CLI 查询。[历史关联查询](docs/design/history-query-32.md) 已提供原生执行视图、导入历史双向关系及分页 CLI。下一步交付备份恢复、升级排空与真实 Worker 接入；跨主机认证及多副本控制面按实际拓扑独立验收。E2AG 完整工作授权与业务接管通过联合验收后切换。
+#30/#32 已进入实现，SQLite 按 [ADR 0010](docs/adr/0010-lightweight-runtime-default.md) 作为轻量阶段性默认，有界写队列和基本混合查询已验收。[Worker 离线报告](docs/design/worker-report-spool-30-32.md) 支持有界持久缓冲、补报去重、旧租约隔离和 CLI 查询。[历史关联查询](docs/design/history-query-32.md) 已提供原生执行视图、导入历史双向关系及分页 CLI。[恢复与排空基线](docs/operations/runtime-recovery.md) 已提供 SQLite/本地产物恢复包、恢复副本调度关闭和持久作用域排空，#11 完整交付继续推进。下一主项为 #30 真实 Worker 的调度、进程/会话观测与对账，结合 #33 凭据和 #34 E2AG 工作授权；跨主机及多副本控制面按实际拓扑独立验收，业务接管通过联合验收后切换。

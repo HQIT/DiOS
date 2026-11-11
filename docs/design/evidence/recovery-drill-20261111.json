@@ -1,0 +1,30 @@
+{
+  "scope": "synthetic single-node SQLite recovery drill; not production RTO or real Agent lifecycle",
+  "backup_seconds": 0.028,
+  "restore_seconds": 0.064,
+  "restore_and_query_seconds": 0.097,
+  "database_bytes": 139264,
+  "artifact_bytes": 19000,
+  "counts": {
+    "runtime_runs": 2,
+    "runtime_attempts": 1,
+    "runtime_events": 8,
+    "runtime_artifacts": 1,
+    "runtime_imports": 1
+  },
+  "event_digest": "293a14cd12b700e4cc54379064a7688bf3a84f45d1ebcfb2b0b72e0e45745fd8",
+  "checks": [
+    "new_worker_claim_blocked",
+    "active_attempt_completed_and_queued_run_retained",
+    "events_identity_history_links_and_artifact_bytes_verified",
+    "restored_scheduling_held",
+    "source_resume_uses_revision_and_existing_queue"
+  ],
+  "successful": true,
+  "limits": [
+    "SQLite/local artifacts only; PostgreSQL backup not implemented",
+    "External configuration, workspace files, Worker spools and Secret service backup remain separate",
+    "Restored scheduling release requires source isolation and task/effect reconciliation",
+    "Synthetic ledger lifecycle; actual Agent/process teardown and cross-host deployment pending"
+  ]
+}
