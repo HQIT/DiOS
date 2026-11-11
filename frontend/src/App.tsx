@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import AccessGate from "./components/AccessGate";
 import ConsolePage from "./apps/console/ConsolePage";
 import ChatPage from "./apps/chat/ChatPage";
+import WorkbenchPage from "./apps/workbench/WorkbenchPage";
 
-type AppId = "console" | "chat";
+type AppId = "console" | "chat" | "workbench";
 const APPS: { id: AppId; label: string }[] = [
+  { id: "workbench", label: "工作台原型" },
   { id: "console", label: "Console" },
   { id: "chat", label: "Chat" },
 ];
@@ -29,6 +31,10 @@ export default function App() {
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
+
+  // This route contains synthetic, in-memory fixtures only. Console and Chat
+  // retain AccessGate; the prototype must never import protected API clients.
+  if (currentApp === "workbench") return <WorkbenchPage sub={sub} />;
 
   return (
     <AccessGate>

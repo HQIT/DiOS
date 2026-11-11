@@ -1,0 +1,42 @@
+{
+  "version": "F03-2026-11-12",
+  "synthetic": true,
+  "scenarios": [
+    {
+      "id": "sales",
+      "workspace": "demo-sales",
+      "input": { "requirements": { "location": "indoor", "battery_hours_min": 4 }, "specs": [{ "id": "spec-A", "battery_hours": 5, "location": "indoor" }, { "id": "spec-B", "battery_hours": 3, "location": "indoor" }] },
+      "expected": { "recommended": "spec-A", "excluded": "spec-B", "citation_required": true, "external_send_requires_approval": true },
+      "permission": { "employee": ["workspace:read", "draft:create"], "supervisor": ["result:accept", "send:approve"], "admin": ["endpoint:manage"] }
+    },
+    {
+      "id": "team",
+      "workspace": "demo-team",
+      "input": { "plans": [{ "source": "role-A", "work": "准备方案", "owner": "person-A" }, { "source": "role-B", "work": "复核材料", "owner": null }, { "source": "role-C", "work": "汇总交付", "owner": "person-C" }] },
+      "expected": { "sources_preserved": 3, "needs_owner": ["role-B"], "delegation_must_not_expand_scope": true },
+      "permission": { "employee": ["own-plan:submit"], "supervisor": ["team-plan:read", "result:accept"], "admin": ["runtime:observe"] }
+    },
+    {
+      "id": "education",
+      "workspace": "demo-education",
+      "input": { "lecture": { "id": "lecture-1", "text": "匀速运动的位置随时间线性变化。", "audience": ["teacher", "student"] }, "answer": { "id": "answer-1", "text": "示例答案：位移等于速度乘时间。", "audience": ["teacher"] } },
+      "expected": { "student_artifact_sources": ["lecture-1"], "excluded_sources": ["answer-1"], "revocation_blocks_read": true },
+      "permission": { "employee": ["course:read", "draft:create"], "supervisor": ["result:accept", "share:approve"], "admin": ["knowledge-provider:manage"] }
+    },
+    {
+      "id": "review",
+      "workspace": "demo-review",
+      "input": {
+        "repository": "demo/service",
+        "branches": [{ "name": "release/next", "version_label": "defect-v1", "active": true }, { "name": "support/legacy", "version_label": "defect-v1", "active": false, "manual_include": true }, { "name": "release/fix", "version_label": "fix-v2", "active": true }],
+        "files": { "defect-v1/service.ts": "export function display(user: {name: string} | null) {\n  return user.name.trim();\n}\n", "fix-v2/service.ts": "export function display(user: {name: string} | null) {\n  if (user === null) return '';\n  return user.name.trim();\n}\n" },
+        "contexts": [{ "id": "nullable", "caller": "display(null)", "versions": ["defect-v1", "fix-v2"] }, { "id": "guarded", "caller": "if (user !== null) display(user)", "versions": ["defect-v1"] }],
+        "utf8_sample": "中文审查🙂",
+        "worker_limit": 3,
+        "duplicate_trigger_count": 10
+      },
+      "expected": { "defect": { "version": "defect-v1", "file": "service.ts", "line": 2, "condition": "nullable caller", "impact": "null property access", "state": "needs_verification_until_call_path_confirmed" }, "fixed_version": "fix-v2", "context_sensitive_reuse": true, "build_or_run_business_code": false, "coverage_denominator_must_be_preserved": true },
+      "permission": { "employee": ["frozen-source:read", "finding:propose"], "supervisor": ["scope:select", "finding:verify"], "admin": ["worker:manage"] }
+    }
+  ]
+}

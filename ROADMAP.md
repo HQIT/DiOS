@@ -192,6 +192,8 @@ E2AG 增量集成只纳入产品运行代码、必要测试和使用说明。兼
 
 ## 9. 文档入口
 
+- [员工、主管与管理员工作台原型（#28）](docs/design/workbench-information-architecture.md)
+- [四类参考场景与开放验收集（#29）](docs/design/reference-scenario-acceptance.md)
 - [开放智能体接入的整体计划与下一批工作](docs/planning/open-agent-plan.md)
 - [任务范围、依赖与验收清单](docs/planning/project-plan.json)
 
