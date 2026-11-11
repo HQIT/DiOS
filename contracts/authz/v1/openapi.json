@@ -1,0 +1,1968 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "DiOS authorization lifecycle design",
+    "version": "1.0.0",
+    "description": "Authorization profile for the core v1 contract. Target APIs, not runtime implementation."
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/internal/v1/authorization/admissions": {
+      "post": {
+        "operationId": "authorization_admit_post",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Authorization lifecycle result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Typed contract error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-permission": "authorization.admit",
+        "x-authorization-profile": "dios.authz.managed.v1",
+        "security": [
+          {
+            "bearerAuth": [],
+            "machineMTLS": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdmissionRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/internal/v1/authorization/grants": {
+      "post": {
+        "operationId": "authorization_issue_post",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Authorization lifecycle result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionGrant"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Typed contract error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-permission": "authorization.issue",
+        "x-authorization-profile": "dios.authz.managed.v1",
+        "security": [
+          {
+            "bearerAuth": [],
+            "machineMTLS": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantIssue"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/internal/v1/authorization/grants/{id}/renew": {
+      "post": {
+        "operationId": "authorization_renew_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorization lifecycle result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionGrant"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Typed contract error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-permission": "authorization.renew",
+        "x-authorization-profile": "dios.authz.managed.v1",
+        "security": [
+          {
+            "bearerAuth": [],
+            "machineMTLS": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantRenewal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/os/v1/authorization/decisions/{id}": {
+      "get": {
+        "operationId": "authorization_evidence_read_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorization lifecycle result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionEvidence"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Typed contract error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-permission": "authorization.evidence.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
+      }
+    },
+    "/api/os/v1/authorization/approvals/{id}": {
+      "get": {
+        "operationId": "approval_read_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorization lifecycle result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalBinding"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Typed contract error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-permission": "approval.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
+      }
+    },
+    "/api/internal/v1/authorization/approvals/{id}/consume": {
+      "post": {
+        "operationId": "approval_consume_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Authorization lifecycle result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvocationAuthorization"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Typed contract error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-permission": "approval.consume",
+        "x-authorization-profile": "dios.authz.managed.v1",
+        "security": [
+          {
+            "bearerAuth": [],
+            "machineMTLS": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalConsume"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/os/v1/authorization/revocations": {
+      "post": {
+        "operationId": "authorization_revoke_post",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Authorization lifecycle result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevocationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Typed contract error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-permission": "authorization.revoke",
+        "x-authorization-profile": "dios.authz.managed.v1",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevocationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/os/v1/authorization/revocations/{id}": {
+      "get": {
+        "operationId": "authorization_revocation_read_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorization lifecycle result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevocationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Typed contract error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-permission": "authorization.revocation.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "machineMTLS": {
+        "type": "mutualTLS"
+      }
+    },
+    "schemas": {
+      "ExecutionBinding": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "attempt_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "worker_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "lease_epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "principal_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "delegation_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          }
+        },
+        "required": [
+          "run_id",
+          "attempt_id",
+          "session_id",
+          "worker_id",
+          "lease_epoch",
+          "policy_version",
+          "principal_ref",
+          "delegation_ref"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "ResourceRef": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "version"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_ARGUMENT",
+              "UNAUTHENTICATED",
+              "FORBIDDEN",
+              "NOT_FOUND",
+              "IDEMPOTENCY_CONFLICT",
+              "VERSION_CONFLICT",
+              "STALE_OWNER",
+              "CAPABILITY_UNSUPPORTED",
+              "PROTOCOL_INCOMPATIBLE",
+              "RECONCILIATION_REQUIRED",
+              "RATE_LIMITED",
+              "QUOTA_EXHAUSTED",
+              "DEPENDENCY_MISSING",
+              "SESSION_FAILED",
+              "PROCESS_EXITED",
+              "RESULT_INVALID",
+              "EVIDENCE_INSUFFICIENT",
+              "CURSOR_EXPIRED",
+              "UNAVAILABLE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "retry_after_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "trace_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable",
+          "retry_after_seconds",
+          "trace_id",
+          "evidence_refs"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "Permission": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "resource": {
+            "$ref": "#/components/schemas/ResourceRef"
+          },
+          "constraint_revision": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "required": [
+          "action",
+          "resource",
+          "constraint_revision"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "Principal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "user",
+              "service",
+              "workload",
+              "worker"
+            ]
+          },
+          "issuer_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "subject_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended",
+              "revoked"
+            ]
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "issuer_ref",
+          "subject_ref",
+          "status",
+          "authorization_epoch"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "DelegationLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "parent_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subject_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "actor_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "uniqueItems": true
+          },
+          "audience": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "parent_ref",
+          "subject_ref",
+          "actor_ref",
+          "permissions",
+          "audience",
+          "expires_at",
+          "depth",
+          "authorization_epoch"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "CredentialReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "secret_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "issuer_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "audience": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "sender_certificate_thumbprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "revoked",
+              "expired"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "secret_ref",
+          "issuer_ref",
+          "audience",
+          "sender_certificate_thumbprint",
+          "expires_at",
+          "status"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "AdmissionRequest": {
+        "type": "object",
+        "properties": {
+          "deployment_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "workspace_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "delegation_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "requested_permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "uniqueItems": true
+          },
+          "input_manifest_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "budget_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "required": [
+          "deployment_id",
+          "workspace_id",
+          "delegation_ref",
+          "requested_permissions",
+          "input_manifest_digest",
+          "budget_ref"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "AdmissionReceipt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "subject_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "actor_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "permission_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "redeem_by": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "max_workload_deadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "issued",
+              "redeemed",
+              "revoked",
+              "expired"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "subject_ref",
+          "actor_ref",
+          "permission_digest",
+          "policy_version",
+          "authorization_epoch",
+          "redeem_by",
+          "max_workload_deadline",
+          "status"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "WorkloadAuthorization": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "run_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "admission_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "subject_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "delegation_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "uniqueItems": true
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "revoked",
+              "expired"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "run_id",
+          "admission_id",
+          "subject_ref",
+          "delegation_ref",
+          "permissions",
+          "authorization_epoch",
+          "policy_version",
+          "expires_at",
+          "status"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "GrantIssue": {
+        "type": "object",
+        "properties": {
+          "workload_authorization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "requested_permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "uniqueItems": true
+          },
+          "control_evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "workload_authorization_id",
+          "binding",
+          "requested_permissions",
+          "control_evidence_refs"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "ExecutionGrant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "workload_authorization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "uniqueItems": true
+          },
+          "permission_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "credential_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "revoked",
+              "expired"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "workload_authorization_id",
+          "binding",
+          "permissions",
+          "permission_digest",
+          "authorization_epoch",
+          "expires_at",
+          "credential_ref",
+          "status"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "GrantRenewal": {
+        "type": "object",
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "permission_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "expected_version",
+          "binding",
+          "permission_digest"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "ApprovalBinding": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "decision_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "grant_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "resource": {
+            "$ref": "#/components/schemas/ResourceRef"
+          },
+          "parameter_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "permission_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "requester_subject_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "approver_group_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "denied",
+              "expired",
+              "invalidated",
+              "consumed"
+            ]
+          },
+          "consumed_by_invocation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "decision_id",
+          "grant_id",
+          "binding",
+          "action",
+          "resource",
+          "parameter_digest",
+          "permission_digest",
+          "authorization_epoch",
+          "requester_subject_ref",
+          "approver_group_ref",
+          "policy_version",
+          "expires_at",
+          "status",
+          "consumed_by_invocation"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "ApprovalConsume": {
+        "type": "object",
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "decision_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "invocation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "parameter_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "expected_version",
+          "decision_id",
+          "invocation_id",
+          "binding",
+          "parameter_digest"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "InvocationAuthorization": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "intent_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "decision_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "approval_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "permission_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "parameter_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "prepared",
+              "dispatched",
+              "succeeded",
+              "failed",
+              "result_unknown"
+            ]
+          },
+          "result_artifact_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "intent_id",
+          "decision_id",
+          "approval_id",
+          "binding",
+          "authorization_epoch",
+          "permission_digest",
+          "parameter_digest",
+          "state",
+          "result_artifact_ids"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "RevocationRequest": {
+        "type": "object",
+        "properties": {
+          "target_kind": {
+            "type": "string",
+            "enum": [
+              "principal",
+              "workload",
+              "grant",
+              "session",
+              "credential",
+              "policy"
+            ]
+          },
+          "target_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "required": [
+          "target_kind",
+          "target_id",
+          "expected_version",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "RevocationReceipt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "target_kind": {
+            "type": "string",
+            "enum": [
+              "principal",
+              "workload",
+              "grant",
+              "session",
+              "credential",
+              "policy"
+            ]
+          },
+          "target_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "committed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "enforcement_deadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "effective",
+              "partially_confirmed"
+            ]
+          },
+          "pending_control_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "uniqueItems": true
+          },
+          "remote_cancel_status": {
+            "type": "string",
+            "enum": [
+              "not_requested",
+              "requested",
+              "confirmed",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "target_kind",
+          "target_id",
+          "authorization_epoch",
+          "committed_at",
+          "enforcement_deadline",
+          "state",
+          "pending_control_ids",
+          "remote_cancel_status"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "DecisionEvidence": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "allow",
+              "deny",
+              "approval_required"
+            ]
+          },
+          "reason_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "resource": {
+            "$ref": "#/components/schemas/ResourceRef"
+          },
+          "parameter_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "permission_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "control_point_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "control_evidence_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "verdict",
+          "reason_code",
+          "binding",
+          "action",
+          "resource",
+          "parameter_digest",
+          "permission_digest",
+          "authorization_epoch",
+          "policy_version",
+          "control_point_id",
+          "control_evidence_ref",
+          "expires_at"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      },
+      "DecisionContext": {
+        "type": "object",
+        "properties": {
+          "authenticated": {
+            "type": "boolean"
+          },
+          "credential_context_valid": {
+            "type": "boolean"
+          },
+          "sender_bound": {
+            "type": "boolean"
+          },
+          "actor_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "registered_actor_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "expected_binding": {
+            "$ref": "#/components/schemas/ExecutionBinding"
+          },
+          "lease_expires_at": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "now": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "grant_status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "grant_expires_at": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "workload_expires_at": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authorization_epoch": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "current_authorization_epoch": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "revocation_checked_at": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "authority_available": {
+            "type": "boolean"
+          },
+          "audit_available": {
+            "type": "boolean"
+          },
+          "admission_governance_complete": {
+            "type": "boolean"
+          },
+          "control_evidence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "control_point": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required_control_point": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resource_verified": {
+            "type": "boolean"
+          },
+          "parameters_validated": {
+            "type": "boolean"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resource_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resource_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "constraint_revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Canonical parameters after registered tool-schema validation; the PDP rechecks the digest."
+          },
+          "parameter_digest": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope_layers": {
+            "type": "object",
+            "properties": {
+              "caller": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "constraint_revision": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_kind": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "resource_id",
+                    "resource_version",
+                    "constraint_revision",
+                    "resource_kind"
+                  ],
+                  "additionalProperties": false,
+                  "x-owner": "L1"
+                }
+              },
+              "service": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "constraint_revision": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_kind": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "resource_id",
+                    "resource_version",
+                    "constraint_revision",
+                    "resource_kind"
+                  ],
+                  "additionalProperties": false,
+                  "x-owner": "L1"
+                }
+              },
+              "workload": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "constraint_revision": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_kind": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "resource_id",
+                    "resource_version",
+                    "constraint_revision",
+                    "resource_kind"
+                  ],
+                  "additionalProperties": false,
+                  "x-owner": "L1"
+                }
+              },
+              "resource": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "constraint_revision": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resource_kind": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "resource_id",
+                    "resource_version",
+                    "constraint_revision",
+                    "resource_kind"
+                  ],
+                  "additionalProperties": false,
+                  "x-owner": "L1"
+                }
+              }
+            },
+            "required": [
+              "caller",
+              "service",
+              "workload",
+              "resource"
+            ],
+            "additionalProperties": false,
+            "x-owner": "L1"
+          },
+          "grant_permissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resource_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resource_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "constraint_revision": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resource_kind": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "action",
+                "resource_id",
+                "resource_version",
+                "constraint_revision",
+                "resource_kind"
+              ],
+              "additionalProperties": false,
+              "x-owner": "L1"
+            }
+          },
+          "readonly_profile": {
+            "type": "boolean"
+          },
+          "budget_available": {
+            "type": "boolean"
+          },
+          "approval": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "binding": {
+                    "$ref": "#/components/schemas/ExecutionBinding"
+                  },
+                  "action": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "resource_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "resource_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "parameter_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "policy_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "permission_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "authorization_epoch": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "expires_at": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "approver_authorized": {
+                    "type": "boolean"
+                  },
+                  "separation_of_duties": {
+                    "type": "boolean"
+                  },
+                  "resource_kind": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "binding",
+                  "action",
+                  "resource_id",
+                  "resource_version",
+                  "parameter_digest",
+                  "policy_version",
+                  "permission_digest",
+                  "status",
+                  "authorization_epoch",
+                  "expires_at",
+                  "approver_authorized",
+                  "separation_of_duties",
+                  "resource_kind"
+                ],
+                "additionalProperties": false,
+                "x-owner": "L1"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resource_kind": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "authenticated",
+          "credential_context_valid",
+          "sender_bound",
+          "actor_ref",
+          "registered_actor_ref",
+          "binding",
+          "expected_binding",
+          "lease_expires_at",
+          "now",
+          "grant_status",
+          "grant_expires_at",
+          "workload_expires_at",
+          "policy_version",
+          "authorization_epoch",
+          "current_authorization_epoch",
+          "revocation_checked_at",
+          "authority_available",
+          "audit_available",
+          "admission_governance_complete",
+          "control_evidence",
+          "control_point",
+          "required_control_point",
+          "resource_verified",
+          "parameters_validated",
+          "action",
+          "resource_id",
+          "resource_version",
+          "constraint_revision",
+          "parameters",
+          "parameter_digest",
+          "scope_layers",
+          "grant_permissions",
+          "readonly_profile",
+          "budget_available",
+          "approval",
+          "resource_kind"
+        ],
+        "additionalProperties": false,
+        "x-owner": "L1"
+      }
+    }
+  }
+}

@@ -29,13 +29,17 @@ const allDocs = [
  ['capacity-design','容量与 SLO','docs/design/capacity-slo-v1.md'],
  ['durable-adr','持久契约与存储决议','docs/adr/0006-durable-contract-and-storage.md'],
  ['contract-review','详细设计验收','docs/design/review-f25-f26.md'],
+ ['auth-design','授权与 E2AG 契约','docs/design/authorization-contract-v1.md'],
+ ['auth-adr','授权生命周期决议','docs/adr/0007-workload-authorization-and-e2ag-enforcement.md'],
+ ['auth-review','授权设计交付','docs/design/review-f27.md'],
  ['design-template','设计模板','docs/templates/design-spec.md'],
  ['adr-template','ADR 模板','docs/templates/adr.md'],
  ['review-template','评审模板','docs/templates/review.md']
 ];
 const survey = args.includes('--survey');
 const contracts = args.includes('--contracts');
-const docs = contracts ? ['domain-contract','capacity-design','durable-adr','contract-review'].map(id=>allDocs.find(x=>x[0]===id)) : survey ? ['code-review','capability','a2a-survey','e2ag-survey'].map(id=>allDocs.find(x=>x[0]===id)) : allDocs;
+const authorization = args.includes('--authorization');
+const docs = authorization ? ['auth-design','auth-adr','auth-review'].map(id=>allDocs.find(x=>x[0]===id)) : contracts ? ['domain-contract','capacity-design','durable-adr','contract-review'].map(id=>allDocs.find(x=>x[0]===id)) : survey ? ['code-review','capability','a2a-survey','e2ag-survey'].map(id=>allDocs.find(x=>x[0]===id)) : allDocs;
 const ids = new Map(docs.map(([id,,file])=>[path.resolve(root,file),id]));
 let sections='';
 for (const [id,,file] of docs) {
@@ -72,5 +76,6 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
 let rendered=html;
 if(survey)rendered=rendered.replace('· G0 已接受</p>','· 能力评估</p>').replaceAll('DiOS 架构与工程基线 v0.3','DiOS 持续评审接入与智能体能力评估').replace('企业级数字员工平台<br>架构逻辑与工程基线','持续代码评审接入<br>与智能体能力评估').replace('运行有边界，工作有归属，交付有依据。','可靠执行、可核验覆盖、开放智能体接入。').replaceAll('v0.3 · 2026-11-11','2026-11-11').replace('DiOS · 架构基线 v0.3','DiOS · Agent OS');
 if(contracts)rendered=rendered.replaceAll('DiOS 架构与工程基线 v0.3','DiOS 领域契约与容量设计 v1').replace('企业级数字员工平台<br>架构逻辑与工程基线','领域与 API 契约<br>容量、SLO 与部署设计').replace('运行有边界，工作有归属，交付有依据。','开放智能体、持久运行与 E2AG 治理的详细设计。').replace('v0.3 · 2026-11-11 · G0 已接受','v1 · 2026-11-11 · P0 设计交付').replace('DiOS · 架构基线 v0.3','DiOS · 详细设计 v1');
+if(authorization)rendered=rendered.replaceAll('DiOS 架构与工程基线 v0.3','DiOS 授权与 E2AG 治理契约 v1').replace('企业级数字员工平台<br>架构逻辑与工程基线','身份委托与资源授权<br>E2AG 执行治理契约').replace('运行有边界，工作有归属，交付有依据。','权限随任务收窄，审批绑定动作，撤销约束执行。').replace('v0.3 · 2026-11-11 · G0 已接受','v1 · 2026-11-11 · P0 设计交付').replace('DiOS · 架构基线 v0.3','DiOS · 授权契约 v1');
 fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,rendered);
 console.log(output);

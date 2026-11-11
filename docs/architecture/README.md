@@ -44,3 +44,6 @@ node scripts/render_architecture_guide.mjs --modules-dir /path/to/node_modules -
 ```
 
 HTML 内嵌图与样式，正文可离线阅读；仓库补充资料链接依赖本地源码路径。交付前检查本地链接、图文语义、实际渲染和导出版本。
+
+
+授权详细设计：[身份委托与 E2AG 契约](../design/authorization-contract-v1.md)、[ADR 0007](../adr/0007-workload-authorization-and-e2ag-enforcement.md)、[#27 交付记录](../design/review-f27.md)。

@@ -1,0 +1,130 @@
+[
+  {
+    "name": "bound-grant-issue",
+    "schema": "GrantIssue",
+    "valid": true,
+    "value": {
+      "workload_authorization_id": "wa-1",
+      "binding": {
+        "run_id": "x-run_id",
+        "attempt_id": "x-attempt_id",
+        "session_id": "x-session_id",
+        "worker_id": "x-worker_id",
+        "lease_epoch": 3,
+        "policy_version": "x-policy_version",
+        "principal_ref": "x-principal_ref",
+        "delegation_ref": "x-delegation_ref"
+      },
+      "requested_permissions": [
+        {
+          "action": "snapshot.read",
+          "resource": {
+            "kind": "snapshot",
+            "id": "snap-1",
+            "version": "sha-1"
+          },
+          "constraint_revision": "readonly-v1"
+        }
+      ],
+      "control_evidence_refs": [
+        "evidence-native-sandbox-1"
+      ]
+    }
+  },
+  {
+    "name": "zero-epoch-rejected",
+    "schema": "GrantIssue",
+    "valid": false,
+    "value": {
+      "workload_authorization_id": "wa-1",
+      "binding": {
+        "run_id": "x-run_id",
+        "attempt_id": "x-attempt_id",
+        "session_id": "x-session_id",
+        "worker_id": "x-worker_id",
+        "lease_epoch": 0,
+        "policy_version": "x-policy_version",
+        "principal_ref": "x-principal_ref",
+        "delegation_ref": "x-delegation_ref"
+      },
+      "requested_permissions": [
+        {
+          "action": "snapshot.read",
+          "resource": {
+            "kind": "snapshot",
+            "id": "snap-1",
+            "version": "sha-1"
+          },
+          "constraint_revision": "readonly-v1"
+        }
+      ],
+      "control_evidence_refs": [
+        "evidence-native-sandbox-1"
+      ]
+    }
+  },
+  {
+    "name": "no-raw-token-field",
+    "schema": "GrantIssue",
+    "valid": false,
+    "value": {
+      "workload_authorization_id": "wa-1",
+      "binding": {
+        "run_id": "x-run_id",
+        "attempt_id": "x-attempt_id",
+        "session_id": "x-session_id",
+        "worker_id": "x-worker_id",
+        "lease_epoch": 3,
+        "policy_version": "x-policy_version",
+        "principal_ref": "x-principal_ref",
+        "delegation_ref": "x-delegation_ref"
+      },
+      "requested_permissions": [
+        {
+          "action": "snapshot.read",
+          "resource": {
+            "kind": "snapshot",
+            "id": "snap-1",
+            "version": "sha-1"
+          },
+          "constraint_revision": "readonly-v1"
+        }
+      ],
+      "control_evidence_refs": [
+        "evidence-native-sandbox-1"
+      ],
+      "raw_token": "secret"
+    }
+  },
+  {
+    "name": "session-binding-required",
+    "schema": "GrantIssue",
+    "valid": false,
+    "value": {
+      "workload_authorization_id": "wa-1",
+      "binding": {
+        "run_id": "x-run_id",
+        "attempt_id": "x-attempt_id",
+        "worker_id": "x-worker_id",
+        "lease_epoch": 3,
+        "policy_version": "x-policy_version",
+        "principal_ref": "x-principal_ref",
+        "delegation_ref": "x-delegation_ref"
+      },
+      "requested_permissions": [
+        {
+          "action": "snapshot.read",
+          "resource": {
+            "kind": "snapshot",
+            "id": "snap-1",
+            "version": "sha-1"
+          },
+          "constraint_revision": "readonly-v1"
+        }
+      ],
+      "control_evidence_refs": [
+        "evidence-native-sandbox-1"
+      ]
+    }
+  }
+]

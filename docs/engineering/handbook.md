@@ -72,3 +72,6 @@ Issue → 设计/ADR → PR → 验收证据 → 发布形成追踪链。PR 说�
 风险记录包含影响、触发条件、责任人、缓解措施和复核日期。阻断架构或发布的风险进入 Issue 原生依赖。原则例外通过 ADR 记录范围、理由、补偿措施、有效期和退出条件；到期重新评估。
 
 基线变更复核受影响的原则、图、详细设计、任务、测试和交付说明。当前基线评审使用 [v0.3 评审记录](../architecture/review-v0.3.md)；详细设计入口为 [领域与容量交付记录](../design/review-f25-f26.md)。
+
+
+授权详细设计：[身份委托与 E2AG 契约](../design/authorization-contract-v1.md)、[ADR 0007](../adr/0007-workload-authorization-and-e2ag-enforcement.md)、[#27 交付记录](../design/review-f27.md)。

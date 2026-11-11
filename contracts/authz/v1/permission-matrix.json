@@ -1,0 +1,421 @@
+{
+  "profile": "dios.authz.managed.v1",
+  "entrypoints_share_policy": [
+    "api",
+    "console",
+    "cli",
+    "tool"
+  ],
+  "operations": [
+    {
+      "operation_id": "os_get_api_os_v1_runs",
+      "method": "GET",
+      "path": "/api/os/v1/runs",
+      "action": "run.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "os_post_api_os_v1_runs",
+      "method": "POST",
+      "path": "/api/os/v1/runs",
+      "action": "run.submit",
+      "guard": "admission_and_deployment_scope",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "run.submit"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_runs_id",
+      "method": "GET",
+      "path": "/api/os/v1/runs/{id}",
+      "action": "run.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_workers",
+      "method": "GET",
+      "path": "/api/os/v1/workers",
+      "action": "worker.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_workers_id",
+      "method": "GET",
+      "path": "/api/os/v1/workers/{id}",
+      "action": "worker.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_implementations",
+      "method": "GET",
+      "path": "/api/os/v1/implementations",
+      "action": "implementation.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_implementations_id",
+      "method": "GET",
+      "path": "/api/os/v1/implementations/{id}",
+      "action": "implementation.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "workforce_get_api_workforce_v1_employees",
+      "method": "GET",
+      "path": "/api/workforce/v1/employees",
+      "action": "employee.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "workforce.read"
+    },
+    {
+      "operation_id": "workforce_get_api_workforce_v1_employees_id",
+      "method": "GET",
+      "path": "/api/workforce/v1/employees/{id}",
+      "action": "employee.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "workforce.read"
+    },
+    {
+      "operation_id": "workforce_get_api_workforce_v1_work_items",
+      "method": "GET",
+      "path": "/api/workforce/v1/work-items",
+      "action": "workitem.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "workforce.read"
+    },
+    {
+      "operation_id": "workforce_post_api_workforce_v1_work_items",
+      "method": "POST",
+      "path": "/api/workforce/v1/work-items",
+      "action": "workitem.create",
+      "guard": "workspace_acl_and_employee_assignment",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "workforce.write"
+    },
+    {
+      "operation_id": "workforce_get_api_workforce_v1_work_items_id",
+      "method": "GET",
+      "path": "/api/workforce/v1/work-items/{id}",
+      "action": "workitem.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "workforce.read"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_runs_id_attempts",
+      "method": "GET",
+      "path": "/api/os/v1/runs/{id}/attempts",
+      "action": "attempt.read",
+      "guard": "run_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "os_post_api_os_v1_runs_id_cancel",
+      "method": "POST",
+      "path": "/api/os/v1/runs/{id}/cancel",
+      "action": "run.cancel",
+      "guard": "run_owner_or_delegated_manager",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "run.cancel"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_sessions_id",
+      "method": "GET",
+      "path": "/api/os/v1/sessions/{id}",
+      "action": "session.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_events",
+      "method": "GET",
+      "path": "/api/os/v1/events",
+      "action": "event.read",
+      "guard": "per_aggregate_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "os.read"
+    },
+    {
+      "operation_id": "os_post_api_os_v1_workers_id_drain",
+      "method": "POST",
+      "path": "/api/os/v1/workers/{id}/drain",
+      "action": "worker.drain",
+      "guard": "infrastructure_operator",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "worker.drain"
+    },
+    {
+      "operation_id": "internal_post_api_internal_v1_claims",
+      "method": "POST",
+      "path": "/api/internal/v1/claims",
+      "action": "worker.claim",
+      "guard": "registered_worker_partition",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "worker.claim"
+    },
+    {
+      "operation_id": "internal_post_api_internal_v1_leases_id_renew",
+      "method": "POST",
+      "path": "/api/internal/v1/leases/{id}/renew",
+      "action": "lease.renew",
+      "guard": "current_worker_lease",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "lease.renew"
+    },
+    {
+      "operation_id": "internal_post_api_internal_v1_attempts_id_report",
+      "method": "POST",
+      "path": "/api/internal/v1/attempts/{id}/report",
+      "action": "attempt.report",
+      "guard": "current_worker_lease",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "attempt.report"
+    },
+    {
+      "operation_id": "internal_post_api_internal_v1_artifacts",
+      "method": "POST",
+      "path": "/api/internal/v1/artifacts",
+      "action": "artifact.stage",
+      "guard": "current_worker_lease_and_artifact_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "artifact.stage"
+    },
+    {
+      "operation_id": "internal_post_api_internal_v1_artifacts_id_seal",
+      "method": "POST",
+      "path": "/api/internal/v1/artifacts/{id}/seal",
+      "action": "artifact.seal",
+      "guard": "current_worker_lease_and_artifact_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "artifact.seal"
+    },
+    {
+      "operation_id": "os_get_api_os_v1_artifacts_id",
+      "method": "GET",
+      "path": "/api/os/v1/artifacts/{id}",
+      "action": "artifact.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "artifact.read"
+    },
+    {
+      "operation_id": "internal_post_api_internal_v1_e2ag_decisions",
+      "method": "POST",
+      "path": "/api/internal/v1/e2ag/decisions",
+      "action": "e2ag.decide",
+      "guard": "verified_adapter_and_execution_binding",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "e2ag.decide"
+    },
+    {
+      "operation_id": "workforce_post_api_workforce_v1_work_items_id_transitions",
+      "method": "POST",
+      "path": "/api/workforce/v1/work-items/{id}/transitions",
+      "action": "workitem.transition",
+      "guard": "workspace_acl_and_business_role",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "workforce.write"
+    },
+    {
+      "operation_id": "workforce_post_api_workforce_v1_approvals_id_resolve",
+      "method": "POST",
+      "path": "/api/workforce/v1/approvals/{id}/resolve",
+      "action": "approval.resolve",
+      "guard": "assigned_approver_and_separation_of_duties",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "approval.resolve"
+    },
+    {
+      "operation_id": "review_get_api_apps_review_v1_scopes_id",
+      "method": "GET",
+      "path": "/api/apps/review/v1/scopes/{id}",
+      "action": "review.scope.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "review.read"
+    },
+    {
+      "operation_id": "review_get_api_apps_review_v1_scopes_id_revisions",
+      "method": "GET",
+      "path": "/api/apps/review/v1/scopes/{id}/revisions",
+      "action": "review.scope.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "review.read"
+    },
+    {
+      "operation_id": "review_get_api_apps_review_v1_revisions_id_coverage",
+      "method": "GET",
+      "path": "/api/apps/review/v1/revisions/{id}/coverage",
+      "action": "review.coverage.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "review.read"
+    },
+    {
+      "operation_id": "review_post_api_apps_review_v1_query",
+      "method": "POST",
+      "path": "/api/apps/review/v1/query",
+      "action": "review.query",
+      "guard": "workspace_scope_and_source_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "review.read"
+    },
+    {
+      "operation_id": "review_post_api_apps_review_v1_exports",
+      "method": "POST",
+      "path": "/api/apps/review/v1/exports",
+      "action": "review.export",
+      "guard": "workspace_scope_and_source_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true,
+      "previous_permission_metadata": "review.export"
+    },
+    {
+      "operation_id": "authorization_admit_post",
+      "method": "POST",
+      "path": "/api/internal/v1/authorization/admissions",
+      "action": "authorization.admit",
+      "guard": "verified_delegation_and_scope_intersection",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true
+    },
+    {
+      "operation_id": "authorization_issue_post",
+      "method": "POST",
+      "path": "/api/internal/v1/authorization/grants",
+      "action": "authorization.issue",
+      "guard": "scheduler_owned_execution_binding",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true
+    },
+    {
+      "operation_id": "authorization_renew_post",
+      "method": "POST",
+      "path": "/api/internal/v1/authorization/grants/{id}/renew",
+      "action": "authorization.renew",
+      "guard": "unchanged_binding_and_current_scope",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true
+    },
+    {
+      "operation_id": "authorization_evidence_read_get",
+      "method": "GET",
+      "path": "/api/os/v1/authorization/decisions/{id}",
+      "action": "authorization.evidence.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true
+    },
+    {
+      "operation_id": "approval_read_get",
+      "method": "GET",
+      "path": "/api/os/v1/authorization/approvals/{id}",
+      "action": "approval.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true
+    },
+    {
+      "operation_id": "approval_consume_post",
+      "method": "POST",
+      "path": "/api/internal/v1/authorization/approvals/{id}/consume",
+      "action": "approval.consume",
+      "guard": "current_owner_and_single_use_approval",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true
+    },
+    {
+      "operation_id": "authorization_revoke_post",
+      "method": "POST",
+      "path": "/api/os/v1/authorization/revocations",
+      "action": "authorization.revoke",
+      "guard": "issuer_or_scoped_revocation_administrator",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true
+    },
+    {
+      "operation_id": "authorization_revocation_read_get",
+      "method": "GET",
+      "path": "/api/os/v1/authorization/revocations/{id}",
+      "action": "authorization.revocation.read",
+      "guard": "object_acl",
+      "object_source": "server_resolved",
+      "deny_on_missing_scope": true
+    }
+  ],
+  "roles": {
+    "business_user": [
+      "own_workspace_read",
+      "assigned_work_submit"
+    ],
+    "business_manager": [
+      "scoped_work_manage"
+    ],
+    "approver": [
+      "assigned_approval_resolve"
+    ],
+    "platform_operator": [
+      "scoped_worker_drain",
+      "runtime_metadata_read"
+    ],
+    "security_admin": [
+      "scoped_policy_manage",
+      "scoped_revoke"
+    ],
+    "worker": [
+      "claim_assigned_partition",
+      "report_owned_attempt"
+    ],
+    "protocol_adapter": [
+      "evaluate_bound_actions"
+    ]
+  },
+  "role_rule": "Roles select candidate actions; object ACL and delegation intersection remain mandatory. Infrastructure roles do not imply business-data read."
+}

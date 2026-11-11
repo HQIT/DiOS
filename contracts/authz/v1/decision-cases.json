@@ -1,0 +1,983 @@
+{
+  "profile": "dios.authz.managed.v1",
+  "scope": "reference decision inputs; authenticated facts originate from trusted services in implementation",
+  "base": {
+    "authenticated": true,
+    "credential_context_valid": true,
+    "sender_bound": true,
+    "actor_ref": "worker-service-1",
+    "registered_actor_ref": "worker-service-1",
+    "binding": {
+      "run_id": "run-1",
+      "attempt_id": "attempt-1",
+      "session_id": "session-1",
+      "worker_id": "worker-1",
+      "lease_epoch": 7,
+      "policy_version": "policy-3",
+      "principal_ref": "workload-1",
+      "delegation_ref": "delegation-1"
+    },
+    "expected_binding": {
+      "run_id": "run-1",
+      "attempt_id": "attempt-1",
+      "session_id": "session-1",
+      "worker_id": "worker-1",
+      "lease_epoch": 7,
+      "policy_version": "policy-3",
+      "principal_ref": "workload-1",
+      "delegation_ref": "delegation-1"
+    },
+    "lease_expires_at": 1060,
+    "now": 1000,
+    "grant_status": "active",
+    "grant_expires_at": 1600,
+    "workload_expires_at": 9000,
+    "policy_version": "policy-3",
+    "authorization_epoch": 5,
+    "current_authorization_epoch": 5,
+    "revocation_checked_at": 1000,
+    "authority_available": true,
+    "audit_available": true,
+    "admission_governance_complete": true,
+    "control_evidence": "tested",
+    "control_point": "sandbox",
+    "required_control_point": "sandbox",
+    "resource_verified": true,
+    "parameters_validated": true,
+    "action": "snapshot.read",
+    "resource_id": "snapshot-1",
+    "resource_version": "sha-1",
+    "constraint_revision": "constraints-1",
+    "parameters": {
+      "path": "src/module.py",
+      "max_bytes": 4096
+    },
+    "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+    "scope_layers": {
+      "caller": [
+        {
+          "action": "snapshot.read",
+          "resource_id": "snapshot-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "snapshot"
+        },
+        {
+          "action": "artifact.write",
+          "resource_id": "output-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "artifact"
+        },
+        {
+          "action": "model.invoke",
+          "resource_id": "model-endpoint-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "model_endpoint"
+        },
+        {
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "customer"
+        }
+      ],
+      "service": [
+        {
+          "action": "snapshot.read",
+          "resource_id": "snapshot-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "snapshot"
+        },
+        {
+          "action": "artifact.write",
+          "resource_id": "output-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "artifact"
+        },
+        {
+          "action": "model.invoke",
+          "resource_id": "model-endpoint-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "model_endpoint"
+        },
+        {
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "customer"
+        }
+      ],
+      "workload": [
+        {
+          "action": "snapshot.read",
+          "resource_id": "snapshot-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "snapshot"
+        },
+        {
+          "action": "artifact.write",
+          "resource_id": "output-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "artifact"
+        },
+        {
+          "action": "model.invoke",
+          "resource_id": "model-endpoint-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "model_endpoint"
+        },
+        {
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "customer"
+        }
+      ],
+      "resource": [
+        {
+          "action": "snapshot.read",
+          "resource_id": "snapshot-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "snapshot"
+        },
+        {
+          "action": "artifact.write",
+          "resource_id": "output-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "artifact"
+        },
+        {
+          "action": "model.invoke",
+          "resource_id": "model-endpoint-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "model_endpoint"
+        },
+        {
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "constraint_revision": "constraints-1",
+          "resource_kind": "customer"
+        }
+      ]
+    },
+    "grant_permissions": [
+      {
+        "action": "snapshot.read",
+        "resource_id": "snapshot-1",
+        "resource_version": "sha-1",
+        "constraint_revision": "constraints-1",
+        "resource_kind": "snapshot"
+      },
+      {
+        "action": "artifact.write",
+        "resource_id": "output-1",
+        "resource_version": "sha-1",
+        "constraint_revision": "constraints-1",
+        "resource_kind": "artifact"
+      },
+      {
+        "action": "model.invoke",
+        "resource_id": "model-endpoint-1",
+        "resource_version": "sha-1",
+        "constraint_revision": "constraints-1",
+        "resource_kind": "model_endpoint"
+      },
+      {
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "resource_version": "sha-1",
+        "constraint_revision": "constraints-1",
+        "resource_kind": "customer"
+      }
+    ],
+    "readonly_profile": true,
+    "budget_available": true,
+    "approval": null,
+    "resource_kind": "snapshot"
+  },
+  "cases": [
+    {
+      "name": "authorized_snapshot_read",
+      "overrides": {},
+      "expected": {
+        "verdict": "allow",
+        "reason": "AUTHORIZED"
+      }
+    },
+    {
+      "name": "unauthenticated",
+      "overrides": {
+        "authenticated": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "AUTH_INVALID"
+      }
+    },
+    {
+      "name": "wrong_audience",
+      "overrides": {
+        "credential_context_valid": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "CREDENTIAL_CONTEXT_INVALID"
+      }
+    },
+    {
+      "name": "stolen_token_other_host",
+      "overrides": {
+        "sender_bound": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SENDER_MISMATCH"
+      }
+    },
+    {
+      "name": "forged_worker",
+      "overrides": {
+        "actor_ref": "attacker"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "ACTOR_MISMATCH"
+      }
+    },
+    {
+      "name": "employee_label_not_authority",
+      "overrides": {
+        "binding.principal_ref": "employee-admin-label"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "BINDING_CHANGED"
+      }
+    },
+    {
+      "name": "old_attempt",
+      "overrides": {
+        "binding.attempt_id": "attempt-old"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "BINDING_CHANGED"
+      }
+    },
+    {
+      "name": "old_session",
+      "overrides": {
+        "binding.session_id": "session-old"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "BINDING_CHANGED"
+      }
+    },
+    {
+      "name": "old_epoch",
+      "overrides": {
+        "binding.lease_epoch": 6
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "BINDING_CHANGED"
+      }
+    },
+    {
+      "name": "expired_lease",
+      "overrides": {
+        "lease_expires_at": 1000
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "STALE_OWNER"
+      }
+    },
+    {
+      "name": "revoked_grant",
+      "overrides": {
+        "grant_status": "revoked"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "GRANT_INACTIVE"
+      }
+    },
+    {
+      "name": "expired_grant",
+      "overrides": {
+        "grant_expires_at": 1000
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "GRANT_EXPIRED"
+      }
+    },
+    {
+      "name": "expired_workload",
+      "overrides": {
+        "workload_expires_at": 1000
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "WORKLOAD_EXPIRED"
+      }
+    },
+    {
+      "name": "new_policy",
+      "overrides": {
+        "policy_version": "policy-4"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "POLICY_CHANGED"
+      }
+    },
+    {
+      "name": "revoked_subject",
+      "overrides": {
+        "current_authorization_epoch": 6
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "AUTH_REVOKED"
+      }
+    },
+    {
+      "name": "stale_revocation_cache",
+      "overrides": {
+        "revocation_checked_at": 997
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "AUTH_STATE_STALE"
+      }
+    },
+    {
+      "name": "future_cache_timestamp",
+      "overrides": {
+        "revocation_checked_at": 1001
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "AUTH_STATE_STALE"
+      }
+    },
+    {
+      "name": "authority_outage",
+      "overrides": {
+        "authority_available": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "AUTHORITY_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "audit_unavailable",
+      "overrides": {
+        "audit_available": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "AUDIT_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "ungoverned_managed_agent",
+      "overrides": {
+        "admission_governance_complete": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "GOVERNANCE_MISSING"
+      }
+    },
+    {
+      "name": "tool_events_only",
+      "overrides": {
+        "control_evidence": "observed"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "CONTROL_UNVERIFIED"
+      }
+    },
+    {
+      "name": "native_tool_bypasses_mcp",
+      "overrides": {
+        "control_point": "mcp_gateway"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "CONTROL_MISMATCH"
+      }
+    },
+    {
+      "name": "path_escape_or_symlink",
+      "overrides": {
+        "resource_verified": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "RESOURCE_UNVERIFIED"
+      }
+    },
+    {
+      "name": "untrusted_analyzer_config",
+      "overrides": {
+        "parameters_validated": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "PARAMETERS_INVALID"
+      }
+    },
+    {
+      "name": "changed_parameters",
+      "overrides": {
+        "parameters.max_bytes": 8192
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "PARAMETER_DIGEST_MISMATCH"
+      }
+    },
+    {
+      "name": "caller_acl_missing",
+      "overrides": {
+        "scope_layers.caller": []
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "service_overreach",
+      "overrides": {
+        "scope_layers.service": []
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "workload_overreach",
+      "overrides": {
+        "scope_layers.workload": []
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "source_acl_revoked",
+      "overrides": {
+        "scope_layers.resource": []
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "grant_scope_missing",
+      "overrides": {
+        "grant_permissions": []
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "cross_repo_read",
+      "overrides": {
+        "resource_id": "snapshot-other",
+        "resource_kind": "snapshot"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "model_egress_wrong_endpoint",
+      "overrides": {
+        "action": "model.invoke",
+        "resource_id": "external-unknown",
+        "resource_kind": "model_endpoint"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "source_write",
+      "overrides": {
+        "action": "repo.write"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "READ_ONLY_REQUIRED"
+      }
+    },
+    {
+      "name": "repository_build_or_test",
+      "overrides": {
+        "action": "repo.execute"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "READ_ONLY_REQUIRED"
+      }
+    },
+    {
+      "name": "native_shell",
+      "overrides": {
+        "action": "shell.execute"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "READ_ONLY_REQUIRED"
+      }
+    },
+    {
+      "name": "unapproved_network",
+      "overrides": {
+        "action": "network.unapproved"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "READ_ONLY_REQUIRED"
+      }
+    },
+    {
+      "name": "quota_budget",
+      "overrides": {
+        "budget_available": false
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "BUDGET_EXHAUSTED"
+      }
+    },
+    {
+      "name": "no_cartesian_scope_expansion",
+      "overrides": {
+        "action": "artifact.write",
+        "resource_id": "snapshot-1",
+        "resource_kind": "snapshot"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "external_action_requires_approval",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "approval_required",
+        "reason": "APPROVAL_REQUIRED"
+      }
+    },
+    {
+      "name": "approved_bound_action",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+          "policy_version": "policy-3",
+          "authorization_epoch": 5,
+          "permission_digest": "sha256:c6b609d8b19256b7dcf2f2cc754abc1e4ab2203b2739191afdf45d7708b3ba16",
+          "expires_at": 1300,
+          "status": "approved",
+          "approver_authorized": true,
+          "separation_of_duties": true,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "allow",
+        "reason": "AUTHORIZED"
+      }
+    },
+    {
+      "name": "approval_replay",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+          "policy_version": "policy-3",
+          "authorization_epoch": 5,
+          "permission_digest": "sha256:c6b609d8b19256b7dcf2f2cc754abc1e4ab2203b2739191afdf45d7708b3ba16",
+          "expires_at": 1300,
+          "status": "consumed",
+          "approver_authorized": true,
+          "separation_of_duties": true,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "APPROVAL_REPLAY"
+      }
+    },
+    {
+      "name": "approval_expired",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+          "policy_version": "policy-3",
+          "authorization_epoch": 5,
+          "permission_digest": "sha256:c6b609d8b19256b7dcf2f2cc754abc1e4ab2203b2739191afdf45d7708b3ba16",
+          "expires_at": 1000,
+          "status": "approved",
+          "approver_authorized": true,
+          "separation_of_duties": true,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "APPROVAL_EXPIRED"
+      }
+    },
+    {
+      "name": "self_approval",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+          "policy_version": "policy-3",
+          "authorization_epoch": 5,
+          "permission_digest": "sha256:c6b609d8b19256b7dcf2f2cc754abc1e4ab2203b2739191afdf45d7708b3ba16",
+          "expires_at": 1300,
+          "status": "approved",
+          "approver_authorized": true,
+          "separation_of_duties": false,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "APPROVER_INVALID"
+      }
+    },
+    {
+      "name": "removed_approver",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+          "policy_version": "policy-3",
+          "authorization_epoch": 5,
+          "permission_digest": "sha256:c6b609d8b19256b7dcf2f2cc754abc1e4ab2203b2739191afdf45d7708b3ba16",
+          "expires_at": 1300,
+          "status": "approved",
+          "approver_authorized": false,
+          "separation_of_duties": true,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "APPROVER_INVALID"
+      }
+    },
+    {
+      "name": "approval_parameter_swap",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "policy_version": "policy-3",
+          "authorization_epoch": 5,
+          "permission_digest": "sha256:c6b609d8b19256b7dcf2f2cc754abc1e4ab2203b2739191afdf45d7708b3ba16",
+          "expires_at": 1300,
+          "status": "approved",
+          "approver_authorized": true,
+          "separation_of_duties": true,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "APPROVAL_BINDING_CHANGED"
+      }
+    },
+    {
+      "name": "approval_old_scope",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+          "policy_version": "policy-3",
+          "authorization_epoch": 5,
+          "permission_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "expires_at": 1300,
+          "status": "approved",
+          "approver_authorized": true,
+          "separation_of_duties": true,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "APPROVAL_BINDING_CHANGED"
+      }
+    },
+    {
+      "name": "approval_old_epoch",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+          "policy_version": "policy-3",
+          "authorization_epoch": 4,
+          "permission_digest": "sha256:c6b609d8b19256b7dcf2f2cc754abc1e4ab2203b2739191afdf45d7708b3ba16",
+          "expires_at": 1300,
+          "status": "approved",
+          "approver_authorized": true,
+          "separation_of_duties": true,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "APPROVAL_BINDING_CHANGED"
+      }
+    },
+    {
+      "name": "approval_cannot_override_denial",
+      "overrides": {
+        "readonly_profile": false,
+        "action": "business.send",
+        "resource_id": "customer-1",
+        "scope_layers.caller": [],
+        "approval": {
+          "binding": {
+            "run_id": "run-1",
+            "attempt_id": "attempt-1",
+            "session_id": "session-1",
+            "worker_id": "worker-1",
+            "lease_epoch": 7,
+            "policy_version": "policy-3",
+            "principal_ref": "workload-1",
+            "delegation_ref": "delegation-1"
+          },
+          "action": "business.send",
+          "resource_id": "customer-1",
+          "resource_version": "sha-1",
+          "parameter_digest": "sha256:53752de502d007d509ef7604e641b1bf4bc0d2c8a98c54626dc692b4439a8adf",
+          "policy_version": "policy-3",
+          "authorization_epoch": 5,
+          "permission_digest": "sha256:c6b609d8b19256b7dcf2f2cc754abc1e4ab2203b2739191afdf45d7708b3ba16",
+          "expires_at": 1300,
+          "status": "approved",
+          "approver_authorized": true,
+          "separation_of_duties": true,
+          "resource_kind": "customer"
+        },
+        "resource_kind": "customer"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    },
+    {
+      "name": "quota_restored",
+      "overrides": {},
+      "expected": {
+        "verdict": "allow",
+        "reason": "AUTHORIZED"
+      }
+    },
+    {
+      "name": "string_claim_not_boolean",
+      "overrides": {
+        "authenticated": "true"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "CONTEXT_INVALID"
+      }
+    },
+    {
+      "name": "missing_scope_layer",
+      "overrides": {
+        "scope_layers": {}
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "CONTEXT_INVALID"
+      }
+    },
+    {
+      "name": "same_id_different_resource_kind",
+      "overrides": {
+        "resource_kind": "secret"
+      },
+      "expected": {
+        "verdict": "deny",
+        "reason": "SCOPE_DENIED"
+      }
+    }
+  ]
+}

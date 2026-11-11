@@ -1,0 +1,41 @@
+{
+  "profile": "dios.authz.managed.v1",
+  "version": "1.0.0",
+  "default_effect": "deny",
+  "admission_redeem_ttl_seconds": 900,
+  "workload_default_deadline_seconds": 86400,
+  "execution_grant_ttl_seconds": 900,
+  "grant_renew_interval_seconds": 300,
+  "decision_ttl_seconds": 5,
+  "approval_ttl_seconds": 600,
+  "lease_ttl_seconds": 60,
+  "lease_renew_seconds": 20,
+  "revocation_p99_seconds": 5,
+  "control_cache_max_seconds": 2,
+  "maximum_delegation_depth": 3,
+  "required_scope_layers": [
+    "caller",
+    "service",
+    "workload",
+    "resource"
+  ],
+  "managed_control_evidence": "tested",
+  "readonly_forbidden_actions": [
+    "repo.write",
+    "repo.execute",
+    "shell.execute",
+    "network.unapproved"
+  ],
+  "approval_actions": [
+    "business.send",
+    "data.export_external"
+  ],
+  "offline_execution_permitted": false,
+  "authorization_optimization_invariants": [
+    "current_policy_and_epoch",
+    "scope_intersection",
+    "intent_before_effect",
+    "single_consumption",
+    "unknown_result_reconciliation"
+  ]
+}

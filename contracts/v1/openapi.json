@@ -2,8 +2,8 @@
   "openapi": "3.1.1",
   "info": {
     "title": "DiOS target contract",
-    "version": "1.0.0",
-    "description": "Design contract; runtime implementation tracked separately in P1/P2."
+    "version": "1.1.0",
+    "description": "Design contract; runtime implementation tracked separately in P1/P2. Authorization metadata refined by #27 before runtime delivery; required profile dios.authz.managed.v1."
   },
   "security": [
     {
@@ -139,7 +139,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "run.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       },
       "post": {
         "operationId": "os_post_api_os_v1_runs",
@@ -271,7 +272,8 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/runs/{id}": {
@@ -395,7 +397,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "run.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/workers": {
@@ -526,7 +529,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "worker.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/workers/{id}": {
@@ -650,7 +654,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "worker.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/implementations": {
@@ -781,7 +786,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "implementation.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/implementations/{id}": {
@@ -905,7 +911,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "implementation.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/workforce/v1/employees": {
@@ -1036,7 +1043,8 @@
             }
           }
         },
-        "x-permission": "workforce.read"
+        "x-permission": "employee.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/workforce/v1/employees/{id}": {
@@ -1160,7 +1168,8 @@
             }
           }
         },
-        "x-permission": "workforce.read"
+        "x-permission": "employee.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/workforce/v1/work-items": {
@@ -1291,7 +1300,8 @@
             }
           }
         },
-        "x-permission": "workforce.read"
+        "x-permission": "workitem.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       },
       "post": {
         "operationId": "workforce_post_api_workforce_v1_work_items",
@@ -1413,7 +1423,7 @@
             }
           }
         },
-        "x-permission": "workforce.write",
+        "x-permission": "workitem.create",
         "requestBody": {
           "required": true,
           "content": {
@@ -1423,7 +1433,8 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/workforce/v1/work-items/{id}": {
@@ -1547,7 +1558,8 @@
             }
           }
         },
-        "x-permission": "workforce.read"
+        "x-permission": "workitem.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/runs/{id}/attempts": {
@@ -1689,7 +1701,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "attempt.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/runs/{id}/cancel": {
@@ -1843,7 +1856,8 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/sessions/{id}": {
@@ -1967,7 +1981,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "session.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/events": {
@@ -2098,7 +2113,8 @@
             }
           }
         },
-        "x-permission": "os.read"
+        "x-permission": "event.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/workers/{id}/drain": {
@@ -2252,7 +2268,8 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/internal/v1/claims": {
@@ -2395,7 +2412,8 @@
             "bearerAuth": [],
             "machineMTLS": []
           }
-        ]
+        ],
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/internal/v1/leases/{id}/renew": {
@@ -2546,7 +2564,8 @@
             "bearerAuth": [],
             "machineMTLS": []
           }
-        ]
+        ],
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/internal/v1/attempts/{id}/report": {
@@ -2697,7 +2716,8 @@
             "bearerAuth": [],
             "machineMTLS": []
           }
-        ]
+        ],
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/internal/v1/artifacts": {
@@ -2837,7 +2857,8 @@
             "bearerAuth": [],
             "machineMTLS": []
           }
-        ]
+        ],
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/internal/v1/artifacts/{id}/seal": {
@@ -2988,7 +3009,8 @@
             "bearerAuth": [],
             "machineMTLS": []
           }
-        ]
+        ],
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/os/v1/artifacts/{id}": {
@@ -3112,7 +3134,8 @@
             }
           }
         },
-        "x-permission": "artifact.read"
+        "x-permission": "artifact.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/internal/v1/e2ag/decisions": {
@@ -3252,7 +3275,8 @@
             "bearerAuth": [],
             "machineMTLS": []
           }
-        ]
+        ],
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/workforce/v1/work-items/{id}/transitions": {
@@ -3396,7 +3420,7 @@
             }
           }
         },
-        "x-permission": "workforce.write",
+        "x-permission": "workitem.transition",
         "requestBody": {
           "required": true,
           "content": {
@@ -3406,7 +3430,8 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/workforce/v1/approvals/{id}/resolve": {
@@ -3560,7 +3585,8 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/apps/review/v1/scopes/{id}": {
@@ -3684,7 +3710,8 @@
             }
           }
         },
-        "x-permission": "review.read"
+        "x-permission": "review.scope.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/apps/review/v1/scopes/{id}/revisions": {
@@ -3826,7 +3853,8 @@
             }
           }
         },
-        "x-permission": "review.read"
+        "x-permission": "review.scope.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/apps/review/v1/revisions/{id}/coverage": {
@@ -3968,7 +3996,8 @@
             }
           }
         },
-        "x-permission": "review.read"
+        "x-permission": "review.coverage.read",
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/apps/review/v1/query": {
@@ -4080,7 +4109,7 @@
             }
           }
         },
-        "x-permission": "review.read",
+        "x-permission": "review.query",
         "requestBody": {
           "required": true,
           "content": {
@@ -4090,7 +4119,8 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     },
     "/api/apps/review/v1/exports": {
@@ -4224,7 +4254,8 @@
               }
             }
           }
-        }
+        },
+        "x-authorization-profile": "dios.authz.managed.v1"
       }
     }
   },
