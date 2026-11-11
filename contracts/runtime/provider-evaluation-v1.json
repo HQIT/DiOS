@@ -1,13 +1,15 @@
 {
   "version": "1.0.0",
-  "status": "benchmark_design",
-  "decision": "backend_unselected",
+  "status": "single_node_comparison_complete",
+  "decision": "profile_based_productization_candidates",
   "reference": "sqlite-postgresql-workspace-serialized",
   "candidates": [
     "relational-object-scoped",
     "transactional-kv",
     "distributed-sql",
-    "coordination-and-durable-journal"
+    "coordination-and-durable-journal",
+    "embedded-sqlite-wal",
+    "embedded-transactional-kv"
   ],
   "concurrency": [
     1,
@@ -60,5 +62,32 @@
     "replication_failure_tolerance",
     "warmup_measurement_drain_windows"
   ],
-  "results": null
+  "results": {
+    "summary": "docs/design/evidence/provider-summary-20261111.json",
+    "report": "docs/design/provider-selection-32.md",
+    "correctness": "docs/design/evidence/provider-correctness-20261111.json",
+    "cases": 198,
+    "scope": "single-node local synchronous intent commits; no real tool execution or HA certification"
+  },
+  "deployment_profiles": {
+    "lightweight": {
+      "candidates": [
+        "sqlite-wal",
+        "lmdb-txn"
+      ],
+      "next": "bounded fair write queue, mixed workload and backup/restore acceptance before freezing default"
+    },
+    "shared_transaction_service": {
+      "preferred_next_implementation": "pg-row",
+      "production_gate": "cross-object authorization, replicated failure handling and mixed capacity acceptance"
+    }
+  },
+  "untested_required_dimensions": [
+    "replicated HA and host power loss",
+    "full cross-run authorization root and PEP",
+    "long duration mixed query/write workload",
+    "disk-full and durable write amplification",
+    "production backup/restore",
+    "actual harness workload"
+  ]
 }

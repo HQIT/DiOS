@@ -1,7 +1,7 @@
 # DS-F01-2：容量、SLO 与部署设计 v1
 
 状态：已接受（P0 参数化设计） · 日期：2026-11-11 · 任务：[#26](https://github.com/HQIT/DiOS/issues/26)。
-依据：ARCH-BASELINE-0.3、AP-05/08/11/13、持续评审负载、#57。编制与计算核验：Codex；容量依据：用户确认“小型试点与多节点扩展两档假设”。实测性能和模型价格保持未知。
+依据：ARCH-BASELINE-0.3、AP-05/08/11/13、持续评审负载、#57。编制与计算核验：Codex；容量依据：用户确认“小型试点与多节点扩展两档假设”。业务容量与企业性能仍待实测，模型价格待确认；局部意图事务实测见本页末尾的存储比较。
 
 ## 1. 两档输入与容量结果
 
@@ -38,7 +38,7 @@
 
 控制面通过事务状态与持久队列调度 Worker；Worker 经协议 Adapter 和 E2AG 访问模型及工具。小事件驱动查询投影，大产物独立进入对象存储。
 
-权威状态后端由 [ADR 0008](../adr/0008-governance-semantics-and-provider-selection.md) 的统一实验选型。PostgreSQL/SQLite 保留为参考实现；生产候选包括对象粒度关系事务、事务 KV 与分布式 SQL。Repository 约束原子认领、epoch/version 和状态/事件可恢复性，允许不同实现机制。单进程开发可用 SQLite；企业容量与复制假设需按最终候选复算。
+权威状态后端由 [ADR 0008](../adr/0008-governance-semantics-and-provider-selection.md) 的统一实验选型。PostgreSQL/SQLite 保留为参考实现；生产候选包括对象粒度关系事务、事务 KV 与分布式 SQL。Repository 约束原子认领、epoch/version 和状态/事件可恢复性，允许不同实现机制。轻量控制服务可通过 API 管理跨主机 Worker，SQLite WAL/LMDB 按 ADR 0009 验证；数据库文件仅在服务主机访问。共享事务路线优先产品化 PG 对象粒度实现，企业容量与复制假设按最终候选复算。
 
 产物使用内容寻址的对象存储 Provider；单机可用文件系统，企业使用支持校验、权限、生命周期和可靠复制的对象服务，具体产品由 #32/#52 选择。相同摘要的复用仍经过权限域校验。跨主机只暴露 API/受限对象访问，Worker 不持有数据库管理员凭据。机器 mTLS、短期服务身份、Secret 引用和日志脱敏进入 #27/#33。
 
@@ -116,3 +116,7 @@
 #30/#32 实现后端中立的认领与状态/事件契约，并按 ADR 0008 比较候选，#52/#53 固定产品版本、部署、备份和故障切换，#27/#33 落实跨主机身份与授权，#46/#54 建立性能证据。并发实验同时比较锁粒度、证据布局、事务次数及后端；按相同持久保证与故障矩阵验收。
 
 技术依据：[PostgreSQL 18 SELECT / SKIP LOCKED](https://www.postgresql.org/docs/18/sql-select.html) 支持队列型竞争领取；原子领取、fencing 和 outbox 的组合是本项目设计，仍须数据库竞争测试。决议见 [ADR 0006](../adr/0006-durable-contract-and-storage.md)。
+
+## 存储实现比较
+
+[单节点实验](provider-selection-32.md) 记录意图提交路径及故障证据；既定峰值写入仍为业务假设。轻量控制服务与共享事务服务按 [ADR 0009](../adr/0009-lightweight-and-shared-runtime-storage.md) 分档验证。控制面多副本、复制 RPO 与备份恢复继续作为独立验收项。

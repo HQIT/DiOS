@@ -1,0 +1,111 @@
+{
+  "containers": [
+    {
+      "name": "dios-p32-pg",
+      "image": "sha256:108b27c919e6e7bc124350fb265deea9adac58e118eade428c6d1ad44b90debe",
+      "image_tag": "postgres:16-alpine",
+      "cpu_quota_nanos": 2000000000,
+      "memory_bytes": 1073741824,
+      "command": [
+        "postgres",
+        "-c",
+        "shared_buffers=256MB",
+        "-c",
+        "max_connections=80",
+        "-c",
+        "fsync=on",
+        "-c",
+        "synchronous_commit=on"
+      ]
+    },
+    {
+      "name": "dios-p32-mysql",
+      "image": "sha256:6cd09145362dfe6831b14545de3d5fd6cc75c37cfd6ef8561429c1fc73518b39",
+      "image_tag": "mysql:8.0",
+      "cpu_quota_nanos": 2000000000,
+      "memory_bytes": 1073741824,
+      "command": [
+        "--innodb-buffer-pool-size=268435456",
+        "--innodb-flush-log-at-trx-commit=1",
+        "--sync-binlog=1",
+        "--max-connections=80"
+      ]
+    },
+    {
+      "name": "dios-p32-etcd",
+      "image": "sha256:a3e246e9556e93d71e2850085ba581b376c76a9187b4b8a01c120f86579ef2b1",
+      "image_tag": "quay.io/coreos/etcd:v3.6.5",
+      "cpu_quota_nanos": 2000000000,
+      "memory_bytes": 1073741824,
+      "command": [
+        "/usr/local/bin/etcd",
+        "--name=p32",
+        "--data-dir=/etcd-data",
+        "--listen-client-urls=http://0.0.0.0:2379",
+        "--advertise-client-urls=http://127.0.0.1:2379",
+        "--listen-peer-urls=http://127.0.0.1:2380",
+        "--initial-advertise-peer-urls=http://127.0.0.1:2380",
+        "--initial-cluster=p32=http://127.0.0.1:2380",
+        "--quota-backend-bytes=536870912"
+      ]
+    },
+    {
+      "name": "dios-p32-sqlite",
+      "image": "sha256:05975ae116fff8b2cc4ee3abd3f2072379b7ba527c978cc98c7baaa7c73b7856",
+      "image_tag": "dios-p32-embedded:experiment",
+      "cpu_quota_nanos": 2000000000,
+      "memory_bytes": 1073741824,
+      "command": [
+        "--kind",
+        "sqlite"
+      ]
+    },
+    {
+      "name": "dios-p32-lmdb",
+      "image": "sha256:05975ae116fff8b2cc4ee3abd3f2072379b7ba527c978cc98c7baaa7c73b7856",
+      "image_tag": "dios-p32-embedded:experiment",
+      "cpu_quota_nanos": 2000000000,
+      "memory_bytes": 1073741824,
+      "command": [
+        "--kind",
+        "lmdb"
+      ]
+    }
+  ],
+  "docker": 16,
+  "client_os": "WSL2 Linux 6.18.33.2",
+  "client_affinity_cpus": [
+    0,
+    1
+  ],
+  "client_python": "3.12.3",
+  "server_versions": {
+    "PostgreSQL": "16.13",
+    "MySQL": "8.0.46",
+    "etcd": "3.6.5",
+    "SQLite": "3.51.3",
+    "APSW": "3.51.3.0",
+    "LMDB": "0.9.33",
+    "py-lmdb": "1.7.5",
+    "embedded_python": "3.12.12"
+  },
+  "pool_slots": 32,
+  "durability": "single-node local synchronous acknowledgment; no replica/HA claim",
+  "production_services_touched": false,
+  "embedded_base_image": "sha256:4d2db696665caf6bbae83beb8995bdd05ce41f832ea82900f6e595a14275a0c0",
+  "embedded_settings": {
+    "sqlite": {
+      "journal_mode": "WAL",
+      "synchronous": "FULL",
+      "cache_kib_per_connection": 8192,
+      "busy_timeout_ms": 30000
+    },
+    "lmdb": {
+      "sync": true,
+      "metasync": true,
+      "writemap": false,
+      "map_size_bytes": 2147483648
+    },
+    "gateway": "identical TCP JSON server for SQLite/LMDB; state transition executes server-side"
+  }
+}

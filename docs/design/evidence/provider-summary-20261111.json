@@ -1,0 +1,2864 @@
+{
+  "scope": "single-node intent commit; repeated-round medians and min/max, not confidence intervals",
+  "inputs": [
+    {
+      "path": "docs/design/evidence/provider-benchmark-20261111.jsonl",
+      "sha256": "d95e8fc32f2888a12035c9ee85167725c421c3ffc9aac1ea88a965dadb9b3cf2"
+    },
+    {
+      "path": "docs/design/evidence/provider-lightweight-20261111.jsonl",
+      "sha256": "e281816b76efb18479d2bcd0001c6cd510e5ec17c8911fc39a08ac5bafac99c9"
+    },
+    {
+      "path": "docs/design/evidence/provider-lightweight-arrival-20261111.jsonl",
+      "sha256": "bb23ca354ee3bc0d96a961dd7e996552254bc2779efc090b5d38618c70af4362"
+    },
+    {
+      "path": "docs/design/evidence/provider-confirmation-20261111.jsonl",
+      "sha256": "479ba04a4f775f2b4c59a2a8a7bed3be613e297398eedbb27c8a8cad53dda900"
+    }
+  ],
+  "cases": 198,
+  "groups": [
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 500,
+      "rounds": 3,
+      "throughput": {
+        "median": 499.2,
+        "min": 498.8,
+        "max": 499.2
+      },
+      "p99_ms": {
+        "median": 32.34,
+        "min": 26.6399,
+        "max": 44.6419
+      },
+      "p50_ms": {
+        "median": 9.333,
+        "min": 8.5643,
+        "max": 9.4778
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.081,
+        "min": 1.0079200000000001,
+        "max": 1.0947200000000001
+      },
+      "memory_end_mib": {
+        "median": 315.73046875,
+        "min": 137.4296875,
+        "max": 434.046875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 7500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "uniform",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 112.2,
+        "min": 109.2,
+        "max": 113.0
+      },
+      "p99_ms": {
+        "median": 13.7029,
+        "min": 13.6362,
+        "max": 14.1233
+      },
+      "p50_ms": {
+        "median": 8.5958,
+        "min": 8.5427,
+        "max": 9.0327
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.5485865724381624,
+        "min": 1.479707495429616,
+        "max": 1.6654804270462633
+      },
+      "memory_end_mib": {
+        "median": 317.90625,
+        "min": 124.04296875,
+        "max": 360.8984375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1675,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "uniform",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 39.2,
+        "min": 37.6,
+        "max": 40.4
+      },
+      "p99_ms": {
+        "median": 45.7102,
+        "min": 41.9156,
+        "max": 51.9564
+      },
+      "p50_ms": {
+        "median": 24.2958,
+        "min": 23.8407,
+        "max": 25.0783
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 4.970558375634518,
+        "min": 4.857142857142857,
+        "max": 5.122751322751323
+      },
+      "memory_end_mib": {
+        "median": 697.421875,
+        "min": 486.63671875,
+        "max": 800.13671875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 589,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 100,
+      "rounds": 3,
+      "throughput": {
+        "median": 99.4,
+        "min": 99.2,
+        "max": 99.4
+      },
+      "p99_ms": {
+        "median": 61.743,
+        "min": 53.6295,
+        "max": 71.4922
+      },
+      "p50_ms": {
+        "median": 32.5683,
+        "min": 31.1499,
+        "max": 33.7567
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 3.2576,
+        "min": 3.2214,
+        "max": 3.4216
+      },
+      "memory_end_mib": {
+        "median": 666.12109375,
+        "min": 501.12109375,
+        "max": 799.3515625
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 100,
+      "rounds": 3,
+      "throughput": {
+        "median": 99.8,
+        "min": 99.8,
+        "max": 100.0
+      },
+      "p99_ms": {
+        "median": 14.4709,
+        "min": 13.3478,
+        "max": 15.5843
+      },
+      "p50_ms": {
+        "median": 9.5833,
+        "min": 9.5308,
+        "max": 10.7873
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.654,
+        "min": 1.6046,
+        "max": 1.7698
+      },
+      "memory_end_mib": {
+        "median": 361.12109375,
+        "min": 142.96875,
+        "max": 386.4609375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 500,
+      "rounds": 3,
+      "throughput": {
+        "median": 495.6,
+        "min": 492.6,
+        "max": 495.8
+      },
+      "p99_ms": {
+        "median": 104.0571,
+        "min": 84.416,
+        "max": 163.045
+      },
+      "p50_ms": {
+        "median": 44.337,
+        "min": 40.9001,
+        "max": 46.6303
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.7478,
+        "min": 1.69208,
+        "max": 1.8798
+      },
+      "memory_end_mib": {
+        "median": 695.24609375,
+        "min": 529.71484375,
+        "max": 852.796875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 7500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 42.0,
+        "min": 37.4,
+        "max": 45.2
+      },
+      "p99_ms": {
+        "median": 881.8158,
+        "min": 837.9789,
+        "max": 1300.9964
+      },
+      "p50_ms": {
+        "median": 748.2833,
+        "min": 706.7173,
+        "max": 753.0043
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 5.164840182648401,
+        "min": 5.072727272727273,
+        "max": 5.227906976744186
+      },
+      "memory_end_mib": {
+        "median": 709.8125,
+        "min": 533.0703125,
+        "max": 789.96875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 719,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "hotspot",
+      "concurrency": 128,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 125.8,
+        "min": 122.4,
+        "max": 133.0
+      },
+      "p99_ms": {
+        "median": 1101.484,
+        "min": 1062.8045,
+        "max": 1133.4807
+      },
+      "p50_ms": {
+        "median": 998.1382,
+        "min": 979.5436,
+        "max": 1038.7801
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.1675675675675676,
+        "min": 2.0503302509907533,
+        "max": 2.7491803278688525
+      },
+      "memory_end_mib": {
+        "median": 353.75390625,
+        "min": 145.08984375,
+        "max": 389.77734375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2290,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "hotspot",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 96.6,
+        "min": 74.4,
+        "max": 112.0
+      },
+      "p99_ms": {
+        "median": 31.3462,
+        "min": 22.3793,
+        "max": 41.8768
+      },
+      "p50_ms": {
+        "median": 8.5978,
+        "min": 7.2146,
+        "max": 10.154
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 3.2557851239669424,
+        "min": 2.498930481283422,
+        "max": 3.4273458445040217
+      },
+      "memory_end_mib": {
+        "median": 108.42578125,
+        "min": 30.44140625,
+        "max": 232.8359375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1418,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "uniform",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 228.0,
+        "min": 214.6,
+        "max": 249.2
+      },
+      "p99_ms": {
+        "median": 65.5391,
+        "min": 59.8612,
+        "max": 77.0197
+      },
+      "p50_ms": {
+        "median": 33.6017,
+        "min": 29.3403,
+        "max": 34.4777
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.238945420906568,
+        "min": 2.092334494773519,
+        "max": 2.2779106858054226
+      },
+      "memory_end_mib": {
+        "median": 652.765625,
+        "min": 544.890625,
+        "max": 780.6796875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 3483,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "hotspot",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 103.6,
+        "min": 100.0,
+        "max": 107.4
+      },
+      "p99_ms": {
+        "median": 15.1371,
+        "min": 14.7439,
+        "max": 17.0088
+      },
+      "p50_ms": {
+        "median": 9.3463,
+        "min": 9.0285,
+        "max": 9.6304
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.6167630057803466,
+        "min": 1.563197026022305,
+        "max": 2.1291417165668665
+      },
+      "memory_end_mib": {
+        "median": 353.7734375,
+        "min": 131.91015625,
+        "max": 365.984375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1558,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "hotspot",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 42.6,
+        "min": 42.2,
+        "max": 44.2
+      },
+      "p99_ms": {
+        "median": 241.4955,
+        "min": 234.5654,
+        "max": 283.7949
+      },
+      "p50_ms": {
+        "median": 184.0504,
+        "min": 175.0979,
+        "max": 185.2497
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 4.990393013100436,
+        "min": 4.863348416289592,
+        "max": 5.2337899543379
+      },
+      "memory_end_mib": {
+        "median": 710.828125,
+        "min": 564.0390625,
+        "max": 800.91796875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 669,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "uniform",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 768.0,
+        "min": 648.8,
+        "max": 823.0
+      },
+      "p99_ms": {
+        "median": 17.823,
+        "min": 15.9553,
+        "max": 33.2369
+      },
+      "p50_ms": {
+        "median": 9.7693,
+        "min": 9.7006,
+        "max": 11.1001
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.034485446985447,
+        "min": 0.9723987387824399,
+        "max": 1.1765682656826568
+      },
+      "memory_end_mib": {
+        "median": 271.078125,
+        "min": 163.7578125,
+        "max": 391.74609375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 11223,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "long_history",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 65.0,
+        "min": 64.4,
+        "max": 66.4
+      },
+      "p99_ms": {
+        "median": 557.3106,
+        "min": 518.4137,
+        "max": 581.9994
+      },
+      "p50_ms": {
+        "median": 83.0775,
+        "min": 73.6,
+        "max": 85.5971
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 6.497597597597597,
+        "min": 6.0205882352941185,
+        "max": 6.665757575757575
+      },
+      "memory_end_mib": {
+        "median": 106.14453125,
+        "min": 39.96875,
+        "max": 217.33984375
+      },
+      "retries_per_commit": {
+        "median": 3.4204204204204203,
+        "min": 3.4176470588235293,
+        "max": 3.463636363636364
+      },
+      "dropped": 0,
+      "arrivals": 1003,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "hotspot",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 116.2,
+        "min": 114.2,
+        "max": 118.6
+      },
+      "p99_ms": {
+        "median": 12.8801,
+        "min": 12.2077,
+        "max": 14.5714
+      },
+      "p50_ms": {
+        "median": 8.2818,
+        "min": 8.252,
+        "max": 8.4275
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.4723905723905724,
+        "min": 1.2283216783216784,
+        "max": 1.5580756013745705
+      },
+      "memory_end_mib": {
+        "median": 355.421875,
+        "min": 161.19140625,
+        "max": 442.01171875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1748,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 51.8,
+        "min": 50.8,
+        "max": 52.8
+      },
+      "p99_ms": {
+        "median": 3479.9539,
+        "min": 3439.88,
+        "max": 4061.1233
+      },
+      "p50_ms": {
+        "median": 201.4468,
+        "min": 192.851,
+        "max": 221.5627
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 10.279725085910654,
+        "min": 9.952027027027027,
+        "max": 10.518181818181818
+      },
+      "memory_end_mib": {
+        "median": 180.578125,
+        "min": 48.21875,
+        "max": 196.0859375
+      },
+      "retries_per_commit": {
+        "median": 11.56081081081081,
+        "min": 11.398625429553265,
+        "max": 11.856643356643357
+      },
+      "dropped": 0,
+      "arrivals": 873,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "uniform",
+      "concurrency": 128,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 577.0,
+        "min": 560.2,
+        "max": 613.2
+      },
+      "p99_ms": {
+        "median": 911.6904,
+        "min": 857.2064,
+        "max": 921.4591
+      },
+      "p50_ms": {
+        "median": 188.3939,
+        "min": 173.3481,
+        "max": 195.8222
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.6928644588596793,
+        "min": 1.610363180964308,
+        "max": 1.7965151012280118
+      },
+      "memory_end_mib": {
+        "median": 744.37109375,
+        "min": 599.21484375,
+        "max": 875.87109375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 9136,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "hotspot",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 133.6,
+        "min": 128.4,
+        "max": 135.6
+      },
+      "p99_ms": {
+        "median": 820.6459,
+        "min": 780.402,
+        "max": 859.3387
+      },
+      "p50_ms": {
+        "median": 25.6676,
+        "min": 24.0802,
+        "max": 25.7578
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.2806153846153845,
+        "min": 2.095562130177515,
+        "max": 2.3051020408163265
+      },
+      "memory_end_mib": {
+        "median": 293.953125,
+        "min": 166.2421875,
+        "max": 444.73828125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2012,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "uniform",
+      "concurrency": 128,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 1396.6,
+        "min": 1098.2,
+        "max": 1563.8
+      },
+      "p99_ms": {
+        "median": 227.1277,
+        "min": 198.4155,
+        "max": 406.5278
+      },
+      "p50_ms": {
+        "median": 88.965,
+        "min": 79.7683,
+        "max": 102.2046
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.2146392912389254,
+        "min": 1.0763055240971435,
+        "max": 1.6418401850863142
+      },
+      "memory_end_mib": {
+        "median": 350.5,
+        "min": 207.65234375,
+        "max": 424.9296875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 20677,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "hotspot",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 39.4,
+        "min": 36.6,
+        "max": 40.8
+      },
+      "p99_ms": {
+        "median": 43.5428,
+        "min": 38.81,
+        "max": 61.6542
+      },
+      "p50_ms": {
+        "median": 23.5458,
+        "min": 23.3666,
+        "max": 26.2152
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 5.215121951219512,
+        "min": 5.207070707070707,
+        "max": 5.308152173913044
+      },
+      "memory_end_mib": {
+        "median": 707.05859375,
+        "min": 600.87109375,
+        "max": 855.16796875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 587,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 500,
+      "rounds": 3,
+      "throughput": {
+        "median": 132.4,
+        "min": 112.2,
+        "max": 136.6
+      },
+      "p99_ms": {
+        "median": 2257.6358,
+        "min": 2238.7178,
+        "max": 2664.7667
+      },
+      "p50_ms": {
+        "median": 2148.8525,
+        "min": 2017.2299,
+        "max": 2355.8491
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.046525323910483,
+        "min": 1.9367662203913492,
+        "max": 2.064172813487882
+      },
+      "memory_end_mib": {
+        "median": 307.2265625,
+        "min": 210.03515625,
+        "max": 390.6953125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 4731,
+      "arrivals": 7500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "uniform",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 105.0,
+        "min": 94.6,
+        "max": 114.6
+      },
+      "p99_ms": {
+        "median": 22.8557,
+        "min": 21.1303,
+        "max": 26.6234
+      },
+      "p50_ms": {
+        "median": 7.9758,
+        "min": 7.6318,
+        "max": 8.8094
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.610104529616725,
+        "min": 1.9746835443037976,
+        "max": 2.7117870722433457
+      },
+      "memory_end_mib": {
+        "median": 188.8359375,
+        "min": 48.1796875,
+        "max": 199.125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1574,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 1469.6,
+        "min": 1315.8,
+        "max": 1637.4
+      },
+      "p99_ms": {
+        "median": 57.8323,
+        "min": 27.4158,
+        "max": 65.2707
+      },
+      "p50_ms": {
+        "median": 20.0678,
+        "min": 19.2848,
+        "max": 21.4158
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.176382113821138,
+        "min": 1.0243216936366957,
+        "max": 1.3744819240659507
+      },
+      "memory_end_mib": {
+        "median": 301.55859375,
+        "min": 227.07421875,
+        "max": 454.23046875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 22210,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 133.2,
+        "min": 123.6,
+        "max": 135.2
+      },
+      "p99_ms": {
+        "median": 300.9738,
+        "min": 279.327,
+        "max": 609.6627
+      },
+      "p50_ms": {
+        "median": 234.0786,
+        "min": 216.5474,
+        "max": 261.152
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.009463276836158,
+        "min": 1.9256923076923078,
+        "max": 2.355157593123209
+      },
+      "memory_end_mib": {
+        "median": 265.3125,
+        "min": 227.46875,
+        "max": 394.11328125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2056,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "uniform",
+      "concurrency": 128,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 139.0,
+        "min": 135.8,
+        "max": 140.2
+      },
+      "p99_ms": {
+        "median": 1025.8265,
+        "min": 984.5609,
+        "max": 1038.7434
+      },
+      "p50_ms": {
+        "median": 904.2995,
+        "min": 901.8486,
+        "max": 921.1397
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.045078979343864,
+        "min": 1.949194547707559,
+        "max": 2.6897466827503016
+      },
+      "memory_end_mib": {
+        "median": 302.6640625,
+        "min": 245.8828125,
+        "max": 425.40234375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2459,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "long_history",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 160.2,
+        "min": 156.6,
+        "max": 167.4
+      },
+      "p99_ms": {
+        "median": 648.5427,
+        "min": 531.3283,
+        "max": 719.0561
+      },
+      "p50_ms": {
+        "median": 19.6642,
+        "min": 19.2057,
+        "max": 21.0189
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.0789349112426034,
+        "min": 2.0608091024020228,
+        "max": 2.1228677379480843
+      },
+      "memory_end_mib": {
+        "median": 352.1171875,
+        "min": 238.234375,
+        "max": 443.10546875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2445,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "uniform",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 107.0,
+        "min": 101.4,
+        "max": 108.4
+      },
+      "p99_ms": {
+        "median": 17.5944,
+        "min": 16.9053,
+        "max": 17.9082
+      },
+      "p50_ms": {
+        "median": 8.6888,
+        "min": 8.6825,
+        "max": 9.4275
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.80902394106814,
+        "min": 1.8087686567164178,
+        "max": 1.9570866141732282
+      },
+      "memory_end_mib": {
+        "median": 356.7265625,
+        "min": 235.76171875,
+        "max": 364.1875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1587,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 602.6,
+        "min": 534.4,
+        "max": 714.2
+      },
+      "p99_ms": {
+        "median": 127.3744,
+        "min": 106.8357,
+        "max": 425.323
+      },
+      "p50_ms": {
+        "median": 49.2098,
+        "min": 42.5643,
+        "max": 51.6685
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.5982988165680472,
+        "min": 1.4671662503469332,
+        "max": 1.6039737274220034
+      },
+      "memory_end_mib": {
+        "median": 775.6484375,
+        "min": 628.6875,
+        "max": 824.55859375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 9352,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 869.0,
+        "min": 609.2,
+        "max": 882.2
+      },
+      "p99_ms": {
+        "median": 59.2614,
+        "min": 57.931,
+        "max": 84.6381
+      },
+      "p50_ms": {
+        "median": 35.8907,
+        "min": 35.6564,
+        "max": 52.919
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 0.743888508110578,
+        "min": 0.7142246230024757,
+        "max": 0.8105263157894738
+      },
+      "memory_end_mib": {
+        "median": 171.44140625,
+        "min": 56.26953125,
+        "max": 267.69921875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 11898,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 500,
+      "rounds": 3,
+      "throughput": {
+        "median": 497.6,
+        "min": 496.0,
+        "max": 498.0
+      },
+      "p99_ms": {
+        "median": 50.5097,
+        "min": 44.9687,
+        "max": 102.9343
+      },
+      "p50_ms": {
+        "median": 27.5713,
+        "min": 27.0882,
+        "max": 53.3261
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.1495600000000001,
+        "min": 1.1048799999999999,
+        "max": 1.15292
+      },
+      "memory_end_mib": {
+        "median": 121.015625,
+        "min": 61.75,
+        "max": 210.85546875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 7500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 152.6,
+        "min": 110.2,
+        "max": 152.8
+      },
+      "p99_ms": {
+        "median": 1072.7139,
+        "min": 992.6816,
+        "max": 1284.632
+      },
+      "p50_ms": {
+        "median": 124.9919,
+        "min": 118.2088,
+        "max": 176.9224
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 4.564949748743719,
+        "min": 3.9772327044025158,
+        "max": 4.603259005145797
+      },
+      "memory_end_mib": {
+        "median": 353.26171875,
+        "min": 252.40625,
+        "max": 390.73046875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2174,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "hotspot",
+      "concurrency": 128,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 49.0,
+        "min": 43.6,
+        "max": 51.4
+      },
+      "p99_ms": {
+        "median": 5498.6399,
+        "min": 5034.6922,
+        "max": 5704.4924
+      },
+      "p50_ms": {
+        "median": 2073.4719,
+        "min": 2019.8717,
+        "max": 2210.0456
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 10.966763005780347,
+        "min": 10.001038961038962,
+        "max": 11.105898123324398
+      },
+      "memory_end_mib": {
+        "median": 130.5546875,
+        "min": 73.1953125,
+        "max": 278.0234375
+      },
+      "retries_per_commit": {
+        "median": 11.994638069705093,
+        "min": 11.768831168831168,
+        "max": 12.277456647398845
+      },
+      "dropped": 0,
+      "arrivals": 1104,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 100,
+      "rounds": 3,
+      "throughput": {
+        "median": 99.8,
+        "min": 99.8,
+        "max": 100.0
+      },
+      "p99_ms": {
+        "median": 24.3123,
+        "min": 24.0648,
+        "max": 25.8942
+      },
+      "p50_ms": {
+        "median": 10.6598,
+        "min": 9.6179,
+        "max": 10.9802
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 2.854,
+        "min": 2.7798,
+        "max": 2.8726
+      },
+      "memory_end_mib": {
+        "median": 154.38671875,
+        "min": 78.51953125,
+        "max": 231.01953125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "hotspot",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 62.8,
+        "min": 57.4,
+        "max": 64.6
+      },
+      "p99_ms": {
+        "median": 610.9618,
+        "min": 608.1692,
+        "max": 735.6266
+      },
+      "p50_ms": {
+        "median": 74.9971,
+        "min": 73.9651,
+        "max": 76.6225
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 6.539322033898306,
+        "min": 6.468633540372671,
+        "max": 6.634138972809668
+      },
+      "memory_end_mib": {
+        "median": 174.99609375,
+        "min": 81.37890625,
+        "max": 199.23828125
+      },
+      "retries_per_commit": {
+        "median": 3.3867069486404833,
+        "min": 3.376271186440678,
+        "max": 3.406832298136646
+      },
+      "dropped": 0,
+      "arrivals": 948,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "hotspot",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 131.6,
+        "min": 128.8,
+        "max": 147.6
+      },
+      "p99_ms": {
+        "median": 78.8465,
+        "min": 78.7808,
+        "max": 82.5516
+      },
+      "p50_ms": {
+        "median": 58.9792,
+        "min": 53.4226,
+        "max": 61.0912
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.971921921921922,
+        "min": 1.7567024128686326,
+        "max": 2.1263803680981597
+      },
+      "memory_end_mib": {
+        "median": 339.45703125,
+        "min": 241.33203125,
+        "max": 392.7734375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2064,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 100,
+      "rounds": 3,
+      "throughput": {
+        "median": 100.0,
+        "min": 99.8,
+        "max": 100.0
+      },
+      "p99_ms": {
+        "median": 17.0545,
+        "min": 15.0798,
+        "max": 64.1952
+      },
+      "p50_ms": {
+        "median": 10.1909,
+        "min": 9.3726,
+        "max": 11.6725
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.779,
+        "min": 1.6066,
+        "max": 2.0064
+      },
+      "memory_end_mib": {
+        "median": 365.2734375,
+        "min": 253.97265625,
+        "max": 374.46484375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-row",
+      "workload": "hotspot",
+      "concurrency": 128,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 155.2,
+        "min": 121.4,
+        "max": 164.8
+      },
+      "p99_ms": {
+        "median": 1670.7504,
+        "min": 1540.4148,
+        "max": 2110.0113
+      },
+      "p50_ms": {
+        "median": 728.881,
+        "min": 660.4319,
+        "max": 912.8201
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 4.079314159292035,
+        "min": 3.3548319327731093,
+        "max": 4.502448979591836
+      },
+      "memory_end_mib": {
+        "median": 369.01953125,
+        "min": 257.48828125,
+        "max": 379.26953125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2591,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "uniform",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 329.4,
+        "min": 324.6,
+        "max": 355.4
+      },
+      "p99_ms": {
+        "median": 44.48,
+        "min": 41.5686,
+        "max": 44.6086
+      },
+      "p50_ms": {
+        "median": 22.9134,
+        "min": 21.1775,
+        "max": 23.6497
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.26817903126916,
+        "min": 1.2190476190476192,
+        "max": 1.2725075528700907
+      },
+      "memory_end_mib": {
+        "median": 187.25390625,
+        "min": 86.2734375,
+        "max": 224.46875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 5071,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "long_history",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 137.2,
+        "min": 134.8,
+        "max": 138.6
+      },
+      "p99_ms": {
+        "median": 75.7035,
+        "min": 70.8991,
+        "max": 76.8547
+      },
+      "p50_ms": {
+        "median": 58.0653,
+        "min": 57.4106,
+        "max": 58.2653
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.80733137829912,
+        "min": 1.795677233429395,
+        "max": 2.0029957203994293
+      },
+      "memory_end_mib": {
+        "median": 345.40625,
+        "min": 248.5625,
+        "max": 448.37109375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2077,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 127.0,
+        "min": 124.2,
+        "max": 132.6
+      },
+      "p99_ms": {
+        "median": 315.3034,
+        "min": 291.0255,
+        "max": 359.9881
+      },
+      "p50_ms": {
+        "median": 249.8196,
+        "min": 236.5074,
+        "max": 252.6563
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.9631654676258994,
+        "min": 1.8956521739130432,
+        "max": 2.144104134762634
+      },
+      "memory_end_mib": {
+        "median": 372.9453125,
+        "min": 261.5234375,
+        "max": 387.96875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2015,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "long_history",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 41.2,
+        "min": 40.0,
+        "max": 41.8
+      },
+      "p99_ms": {
+        "median": 246.6999,
+        "min": 231.8735,
+        "max": 282.0999
+      },
+      "p50_ms": {
+        "median": 191.3363,
+        "min": 187.5092,
+        "max": 192.1155
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 5.257476635514018,
+        "min": 5.08663594470046,
+        "max": 5.705769230769231
+      },
+      "memory_end_mib": {
+        "median": 706.05859375,
+        "min": 640.90625,
+        "max": 789.56640625
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 639,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "etcd-cas",
+      "workload": "uniform",
+      "concurrency": 128,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 854.8,
+        "min": 659.6,
+        "max": 890.2
+      },
+      "p99_ms": {
+        "median": 199.5188,
+        "min": 184.722,
+        "max": 295.2493
+      },
+      "p50_ms": {
+        "median": 147.2679,
+        "min": 140.8673,
+        "max": 181.6874
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 0.8078619785979471,
+        "min": 0.7246024534302591,
+        "max": 0.8987448920023351
+      },
+      "memory_end_mib": {
+        "median": 148.6015625,
+        "min": 100.7890625,
+        "max": 251.2890625
+      },
+      "retries_per_commit": {
+        "median": 0.018344616728543352,
+        "min": 0.016053706946876824,
+        "max": 0.020672421626533394
+      },
+      "dropped": 0,
+      "arrivals": 12407,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "pg-workspace",
+      "workload": "uniform",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 142.6,
+        "min": 135.6,
+        "max": 152.2
+      },
+      "p99_ms": {
+        "median": 74.6038,
+        "min": 69.5052,
+        "max": 77.4114
+      },
+      "p50_ms": {
+        "median": 54.9365,
+        "min": 51.9001,
+        "max": 58.9431
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.9929778933680102,
+        "min": 1.8167822468793344,
+        "max": 2.000583090379009
+      },
+      "memory_end_mib": {
+        "median": 292.9609375,
+        "min": 252.52734375,
+        "max": 381.2578125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2176,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "mysql-row",
+      "workload": "hotspot",
+      "concurrency": 128,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 40.6,
+        "min": 37.4,
+        "max": 47.0
+      },
+      "p99_ms": {
+        "median": 3323.5257,
+        "min": 3107.7811,
+        "max": 3516.5829
+      },
+      "p50_ms": {
+        "median": 3051.2547,
+        "min": 2617.6805,
+        "max": 3214.8177
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 5.539577039274924,
+        "min": 5.098071625344352,
+        "max": 5.583174603174602
+      },
+      "memory_end_mib": {
+        "median": 699.87109375,
+        "min": 643.41796875,
+        "max": 802.4453125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1009,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "sqlite-wal",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 500,
+      "rounds": 3,
+      "throughput": {
+        "median": 200.6,
+        "min": 99.8,
+        "max": 228.4
+      },
+      "p99_ms": {
+        "median": 3138.2249,
+        "min": 2759.431,
+        "max": 4536.6249
+      },
+      "p50_ms": {
+        "median": 1286.8666,
+        "min": 1118.5255,
+        "max": 2127.9546
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.363006993006993,
+        "min": 1.310611928737413,
+        "max": 1.7830788804071247
+      },
+      "memory_end_mib": {
+        "median": 68.93359375,
+        "min": 34.1484375,
+        "max": 81.9765625
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 3993,
+      "arrivals": 7500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "sqlite-wal",
+      "workload": "hotspot",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 211.2,
+        "min": 184.8,
+        "max": 216.2
+      },
+      "p99_ms": {
+        "median": 8.2042,
+        "min": 7.4059,
+        "max": 15.4049
+      },
+      "p50_ms": {
+        "median": 4.5564,
+        "min": 4.4708,
+        "max": 4.9842
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 0.9035120147874307,
+        "min": 0.8413434247871333,
+        "max": 0.9355675675675675
+      },
+      "memory_end_mib": {
+        "median": 60.85546875,
+        "min": 36.25,
+        "max": 77.28125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 3064,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "sqlite-wal",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 186.8,
+        "min": 178.2,
+        "max": 193.8
+      },
+      "p99_ms": {
+        "median": 2256.2785,
+        "min": 2146.4902,
+        "max": 2447.2475
+      },
+      "p50_ms": {
+        "median": 15.8581,
+        "min": 15.2465,
+        "max": 16.9401
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.3134575569358178,
+        "min": 1.2897074756229685,
+        "max": 1.322777222777223
+      },
+      "memory_end_mib": {
+        "median": 57.125,
+        "min": 41.640625,
+        "max": 91.26171875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 2890,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "lmdb-txn",
+      "workload": "hotspot",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 110.6,
+        "min": 102.6,
+        "max": 113.4
+      },
+      "p99_ms": {
+        "median": 18.768,
+        "min": 15.8751,
+        "max": 20.2385
+      },
+      "p50_ms": {
+        "median": 8.1369,
+        "min": 7.6966,
+        "max": 9.013
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 0.9841549295774648,
+        "min": 0.9805054151624549,
+        "max": 1.0457198443579767
+      },
+      "memory_end_mib": {
+        "median": 33.67578125,
+        "min": 16.05859375,
+        "max": 42.52734375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1636,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "lmdb-txn",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 126.6,
+        "min": 121.8,
+        "max": 128.6
+      },
+      "p99_ms": {
+        "median": 293.4261,
+        "min": 262.3589,
+        "max": 349.9105
+      },
+      "p50_ms": {
+        "median": 250.4983,
+        "min": 249.0997,
+        "max": 259.7354
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.2854135338345865,
+        "min": 1.2722308892355694,
+        "max": 1.464740740740741
+      },
+      "memory_end_mib": {
+        "median": 36.15625,
+        "min": 18.0078125,
+        "max": 38.9921875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1981,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "sqlite-wal",
+      "workload": "uniform",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 213.4,
+        "min": 213.2,
+        "max": 239.4
+      },
+      "p99_ms": {
+        "median": 8.2452,
+        "min": 7.1756,
+        "max": 9.1523
+      },
+      "p50_ms": {
+        "median": 4.3845,
+        "min": 3.9853,
+        "max": 4.4792
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 0.7851921274601686,
+        "min": 0.752754590984975,
+        "max": 0.8277153558052435
+      },
+      "memory_end_mib": {
+        "median": 64.859375,
+        "min": 43.5390625,
+        "max": 88.9921875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 3333,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "lmdb-txn",
+      "workload": "long_history",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 122.4,
+        "min": 120.4,
+        "max": 132.6
+      },
+      "p99_ms": {
+        "median": 82.521,
+        "min": 78.5889,
+        "max": 94.0375
+      },
+      "p50_ms": {
+        "median": 63.4028,
+        "min": 59.5722,
+        "max": 66.0818
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.2639344262295082,
+        "min": 1.2025335320417287,
+        "max": 1.272258064516129
+      },
+      "memory_end_mib": {
+        "median": 29.50390625,
+        "min": 21.3359375,
+        "max": 46.0078125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1901,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "sqlite-wal",
+      "workload": "long_history",
+      "concurrency": 8,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 211.6,
+        "min": 203.4,
+        "max": 224.8
+      },
+      "p99_ms": {
+        "median": 635.0743,
+        "min": 534.9063,
+        "max": 835.0374
+      },
+      "p50_ms": {
+        "median": 8.4361,
+        "min": 7.8385,
+        "max": 9.2058
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.151688555347092,
+        "min": 1.0473498233215548,
+        "max": 1.1880975609756097
+      },
+      "memory_end_mib": {
+        "median": 59.33984375,
+        "min": 50.99609375,
+        "max": 85.58203125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 3223,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "lmdb-txn",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 118.0,
+        "min": 103.4,
+        "max": 125.2
+      },
+      "p99_ms": {
+        "median": 340.018,
+        "min": 299.428,
+        "max": 1008.9208
+      },
+      "p50_ms": {
+        "median": 267.1285,
+        "min": 250.221,
+        "max": 267.1441
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.2234726688102895,
+        "min": 1.1850637522768668,
+        "max": 1.429179331306991
+      },
+      "memory_end_mib": {
+        "median": 28.89453125,
+        "min": 25.17578125,
+        "max": 38.453125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1829,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "lmdb-txn",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 500,
+      "rounds": 3,
+      "throughput": {
+        "median": 119.8,
+        "min": 116.6,
+        "max": 125.4
+      },
+      "p99_ms": {
+        "median": 2522.4135,
+        "min": 2368.7116,
+        "max": 2595.4467
+      },
+      "p50_ms": {
+        "median": 2201.5155,
+        "min": 2194.3937,
+        "max": 2385.7387
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.2095081967213115,
+        "min": 1.1997703788748564,
+        "max": 1.2257046223224353
+      },
+      "memory_end_mib": {
+        "median": 35.5390625,
+        "min": 25.8828125,
+        "max": 43.42578125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 4827,
+      "arrivals": 7500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "lmdb-txn",
+      "workload": "uniform",
+      "concurrency": 1,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 107.4,
+        "min": 101.8,
+        "max": 111.4
+      },
+      "p99_ms": {
+        "median": 16.0685,
+        "min": 14.4582,
+        "max": 20.0294
+      },
+      "p50_ms": {
+        "median": 8.3256,
+        "min": 8.3108,
+        "max": 9.0009
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.046774193548387,
+        "min": 0.9680392156862746,
+        "max": 1.125836431226766
+      },
+      "memory_end_mib": {
+        "median": 33.60546875,
+        "min": 28.671875,
+        "max": 49.52734375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1606,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "sqlite-wal",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 205.4,
+        "min": 182.8,
+        "max": 206.4
+      },
+      "p99_ms": {
+        "median": 2041.0997,
+        "min": 2038.8728,
+        "max": 2549.9397
+      },
+      "p50_ms": {
+        "median": 15.9168,
+        "min": 15.3197,
+        "max": 17.0798
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.5034774436090224,
+        "min": 1.2797040169133191,
+        "max": 1.5310670443814918
+      },
+      "memory_end_mib": {
+        "median": 71.5078125,
+        "min": 54.0234375,
+        "max": 74.84375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 3069,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "sqlite-wal",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 25,
+      "rounds": 3,
+      "throughput": {
+        "median": 25.0,
+        "min": 25.0,
+        "max": 25.0
+      },
+      "p99_ms": {
+        "median": 11.4016,
+        "min": 9.7507,
+        "max": 11.4786
+      },
+      "p50_ms": {
+        "median": 8.4164,
+        "min": 7.5124,
+        "max": 8.8337
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.5176,
+        "min": 1.4328,
+        "max": 1.5184
+      },
+      "memory_end_mib": {
+        "median": 94.48046875,
+        "min": 94.2109375,
+        "max": 95.23046875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 375,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "lmdb-txn",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 25,
+      "rounds": 3,
+      "throughput": {
+        "median": 25.0,
+        "min": 25.0,
+        "max": 25.0
+      },
+      "p99_ms": {
+        "median": 19.4437,
+        "min": 17.1725,
+        "max": 19.5822
+      },
+      "p50_ms": {
+        "median": 12.3779,
+        "min": 12.0436,
+        "max": 12.6781
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.4912,
+        "min": 1.4048,
+        "max": 1.5096
+      },
+      "memory_end_mib": {
+        "median": 50.2265625,
+        "min": 49.78515625,
+        "max": 53.07421875
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 375,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "lmdb-txn",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 100,
+      "rounds": 3,
+      "throughput": {
+        "median": 100.0,
+        "min": 99.8,
+        "max": 100.0
+      },
+      "p99_ms": {
+        "median": 19.3227,
+        "min": 18.2784,
+        "max": 30.1284
+      },
+      "p50_ms": {
+        "median": 10.0124,
+        "min": 9.2322,
+        "max": 10.1148
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.0588,
+        "min": 1.0586,
+        "max": 1.2818
+      },
+      "memory_end_mib": {
+        "median": 51.7578125,
+        "min": 49.578125,
+        "max": 52.7265625
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": false,
+      "kind": "sqlite-wal",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "open",
+      "offered_rate": 100,
+      "rounds": 3,
+      "throughput": {
+        "median": 100.0,
+        "min": 100.0,
+        "max": 100.0
+      },
+      "p99_ms": {
+        "median": 11.8959,
+        "min": 11.3965,
+        "max": 1939.7505
+      },
+      "p50_ms": {
+        "median": 6.1187,
+        "min": 5.9522,
+        "max": 6.475
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.1034,
+        "min": 1.0898,
+        "max": 1.3342
+      },
+      "memory_end_mib": {
+        "median": 95.125,
+        "min": 94.19140625,
+        "max": 96.96484375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 1500,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": true,
+      "kind": "lmdb-txn",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 144.6,
+        "min": 132.267,
+        "max": 151.667
+      },
+      "p99_ms": {
+        "median": 308.6651,
+        "min": 246.8238,
+        "max": 363.8274
+      },
+      "p50_ms": {
+        "median": 219.3388,
+        "min": 211.235,
+        "max": 237.2104
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.0521022973558734,
+        "min": 1.0409359382099048,
+        "max": 1.1467261904761903
+      },
+      "memory_end_mib": {
+        "median": 56.09765625,
+        "min": 52.58984375,
+        "max": 57.01953125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 6524,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": true,
+      "kind": "sqlite-wal",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 168.467,
+        "min": 156.733,
+        "max": 197.4
+      },
+      "p99_ms": {
+        "median": 2549.397,
+        "min": 2338.5911,
+        "max": 2936.7385
+      },
+      "p50_ms": {
+        "median": 19.1069,
+        "min": 13.2118,
+        "max": 21.888
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.218170373478808,
+        "min": 1.1675576344804544,
+        "max": 1.225517780382962
+      },
+      "memory_end_mib": {
+        "median": 67.85546875,
+        "min": 59.11328125,
+        "max": 70.6640625
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 7935,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": true,
+      "kind": "lmdb-txn",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 145.133,
+        "min": 142.733,
+        "max": 147.4
+      },
+      "p99_ms": {
+        "median": 281.391,
+        "min": 258.718,
+        "max": 316.8326
+      },
+      "p50_ms": {
+        "median": 217.2327,
+        "min": 216.918,
+        "max": 221.8623
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.1245207311636203,
+        "min": 1.1046479521398989,
+        "max": 1.1906292440018107
+      },
+      "memory_end_mib": {
+        "median": 56.78515625,
+        "min": 54.66796875,
+        "max": 57.46484375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 6625,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": true,
+      "kind": "pg-row",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 1715.667,
+        "min": 1620.467,
+        "max": 1776.267
+      },
+      "p99_ms": {
+        "median": 33.9802,
+        "min": 25.3467,
+        "max": 47.7289
+      },
+      "p50_ms": {
+        "median": 18.0424,
+        "min": 17.7968,
+        "max": 18.4498
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.061892436008053,
+        "min": 1.0001949317738792,
+        "max": 1.0631000892614586
+      },
+      "memory_end_mib": {
+        "median": 142.73046875,
+        "min": 140.92578125,
+        "max": 171.859375
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 76782,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": true,
+      "kind": "pg-row",
+      "workload": "hotspot",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 155.6,
+        "min": 155.0,
+        "max": 167.8
+      },
+      "p99_ms": {
+        "median": 1056.0548,
+        "min": 998.7485,
+        "max": 1081.038
+      },
+      "p50_ms": {
+        "median": 124.6708,
+        "min": 113.6507,
+        "max": 126.7795
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 3.5690074539034913,
+        "min": 3.3445905812473486,
+        "max": 3.606973795435334
+      },
+      "memory_end_mib": {
+        "median": 117.27734375,
+        "min": 117.2265625,
+        "max": 149.73828125
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 7272,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "confirmation": true,
+      "kind": "sqlite-wal",
+      "workload": "uniform",
+      "concurrency": 32,
+      "arrival": "closed",
+      "offered_rate": null,
+      "rounds": 3,
+      "throughput": {
+        "median": 183.4,
+        "min": 178.0,
+        "max": 226.4
+      },
+      "p99_ms": {
+        "median": 2258.8242,
+        "min": 2243.416,
+        "max": 2438.3698
+      },
+      "p50_ms": {
+        "median": 18.5938,
+        "min": 9.1598,
+        "max": 21.0765
+      },
+      "cpu_seconds_per_1000_commits": {
+        "median": 1.3191709844559585,
+        "min": 0.9490665110851809,
+        "max": 1.3296802012217033
+      },
+      "memory_end_mib": {
+        "median": 65.21484375,
+        "min": 60.7109375,
+        "max": 67.15625
+      },
+      "retries_per_commit": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "dropped": 0,
+      "arrivals": 8913,
+      "errors": 0,
+      "verified": true
+    }
+  ],
+  "errors": 0,
+  "verified": true
+}

@@ -1,0 +1,7 @@
+ARG BASE_IMAGE=dios-backend:local
+FROM ${BASE_IMAGE}
+USER root
+ARG PIP_INDEX_URL=https://pypi.org/simple
+RUN python -m pip install --no-cache-dir --index-url ${PIP_INDEX_URL} lmdb==1.7.5 apsw==3.51.3.0
+WORKDIR /experiment
+ENTRYPOINT ["python", "-m", "experiments.providers32.embedded_server"]
