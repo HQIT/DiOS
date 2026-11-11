@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-11",
+  "version": "2026.11.05-86047df",
+  "model_prompt_sent": true,
+  "probes": [
+    {
+      "name": "initialize",
+      "protocolVersion": 1,
+      "agentCapabilities": {
+        "loadSession": true,
+        "mcpCapabilities": {
+          "http": true,
+          "sse": true
+        },
+        "promptCapabilities": {
+          "audio": false,
+          "embeddedContext": false,
+          "image": true
+        },
+        "sessionCapabilities": {
+          "list": {}
+        }
+      }
+    },
+    {
+      "name": "authenticate",
+      "response_received": true
+    },
+    {
+      "name": "session/new",
+      "modes": {
+        "currentModeId": "agent",
+        "availableModes": [
+          {
+            "id": "agent",
+            "name": "Agent",
+            "description": "Full agent capabilities with tool access"
+          },
+          {
+            "id": "plan",
+            "name": "Plan",
+            "description": "Read-only mode for planning and designing before implementation"
+          },
+          {
+            "id": "ask",
+            "name": "Ask",
+            "description": "Q&A mode - no edits or command execution"
+          }
+        ]
+      },
+      "session_id_sha256": "9f381f09ad0d1c0f8e934c0affee2e505a52a78c14eae676ce0173cd0cc45905"
+    },
+    {
+      "name": "session/set_mode ask",
+      "response_received": true
+    },
+    {
+      "name": "session/prompt synthetic static review",
+      "stopReason": "end_turn"
+    },
+    {
+      "name": "session/load same-process",
+      "modes": {
+        "currentModeId": "ask",
+        "availableModes": [
+          {
+            "id": "agent",
+            "name": "Agent",
+            "description": "Full agent capabilities with tool access"
+          },
+          {
+            "id": "plan",
+            "name": "Plan",
+            "description": "Read-only mode for planning and designing before implementation"
+          },
+          {
+            "id": "ask",
+            "name": "Ask",
+            "description": "Q&A mode - no edits or command execution"
+          }
+        ]
+      }
+    }
+  ],
+  "assistant_output": "{\"issue\":\"xs[0] raises IndexError on an empty sequence and TypeError if xs is None.\",\"condition\":\"xs is empty or None.\",\"fixed_code\":\"def first(xs):\\n    if not xs:\\n        return None\\n    return xs[0]\"}",
+  "idle_cancel_notification_sent": true,
+  "first_process_exit": 1,
+  "permission_requests": 0,
+  "second_process_exit": 1,
+  "event_counts": {
+    "session/update": 99
+  },
+  "limits": [
+    "idle cancellation only; no proof of cancellation of active execution",
+    "no filesystem/network enforcement probe; ask mode is not an E2AG boundary"
+  ],
+  "restarted_authentication": "did not obtain success; original probe did not retain detailed error",
+  "restart_resume_verified": false,
+  "termination_note": "exit code 1 observed after bounded probe shutdown; graceful exit not established",
+  "output_schema_valid": true
+}

@@ -1,399 +1,206 @@
-# DiOS Roadmap：从多 Agent 原型到可靠的单机 Agent OS
+# DiOS Roadmap：内核、数字员工服务与业务应用的分层建设
 
-> 状态：讨论稿
+> 更新日期：2026-11-11
 >
-> 更新日期：2026-09-07（Phase 0 进行中：Connector 契约、注册表及 API/Console 接线已落地，见 [ADR 0001](docs/adr/0001-connector-plugin-contract.md)）
+> 执行入口：[GitHub Project](https://github.com/orgs/HQIT/projects/2) · [路线与工作包索引 #12](https://github.com/HQIT/DiOS/issues/12)。Project 按阶段、层级、优先级、批次及原生依赖跟踪任务。
 >
-> 适用范围：DiOS、DiAgent 及其 App、Connector 和 Runtime 生态
+> 分层方案：已确认，见 [ADR 0003](docs/adr/0003-layered-digital-workforce-platform.md)。
 >
-> 当前阶段约束：以单机、单实例、单一可信操作者为部署边界；暂不建设多租户、组织隔离和多集群能力
+> 开放智能体接入已纳入整体计划，见 [影响范围、任务依赖与下一批工作](docs/planning/open-agent-plan.md)。
+>
+> 部署目标：可扩展的企业级 Agent OS 与数字员工平台；初期采用单机开发验证，上层支持单企业内多部门、多岗位、多用户。多节点运行与高可用进入企业交付路线，多租户单独后置。
+>
+> 本文中的目标模型、API 与阶段门槛属于建设计划；实现状态以对应代码和验收证据为准。
 
-## 1. 愿景
+## 1. 定位与建设原则
 
-DiOS 的目标不是成为另一个个人 AI 助手，也不是把聊天、记忆、人格和渠道能力全部集中到一个应用中。
+DiOS 是 Agent OS 内核，管理 Agent 的资源、部署、调度、执行边界和运行证据。在其上构建通用的数字员工管理与服务层，再由业务应用承载行业流程和用户体验。
 
-DiOS 当前要成为可靠的单机 Agent 控制平面：统一注册、部署、连接、授权、调度、观察和审计不同类型的 Agent Runtime，使一台主机能够安全、稳定、可恢复地运行一批智能体工作负载。
+> DiOS 管运行与执行边界，服务层管组织与工作，业务应用交付场景成果。
 
-一句话定位：
+数字员工具有长期身份、岗位和职责，可使用多个 AgentDefinition、Deployment 和 Run 完成工作。Agent 容器退出、版本变更或 Runtime 更换时，数字员工身份和工作记录仍由服务层保留。
 
-> DiOS 管理 Agent，Agent 完成工作。
+初期采用同仓库、模块化实现和单机验证；层间通过明确契约协作，各层拥有自己的数据模型和迁移。P0 定义容量及部署拓扑，P1 保留 Worker、存储和队列的可扩展契约，P4 验收多节点运行与高可用；规模目标依据业务负载与 SLO 确定。
 
-当前目标是让操作者能够回答以下问题：
+## 2. 三层职责
 
-- 谁创建、发布和调用了哪个 Agent？
-- Agent 运行在哪个环境，使用了哪些模型、工具、数据和凭据？
-- 一次执行为什么发生，经过了哪些审批，产生了什么结果？
-- Agent 是否遵守实例策略、预算、数据边界和安全要求？
-- 当模型、Prompt、Skill、Connector 或 Runtime 变化后，能否审计、回滚和复现？
+| 层级 | 负责内容 | 所有权边界 |
+| --- | --- | --- |
+| L1：DiOS 内核 | AgentDefinition / Revision / Deployment / Run / Artifact；事件与调度；Runtime Adapter；能力注册；Secret；身份校验、策略执行、Approval Gate、Quota / Budget；日志、Trace、用量和恢复 | 通用运行对象与资源作用域，不解释部门、岗位、客户、课程等业务语义 |
+| L2：数字员工管理与服务层 | 组织、岗位、用户、SSO 对接、数字员工档案与模板；Workspace、WorkItem、协作、知识与记忆服务接口；能力准入；Studio；发布流程、审批人配置、评价、运营 | 长期组织与工作对象；将业务授权映射为内核可验证的执行约束 |
+| L3：业务应用层 | 销售与售前、岗位协同、教育数字分身等 App；场景流程、界面、指标、业务对象适配和行业包 | 客户专属规则、模板、连接器配置与业务主数据映射 |
 
-## 2. 产品边界
+Agent loop/harness 由具体智能体提供，DiOS 保持实现中立。DiAgent 是当前 Runtime 实现；目标通过 A2A 任务、ACP（Agent Client Protocol）会话和厂商 SDK/API/CLI 适配接入 dsh、Cursor、Codex、Claude Code 及其他 Agent。协议交互与托管生命周期分别建模，远端治理按实际能力验收，见 [开放智能体接入](docs/architecture/agent-interoperability.md)。
 
-### 2.1 DiOS 负责
+Console 和 CLI 保留为 L1 运维入口。L2 提供员工工作台、主管视图与平台管理界面；Chat 可继续作为参考 App。现有 Console 无需改造成面向业务人员的首页。
 
-- 单机实例配置、访问控制与凭据管理
-- Agent 定义、版本、部署和运行生命周期
-- LLM、MCP、Skill、Connector、Secret 等资源注册与分配
-- 事件接入、标准化、订阅、可靠投递和执行追踪
-- Policy、Approval、Quota、Budget 与合规治理
-- 日志、指标、Trace、审计与成本分析
-- Runtime、Connector 和 Provider 的扩展机制
-- 面向 Console、CLI、CI/CD 和业务 App 的稳定 API
+### 2.1 容易混淆的责任边界
 
-### 2.2 DiAgent 负责
+| 对象 | L2 管理与服务层 | L1 DiOS 内核 |
+| --- | --- | --- |
+| 身份和权限 | 组织目录、岗位角色、SSO、对象 ACL、授权规则 | 校验调用主体、代理关系和执行作用域；在 API、Run 与工具边界强制执行 |
+| 审批 | 谁审批、何时升级、待办与审批界面 | 创建受控请求；校验决议主体、有效期及动作绑定；批准前阻止执行 |
+| 工作与运行 | WorkItem 的分派、复核、业务完成状态 | Run 的排队、运行、取消、重试及技术终态 |
+| 知识与工作空间 | 文件/知识来源、ACL、版本、保留期、会话与记忆 | 挂载、网络、凭据和工具访问范围；消费由服务层或知识后端强制执行的检索授权 |
+| 能力 Registry | 企业目录、审核、岗位分配、模板及运营 | 包身份、版本/摘要、依赖、兼容性、运行入口和授权检查 |
+| 发布 | Studio、测试评估、审核与环境晋级流程 | 固定 Revision、部署、健康状态、回滚与版本证据 |
+| 观测与费用 | 业务效果、岗位/部门成本归属、服务目标 | 原始调用、用量、时延、错误、配额执行及关联标识 |
 
-- 单个 Agent 的推理循环与工具调用
-- Prompt、上下文、短期记忆和任务执行
-- 与模型、MCP、Skill 的运行时交互
-- 按 DiOS 下发的身份、权限和资源边界执行任务
-- 上报结构化状态、事件、用量和结果
+## 3. 当前基础与待验收项
 
-### 2.3 App 负责
+当前产品分支有 Agent CRUD、service/task 运行、Docker 隔离、模型/MCP/Skills 资源管理、事件接入与订阅、Console/Chat、Registry API/CLI 和部分 E2AG 授权审批实现。
 
-- 面向具体用户场景的交互体验
-- Chat、Console、CLI、Slack Bot、审批台等应用形态
-- App 自己的会话、页面和业务展示逻辑
-- 通过 `/api/os/*` 使用 DiOS 能力，而不是把业务逻辑写入 OS 核心
+Connector manifest 已接入通用 API、事件目录与 Console 动态表单；通用轮询 Runtime 仍待建设，见 [ADR 0001](docs/adr/0001-connector-plugin-contract.md)。扩展类型边界沿用 [ADR 0002](docs/adr/0002-agent-extension-boundaries.md)。
 
-### 2.4 Connector 负责
+以下事项进入新路线的交付与验收：不可变版本和部署、Runtime Adapter、持久队列与恢复、数据库迁移及备份、Secret 生命周期、统一策略与配额、贯穿多用户链路的授权与审计。E2AG 产品化增量按代码和回归证据逐项纳入。
 
-- 对接一个明确的外部系统或协议
-- 管理该类型专属的配置校验、鉴权、连接和健康检查
-- 将外部输入标准化为平台事件，或将平台输出投递到外部系统
-- 独立测试、独立版本演进，不在通用服务中硬编码类型判断
+现有可信操作者模式作为兼容入口。L2 面向多用户开放前，必须通过逐主体、逐对象、逐调用授权验收，不能沿用共享管理员令牌作为终端用户授权。
 
-### 2.5 暂不负责
+## 4. 领域模型与层间契约
 
-- Organization、Tenant、Project 隔离、SSO 和跨租户 RBAC
-- 多节点高可用、Kubernetes 和多集群调度
-- 与个人助手产品竞争聊天体验、人格和长期个人记忆
-- 重新实现通用大模型推理框架
-- 在 OS 核心中承载客户专属业务流程
-- 一开始就自研完整工作流 DSL；可先与 Temporal、Argo、n8n 等系统集成
-- 以增加渠道、Prompt 模板或 Demo 数量作为产品进展指标
+### 4.1 对象归属
 
-## 3. 判断一项功能是否属于 DiOS
+- L1：Instance、PrincipalReference、ExecutionScope、ApiToken、SecretReference、AgentDefinition、AgentRevision、AgentDeployment、AgentRun、Artifact、Event、CapabilityPackage、Policy、ApprovalRequest、Quota、Budget、AuditEvent。
+- L2：Organization（单企业目录）、Department、Position、User、Group、DigitalEmployee、EmployeeTemplate、Workspace、WorkItem、KnowledgeSpace、Release、Evaluation、ServiceCatalog。
+- L3：Lead、Quote、业务计划、课程等场景对象及其与外部系统的映射。
 
-如果一项功能只让一个 Agent 更聪明、更好聊，应优先放入 DiAgent 或 App。
+L2 的 DigitalEmployee 可以关联多个 AgentDefinition/Deployment；一个 WorkItem 可以关联多次 Run。Run 成功仅代表一次技术执行结束，业务验收和关闭由 WorkItem 状态机决定。L3 的 CRM/ERP/教学系统继续拥有其业务主数据。
 
-如果一项功能让一批 Agent 更安全、更可控、更可靠、更容易运营，才应进入 DiOS。
+L2 Workspace 表达项目、文件、会话和协作；L1 execution workspace 表达挂载目录和运行隔离，两者通过明确引用关联。
 
-进入 OS 核心前至少回答：
+L1 进一步区分 Agent 实现/端点引用、协议 Adapter、生命周期 Adapter、能力与治理快照，以及 Run 与远端 Task/Session 的关联。具体实体名称与 Schema 由 F01-1 固定。外部服务的声明版本、不透明实现和取消待确认分别建模。
 
-1. 它是否服务于多个 Agent 或 Runtime？
-2. 它是否涉及生命周期、资源、权限、策略、可靠性或可观测性？
-3. 它能否通过稳定契约实现，而不是依赖某个 Agent 框架？
-4. 它是否会形成新的类型硬编码？
-5. 它的行为能否审计、测试和兼容升级？
+### 4.2 API 与数据边界
 
-## 4. 当前基础与主要缺口
+保留现有 `/api/os/*` 和 `/api/apps/{app}/*`。规划新增 `/api/workforce/*` 承载 L2 服务，具体 Schema 在 P0 冻结。业务 App 通过 L2 使用组织和工作能力；Console、CLI 及经授权的技术集成通过 L1 管理运行资源。
 
-### 4.1 已有基础
+L2 通过内核公共 API 或等价的受控服务契约调用 L1，禁止跨层直接写表和共享 ORM 实体。即使同进程、同数据库部署，依赖方向仍是 L3 → L2 → L1；L1 发布通用状态事件供上层订阅。各层 Schema、迁移和契约测试独立归属。
 
-- Agent CRUD 与 service/task 两种运行模式
-- 基于容器的 Agent 运行隔离
-- LLM、MCP、Skill 等资源管理雏形
-- Connector、CloudEvents、订阅与事件路由
-- 事件日志、重试、去重和 A2A Task 雏形
-- `/api/os/*` 与 `/api/apps/*` 的初步分层
-- Console App 与 Chat App
+一次受管执行必须关联：
 
-### 4.2 单机阶段关键缺口
+| 信息 | 提供与校验方式 |
+| --- | --- |
+| 主体、调用服务及代理关系 | 从认证上下文取得；L1 校验可信发行方、受众、时效与代理权限 |
+| employee / work_item / workspace 引用 | L2 校验业务对象访问权后关联；普通字符串标签不授予权限 |
+| revision / deployment / capability 引用 | L1 解析固定版本、摘要、可用状态和获准资源 |
+| policy / grant / approval / budget 引用 | L1 校验来源、范围、版本、有效期和撤销状态；有效权限取调用方、服务、工作负载及资源策略的交集 |
+| correlation / idempotency 标识 | 贯穿事件、工作、运行和工具调用；重复回调或重试不重复触发已确认副作用 |
+| 状态、结果及证据 | L1 发布 Run/Artifact/Audit 事件；L2 消费后更新工作状态、成本和评价 |
 
-- 缺少稳定的实例访问令牌、Secret 引用和凭据轮换机制
-- Agent 配置尚未形成不可变 Revision 与可回滚 Deployment
-- SQLite、Docker 和本地文件的迁移、备份、恢复流程尚未固化
-- Connector API、事件目录和 Console 已由注册表驱动；IMAP 轮询仍是专用服务，Runtime Adapter 契约尚未落地
-- 缺少统一 Policy、Approval、Quota 和 Budget
-- 缺少端到端 Trace、结构化审计和成本归因
-- 缺少持久队列、并发控制、重启恢复和可验证升级策略
+需要审批的动作绑定具体资源和参数；权限撤销、动作参数变化、审批过期后的执行重新校验。上层提交的审批结果必须可验证，并持久化至执行门禁。
 
-## 5. 目标架构
+### 4.3 知识、记忆和 Runtime 扩展
 
-```mermaid
-flowchart LR
-    U["Trusted Operator / Local Apps"] --> API["DiOS API"]
-    APP["Console / CLI / Business Apps"] --> API
-    EXT["External Systems"] --> CONN["Connector Runtime"]
+知识、图谱、检索与记忆通过 Provider 接口接入，L2 管理访问范围、生命周期与引用来源。源数据 ACL 必须在检索与读取边界执行，不能只隐藏界面。Runtime Adapter 首先实现 Local Docker，统一部署、运行、取消、健康、日志、用量和授权注入。
 
-    API --> IAM["Instance Access"]
-    API --> REG["Agent & Resource Registry"]
-    CONN --> EVENT["Durable Event Gateway"]
+Connector 承担入站事件，MCP 承担工具与出站动作；MCP、A2A、ACP、Skills 和 Plugin 包保持各自契约与生命周期。协议版本及支持能力通过兼容矩阵和测试管理。P1 提供端点、版本和能力的最小登记，P3 完善企业目录、来源校验、兼容与准入治理。
 
-    IAM --> POLICY["Policy / Approval / Quota"]
-    REG --> SCHED["Deployment & Run Scheduler"]
-    EVENT --> POLICY
-    POLICY --> SCHED
+## 5. 建设顺序与退出门槛
 
-    SCHED --> ADAPTER["Runtime Adapter Layer"]
-    ADAPTER --> D1["DiAgent Runtime"]
-    ADAPTER --> D2["External Agent Runtime"]
-    ADAPTER --> D3["Batch / Service / Remote Runtime"]
+顺序为 P0 → P1 → P2 → P3 → P4。上层原型可与内核建设并行；面向真实多用户开放和生产写操作须通过相应前置门槛。具体排期随团队容量和验收结果确定。
 
-    SECRET["Secret Manager"] --> ADAPTER
-    OBS["Audit / Logs / Metrics / Traces / Cost"] --- API
-    OBS --- EVENT
-    OBS --- SCHED
-    OBS --- ADAPTER
-```
+### P0：架构基线、分层契约与验收设计
 
-架构必须区分两条链路：
+前置门槛：完成 [架构原则与图解](docs/architecture/README.md)、需求追踪和 [工程规则](docs/engineering/handbook.md) 的 G0 评审。F01-3 能力勘察与基线评审并行；F01-1 在 G0 与能力勘察完成后固定领域/API，F01-2 在 G0 后推进容量设计；具体选型和执行契约在 G1 确认。
 
-- 控制面：定义、授权、发布、调度、策略和审计
-- 数据面：事件、消息、模型请求、工具调用和执行结果
+交付：三层职责 ADR；领域对象及映射；API Schema；认证委托、授权与审批契约；WorkItem/Run 状态映射；Console 与上层导航；现有能力证据清单；容量、SLO 和部署拓扑；三类参考场景的跨层验收用例及新场景扩展准则。
 
-控制面故障不应导致已运行工作负载立即失控；数据面不能绕过控制面的身份和策略。
+退出门槛：每个对象有唯一归属；关键调用具有输入、输出、权限、错误和版本约定；参考场景差异可由 App/模板/扩展表示。智能体能力矩阵附版本与证据，首轮 A2A/ACP 组合确定，托管与远端的控制范围、SLO 和外部依赖假设明确。
 
-## 6. 核心领域模型
+### P1：内核可用与最小受控运行闭环
 
-### 6.1 实例与访问
+L1 交付：Local Docker Adapter；A2A/ACP Agent 接入契约与第三方 harness 验证；Definition/Revision/Deployment/Run；Migration、备份恢复；持久任务与重启恢复；凭据引用与令牌生命周期；逐主体/逐对象授权；基础 E2AG 工具约束与审批门禁；审计关联。补齐通用 Poll Runtime。托管与远端委派各有治理能力矩阵与任务准入规则。
 
-- Instance：一套单机 DiOS 部署及其稳定身份
-- Operator：本机可信操作者
-- ApiToken：Console、CLI、App 调用实例 API 的可吊销凭据
-- SecretReference：Agent、Connector 和 MCP 使用的凭据引用
+L2 交付：最小受信调用适配器与数字员工/工作引用映射，用于验证上层调用；保留 Console/CLI 原有能力。
 
-### 6.2 Agent 生命周期
+持续后台负载的 P1 基线包括 Run/Attempt/Worker/Session 分离、持久定时与合并触发、租约 fencing、分类退避/半开恢复、完整产物校验、自然排空、严格只读和最小阶段观测。小进度与大产物分离，旧所有者与过期同步不能覆盖新状态。
 
-- AgentDefinition：逻辑 Agent 及其稳定身份
-- AgentRevision：不可变版本，包含 Prompt、模型、Skill、MCP 和运行参数引用
-- AgentDeployment：某 Revision 在特定环境中的期望状态
-- AgentRuntime：实际运行实例
-- AgentRun：一次可追踪、可取消、可重试的执行
-- Artifact：执行输出及其来源信息
+退出门槛：新实例可安装；持久任务按故障模型恢复；受控版本与配置可回退；备份可恢复。至少两个来源的 Agent（含第三方 Harness）完成 A2A/ACP 路径验收，实际控制点拒绝未授权与未审批动作，远端未知结果进入对账，执行可关联到上层主体与工作。协议适配与基础治理分别实现，由 K01-5 联合验收。
 
-### 6.3 平台资源
+### P2：数字员工管理与服务闭环
 
-- ModelProvider / ModelEndpoint
-- MCPServer / SkillPackage
-- ConnectorDefinition / ConnectorInstance
-- RuntimeDefinition / RuntimePool
-- SecretReference
-- Policy / ApprovalRequest
-- Quota / Budget
+L2 交付：单企业组织与岗位、用户及 SSO、数字员工模板/档案、Workspace、WorkItem、任务协作、审批待办、知识空间及权限、文件/会话/成果、基础配置发布与能力分配。先完成可配置发布，完整自然语言开发进入 P3。
 
-所有可执行对象必须带有明确的创建来源、配置版本和实例内唯一标识；数据模型应保留未来增加作用域字段的迁移空间，但当前不实现租户语义。
+L1 配套：资源作用域、授权撤销、受控委派、运行事件、容量限制与用量接口；现有 Console 和 CLI 持续通过同一内核契约工作。
 
-## 7. 扩展机制
+L3 参考验证：A01-5 建设持续代码静态评审，包含仓库/分支选择、固定 SHA 基线与增量、上下文安全复用、覆盖账本、证据与报告。先用只读观察及隔离样例验证通用服务，生产接管由 D01-5 单独安排。
 
-### 7.1 Connector 目录与契约
+退出门槛：两部门用户的知识、任务、产物、工具和凭据访问符合授权；同一数字员工跨多次 Run 和不同 Agent 实现保持身份和工作历史；上下文转交、远端文件与知识外发符合 ACL；人工接管和任务复核可完成。停用后平台阻止后续受限调用，远端取消及数据副本处理按声明能力跟踪。
 
-内建 Connector 与第三方 Connector 使用同一注册机制：
+### P3：开发发布、治理与运营深化
 
-```text
-backend/app/connectors/
-├── contracts/
-├── registry.py
-├── runtime.py
-└── builtin/
-    ├── generic_webhook/
-    ├── git_webhook/
-    └── imap/
-```
+L2 交付：Studio 自然语言开发、实际文件修改与 diff、隔离测试、评测集、审批发布、逻辑环境晋级、发布回滚；能力审核/版本/依赖/岗位分配；业务效果和成本运营。
 
-每个 Connector 独立拥有：
+L1 配套：能力包完整性和签名/来源校验、版本兼容与准入；E2AG 参数与委派约束深化；并发预算、网络与工作目录约束；Trace、用量、诊断和治理回归。开发、测试、生产是可授权的逻辑作用域，物理部署仍可单机。
 
-- manifest 与类型标识
-- 配置 Schema 与敏感字段声明
-- 输入、输出及生命周期能力声明
-- 健康检查与连接测试
-- 事件映射和错误分类
-- 单元测试与兼容性测试
+退出门槛：受训人员可通过至少两个已兼容 Harness 完成同类开发任务、错误修复和受控发布；Agent/Adapter/协议变化触发评测，受控版本可回退，远端不可控升级有处置方案。用量区分实测、供应方报告、估算和未知，预算与治理承诺对应实际控制点。
 
-公共契约采用能力模型，不能要求所有 Connector 都实现 `poll()`。Webhook、轮询、流式订阅和输出投递应是不同的可选能力。
+### P4：开放行业应用与可扩展企业交付
 
-入站与出站的职责必须分开：入站由 Connector 承担，出站由 MCP 承担。Connector 的输出投递能力保留在契约中，但在 MCP 边界稳定前不实现，避免两条链路重复建设。
+L3 交付：可复用的行业包契约、模板与 SDK；以销售与售前、岗位协同、教育数字分身作为首批参考样例，支持更多行业接入；业务连接器、专业评测、配置、培训与验收工具。
 
-事件类型和 source namespace 同样不得在 OS 核心枚举。由 Agent 自行发布的场景事件通过声明数据注册，删除声明即卸载场景，OS 核心不感知其语义。
+跨层交付：单节点/多节点部署拓扑，生产级共享数据库、产物存储、持久队列与多 Worker，控制面高可用、扩缩容、节点故障转移；安装升级、一致备份、恢复、日志、容量/SLO、告警与运维。用并发用户、活跃 Agent、任务积压、时延、成本及 RPO/RTO 衡量容量和可靠性。
 
-### 7.2 Runtime Adapter
+退出门槛：同一行业包在兼容执行实现间可配置切换，新增场景不改通用内核；单节点、多节点及托管/远端混合拓扑能力矩阵明确。会话归属、回调去重、远端限流和网络中断均通过验收；任务按故障模型和 RPO 恢复，副作用按幂等能力检查与对账；平台 SLO 与外部依赖假设分别有证据。
 
-DiAgent 是首选 Runtime，但不是 DiOS 唯一可管理的 Runtime。Runtime Adapter 至少定义：
+### 后置范围
 
-- deploy / start / stop / delete
-- run / cancel / retry
-- health / status
-- logs / metrics / usage
-- secret、workspace、network 和 policy 注入
+SaaS 多租户、跨企业计费与市场、多集群治理后置。多节点运行与高可用纳入 P4，Kubernetes 等具体部署实现由容量和拓扑设计选定。单企业组织/SSO/部门权限属于 P2；个人数字分身、持久记忆及跨端体验由 L2/L3 建设，Cloud/Local 场景按运行拓扑与授权契约接入。
 
-当前阶段 Adapter：
+## 6. 参考场景与开放验收基线
 
-- Local Docker
+| 场景 | L3 业务结果 | L2 通用服务 | L1 验收重点 |
+| --- | --- | --- | --- |
+| 销售与售前 | 专业规格咨询 → 方案/报价 → 审批与交付 | 知识空间、工作单、数字员工、成果、审批 | 数据/工具授权、受控发送、参数绑定、来源与审计 |
+| 岗位协同 | 上级发起计划收集 → 多岗位提交 → 汇总复核 | 岗位模板、委派、时限、人工接管、汇总 | 持久运行、委派权限不扩大、重试幂等和状态关联 |
+| 教育数字分身 | Workspace 材料 → 对话/Studio 成果 → 权限分享 | 持久身份、知识、会话、文件、记忆及分享 | 文件隔离、检索授权、成果访问、撤销与跨会话证据 |
+| 持续代码静态评审 | 范围选择 → 基线/增量 → 覆盖账本 → 证据与报告 | 工作项、责任与权限、待验证队列、统一查询 | 独立 Worker、只读控制、持久调度、恢复、排空、事件/产物分离 |
 
-Remote DiAgent 与 Kubernetes Job / Deployment 延后到单机阶段完成后评估。
+上述用例是典型参考；行业范围保持开放。P0 定义用例，P1—P3 逐步打通，P4 验证新增场景的扩展路径。D01-5 在企业交付条件满足后验收持续评审历史对账、单所有者分区切换和回滚。具体客户资料、报价和原始需求留在项目材料中。
 
-## 8. 分阶段路线图
+## 7. 首批工作包
 
-时间范围是建议顺序，不是发布日期承诺。每一阶段必须通过退出门槛后再进入下一阶段。
+| 编号 | 工作包 / 主责模块 | 依赖 | 可验收交付 |
+| --- | --- | --- | --- |
+| F01 | 架构基线、领域与容量契约 / 架构 | 分层 ADR | 原则、图解、工程门槛；Schema、状态机、对象归属、兼容矩阵及容量/部署拓扑 |
+| F02 | 身份、授权与审批契约 / L1+L2 | F01 | 委托模型、可信来源、撤销和审批绑定用例 |
+| F03 | 参考场景验收与信息架构 / L2+L3 | F01 | 验收数据、业务结果、页面导航和权限矩阵 |
+| K01 | Runtime 与持久运行 / L1 | F01 | Adapter、Run 恢复、幂等、取消和重试 |
+| K02 | 版本、迁移与备份恢复 / L1 | F01 | 固定 Revision、部署回滚、干净实例恢复 |
+| K03 | 身份与 E2AG 产品治理 / L1 | F02、K01 | Secret、策略/审批强制执行、授权审计回归 |
+| S01 | 组织与数字员工 / L2 | F02、K02、K03 | SSO、岗位、员工模板与部署映射 |
+| S02 | 工作、知识与协作 / L2 | F03、K01、S01 | Workspace、WorkItem、ACL、人工接管与成果 |
+| S03 | Studio 与发布运营 / L2 | K02、S01、S02 | 开发修复、评测、审批发布和回滚 |
+| K04 | Registry 与运行治理深化 / L1 | K03 | 包校验、兼容、预算、Trace 和诊断 |
+| A01 | 行业包契约、参考样例与扩展验收 / L3 | 参考应用依赖 S02/K01/K02，完整 SDK 依赖 S03/K04 | P2 评审应用与覆盖账本；P4 行业包及扩展验收 |
+| D01 | 可扩展企业交付 / 各层 | K01、K02 起步，随阶段扩展 | 安装升级、容量/拓扑、多节点与高可用、恢复及验收工具 |
 
-### Phase 0：定位冻结与架构清理（0—6 周）
+各工作包在启动时指定负责人和验收版本。API、CLI、Console 的契约与授权回归随相关包同步更新。
 
-目标：阻止产品继续向个人助手和类型硬编码漂移。
+[F01-3 智能体接入能力勘察 #57](https://github.com/HQIT/DiOS/issues/57) 已完成，Cursor 会话、A2A 差异和 E2AG 控制点/扩展形成证据。下一主项为 [F01-0 架构基线收口 #55](https://github.com/HQIT/DiOS/issues/55)。E2AG 原生工具控制、授权续期、Attempt/epoch 绑定和性能提升进入既定任务；真实跨 Agent 治理由 #34/#56/#58 联合验收。G0 与勘察完成后固定 [领域/API #25](https://github.com/HQIT/DiOS/issues/25)，容量设计按自身门槛推进。12 个工作包拆为 39 个可验收任务；[K01-4 #56](https://github.com/HQIT/DiOS/issues/56) 实现协议适配，[K01-5 #58](https://github.com/HQIT/DiOS/issues/58) 完成跨智能体联合验收。A01-5 和 D01-5 分别承接评审业务与受控切换。
 
-交付：
+E2AG 增量集成只纳入产品运行代码、必要测试和使用说明。兼容模式若允许未声明治理的历史 Agent 运行，须显式标识；企业发布门槛要求受管工作负载声明完整治理配置并验证拒绝路径。研究实验、论文数据不作为产品验收完成的依据。
 
-- 确认本文档中的产品边界与术语
-- 建立架构决策记录 ADR 机制
-- 明确 DiOS、DiAgent、App、Connector 的仓库职责
-- 将 Chat 定位为参考 App，而不是 OS 核心
-- 建立 Connector 和 Runtime Adapter 契约
-- 事件类型与 source namespace 注册化，业务场景事件迁出 OS 核心
-- 整理模块依赖，禁止 OS 核心引用具体 App
-- 建立数据库迁移、API 版本和兼容策略
-- 给现有功能补齐最小架构测试和回归基线
+## 8. 质量与进展指标
 
-退出门槛：
+- L1：Run 成功率、排队时延、恢复时间、幂等、回滚成功率、授权覆盖、审批阻断、用量完整率和预算执行。
+- L2：工作完成率、交付时效、人工接管率、审批时长、知识权限正确性、数字员工版本质量和成本归属。
+- L3：专业成果正确率、业务处理效率、用户接受度和场景结果，按项目定义测量样本与口径。
+- 跨层：对象来源可追溯、契约兼容、调用者身份保真、权限撤销、升级恢复及行业包对内核的修改量。
 
-- 新增 Connector 不需要修改通用路由中的类型白名单或条件分支
-- 新增 App 不修改 OS 核心服务
-- 核心领域术语在 API、数据库和文档中一致
-- 主分支具备可重复的最小端到端测试
+每阶段保存实现版本、验收记录和未关闭问题。路线变更通过 ADR 记录；现有 API 和部署采用明确迁移与弃用窗口。
 
-### Phase 1：单机闭环与可恢复运行（1—3 个月）
+## 9. 文档入口
 
-目标：把现有功能收敛为可安装、可升级、可恢复的单机产品基线。
+- [开放智能体接入的整体计划与下一批工作](docs/planning/open-agent-plan.md)
+- [任务范围、依赖与验收清单](docs/planning/project-plan.json)
 
-交付：
+- [架构基线：原则、图解、需求追踪与评审](docs/architecture/README.md)
+- [工程手册：文档、任务、评审与发布门槛](docs/engineering/handbook.md)
 
-- 完成 Connector 注册表到 API、事件目录和 Console 动态表单的接线（已完成，2026-09-07）
-- 定义 Local Docker Runtime Adapter，统一 service 与 task 状态机
-- 建立正式数据库 Migration，并提供 SQLite、配置和 workspace 的备份恢复命令
-- AgentDefinition、AgentRevision、AgentDeployment、AgentRun 最小模型
-- 不可变 Revision、变更历史和本机回滚
-- 持久任务队列、租约、心跳、幂等键、重试和明确终态
-- API Token 哈希存储、吊销与过期；Secret 不再通过普通响应返回
-- 单机安装、升级、卸载和故障恢复文档
+- [分层架构与现有实现](docs/architecture.md)
+- [ADR 0003：三层架构与数据/授权边界](docs/adr/0003-layered-digital-workforce-platform.md)
+- [ADR 0001：Connector 契约](docs/adr/0001-connector-plugin-contract.md)
+- [ADR 0002：扩展边界](docs/adr/0002-agent-extension-boundaries.md)
 
-退出门槛：
-
-- 一台新主机可按文档完成安装，并通过最小端到端测试
-- DiOS 或 Worker 重启不会丢失已提交的 Run
-- Agent 异常退出后任务能够安全恢复或进入明确终态
-- 任意 Deployment 可以在本机回滚到已知 Revision
-- 备份可在干净实例上恢复，并保留配置、运行记录和必要产物
-
-### Phase 2：单机治理与可观测性（3—6 个月）
-
-目标：让操作者能够限制 Agent 的行为，并解释每一次执行。
-
-交付：
-
-- 实例级 Policy 与高风险操作 Approval Gate
-- Model、Tool、Connector、Network 和 Workspace 策略
-- Token、请求量、并发、运行时长和金额预算
-- 结构化 AuditEvent、日志、指标和统一 Correlation ID
-- Run、模型调用、工具调用和外部投递的端到端关联
-- Agent、模型和 Connector 维度的用量与成本归因
-- Artifact 与输入输出来源记录
-- 健康检查、诊断包和有界日志导出
-
-退出门槛：
-
-- 未授权 Agent 无法访问被禁止的模型、工具、网络或 Secret
-- 高风险动作在批准前不能执行
-- 一次 Run 能够追踪到事件、配置版本、Runtime、模型、工具和输出
-- 配额与预算在本机并发场景下可靠执行
-
-### Phase 3：单机扩展生态与交付质量（6—9 个月）
-
-目标：在不引入多租户和集群复杂度的前提下，降低扩展与运维成本。
-
-交付：
-
-- Connector、Runtime、Skill、Policy Package 的版本、签名和准入检查
-- Connector 与 Runtime SDK、契约测试套件和示例实现
-- GitOps / CI/CD 发布集成
-- 稳定的 API 版本、兼容窗口和升级检查
-- 单机容量规划、资源上限和压力测试
-- SLO、运维手册、故障注入和恢复演练
-
-退出门槛：
-
-- 扩展包具备来源、版本、签名、权限声明和回滚能力
-- 新增 Connector 或 Runtime 不需要修改 OS 核心类型分支
-- 连续升级与回滚演练不丢失关键数据
-- 单机容量边界和降级行为有可重复测试结果
-
-### 延后范围：多租户与集群化
-
-Organization、Project、Environment、SSO、跨租户 RBAC、PostgreSQL 集群、高可用控制面、Kubernetes Runtime Pool 和多集群调度不进入当前三阶段。只有在单机退出门槛稳定通过、并出现明确部署需求后，才通过新 ADR 重新排期；当前代码只保留可迁移性，不提前实现这些语义。
-
-## 9. 横向工作流
-
-以下工作不应被推迟到最后：
-
-### 安全
-
-- 默认拒绝和最小权限
-- Secret 不进入日志、Prompt、普通配置和 API 响应
-- 防止 Prompt Injection 绕过工具、网络和数据策略
-- 镜像、依赖和扩展包供应链安全
-- 实例 API、Agent Runtime 与宿主机之间的权限边界测试
-
-### 兼容性
-
-- 稳定的 API 版本策略
-- 数据库 Schema Migration
-- Connector、Runtime、Event Schema 版本
-- 弃用周期与升级说明
-
-### 可靠性
-
-- 明确 Run 和 Event 状态机
-- 所有异步投递具备幂等与重放策略
-- 超时、取消、重试和部分失败具有一致语义
-- 故障注入和恢复测试
-
-### 开发者体验
-
-- 本地开发环境一键启动
-- Connector 与 Runtime SDK
-- 契约测试套件和示例实现
-- OpenAPI、CLI 与可复制的部署文档
-
-## 10. 北极星指标
-
-不以 Agent 数量、Channel 数量或 Demo 数量衡量产品进展。
-
-建议指标：
-
-- Run 成功率及按错误类别划分的失败率
-- 事件接收到 Run 启动的 P50/P95/P99 延迟
-- 控制面可用性和任务恢复时间
-- 可被完整追踪和复现的 Run 比例
-- 受实例访问控制、Policy 和 Budget 覆盖的资源比例
-- 未授权访问与 Runtime 越权测试通过率
-- 单 Agent、模型和 Connector 的成本可归因率
-- Deployment 回滚成功率和平均恢复时间
-- Connector/Runtime 新实现对核心代码的修改量
-
-## 11. 建议的首批 Issues
-
-1. 接受单机 Agent OS 阶段边界并更新架构文档
-2. 建立 ADR 模板和架构所有者机制
-3. 完成 Connector Registry 到 API、事件目录和 Console 的接线
-4. 定义 AgentDefinition、Revision、Deployment、Run 状态机
-5. 定义 Local Docker Runtime Adapter 并封装现有运行逻辑
-6. 引入正式数据库 Migration 与 SQLite 备份恢复流程
-7. 实现持久队列、重启恢复、并发限制、幂等与重试
-8. 完善 API Token 生命周期和 SecretReference
-9. 定义 AuditEvent Schema 和全链路 Correlation ID
-10. 建立最小端到端单机安装、运行、升级和恢复测试
-11. 从 E2AG 分支提取任务级工具授权、审批生命周期及其测试
-12. 恢复主分支镜像构建，并建立合并前必过检查
-
-这些 Issues 应优先形成契约、测试和迁移方案，再开始大规模实现。
-
-## 12. Roadmap 治理
-
-- 本 Roadmap 每月审阅一次，每季度调整阶段目标
-- 所有重大架构改变通过 ADR 记录背景、选择和后果
-- 每个阶段必须有负责人、验收条件和迁移计划
-- 未达到上一阶段退出门槛时，不以增加新 Demo 掩盖基础缺口
-- Roadmap 更新必须说明新增、推迟或删除内容的原因
-- 实际单机部署场景用于验证优先级，但客户专属逻辑不能进入 OS 核心
-
-## 13. 最终判定标准
-
-当前阶段的完成标准是：DiOS 能够在一台主机上稳定管理不同 Runtime 和权限边界的一批 Agent，并能对每次执行进行发布、控制、追踪、审计、备份和恢复。
-
-在达到这一标准前，应将 DiOS 对外描述为正在演进中的单机 Agent 控制平面。多租户与集群化能力只有在重新立项并通过对应退出门槛后，才能进入产品声明。
+P0—P4 的编号替代此前按月份划分的阶段安排。原单机可靠性作为 P1 起步基线，企业管理进入 P2/P3，开放扩展与可扩展部署贯穿 P3/P4；已完成的 Connector Registry 接线继续复用。

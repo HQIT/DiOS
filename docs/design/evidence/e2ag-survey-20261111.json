@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-11",
+  "scope": "isolated existing tests; no live databases, production tool endpoints or deployment changes",
+  "current": {
+    "commit": "63b2e1ceb1145aae875447e4aba4c1d01274e7bb",
+    "tests": {
+      "test_e2ag_tool_gateway.py": 10
+    },
+    "passed": 10,
+    "sha256": {
+      "backend/app/api/internal/e2ag_mcp.py": "16a28c99a0275e71e76c66efab6f64e52ecfa3efabbdb9258eddd315193c3173",
+      "backend/app/services/e2ag_tool_gateway.py": "79de5116bec26965d869ce3f0919f075537793eb9d43a0a446ef15fac9b65de3",
+      "backend/app/services/e2ag.py": "2a44d6379a470a1500f674046b4bd1f39e5b95b1a4df7dd0cac12e4962bfc122",
+      "backend/app/config.py": "04de529d83ba4d874a011f8b632a17c94943a2c910cafabd39d493ba122020eb",
+      "backend/app/models/tables.py": "4dae5bd532cb245407ec3b23c3f8db68a7836b143e20b8e63ec7eef4f645bb12",
+      "backend/tests/test_e2ag_tool_gateway.py": "63702aaf0418cafc567f477420122c0d51258a3c99ef43136be15d4bf34de2b1"
+    }
+  },
+  "candidate": {
+    "base_commit": "f2433d950925b773ae33e7c50cb0579dea1d4115",
+    "uncommitted_snapshot": true,
+    "tests": {
+      "test_e2ag_tool_gateway.py": 19,
+      "test_e2ag_stdio_transport.py": 13,
+      "test_e2ag_argument_constraints.py": 14,
+      "test_e2ag_invocation_persistence.py": 8
+    },
+    "passed": 54,
+    "sha256": {
+      "backend/app/api/internal/e2ag_mcp.py": "b3ae04e1fddf8d7e05e2338a5835926a8d3af8055b77680644d493d4ab2dc8db",
+      "backend/app/services/e2ag_tool_gateway.py": "b6bab019463c20153fd5db018a934c7b19616d653272eac81f7802f876c86c4f",
+      "backend/app/services/e2ag.py": "adc4969d7d50a0600747db13623908a18b62acb83b1ffb7b78dcf1180dd96d38",
+      "backend/app/config.py": "aaf3720e8947849749ef2b8cc7d1cb409d3d2575203dada7a3afc82f7f136a9c",
+      "backend/app/models/tables.py": "2d6f1a91679c109023a0a1c06cd9e702f7cbbb5f3c9d95abe4cac23d77371d27",
+      "backend/tests/test_e2ag_tool_gateway.py": "7d175ef685f8f76361639fb94b3ba70307523e0bc2c95095667b99ee04998b65",
+      "backend/app/services/e2ag_arguments.py": "6e45de5f9b298f732b2b6249a48f3cf76d41d13e7e7936e27d2277d3053fc548",
+      "backend/app/services/e2ag_stdio_transport.py": "68f81b5dc99ccbc021bc948882d35a39ceabe7cfd271aa1bb1a95b92b58eac9d",
+      "backend/app/services/e2ag_evidence.py": "71db282dd5053bf7ccf83a9c8cffbc6b3190d453d6f452ea8fe31c2ed387baeb",
+      "backend/tests/test_e2ag_stdio_transport.py": "33f93457966af0c6c1eafdf37bb02aee87ed39bd3b7f10a06a196b25c550cec8",
+      "backend/tests/test_e2ag_argument_constraints.py": "8344cb508cfa99658ef1d8ea56f01c2bd0c0261cbcc872c96f8a3953b15c6473",
+      "backend/tests/test_e2ag_invocation_persistence.py": "a1cdb195b512d0ca63205e6482be1ea70b726811f4b3bb7dea2a881b38d78093",
+      "backend/tests/fixtures/stdio_receipt_tool.py": "6ed04a990d34bc3fdc60834b79a3f6f89aba91a74007ebb65c3017010c8b5411"
+    }
+  },
+  "total_passed": 64,
+  "failures": 0,
+  "errors": 0,
+  "runtime": "WSL Ubuntu-24.04; original backend virtual environment; DIOS_DATABASE_URL=sqlite+aiosqlite:///:memory:",
+  "reproduction": "python -B -m unittest discover -s tests -p <test filename> -v",
+  "limits": [
+    "candidate is not a released or merged build",
+    "stdio fixture is a real child process; HTTP upstream tests use doubles",
+    "no third-party Agent to E2AG joint acceptance or throughput qualification"
+  ],
+  "diagent_images": {
+    "default_local_service": "sha256:72bd16289ce1d21e7b8b7bcbf0469080c20aff9a60b239f2c4ac4f1cc404d92d",
+    "alternative_local_service": "sha256:3df1060e1c4914ba4bcba03ab57a768318ed48e7a74e34ce7de7772ed12d24f5",
+    "repo_digests": [],
+    "limit": "local image identities only; no portable pull digest or new DiAgent execution verified"
+  }
+}

@@ -2,7 +2,7 @@
 
 > 单机部署的事件驱动 Agent 控制平面：接入事件、调度 Agent、管理资源，并记录每次执行。
 
-DiOS 管理 Agent，Agent 完成工作。它基于 [DiAgent](https://github.com/HQIT/DiAgent)，把 Git、邮件、Webhook 或定时任务路由给合适的 Agent，在隔离容器中执行。
+DiOS 管理 Agent，Agent 完成工作。当前执行实现使用 [DiAgent](https://github.com/HQIT/DiAgent)，把 Git、邮件、Webhook 或定时任务路由给合适的 Agent，在隔离容器中执行。目标架构通过 A2A、ACP 与适配器接入不同来源的智能体，由各自的 loop/harness 完成执行，详见 [开放智能体接入](docs/architecture/agent-interoperability.md)。
 
 <p align="center">
   <img src="docs/readme/dios-overview.svg" alt="DiOS 工作流程：事件接入、路由治理、Agent 执行与审计" width="100%">
@@ -49,11 +49,13 @@ python cli/dios registry plugins
 python cli/dios connector types
 ```
 
-进一步了解：[Roadmap](ROADMAP.md) · [架构说明](docs/architecture.md) · [Connector 契约](docs/adr/0001-connector-plugin-contract.md)
+进一步了解：[架构基线与图解](docs/architecture/README.md) · [工程手册](docs/engineering/handbook.md) · [Roadmap](ROADMAP.md) · [现有架构](docs/architecture.md) · [Connector 契约](docs/adr/0001-connector-plugin-contract.md)
 
 ## 项目边界
 
-DiOS 负责事件、资源、调度和治理；DiAgent 负责单个 Agent 的推理与工具调用。当前路线以单机、单实例和可信操作者为边界，多租户与集群化暂缓。
+DiOS 保持 Agent OS 内核定位，负责资源、事件、调度、运行和治理；DiAgent 负责推理与工具调用。下一阶段在内核之上建设数字员工管理与服务层，再由业务应用承载行业场景。现有 Console 与 CLI 保留为内核运维入口。
+
+当前实现以单机可信操作者为基础，建设目标是可扩展的企业级平台；组织、岗位、工作空间和业务协作由上层服务提供。单机用于初期验证，多节点与高可用进入企业交付路线，多租户单独后置。详见 [三层架构决策](docs/adr/0003-layered-digital-workforce-platform.md) 和 [分阶段路线](ROADMAP.md)。
 
 ## License
 

@@ -1,0 +1,84 @@
+{
+  "date": "2026-11-11",
+  "baseline": "A2A 0.3.0 JSON-RPC; bounded legacy compatibility survey",
+  "specification": "https://a2a-protocol.org/v0.3.0/specification/",
+  "method": "isolated original function bodies with in-memory dependencies; no HTTP/auth/runtime tests",
+  "no_database_or_model_calls": true,
+  "source_sha256": {
+    "backend\\app\\services\\a2a_service.py": "ae286126af3e73132a4c5c0931813c0a7fce8640ad7af0d374d0e1d2d007a75c",
+    "backend\\app\\api\\os\\a2a.py": "032124f496aae4075f945e28dfa2a32ada4b08e3163f24a576fa37c22b74f697"
+  },
+  "checks": [
+    {
+      "id": "card-protocol-version",
+      "expected": "explicit supported protocolVersion",
+      "actual": null,
+      "meets_expectation": false
+    },
+    {
+      "id": "provider-url",
+      "expected": "provider.url required when provider is included",
+      "actual": null,
+      "meets_expectation": false
+    },
+    {
+      "id": "task-query-identity",
+      "expected": "fixture-task",
+      "actual": "fixture-task",
+      "meets_expectation": true
+    },
+    {
+      "id": "task-discriminator",
+      "expected": "kind=task",
+      "actual": null,
+      "meets_expectation": false
+    },
+    {
+      "id": "unknown-task-error",
+      "expected": -32001,
+      "actual": -32001,
+      "meets_expectation": true
+    },
+    {
+      "id": "invalid-jsonrpc-version",
+      "expected": -32600,
+      "actual": null,
+      "meets_expectation": false
+    },
+    {
+      "id": "invalid-method-params",
+      "expected": -32602,
+      "actual": -32603,
+      "meets_expectation": false
+    },
+    {
+      "id": "cancel-terminal-task",
+      "expected": -32002,
+      "actual": null,
+      "meets_expectation": false
+    },
+    {
+      "id": "message-context-mapping",
+      "expected": "existing-context",
+      "actual": "",
+      "meets_expectation": false
+    },
+    {
+      "id": "streaming-advertisement",
+      "expected": "declared support corresponds to implemented method",
+      "actual": {
+        "advertised": true,
+        "error": -32601
+      },
+      "meets_expectation": false
+    },
+    {
+      "id": "unknown-method-error",
+      "expected": -32601,
+      "actual": -32601,
+      "meets_expectation": true
+    }
+  ],
+  "met": 3,
+  "gaps": 8
+}
