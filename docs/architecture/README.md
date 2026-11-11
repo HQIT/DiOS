@@ -15,6 +15,8 @@ DiOS 为数字员工提供受控运行底座，上层管理组织与工作，开
 | 各 Agent 实际提供什么接口，首轮验证谁 | [智能体接入能力矩阵](../design/agent-integration-capability-matrix.md) |
 | E2AG 如何接入外部 Agent，哪些能力需要扩展 | [E2AG 接入与扩展](../design/e2ag-agent-integration.md) |
 | 持续代码评审如何进入三层架构 | [评审业务能力评估与接入设计](../design/continuous-code-review-assessment.md) |
+| 领域对象、API、状态和兼容怎样固定 | [领域/API 契约 v1](../design/domain-api-contract-v1.md) |
+| 两档容量、SLO、部署与基准如何验收 | [容量/SLO 设计 v1](../design/capacity-slo-v1.md) |
 | 哪些约束必须长期保持 | [架构原则](principles.md) |
 | 需求如何落实到设计、任务和验收 | [需求与验收追踪](traceability.md) |
 | 谁评审、如何变更、何时允许开发与发布 | [工程手册](../engineering/handbook.md) |
@@ -31,7 +33,7 @@ DiOS 为数字员工提供受控运行底座，上层管理组织与工作，开
 
 Markdown 是文档正文来源，`diagrams/*.svg` 是可编辑矢量图；`scripts/build_architecture_diagrams.py` 生成图，`scripts/render_architecture_guide.mjs` 将正文与图合成为可离线阅读的 HTML。导出文件用于阅读，变更以仓库源文件为准。
 
-评审入口为 [review-v0.3.md](review-v0.3.md)。原则、责任边界、授权逻辑和工程门槛已接受，下一步为 F01-1 领域/API 设计与 F01-2 容量设计；具体技术选型在对应 ADR 中决定。
+评审入口为 [review-v0.3.md](review-v0.3.md)。原则、责任边界、授权逻辑和工程门槛已接受，F01-1 领域/API 与 F01-2 容量设计已形成 v1 交付，见 [联合记录](../design/review-f25-f26.md)；后续授权和实现任务按各自门槛推进。
 
 ## 图文导出
 

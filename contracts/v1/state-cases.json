@@ -1,0 +1,154 @@
+[
+  {
+    "name": "validated-success",
+    "machine": "Run",
+    "from": "validating",
+    "to": "succeeded",
+    "facts": {
+      "sealed_artifacts": true,
+      "required_validators_passed": true,
+      "evidence_complete": true,
+      "current_owner": true
+    },
+    "allowed": true
+  },
+  {
+    "name": "missing-evidence",
+    "machine": "Run",
+    "from": "validating",
+    "to": "succeeded",
+    "facts": {
+      "sealed_artifacts": true,
+      "required_validators_passed": true,
+      "evidence_complete": false,
+      "current_owner": true
+    },
+    "allowed": false
+  },
+  {
+    "name": "stale-owner-success",
+    "machine": "Run",
+    "from": "validating",
+    "to": "succeeded",
+    "facts": {
+      "sealed_artifacts": true,
+      "required_validators_passed": true,
+      "evidence_complete": true,
+      "current_owner": false
+    },
+    "allowed": false
+  },
+  {
+    "name": "no-direct-model-success",
+    "machine": "Run",
+    "from": "executing",
+    "to": "succeeded",
+    "facts": {
+      "sealed_artifacts": true,
+      "required_validators_passed": true,
+      "evidence_complete": true,
+      "current_owner": true
+    },
+    "allowed": false
+  },
+  {
+    "name": "terminal-run-is-immutable",
+    "machine": "Run",
+    "from": "succeeded",
+    "to": "queued",
+    "facts": {},
+    "allowed": false
+  },
+  {
+    "name": "unknown-side-effect-blocks-retry",
+    "machine": "Run",
+    "from": "reconciliation_required",
+    "to": "retry_wait",
+    "facts": {
+      "retry_budget_remaining": true,
+      "previous_attempt_closed": true,
+      "external_effect_resolved": false
+    },
+    "allowed": false
+  },
+  {
+    "name": "resolved-result-permits-retry",
+    "machine": "Run",
+    "from": "reconciliation_required",
+    "to": "retry_wait",
+    "facts": {
+      "retry_budget_remaining": true,
+      "previous_attempt_closed": true,
+      "external_effect_resolved": true
+    },
+    "allowed": true
+  },
+  {
+    "name": "sent-cancel-not-confirmed",
+    "machine": "Run",
+    "from": "executing",
+    "to": "cancelled",
+    "facts": {
+      "cancel_confirmed_or_never_started": false,
+      "external_effect_resolved": true
+    },
+    "allowed": false
+  },
+  {
+    "name": "confirmed-cancel",
+    "machine": "Run",
+    "from": "executing",
+    "to": "cancelled",
+    "facts": {
+      "cancel_confirmed_or_never_started": true,
+      "external_effect_resolved": true
+    },
+    "allowed": true
+  },
+  {
+    "name": "business-acceptance-independent",
+    "machine": "WorkItem",
+    "from": "awaiting_review",
+    "to": "completed",
+    "facts": {
+      "business_accepted": false,
+      "acceptance_evidence_present": true,
+      "required_runs_validated": true
+    },
+    "allowed": false
+  },
+  {
+    "name": "business-accepted",
+    "machine": "WorkItem",
+    "from": "awaiting_review",
+    "to": "completed",
+    "facts": {
+      "business_accepted": true,
+      "acceptance_evidence_present": true,
+      "required_runs_validated": true
+    },
+    "allowed": true
+  },
+  {
+    "name": "single-recovery-probe",
+    "machine": "Circuit",
+    "from": "open",
+    "to": "half_open",
+    "facts": {
+      "exclusive_probe_lease": true,
+      "retry_deadline_reached": true
+    },
+    "allowed": true
+  },
+  {
+    "name": "duplicate-recovery-probe-denied",
+    "machine": "Circuit",
+    "from": "open",
+    "to": "half_open",
+    "facts": {
+      "exclusive_probe_lease": false,
+      "retry_deadline_reached": true
+    },
+    "allowed": false
+  }
+]

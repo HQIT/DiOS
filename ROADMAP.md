@@ -177,7 +177,7 @@ SaaS 多租户、跨企业计费与市场、多集群治理后置。多节点运
 
 各工作包在启动时指定负责人和验收版本。API、CLI、Console 的契约与授权回归随相关包同步更新。
 
-[F01-3 智能体接入能力勘察 #57](https://github.com/HQIT/DiOS/issues/57) 已完成，Cursor 会话、A2A 差异和 E2AG 控制点/扩展形成证据。[F01-0 架构基线 #55](https://github.com/HQIT/DiOS/issues/55) 已通过 G0，见 [v0.3 决议](docs/architecture/review-v0.3.md)。下一步为 #25 领域/API 与 #26 容量设计。E2AG 原生工具控制、授权续期、Attempt/epoch 绑定和性能提升进入既定任务；真实跨 Agent 治理由 #34/#56/#58 联合验收。G0 与勘察完成后固定 [领域/API #25](https://github.com/HQIT/DiOS/issues/25)，容量设计按自身门槛推进。12 个工作包拆为 39 个可验收任务；[K01-4 #56](https://github.com/HQIT/DiOS/issues/56) 实现协议适配，[K01-5 #58](https://github.com/HQIT/DiOS/issues/58) 完成跨智能体联合验收。A01-5 和 D01-5 分别承接评审业务与受控切换。
+[F01-3 智能体接入能力勘察 #57](https://github.com/HQIT/DiOS/issues/57) 已完成，Cursor 会话、A2A 差异和 E2AG 控制点/扩展形成证据。[F01-0 架构基线 #55](https://github.com/HQIT/DiOS/issues/55) 已通过 G0，见 [v0.3 决议](docs/architecture/review-v0.3.md)。#25 领域/API 与 #26 容量设计已完成，交付 [机器可读契约与两档容量设计](docs/design/review-f25-f26.md)。下一主项为 #27 授权契约及已就绪的运行/数据详细设计。E2AG 原生工具控制、授权续期、Attempt/epoch 绑定和性能提升进入既定任务；真实跨 Agent 治理由 #34/#56/#58 联合验收。G0 与勘察完成后固定 [领域/API #25](https://github.com/HQIT/DiOS/issues/25)，容量设计按自身门槛推进。12 个工作包拆为 39 个可验收任务；[K01-4 #56](https://github.com/HQIT/DiOS/issues/56) 实现协议适配，[K01-5 #58](https://github.com/HQIT/DiOS/issues/58) 完成跨智能体联合验收。A01-5 和 D01-5 分别承接评审业务与受控切换。
 
 E2AG 增量集成只纳入产品运行代码、必要测试和使用说明。兼容模式若允许未声明治理的历史 Agent 运行，须显式标识；企业发布门槛要求受管工作负载声明完整治理配置并验证拒绝路径。研究实验、论文数据不作为产品验收完成的依据。
 

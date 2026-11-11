@@ -25,12 +25,17 @@ const allDocs = [
  ['adr-interop','开放接入决议','docs/adr/0004-open-agent-harness-interoperability.md'],
  ['adr-e2ag','E2AG 决议','docs/adr/0005-e2ag-integration-evolution.md'],
  ['review','基线评审','docs/architecture/review-v0.3.md'],
+ ['domain-contract','领域与 API 契约','docs/design/domain-api-contract-v1.md'],
+ ['capacity-design','容量与 SLO','docs/design/capacity-slo-v1.md'],
+ ['durable-adr','持久契约与存储决议','docs/adr/0006-durable-contract-and-storage.md'],
+ ['contract-review','详细设计验收','docs/design/review-f25-f26.md'],
  ['design-template','设计模板','docs/templates/design-spec.md'],
  ['adr-template','ADR 模板','docs/templates/adr.md'],
  ['review-template','评审模板','docs/templates/review.md']
 ];
 const survey = args.includes('--survey');
-const docs = survey ? ['code-review','capability','a2a-survey','e2ag-survey'].map(id=>allDocs.find(x=>x[0]===id)) : allDocs;
+const contracts = args.includes('--contracts');
+const docs = contracts ? ['domain-contract','capacity-design','durable-adr','contract-review'].map(id=>allDocs.find(x=>x[0]===id)) : survey ? ['code-review','capability','a2a-survey','e2ag-survey'].map(id=>allDocs.find(x=>x[0]===id)) : allDocs;
 const ids = new Map(docs.map(([id,,file])=>[path.resolve(root,file),id]));
 let sections='';
 for (const [id,,file] of docs) {
@@ -58,6 +63,7 @@ for (const [id,,file] of docs) {
 }
 const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DiOS 架构与工程基线 v0.3</title>
 <style>
+section{overflow-wrap:anywhere}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
 :root{--ink:#172d43;--muted:#52687a;--line:#d8e2ea;--accent:#126d70}
 #principles th:nth-child(1){width:72px}#principles td:first-child{white-space:nowrap}#principles th:nth-child(2){width:30%}#principles th:nth-child(3){width:35%}
@@ -65,5 +71,6 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
 </style></head><body><header><div class="eyebrow">DiOS · AGENT OS</div><h1>企业级数字员工平台<br>架构逻辑与工程基线</h1><p>运行有边界，工作有归属，交付有依据。</p><p>v0.3 · 2026-11-11 · G0 已接受</p></header><nav>${docs.map(([id,title])=>'<a href="#'+id+'">'+title+'</a>').join('')}</nav><main>${sections}</main><footer>DiOS · 架构基线 v0.3</footer></body></html>`;
 let rendered=html;
 if(survey)rendered=rendered.replace('· G0 已接受</p>','· 能力评估</p>').replaceAll('DiOS 架构与工程基线 v0.3','DiOS 持续评审接入与智能体能力评估').replace('企业级数字员工平台<br>架构逻辑与工程基线','持续代码评审接入<br>与智能体能力评估').replace('运行有边界，工作有归属，交付有依据。','可靠执行、可核验覆盖、开放智能体接入。').replaceAll('v0.3 · 2026-11-11','2026-11-11').replace('DiOS · 架构基线 v0.3','DiOS · Agent OS');
+if(contracts)rendered=rendered.replaceAll('DiOS 架构与工程基线 v0.3','DiOS 领域契约与容量设计 v1').replace('企业级数字员工平台<br>架构逻辑与工程基线','领域与 API 契约<br>容量、SLO 与部署设计').replace('运行有边界，工作有归属，交付有依据。','开放智能体、持久运行与 E2AG 治理的详细设计。').replace('v0.3 · 2026-11-11 · G0 已接受','v1 · 2026-11-11 · P0 设计交付').replace('DiOS · 架构基线 v0.3','DiOS · 详细设计 v1');
 fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,rendered);
 console.log(output);

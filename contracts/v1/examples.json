@@ -1,0 +1,290 @@
+[
+  {
+    "name": "minimal-run-submit",
+    "schema": "SubmitRun",
+    "valid": true,
+    "value": {
+      "deployment_id": "dep-1",
+      "input_artifact_ids": [
+        "art-input"
+      ],
+      "result_contract": {
+        "schema_ref": "review-result-v1",
+        "required_artifact_roles": [
+          "result",
+          "coverage"
+        ],
+        "validator_revisions": [
+          "review-validator-v1"
+        ],
+        "evidence_policy_ref": "review-evidence-v1"
+      },
+      "required_capabilities": [
+        "strict-read-only"
+      ],
+      "grant_ref": "grant-1",
+      "budget_ref": "budget-1"
+    }
+  },
+  {
+    "name": "governed-action-binding",
+    "schema": "ActionRequest",
+    "valid": true,
+    "value": {
+      "binding": {
+        "run_id": "run-1",
+        "attempt_id": "attempt-1",
+        "session_id": "session-1",
+        "worker_id": "worker-1",
+        "lease_epoch": 3,
+        "policy_version": "policy-v1",
+        "principal_ref": "service-1",
+        "delegation_ref": "delegate-1"
+      },
+      "grant_id": "grant-1",
+      "resource": {
+        "kind": "file",
+        "id": "snapshot-1",
+        "version": "sha-1"
+      },
+      "action": "read",
+      "parameter_artifact_id": "params-1",
+      "parameter_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "invocation_key": "invoke-1"
+    }
+  },
+  {
+    "name": "legacy-id-preserves-source",
+    "schema": "LegacyIdentityMap",
+    "valid": true,
+    "value": {
+      "id": "mapping-1",
+      "version": 1,
+      "source_instance_id": "source-windows-1",
+      "source_entity_type": "review-task",
+      "source_id": "old:42",
+      "target_ref": {
+        "kind": "run",
+        "id": "run-1",
+        "version": "1"
+      },
+      "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "origin_status": "done",
+      "verification": "unverified",
+      "import_batch_id": "batch-1"
+    }
+  },
+  {
+    "name": "grant-required",
+    "schema": "SubmitRun",
+    "valid": false,
+    "value": {
+      "deployment_id": "dep-1",
+      "input_artifact_ids": [
+        "art-input"
+      ],
+      "result_contract": {
+        "schema_ref": "review-result-v1",
+        "required_artifact_roles": [
+          "result",
+          "coverage"
+        ],
+        "validator_revisions": [
+          "review-validator-v1"
+        ],
+        "evidence_policy_ref": "review-evidence-v1"
+      },
+      "required_capabilities": [
+        "strict-read-only"
+      ],
+      "budget_ref": "budget-1"
+    }
+  },
+  {
+    "name": "validation-contract-required",
+    "schema": "SubmitRun",
+    "valid": false,
+    "value": {
+      "deployment_id": "dep-1",
+      "input_artifact_ids": [
+        "art-input"
+      ],
+      "required_capabilities": [
+        "strict-read-only"
+      ],
+      "grant_ref": "grant-1",
+      "budget_ref": "budget-1"
+    }
+  },
+  {
+    "name": "unknown-client-identity",
+    "schema": "SubmitRun",
+    "valid": false,
+    "value": {
+      "deployment_id": "dep-1",
+      "input_artifact_ids": [
+        "art-input"
+      ],
+      "result_contract": {
+        "schema_ref": "review-result-v1",
+        "required_artifact_roles": [
+          "result",
+          "coverage"
+        ],
+        "validator_revisions": [
+          "review-validator-v1"
+        ],
+        "evidence_policy_ref": "review-evidence-v1"
+      },
+      "required_capabilities": [
+        "strict-read-only"
+      ],
+      "grant_ref": "grant-1",
+      "budget_ref": "budget-1",
+      "principal_ref": "forged-admin"
+    }
+  },
+  {
+    "name": "nonpositive-fence-rejected",
+    "schema": "ActionRequest",
+    "valid": false,
+    "value": {
+      "binding": {
+        "run_id": "run-1",
+        "attempt_id": "attempt-1",
+        "session_id": "session-1",
+        "worker_id": "worker-1",
+        "lease_epoch": 0,
+        "policy_version": "policy-v1",
+        "principal_ref": "service-1",
+        "delegation_ref": "delegate-1"
+      },
+      "grant_id": "grant-1",
+      "resource": {
+        "kind": "file",
+        "id": "snapshot-1",
+        "version": "sha-1"
+      },
+      "action": "read",
+      "parameter_artifact_id": "params-1",
+      "parameter_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "invocation_key": "invoke-1"
+    }
+  },
+  {
+    "name": "parameter-digest-format",
+    "schema": "ActionRequest",
+    "valid": false,
+    "value": {
+      "binding": {
+        "run_id": "run-1",
+        "attempt_id": "attempt-1",
+        "session_id": "session-1",
+        "worker_id": "worker-1",
+        "lease_epoch": 3,
+        "policy_version": "policy-v1",
+        "principal_ref": "service-1",
+        "delegation_ref": "delegate-1"
+      },
+      "grant_id": "grant-1",
+      "resource": {
+        "kind": "file",
+        "id": "snapshot-1",
+        "version": "sha-1"
+      },
+      "action": "read",
+      "parameter_artifact_id": "params-1",
+      "parameter_digest": "wrong",
+      "invocation_key": "invoke-1"
+    }
+  },
+  {
+    "name": "session-binding-required",
+    "schema": "ActionRequest",
+    "valid": false,
+    "value": {
+      "binding": {
+        "run_id": "run-1",
+        "attempt_id": "attempt-1",
+        "worker_id": "worker-1",
+        "lease_epoch": 3,
+        "policy_version": "policy-v1",
+        "principal_ref": "service-1",
+        "delegation_ref": "delegate-1"
+      },
+      "grant_id": "grant-1",
+      "resource": {
+        "kind": "file",
+        "id": "snapshot-1",
+        "version": "sha-1"
+      },
+      "action": "read",
+      "parameter_artifact_id": "params-1",
+      "parameter_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "invocation_key": "invoke-1"
+    }
+  },
+  {
+    "name": "staging-without-fabricated-digest",
+    "schema": "Artifact",
+    "valid": true,
+    "value": {
+      "id": "art-1",
+      "version": 1,
+      "attempt_id": "attempt-1",
+      "role": "result",
+      "media_type": "application/json",
+      "encoding": "utf-8",
+      "raw_digest": null,
+      "raw_size_bytes": null,
+      "transport_digest": null,
+      "compression": "none",
+      "storage_ref": "store-1",
+      "acl_ref": "acl-1",
+      "state": "staging",
+      "replication_state": "pending"
+    }
+  },
+  {
+    "name": "sealed-requires-byte-evidence",
+    "schema": "Artifact",
+    "valid": false,
+    "value": {
+      "id": "art-1",
+      "version": 1,
+      "attempt_id": "attempt-1",
+      "role": "result",
+      "media_type": "application/json",
+      "encoding": "utf-8",
+      "raw_digest": null,
+      "raw_size_bytes": null,
+      "transport_digest": null,
+      "compression": "none",
+      "storage_ref": "store-1",
+      "acl_ref": "acl-1",
+      "state": "sealed",
+      "replication_state": "pending"
+    }
+  },
+  {
+    "name": "sealed-verified-artifact",
+    "schema": "Artifact",
+    "valid": true,
+    "value": {
+      "id": "art-1",
+      "version": 1,
+      "attempt_id": "attempt-1",
+      "role": "result",
+      "media_type": "application/json",
+      "encoding": "utf-8",
+      "raw_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "raw_size_bytes": 1024,
+      "transport_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "compression": "none",
+      "storage_ref": "store-1",
+      "acl_ref": "acl-1",
+      "state": "sealed",
+      "replication_state": "pending"
+    }
+  }
+]

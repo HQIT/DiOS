@@ -1,0 +1,192 @@
+{
+  "version": "1.0.0",
+  "machines": {
+    "Run": {
+      "initial": "queued",
+      "terminal": [
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "transitions": {
+        "queued": [
+          "executing",
+          "cancelled",
+          "failed"
+        ],
+        "executing": [
+          "validating",
+          "retry_wait",
+          "reconciliation_required",
+          "failed",
+          "cancelled"
+        ],
+        "validating": [
+          "succeeded",
+          "needs_verification",
+          "retry_wait",
+          "failed",
+          "reconciliation_required",
+          "cancelled"
+        ],
+        "retry_wait": [
+          "queued",
+          "cancelled",
+          "failed"
+        ],
+        "needs_verification": [
+          "validating",
+          "failed",
+          "cancelled"
+        ],
+        "reconciliation_required": [
+          "executing",
+          "validating",
+          "retry_wait",
+          "failed",
+          "cancelled"
+        ]
+      },
+      "guards": {
+        "succeeded": [
+          "sealed_artifacts",
+          "required_validators_passed",
+          "evidence_complete",
+          "current_owner"
+        ],
+        "retry_wait": [
+          "retry_budget_remaining",
+          "previous_attempt_closed",
+          "external_effect_resolved"
+        ],
+        "cancelled": [
+          "cancel_confirmed_or_never_started",
+          "external_effect_resolved"
+        ]
+      }
+    },
+    "Attempt": {
+      "initial": "claimed",
+      "terminal": [
+        "completed",
+        "failed",
+        "cancelled",
+        "abandoned"
+      ],
+      "transitions": {
+        "claimed": [
+          "active",
+          "failed",
+          "cancelled"
+        ],
+        "active": [
+          "validating",
+          "reconciliation_required",
+          "failed",
+          "cancelled"
+        ],
+        "validating": [
+          "completed",
+          "failed",
+          "reconciliation_required",
+          "cancelled"
+        ],
+        "reconciliation_required": [
+          "active",
+          "validating",
+          "failed",
+          "cancelled",
+          "abandoned"
+        ]
+      },
+      "guards": {
+        "completed": [
+          "sealed_artifacts",
+          "current_owner"
+        ],
+        "abandoned": [
+          "external_effect_resolved",
+          "ownership_revoked"
+        ],
+        "cancelled": [
+          "cancel_confirmed_or_never_started",
+          "external_effect_resolved"
+        ]
+      }
+    },
+    "WorkItem": {
+      "initial": "draft",
+      "terminal": [
+        "completed",
+        "cancelled"
+      ],
+      "transitions": {
+        "draft": [
+          "assigned",
+          "cancelled"
+        ],
+        "assigned": [
+          "in_progress",
+          "cancelled"
+        ],
+        "in_progress": [
+          "awaiting_review",
+          "cancelled"
+        ],
+        "awaiting_review": [
+          "completed",
+          "changes_requested",
+          "cancelled"
+        ],
+        "changes_requested": [
+          "in_progress",
+          "cancelled"
+        ]
+      },
+      "guards": {
+        "completed": [
+          "business_accepted",
+          "acceptance_evidence_present",
+          "required_runs_validated"
+        ]
+      }
+    },
+    "Circuit": {
+      "initial": "closed",
+      "terminal": [],
+      "transitions": {
+        "closed": [
+          "open"
+        ],
+        "open": [
+          "half_open"
+        ],
+        "half_open": [
+          "closed",
+          "open"
+        ]
+      },
+      "guards": {
+        "half_open": [
+          "exclusive_probe_lease",
+          "retry_deadline_reached"
+        ],
+        "closed": [
+          "probe_succeeded",
+          "recovery_window_passed"
+        ]
+      }
+    }
+  },
+  "write_guards": [
+    "current_owner",
+    "lease_not_expired",
+    "expected_version_matches"
+  ],
+  "observation_events_do_not_transition": [
+    "query_timeout",
+    "heartbeat_stale",
+    "protocol_event",
+    "sync_timeout"
+  ]
+}

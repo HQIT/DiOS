@@ -1,0 +1,66 @@
+{
+  "contract_version": "1.0.0",
+  "selected": [
+    {
+      "id": "a2a-jsonrpc-0.3.0",
+      "protocol": "a2a",
+      "version": "0.3.0",
+      "transport": "https-jsonrpc",
+      "methods": [
+        "message/send",
+        "tasks/get",
+        "tasks/cancel"
+      ],
+      "optional": [
+        "message/stream",
+        "tasks/resubscribe"
+      ],
+      "source": "https://a2a-protocol.org/v0.3.0/specification/",
+      "legacy_gaps": 8,
+      "implementation_issue": 56
+    },
+    {
+      "id": "acp-v1-stdio",
+      "protocol": "acp",
+      "version": "1",
+      "transport": "stdio",
+      "methods": [
+        "initialize",
+        "authenticate",
+        "session/new",
+        "session/prompt"
+      ],
+      "optional": [
+        "session/load",
+        "session/cancel",
+        "$/cancel_request"
+      ],
+      "cancel_rule": "Select exact notification per pinned implementation/schema; a sent notification is not confirmation.",
+      "source": "https://agentclientprotocol.com/protocol/v1/initialization",
+      "implementation_issue": 56
+    }
+  ],
+  "unknowns": [
+    {
+      "capability": "cursor.cross_process_resume",
+      "owner": 58
+    },
+    {
+      "capability": "cursor.active_cancel",
+      "owner": 58
+    },
+    {
+      "capability": "third_party.strict_read_only",
+      "owner": 34
+    },
+    {
+      "capability": "dsh.resume_history_replay",
+      "owner": 56,
+      "known_limit": "resume does not imply history replay"
+    },
+    {
+      "capability": "codex_claude.adapter_runtime",
+      "owner": 58
+    }
+  ]
+}
