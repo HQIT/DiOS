@@ -231,8 +231,8 @@ class RuntimeStore:
             return aid
 
     async def get(self, run_id):
-        # Keep run and attempt snapshots coherent under the same scope transaction.
-        async with self.db.transaction(self.scope) as c:
+        # Keep run and attempt snapshots coherent without joining the SQLite writer queue.
+        async with self.db.read(self.scope) as c:
             run = await self._run(c, run_id)
             run['attempts'] = [dict(a) for a in (await c.execute(select(attempts).where(attempts.c.run_id == run_id).order_by(attempts.c.epoch))).mappings()]
             run['observed_at'] = await self.db.now(c)

@@ -83,3 +83,7 @@ SQLite/PostgreSQL 参考后端通过 [94 项后端回归](evidence/runtime-found
 ## 分档选型证据
 
 [单节点实现比较](provider-selection-32.md) 与 [ADR 0009](../adr/0009-lightweight-and-shared-runtime-storage.md) 将轻量服务纳入正式路线。SQLite/LMDB 具备本轮治理事务能力；共享事务路线先产品化 PG 对象粒度实现。默认轻量后端需补齐公平有界写入、混合负载与备份恢复验收。单控制服务可以管理远端 Worker，平台扩展目标保持多节点。
+
+## 后续阶段性选择
+
+[ADR 0010](../adr/0010-lightweight-runtime-default.md) 确认 SQLite 为轻量 Runtime 当前默认，有界 FIFO 写入与基本混合查询已验收。共享状态与高可用部署按实际故障模型独立验收。下一步推进历史/API 投影、离线 spool 与恢复交付。

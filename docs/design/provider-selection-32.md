@@ -120,3 +120,7 @@ PG 16.13 使用 fsync/synchronous_commit；MySQL 8.0.46 使用 InnoDB、flush_lo
 #34 集成完整 E2AG/PEP、原生工具限制及真实 Agent；#54 承接多节点、长时间混合负载、磁盘满/写失败、主机掉电与分区、备份恢复和单位成本。单节点同步提交与进程崩溃测试尚不能验收复制 RPO、HA 或企业 SLO。G2 独立评审仍待安排，#32 的历史迁移、断网 spool 与业务切换工作继续进行。
 
 完整数据见 [汇总及 SHA-256 输入清单](evidence/provider-summary-20261111.json)、[一致性记录](evidence/provider-correctness-20261111.json)。[实验代码与复现说明](../../experiments/providers32/README.md) 保留原始逐轮数据；冷连接试跑单独保存为 pilot 并排除统计。现有评审业务、活跃任务与历史库保持原有运行状态。
+
+## 后续阶段性选择
+
+[ADR 0010](../adr/0010-lightweight-runtime-default.md) 确认 SQLite 为轻量 Runtime 当前默认，有界 FIFO 写入与基本混合查询已验收。共享状态与高可用部署按实际故障模型独立验收。下一步推进历史/API 投影、离线 spool 与恢复交付。

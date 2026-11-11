@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "status": "single_node_comparison_complete",
-  "decision": "profile_based_productization_candidates",
+  "decision": "sqlite_lightweight_default_shared_provider_separate",
   "reference": "sqlite-postgresql-workspace-serialized",
   "candidates": [
     "relational-object-scoped",
@@ -75,7 +75,21 @@
         "sqlite-wal",
         "lmdb-txn"
       ],
-      "next": "bounded fair write queue, mixed workload and backup/restore acceptance before freezing default"
+      "next": "history/API projections, bounded offline spool, backup/restore and service integration",
+      "default": "sqlite",
+      "status": "stage_default",
+      "write_admission": {
+        "scope": "single control service Database instance",
+        "active": 1,
+        "max_waiters": 64,
+        "wait_timeout_seconds": 5,
+        "errors": [
+          "WRITE_QUEUE_FULL",
+          "WRITE_QUEUE_TIMEOUT",
+          "WRITE_DRAINING"
+        ],
+        "durable_ack": "transaction commit, not volatile queue admission"
+      }
     },
     "shared_transaction_service": {
       "preferred_next_implementation": "pg-row",
@@ -89,5 +103,10 @@
     "disk-full and durable write amplification",
     "production backup/restore",
     "actual harness workload"
-  ]
+  ],
+  "followup": {
+    "adr": "docs/adr/0010-lightweight-runtime-default.md",
+    "mixed": "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
+    "regression": "docs/design/evidence/lightweight-runtime-regression-20261111.json"
+  }
 }

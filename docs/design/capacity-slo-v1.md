@@ -120,3 +120,7 @@
 ## 存储实现比较
 
 [单节点实验](provider-selection-32.md) 记录意图提交路径及故障证据；既定峰值写入仍为业务假设。轻量控制服务与共享事务服务按 [ADR 0009](../adr/0009-lightweight-and-shared-runtime-storage.md) 分档验证。控制面多副本、复制 RPO 与备份恢复继续作为独立验收项。
+
+## 后续阶段性选择
+
+[ADR 0010](../adr/0010-lightweight-runtime-default.md) 确认 SQLite 为轻量 Runtime 当前默认，有界 FIFO 写入与基本混合查询已验收。共享状态与高可用部署按实际故障模型独立验收。下一步推进历史/API 投影、离线 spool 与恢复交付。

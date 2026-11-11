@@ -13,3 +13,7 @@
 产品化门槛包括：完整 E2AG/PEP、真实 Worker、升级排空、历史映射、备份恢复和断网 spool；多节点档另验同步复制、仲裁、旧主隔离、RTO/RPO 及长期混合容量。单节点结果用于实现选择，企业 SLO 仍需 #54 实测。#32 保持 In Progress，G2 独立评审待安排。
 
 依据：[实验报告](../design/provider-selection-32.md)、[机器可读结果](../design/evidence/provider-summary-20261111.json)、[容量假设](../design/capacity-slo-v1.md)。
+
+## 后续阶段性选择
+
+[ADR 0010](0010-lightweight-runtime-default.md) 确认 SQLite 为轻量 Runtime 当前默认，有界 FIFO 写入与基本混合查询已验收。共享状态与高可用部署按实际故障模型独立验收。下一步推进历史/API 投影、离线 spool 与恢复交付。

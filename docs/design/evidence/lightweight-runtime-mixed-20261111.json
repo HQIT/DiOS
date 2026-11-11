@@ -1,0 +1,128 @@
+{
+  "scope": "single-process actual Runtime SQLite mixed writes/queries; bounded smoke gate, not enterprise capacity",
+  "python": "3.12.3",
+  "sqlite": "3.45.1",
+  "journal": "existing driver default; no WAL upgrade in this change",
+  "conditions": {
+    "seed_runs": 200,
+    "writes_per_second": 25,
+    "queries_per_second": 10,
+    "rounds": 3,
+    "seconds_per_case": 5,
+    "queue_capacity": 64,
+    "queue_timeout_seconds": 5
+  },
+  "thresholds": {
+    "write_p99_ms": 1500,
+    "read_p99_ms": 1500,
+    "errors": 0
+  },
+  "cases": [
+    {
+      "variant": "legacy",
+      "round": 0,
+      "duration_seconds": 5,
+      "writes": 125,
+      "reads": 50,
+      "write_p99_ms": 982.806,
+      "read_p99_ms": 842.184,
+      "errors": [],
+      "ledger_verified": true,
+      "queue": null,
+      "passed": true
+    },
+    {
+      "variant": "bounded_fifo",
+      "round": 1,
+      "duration_seconds": 5,
+      "writes": 125,
+      "reads": 50,
+      "write_p99_ms": 55.292,
+      "read_p99_ms": 39.596,
+      "errors": [],
+      "ledger_verified": true,
+      "queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 326,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 14.684832000057213
+      },
+      "passed": true
+    },
+    {
+      "variant": "bounded_fifo",
+      "round": 0,
+      "duration_seconds": 5,
+      "writes": 125,
+      "reads": 50,
+      "write_p99_ms": 92.06,
+      "read_p99_ms": 50.26,
+      "errors": [],
+      "ledger_verified": true,
+      "queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 326,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 56.86213499575388
+      },
+      "passed": true
+    },
+    {
+      "variant": "legacy",
+      "round": 1,
+      "duration_seconds": 5,
+      "writes": 125,
+      "reads": 50,
+      "write_p99_ms": 1076.924,
+      "read_p99_ms": 3954.161,
+      "errors": [],
+      "ledger_verified": true,
+      "queue": null,
+      "passed": false
+    },
+    {
+      "variant": "bounded_fifo",
+      "round": 2,
+      "duration_seconds": 5,
+      "writes": 125,
+      "reads": 50,
+      "write_p99_ms": 50.784,
+      "read_p99_ms": 39.211,
+      "errors": [],
+      "ledger_verified": true,
+      "queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 326,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 13.500058004865423
+      },
+      "passed": true
+    },
+    {
+      "variant": "legacy",
+      "round": 2,
+      "duration_seconds": 5,
+      "writes": 125,
+      "reads": 50,
+      "write_p99_ms": 1064.642,
+      "read_p99_ms": 1149.743,
+      "errors": [],
+      "ledger_verified": true,
+      "queue": null,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

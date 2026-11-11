@@ -2,9 +2,10 @@
 from contextlib import asynccontextmanager
 import hashlib
 from pathlib import Path
-from sqlalchemy import select, text, inspect
+from sqlalchemy import select, text, inspect, event
 from sqlalchemy.ext.asyncio import create_async_engine
 from .schema import metadata, versions
+from .write_queue import WriteGate, WriteQueueError
 
 SCHEMA_VERSION = 1
 # The v1 schema source is frozen after release. Add a migration for future changes.
@@ -16,18 +17,54 @@ class RuntimeErrorCode(ValueError):
         super().__init__(code)
 
 class Database:
-    def __init__(self, url):
+    def __init__(self, url, *, write_queue_capacity=64, write_queue_timeout=5.0):
         self.engine = create_async_engine(url)
         if self.engine.dialect.name not in {'sqlite', 'postgresql'}:
             raise RuntimeErrorCode('UNSUPPORTED_DATABASE')
+        self.write_gate = WriteGate(write_queue_capacity, write_queue_timeout) if self.engine.dialect.name == 'sqlite' else None
+        if self.write_gate:
+            @event.listens_for(self.engine.sync_engine, 'connect')
+            def configure_sqlite(connection, _):
+                cursor = connection.cursor()
+                cursor.execute('PRAGMA busy_timeout=15000')
+                cursor.execute('PRAGMA foreign_keys=ON')
+                cursor.execute('PRAGMA synchronous=FULL')
+                cursor.close()
+
+    @asynccontextmanager
+    async def _write_slot(self):
+        if self.write_gate is None:
+            yield
+            return
+        try:
+            async with self.write_gate.slot():
+                yield
+        except WriteQueueError as exc:
+            raise RuntimeErrorCode(exc.code) from exc
+
+    @asynccontextmanager
+    async def read(self, scope):
+        if self.write_gate is None:
+            # Preserve the existing PostgreSQL snapshot/serialization contract.
+            async with self.transaction(scope) as c:
+                yield c
+            return
+        async with self.engine.connect() as c:
+            try:
+                await c.execute(text('PRAGMA query_only=ON'))
+                await c.execute(text('BEGIN'))
+                await self.check_schema(c)
+                yield c
+            finally:
+                await c.rollback()
+                await c.execute(text('PRAGMA query_only=OFF'))
+                await c.commit()
 
     @asynccontextmanager
     async def transaction(self, scope, *, check=True):
-        async with self.engine.connect() as c:
+        async with self._write_slot(), self.engine.connect() as c:
             try:
                 if c.dialect.name == 'sqlite':
-                    await c.execute(text('PRAGMA busy_timeout=15000'))
-                    await c.execute(text('PRAGMA foreign_keys=ON'))
                     await c.execute(text('BEGIN IMMEDIATE'))
                 else:
                     key = int.from_bytes(hashlib.sha256(scope.encode()).digest()[:8], 'big', signed=True)
@@ -74,4 +111,6 @@ class Database:
         return float((await c.execute(text(query))).scalar_one())
 
     async def close(self):
+        if self.write_gate:
+            await self.write_gate.drain()
         await self.engine.dispose()

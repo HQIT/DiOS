@@ -514,14 +514,14 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-11",
-        "summary": "完成六种实现的单节点原子提交比较；轻量 SQLite/LMDB 与共享 PG 对象粒度路线进入产品化验证。",
+        "summary": "SQLite 作为轻量阶段性默认；正式 Runtime 已接入有界 FIFO 写入口与只读快照，基本混合查询及完整后端回归通过。",
         "evidence_paths": [
-          "docs/design/provider-selection-32.md",
-          "docs/design/evidence/provider-summary-20261111.json",
-          "docs/design/evidence/provider-correctness-20261111.json",
-          "docs/adr/0009-lightweight-and-shared-runtime-storage.md"
+          "docs/design/lightweight-runtime-32.md",
+          "docs/adr/0010-lightweight-runtime-default.md",
+          "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
+          "docs/design/evidence/lightweight-runtime-regression-20261111.json"
         ],
-        "remaining": "接入正式 Runtime，完成公平有界写入、跨对象授权、恢复排空、历史关联/API 投影、断网 spool 与备份恢复；多节点容量和 G2 独立评审待完成。"
+        "remaining": "推进历史关联/API 投影、有界离线 spool、备份恢复和生命周期排空；多副本控制面按实际拓扑独立验收。#32 保持进行中。 回归观察到子进程 transport 回收警告，随生命周期接入收敛。"
       }
     },
     {
@@ -604,14 +604,14 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-11",
-        "summary": "完成六种实现的单节点原子提交比较；轻量 SQLite/LMDB 与共享 PG 对象粒度路线进入产品化验证。",
+        "summary": "SQLite 作为轻量阶段性默认；正式 Runtime 已接入有界 FIFO 写入口与只读快照，基本混合查询及完整后端回归通过。",
         "evidence_paths": [
-          "docs/design/provider-selection-32.md",
-          "docs/design/evidence/provider-summary-20261111.json",
-          "docs/design/evidence/provider-correctness-20261111.json",
-          "docs/adr/0009-lightweight-and-shared-runtime-storage.md"
+          "docs/design/lightweight-runtime-32.md",
+          "docs/adr/0010-lightweight-runtime-default.md",
+          "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
+          "docs/design/evidence/lightweight-runtime-regression-20261111.json"
         ],
-        "remaining": "接入正式 Runtime，完成公平有界写入、跨对象授权、恢复排空、历史关联/API 投影、断网 spool 与备份恢复；多节点容量和 G2 独立评审待完成。"
+        "remaining": "推进历史关联/API 投影、有界离线 spool、备份恢复和生命周期排空；多副本控制面按实际拓扑独立验收。#32 保持进行中。"
       }
     },
     {

@@ -50,3 +50,7 @@ Windows 已设置隐藏子进程标志；Windows 进程树及计划任务实测�
 ## 实现选择进展
 
 [六种实现比较](provider-selection-32.md) 已给出轻量与共享事务两条产品化路线。正式 Runtime 当前仍为本页参考实现；下一步接入对象粒度 PG 和轻量公平写入队列，保持统一身份、原子提交与恢复接口。SQLite/LMDB 的实验 Adapter 尚未接管业务调度。
+
+## 后续阶段性选择
+
+[ADR 0010](../adr/0010-lightweight-runtime-default.md) 确认 SQLite 为轻量 Runtime 当前默认，有界 FIFO 写入与基本混合查询已验收。共享状态与高可用部署按实际故障模型独立验收。下一步推进历史/API 投影、离线 spool 与恢复交付。
