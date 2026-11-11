@@ -31,8 +31,8 @@ Database.close 停止接收新写入，等待已接收的写入结束后释放�
 
 复跑：仓库根目录执行 `backend/.venv/bin/python scripts/check_lightweight_runtime.py --output docs/design/evidence/lightweight-runtime-mixed-20261111.json`。该脚本仅使用临时 SQLite 文件，输入全部为合成数据；生产业务、历史和调度器没有切换。
 
-回归中另记录一次子进程 transport 回收的 Event loop is closed 警告，纳入 #30 生命周期清理。
+该轮回归中记录的子进程 transport 回收问题已由后续 [Worker 报告与生命周期增量](worker-report-spool-30-32.md) 补充清理和回归检查。
 
 ## 下一步
 
-优先推进 #32 的历史关联/API 投影与有界离线 spool，并补备份/恢复、升级失败和排空切换验收。#30 接入真实 Worker 的持久调度与恢复，#34 继续完整 E2AG 治理。跨主机 Worker 通过 API 调用控制服务，多副本控制面再按共享事务与故障模型选型；当前不扩大数据库候选实验。
+[有界 Worker 报告 spool](worker-report-spool-30-32.md) 已接入 RuntimeStore 受信接收接口和 CLI 状态查询。优先推进 #32 的历史关联/API 投影，再补备份/恢复、升级失败和排空切换验收。#30 接入真实 Worker 的持久调度与恢复，#34 继续完整 E2AG 治理。跨主机 Worker 通过认证 API 调用控制服务，多副本控制面按共享事务与故障模型验收；当前不扩大数据库候选实验。

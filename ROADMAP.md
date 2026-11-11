@@ -206,4 +206,4 @@ E2AG 增量集成只纳入产品运行代码、必要测试和使用说明。兼
 P0—P4 的编号替代此前按月份划分的阶段安排。原单机可靠性作为 P1 起步基线，企业管理进入 P2/P3，开放扩展与可扩展部署贯穿 P3/P4；已完成的 Connector Registry 接线继续复用。
 
 
-#30/#32 已进入实现，参考持久层通过隔离回归；生产存储选型按 [E2AG 实现与后端评估](docs/design/e2ag-runtime-implementation-options.md) 推进。下一步先固定后端中立原子契约、改进冲突粒度并比较实现；治理原型和 PostgreSQL 均作为候选，业务接管在联合验收后安排。
+#30/#32 已进入实现，SQLite 按 [ADR 0010](docs/adr/0010-lightweight-runtime-default.md) 作为轻量阶段性默认，有界写队列和基本混合查询已验收。[Worker 离线报告](docs/design/worker-report-spool-30-32.md) 支持有界持久缓冲、补报去重、旧租约隔离和 CLI 查询。下一步交付历史关联查询、备份恢复、升级排空与真实 Worker 接入；跨主机认证及多副本控制面按实际拓扑独立验收。E2AG 完整工作授权与业务接管通过联合验收后切换。

@@ -75,4 +75,10 @@ async def supervise(argv, *, cwd, env, timeout=60, max_output_bytes=8*1024*1024,
         for task in readers:
             if not task.done():task.cancel()
         await asyncio.gather(*readers,return_exceptions=True)
-        if proc.returncode is None:await asyncio.wait_for(proc.wait(),5)
+        try:
+            await asyncio.wait_for(proc.wait(),5)
+        finally:
+            # asyncio Process exposes no close() API. The transport owns pipes that
+            # descendants can retain after the direct child has already exited.
+            # Close explicitly while the loop is alive, including cancellation paths.
+            proc._transport.close()

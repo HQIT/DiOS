@@ -1,6 +1,7 @@
 """Transactional runtime repository. Trusted server-side calls, not an auth API."""
 import hashlib
 import json
+import math
 from uuid import uuid4
 from sqlalchemy import select, and_, exists
 from .database import RuntimeErrorCode
@@ -132,11 +133,17 @@ class RuntimeStore:
             return now+60
 
     async def report(self, run_id, attempt_id, worker_id, instance, epoch, sequence, phase,
-                     *, session_id=None, process_id=None, process_instance=None, remote=None, output=False):
+                     *, session_id=None, process_id=None, process_instance=None, remote=None, output=False,
+                     output_observed_at=None):
         if not isinstance(sequence, int) or sequence < 1 or phase not in ACTIVE_ATTEMPTS:
+            raise RuntimeErrorCode('INVALID_REPORT')
+        if output_observed_at is not None and (type(output_observed_at) not in (int, float)
+                or not math.isfinite(output_observed_at) or output_observed_at < 0):
             raise RuntimeErrorCode('INVALID_REPORT')
         report = dict(sequence=sequence, phase=phase, session_id=session_id, process_id=process_id,
                       process_instance=process_instance, remote=remote, output=output)
+        # Preserve digests for existing producers that do not supply an observation time.
+        if output_observed_at is not None: report['output_observed_at'] = output_observed_at
         bounded(report)
         async with self.db.transaction(self.scope) as c:
             run, a, now = await self._owned(c, run_id, attempt_id, worker_id, instance, epoch, authorize=True)
@@ -158,9 +165,13 @@ class RuntimeStore:
                     raise RuntimeErrorCode('PROCESS_CHANGED')
                 changes.update(process_id=process_id, process_instance=process_instance)
             if remote is not None: changes['remote'] = remote
-            if output: changes['last_output_at'] = now
+            if output:
+                observed = now if output_observed_at is None else min(output_observed_at, now)
+                changes['last_output_at'] = max(a['last_output_at'] or 0, observed)
             await c.execute(attempts.update().where(attempts.c.id == attempt_id).values(**changes))
-            await self._event(c, run, 'attempt.phase', {'attempt_id': attempt_id, 'phase': phase, 'sequence': sequence}, now,
+            detail = {'attempt_id': attempt_id, 'phase': phase, 'sequence': sequence}
+            if output_observed_at is not None: detail['output_observed_at'] = output_observed_at
+            await self._event(c, run, 'attempt.phase', detail, now,
                 state='validating' if phase == 'validating' else 'executing')
             return True
 

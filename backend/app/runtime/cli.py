@@ -8,8 +8,11 @@ from sqlalchemy import select
 from .database import Database, RuntimeErrorCode
 from .store import RuntimeStore
 from .schema import runs
+from .spool import ReportSpool
 
 async def execute(args):
+    if args.command == 'spool-status':
+        return await asyncio.to_thread(ReportSpool.inspect, args.file)
     if not args.database_url:
         raise RuntimeErrorCode('RUNTIME_DATABASE_URL_REQUIRED')
     db = Database(args.database_url)
@@ -37,6 +40,8 @@ def main(argv=None):
     p.add_argument('--scope',default='local')
     commands = p.add_subparsers(dest='command',required=True)
     commands.add_parser('migrate',help='explicit additive migration; backup existing database first')
+    spool = commands.add_parser('spool-status', help='inspect retained Worker reports without payloads or network calls')
+    spool.add_argument('--file', required=True)
     submit = commands.add_parser('submit',help='queue metadata only; does not launch an Agent')
     submit.add_argument('--key',required=True);submit.add_argument('--file',required=True)
     show = commands.add_parser('show');show.add_argument('run_id')

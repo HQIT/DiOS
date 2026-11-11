@@ -1,4 +1,4 @@
-import asyncio,json,os,sys,tempfile,time,unittest
+import asyncio,gc,json,os,sys,tempfile,time,unittest,warnings
 from pathlib import Path
 from uuid import uuid4
 from app.runtime.database import Database,RuntimeErrorCode
@@ -21,7 +21,12 @@ class SupervisorTests(unittest.IsolatedAsyncioTestCase):
 
     @unittest.skipIf(os.name=='nt','Unix process-group fixture; Windows job-object coverage remains pending')
     async def test_parent_exit_with_inherited_pipe_is_bounded(self):
-        r=await self.run_child("import subprocess,sys; subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)']); print('parent done',flush=True)",timeout=4,pipe_grace=.15)
+        with warnings.catch_warnings(record=True) as captured:
+            warnings.simplefilter('always', ResourceWarning)
+            r=await self.run_child("import subprocess,sys; subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)']); print('parent done',flush=True)",timeout=4,pipe_grace=.15)
+            await asyncio.sleep(.05)
+            gc.collect()
+        self.assertFalse([w for w in captured if issubclass(w.category, ResourceWarning)], captured)
         self.assertEqual(r.reason,'PROCESS_PIPE_STALLED');self.assertFalse(r.output_complete)
         self.assertLess(r.duration,2)
 
