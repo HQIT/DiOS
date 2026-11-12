@@ -56,6 +56,17 @@ async def execute(args):
             runner = Worker(store,DockerRuntimeAdapter(args.scope),profile_id,spec,LocalArtifacts(Path(args.artifacts)),
                 timeout=args.timeout,poll_interval=args.poll_interval)
             return await runner.serve(once=args.once)
+        if args.command == 'spool-flush':
+            from .reporting import relay_reports
+            # Explicit file must exist; inspection checks its schema without creating it.
+            await asyncio.to_thread(ReportSpool.inspect,args.file)
+            return await relay_reports(store,ReportSpool(args.file))
+        if args.command == 'reconcile':
+            from .reconciliation import reconcile_run
+            from .artifacts import LocalArtifacts
+            from .docker_adapter import DockerRuntimeAdapter
+            return await reconcile_run(store,DockerRuntimeAdapter(args.scope),
+                LocalArtifacts(Path(args.artifacts)),args.run_id)
         if args.command == 'workers': return await store.runtime_status(fresh_seconds=args.fresh_seconds)
         if args.command == 'cancel': return await store.cancel(args.run_id,args.revision)
         if args.command == 'expire': return {'expired':await store.expire()}
@@ -107,6 +118,10 @@ def main(argv=None):
     resume=upgrades.add_parser('resume');resume.add_argument('--revision',type=int,required=True)
     spool = commands.add_parser('spool-status', help='inspect retained Worker reports without payloads or network calls')
     spool.add_argument('--file', required=True)
+    relay = commands.add_parser('spool-flush',help='deliver a bounded batch using original attempt and authorization epochs')
+    relay.add_argument('--file',required=True)
+    reconcile = commands.add_parser('reconcile',help='validate original exited workload; never launch or requeue')
+    reconcile.add_argument('run_id');reconcile.add_argument('--artifacts',required=True)
     submit = commands.add_parser('submit',help='queue metadata only; does not launch an Agent')
     submit.add_argument('--key',required=True);submit.add_argument('--file',required=True)
     show = commands.add_parser('show');show.add_argument('run_id')

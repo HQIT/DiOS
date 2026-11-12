@@ -48,3 +48,9 @@ E2AG 是 DiOS 的执行治理能力。接入 Agent 时，平台先计算主体�
 固定合成仓库及只读策略，分别通过 Cursor ACP 和 DiAgent/标准 A2A 参考路径请求受控检索。允许的读取返回结果；越权路径、文件写入、执行业务脚本和外发请求被阻止；撤销后新动作与续期均拒绝。记录 Run/Attempt/Session、策略/审批、grant/epoch、工具接收记录、产物摘要和最终状态。
 
 再注入执行后断连、结果提交失败、过期、重启和所有权变化，确认未知结果进入对账，拒绝不会触发执行，成功不会丢失审计。该样例由 #58 承接，厂商能力变化触发兼容复核。
+
+## Worker 工作授权接入点（2026-11-13）
+
+#30 已提供 `authorize_work(context, action)` 组合接口：execute 与 accept_result 分离，绑定 Run/Attempt/Session、Worker、原 lease epoch 和 authorization epoch。声明 work_authorization_ref 时缺少 verifier 会明确拒绝启动或恢复接收；既有可信本地配置保持兼容。恢复事务对版本和撤权重新核验，补报沿用原身份，不续发执行权。
+
+#34 需把现有 E2AG 策略/授权存储接到该接口，并补齐授权兑换、有效期与预算、长任务续期、原生工具控制和撤销传播；#33 提供服务身份与凭据解析。接口及竞态测试见 [Worker 恢复对账](worker-reconciliation-30.md)。

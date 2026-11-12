@@ -1,6 +1,6 @@
 # DiOS Roadmap：内核、数字员工服务与业务应用的分层建设
 
-> 更新日期：2026-11-11
+> 更新日期：2026-11-13
 >
 > 执行入口：[GitHub Project](https://github.com/orgs/HQIT/projects/2) · [路线与工作包索引 #12](https://github.com/HQIT/DiOS/issues/12)。Project 按阶段、层级、优先级、批次及原生依赖跟踪任务。
 >
@@ -208,4 +208,4 @@ E2AG 增量集成只纳入产品运行代码、必要测试和使用说明。兼
 P0—P4 的编号替代此前按月份划分的阶段安排。原单机可靠性作为 P1 起步基线，企业管理进入 P2/P3，开放扩展与可扩展部署贯穿 P3/P4；已完成的 Connector Registry 接线继续复用。
 
 
-#30/#32 已进入实现，SQLite 按 [ADR 0010](docs/adr/0010-lightweight-runtime-default.md) 作为轻量阶段性默认，有界写队列和基本混合查询已验收。[Worker 离线报告](docs/design/worker-report-spool-30-32.md) 支持有界持久缓冲、补报去重、旧租约隔离和 CLI 查询。[历史关联查询](docs/design/history-query-32.md) 已提供原生执行视图、导入历史双向关系及分页 CLI。[恢复与排空基线](docs/operations/runtime-recovery.md) 已提供 SQLite/本地产物恢复包、恢复副本调度关闭和持久作用域排空，#11 完整交付继续推进。[#10/#30 Worker 执行基线](docs/design/worker-execution-10-30.md) 已串接独立进程、Docker 生命周期、会话/产物观测与自然排空，179 项后端测试通过。下一批推进恢复/对账与 spool 接线，结合 #33 凭据和 #34 E2AG 工作授权；跨主机及多副本控制面按实际拓扑独立验收，业务接管通过联合验收后切换。
+#30/#32 已进入实现，SQLite 按 [ADR 0010](docs/adr/0010-lightweight-runtime-default.md) 作为轻量阶段性默认，有界写队列和基本混合查询已验收。[Worker 离线报告](docs/design/worker-report-spool-30-32.md) 支持有界持久缓冲、补报去重、旧租约隔离和 CLI 查询。[历史关联查询](docs/design/history-query-32.md) 已提供原生执行视图、导入历史双向关系及分页 CLI。[恢复与排空基线](docs/operations/runtime-recovery.md) 已提供 SQLite/本地产物恢复包、恢复副本调度关闭和持久作用域排空，#11 完整交付继续推进。[#10/#30 Worker 执行基线](docs/design/worker-execution-10-30.md) 已串接独立进程、Docker 生命周期、会话/产物观测与自然排空，179 项后端测试通过。[恢复对账与 Worker spool 接线](docs/design/worker-reconciliation-30.md) 已提供原 Attempt 结果恢复及 E2AG 接收授权接口。下一小步沿 #30 最小观测查询提供只读 Console，同时衔接 #33/#34；跨主机及多副本控制面按实际拓扑独立验收，业务接管通过联合验收后切换。

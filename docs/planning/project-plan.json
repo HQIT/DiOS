@@ -527,8 +527,8 @@
       "priority": "最高",
       "status": "In Progress",
       "progress": {
-        "date": "2026-11-12",
-        "summary": "独立 Worker 已串接持久认领、Docker task/service 生命周期、真实进程/会话观测、产物校验和清理。三路并发、取消、Worker 崩溃不重派及自然排空通过；全后端 179 项通过、0 跳过，新镜像 17 项关键回归及 CLI 迁移通过。",
+        "date": "2026-11-13",
+        "summary": "Worker 已接通有界持久报告队列、退出凭据和原 Attempt 结果恢复；保留原进程/会话身份，重复与并发对账幂等。E2AG execute/accept_result 接口绑定原所有权和授权版本，受管引用缺失 verifier 时拒绝。完整后端 210 项通过、0 跳过；新镜像内 15 项恢复回归、CLI 初始化及 681 项设计契约检查通过。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
@@ -542,9 +542,11 @@
           "docs/design/evidence/recovery-drain-regression-20261111.json",
           "docs/design/evidence/recovery-drill-20261111.json",
           "docs/design/worker-execution-10-30.md",
-          "docs/design/evidence/worker-runtime-regression-20261112.json"
+          "docs/design/evidence/worker-runtime-regression-20261112.json",
+          "docs/design/worker-reconciliation-30.md",
+          "docs/design/evidence/worker-reconciliation-regression-20261113.json"
         ],
-        "remaining": "下一批推进 #30 恢复/对账闭环与 Worker spool 接线，衔接 #33 凭据及 #34 E2AG 工作授权、撤销/续期与 Attempt/epoch 绑定；#56/#58 验证真实来源 Harness。认证传输、多主机及旧调度器接管按独立门槛验收。"
+        "remaining": "下一批沿 #30 最小观测查询接入只读 Console；并按 #33/#34 接通凭据、E2AG 工作授权与撤销/续期。#30 继续分类故障/半开恢复、持久定时合并及死信处置；#56/#58 验证真实 Harness。认证跨主机对账及业务接管按独立门槛验收。"
       }
     },
     {
@@ -641,7 +643,7 @@
           "docs/design/evidence/recovery-drain-regression-20261111.json",
           "docs/design/evidence/recovery-drill-20261111.json"
         ],
-        "remaining": "下一批推进 #30 恢复/对账闭环与 Worker spool 接线，衔接 #33 凭据及 #34 E2AG 工作授权、撤销/续期与 Attempt/epoch 绑定；#56/#58 验证真实来源 Harness。认证传输、多主机及旧调度器接管按独立门槛验收。"
+        "remaining": "下一批沿 #30 最小观测查询接入只读 Console；并按 #33/#34 接通凭据、E2AG 工作授权与撤销/续期。#30 继续分类故障/半开恢复、持久定时合并及死信处置；#56/#58 验证真实 Harness。认证跨主机对账及业务接管按独立门槛验收。"
       }
     },
     {

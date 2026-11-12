@@ -55,6 +55,6 @@ P1 必须具备源码只读、持久所有权、分类恢复、排空、事件/�
 [任务清单](project-plan.json) 保存任务范围、验收及依赖；[Roadmap](../../ROADMAP.md) 保存阶段目标；Project 保存执行状态、责任人、日期与原生依赖。范围变更同步三处，任务完成必须关联实际证据。当前文档记录计划调整，架构评审与实现验收状态分别维护。
 
 
-#30/#32 已进入实现，SQLite 按 [ADR 0010](../adr/0010-lightweight-runtime-default.md) 作为轻量阶段性默认；历史关联查询、Worker 离线补报和隔离恢复/排空已有实现。[#10/#30 独立 Worker](../design/worker-execution-10-30.md) 已接入 Docker 生命周期、进程/会话观测与自然排空。下一批推进恢复/对账与 spool 接线，衔接 #33/#34 的凭据与 E2AG 工作授权；真实来源 Harness 经 #56/#58 联合验收。跨主机和多副本存储按实际拓扑验收。
+#30/#32 已进入实现，SQLite 按 [ADR 0010](../adr/0010-lightweight-runtime-default.md) 作为轻量阶段性默认；历史关联查询、Worker 离线补报和隔离恢复/排空已有实现。[#10/#30 独立 Worker](../design/worker-execution-10-30.md) 已接入 Docker 生命周期、进程/会话观测与自然排空。[恢复对账与 Worker spool 接线](../design/worker-reconciliation-30.md) 已完成本地闭环。下一小步沿 #30 最小观测查询提供只读 Console，同时衔接 #33/#34 的凭据与 E2AG 工作授权；真实来源 Harness 经 #56/#58 联合验收。跨主机和多副本存储按实际拓扑验收。
 
 #28/#29 沿既有 P0 任务并行推进：[员工/主管/管理员工作台](../design/workbench-information-architecture.md) 已提供可交互原型，[四类参考场景](../design/reference-scenario-acceptance.md) 已提供合成输入、权限与十八项静态评审故障验收设计，均待产品评审。真实业务接入依赖 #36/#38/#40 与受控跨 Agent 验收；产品原型不改变 P1—P4 的依赖门槛。

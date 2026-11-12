@@ -142,7 +142,7 @@ class RuntimeStore:
 
     async def report(self, run_id, attempt_id, worker_id, instance, epoch, sequence, phase,
                      *, session_id=None, process_id=None, process_instance=None, remote=None, output=False,
-                     output_observed_at=None):
+                     output_observed_at=None, authorization_epoch=None):
         if not isinstance(sequence, int) or sequence < 1 or phase not in ACTIVE_ATTEMPTS:
             raise RuntimeErrorCode('INVALID_REPORT')
         if output_observed_at is not None and (type(output_observed_at) not in (int, float)
@@ -152,9 +152,12 @@ class RuntimeStore:
                       process_instance=process_instance, remote=remote, output=output)
         # Preserve digests for existing producers that do not supply an observation time.
         if output_observed_at is not None: report['output_observed_at'] = output_observed_at
+        if authorization_epoch is not None: report['authorization_epoch'] = authorization_epoch
         bounded(report)
         async with self.db.transaction(self.scope) as c:
             run, a, now = await self._owned(c, run_id, attempt_id, worker_id, instance, epoch, authorize=True)
+            if authorization_epoch is not None and authorization_epoch != a['authorization_epoch']:
+                raise RuntimeErrorCode('AUTH_REVOKED')
             if sequence < a['last_sequence']: return False
             if sequence == a['last_sequence']:
                 if digest(report) != a['report_digest']: raise RuntimeErrorCode('REPORT_CONFLICT')
@@ -412,3 +415,57 @@ class RuntimeStore:
                 'confirmed_running_processes':running,'confirmed_running_sessions':sessions,
                 'actual_concurrency':None if unknown else sessions,'unknown_attempts':unknown,
                 'workers':worker_rows,'attempts':observations}
+
+    async def resolve_exit(self, expected_run, expected_attempt, receipt, provider, *, session_id, result_key, failure):
+        """Trusted reconciler commits evidence under CAS; it never restores the old lease."""
+        from .bridge import JsonlBridge
+        blobs = {kind: provider.verify(receipt[kind]) for kind in ('stdout', 'stderr')}
+        if result_key:
+            blobs['result'] = provider.verify(result_key)
+            if JsonlBridge.validate(provider.read(result_key)) is not True:
+                raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
+        obs = receipt['observation']
+        if obs['alive'] or obs['state'] not in {'exited', 'dead'} or not obs['process_instance']:
+            raise RuntimeErrorCode('PROCESS_EXIT_NOT_CONFIRMED')
+        async with self.db.transaction(self.scope) as c:
+            await admission(c, self.scope, ownership=True)
+            run = await self._run(c, expected_run['id'])
+            if run['version'] != expected_run['version']: raise RuntimeErrorCode('VERSION_CONFLICT')
+            a = (await c.execute(select(attempts).where(attempts.c.id == run['attempt_id']))).mappings().first()
+            if (run['state'] != 'reconciliation_required' or not a or a['state'] != 'result_unknown'
+                    or a['id'] != expected_attempt['id'] or run['epoch'] != a['epoch']+1):
+                raise RuntimeErrorCode('STALE_OWNER')
+            expected = dict(scope=self.scope, run_id=run['id'], attempt_id=a['id'],
+                worker_id=a['worker_id'], worker_instance=a['worker_instance'],
+                epoch=a['epoch'], authorization_epoch=a['authorization_epoch'])
+            if any(receipt.get(k) != v for k, v in expected.items()):
+                raise RuntimeErrorCode('EXIT_RECEIPT_BINDING_MISMATCH')
+            if obs['handle'] != a['id'] or (a['process_instance'] and a['process_instance'] != obs['process_instance']):
+                raise RuntimeErrorCode('PROCESS_CHANGED')
+            if a['session_id'] and a['session_id'] != session_id: raise RuntimeErrorCode('SESSION_CHANGED')
+            if run['revoked'] or run['authorization_epoch'] != a['authorization_epoch']:
+                failure, result_key = 'AUTH_REVOKED', None
+            if run['cancel_requested']: state, attempt_state = 'cancelled', 'cancelled'
+            elif failure: state, attempt_state = 'failed', 'failed'
+            elif result_key: state, attempt_state = 'succeeded', 'completed'
+            else: raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
+            now = await self.db.now(c)
+            linked = {}
+            for kind, blob in blobs.items():
+                if kind == 'result' and state != 'succeeded': continue
+                old = (await c.execute(select(artifacts.c.id).where(artifacts.c.attempt_id == a['id'],
+                    artifacts.c.digest == blob.digest))).first()
+                aid = old[0] if old else str(uuid4())
+                if not old:
+                    await c.execute(artifacts.insert().values(id=aid, run_id=run['id'], attempt_id=a['id'],
+                        digest=blob.digest, size=blob.size, provider=provider.name, storage_key=blob.key, created_at=now))
+                linked[kind] = aid
+            remote = dict(a['remote'], runtime=dict(obs, adapter=a['remote']['launch']['adapter'], observed_at=now),
+                reconciliation=dict(receipt_digest=digest(receipt), original_epoch=a['epoch'],
+                    authorization_epoch=a['authorization_epoch']))
+            await c.execute(attempts.update().where(attempts.c.id == a['id']).values(state=attempt_state,
+                session_id=session_id or a['session_id'], process_instance=obs['process_instance'], remote=remote,
+                error={'code':failure} if failure else None, finished_at=now))
+            await self._event(c, run, 'attempt.exit_reconciled', dict(attempt_id=a['id'], artifacts=linked,
+                receipt_digest=digest(receipt), original_epoch=a['epoch'], authorization_epoch=a['authorization_epoch']),
+                now, state=state)

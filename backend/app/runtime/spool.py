@@ -93,7 +93,7 @@ class ReportSpool:
         for value in (scope, run_id, attempt_id, worker_id, instance): identifier(value)
         if type(epoch) is not int or epoch < 1 or type(sequence) is not int or sequence < 1 or phase not in ACTIVE_ATTEMPTS:
             raise RuntimeErrorCode('INVALID_REPORT')
-        if set(detail) - {'session_id', 'process_id', 'process_instance', 'remote', 'output', 'output_observed_at'}:
+        if set(detail) - {'session_id', 'process_id', 'process_instance', 'remote', 'output', 'output_observed_at', 'authorization_epoch'}:
             raise RuntimeErrorCode('INVALID_REPORT')
         if detail.get('output') and 'output_observed_at' not in detail:
             raise RuntimeErrorCode('OUTPUT_OBSERVATION_REQUIRED')
@@ -115,6 +115,11 @@ class ReportSpool:
             c.execute('''INSERT INTO reports (event_id,stream,sequence,digest,payload,created_at,next_at)
                 VALUES (?,?,?,?,?,?,?)''', (event_id, stream, sequence, hashed, payload, now, now))
         return Receipt(event_id, hashed)
+
+    def contains(self, receipt):
+        with self._transaction() as c:
+            return c.execute('SELECT 1 FROM reports WHERE event_id=? AND digest=?',
+                (receipt.event_id, receipt.digest)).fetchone() is not None
 
     def claim(self, lease_seconds=30):
         if not math.isfinite(lease_seconds) or lease_seconds <= 0:

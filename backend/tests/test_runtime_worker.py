@@ -190,7 +190,15 @@ class DockerWorkerTests(WorkerTests):
     async def test_docker_cancel_confirms_exit_and_retains_logs(self):
         r=await self.submit(delay=30);p=await self.child()
         await self.wait_state(lambda s:s['actual_concurrency']==1)
-        current=await self.store.get(r['id']);await self.store.cancel(r['id'],current['version'])
+        # Worker phase events may commit between the client's read and cancel.
+        for _ in range(10):
+            current=await self.store.get(r['id'])
+            try:
+                await self.store.cancel(r['id'],current['version'])
+                break
+            except RuntimeErrorCode as exc:
+                if exc.code!='VERSION_CONFLICT':raise
+        else:self.fail('cancel revision did not converge')
         _,err=await asyncio.wait_for(p.communicate(),20);self.assertEqual(p.returncode,0,err)
         final=await self.store.get(r['id']);self.assertEqual(final['state'],'cancelled')
         self.assertEqual(final['attempts'][0]['remote']['runtime']['alive'],False)
