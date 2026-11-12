@@ -1,0 +1,81 @@
+{
+  "scope": "runtime foundation and existing backend regression; isolated execution fixtures; no production migration or Agent certification",
+  "python": "3.12.3",
+  "sqlalchemy": "2.0.48",
+  "platform": "Linux",
+  "postgresql_enabled": true,
+  "docker_worker_enabled": true,
+  "worker_concurrency_evidence": [
+    {
+      "configured_slots": 3,
+      "actual_concurrency": 3,
+      "workers": [
+        {
+          "id": "7f3b4962-cac9-442e-8cbd-1ca1586df8b3",
+          "pid": 2673,
+          "instance": "3ca1170b-8c71-49a5-ab8a-63a50e302c95"
+        },
+        {
+          "id": "7608a1fc-32c8-4456-8aec-19a422dca946",
+          "pid": 2671,
+          "instance": "e7cd63ab-ed12-46ff-93ea-976c3e787442"
+        },
+        {
+          "id": "ca002707-be16-41ce-9fe7-be4e3dc6497b",
+          "pid": 2672,
+          "instance": "1e09fbc0-c965-4359-be71-50d18fc88ecf"
+        }
+      ],
+      "attempts": [
+        {
+          "run_id": "1aa6b559-8d23-40ff-88f5-02fc9dea3501",
+          "attempt_id": "1fdfe5f9-3bff-4b3e-8cf8-c21afe570a94",
+          "worker_id": "7f3b4962-cac9-442e-8cbd-1ca1586df8b3",
+          "session_id": "efb32c7b-53ff-48a5-a10c-405904606f3c",
+          "process_id": 2746,
+          "process_instance": "84adb861d00379c1040f44ea5de6486fd42306a2bed22ccc9946789e741b357d:2026-11-12T15:42:15.748358561Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "e4d47c8f-f628-4f49-a245-e52fdea916f3",
+          "attempt_id": "3809330d-1d25-4b1d-9974-5bb682f0d518",
+          "worker_id": "7608a1fc-32c8-4456-8aec-19a422dca946",
+          "session_id": "de400b29-a8fa-475c-9b77-88a18598c41f",
+          "process_id": 2790,
+          "process_instance": "59a20e29644a291b0780bc0de7e5618cd2c5b3dc6903ab04f51293b15eae5078:2026-11-12T15:42:15.914767771Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "dfc8559d-9d0a-422f-87c8-efd14b125880",
+          "attempt_id": "f95d21d4-2a84-40e0-bb3e-d5f2352b8e95",
+          "worker_id": "ca002707-be16-41ce-9fe7-be4e3dc6497b",
+          "session_id": "2185c105-8084-4e5d-a7d5-5b2275dc41eb",
+          "process_id": 2843,
+          "process_instance": "fccbac28d49dbe90c7ec3fa52c688d6a1b4fecf34ce097cabb4c5f3e0b105194:2026-11-12T15:42:16.666048545Z",
+          "freshness": "fresh"
+        }
+      ]
+    }
+  ],
+  "tests_run": 179,
+  "skipped": 0,
+  "failures": 0,
+  "errors": 0,
+  "duration_seconds": 84.151,
+  "successful": true,
+  "cases": [],
+  "limits": [
+    "PostgreSQL single isolated node; no HA/capacity claim",
+    "Windows process-tree and actual Agent tests pending",
+    "Legacy scheduler takeover, automatic circuit recovery, API authorization and UI pending"
+  ],
+  "image_validation": {
+    "image_id": "sha256:484f37e11c0c4291c708ce90362cc0560fcf7baa4193a92cca923591b0b9efcc",
+    "build": "backend/Dockerfile; PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple",
+    "isolated_cli_migration": "passed",
+    "fresh_dependency_unit_tests": 17,
+    "fresh_dependency_unit_tests_passed": true,
+    "sqlalchemy": "2.1.8",
+    "async_dependency": "sqlalchemy[asyncio]"
+  }
+}

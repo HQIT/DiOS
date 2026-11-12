@@ -1,5 +1,6 @@
 """Explicit migrations and database-owned clock/serialization for both providers."""
 from contextlib import asynccontextmanager
+import asyncio
 import hashlib
 from pathlib import Path
 from sqlalchemy import select, text, inspect, event
@@ -15,6 +16,26 @@ class RuntimeErrorCode(ValueError):
     def __init__(self, code):
         self.code = code
         super().__init__(code)
+
+
+class _ReadConnection:
+    """Finish each buffered DB operation before propagating task cancellation.
+
+    Cancelling aiosqlite between execute and fetchall can strand an SQLite cursor
+    even after connection invalidation. The driver operation must finish first.
+    """
+    def __init__(self, connection): self.connection = connection
+    def __getattr__(self, name): return getattr(self.connection, name)
+    async def _finish(self, awaitable):
+        task = asyncio.ensure_future(awaitable)
+        try: return await asyncio.shield(task)
+        except asyncio.CancelledError:
+            try: await task
+            finally: raise
+    async def execute(self, *args, **kwargs):
+        return await self._finish(self.connection.execute(*args, **kwargs))
+    async def run_sync(self, *args, **kwargs):
+        return await self._finish(self.connection.run_sync(*args, **kwargs))
 
 class Database:
     def __init__(self, url, *, write_queue_capacity=64, write_queue_timeout=5.0):
@@ -50,15 +71,33 @@ class Database:
                 yield c
             return
         async with self.engine.connect() as c:
+            reader = _ReadConnection(c)
             try:
-                await c.execute(text('PRAGMA query_only=ON'))
-                await c.execute(text('BEGIN'))
-                await self.check_schema(c)
-                yield c
+                await reader.execute(text('PRAGMA query_only=ON'))
+                await reader.execute(text('BEGIN'))
+                await self.check_schema(reader)
+                yield reader
+            except asyncio.CancelledError:
+                # Interrupted aiosqlite cursors must not return a read lock to the pool.
+                cleanup = asyncio.create_task(c.invalidate())
+                try: await asyncio.shield(cleanup)
+                except asyncio.CancelledError: await cleanup
+                raise
             finally:
-                await c.rollback()
-                await c.execute(text('PRAGMA query_only=OFF'))
-                await c.commit()
+                if not c.invalidated:
+                    async def reset_read_connection():
+                        try:
+                            await c.rollback()
+                            await c.execute(text('PRAGMA query_only=OFF'))
+                            await c.commit()
+                        except BaseException:
+                            await c.invalidate()
+                            raise
+                    cleanup = asyncio.create_task(reset_read_connection())
+                    try: await asyncio.shield(cleanup)
+                    except asyncio.CancelledError:
+                        await cleanup
+                        raise
 
     @asynccontextmanager
     async def transaction(self, scope, *, check=True):

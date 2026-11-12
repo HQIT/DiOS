@@ -1,4 +1,4 @@
-"""Explicit local-operator administration. Never starts an Agent or legacy scheduler."""
+"""Trusted local administration. Only the explicit worker command launches workloads."""
 import argparse
 import asyncio
 import json
@@ -44,6 +44,35 @@ async def execute(args):
                 return await query.run(args.run_id, limit=args.limit,
                     attempt_cursor=args.attempt_cursor, artifact_cursor=args.artifact_cursor)
         store = RuntimeStore(db, args.scope)
+        if args.command in {'enqueue', 'worker'}:
+            from .worker import Worker, read_profile
+            from .artifacts import LocalArtifacts
+            from .docker_adapter import DockerRuntimeAdapter
+            profile_id, spec = read_profile(args.profile)
+            if args.command == 'enqueue':
+                payload = json.loads(Path(args.file).read_text(encoding='utf-8')) if args.file else {}
+                return await store.submit(args.key,{'runtime_profile':profile_id,
+                    'profile_digest':spec.fingerprint(),'payload':payload})
+            runner = Worker(store,DockerRuntimeAdapter(args.scope),profile_id,spec,LocalArtifacts(Path(args.artifacts)),
+                timeout=args.timeout,poll_interval=args.poll_interval)
+            return await runner.serve(once=args.once)
+        if args.command == 'workers': return await store.runtime_status(fresh_seconds=args.fresh_seconds)
+        if args.command == 'cancel': return await store.cancel(args.run_id,args.revision)
+        if args.command == 'expire': return {'expired':await store.expire()}
+        if args.command in {'runtime-inspect','runtime-cleanup'}:
+            from dataclasses import asdict
+            from .docker_adapter import DockerRuntimeAdapter
+            from .store import TERMINAL
+            run = await store.get(args.run_id)
+            attempt = next((a for a in run['attempts'] if a['id']==run['attempt_id']), {})
+            launch = attempt.get('remote',{}).get('launch',{})
+            if launch.get('adapter') != DockerRuntimeAdapter.name:
+                raise RuntimeErrorCode('RUNTIME_BINDING_NOT_FOUND')
+            adapter = DockerRuntimeAdapter(args.scope)
+            if args.command == 'runtime-inspect': return asdict(await adapter.observe(launch['handle']))
+            if run['state'] not in TERMINAL: raise RuntimeErrorCode('RUN_NOT_TERMINAL')
+            await adapter.remove(launch['handle'])
+            return {'run_id':args.run_id,'removed':True}
         if args.command == 'submit':
             return await store.submit(args.key, json.loads(Path(args.file).read_text(encoding='utf-8')))
         if args.command == 'show': return await store.get(args.run_id)
@@ -81,6 +110,18 @@ def main(argv=None):
     submit = commands.add_parser('submit',help='queue metadata only; does not launch an Agent')
     submit.add_argument('--key',required=True);submit.add_argument('--file',required=True)
     show = commands.add_parser('show');show.add_argument('run_id')
+    enqueue=commands.add_parser('enqueue',help='queue a pinned trusted profile and optional JSON input')
+    enqueue.add_argument('--profile',required=True);enqueue.add_argument('--key',required=True);enqueue.add_argument('--file')
+    worker=commands.add_parser('worker',help='run an independent one-slot Worker using an explicit trusted profile')
+    worker.add_argument('--profile',required=True);worker.add_argument('--artifacts',required=True)
+    worker.add_argument('--once',action='store_true');worker.add_argument('--timeout',type=float,default=300)
+    worker.add_argument('--poll-interval',type=float,default=.25)
+    status=commands.add_parser('workers',help='persisted process/session evidence, freshness and actual concurrency')
+    status.add_argument('--fresh-seconds',type=float,default=15)
+    cancel=commands.add_parser('cancel');cancel.add_argument('run_id');cancel.add_argument('--revision',required=True,type=int)
+    commands.add_parser('expire',help='fence expired leases for reconciliation; does not requeue')
+    for name in ('runtime-inspect','runtime-cleanup'):
+        command=commands.add_parser(name);command.add_argument('run_id')
     listing = commands.add_parser('list');listing.add_argument('--limit',type=int,default=100)
     events = commands.add_parser('events');events.add_argument('--consumer',required=True);events.add_argument('--limit',type=int,default=100)
     drain = commands.add_parser('drain');drain.add_argument('worker_id')

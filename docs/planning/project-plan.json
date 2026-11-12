@@ -82,7 +82,8 @@
         "K01-5"
       ],
       "kind": "工作包",
-      "priority": "最高"
+      "priority": "最高",
+      "status": "In Progress"
     },
     {
       "id": "K02",
@@ -478,7 +479,17 @@
         "F01-1"
       ],
       "priority": "最高",
-      "existing": 10
+      "existing": 10,
+      "status": "In Progress",
+      "progress": {
+        "date": "2026-11-12",
+        "summary": "独立 Worker 已串接持久认领、Docker task/service 生命周期、真实进程/会话观测、产物校验和清理。三路并发、取消、Worker 崩溃不重派及自然排空通过；全后端 179 项通过、0 跳过，新镜像 17 项关键回归及 CLI 迁移通过。",
+        "remaining": "继续收敛 legacy docker_runner 调用方、Secret/策略注入与真实 Harness 生命周期联合验收；保持协议桥和 Runtime Adapter 分离。",
+        "evidence_paths": [
+          "docs/design/worker-execution-10-30.md",
+          "docs/design/evidence/worker-runtime-regression-20261112.json"
+        ]
+      }
     },
     {
       "id": "K01-2",
@@ -517,7 +528,7 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-12",
-        "summary": "轻量存储、离线报告和历史关联已交付；新增持久作用域排空、SQLite/本地产物校验恢复包和恢复副本全局调度关闭。全后端回归 154 项通过、0 跳过，合成恢复演练通过。",
+        "summary": "独立 Worker 已串接持久认领、Docker task/service 生命周期、真实进程/会话观测、产物校验和清理。三路并发、取消、Worker 崩溃不重派及自然排空通过；全后端 179 项通过、0 跳过，新镜像 17 项关键回归及 CLI 迁移通过。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
@@ -529,9 +540,11 @@
           "docs/design/evidence/history-query-regression-20261111.json",
           "docs/operations/runtime-recovery.md",
           "docs/design/evidence/recovery-drain-regression-20261111.json",
-          "docs/design/evidence/recovery-drill-20261111.json"
+          "docs/design/evidence/recovery-drill-20261111.json",
+          "docs/design/worker-execution-10-30.md",
+          "docs/design/evidence/worker-runtime-regression-20261112.json"
         ],
-        "remaining": "下一主项为 #30 真实 Worker 调度、进程/会话观测与对账，结合 #33 凭据和 #34 E2AG 工作授权；继续认证 API/传输、真实来源 Adapter、待对账处置与完整恢复交付集，多节点恢复按实际拓扑独立验收。"
+        "remaining": "下一批推进 #30 恢复/对账闭环与 Worker spool 接线，衔接 #33 凭据及 #34 E2AG 工作授权、撤销/续期与 Attempt/epoch 绑定；#56/#58 验证真实来源 Harness。认证传输、多主机及旧调度器接管按独立门槛验收。"
       }
     },
     {
@@ -628,7 +641,7 @@
           "docs/design/evidence/recovery-drain-regression-20261111.json",
           "docs/design/evidence/recovery-drill-20261111.json"
         ],
-        "remaining": "下一主项为 #30 真实 Worker 调度、进程/会话观测与对账，结合 #33 凭据和 #34 E2AG 工作授权；继续认证 API/传输、真实来源 Adapter、待对账处置与完整恢复交付集，多节点恢复按实际拓扑独立验收。"
+        "remaining": "下一批推进 #30 恢复/对账闭环与 Worker spool 接线，衔接 #33 凭据及 #34 E2AG 工作授权、撤销/续期与 Attempt/epoch 绑定；#56/#58 验证真实来源 Harness。认证传输、多主机及旧调度器接管按独立门槛验收。"
       }
     },
     {

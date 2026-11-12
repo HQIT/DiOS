@@ -103,7 +103,28 @@ class DrainScenarios:
         self.assertIsNone(await self.store.claim(self.worker,self.instance))
 
 
-class SQLiteDrain(DrainScenarios,unittest.IsolatedAsyncioTestCase):postgres=False
+class SQLiteDrain(DrainScenarios,unittest.IsolatedAsyncioTestCase):
+    postgres=False
+
+    async def test_cancelled_read_releases_lock_and_connection_is_writable(self):
+        entered=asyncio.Event()
+        async def reader():
+            async with self.db.read(self.scope) as c:
+                await c.execute(text('SELECT * FROM runtime_runs'))
+                entered.set()
+                await asyncio.sleep(30)
+        task=asyncio.create_task(reader());await entered.wait();task.cancel()
+        with self.assertRaises(asyncio.CancelledError):await task
+        run=await asyncio.wait_for(self.store.submit('after-cancel',{}),2)
+        self.assertEqual(run['state'],'queued')
+
+    async def test_repeated_short_observation_deadlines_do_not_leak_read_locks(self):
+        await self.active();await self.lifecycle.begin_drain()
+        for _ in range(12):
+            with self.assertRaisesRegex(RuntimeErrorCode,'DRAIN_(OBSERVATION_)?TIMEOUT'):
+                await self.lifecycle.wait_drained(.002)
+            async with self.db.transaction(self.scope) as c:
+                await c.execute(text('UPDATE runtime_workers SET heartbeat_at=heartbeat_at WHERE scope=:scope'),{'scope':self.scope})
 
 
 @unittest.skipUnless(os.environ.get('DIOS_TEST_POSTGRES_URL'),'isolated PostgreSQL test URL not set')

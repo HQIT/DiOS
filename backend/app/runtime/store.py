@@ -91,7 +91,7 @@ class RuntimeStore:
             result = await c.execute(workers.update().where(workers.c.id == worker_id, workers.c.scope == self.scope).values(draining=True))
             if result.rowcount != 1: raise RuntimeErrorCode('NOT_FOUND')
 
-    async def claim(self, worker_id, instance, lease_seconds=60):
+    async def claim(self, worker_id, instance, lease_seconds=60, *, profile_id=None):
         if not 1 <= lease_seconds <= 60: raise RuntimeErrorCode('INVALID_LEASE')
         async with self.db.transaction(self.scope) as c:
             if not await admission(c, self.scope): return None
@@ -103,8 +103,12 @@ class RuntimeStore:
             busy = (await c.execute(select(attempts.c.id).where(attempts.c.worker_id == worker_id,
                 attempts.c.state.in_(ACTIVE_ATTEMPTS | {'result_unknown'})))).all()
             if len(busy) >= w['slots']: return None
-            row = (await c.execute(select(runs).where(runs.c.scope == self.scope, runs.c.state == 'queued',
-                runs.c.revoked == False, runs.c.cancel_requested == False).order_by(runs.c.created_at, runs.c.id).limit(1))).mappings().first()
+            query = select(runs).where(runs.c.scope == self.scope, runs.c.state == 'queued',
+                runs.c.revoked == False, runs.c.cancel_requested == False)
+            if profile_id is not None:
+                identifier(profile_id)
+                query = query.where(runs.c.input['runtime_profile'].as_string() == profile_id)
+            row = (await c.execute(query.order_by(runs.c.created_at, runs.c.id).limit(1))).mappings().first()
             if not row: return None
             run = dict(row)
             aid, epoch = str(uuid4()), run['epoch'] + 1
@@ -320,3 +324,91 @@ class RuntimeStore:
             if not run['cancel_requested']: raise RuntimeErrorCode('CANCEL_NOT_REQUESTED')
             await c.execute(attempts.update().where(attempts.c.id==attempt_id).values(state='cancelled',finished_at=now))
             await self._event(c, run, 'run.cancel_confirmed', {'evidence_ref':evidence_ref}, now, state='cancelled')
+
+    async def observe_process(self, binding, observation, *, adapter, boot_id):
+        """Trusted lifecycle evidence, never supplied by a model message."""
+        from dataclasses import asdict
+        async with self.db.transaction(self.scope) as c:
+            run, a, now = await self._owned(c, *binding)
+            value = dict(asdict(observation), adapter=adapter, worker_boot_id=boot_id, observed_at=now)
+            bounded(value)
+            old = a['remote'].get('runtime', {})
+            if old.get('process_instance') and observation.process_instance and old['process_instance'] != observation.process_instance:
+                raise RuntimeErrorCode('PROCESS_CHANGED')
+            changes = {'remote':dict(a['remote'], runtime=value)}
+            if observation.pid and observation.process_instance:
+                changes.update(process_id=observation.pid, process_instance=observation.process_instance)
+            await c.execute(attempts.update().where(attempts.c.id==a['id']).values(**changes))
+            if (old.get('state'), old.get('process_instance')) != (observation.state, observation.process_instance):
+                await self._event(c, run, 'runtime.observed', value, now)
+
+    async def reject_unlaunched(self, binding, code):
+        identifier(code)
+        async with self.db.transaction(self.scope) as c:
+            run, a, now = await self._owned(c, *binding)
+            if a['state']!='claimed' or a['process_instance'] or a['remote']:
+                raise RuntimeErrorCode('LAUNCH_ALREADY_STARTED')
+            await c.execute(attempts.update().where(attempts.c.id==a['id']).values(
+                state='failed',error={'code':code},finished_at=now))
+            await self._event(c,run,'attempt.preflight_failed',{'attempt_id':a['id'],'code':code},now,state='failed')
+
+    async def retain_output(self, binding, provider, key, kind):
+        """Retain raw stdout/stderr even for failed/cancelled results; no success claim."""
+        if kind not in {'stdout', 'stderr'}: raise RuntimeErrorCode('INVALID_OUTPUT_KIND')
+        blob = provider.verify(key)
+        async with self.db.transaction(self.scope) as c:
+            run, a, now = await self._owned(c, *binding)
+            old = (await c.execute(select(artifacts.c.id).where(artifacts.c.attempt_id==a['id'],
+                artifacts.c.digest==blob.digest))).first()
+            if old: return old[0]
+            aid = str(uuid4())
+            await c.execute(artifacts.insert().values(id=aid,run_id=run['id'],attempt_id=a['id'],
+                digest=blob.digest,size=blob.size,provider=provider.name,storage_key=key,created_at=now))
+            await self._event(c,run,'attempt.output_retained',{'artifact_id':aid,'kind':kind},now)
+            return aid
+
+    async def finish_failed(self, binding, code):
+        identifier(code)
+        async with self.db.transaction(self.scope) as c:
+            run, a, now = await self._owned(c, *binding)
+            observation = a['remote'].get('runtime', {})
+            if observation.get('alive') is not False or observation.get('state') not in {'exited','dead'}:
+                raise RuntimeErrorCode('PROCESS_EXIT_NOT_CONFIRMED')
+            await c.execute(attempts.update().where(attempts.c.id==a['id']).values(
+                state='failed',error={'code':code},finished_at=now))
+            await self._event(c,run,'attempt.failed',{'attempt_id':a['id'],'code':code},now,state='failed')
+
+    async def mark_unknown(self, binding, code):
+        """Observation/launch ambiguity fences the owner and never requeues automatically."""
+        identifier(code)
+        async with self.db.transaction(self.scope) as c:
+            run, a, now = await self._owned(c, *binding)
+            await c.execute(attempts.update().where(attempts.c.id==a['id']).values(
+                state='result_unknown',error={'code':code}))
+            await self._event(c,run,'attempt.reconciliation_required',{'attempt_id':a['id'],'code':code},now,
+                state='reconciliation_required',epoch=run['epoch']+1)
+
+    async def runtime_status(self, *, fresh_seconds=15):
+        if not 0 < fresh_seconds <= 300: raise RuntimeErrorCode('INVALID_OBSERVATION_WINDOW')
+        async with self.db.read(self.scope) as c:
+            now = await self.db.now(c)
+            worker_rows = [dict(r) for r in (await c.execute(select(workers).where(workers.c.scope==self.scope))).mappings()]
+            rows = (await c.execute(select(attempts).join(runs,runs.c.id==attempts.c.run_id).where(
+                runs.c.scope==self.scope, attempts.c.state.in_(ACTIVE_ATTEMPTS|{'result_unknown'})))).mappings().all()
+            observations, running, sessions, unknown = [], 0, 0, 0
+            for a in rows:
+                obs = a['remote'].get('runtime', {})
+                fresh = (a['state']!='result_unknown' and a['lease_until']>now
+                    and obs.get('observed_at',0)>=now-fresh_seconds)
+                alive = fresh and obs.get('alive') is True and bool(obs.get('pid')) and bool(obs.get('process_instance'))
+                running += int(bool(alive))
+                sessions += int(bool(alive and a['session_id'] and a['state'] in {'waiting_model','streaming','validating'}))
+                unknown += int(not fresh)
+                observations.append({'run_id':a['run_id'],'attempt_id':a['id'],'phase':a['state'],
+                    'worker_id':a['worker_id'],'session_id':a['session_id'],'process_id':a['process_id'],
+                    'process_instance':a['process_instance'],'last_output_at':a['last_output_at'],
+                    'freshness':'fresh' if fresh else 'stale','runtime':obs})
+            return {'scope':self.scope,'observed_at':now,'registered_slots':sum(w['slots'] for w in worker_rows),
+                'confirmed_running_processes':running,'confirmed_running_sessions':sessions,
+                'actual_concurrency':None if unknown else sessions,'unknown_attempts':unknown,
+                'workers':worker_rows,'attempts':observations}
