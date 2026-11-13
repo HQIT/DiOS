@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 _client: docker.DockerClient | None = None
 
 
+def _task_container_name(run_id: str) -> str:
+    return f"dios-run-{run_id}"
+
+
 def get_client() -> docker.DockerClient:
     global _client
     if _client is None:
@@ -60,7 +64,7 @@ def start_container(
         run_options["network"] = settings.docker_network
     container = client.containers.run(
         image=settings.diagent_image,
-        name=f"dios-run-{run_id}",
+        name=_task_container_name(run_id),
         labels={"dios.run_id": run_id},
         environment=env,
         volumes={
@@ -75,6 +79,15 @@ def start_container(
     )
     logger.info("Started container %s for run %s", container.short_id, run_id)
     return container.id
+
+
+def find_task_container(run_id: str) -> str | None:
+    """按任务标识找回已启动的容器，包含已经退出的容器。"""
+    try:
+        container = get_client().containers.get(_task_container_name(run_id))
+    except NotFound:
+        return None
+    return container.id if container.labels.get("dios.run_id") == run_id else None
 
 
 def get_container_status(container_id: str) -> str | None:
