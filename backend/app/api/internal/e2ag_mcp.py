@@ -72,6 +72,16 @@ async def proxy_mcp_call(
         await record_tool_decision(
             db, grant, tool_name=tool_name, method=method, allowed=False, reason=reason,
         )
+        if method == "server/discover":
+            # 网关采用 initialize 握手。返回 JSON-RPC Method not found 让客户端回退，
+            # 此探测仍经授权校验和审计，且留在网关本地。
+            return JSONResponse(
+                content={
+                    "jsonrpc": "2.0",
+                    "id": payload.get("id"),
+                    "error": {"code": -32601, "message": "Method not found"},
+                },
+            )
         return _rpc_error(
             payload.get("id"), -32003, "E2AG policy denied MCP request",
             {"reason": reason, "trace_id": grant.trace_id, "tool": tool_name},

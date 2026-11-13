@@ -9,6 +9,7 @@ from app.db.database import init_db
 from app.api.os import models, agents, events, subscriptions, connectors, mcp_servers, skills, mcp_registry, a2a
 from app.api.apps import chat as chat_app
 from app.api.internal import e2ag_mcp
+from app.services.a2a_service import recover_task_containers, stop_task_container_monitors
 from app.services.cron_scheduler import cron_scheduler
 from app.services.imap_poller import imap_poller
 from app.services.event_retry_worker import retry_worker
@@ -19,13 +20,17 @@ from app.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    await recover_task_containers()
     await cron_scheduler.start()
     await imap_poller.start()
     retry_worker.start()
-    yield
-    retry_worker.stop()
-    await imap_poller.stop()
-    await cron_scheduler.stop()
+    try:
+        yield
+    finally:
+        retry_worker.stop()
+        await imap_poller.stop()
+        await cron_scheduler.stop()
+        await stop_task_container_monitors()
 
 
 app = FastAPI(title="DiOS", description="DiFlow Intelligent Operation System", lifespan=lifespan)

@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import uuid
@@ -18,13 +19,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-from sqlalchemy import select
+from docker.errors import DockerException
+from requests.exceptions import RequestException
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models.tables import Agent, A2ATask, LLMModel, McpServer
 
 logger = logging.getLogger(__name__)
+_TASK_POLL_INTERVAL = 5
+_task_container_monitors: set[asyncio.Task[None]] = set()
 
 
 def _now() -> datetime:
@@ -286,13 +291,7 @@ def _extract_text_from_message(message: dict[str, Any]) -> str:
 
 async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> None:
     """task 模式 Proxy：把 message 作为 task 输入，启动一次性容器。"""
-    import asyncio
-    from app.services.docker_runner import (
-        start_container,
-        get_container_status,
-        get_container_exit_code,
-        remove_container,
-    )
+    from app.services.docker_runner import start_container
 
     if not agent.workspace_path:
         raise ValueError(f"Agent {agent.id} has no workspace_path")
@@ -354,29 +353,71 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
     task.updated_at = _now()
     await db.commit()
 
-    asyncio.create_task(_poll_task_container(task.id, run_id, container_id, str(workspace)))
+    _start_task_container_monitor(task.id, str(workspace), container_id)
 
 
-async def _poll_task_container(task_id: str, run_id: str, container_id: str, workspace_path: str) -> None:
-    """后台轮询容器状态，完成后更新 A2ATask。"""
-    import asyncio
+async def recover_task_containers() -> None:
+    """启动时为仍在执行的一次性任务恢复容器轮询。"""
+    from app.db.database import async_session
+
+    async with async_session() as db:
+        runs = (await db.execute(
+            select(A2ATask.id, Agent.workspace_path)
+            .join(Agent, Agent.id == A2ATask.agent_id)
+            .where(A2ATask.status == "working", Agent.mode == "task")
+        )).all()
+    for task_id, workspace_path in runs:
+        _start_task_container_monitor(task_id, workspace_path)
+
+
+async def stop_task_container_monitors() -> None:
+    """关闭进程内轮询，保留 Docker 中的在途容器供下次启动接管。"""
+    monitors = tuple(_task_container_monitors)
+    for monitor in monitors:
+        monitor.cancel()
+    await asyncio.gather(*monitors, return_exceptions=True)
+
+
+def _start_task_container_monitor(task_id: str, workspace_path: str, container_id: str | None = None) -> None:
+    monitor = asyncio.create_task(_poll_task_container(task_id, workspace_path, container_id))
+    _task_container_monitors.add(monitor)
+    monitor.add_done_callback(_task_container_monitors.discard)
+
+
+async def _poll_task_container(task_id: str, workspace_path: str, container_id: str | None) -> None:
+    """轮询 Docker 直到容器退出或消失，再登记任务结果。"""
     from app.db.database import async_session
     from app.services.docker_runner import (
+        find_task_container,
         get_container_status,
         get_container_exit_code,
         get_container_logs,
         remove_container,
     )
 
+    run_id = task_id[:12]
+    if container_id is not None:
+        # 正常派发先让事件路由完成自身的状态和审计登记。
+        await asyncio.sleep(_TASK_POLL_INTERVAL)
+    exit_code = None
+    container_logs = ""
     while True:
-        await asyncio.sleep(5)
-        status = await asyncio.to_thread(get_container_status, container_id)
-        if status is None or status == "exited":
-            break
-
-    exit_code = await asyncio.to_thread(get_container_exit_code, container_id)
-    container_logs = await asyncio.to_thread(get_container_logs, container_id)
-    await asyncio.to_thread(remove_container, container_id)
+        try:
+            if container_id is None:
+                container_id = await asyncio.to_thread(find_task_container, run_id)
+            if container_id is None:
+                break
+            status = await asyncio.to_thread(get_container_status, container_id)
+            if status is None:
+                break
+            if status in ("exited", "dead"):
+                exit_code = await asyncio.to_thread(get_container_exit_code, container_id)
+                container_logs = await asyncio.to_thread(get_container_logs, container_id)
+                break
+        except (DockerException, RequestException) as exc:
+            # Docker 暂时不可用时保留 working，避免把连接失败记成任务失败。
+            logger.warning("Cannot inspect task container for run %s: %s", run_id, exc)
+        await asyncio.sleep(_TASK_POLL_INTERVAL)
 
     artifacts: list[dict[str, Any]] = []
     result_root = Path(workspace_path) / "output" / "events" / run_id
@@ -396,51 +437,57 @@ async def _poll_task_container(task_id: str, run_id: str, container_id: str, wor
         except Exception:
             pass
 
-    async with async_session() as db:
-        task = await db.get(A2ATask, task_id)
-        if task is None:
-            logger.warning("Task %s disappeared during polling", task_id)
-            _remove_task_secret_config(workspace_path, run_id)
-            return
-        task.artifacts = artifacts
-        task.status = "completed" if exit_code == 0 else "failed"
-        if exit_code != 0:
-            log_tail = container_logs[-4000:].strip()
-            task.error = f"container exit code {exit_code}"
-            if log_tail:
-                task.error += f"\ncontainer log tail:\n{log_tail}"
-        task.updated_at = _now()
-        from app.services.e2ag_tool_gateway import revoke_task_grants
-        await revoke_task_grants(db, task.id)
-        if task.context_id:
-            from app.models.tables import EventLog
-            from app.services.e2ag import append_audit_entry
+    status = "completed" if exit_code == 0 else "failed"
+    error = ""
+    if exit_code is None:
+        error = "Task container is missing"
+    elif exit_code != 0:
+        error = f"container exit code {exit_code}"
+        log_tail = container_logs[-4000:].strip()
+        if log_tail:
+            error += f"\ncontainer log tail:\n{log_tail}"
 
-            event_log = await db.get(EventLog, task.context_id)
-            if event_log is not None:
-                event_log.audit_chain = append_audit_entry(
-                    event_log.audit_chain or [],
-                    trace_id=task.trace_id,
-                    stage="a2a_task",
-                    outcome=task.status,
-                    evidence={
-                        "task_id": task.id,
-                        "agent_id": task.agent_id,
-                        "exit_code": exit_code,
-                        "artifact_count": len(artifacts),
-                    },
-                )
-        await db.commit()
+    async with async_session() as db:
+        # 条件更新防止已取消的任务或另一条轮询被重复登记。
+        task = (await db.scalars(
+            update(A2ATask)
+            .where(A2ATask.id == task_id, A2ATask.status == "working")
+            .values(artifacts=artifacts, status=status, error=error, updated_at=_now())
+            .returning(A2ATask)
+        )).one_or_none()
+        if task is not None:
+            await _record_task_completion(db, task, exit_code)
+            await db.commit()
     _remove_task_secret_config(workspace_path, run_id)
-    logger.info(
-        "A2A task finished: task_id=%s run_id=%s exit=%s status=%s context_id=%s artifacts=%s",
-        task_id,
-        run_id,
-        exit_code,
-        "completed" if exit_code == 0 else "failed",
-        task.context_id if task else "",
-        len(artifacts),
-    )
+    # 先提交结果，再清理容器。提交前重启时仍能读取容器退出码。
+    if container_id is not None:
+        await asyncio.to_thread(remove_container, container_id)
+
+
+async def _record_task_completion(db: AsyncSession, task: A2ATask, exit_code: int | None) -> None:
+    """在任务终态事务内撤销授权并追加审计记录。"""
+    from app.services.e2ag_tool_gateway import revoke_task_grants
+
+    if task.context_id:
+        from app.models.tables import EventLog
+        from app.services.e2ag import append_audit_entry
+
+        event_log = await db.get(EventLog, task.context_id)
+        if event_log is not None:
+            event_log.audit_chain = append_audit_entry(
+                event_log.audit_chain or [],
+                trace_id=task.trace_id,
+                stage="a2a_task",
+                outcome=task.status,
+                evidence={
+                    "task_id": task.id,
+                    "agent_id": task.agent_id,
+                    "exit_code": exit_code,
+                    "artifact_count": len(task.artifacts),
+                },
+            )
+    # 撤销函数会提交会话，审计需先加入同一事务。
+    await revoke_task_grants(db, task.id)
 
 
 def _build_proxy_task_config(
