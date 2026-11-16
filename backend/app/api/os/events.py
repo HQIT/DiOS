@@ -1,6 +1,7 @@
 """Event Gateway API: webhook 接收 + 手动触发 + 事件目录 + 事件日志查询。"""
 
 from datetime import datetime, timedelta, timezone
+from fnmatch import fnmatchcase
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, Request, HTTPException, Query
 from sqlalchemy import select
@@ -127,15 +128,25 @@ async def event_catalog(db: AsyncSession = Depends(get_db)):
 @router.post("/manual")
 async def trigger_manual_event(
     body: ManualEventBody,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """手动触发一个事件，用于测试/模拟。"""
+    scoped_grant = getattr(request.state, "diagent_event_grant", None)
+    if scoped_grant:
+        publisher, grant = scoped_grant
+        if body.event_type not in grant.event_types or not any(fnmatchcase(body.source, pattern) for pattern in grant.source_patterns):
+            raise HTTPException(403, "Event source or type is outside this Agent grant")
+        if await db.get(Agent, publisher) is None:
+            raise HTTPException(403, "Event grant belongs to an unavailable Agent")
     event = _make_event(
         source=body.source,
         event_type=body.event_type,
         subject=body.subject,
         data=body.data,
     )
+    if scoped_grant:
+        event["diagentid"] = scoped_grant[0]
 
     subs_result = await db.execute(
         select(Subscription).where(Subscription.enabled == True)  # noqa: E712

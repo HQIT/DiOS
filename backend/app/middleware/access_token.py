@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from hashlib import sha256
+from secrets import compare_digest
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -15,6 +18,11 @@ _PUBLIC_PREFIXES = (
     "/api/os/events/webhook/",
     "/api/internal/e2ag/mcp/",
 )
+_EVENT_GRANT_ROUTES = {
+    ("GET", "/api/os/events/catalog"),
+    ("GET", "/api/os/connectors/source-patterns"),
+    ("POST", "/api/os/events/manual"),
+}
 
 
 def _is_public(path: str) -> bool:
@@ -43,9 +51,13 @@ class AccessTokenMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         token = _extract_token(request)
-        if token != expected:
-            return JSONResponse(
-                status_code=401,
-                content={"detail": "Invalid or missing access token"},
-            )
-        return await call_next(request)
+        if token == expected:
+            return await call_next(request)
+        if token and (request.method, path) in _EVENT_GRANT_ROUTES:
+            digest = sha256(token.encode()).hexdigest()
+            grants = [(agent_id, grant) for agent_id, grant in settings.diagent_event_grants.items()
+                      if compare_digest(digest, grant.token_sha256)]
+            if len(grants) == 1:
+                request.state.diagent_event_grant = grants[0]
+                return await call_next(request)
+        return JSONResponse(status_code=401, content={"detail": "Invalid or missing access token"})

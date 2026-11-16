@@ -6,6 +6,7 @@ services:
       - "127.0.0.1:18080:8000"
     environment:
       - DIOS_ACCESS_TOKEN=${DIOS_ACCESS_TOKEN:-}
+      - DIOS_DIAGENT_EVENT_GRANTS
       - DIOS_DOCKER_NETWORK=gdw-3d-bin-packing_default
       - DIOS_DIAGENT_IMAGE=${DIOS_DIAGENT_IMAGE:-dios-diagent-task:latest}
       - DIOS_DIAGENT_SERVICE_IMAGE=${DIOS_DIAGENT_SERVICE_IMAGE:-dios-diagent-service:latest}

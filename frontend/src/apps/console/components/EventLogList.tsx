@@ -167,11 +167,11 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
     }
   };
 
-  const configuredCategories = catalog
-    ? new Set(catalog.sources.filter((s) => catalog.connector_status?.[s.id] !== false).map((s) => s.id))
-    : new Set<string>();
+  // 通过配置文件声明的事件没有 Connector 状态，也应出现在目录中。
   const filteredTypes = catalog
-    ? catalog.event_types.filter((et) => configuredCategories.has(et.category) && (!filterCategory || et.category === filterCategory))
+    ? catalog.event_types.filter((et) =>
+        catalog.connector_status?.[et.category] !== false && (!filterCategory || et.category === filterCategory),
+      )
     : [];
   const grouped = Object.entries(
     filteredTypes.reduce<Record<string, EventCatalogType[]>>((acc, et) => {

@@ -38,6 +38,7 @@ services:
       - NO_PROXY=localhost,127.0.0.1,backend,172.16.0.0/12,10.0.0.0/8
       - no_proxy=localhost,127.0.0.1,backend,172.16.0.0/12,10.0.0.0/8
       - DIOS_ACCESS_TOKEN=${DIOS_ACCESS_TOKEN:-}
+      - DIOS_DIAGENT_EVENT_GRANTS
     ports:
       - "8081:8000"  # 8080 常被其他服务占用，直连 API 用 8081
 
