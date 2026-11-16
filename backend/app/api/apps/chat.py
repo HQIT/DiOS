@@ -15,6 +15,7 @@ from app.db.database import get_db
 from app.models.tables import Agent, ChatSession, ChatMessage
 from app.services.agent_runtime import ensure_running
 from app.services.http_internal import internal_client
+from app.services.model_proxy import model_grant, resolve_service_model
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
@@ -122,18 +123,8 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
     await db.commit()
 
     # 获取模型名
-    model_name = agent.model or ""
-    from app.models.tables import LLMModel
-    if agent.model:
-        llm = await db.get(LLMModel, agent.model)
-        if llm is None:
-            llm_result = await db.execute(select(LLMModel).where(LLMModel.name == agent.model))
-            llm = llm_result.scalar_one_or_none()
-        if llm is None:
-            llm_result = await db.execute(select(LLMModel).where(LLMModel.model == agent.model))
-            llm = llm_result.scalar_one_or_none()
-        if llm:
-            model_name = llm.model
+    llm = await resolve_service_model(db, agent.model)
+    model_name = llm.model if llm else agent.model or ""
 
     # 确保 Agent 容器运行中
     try:
@@ -159,8 +150,12 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
             collected: list[str] = []
             current_event: str | None = None
             try:
-                async with internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
-                    async with client.stream("POST", f"{diagent_url}/v1/chat/completions", json=payload) as resp:
+                async with (
+                    get_db_session() as grant_db,
+                    model_grant(grant_db, agent, llm) as headers,
+                    internal_client(timeout=httpx.Timeout(300, connect=10)) as client,
+                ):
+                    async with client.stream("POST", f"{diagent_url}/v1/chat/completions", json=payload, headers=headers) as resp:
                         if resp.status_code != 200:
                             error = await resp.aread()
                             msg = error.decode(errors="replace")
@@ -190,6 +185,9 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
                                                 yield f"data: {json.dumps(pending, ensure_ascii=False)}\n\n"
                                     except Exception:
                                         pass
+            except HTTPException as e:
+                yield f"data: {json.dumps({'error': e.detail}, ensure_ascii=False)}\n\n"
+                yield "data: [DONE]\n\n"
             except (httpx.RemoteProtocolError, httpx.ReadError, httpx.ReadTimeout) as e:
                 logger.warning("chat stream interrupted: %s", e)
                 yield f"data: {json.dumps({'error': f'stream interrupted: {type(e).__name__}'}, ensure_ascii=False)}\n\n"
@@ -214,8 +212,8 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         )
 
     # 非流式
-    async with internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
-        resp = await client.post(f"{diagent_url}/v1/chat/completions", json=payload)
+    async with model_grant(db, agent, llm) as headers, internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
+        resp = await client.post(f"{diagent_url}/v1/chat/completions", json=payload, headers=headers)
         if resp.status_code != 200:
             raise HTTPException(resp.status_code, resp.text)
         result = resp.json()

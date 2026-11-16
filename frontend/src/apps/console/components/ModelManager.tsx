@@ -11,11 +11,13 @@ export default function ModelManager() {
   const [models, setModels] = useState<LLMModel[]>([]);
   const [editing, setEditing] = useState<Partial<LLMModel> | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
+  const [clearKey, setClearKey] = useState(false);
 
   const load = () => api.listModels().then(setModels);
   useEffect(() => { load(); }, []);
 
   const startEdit = (m?: LLMModel) => {
+    setClearKey(false);
     if (m) { setEditId(m.id); setEditing({ ...m }); }
     else { setEditId(null); setEditing({ ...EMPTY, name: genId() }); }
   };
@@ -25,7 +27,8 @@ export default function ModelManager() {
     const data = {
       name: editing.name, provider: editing.provider || "openai",
       model: editing.model, base_url: editing.base_url,
-      api_key: editing.api_key || "", display_name: editing.display_name || "",
+      ...(!editId || clearKey || editing.api_key ? { api_key: clearKey ? "" : editing.api_key || "" } : {}),
+      display_name: editing.display_name || "",
       description: editing.description || "",
       context_length: editing.context_length || null,
     };
@@ -91,7 +94,8 @@ export default function ModelManager() {
             <input placeholder="https://api.openai.com/v1" value={editing.base_url || ""} onChange={(e) => setEditing({ ...editing, base_url: e.target.value })} />
 
             <label>API Key</label>
-            <input type="password" placeholder="sk-..." value={editing.api_key || ""} onChange={(e) => setEditing({ ...editing, api_key: e.target.value })} />
+            <input type="password" placeholder={editId ? "留空保留现有密钥" : "sk-..."} disabled={clearKey} value={editing.api_key || ""} onChange={(e) => setEditing({ ...editing, api_key: e.target.value })} />
+            {editId && <label><input type="checkbox" checked={clearKey} onChange={(e) => setClearKey(e.target.checked)} /> 清除现有密钥</label>}
 
             <label>上下文长度</label>
             <input type="number" placeholder="128000" value={editing.context_length ?? ""} onChange={(e) => setEditing({ ...editing, context_length: e.target.value ? Number(e.target.value) : undefined })} />

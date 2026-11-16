@@ -216,6 +216,7 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
     import httpx
     from app.db.database import async_session
     from app.services.agent_runtime import ensure_running
+    from app.services.model_proxy import model_grant, resolve_service_model
 
     try:
         async with async_session() as db:
@@ -225,12 +226,10 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
             url = await ensure_running(agent_id, db)
 
             agent = await db.get(Agent, agent_id)
-            model_name = ""
-            if agent and agent.model:
-                m = await db.execute(select(LLMModel).where(LLMModel.name == agent.model))
-                mobj = m.scalar_one_or_none()
-                if mobj:
-                    model_name = mobj.model
+            if agent is None:
+                raise RuntimeError("Agent was removed before service execution")
+            model = await resolve_service_model(db, agent.model)
+            model_name = model.model if model else ""
 
             text = _extract_text_from_message(task.message)
             openai_req: dict[str, Any] = {
@@ -242,8 +241,8 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
 
             from app.services.http_internal import internal_client
 
-            async with internal_client(timeout=300) as client:
-                resp = await client.post(f"{url}/v1/chat/completions", json=openai_req)
+            async with model_grant(db, agent, model) as headers, internal_client(timeout=300) as client:
+                resp = await client.post(f"{url}/v1/chat/completions", json=openai_req, headers=headers)
                 resp.raise_for_status()
                 data = resp.json()
 
@@ -292,9 +291,11 @@ def _extract_text_from_message(message: dict[str, Any]) -> str:
 async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> None:
     """task 模式 Proxy：把 message 作为 task 输入，启动一次性容器。"""
     from app.services.docker_runner import start_container
+    from app.services.model_proxy import check_model_workspace
 
     if not agent.workspace_path:
         raise ValueError(f"Agent {agent.id} has no workspace_path")
+    await check_model_workspace(db, agent)
 
     models_result = await db.execute(select(LLMModel))
     llm_models = list(models_result.scalars().all())

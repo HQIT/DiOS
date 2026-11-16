@@ -16,8 +16,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.models.tables import Agent, AgentRuntime, LLMModel, McpServer
+from app.models.tables import A2ATask, Agent, AgentRuntime, LLMModel, McpServer
 from app.services.docker_runner import get_client, _host_path
+from app.services.model_proxy import MODEL_PROXY_BASE_PATH, check_model_workspace
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ def _container_name(agent_id: str) -> str:
 
 
 async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str]:
-    """为 Agent 的 workspace 生成 models.yaml 和 mcp_servers.json，返回环境变量 dict。"""
+    """生成常驻服务环境，受管推理模式只下发代理地址。"""
     workspace = Path(agent.workspace_path)
     workspace.mkdir(parents=True, exist_ok=True)
     # 业务凭据放最底层，系统 env 会覆盖同名 key（系统优先）
@@ -40,27 +41,33 @@ async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str
         env[str(k)] = str(v)
     env.update({
         "AGENT_WORKSPACE": "/workspace",
-        "LLM_MODELS_CONFIG_PATH": "/workspace/models.yaml",
         "DIOS_API": os.environ.get("DIOS_API_INTERNAL", "http://backend:8000"),
     })
 
-    result = await db.execute(select(LLMModel))
-    llms = result.scalars().all()
-    models = {}
-    for llm in llms:
-        models[llm.model] = {
-            "provider": llm.provider or "openai",
-            "model": llm.model,
-            "base_url": llm.base_url,
-            **({"api_key": llm.api_key} if llm.api_key else {}),
-        }
-    (workspace / "models.yaml").write_text(yaml.dump({"models": models}, allow_unicode=True))
+    if settings.diagent_service_model_proxy:
+        for key in ("LLM_MODELS_CONFIG_PATH", "LLM_OPENAI_API_KEY", "OPENAI_API_KEY", "DIAGENT_MODEL_API_KEY", "MCP_CONFIG_PATH"):
+            env.pop(key, None)
+        # Agent 环境中的全局访问令牌能越过单轮推理授权，受管服务只接收限权凭据。
+        env = {key: value for key, value in env.items() if value.strip() != settings.access_token}
+        env["DIAGENT_MODEL_PROXY_URL"] = env["DIOS_API"].rstrip("/") + MODEL_PROXY_BASE_PATH
+        env["DIAGENT_MODEL_PROXY_AGENT_ID"] = agent.id
+    else:
+        env["LLM_MODELS_CONFIG_PATH"] = "/workspace/models.yaml"
+        models = {}
+        for llm in (await db.scalars(select(LLMModel))).all():
+            models[llm.model] = {
+                "provider": llm.provider or "openai",
+                "model": llm.model,
+                "base_url": llm.base_url,
+                **({"api_key": llm.api_key} if llm.api_key else {}),
+            }
+        (workspace / "models.yaml").write_text(yaml.dump({"models": models}, allow_unicode=True))
 
     if agent.system_prompt:
         env["AGENT_SYSTEM_PROMPT"] = agent.system_prompt
 
     mcp_ids = agent.mcp_server_ids or []
-    if mcp_ids:
+    if mcp_ids and not settings.diagent_service_model_proxy:
         mcp_result = await db.execute(select(McpServer).where(McpServer.id.in_(mcp_ids)))
         mcp_servers = list(mcp_result.scalars().all())
         if mcp_servers:
@@ -97,7 +104,8 @@ def _start_container(agent: Agent, env: dict[str, str]) -> tuple[str, str]:
     container = client.containers.run(
         image=settings.diagent_service_image,
         name=name,
-        labels={"dios.agent_id": agent.id, "dios.type": "service"},
+        labels={"dios.agent_id": agent.id, "dios.type": "service",
+                "dios.model_proxy": "enabled" if settings.diagent_service_model_proxy else "disabled"},
         environment=env,
         volumes={
             host_ws: {"bind": "/workspace", "mode": "rw"},
@@ -128,6 +136,14 @@ async def _health_check(url: str, retries: int = 20, interval: float = 1.0) -> b
 
 async def ensure_running(agent_id: str, db: AsyncSession) -> str:
     """确保 Agent 的 DiAgent 服务容器正在运行，返回其 URL。"""
+    if settings.diagent_service_model_proxy and not settings.access_token:
+        raise RuntimeError("Managed inference requires DIOS_ACCESS_TOKEN")
+    agent = await db.get(Agent, agent_id)
+    if not agent:
+        raise ValueError(f"Agent {agent_id} not found")
+    if settings.diagent_service_model_proxy and agent.mode != "service":
+        raise RuntimeError("Managed inference requires a service-mode Agent")
+    await check_model_workspace(db, agent)
     runtime = await db.get(AgentRuntime, agent_id)
 
     if runtime and runtime.status == "running":
@@ -136,15 +152,14 @@ async def ensure_running(agent_id: str, db: AsyncSession) -> str:
             c = client.containers.get(runtime.container_id)
             c.reload()
             if c.status == "running":
+                managed = c.labels.get("dios.model_proxy") == "enabled"
+                if managed != settings.diagent_service_model_proxy:
+                    raise RuntimeError("Stop the existing Agent service before changing its inference mode")
                 return runtime.url
         except NotFound:
             pass
         runtime.status = "stopped"
         await db.commit()
-
-    agent = await db.get(Agent, agent_id)
-    if not agent:
-        raise ValueError(f"Agent {agent_id} not found")
 
     env = await _sync_agent_workspace(agent, db)
     container_id, url = _start_container(agent, env)
@@ -181,3 +196,19 @@ async def stop_agent(agent_id: str, db: AsyncSession) -> None:
         pass
     await db.delete(runtime)
     await db.commit()
+
+
+async def has_active_workspace_mount(agent_id: str, db: AsyncSession) -> bool:
+    """确认工作区尚被常驻容器或已派发的任务占用，避免修改记录后丢失挂载归属。"""
+    runtime = await db.get(AgentRuntime, agent_id)
+    if runtime:
+        try:
+            container = await asyncio.to_thread(lambda: get_client().containers.get(runtime.container_id))
+            if container.status not in ("exited", "dead"):
+                return True
+        except NotFound:
+            pass
+    working_task = await db.scalar(select(A2ATask.id).where(
+        A2ATask.agent_id == agent_id, A2ATask.status == "working",
+    ).limit(1))
+    return working_task is not None

@@ -10,6 +10,7 @@ from app.config import settings
 from app.models.tables import Agent
 from app.models.schemas import AgentCreate, AgentUpdate, AgentOut
 from app.services.admin_guard import normalize_capabilities
+from app.services.agent_runtime import has_active_workspace_mount
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
@@ -119,6 +120,9 @@ async def update_agent(agent_id: str, body: AgentUpdate, db: AsyncSession = Depe
     if not agent:
         raise HTTPException(404, "Agent not found")
     updates = body.model_dump(exclude_unset=True)
+    changes_mount = any(key in updates and updates[key] != getattr(agent, key) for key in ("workspace_path", "mode"))
+    if settings.diagent_service_model_proxy and changes_mount and await has_active_workspace_mount(agent_id, db):
+        raise HTTPException(409, "Stop the Agent's running containers before changing its workspace or mode")
     # env 的 ***value 视为"未变更"，避免前端回传脱敏值覆盖真实凭据
     if "env" in updates and isinstance(updates["env"], dict):
         existing = agent.env or {}
@@ -147,5 +151,7 @@ async def delete_agent(agent_id: str, db: AsyncSession = Depends(get_db)):
     agent = await db.get(Agent, agent_id)
     if not agent:
         raise HTTPException(404, "Agent not found")
+    if settings.diagent_service_model_proxy and await has_active_workspace_mount(agent_id, db):
+        raise HTTPException(409, "Stop the Agent's running containers before deleting it")
     await db.delete(agent)
     await db.commit()

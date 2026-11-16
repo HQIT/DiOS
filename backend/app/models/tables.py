@@ -124,6 +124,19 @@ class AgentRuntime(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class ModelInferenceGrant(Base):
+    """单轮 Agent 对话的推理授权，只存令牌摘要和剩余调用次数。"""
+
+    __tablename__ = "model_inference_grants"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    agent_id: Mapped[str] = mapped_column(String(12), nullable=False)
+    model_id: Mapped[str] = mapped_column(String(12), nullable=False)
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    expires_at: Mapped[int] = mapped_column(index=True)
+    remaining_calls: Mapped[int] = mapped_column()
+
+
 # ── Chat App（会话 + 消息持久化） ──
 
 

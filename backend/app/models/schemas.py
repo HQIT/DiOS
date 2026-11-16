@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 from datetime import datetime
 from typing import Optional
 
@@ -40,6 +40,11 @@ class LLMModelOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+    @field_serializer("api_key")
+    def hide_api_key(self, _value: str) -> str:
+        """保留响应字段供旧客户端读取，供应商密钥只接受写入。"""
+        return ""
 
 
 # ── Agent ──
