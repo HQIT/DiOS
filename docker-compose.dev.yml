@@ -2,17 +2,19 @@ services:
   # 仅构建 DiAgent service 镜像，不启动；Runtime Manager 动态管理容器
   diagent-build:
     build:
-      context: ./DiAgent
-      dockerfile: docker/agent-service/Dockerfile
-    image: dios-diagent-service:latest
+      context: ${DIAGENT_BUILD_CONTEXT:-../DiAgent-TS}
+      dockerfile: docker/agent-task-dsh/Dockerfile
+      target: service
+    image: dios-diagent-service:dsh-dev
     profiles: ["build"]
 
   # task 模式镜像（含 git/curl），供一次性事件触发容器使用
   diagent-task-build:
     build:
-      context: ./DiAgent
-      dockerfile: docker/agent-task/Dockerfile
-    image: dios-diagent-task:latest
+      context: ${DIAGENT_BUILD_CONTEXT:-../DiAgent-TS}
+      dockerfile: docker/agent-task-dsh/Dockerfile
+      target: task
+    image: dios-diagent-task:dsh-dev
     profiles: ["build"]
 
   backend:
@@ -28,9 +30,9 @@ services:
       - DIOS_HOST_WORKSPACE_ROOT=${PWD}/workspace
       - DIOS_HOST_SHARED_CLI_ROOT=${PWD}/cli
       - DIOS_DATABASE_URL=sqlite+aiosqlite:////data/dios.db
-      - DIOS_DIAGENT_IMAGE=dios-diagent-task:latest
-      - DIOS_DIAGENT_SERVICE_IMAGE=dios-diagent-service:latest
-      - DIOS_DOCKER_NETWORK=nana-os_default
+      - DIOS_DIAGENT_IMAGE=dios-diagent-task:dsh-dev
+      - DIOS_DIAGENT_SERVICE_IMAGE=dios-diagent-service:dsh-dev
+      - DIOS_DOCKER_NETWORK=${COMPOSE_PROJECT_NAME}_default
       # 避免 WSL/Cursor 代理劫持访问 dios-agent-* 容器
       - NO_PROXY=localhost,127.0.0.1,backend,172.16.0.0/12,10.0.0.0/8
       - no_proxy=localhost,127.0.0.1,backend,172.16.0.0/12,10.0.0.0/8

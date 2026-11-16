@@ -40,6 +40,19 @@ docker compose up -d
 
 打开 `http://localhost:3000`。API 默认位于 `http://localhost:8000`。
 
+部署时可在 Compose 环境中分别设置 `DIOS_DIAGENT_IMAGE` 和 `DIOS_DIAGENT_SERVICE_IMAGE`，选择已验收的一次性任务和常驻镜像。使用仓库 digest 引用时，先在 backend 所连接的 Docker daemon 上拉取镜像。
+
+### 本地开发使用 DSH
+
+将 DiAgent 的 `rewrite/dsh-v0.1` 分支检出到与 DiOS 并列的 `DiAgent-TS` 目录。若检出到其他位置，设置 `DIAGENT_BUILD_CONTEXT` 指向该仓库根目录。
+
+```bash
+docker compose -f docker-compose.dev.yml --profile build build diagent-task-build diagent-build
+docker compose -f docker-compose.dev.yml up -d backend frontend
+```
+
+开发环境的前端在 `http://localhost:3001`，API 在 `http://localhost:8081`。backend 使用构建出的 `dios-diagent-task:dsh-dev` 和 `dios-diagent-service:dsh-dev`。已在运行的常驻 Agent 会复用现有容器，需要停止旧容器后重新启动 Agent 才会使用新镜像。常驻镜像当前支持非流式、无工具的单轮对话。
+
 CLI 与 Console 使用同一组控制面 API：
 
 ```bash
