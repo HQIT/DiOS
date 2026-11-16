@@ -12,6 +12,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
+from app.config import settings
 from app.models.tables import Agent, ChatSession, ChatMessage
 from app.services.agent_runtime import ensure_running
 from app.services.http_internal import internal_client
@@ -23,20 +24,24 @@ logger = logging.getLogger(__name__)
 
 def _extract_hil_pending(result_text: str) -> dict | None:
     """从工具输出文本中提取 pending_hil 结构化信息。"""
-    if not result_text or "pending_hil" not in result_text:
+    if not result_text or not re.search(r'"status"\s*:\s*"pending_hil"', result_text):
         return None
-    token = None
+    shell_exit = re.match(r"^exit_code: (-?\d+)\nstdout:\n", result_text)
+    if shell_exit and shell_exit.group(1) != "3":
+        return None
+    # CLI 用 token_urlsafe(16) 生成确认令牌，令牌会作为单独的命令行参数。
+    token_match = re.search(r'"token"\s*:\s*"([A-Za-z0-9_-]{22})"', result_text)
+    if not token_match:
+        return None
+    token = token_match.group(1)
     method = None
     path = None
     message = None
     expires_in_seconds = 600
-    token_match = re.search(r'"token"\s*:\s*"([^"]+)"', result_text, re.IGNORECASE)
     method_match = re.search(r'"method"\s*:\s*"([^"]+)"', result_text, re.IGNORECASE)
     path_match = re.search(r'"path"\s*:\s*"([^"]+)"', result_text, re.IGNORECASE)
     msg_match = re.search(r'"message"\s*:\s*"([^"]+)"', result_text, re.IGNORECASE)
-    expires_match = re.search(r'"expires_in_seconds"\s*:\s*(\d+)', result_text, re.IGNORECASE)
-    if token_match:
-        token = token_match.group(1)
+    expires_match = re.search(r'"expires_in_seconds"\s*:\s*(\d{1,5})(?!\d)', result_text, re.IGNORECASE)
     if method_match:
         method = method_match.group(1)
     if path_match:
@@ -44,12 +49,7 @@ def _extract_hil_pending(result_text: str) -> dict | None:
     if msg_match:
         message = msg_match.group(1)
     if expires_match:
-        try:
-            expires_in_seconds = int(expires_match.group(1))
-        except Exception:
-            expires_in_seconds = 600
-    if not token:
-        return None
+        expires_in_seconds = int(expires_match.group(1))
     now = dt.datetime.now(dt.timezone.utc)
     expires_at = now + dt.timedelta(seconds=expires_in_seconds)
     return {
@@ -95,6 +95,8 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         await db.commit()
     else:
         session = await db.get(ChatSession, session_id)
+        if session and session.agent_id != agent_id:
+            raise HTTPException(409, "Chat session belongs to a different Agent")
         if not session:
             session = ChatSession(id=session_id, agent_id=agent_id, title=user_content[:60])
             db.add(session)
@@ -138,8 +140,14 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         "stream": body.get("stream", True),
     }
     # 声明了 skills 的 agent 默认启用内置协作工具（其余行为由 prompt + skills 约束）
-    if agent.skills:
-        payload["tool_selection"] = {"tool_ids": ["shell", "publish_event"]}
+    include_mcp = settings.diagent_service_model_proxy and bool(agent.mcp_server_ids)
+    selected = ["shell", "publish_event"] if agent.skills else []
+    if agent.skills and settings.diagent_service_model_proxy:
+        selected.append("skill")
+    if include_mcp:
+        selected.append("mcp")
+    if selected:
+        payload["tool_selection"] = {"tool_ids": selected}
     capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
     reasoning = capabilities.get("reasoning")
     if isinstance(reasoning, dict) and reasoning:
@@ -149,10 +157,11 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         async def _stream():
             collected: list[str] = []
             current_event: str | None = None
+            pending_confirmation: dict | None = None
             try:
                 async with (
                     get_db_session() as grant_db,
-                    model_grant(grant_db, agent, llm) as headers,
+                    model_grant(grant_db, agent, llm, include_mcp=include_mcp) as headers,
                     internal_client(timeout=httpx.Timeout(300, connect=10)) as client,
                 ):
                     async with client.stream("POST", f"{diagent_url}/v1/chat/completions", json=payload, headers=headers) as resp:
@@ -165,26 +174,25 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
                         async for line in resp.aiter_lines():
                             # 保持 SSE 行格式，确保前端解析器不会等待悬空分隔符
                             yield line + "\n"
-                            if line.startswith("event: "):
+                            if not line:
+                                if pending_confirmation:
+                                    yield "event: hil\n"
+                                    yield f"data: {json.dumps(pending_confirmation, ensure_ascii=False)}\n\n"
+                                pending_confirmation = None
+                                current_event = None
+                            elif line.startswith("event: "):
                                 current_event = line[len("event: "):].strip()
-                            if line.startswith("data: ") and not line.startswith("data: [DONE]"):
+                            elif line.startswith("data: ") and line != "data: [DONE]":
                                 try:
                                     p = json.loads(line[6:])
-                                    delta = p.get("choices", [{}])[0].get("delta", {}).get("content")
-                                    if delta:
-                                        collected.append(delta)
-                                except Exception:
+                                    if current_event == "tool_call" and p.get("type") == "tool_call_end" and p.get("tool_name") == "shell":
+                                        pending_confirmation = _extract_hil_pending(str(p.get("result") or ""))
+                                    elif current_event in (None, "message"):
+                                        delta = p.get("choices", [{}])[0].get("delta", {}).get("content")
+                                        if isinstance(delta, str) and delta:
+                                            collected.append(delta)
+                                except (ValueError, AttributeError, IndexError, TypeError):
                                     pass
-                                if current_event == "tool_call":
-                                    try:
-                                        tool_evt = json.loads(line[6:])
-                                        if tool_evt.get("type") == "tool_call_end":
-                                            pending = _extract_hil_pending(str(tool_evt.get("result") or ""))
-                                            if pending:
-                                                yield "event: hil\n"
-                                                yield f"data: {json.dumps(pending, ensure_ascii=False)}\n\n"
-                                    except Exception:
-                                        pass
             except HTTPException as e:
                 yield f"data: {json.dumps({'error': e.detail}, ensure_ascii=False)}\n\n"
                 yield "data: [DONE]\n\n"
@@ -212,7 +220,7 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         )
 
     # 非流式
-    async with model_grant(db, agent, llm) as headers, internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
+    async with model_grant(db, agent, llm, include_mcp=include_mcp) as headers, internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
         resp = await client.post(f"{diagent_url}/v1/chat/completions", json=payload, headers=headers)
         if resp.status_code != 200:
             raise HTTPException(resp.status_code, resp.text)

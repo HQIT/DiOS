@@ -241,6 +241,17 @@ class E2AGToolGrant(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class ServiceMcpGrant(Base):
+    """将常驻 MCP 授权绑定到发起它的模型轮次。"""
+
+    __tablename__ = "service_mcp_grants"
+
+    grant_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    model_token_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    server_name: Mapped[str] = mapped_column(String(32), nullable=False)
+    upstream_session_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
+
+
 class E2AGApproval(Base):
     """Single-transition human decision for one approval-held event."""
 

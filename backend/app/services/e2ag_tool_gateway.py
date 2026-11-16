@@ -2,17 +2,24 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
+import base64
+import hmac
 import json
+import re
 import secrets
 from datetime import datetime, timedelta, timezone
 from fnmatch import fnmatchcase
 from typing import Any, Mapping
+from uuid import uuid4
 
+import httpx
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.models.tables import A2ATask, Agent, E2AGToolGrant, EventLog, McpServer
+from app.models.tables import A2ATask, Agent, E2AGToolGrant, EventLog, McpServer, ModelInferenceGrant, ServiceMcpGrant
 from app.services.e2ag import append_audit_entry
 from app.services.mcp_config import server_to_connection
 
@@ -221,6 +228,14 @@ async def validate_grant(
         )
         await db.commit()
         return None, "TOOL_GRANT_EXPIRED"
+    if not grant.task_id:
+        if not settings.diagent_service_model_proxy or not settings.access_token:
+            return None, "TOOL_GRANT_NOT_ACTIVE"
+        link = await db.get(ServiceMcpGrant, grant.id)
+        turn = await db.get(ModelInferenceGrant, link.model_token_hash) if link else None
+        if turn is None or turn.agent_id != grant.agent_id or turn.expires_at <= int(_now().timestamp()):
+            return None, "TOOL_GRANT_NOT_ACTIVE"
+        return grant, "TOOL_GRANT_VALID"
     task = await db.get(A2ATask, grant.task_id)
     if task is None or task.trace_id != grant.trace_id or task.agent_id != grant.agent_id:
         return None, "TOOL_GRANT_TASK_MISMATCH"
@@ -239,6 +254,93 @@ async def validate_grant(
         await db.commit()
         return None, "TOOL_GRANT_TASK_TERMINAL"
     return grant, "TOOL_GRANT_VALID"
+
+
+def _service_tool_token(model_token: str, grant_id: str) -> str:
+    # 以轮次凭据和工具授权 ID 派生独立的 bearer 值，服务端只需保存摘要。
+    digest = hmac.digest(model_token.encode(), b"dios:mcp:" + grant_id.encode(), "sha256")
+    return base64.urlsafe_b64encode(digest).decode().rstrip("=")
+
+
+async def issue_service_mcp_grants(db: AsyncSession, agent: Agent, turn: ModelInferenceGrant, model_token: str) -> None:
+    """为常驻轮次创建与任务授权共用的 MCP 授权记录。"""
+    governance = (agent.capabilities or {}).get("governance")
+    patterns = governance.get("allowed_tools") if isinstance(governance, Mapping) else None
+    if not agent.mcp_server_ids or not isinstance(patterns, list) or not patterns:
+        return
+    if not all(isinstance(pattern, str) and pattern for pattern in patterns):
+        return
+    servers = (await db.scalars(select(McpServer).where(
+        McpServer.id.in_(agent.mcp_server_ids),
+    ).order_by(McpServer.id))).all()
+    trace_id = uuid4().hex
+    names = set()
+    for server in servers:
+        try:
+            connection = server_to_connection(server)
+        except ValueError:
+            continue
+        if connection.get("transport") != "streamable_http":
+            continue
+        name = server.name if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,31}", server.name) else server.id
+        if name in names:
+            name = server.id
+        if name in names:
+            continue
+        names.add(name)
+        grant_id = uuid4().hex
+        db.add(E2AGToolGrant(id=grant_id, token_hash=hash_grant_token(_service_tool_token(model_token, grant_id)),
+                            trace_id=trace_id, task_id="", agent_id=agent.id, mcp_server_id=server.id,
+                            allowed_tools=patterns, expires_at=datetime.fromtimestamp(turn.expires_at, timezone.utc)))
+        db.add(ServiceMcpGrant(grant_id=grant_id, model_token_hash=turn.token_hash, server_name=name))
+
+
+async def service_mcp_endpoints(db: AsyncSession, turn: ModelInferenceGrant, authorization: str) -> dict[str, dict[str, str]]:
+    """在轮次校验通过后下发网关标识及工具凭据。"""
+    links = (await db.scalars(select(ServiceMcpGrant).where(
+        ServiceMcpGrant.model_token_hash == turn.token_hash,
+    ))).all()
+    token = authorization.partition(" ")[2]
+    return {link.server_name: {"grant_id": link.grant_id, "token": _service_tool_token(token, link.grant_id)}
+            for link in links}
+
+
+async def remove_service_mcp_grants(db: AsyncSession, model_token_hash: str | None = None) -> None:
+    """清理指定轮次或已到期轮次的 MCP 授权。"""
+    if model_token_hash is None:
+        expired = select(ModelInferenceGrant.token_hash).where(ModelInferenceGrant.expires_at <= int(_now().timestamp()))
+        predicate = ServiceMcpGrant.model_token_hash.in_(expired)
+    else:
+        predicate = ServiceMcpGrant.model_token_hash == model_token_hash
+    ids = select(ServiceMcpGrant.grant_id).where(predicate)
+    await db.execute(delete(E2AGToolGrant).where(E2AGToolGrant.id.in_(ids)))
+    await db.execute(delete(ServiceMcpGrant).where(predicate))
+
+
+async def service_mcp_sessions(db: AsyncSession, model_token_hash: str) -> list[tuple[str, dict[str, str]]]:
+    """保留撤销后关闭上游已绑定会话所需的连接信息。"""
+    sessions = await db.execute(select(McpServer.url, McpServer.headers, ServiceMcpGrant.upstream_session_id)
+        .select_from(ServiceMcpGrant)
+        .join(E2AGToolGrant, E2AGToolGrant.id == ServiceMcpGrant.grant_id)
+        .join(McpServer, McpServer.id == E2AGToolGrant.mcp_server_id)
+        .where(ServiceMcpGrant.model_token_hash == model_token_hash, E2AGToolGrant.status == "active",
+               ServiceMcpGrant.upstream_session_id.is_not(None)))
+    return [(url, {**{key: value for key, value in (headers or {}).items() if key.lower() != "mcp-session-id"},
+                   "Mcp-Session-Id": session_id}) for url, headers, session_id in sessions if url and session_id]
+
+
+async def close_service_mcp_sessions(sessions: list[tuple[str, dict[str, str]]]) -> None:
+    """尝试通知上游释放会话，上游故障不会影响已撤销的授权。"""
+    if not sessions:
+        return
+    async with httpx.AsyncClient(trust_env=False, timeout=2, follow_redirects=False) as client:
+        async def close(url: str, headers: dict[str, str]) -> None:
+            try:
+                await client.delete(url, headers=headers)
+            except (httpx.HTTPError, httpx.InvalidURL):
+                pass
+
+        await asyncio.gather(*(close(url, headers) for url, headers in sessions))
 
 
 async def record_tool_decision(

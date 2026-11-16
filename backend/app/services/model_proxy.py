@@ -15,6 +15,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.models.tables import Agent, AgentRuntime, LLMModel, ModelInferenceGrant
 from app.services.docker_runner import _host_path
+from app.services.e2ag_tool_gateway import (
+    close_service_mcp_sessions, issue_service_mcp_grants, remove_service_mcp_grants, service_mcp_sessions,
+)
+from app.services.service_skills import INLINE_SKILL_DIR
 
 MODEL_PROXY_BASE_PATH = "/api/internal/model-proxy/v1"
 MODEL_PROXY_PATH = MODEL_PROXY_BASE_PATH + "/chat/completions"
@@ -35,7 +39,7 @@ async def check_model_workspace(db: AsyncSession, agent: Agent) -> None:
         return
     workspace = Path(agent.workspace_path).resolve()
     root = settings.workspace_root.resolve()
-    shared = [root / "skills", root / "cli", settings.shared_cli_root.resolve()]
+    shared = [root / "skills", root / "cli", root / INLINE_SKILL_DIR, settings.shared_cli_root.resolve()]
     if any(_overlap(workspace, path.resolve()) for path in shared):
         raise RuntimeError("Agent workspace overlaps a shared mount used for managed inference")
     if settings.host_shared_cli_root and _overlap(Path(_host_path(workspace)), Path(settings.host_shared_cli_root)):
@@ -80,7 +84,9 @@ def _token_hash(token: str) -> str:
 
 
 @asynccontextmanager
-async def model_grant(db: AsyncSession, agent: Agent, model: LLMModel | None) -> AsyncIterator[dict[str, str]]:
+async def model_grant(
+    db: AsyncSession, agent: Agent, model: LLMModel | None, *, include_mcp: bool = False,
+) -> AsyncIterator[dict[str, str]]:
     """签发限定模型与调用次数的单轮凭据，转发结束后撤销。"""
     if not settings.diagent_service_model_proxy:
         yield {}
@@ -92,11 +98,15 @@ async def model_grant(db: AsyncSession, agent: Agent, model: LLMModel | None) ->
     token = secrets.token_urlsafe(32)
     digest = _token_hash(token)
     now = int(time.time())
+    await remove_service_mcp_grants(db)
     await db.execute(delete(ModelInferenceGrant).where(ModelInferenceGrant.expires_at <= now))
-    db.add(ModelInferenceGrant(
+    turn = ModelInferenceGrant(
         token_hash=digest, agent_id=agent.id, model_id=model.id, model_name=model.model,
         expires_at=now + GRANT_TTL_SECONDS, remaining_calls=MAX_MODEL_CALLS,
-    ))
+    )
+    db.add(turn)
+    if include_mcp:
+        await issue_service_mcp_grants(db, agent, turn, token)
     await db.commit()
     try:
         headers = {MODEL_GRANT_HEADER: token}
@@ -105,9 +115,18 @@ async def model_grant(db: AsyncSession, agent: Agent, model: LLMModel | None) ->
         yield headers
     finally:
         # SSE 断开后仍有短窗口撤销凭据，数据库不可达时由 TTL 兜底。
+        sessions = []
+        revoked = False
         with anyio.move_on_after(5, shield=True):
+            if include_mcp:
+                sessions = await service_mcp_sessions(db, digest)
+            await remove_service_mcp_grants(db, digest)
             await db.execute(delete(ModelInferenceGrant).where(ModelInferenceGrant.token_hash == digest))
             await db.commit()
+            revoked = True
+        if revoked and sessions:
+            with anyio.move_on_after(3, shield=True):
+                await close_service_mcp_sessions(sessions)
 
 
 async def _read_grant(db: AsyncSession, authorization: str, model_name: str) -> ModelInferenceGrant:
@@ -122,13 +141,14 @@ async def _read_grant(db: AsyncSession, authorization: str, model_name: str) -> 
     return grant
 
 
-async def verify_model_grant(db: AsyncSession, authorization: str, model_name: str, agent_id: str) -> None:
+async def verify_model_grant(db: AsyncSession, authorization: str, model_name: str, agent_id: str) -> ModelInferenceGrant:
     """核对常驻容器自己的 Agent ID，防止共用模型的 Agent 之间串用授权。"""
     grant = await _read_grant(db, authorization, model_name)
     if grant.agent_id != agent_id:
         raise HTTPException(403, "Agent is outside this inference grant")
     if grant.remaining_calls <= 0:
         raise HTTPException(429, "Model inference grant exhausted")
+    return grant
 
 
 async def reserve_model_call(db: AsyncSession, authorization: str, model_name: str) -> LLMModel:

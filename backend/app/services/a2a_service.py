@@ -238,10 +238,16 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
             }
             if model_name:
                 openai_req["model"] = model_name
+            include_mcp = settings.diagent_service_model_proxy and bool(agent.mcp_server_ids)
+            selected = ["skill"] if settings.diagent_service_model_proxy and agent.skills else []
+            if include_mcp:
+                selected.append("mcp")
+            if selected:
+                openai_req["tool_selection"] = {"tool_ids": selected}
 
             from app.services.http_internal import internal_client
 
-            async with model_grant(db, agent, model) as headers, internal_client(timeout=300) as client:
+            async with model_grant(db, agent, model, include_mcp=include_mcp) as headers, internal_client(timeout=300) as client:
                 resp = await client.post(f"{url}/v1/chat/completions", json=openai_req, headers=headers)
                 resp.raise_for_status()
                 data = resp.json()

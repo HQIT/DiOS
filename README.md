@@ -59,6 +59,18 @@ docker compose -f docker-compose.dev.yml up -d backend frontend
 
 切换前停止旧常驻容器，使用 DiOS 工作区根目录下独立的 Agent 目录，并将旧 `models.yaml`、`mcp_servers.json`、任务配置和备份移出 Agent 可读的挂载。受管模式检查这些已知旧文件和重叠工作区。修改工作区、切换模式或删除 Agent 前，先停止相关容器并等待已有任务收尾。启用受管模式后，DiOS 通过容器环境传模型代理地址及 Agent ID，并停止生成常驻模型目录和旧 MCP 配置。该模式覆盖在线 Chat 和常驻 A2A。一次性任务使用原有模型配置。需要回退时，先停止受管常驻容器，再关闭代理开关并使用旧模式启动。旧模式会重新生成 `models.yaml`。
 
+受管 Chat 和常驻 A2A 只装配分配给该 Agent 的 Skills。Git 导入的 Skill 保留附属文件，控制台录入的指令由 DiOS 生成 `SKILL.md`。两者只读挂载到 `/workspace/skills/<skill-name>`。旧 Agent 迁移前确认所选 Skill 已安装或有有效指令。变更分配前，在运行 Docker 的主机执行 `docker stop dios-agent-<agent_id>`，更新 Agent 后由下一次请求启动新容器。
+
+常驻 MCP 使用受管推理的轮次授权。为 Agent 分配 Streamable HTTP MCP 服务，并在 `capabilities.governance.allowed_tools` 填入允许的工具名称或通配规则。DiOS 的 Chat 和常驻 A2A 据此开启 MCP，经现有网关过滤工具发现及调用。缺少工具名单或使用其他 MCP 传输时，该服务不会被装配。上游地址和凭据留在 DiOS。上游会话绑定到单轮授权，轮次结束后撤销，并尝试关闭上游会话。常驻网关只提供 MCP 请求响应所需通道，独立 GET SSE 返回 405。
+
+#### DiAgent 的事件发布授权
+
+启用控制面鉴权时，为需要 `publish_event` 的 Agent 配置独立随机令牌。将原令牌填入该 Agent 的 `env.DIAGENT_EVENT_ACCESS_TOKEN`。backend 的 `DIOS_DIAGENT_EVENT_GRANTS` 接收以 Agent ID 为键的 JSON，每项包含令牌的 64 位十六进制 SHA-256 摘要 `token_sha256`、允许的 Unix 通配来源列表 `source_patterns`，以及允许的事件类型列表 `event_types`。每个 Agent 使用不同的令牌，并与 `DIOS_ACCESS_TOKEN` 区分。
+
+事件凭据可以读取事件目录和来源规则，并提交同时匹配两份名单的事件。DiOS 仍执行 Connector 契约、E2AG 审批和派发，并记录发布者 Agent ID。发布权限随 Agent 删除失效；移除 backend 中的授权配置并重新加载后，凭据也无法查询目录。轮换时更新授权摘要和 Agent 环境值，重建已运行的常驻 Agent 容器以读取新令牌。
+
+在线 Chat 显示 DSH 的工具执行进度。如果提交的事件需要审批，Chat 会显示事件 ID 和事件日志入口。实际审批由 DiOS 的事件审批接口处理。
+
 CLI 与 Console 使用同一组控制面 API：
 
 ```bash

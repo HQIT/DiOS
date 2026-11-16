@@ -35,6 +35,7 @@ export type ChatStreamEvent =
   | { type: "tool_call_start"; tool_name: string; tool_call_id?: string; arguments?: unknown }
   | { type: "tool_call_end"; tool_name: string; tool_call_id?: string; duration_ms?: number; result?: string }
   | { type: "tool_call_error"; tool_name: string; error: string }
+  | { type: "event_approval"; event_id: string }
   | {
       type: "hil_pending";
       token: string;
@@ -154,6 +155,17 @@ async function* _readSSE(res: Response): AsyncGenerator<ChatStreamEvent> {
           }
         } catch {
           // skip invalid event payload
+        }
+        continue;
+      }
+      if (evt.event === "event_approval") {
+        try {
+          const payload = JSON.parse(evt.data);
+          if (typeof payload?.event_id === "string" && payload.event_id) {
+            yield { type: "event_approval", event_id: payload.event_id };
+          }
+        } catch {
+          // 忽略无法解析的审批事件，继续读取本轮对话。
         }
         continue;
       }

@@ -12,6 +12,7 @@ interface UIMessage {
 }
 
 interface HilPending {
+  sessionId: string;
   token: string;
   message?: string;
   method?: string;
@@ -51,7 +52,9 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [liveEvents, setLiveEvents] = useState<string[]>([]);
-  const [hilPending, setHilPending] = useState<HilPending | null>(null);
+  const [eventApprovals, setEventApprovals] = useState(new Map<string, string[]>());
+  const [pendingConfirmation, setHilPending] = useState<HilPending | null>(null);
+  const hilPending = pendingConfirmation?.sessionId === sessionId ? pendingConfirmation : null;
   const [hilSubmitting, setHilSubmitting] = useState(false);
   const [hilNotice, setHilNotice] = useState<string>("");
   const [nowMs, setNowMs] = useState<number>(Date.now());
@@ -132,6 +135,7 @@ export default function ChatPage() {
     abortRef.current = ctrl;
 
     try {
+      let streamSessionId = sessionId;
       const stream = streamChat(
         {
           agent_id: selectedAgent.id,
@@ -139,6 +143,7 @@ export default function ChatPage() {
           messages: [{ role: "user" as const, content: text }],
         },
         (sid) => {
+          streamSessionId = sid;
           if (!sessionId) {
             skipNextSessionLoadRef.current = true;
             setSessionId(sid);
@@ -193,12 +198,21 @@ export default function ChatPage() {
           pushLiveEvent(`工具失败: ${e.tool_name} (${e.error})`);
           continue;
         }
+        if (e.type === "event_approval" && streamSessionId) {
+          const scope = streamSessionId;
+          setEventApprovals((previous) => {
+            const eventIds = previous.get(scope) ?? [];
+            return eventIds.includes(e.event_id) ? previous : new Map(previous).set(scope, [...eventIds, e.event_id]);
+          });
+          continue;
+        }
         if (e.type === "status") {
           pushLiveEvent(e.message);
           continue;
         }
-        if (e.type === "hil_pending") {
+        if (e.type === "hil_pending" && streamSessionId) {
           const pending: HilPending = {
+            sessionId: streamSessionId,
             token: e.token,
             method: e.method,
             path: e.path,
@@ -215,8 +229,7 @@ export default function ChatPage() {
           continue;
         }
         if (e.type === "error") {
-          pushLiveEvent(`流错误: ${e.error}`);
-          continue;
+          throw new Error(e.error);
         }
       }
       refreshSessions();
@@ -460,6 +473,11 @@ export default function ChatPage() {
         </div>
 
         <div style={{ padding: "12px 24px 20px", borderTop: "1px solid var(--border)" }}>
+          {sessionId && eventApprovals.get(sessionId)?.map((eventId) => (
+            <div key={eventId} role="status" style={{ marginBottom: 8, fontSize: 12, color: "var(--text-secondary)" }}>
+              事件 <code>{eventId}</code> 已提交审批。 <a href="#console/events/logs">查看事件日志</a>
+            </div>
+          ))}
           {hilPending && (
             <div
               style={{

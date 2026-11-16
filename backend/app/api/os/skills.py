@@ -18,7 +18,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.db.database import get_db
 from app.models.schemas import SkillCreate, SkillOut, SkillUpdate
-from app.models.tables import Skill
+from app.models.tables import Agent, Skill
+from app.services.service_skills import is_skill_name
 
 router = APIRouter(prefix="/skills", tags=["skills"])
 logger = logging.getLogger(__name__)
@@ -50,6 +51,8 @@ async def list_skills(db: AsyncSession = Depends(get_db)):
 
 @router.post("", response_model=SkillOut, status_code=201)
 async def create_skill(body: SkillCreate, db: AsyncSession = Depends(get_db)):
+    if not is_skill_name(body.name):
+        raise HTTPException(422, "Use a lowercase Skill name with letters, digits and hyphens")
     skill = Skill(
         name=body.name,
         description=body.description,
@@ -106,14 +109,28 @@ async def import_from_git(
         except ValueError as error:
             raise HTTPException(400, str(error))
 
-        target_dir = settings.workspace_root / "skills" / name
-        if target_dir.exists():
-            shutil.rmtree(target_dir)
-        shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
-
-    skill = Skill(name=name, description=description, source_url=url, content=content)
-    db.add(skill)
-    await db.commit()
+        skills_root = (settings.workspace_root / "skills").resolve()
+        target_dir = skills_root / name
+        if await db.scalar(select(Skill.id).where(Skill.name == name)) or target_dir.exists() or target_dir.is_symlink():
+            raise HTTPException(409, f"Skill {name} is already installed")
+        skill = Skill(name=name, description=description, source_url=url, content=content)
+        db.add(skill)
+        skills_root.mkdir(parents=True, exist_ok=True)
+        installed = False
+        try:
+            await db.flush()
+            with tempfile.TemporaryDirectory(dir=skills_root) as staging:
+                staged = Path(staging) / "skill"
+                shutil.copytree(source_dir, staged)
+                if target_dir.exists() or target_dir.is_symlink():
+                    raise HTTPException(409, f"Skill {name} is already installed")
+                staged.rename(target_dir)
+                installed = True
+            await db.commit()
+        except BaseException:
+            if installed:
+                shutil.rmtree(target_dir, ignore_errors=True)
+            raise
     await db.refresh(skill)
     return skill
 
@@ -131,7 +148,15 @@ async def update_skill(skill_id: str, body: SkillUpdate, db: AsyncSession = Depe
     skill = await db.get(Skill, skill_id)
     if not skill:
         raise HTTPException(404, "Skill not found")
-    for key, value in body.model_dump(exclude_unset=True).items():
+    updates = body.model_dump(exclude_unset=True)
+    if "name" in updates and updates["name"] != skill.name:
+        if not is_skill_name(updates["name"]):
+            raise HTTPException(422, "Use a lowercase Skill name with letters, digits and hyphens")
+        await _require_unassigned_skill(db, skill.name)
+        installed = _installed_skill_path(skill.name)
+        if installed and installed.is_dir():
+            raise HTTPException(409, "Installed Skills keep the name defined by their directory")
+    for key, value in updates.items():
         setattr(skill, key, value)
     await db.commit()
     await db.refresh(skill)
@@ -143,11 +168,30 @@ async def delete_skill(skill_id: str, db: AsyncSession = Depends(get_db)):
     skill = await db.get(Skill, skill_id)
     if not skill:
         raise HTTPException(404, "Skill not found")
-    skill_dir = settings.workspace_root / "skills" / skill.name
-    if skill_dir.is_dir():
+    await _require_unassigned_skill(db, skill.name)
+    skill_dir = _installed_skill_path(skill.name)
+    if skill_dir and skill_dir.is_dir():
         shutil.rmtree(skill_dir, ignore_errors=True)
     await db.delete(skill)
     await db.commit()
+
+
+async def _require_unassigned_skill(db: AsyncSession, name: str) -> None:
+    """先解除常驻 Agent 的分配，避免目录被当前容器持有时失效。"""
+    if settings.diagent_service_model_proxy:
+        assignments = await db.scalars(select(Agent.skills).where(Agent.mode == "service"))
+        if any(name in (assigned or []) for assigned in assignments):
+            raise HTTPException(409, "Unassign the Skill from managed service Agents first")
+
+
+def _installed_skill_path(name: str) -> Path | None:
+    """旧记录的无效名称与目录链接不能成为文件删除目标。"""
+    if not is_skill_name(name):
+        return None
+    path = (settings.workspace_root / "skills").resolve() / name
+    if path.is_symlink() or path.resolve() != path:
+        raise HTTPException(409, "Installed Skill path is a symbolic link")
+    return path
 
 
 def _repo_name_from_url(url: str) -> str:
@@ -186,6 +230,8 @@ def _locate_skill_dir(repo_root: Path, requested_path: str | None) -> Path:
 
 def _parse_skill_dir(path: Path, fallback_name: str) -> tuple[str, str, str]:
     """读取并校验 Agent Skills 所需的 YAML frontmatter。"""
+    if any(entry.is_symlink() for entry in path.rglob("*")):
+        raise ValueError("Skill 目录不能包含符号链接")
     skill_md = path / "SKILL.md"
     if not skill_md.is_file():
         raise ValueError("Skill 目录缺少 SKILL.md")
@@ -206,7 +252,7 @@ def _parse_skill_dir(path: Path, fallback_name: str) -> tuple[str, str, str]:
 
     name = str(metadata.get("name") or fallback_name).strip()
     description = str(metadata.get("description") or "").strip()
-    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) or len(name) > 64:
+    if not is_skill_name(name):
         raise ValueError("Skill name 必须为不超过 64 个字符的小写字母、数字和连字符")
     if not description or len(description) > 1024:
         raise ValueError("Skill description 必须为 1–1024 个字符")

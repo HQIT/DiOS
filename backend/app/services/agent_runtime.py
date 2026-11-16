@@ -19,6 +19,7 @@ from app.config import settings
 from app.models.tables import A2ATask, Agent, AgentRuntime, LLMModel, McpServer
 from app.services.docker_runner import get_client, _host_path
 from app.services.model_proxy import MODEL_PROXY_BASE_PATH, check_model_workspace
+from app.services.service_skills import service_skill_sources
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,11 @@ def _container_name(agent_id: str) -> str:
     return f"dios-agent-{agent_id}"
 
 
-async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str]:
+def _skill_mount_label(sources: dict[str, Path]) -> str:
+    return json.dumps({name: str(path) for name, path in sources.items()}, sort_keys=True)
+
+
+async def _sync_agent_workspace(agent: Agent, db: AsyncSession, skill_sources: dict[str, Path]) -> dict[str, str]:
     """生成常驻服务环境，受管推理模式只下发代理地址。"""
     workspace = Path(agent.workspace_path)
     workspace.mkdir(parents=True, exist_ok=True)
@@ -51,6 +56,8 @@ async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str
         env = {key: value for key, value in env.items() if value.strip() != settings.access_token}
         env["DIAGENT_MODEL_PROXY_URL"] = env["DIOS_API"].rstrip("/") + MODEL_PROXY_BASE_PATH
         env["DIAGENT_MODEL_PROXY_AGENT_ID"] = agent.id
+        env["SKILLS_DIR"] = "/workspace/skills"
+        env["DIAGENT_SKILL_NAMES"] = json.dumps(list(skill_sources))
     else:
         env["LLM_MODELS_CONFIG_PATH"] = "/workspace/models.yaml"
         models = {}
@@ -85,10 +92,25 @@ async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str
     return env
 
 
-def _start_container(agent: Agent, env: dict[str, str]) -> tuple[str, str]:
+def _start_container(agent: Agent, env: dict[str, str], skill_sources: dict[str, Path]) -> tuple[str, str]:
     """启动 DiAgent 服务容器，返回 (container_id, internal_url)。"""
     client = get_client()
     name = _container_name(agent.id)
+    host_ws = _host_path(Path(agent.workspace_path))
+    host_shared_cli = settings.host_shared_cli_root or _host_path(settings.shared_cli_root)
+    volumes = {
+        host_ws: {"bind": "/workspace", "mode": "rw"},
+        host_shared_cli: {"bind": "/workspace/cli", "mode": "ro"},
+    }
+    labels = {"dios.agent_id": agent.id, "dios.type": "service",
+              "dios.model_proxy": "enabled" if settings.diagent_service_model_proxy else "disabled"}
+    skills_root = (settings.workspace_root / "skills").resolve()
+    if settings.diagent_service_model_proxy:
+        for skill_name, source in skill_sources.items():
+            volumes[_host_path(source)] = {"bind": f"/workspace/skills/{skill_name}", "mode": "ro"}
+        labels["dios.skills"] = _skill_mount_label(skill_sources)
+    else:
+        volumes[_host_path(skills_root)] = {"bind": "/workspace/skills", "mode": "ro"}
 
     try:
         old = client.containers.get(name)
@@ -96,22 +118,12 @@ def _start_container(agent: Agent, env: dict[str, str]) -> tuple[str, str]:
     except NotFound:
         pass
 
-    host_ws = _host_path(Path(agent.workspace_path))
-
-    host_shared_skills = _host_path(settings.workspace_root / "skills")
-    host_shared_cli = settings.host_shared_cli_root or _host_path(settings.shared_cli_root)
-
     container = client.containers.run(
         image=settings.diagent_service_image,
         name=name,
-        labels={"dios.agent_id": agent.id, "dios.type": "service",
-                "dios.model_proxy": "enabled" if settings.diagent_service_model_proxy else "disabled"},
+        labels=labels,
         environment=env,
-        volumes={
-            host_ws: {"bind": "/workspace", "mode": "rw"},
-            host_shared_skills: {"bind": "/workspace/skills", "mode": "ro"},
-            host_shared_cli: {"bind": "/workspace/cli", "mode": "ro"},
-        },
+        volumes=volumes,
         network=DOCKER_NETWORK,
         detach=True,
         auto_remove=False,
@@ -144,6 +156,7 @@ async def ensure_running(agent_id: str, db: AsyncSession) -> str:
     if settings.diagent_service_model_proxy and agent.mode != "service":
         raise RuntimeError("Managed inference requires a service-mode Agent")
     await check_model_workspace(db, agent)
+    skill_sources = await service_skill_sources(agent.skills, db) if settings.diagent_service_model_proxy else {}
     runtime = await db.get(AgentRuntime, agent_id)
 
     if runtime and runtime.status == "running":
@@ -155,14 +168,16 @@ async def ensure_running(agent_id: str, db: AsyncSession) -> str:
                 managed = c.labels.get("dios.model_proxy") == "enabled"
                 if managed != settings.diagent_service_model_proxy:
                     raise RuntimeError("Stop the existing Agent service before changing its inference mode")
+                if managed and c.labels.get("dios.skills", "{}") != _skill_mount_label(skill_sources):
+                    raise RuntimeError("Stop the existing Agent service before changing its Skills")
                 return runtime.url
         except NotFound:
             pass
         runtime.status = "stopped"
         await db.commit()
 
-    env = await _sync_agent_workspace(agent, db)
-    container_id, url = _start_container(agent, env)
+    env = await _sync_agent_workspace(agent, db, skill_sources)
+    container_id, url = _start_container(agent, env, skill_sources)
 
     healthy = await _health_check(url)
     status = "running" if healthy else "error"
@@ -201,13 +216,13 @@ async def stop_agent(agent_id: str, db: AsyncSession) -> None:
 async def has_active_workspace_mount(agent_id: str, db: AsyncSession) -> bool:
     """确认工作区尚被常驻容器或已派发的任务占用，避免修改记录后丢失挂载归属。"""
     runtime = await db.get(AgentRuntime, agent_id)
-    if runtime:
-        try:
-            container = await asyncio.to_thread(lambda: get_client().containers.get(runtime.container_id))
-            if container.status not in ("exited", "dead"):
-                return True
-        except NotFound:
-            pass
+    reference = runtime.container_id if runtime else _container_name(agent_id)
+    try:
+        container = await asyncio.to_thread(lambda: get_client().containers.get(reference))
+        if container.status not in ("exited", "dead"):
+            return True
+    except NotFound:
+        pass
     working_task = await db.scalar(select(A2ATask.id).where(
         A2ATask.agent_id == agent_id, A2ATask.status == "working",
     ).limit(1))

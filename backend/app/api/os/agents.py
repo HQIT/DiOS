@@ -11,10 +11,19 @@ from app.models.tables import Agent
 from app.models.schemas import AgentCreate, AgentUpdate, AgentOut
 from app.services.admin_guard import normalize_capabilities
 from app.services.agent_runtime import has_active_workspace_mount
+from app.services.service_skills import service_skill_sources
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
 _SENSITIVE_KEYWORDS = ("TOKEN", "KEY", "SECRET", "PASSWORD", "PASSWD", "CREDENTIAL")
+
+
+async def _validate_managed_skills(db: AsyncSession, mode: str, skills: list[str] | None) -> None:
+    if settings.diagent_service_model_proxy and mode == "service":
+        try:
+            await service_skill_sources(skills, db, materialize=False)
+        except (RuntimeError, ValueError) as error:
+            raise HTTPException(422, str(error)) from error
 
 
 def _mask_env(env: dict | None) -> dict:
@@ -69,6 +78,7 @@ async def list_agents(
 
 @router.post("", response_model=AgentOut, status_code=201)
 async def create_agent(body: AgentCreate, db: AsyncSession = Depends(get_db)):
+    await _validate_managed_skills(db, body.mode, body.skills)
     agent_id = uuid.uuid4().hex[:12]
     workspace = body.workspace_path.strip()
     if not workspace:
@@ -120,9 +130,11 @@ async def update_agent(agent_id: str, body: AgentUpdate, db: AsyncSession = Depe
     if not agent:
         raise HTTPException(404, "Agent not found")
     updates = body.model_dump(exclude_unset=True)
-    changes_mount = any(key in updates and updates[key] != getattr(agent, key) for key in ("workspace_path", "mode"))
+    changes_mount = any(key in updates and updates[key] != getattr(agent, key) for key in ("workspace_path", "mode", "skills"))
     if settings.diagent_service_model_proxy and changes_mount and await has_active_workspace_mount(agent_id, db):
-        raise HTTPException(409, "Stop the Agent's running containers before changing its workspace or mode")
+        raise HTTPException(409, "Stop the Agent's running containers before changing its workspace, mode or Skills")
+    if "skills" in updates or "mode" in updates:
+        await _validate_managed_skills(db, updates.get("mode", agent.mode), updates.get("skills", agent.skills))
     # env 的 ***value 视为"未变更"，避免前端回传脱敏值覆盖真实凭据
     if "env" in updates and isinstance(updates["env"], dict):
         existing = agent.env or {}
