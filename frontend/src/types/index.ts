@@ -152,6 +152,18 @@ export interface EventActivityItem {
   artifacts_count?: number;
 }
 
+export interface TaskArtifact {
+  artifactId: string;
+  name: string;
+  parts: { kind: string; text?: string }[];
+}
+
+export interface TaskDetails {
+  status: string;
+  error: string;
+  artifacts: TaskArtifact[];
+}
+
 export interface EventActivityOverview {
   event_id: string;
   event_type: string;

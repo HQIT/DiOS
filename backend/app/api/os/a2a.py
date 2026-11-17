@@ -13,8 +13,9 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -176,3 +177,27 @@ async def get_task(task_id: str, db: AsyncSession = Depends(get_db)):
     if not task:
         raise HTTPException(404, "Task not found")
     return task
+
+
+@router.get("/tasks/{task_id}/artifacts/{artifact_id}")
+async def download_task_artifact(task_id: str, artifact_id: str, db: AsyncSession = Depends(get_db)) -> Response:
+    """从任务快照下载已登记的文本产物。"""
+    task = await db.get(A2ATask, task_id)
+    if task is None:
+        raise HTTPException(404, "Task not found")
+    artifact = next((item for item in task.artifacts or []
+                     if isinstance(item, dict) and item.get("artifactId") == artifact_id), None)
+    if artifact is None:
+        raise HTTPException(404, "Artifact not found")
+    parts = artifact.get("parts")
+    texts = [part["text"] for part in parts
+             if isinstance(part, dict) and part.get("kind") == "text" and isinstance(part.get("text"), str)
+             ] if isinstance(parts, list) else []
+    if not texts:
+        raise HTTPException(404, "Text artifact not found")
+    name = artifact.get("name")
+    filename = quote(name if isinstance(name, str) and name else "artifact.txt", safe="")
+    return Response("\n".join(texts), media_type="text/plain", headers={
+        "Content-Disposition": f"attachment; filename*=UTF-8''{filename}",
+        "X-Content-Type-Options": "nosniff",
+    })

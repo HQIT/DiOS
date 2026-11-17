@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import type { EventLog, EventCatalog, EventCatalogType, ActivityGanttResponse } from "../../../types";
 import { api } from "../../../api/os";
 import Drawer from "../../../components/Drawer";
+import TaskArtifacts from "./TaskArtifacts";
 
 const STATUS_COLORS: Record<string, string> = {
   received: "var(--color-muted)",
@@ -44,6 +45,7 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
   const [catalog, setCatalog] = useState<EventCatalog | null>(null);
   const [gantt, setGantt] = useState<ActivityGanttResponse | null>(null);
   const [ganttLoading, setGanttLoading] = useState(false);
+  const [artifactTask, setArtifactTask] = useState<{ id: string; agent: string } | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const d = new Date();
     const yyyy = d.getFullYear();
@@ -213,8 +215,11 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                   const width = (Math.max(1, e - s) / total) * 100;
                   const color = TASK_STATUS_COLORS[it.status] || "var(--color-primary)";
                   return (
-                    <div
+                    <button
                       key={it.task_id}
+                      type="button"
+                      aria-label={`查看任务产物 ${it.agent_name} ${it.task_id}`}
+                      onClick={() => setArtifactTask({ id: it.task_id, agent: it.agent_name })}
                       style={{
                         position: "absolute",
                         left: `${Math.max(0, left)}%`,
@@ -223,6 +228,9 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                         height: 18,
                         borderRadius: 3,
                         background: color,
+                        border: 0,
+                        padding: 0,
+                        minWidth: 0,
                       }}
                       title={`${it.agent_name} | ${it.status} | ${it.event_type || "no-event"} | ${Math.max(0, Math.round(it.duration_ms / 1000))}s`}
                     >
@@ -247,7 +255,7 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                           />
                         );
                       })}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -499,6 +507,12 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
           )}
           {!ganttLoading && gantt && renderGlobalGantt(gantt)}
         </>
+      )}
+
+      {artifactTask && (
+        <Drawer open title={`${artifactTask.agent} · 任务产物`} onClose={() => setArtifactTask(null)}>
+          <TaskArtifacts key={artifactTask.id} taskId={artifactTask.id} />
+        </Drawer>
       )}
 
       <Drawer

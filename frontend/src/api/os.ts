@@ -64,6 +64,14 @@ export const api = {
     return request<{ items: import("../types").EventLog[]; total: number; limit: number; offset: number }>(`/events${qs ? `?${qs}` : ""}`);
   },
   getEvent: (eventId: string) => request<import("../types").EventLog>(`/events/${eventId}`),
+  getTask: (taskId: string, signal: AbortSignal) =>
+    request<import("../types").TaskDetails>(`/a2a/tasks/${encodeURIComponent(taskId)}`, { signal }),
+  downloadTaskArtifact: async (taskId: string, artifactId: string) => {
+    const path = `/a2a/tasks/${encodeURIComponent(taskId)}/artifacts/${encodeURIComponent(artifactId)}`;
+    const response = await fetch(BASE + path, { headers: authHeaders() });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.blob();
+  },
   getEventActivityOverview: (eventId: string) =>
     request<import("../types").EventActivityOverview>(`/events/${eventId}/activity-overview`),
   getActivityGantt: (params?: { since_minutes?: number; date?: string; agent_ids?: string; limit?: number }) => {
