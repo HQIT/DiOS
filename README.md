@@ -75,7 +75,9 @@ docker compose -f docker-compose.dev.yml up -d backend frontend
 
 #### 按 Agent 选择工具
 
-在 Agent 的高级能力 JSON 中设置 `diagent_tools`，也可通过 Agent 创建或更新 API 写入 `capabilities.diagent_tools`。已启用受管推理的 `service` Agent 在在线 Chat 和常驻 A2A 共用同一份名单。`task` Agent 在下一次派发时使用保存的名单。
+在 **Console → Agents → 编辑 Agent → 能力配置** 中选择默认配置，或勾选自定义工具。两种模式都会显示可编辑的 JSON，保存时写入 `capabilities`。已启用受管推理的 `service` Agent 在在线 Chat 和常驻 A2A 共用同一份名单。`task` Agent 在下一次派发时使用保存的名单。
+
+选择 MCP 前，在 **Registry → MCP Servers** 注册 Streamable HTTP 服务，再从 Agent 卡片的 **MCP** 绑定。编辑能力时点 **读取 MCP 工具列表** 即可勾选。`GET /api/os/mcp-servers/{server_id}/tools` 需要启用 DiOS Access Token，响应只包含服务名和工具元数据。选中的工具名进入 `governance.allowed_tools`，名单按名称应用于所有已绑定的服务，已有通配规则继续生效。
 
 ```json
 {
@@ -84,7 +86,7 @@ docker compose -f docker-compose.dev.yml up -d backend frontend
 }
 ```
 
-常驻 Agent 可选择 `shell`、`publish_event`、`skill` 和 `mcp`。一次性任务支持 `publish_event`、`skill` 和 `mcp`，开启任务模型代理和刷新后也可显式选择 `shell`、`read`、`write` 和 `edit`。原生文件工具的目标限定在任务工作区。Shell 交给 DSH 沙箱执行，可运行读写命令。显式 `[]` 只做问答，省略字段时沿用旧入口的默认规则。选择 `skill` 需要先分配 Skills。选择 `mcp` 需要至少一个已注册的 Streamable HTTP MCP 服务和工具白名单。一次性任务还需启用 E2AG `enforce`，DiOS 为该任务单独签发授权。选择 `publish_event` 后继续使用现有的独立事件发布凭据。工具名或上述资源配置校验失败时，保存接口返回 422。
+常驻 Agent 可选择 `shell`、`publish_event`、`skill` 和 `mcp`。一次性任务支持 `publish_event`、`skill` 和 `mcp`，开启任务模型代理和刷新后也可显式选择 `shell`、`read`、`write` 和 `edit`。原生文件工具的目标限定在任务工作区。Shell 交给 DSH 沙箱执行，可运行读写命令。显式 `[]` 关闭常规工具，省略字段时沿用当前入口的默认规则。选择 `skill` 需要先分配 Skills。选择 `mcp` 需要至少一个已注册的 Streamable HTTP MCP 服务和工具白名单。一次性任务还需启用 E2AG `enforce`，DiOS 为该任务单独签发授权。选择 `publish_event` 后继续使用现有的独立事件发布凭据。工具名或上述资源配置校验失败时，保存接口返回 422。
 
 只改工具名单会在下一轮生效。修改分配的 Skill 目录时仍按上文重建常驻容器。若回退到兼容模式，在关闭受管推理前从相关 Agent 的能力配置中移除 `diagent_tools`。
 

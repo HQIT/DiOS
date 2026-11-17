@@ -6,6 +6,9 @@ import ModelSelect from "./ModelSelect";
 import SubscriptionEditor from "./SubscriptionEditor";
 import SkillsEditor from "./SkillsEditor";
 import McpEditor from "./McpEditor";
+import AgentCapabilitiesEditor from "./AgentCapabilitiesEditor";
+import { parseCapabilities } from "./agentCapabilities";
+import type { AgentCapabilities } from "./agentCapabilities";
 
 const EMPTY: Partial<Agent> = {
   name: "", mode: "service", group: "", role: "agent", description: "", model: "",
@@ -44,7 +47,9 @@ export default function AgentList() {
   const [filterGroup, setFilterGroup] = useState("");
   const [viewMode, setViewMode] = useState<'grid' | 'grouped'>('grid');
   const [envPairs, setEnvPairs] = useState<EnvPair[]>([]);
-  const [capabilitiesText, setCapabilitiesText] = useState("{}");
+  const [capabilitiesDraft, setCapabilitiesDraft] = useState<{ text: string; value: AgentCapabilities; error?: string }>({
+    text: "{}", value: {},
+  });
 
   const load = () => api.listAgents().then(setAgents);
   useEffect(() => { load(); }, []);
@@ -66,18 +71,27 @@ export default function AgentList() {
     setTargetAgentId(null);
   };
 
+  const editCapabilities = (text: string, reset = false) => {
+    const parsed = parseCapabilities(text);
+    setCapabilitiesDraft((previous) => ({
+      text,
+      value: parsed.value ?? (reset ? {} : previous.value),
+      error: parsed.error,
+    }));
+  };
+
   const startEdit = (a?: Agent) => {
     closeAll();
     if (a) {
       setEditId(a.id);
       setEditing({ ...a });
       setEnvPairs(envToPairs(a.env));
-      setCapabilitiesText(JSON.stringify(a.capabilities || {}, null, 2));
+      editCapabilities(JSON.stringify(a.capabilities || {}, null, 2), true);
     } else {
       setEditId(null);
       setEditing({ ...EMPTY });
       setEnvPairs([]);
-      setCapabilitiesText("{}");
+      editCapabilities("{}", true);
     }
     setDrawerMode("edit");
   };
@@ -104,17 +118,7 @@ export default function AgentList() {
   };
 
   const save = async () => {
-    if (!editing?.name?.trim()) return;
-    let capabilities: Record<string, unknown> = {};
-    try {
-      capabilities = JSON.parse(capabilitiesText || "{}");
-      if (typeof capabilities !== "object" || capabilities === null || Array.isArray(capabilities)) {
-        throw new Error("capabilities must be object");
-      }
-    } catch {
-      alert("Capabilities 必须是合法 JSON 对象");
-      return;
-    }
+    if (!editing?.name?.trim() || capabilitiesDraft.error) return;
 
     const data: Partial<Agent> = {
       name: editing.name,
@@ -129,7 +133,7 @@ export default function AgentList() {
       mcp_server_ids: editing.mcp_server_ids || [],
       workspace_path: editing.workspace_path || "",
       env: pairsToEnv(envPairs),
-      capabilities,
+      capabilities: capabilitiesDraft.value,
     };
     if (await saveAgent(data, editId)) {
       closeAll();
@@ -301,20 +305,17 @@ export default function AgentList() {
               >+ 添加环境变量</button>
             </div>
 
-            <label>Capabilities (JSON)</label>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>
-              `diagent_tools` 可选 {editing.mode === "task" ? "skill、mcp、publish_event，开启任务模型刷新后也可选 shell、read、write、edit。子 Agent 通过 subagents 单独配置工具。" : "shell、skill、mcp、publish_event（受管推理）。"}空数组关闭当前 Agent 的常规工具。
-            </div>
-            <textarea
-              rows={8}
-              value={capabilitiesText}
-              onChange={(e) => setCapabilitiesText(e.target.value)}
-              style={{ fontFamily: "monospace", fontSize: 12 }}
-              placeholder='{"dios_admin":{"enabled":true}}'
+            <AgentCapabilitiesEditor
+              key={editId ?? "new"}
+              agent={editing}
+              value={capabilitiesDraft.value}
+              text={capabilitiesDraft.text}
+              error={capabilitiesDraft.error}
+              onTextChange={editCapabilities}
             />
 
             <div className="drawer-actions">
-              <button onClick={save}>保存</button>
+              <button onClick={save} disabled={Boolean(capabilitiesDraft.error)}>保存</button>
               <button className="btn-secondary" onClick={closeAll}>取消</button>
             </div>
           </div>

@@ -120,6 +120,8 @@ export const api = {
 
   // MCP Servers
   listMcpServers: () => request<import("../types").McpServer[]>("/mcp-servers"),
+  getMcpToolCatalog: (serverId: string) =>
+    request<import("../types").McpToolCatalog>(`/mcp-servers/${encodeURIComponent(serverId)}/tools`),
   createMcpServer: (data: Record<string, unknown>) =>
     request<import("../types").McpServer>("/mcp-servers", { method: "POST", body: JSON.stringify(data) }),
   updateMcpServer: (id: string, data: Record<string, unknown>) =>

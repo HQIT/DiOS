@@ -86,6 +86,11 @@ export interface McpServer {
   created_at: string;
 }
 
+export interface McpToolCatalog {
+  server_name: string;
+  tools: Array<{ name: string; title: string; description: string }>;
+}
+
 export interface Skill {
   id: string;
   name: string;
