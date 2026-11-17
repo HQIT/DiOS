@@ -1,4 +1,4 @@
-"""向常驻 Agent 提供 OpenAI 兼容推理，供应商密钥仅出现在上游请求。"""
+"""提供 OpenAI 兼容推理，供应商密钥仅出现在上游请求。"""
 
 import json
 from contextlib import AsyncExitStack
@@ -16,7 +16,8 @@ from app.db.database import get_db
 from app.services.e2ag_tool_gateway import service_mcp_endpoints
 from app.services.http_internal import internal_client
 from app.services.model_proxy import (
-    MAX_OUTPUT_TOKENS, MODEL_GRANT_CHECK_PATH, MODEL_PROXY_PATH, reserve_model_call, verify_model_grant,
+    MAX_OUTPUT_TOKENS, MODEL_GRANT_CHECK_PATH, MODEL_GRANT_REFRESH_PATH, MODEL_PROXY_PATH,
+    refresh_task_model_grant, reserve_model_call, verify_model_grant,
 )
 
 router = APIRouter()
@@ -33,21 +34,26 @@ class GrantAudience(BaseModel):
     agent_id: str = Field(min_length=1, max_length=12)
 
 
-def _require_proxy_enabled() -> None:
-    if not settings.diagent_service_model_proxy or not settings.access_token:
-        raise HTTPException(404, "Model inference proxy is disabled")
-
-
 @router.post(MODEL_GRANT_CHECK_PATH, include_in_schema=False, status_code=204)
 async def check_grant(audience: GrantAudience, request: Request, db: AsyncSession = Depends(get_db)) -> Response:
     """确认授权可以交给指定 Agent 的执行进程。"""
-    _require_proxy_enabled()
+    if not settings.diagent_service_model_proxy or not settings.access_token:
+        raise HTTPException(404, "Service inference proxy is disabled")
     authorization = request.headers.get("authorization", "")
     turn = await verify_model_grant(db, authorization, audience.model, audience.agent_id)
     endpoints = await service_mcp_endpoints(db, turn, authorization)
     if endpoints:
         return JSONResponse({"mcp_servers": endpoints}, headers={"Cache-Control": "no-store"})
     return Response(status_code=204)
+
+
+@router.post(MODEL_GRANT_REFRESH_PATH, include_in_schema=False)
+async def refresh_grant(request: Request, db: AsyncSession = Depends(get_db)) -> Response:
+    """允许运行中的 Task 通过独立凭据换发模型访问令牌。"""
+    if not (settings.access_token and settings.diagent_task_model_proxy and settings.diagent_task_model_refresh):
+        raise HTTPException(404, "Task inference refresh is disabled")
+    token = await refresh_task_model_grant(db, request.headers.get("authorization", ""))
+    return JSONResponse({"access_token": token}, headers={"Cache-Control": "no-store"})
 
 
 async def _read_payload(request: Request) -> dict:
@@ -74,7 +80,8 @@ async def _read_payload(request: Request) -> dict:
 @router.post(MODEL_PROXY_PATH, include_in_schema=False)
 async def chat_completions(request: Request, db: AsyncSession = Depends(get_db)) -> Response:
     """将获准的 Chat 请求转发至 DiOS 登记的固定模型地址。"""
-    _require_proxy_enabled()
+    if not settings.access_token or not (settings.diagent_service_model_proxy or settings.diagent_task_model_proxy):
+        raise HTTPException(404, "Model inference proxy is disabled")
     payload = await _read_payload(request)
     model = await reserve_model_call(db, request.headers.get("authorization", ""), payload["model"])
     endpoint = model.base_url.rstrip("/") + "/chat/completions"

@@ -11,7 +11,7 @@ import re
 import secrets
 from datetime import datetime, timedelta, timezone
 from fnmatch import fnmatchcase
-from typing import Any, Mapping
+from typing import Any, Collection, Mapping
 from uuid import uuid4
 
 import httpx
@@ -45,6 +45,17 @@ def hash_grant_token(token: str) -> str:
 
 def tool_is_allowed(tool_name: str, patterns: list[str]) -> bool:
     return bool(tool_name) and any(fnmatchcase(tool_name, pattern) for pattern in patterns)
+
+
+def _subagent_mcp_policy(capabilities: dict | None, tool_names: list[str]) -> None:
+    if settings.e2ag_mode.lower() != "enforce":
+        raise ValueError("Subagent MCP requires E2AG enforce mode")
+    governance = (capabilities or {}).get("governance")
+    allowed = governance.get("allowed_tools") if isinstance(governance, dict) else None
+    if not isinstance(allowed, list) or not all(isinstance(pattern, str) for pattern in allowed):
+        raise ValueError("Subagent MCP requires capabilities.governance.allowed_tools")
+    if not tool_names or any(not tool_is_allowed(name, allowed) for name in tool_names):
+        raise ValueError("Subagent MCP tool names must be allowed by the task Agent governance")
 
 
 def authorize_mcp_request(method: str, params: Mapping[str, Any], allowed_tools: list[str]) -> tuple[bool, str]:
@@ -124,6 +135,8 @@ async def issue_task_mcp_config(
     agent: Agent,
     task: A2ATask,
     servers: list[McpServer],
+    normalize_names: bool = False,
+    subagent_tool_names: list[str] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Replace supported remote MCP URLs with task-scoped E2AG proxy URLs.
 
@@ -134,6 +147,9 @@ async def issue_task_mcp_config(
     governance = (agent.capabilities or {}).get("governance", {})
     governance = governance if isinstance(governance, Mapping) else {}
     allowed_tools = list(governance.get("allowed_tools") or [])
+    if subagent_tool_names is not None:
+        _subagent_mcp_policy(agent.capabilities, subagent_tool_names)
+        allowed_tools = subagent_tool_names
     output: dict[str, Any] = {}
     omissions: list[dict[str, Any]] = []
     proxy_base = settings.e2ag_internal_base_url.rstrip("/")
@@ -141,7 +157,10 @@ async def issue_task_mcp_config(
     for server in servers:
         connection = server_to_connection(server)
         transport = connection.get("transport")
-        name = str(server.name or server.id)
+        name = _dsh_server_name(server, output) if normalize_names else str(server.name or server.id)
+        if normalize_names and name in output:
+            omissions.append({"mcp_server_id": server.id, "name": name, "reason": "MCP_SERVER_NAME_COLLISION"})
+            continue
         if mode != "enforce":
             output[name] = connection
             continue
@@ -262,6 +281,14 @@ def _service_tool_token(model_token: str, grant_id: str) -> str:
     return base64.urlsafe_b64encode(digest).decode().rstrip("=")
 
 
+def _dsh_server_name(server: McpServer, existing: Collection[str]) -> str:
+    """保留 DSH 支持的名称，必要时使用注册 ID。"""
+    name = server.name
+    if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,31}", name) and name not in existing:
+        return name
+    return server.id
+
+
 async def issue_service_mcp_grants(db: AsyncSession, agent: Agent, turn: ModelInferenceGrant, model_token: str) -> None:
     """为常驻轮次创建与任务授权共用的 MCP 授权记录。"""
     governance = (agent.capabilities or {}).get("governance")
@@ -270,21 +297,11 @@ async def issue_service_mcp_grants(db: AsyncSession, agent: Agent, turn: ModelIn
         return
     if not all(isinstance(pattern, str) and pattern for pattern in patterns):
         return
-    servers = (await db.scalars(select(McpServer).where(
-        McpServer.id.in_(agent.mcp_server_ids),
-    ).order_by(McpServer.id))).all()
+    servers = await streamable_mcp_servers(db, agent.mcp_server_ids)
     trace_id = uuid4().hex
     names = set()
     for server in servers:
-        try:
-            connection = server_to_connection(server)
-        except ValueError:
-            continue
-        if connection.get("transport") != "streamable_http":
-            continue
-        name = server.name if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,31}", server.name) else server.id
-        if name in names:
-            name = server.id
+        name = _dsh_server_name(server, names)
         if name in names:
             continue
         names.add(name)
@@ -293,6 +310,40 @@ async def issue_service_mcp_grants(db: AsyncSession, agent: Agent, turn: ModelIn
                             trace_id=trace_id, task_id="", agent_id=agent.id, mcp_server_id=server.id,
                             allowed_tools=patterns, expires_at=datetime.fromtimestamp(turn.expires_at, timezone.utc)))
         db.add(ServiceMcpGrant(grant_id=grant_id, model_token_hash=turn.token_hash, server_name=name))
+
+
+async def streamable_mcp_servers(db: AsyncSession, server_ids: list[str]) -> list[McpServer]:
+    """查找 DSH 的受管 MCP 网关可以装配的服务。"""
+    servers = await db.scalars(select(McpServer).where(McpServer.id.in_(server_ids)).order_by(McpServer.id))
+    eligible = []
+    for server in servers:
+        try:
+            connection = server_to_connection(server)
+        except ValueError:
+            continue
+        if connection["transport"] == "streamable_http":
+            eligible.append(server)
+    return eligible
+
+
+async def subagent_mcp_servers(
+    db: AsyncSession, capabilities: dict | None, subagents: list[dict],
+) -> dict[str, list[McpServer]]:
+    """为每个启用 MCP 的角色核对治理名单与可受管的服务注册。"""
+    assigned = {}
+    for role in subagents:
+        if "tool_selection" not in role or "mcp" not in role["tool_selection"]["tool_ids"]:
+            continue
+        _subagent_mcp_policy(capabilities, role["mcp_tools"])
+        root_tools = (capabilities or {}).get("diagent_tools")
+        if not isinstance(root_tools, list) or "shell" in root_tools:
+            raise ValueError("Subagent MCP requires an explicit parent diagent_tools list without shell")
+        ids = role["mcp_server_ids"]
+        servers = await streamable_mcp_servers(db, ids)
+        if len(servers) != len(ids):
+            raise ValueError(f"Subagent {role['name']} MCP requires registered Streamable HTTP servers")
+        assigned[role["name"]] = servers
+    return assigned
 
 
 async def service_mcp_endpoints(db: AsyncSession, turn: ModelInferenceGrant, authorization: str) -> dict[str, dict[str, str]]:

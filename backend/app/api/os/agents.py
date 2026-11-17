@@ -9,13 +9,38 @@ from app.db.database import get_db
 from app.config import settings
 from app.models.tables import Agent
 from app.models.schemas import AgentCreate, AgentUpdate, AgentOut
-from app.services.admin_guard import normalize_capabilities
+from app.services.admin_guard import (
+    normalize_capabilities, selected_subagent_skills, subagents_for_task, validate_subagent_runtime,
+)
 from app.services.agent_runtime import has_active_workspace_mount
+from app.services.e2ag_tool_gateway import streamable_mcp_servers, subagent_mcp_servers
 from app.services.service_skills import service_skill_sources
+from app.services.agent_tools import configured_agent_tools
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
 _SENSITIVE_KEYWORDS = ("TOKEN", "KEY", "SECRET", "PASSWORD", "PASSWD", "CREDENTIAL")
+
+
+async def _validate_tool_selection(
+    db: AsyncSession, capabilities: dict | None, *, mode: str | None,
+    skills: list[str] | None, mcp_server_ids: list[str] | None,
+) -> list[str] | None:
+    subagents = subagents_for_task(capabilities)
+    validate_subagent_runtime(subagents, mode=mode)
+    await subagent_mcp_servers(db, capabilities, subagents)
+    selected = configured_agent_tools(capabilities, mode=mode, skills=skills, mcp_server_ids=mcp_server_ids)
+    if "mcp" in (selected or ()) and not await streamable_mcp_servers(db, mcp_server_ids or []):
+        raise ValueError("diagent_tools mcp requires at least one registered Streamable HTTP MCP server")
+    skill_names = selected_subagent_skills(subagents)
+    if mode == "task" and "skill" in (selected or ()):
+        skill_names.extend(skills or [])
+    if skill_names:
+        try:
+            await service_skill_sources(skill_names, db, materialize=False)
+        except RuntimeError as error:
+            raise ValueError(str(error)) from error
+    return selected
 
 
 async def _validate_managed_skills(db: AsyncSession, mode: str, skills: list[str] | None) -> None:
@@ -78,17 +103,21 @@ async def list_agents(
 
 @router.post("", response_model=AgentOut, status_code=201)
 async def create_agent(body: AgentCreate, db: AsyncSession = Depends(get_db)):
+    try:
+        capabilities = normalize_capabilities(body.capabilities)
+        selected = await _validate_tool_selection(
+            db, capabilities, mode=body.mode, skills=body.skills, mcp_server_ids=body.mcp_server_ids,
+        )
+        if selected is not None:
+            capabilities["diagent_tools"] = selected
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
     await _validate_managed_skills(db, body.mode, body.skills)
     agent_id = uuid.uuid4().hex[:12]
     workspace = body.workspace_path.strip()
     if not workspace:
         workspace = str(settings.workspace_root / agent_id)
     Path(workspace).mkdir(parents=True, exist_ok=True)
-
-    try:
-        normalized_capabilities = normalize_capabilities(getattr(body, "capabilities", {}) or {})
-    except ValueError as e:
-        raise HTTPException(422, str(e))
 
     agent = Agent(
         id=agent_id,
@@ -103,7 +132,7 @@ async def create_agent(body: AgentCreate, db: AsyncSession = Depends(get_db)):
         mcp_config_path=body.mcp_config_path,
         mcp_server_ids=getattr(body, "mcp_server_ids", []) or [],
         workspace_path=workspace,
-        capabilities=normalized_capabilities,
+        capabilities=capabilities,
         env=getattr(body, "env", {}) or {},
     )
     db.add(agent)
@@ -130,8 +159,23 @@ async def update_agent(agent_id: str, body: AgentUpdate, db: AsyncSession = Depe
     if not agent:
         raise HTTPException(404, "Agent not found")
     updates = body.model_dump(exclude_unset=True)
+    if {"capabilities", "mode", "skills", "mcp_server_ids"} & updates.keys():
+        try:
+            capabilities = normalize_capabilities(updates["capabilities"]) if "capabilities" in updates else agent.capabilities
+            selected = await _validate_tool_selection(
+                db, capabilities, mode=updates.get("mode", agent.mode),
+                skills=updates.get("skills", agent.skills),
+                mcp_server_ids=updates.get("mcp_server_ids", agent.mcp_server_ids),
+            )
+            if "capabilities" in updates:
+                if selected is not None:
+                    capabilities["diagent_tools"] = selected
+                updates["capabilities"] = capabilities
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
     changes_mount = any(key in updates and updates[key] != getattr(agent, key) for key in ("workspace_path", "mode", "skills"))
-    if settings.diagent_service_model_proxy and changes_mount and await has_active_workspace_mount(agent_id, db):
+    if (changes_mount and (settings.diagent_service_model_proxy or settings.diagent_task_model_proxy)
+            and await has_active_workspace_mount(agent_id, db)):
         raise HTTPException(409, "Stop the Agent's running containers before changing its workspace, mode or Skills")
     if "skills" in updates or "mode" in updates:
         await _validate_managed_skills(db, updates.get("mode", agent.mode), updates.get("skills", agent.skills))
@@ -145,12 +189,6 @@ async def update_agent(agent_id: str, body: AgentUpdate, db: AsyncSession = Depe
             else:
                 merged[k] = v
         updates["env"] = merged
-    if "capabilities" in updates:
-        try:
-            updates["capabilities"] = normalize_capabilities(updates.get("capabilities") or {})
-        except ValueError as e:
-            raise HTTPException(422, str(e))
-
     for field, value in updates.items():
         setattr(agent, field, value)
     await db.commit()
@@ -163,7 +201,8 @@ async def delete_agent(agent_id: str, db: AsyncSession = Depends(get_db)):
     agent = await db.get(Agent, agent_id)
     if not agent:
         raise HTTPException(404, "Agent not found")
-    if settings.diagent_service_model_proxy and await has_active_workspace_mount(agent_id, db):
+    if ((settings.diagent_service_model_proxy or settings.diagent_task_model_proxy)
+            and await has_active_workspace_mount(agent_id, db)):
         raise HTTPException(409, "Stop the Agent's running containers before deleting it")
     await db.delete(agent)
     await db.commit()

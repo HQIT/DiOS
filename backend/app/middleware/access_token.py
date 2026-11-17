@@ -10,7 +10,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from app.config import settings
-from app.services.model_proxy import MODEL_GRANT_CHECK_PATH, MODEL_PROXY_PATH
+from app.services.model_proxy import MODEL_GRANT_CHECK_PATH, MODEL_GRANT_REFRESH_PATH, MODEL_PROXY_PATH
 
 _PUBLIC_PREFIXES = (
     "/health",
@@ -44,7 +44,7 @@ class AccessTokenMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         path = request.url.path
-        if path in (MODEL_PROXY_PATH, MODEL_GRANT_CHECK_PATH) or _is_public(path) or request.method == "OPTIONS":
+        if path in (MODEL_PROXY_PATH, MODEL_GRANT_CHECK_PATH, MODEL_GRANT_REFRESH_PATH) or _is_public(path) or request.method == "OPTIONS":
             return await call_next(request)
 
         if not path.startswith("/api/"):

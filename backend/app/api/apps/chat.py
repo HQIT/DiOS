@@ -12,11 +12,11 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.config import settings
 from app.models.tables import Agent, ChatSession, ChatMessage
 from app.services.agent_runtime import ensure_running
 from app.services.http_internal import internal_client
-from app.services.model_proxy import model_grant, resolve_service_model
+from app.services.model_proxy import model_grant, resolve_agent_model
+from app.services.agent_tools import select_service_tools
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
@@ -87,6 +87,11 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
     if not user_content:
         raise HTTPException(400, "No user message provided")
 
+    try:
+        selected = select_service_tools(agent, entry="chat")
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
+
     # 创建或获取 session
     if not session_id:
         session_id = uuid.uuid4().hex
@@ -125,7 +130,7 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
     await db.commit()
 
     # 获取模型名
-    llm = await resolve_service_model(db, agent.model)
+    llm = await resolve_agent_model(db, agent.model)
     model_name = llm.model if llm else agent.model or ""
 
     # 确保 Agent 容器运行中
@@ -139,14 +144,8 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         "messages": messages,
         "stream": body.get("stream", True),
     }
-    # 声明了 skills 的 agent 默认启用内置协作工具（其余行为由 prompt + skills 约束）
-    include_mcp = settings.diagent_service_model_proxy and bool(agent.mcp_server_ids)
-    selected = ["shell", "publish_event"] if agent.skills else []
-    if agent.skills and settings.diagent_service_model_proxy:
-        selected.append("skill")
-    if include_mcp:
-        selected.append("mcp")
-    if selected:
+    include_mcp = "mcp" in (selected or ())
+    if selected is not None:
         payload["tool_selection"] = {"tool_ids": selected}
     capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
     reasoning = capabilities.get("reasoning")

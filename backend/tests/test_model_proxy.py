@@ -2,11 +2,12 @@
 
 import asyncio
 import json
+import threading
 import unittest
 from contextlib import AsyncExitStack
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import anyio
 import httpx
@@ -16,7 +17,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.db.database import Base, get_db
 from app.config import settings
-from app.models.tables import Agent, AgentRuntime, LLMModel, McpServer, ModelInferenceGrant, Skill
+from app.models.tables import Agent, AgentRuntime, E2AGToolGrant, LLMModel, McpServer, ModelInferenceGrant, Skill
 from app.services.agent_runtime import ensure_running
 from app.services.model_proxy import model_grant
 from main import app
@@ -64,6 +65,561 @@ class ModelProxyTests(unittest.IsolatedAsyncioTestCase):
         async with self.sessions() as db:
             model = await db.get(LLMModel, created.json()["id"])
             self.assertEqual(model.api_key, credential)
+
+    async def test_managed_chat_dispatches_each_agents_explicit_tool_selection(self):
+        async with self.sessions() as db:
+            model = LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1")
+            db.add(model)
+            await db.flush()
+            reviewer = Agent(name="Reviewer", model=model.id, skills=["review"],
+                             capabilities={"diagent_tools": ["skill"]})
+            writer = Agent(name="Writer", model=model.id, skills=["draft"],
+                           capabilities={"diagent_tools": []})
+            db.add_all([reviewer, writer])
+            await db.commit()
+
+        forwarded = []
+
+        def upstream(request):
+            forwarded.append(json.loads(request.content).get("tool_selection"))
+            return httpx.Response(200, json={"choices": [{"message": {"content": "Accepted"}}]})
+
+        with (
+            patch.object(settings, "diagent_service_model_proxy", True),
+            patch.object(settings, "access_token", "fixture-admin"),
+            patch("app.api.apps.chat.ensure_running", new=AsyncMock(return_value="http://diagent")),
+            patch("app.api.apps.chat.internal_client",
+                  side_effect=lambda **opts: httpx.AsyncClient(transport=httpx.MockTransport(upstream), **opts)),
+        ):
+            for agent in (reviewer, writer):
+                response = await self.client.post("/api/apps/chat/completions", headers={"Authorization": "Bearer fixture-admin"}, json={
+                    "agent_id": agent.id, "messages": [{"role": "user", "content": "Continue"}], "stream": False,
+                    "tool_selection": {"tool_ids": ["shell"]},
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(forwarded, [{"tool_ids": ["skill"]}, {"tool_ids": []}])
+
+    async def test_a2a_task_dispatches_only_selected_tools_and_mcp_credentials(self):
+        async with self.sessions() as db:
+            model = LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1")
+            ledger = McpServer(name="查询工具", transport="streamable_http", url="https://mcp.test/gateway",
+                               headers={"Authorization": "Bearer fixture-upstream"})
+            skill = Skill(name="fixture-skill", content="Use the fixture instructions.")
+            db.add_all([model, ledger, skill])
+            await db.commit()
+
+        forwarded = []
+
+        def start_container(run_id, workspace, env, *, task_files, skill_sources):
+            self.assertFalse((workspace / f"agent-task-{run_id}.json").exists())
+            self.assertEqual(list(workspace.glob("config/mcp_servers_*.json")), [])
+            forwarded.append((task_files, skill_sources))
+            return "fixture-container"
+
+        with (
+            patch.object(settings, "e2ag_mode", "enforce"),
+            patch.object(settings, "workspace_root", self.fixture_root),
+            patch("app.services.docker_runner.start_container", side_effect=start_container),
+            patch("app.services.docker_runner.get_container_status", return_value="running"),
+        ):
+            for index, tools in enumerate(([], ["mcp", "skill"])):
+                response = await self.client.post("/api/os/agents", json={
+                    "name": f"Task {index}", "mode": "task", "workspace_path": str(self.fixture_root / f"agent-{index}"),
+                    "model": model.name, "mcp_server_ids": [ledger.id], "skills": [skill.name],
+                    "capabilities": {"diagent_tools": tools, "governance": {"allowed_tools": ["lookup"]}},
+                })
+                self.assertEqual(response.status_code, 201, response.text)
+                agent_id = response.json()["id"]
+                sent = await self.client.post(f"/api/os/a2a/agents/{agent_id}", json={
+                    "jsonrpc": "2.0", "id": 1, "method": "message/send",
+                    "params": {"message": {"role": "user", "parts": [{"kind": "text", "text": "Continue"}]}},
+                })
+                self.assertEqual(sent.json()["result"]["status"]["state"], "working", sent.text)
+
+        files, skills = forwarded[0]
+        self.assertEqual(files["task.json"]["task"]["tool_selection"], {"tool_ids": []})
+        self.assertNotIn("mcp.json", files)
+        self.assertEqual(skills, {})
+        files, skills = forwarded[1]
+        config = files["task.json"]["task"]
+        self.assertEqual(config["tool_selection"], {"tool_ids": ["mcp", "skill"]})
+        self.assertEqual(config["mcp_config_path"], "/run/diagent/mcp.json")
+        self.assertEqual(config["skills_dir"], "/run/diagent/skills")
+        self.assertIn("Use the fixture instructions.", (skills[skill.name] / "SKILL.md").read_text(encoding="utf-8"))
+        connection = files["mcp.json"][ledger.id]
+        self.assertIn("/api/internal/e2ag/mcp/", connection["url"])
+        self.assertNotEqual(connection["headers"]["Authorization"], "Bearer fixture-upstream")
+
+    async def test_a2a_task_dispatches_named_subagents_with_independent_tools_and_one_model(self):
+        async with self.sessions() as db:
+            db.add(LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1",
+                            api_key="fixture-provider-key"))
+            await db.commit()
+
+        subagents = [
+            {"name": "reviewer", "description": "Review", "prompt": "Review the report.",
+             "tool_selection": {"tool_ids": ["read"]}},
+            {"name": "summarizer", "description": "Summarize", "prompt": "Summarize the findings.",
+             "tool_selection": {"tool_ids": []}},
+        ]
+        with (
+            patch.object(settings, "diagent_task_model_proxy", True),
+            patch.object(settings, "diagent_task_model_refresh", True),
+            patch.object(settings, "access_token", "fixture-admin"),
+            patch.object(settings, "workspace_root", self.fixture_root),
+            patch("app.services.docker_runner.start_container", return_value="fixture-container") as launch,
+        ):
+            admin = {"Authorization": "Bearer fixture-admin"}
+            created = await self.client.post("/api/os/agents", headers=admin, json={
+                "name": "Task", "mode": "task", "model": "fixture",
+                "capabilities": {"diagent_tools": [], "subagents": subagents},
+            })
+            self.assertEqual(created.status_code, 201, created.text)
+            agent_id = created.json()["id"]
+            sent = await self.client.post(f"/api/os/a2a/agents/{agent_id}", headers=admin, json={
+                "jsonrpc": "2.0", "id": 1, "method": "message/send",
+                "params": {"message": {"role": "user", "parts": [{"kind": "text", "text": "Review this."}]}},
+            })
+            self.assertEqual(sent.json()["result"]["status"]["state"], "working", sent.text)
+
+        files = launch.call_args.kwargs["task_files"]
+        self.assertEqual(created.json()["capabilities"]["subagents"], subagents)
+        self.assertEqual(files["task.json"]["task"]["subagents"], subagents)
+        self.assertEqual(files["task.json"]["task"]["tool_selection"], {"tool_ids": []})
+        self.assertEqual(files["task.json"]["task"]["model"], "fixture")
+        self.assertEqual(list(files["task.json"]["models"]["models"]), ["fixture"])
+        self.assertIn("model-refresh.json", files)
+        self.assertNotIn("fixture-provider-key", json.dumps(files))
+
+    async def test_a2a_task_mounts_subagent_skills_separately_from_parent_skills(self):
+        async with self.sessions() as db:
+            skill = Skill(name="review-skill", content="Review instructions.")
+            db.add_all([
+                LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1"),
+                skill,
+            ])
+            await db.commit()
+
+        role = {
+            "name": "reviewer", "description": "Review", "prompt": "Review the report.",
+            "tool_selection": {"tool_ids": ["skill"]}, "skill_names": ["review-skill"],
+        }
+        with (
+            patch.object(settings, "diagent_task_model_proxy", True),
+            patch.object(settings, "diagent_task_model_refresh", False),
+            patch.object(settings, "access_token", "fixture-admin"),
+            patch.object(settings, "workspace_root", self.fixture_root),
+            patch("app.services.docker_runner.start_container", return_value="fixture-container") as launch,
+        ):
+            admin = {"Authorization": "Bearer fixture-admin"}
+            created = await self.client.post("/api/os/agents", headers=admin, json={
+                "name": "Task", "mode": "task", "model": "fixture",
+                "capabilities": {"subagents": [role]},
+            })
+            self.assertEqual(created.status_code, 201, created.text)
+            sent = await self.client.post(f"/api/os/a2a/agents/{created.json()['id']}", headers=admin, json={
+                "jsonrpc": "2.0", "id": 1, "method": "message/send",
+                "params": {"message": {"role": "user", "parts": [{"kind": "text", "text": "Review."}]}},
+            })
+            self.assertEqual(sent.json()["result"]["status"]["state"], "working", sent.text)
+            deleted = await self.client.delete(f"/api/os/skills/{skill.id}", headers=admin)
+            self.assertEqual(deleted.status_code, 409, deleted.text)
+
+        self.assertEqual(created.json()["capabilities"]["subagents"], [role])
+        self.assertEqual(launch.call_args.kwargs["skill_sources"], {})
+        written = launch.call_args.kwargs["task_files"]["task.json"]["task"]["subagents"]
+        self.assertEqual(written, [dict(role, skills_dir="/run/diagent/subagent-skills")])
+        sources = launch.call_args.kwargs["subagent_skill_sources"]
+        self.assertIn("Review instructions.", (sources["review-skill"] / "SKILL.md").read_text(encoding="utf-8"))
+
+    async def test_a2a_task_issues_independent_mcp_grants_for_two_subagents(self):
+        async with self.sessions() as db:
+            server = McpServer(name="ledger", transport="streamable_http", url="https://mcp.test/gateway",
+                               headers={"Authorization": "Bearer fixture-upstream"})
+            db.add_all([LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1"), server])
+            await db.commit()
+        subagents = [
+            {"name": name, "description": "Query " + name, "prompt": "Query the assigned data.",
+             "tool_selection": {"tool_ids": ["mcp"]}, "mcp_server_ids": [server.id], "mcp_tools": [name]}
+            for name in ("alpha", "beta")
+        ]
+        with (
+            patch.object(settings, "diagent_task_model_proxy", True),
+            patch.object(settings, "diagent_task_model_refresh", False),
+            patch.object(settings, "e2ag_mode", "enforce"),
+            patch.object(settings, "access_token", "fixture-admin"),
+            patch.object(settings, "workspace_root", self.fixture_root),
+            patch("app.services.docker_runner.start_container", return_value="fixture-container") as launch,
+        ):
+            admin = {"Authorization": "Bearer fixture-admin"}
+            outside_policy = await self.client.post("/api/os/agents", headers=admin, json={
+                "name": "Task", "mode": "task", "model": "fixture",
+                "capabilities": {"diagent_tools": [], "subagents": subagents,
+                                 "governance": {"allowed_tools": ["alpha"]}},
+            })
+            self.assertEqual(outside_policy.status_code, 422, outside_policy.text)
+            self.assertIn("governance", outside_policy.json()["detail"])
+            default_shell = await self.client.post("/api/os/agents", headers=admin, json={
+                "name": "Task", "mode": "task", "model": "fixture",
+                "capabilities": {"subagents": subagents, "governance": {"allowed_tools": ["alpha", "beta"]}},
+            })
+            self.assertEqual(default_shell.status_code, 422, default_shell.text)
+            self.assertIn("without shell", default_shell.json()["detail"])
+            created = await self.client.post("/api/os/agents", headers=admin, json={
+                "name": "Task", "mode": "task", "model": "fixture",
+                "capabilities": {"diagent_tools": [], "subagents": subagents,
+                                 "governance": {"allowed_tools": ["alpha", "beta"]}},
+            })
+            self.assertEqual(created.status_code, 201, created.text)
+            sent = await self.client.post(f"/api/os/a2a/agents/{created.json()['id']}", headers=admin, json={
+                "jsonrpc": "2.0", "id": 1, "method": "message/send",
+                "params": {"message": {"role": "user", "parts": [{"kind": "text", "text": "Consult both."}]}},
+            })
+            self.assertEqual(sent.json()["result"]["status"]["state"], "working", sent.text)
+        files = launch.call_args.kwargs["task_files"]
+        self.assertNotIn("mcp.json", files)
+        self.assertNotIn("fixture-upstream", json.dumps(files))
+        written = files["task.json"]["task"]["subagents"]
+        self.assertEqual([role["mcp_config_path"] for role in written],
+                         ["/run/diagent/subagent-alpha-mcp.json", "/run/diagent/subagent-beta-mcp.json"])
+        self.assertNotIn("mcp_server_ids", written[0])
+        async with self.sessions() as db:
+            grants = list(await db.scalars(select(E2AGToolGrant)))
+        self.assertEqual(sorted((grant.mcp_server_id, grant.allowed_tools) for grant in grants),
+                         [(server.id, ["alpha"]), (server.id, ["beta"])])
+
+    async def test_dsh_subagent_file_tools_require_refresh_when_saving_an_agent(self):
+        with (
+            patch.object(settings, "diagent_task_model_proxy", True),
+            patch.object(settings, "diagent_task_model_refresh", False),
+        ):
+            created = await self.client.post("/api/os/agents", json={
+                "name": "Task", "mode": "task",
+                "capabilities": {"subagents": [{
+                    "name": "reviewer", "description": "Review", "prompt": "Review.",
+                    "tool_selection": {"tool_ids": ["read"]},
+                }]},
+            })
+        self.assertEqual(created.status_code, 422, created.text)
+        self.assertIn("grant refresh", created.json()["detail"])
+
+    async def test_saving_a_legacy_subagent_keeps_its_mcp_tool_names(self):
+        created = await self.client.post("/api/os/agents", json={
+            "name": "Legacy task", "mode": "task", "workspace_path": str(self.fixture_root / "legacy"),
+            "capabilities": {"subagents": [{
+                "name": "reviewer", "description": "Review", "prompt": "Review.", "tools": ["read"],
+            }]},
+        })
+        self.assertEqual(created.status_code, 201, created.text)
+        role = created.json()["capabilities"]["subagents"][0]
+        self.assertEqual(role["tools"], ["read"])
+        self.assertNotIn("tool_selection", role)
+
+    async def test_task_rejects_mixing_legacy_and_dsh_subagent_tools(self):
+        with patch.object(settings, "diagent_task_model_proxy", True):
+            created = await self.client.post("/api/os/agents", json={
+                "name": "Task", "mode": "task",
+                "capabilities": {"subagents": [
+                    {"name": "reviewer", "description": "Review", "prompt": "Review.",
+                     "tool_selection": {"tool_ids": []}},
+                    {"name": "legacy", "description": "Legacy", "prompt": "Review.", "tools": ["read"]},
+                ]},
+            })
+        self.assertEqual(created.status_code, 422, created.text)
+        self.assertIn("requires tool_selection", created.json()["detail"])
+
+    async def test_a2a_task_model_grant_covers_the_configured_runtime_without_shipping_provider_credentials(self):
+        provider_key = "fixture-task-provider-key"
+        async with self.sessions() as db:
+            model = LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1", api_key=provider_key)
+            agent = Agent(name="Task", mode="task", model="fixture", workspace_path=str(self.fixture_root / "agent"),
+                          env={"OPENAI_API_KEY": provider_key, "CUSTOM_PROVIDER_KEY": provider_key,
+                               "CUSTOM_CONTROL_AUTH": "Bearer fixture-admin", "BUSINESS_SETTING": "keep",
+                               "DIAGENT_TASK_TIMEOUT_MS": "7.2e6"})
+            db.add_all([model, agent])
+            await db.commit()
+
+        launch = {}
+
+        def start_container(run_id, workspace, env, *, task_files, **options):
+            launch.update(files=task_files, env=env, workspace=workspace)
+            return "fixture-container"
+
+        def upstream(request):
+            self.assertEqual(str(request.url), "https://model.test/v1/chat/completions")
+            self.assertEqual(request.headers.get("Authorization"), "Bearer " + provider_key)
+            return httpx.Response(200, json={"choices": [{"message": {"content": "Accepted"}}]})
+
+        now = 1_790_000_000
+        with (
+            patch.object(settings, "diagent_task_model_proxy", True),
+            patch.object(settings, "diagent_service_model_proxy", False),
+            patch.object(settings, "access_token", "fixture-admin"),
+            patch.object(settings, "workspace_root", self.fixture_root),
+            patch("app.services.model_proxy.time") as clock,
+            patch("app.services.docker_runner.start_container", side_effect=start_container),
+            patch("app.api.internal.model_proxy.internal_client",
+                  side_effect=lambda **opts: httpx.AsyncClient(transport=httpx.MockTransport(upstream), **opts)),
+        ):
+            clock.time.side_effect = lambda: now
+            admin = {"Authorization": "Bearer fixture-admin"}
+            path = f"/api/os/a2a/agents/{agent.id}"
+            sent = await self.client.post(path, headers=admin, json={
+                "jsonrpc": "2.0", "id": 1, "method": "message/send",
+                "params": {"message": {"role": "user", "parts": [{"kind": "text", "text": "Continue"}]}},
+            })
+            task = sent.json()["result"]
+            self.assertEqual(task["status"]["state"], "working", sent.text)
+            self.assertIsNotNone(launch["files"], "Managed task must install its model configuration privately")
+            self.assertNotIn(provider_key, json.dumps([launch["files"], launch["env"]]))
+            self.assertEqual(launch["env"], {"BUSINESS_SETTING": "keep", "DIAGENT_TASK_TIMEOUT_MS": "7200000"})
+            self.assertEqual(list(launch["workspace"].glob("agent-task-*.json")), [])
+            entry = launch["files"]["task.json"]["models"]["models"][model.name]
+            self.assertTrue(entry["base_url"].endswith("/api/internal/model-proxy/v1"))
+            bearer = {"Authorization": "Bearer " + entry["api_key"]}
+            inference = "/api/internal/model-proxy/v1/chat/completions"
+            payload = {"model": model.model, "messages": [{"role": "user", "content": "Continue"}]}
+            wrong_model = await self.client.post(inference, headers=bearer, json={**payload, "model": "other"})
+            self.assertEqual(wrong_model.status_code, 403, wrong_model.text)
+            # 首次推理可能发生在一次长工具调用之后，无需心跳来维持授权。
+            now += 119 * 60
+            correct = await self.client.post(inference, headers=bearer, json=payload)
+            self.assertEqual(correct.status_code, 200, correct.text)
+            now += 3 * 60 - 1
+            before_deadline = await self.client.post(inference, headers=bearer, json=payload)
+            self.assertEqual(before_deadline.status_code, 200, before_deadline.text)
+
+            clock.time.side_effect = iter([now, now + 1, now + 1])
+            at_deadline = await self.client.post(inference, headers=bearer, json=payload)
+            self.assertEqual(at_deadline.status_code, 401, at_deadline.text)
+
+            now += 1
+            clock.time.side_effect = lambda: now
+            past_deadline = await self.client.post(inference, headers=bearer, json=payload)
+            self.assertEqual(past_deadline.status_code, 401, past_deadline.text)
+
+    async def test_running_task_can_refresh_an_expired_token_without_resetting_its_budget(self):
+        async with self.sessions() as db:
+            model = LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1")
+            agent = Agent(name="Task", mode="task", model=model.name, workspace_path=str(self.fixture_root / "refresh"))
+            db.add_all([model, agent])
+            await db.commit()
+
+        files = {}
+        now = 1_790_000_000
+        def launch(run_id, workspace, env, *, task_files, **options):
+            files.update(task_files)
+            return "fixture-container"
+
+        with (
+            patch.object(settings, "diagent_task_model_proxy", True),
+            patch.object(settings, "diagent_task_model_refresh", True),
+            patch.object(settings, "access_token", "fixture-admin"),
+            patch.object(settings, "workspace_root", self.fixture_root),
+            patch("app.services.model_proxy.time") as clock,
+            patch("app.services.model_proxy.MAX_TASK_MODEL_CALLS", 2),
+            patch("app.services.docker_runner.start_container", side_effect=launch),
+            patch("app.api.internal.model_proxy.internal_client", side_effect=lambda **opts: httpx.AsyncClient(
+                transport=httpx.MockTransport(lambda _: httpx.Response(200, json={"choices": []})), **opts)),
+        ):
+            clock.time.side_effect = lambda: now
+            admin = {"Authorization": "Bearer fixture-admin"}
+            path = f"/api/os/a2a/agents/{agent.id}"
+            sent = await self.client.post(path, headers=admin, json={
+                "jsonrpc": "2.0", "id": 1, "method": "message/send",
+                "params": {"message": {"role": "user", "parts": [{"kind": "text", "text": "Continue"}]}},
+            })
+            task = sent.json()["result"]
+            self.assertEqual(task["status"]["state"], "working", sent.text)
+            self.assertIn("model-refresh.json", files)
+            refresh = {"Authorization": "Bearer " + files["model-refresh.json"]["refresh_token"]}
+            initial = files["task.json"]["models"]["models"][model.name]["api_key"]
+            async def infer(token):
+                return await self.client.post("/api/internal/model-proxy/v1/chat/completions",
+                    headers={"Authorization": "Bearer " + token}, json={"model": model.model, "messages": []})
+            refresh_path = "/api/internal/model-proxy/v1/grants/refresh"
+            self.assertEqual((await infer(initial)).status_code, 200)
+            self.assertEqual((await self.client.post(refresh_path, headers={"Authorization": "Bearer " + initial})).status_code, 401)
+            now += 301
+            self.assertEqual((await infer(initial)).status_code, 401)
+            exchanged = await self.client.post(refresh_path, headers=refresh)
+            self.assertEqual(exchanged.status_code, 200, exchanged.text)
+            renewed = exchanged.json()["access_token"]
+            self.assertNotEqual(renewed, initial)
+            self.assertEqual((await infer(initial)).status_code, 401)
+            self.assertEqual((await infer(renewed)).status_code, 200)
+            self.assertEqual((await infer(renewed)).status_code, 429)
+            canceled = await self.client.post(path, headers=admin, json={
+                "jsonrpc": "2.0", "id": 2, "method": "tasks/cancel", "params": {"id": task["id"]},
+            })
+            self.assertEqual(canceled.json()["result"]["status"]["state"], "canceled")
+            self.assertEqual((await self.client.post(refresh_path, headers=refresh)).status_code, 401)
+
+    async def test_canceling_during_task_container_launch_cannot_reactivate_the_grant(self):
+        async with self.sessions() as db:
+            model = LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1")
+            agent = Agent(name="Task", mode="task", model=model.name, workspace_path=str(self.fixture_root / "agent"))
+            db.add_all([model, agent])
+            await db.commit()
+
+        entered = asyncio.Event()
+        release_launch = threading.Event()
+        loop = asyncio.get_running_loop()
+        launch = {}
+
+        def start_container(run_id, workspace, env, *, task_files, **options):
+            launch.update(task_files["task.json"]["models"]["models"][model.name])
+            loop.call_soon_threadsafe(entered.set)
+            if not release_launch.wait(10):
+                raise RuntimeError("Fixture did not release container launch")
+            return "fixture-container"
+
+        with (
+            patch.object(settings, "diagent_task_model_proxy", True),
+            patch.object(settings, "diagent_service_model_proxy", False),
+            patch.object(settings, "access_token", "fixture-admin"),
+            patch.object(settings, "workspace_root", self.fixture_root),
+            patch("app.services.docker_runner.start_container", side_effect=start_container),
+            patch("app.services.docker_runner.remove_container", return_value=True) as remove,
+        ):
+            admin = {"Authorization": "Bearer fixture-admin"}
+            path = f"/api/os/a2a/agents/{agent.id}"
+            sending = asyncio.create_task(self.client.post(path, headers=admin, json={
+                "jsonrpc": "2.0", "id": 1, "method": "message/send",
+                "params": {"message": {"role": "user", "parts": [{"kind": "text", "text": "Continue"}]}},
+            }))
+            try:
+                await asyncio.wait_for(entered.wait(), timeout=5)
+                tasks = await self.client.get(f"/api/os/a2a/tasks?agent_id={agent.id}", headers=admin)
+                task_id = tasks.json()["items"][0]["id"]
+                changed = await self.client.put(f"/api/os/agents/{agent.id}", headers=admin, json={"mode": "service"})
+                self.assertEqual(changed.status_code, 409, changed.text)
+                chat = await self.client.post("/api/apps/chat/completions", headers=admin, json={
+                    "agent_id": agent.id, "messages": [{"role": "user", "content": "Continue"}],
+                })
+                self.assertEqual(chat.status_code, 503, chat.text)
+                self.assertIn("service-mode Agent", chat.text)
+                self.assertFalse((self.fixture_root / "agent" / "models.yaml").exists())
+                canceled = await self.client.post(path, headers=admin, json={
+                    "jsonrpc": "2.0", "id": 2, "method": "tasks/cancel", "params": {"id": task_id},
+                })
+                self.assertEqual(canceled.json()["result"]["status"]["state"], "canceled", canceled.text)
+                docker = Mock()
+                docker.containers.get.side_effect = NotFound("No service container")
+                docker.containers.list.return_value = [Mock(status="running")]
+                with patch("app.services.docker_runner._client", docker):
+                    deleted = await self.client.delete(f"/api/os/agents/{agent.id}", headers=admin)
+                self.assertEqual(deleted.status_code, 409, deleted.text)
+                docker.containers.list.assert_called_once_with(all=True, filters={"label": f"dios.task-agent={agent.id}"})
+            finally:
+                release_launch.set()
+                sent = await sending
+            self.assertEqual(sent.json()["result"]["status"]["state"], "canceled", sent.text)
+            remove.assert_called_once_with("fixture-container")
+            replay = await self.client.post("/api/internal/model-proxy/v1/chat/completions", headers={
+                "Authorization": "Bearer " + launch["api_key"],
+            }, json={"model": model.model, "messages": []})
+            self.assertEqual(replay.status_code, 401, replay.text)
+
+    async def test_agent_api_rejects_unknown_tools_without_altering_saved_selection(self):
+        with patch.object(settings, "diagent_service_model_proxy", True):
+            created = await self.client.post("/api/os/agents", json={
+                "name": "Text only", "workspace_path": str(self.fixture_root / "text-only"),
+                "capabilities": {"diagent_tools": []},
+            })
+            self.assertEqual(created.status_code, 201, created.text)
+            agent_path = f"/api/os/agents/{created.json()['id']}"
+            rejected = await self.client.put(agent_path, json={"capabilities": {"diagent_tools": ["arbitrary-plugin"]}})
+            self.assertEqual(rejected.status_code, 422, rejected.text)
+            persisted = await self.client.get(agent_path)
+            self.assertEqual(persisted.json()["capabilities"]["diagent_tools"], [])
+
+    async def test_agent_api_requires_a_registered_streamable_http_server_for_explicit_mcp(self):
+        async with self.sessions() as db:
+            ledger = McpServer(name="ledger", transport="streamable_http", url="https://mcp.test/gateway")
+            stdio = McpServer(name="local", transport="stdio", command="test-mcp")
+            db.add_all([ledger, stdio])
+            await db.commit()
+        with patch.object(settings, "diagent_service_model_proxy", True):
+            agent = {
+                "name": "Reader", "workspace_path": str(self.fixture_root / "reader"),
+                "capabilities": {"diagent_tools": ["mcp"], "governance": {"allowed_tools": ["lookup"]}},
+            }
+            for server_ids in (["unknown"], [stdio.id]):
+                with self.subTest(server_ids=server_ids):
+                    rejected = await self.client.post("/api/os/agents", json={**agent, "mcp_server_ids": server_ids})
+                    self.assertEqual(rejected.status_code, 422, rejected.text)
+            created = await self.client.post("/api/os/agents", json={**agent, "mcp_server_ids": [ledger.id]})
+            self.assertEqual(created.status_code, 201, created.text)
+            agent_path = f"/api/os/agents/{created.json()['id']}"
+            for server_ids in ([], ["unknown"], [stdio.id]):
+                with self.subTest(server_ids=server_ids):
+                    rejected = await self.client.put(agent_path, json={"mcp_server_ids": server_ids})
+                    self.assertEqual(rejected.status_code, 422, rejected.text)
+            persisted = await self.client.get(agent_path)
+            self.assertEqual(persisted.json()["mcp_server_ids"], [ledger.id])
+
+    async def test_service_a2a_resolves_saved_model_references_and_issues_only_selected_mcp_grants(self):
+        async with self.sessions() as db:
+            model = LLMModel(name="fixture", model="fixture-model", base_url="https://model.test/v1")
+            other_model = LLMModel(name="other", model="other-model", base_url="https://other.test/v1")
+            ledger = McpServer(name="ledger", transport="streamable_http", url="https://mcp.test/gateway")
+            db.add_all([model, other_model, ledger])
+            await db.flush()
+            governance = {"allowed_tools": ["lookup"]}
+            reader = Agent(name="Reader", model=model.id, mcp_server_ids=[ledger.id],
+                           capabilities={"diagent_tools": ["mcp"], "governance": governance})
+            writer = Agent(name="Writer", model=model.name, mcp_server_ids=[ledger.id],
+                           capabilities={"diagent_tools": [], "governance": governance})
+            reporter = Agent(name="Reporter", model=model.model)
+            db.add_all([reader, writer, reporter])
+            await db.commit()
+
+        admin_headers = {"Authorization": "Bearer fixture-admin"}
+        forwarded = {}
+
+        async def upstream(request):
+            agent_id = request.url.host.removeprefix("diagent-")
+            checked = await self.client.post("/api/internal/model-proxy/v1/grants/check", headers={
+                "Authorization": "Bearer " + request.headers["X-DiAgent-Model-Grant"],
+            }, json={"agent_id": agent_id, "model": "fixture-model"})
+            self.assertEqual(checked.status_code, 200 if agent_id == reader.id else 204, checked.text)
+            servers = list(checked.json()["mcp_servers"]) if checked.status_code == 200 else []
+            payload = json.loads(request.content)
+            forwarded[agent_id] = (payload.get("model"), payload.get("tool_selection"), servers)
+            return httpx.Response(200, json={"choices": [{"message": {"content": "Accepted"}}]})
+
+        async def send_and_wait(agent):
+            sent = await self.client.post(f"/api/os/a2a/agents/{agent.id}", headers=admin_headers, json={
+                "jsonrpc": "2.0", "id": 1, "method": "message/send",
+                "params": {"message": {"role": "user", "parts": [{"kind": "text", "text": "Continue"}]}},
+            })
+            task_id = sent.json()["result"]["id"]
+            async with asyncio.timeout(20):
+                while True:
+                    task = (await self.client.get(f"/api/os/a2a/tasks/{task_id}", headers=admin_headers)).json()
+                    if task["status"] not in ("submitted", "working"):
+                        self.assertEqual(task["status"], "completed", task)
+                        return
+
+        with (
+            patch.object(settings, "diagent_service_model_proxy", True),
+            patch.object(settings, "access_token", "fixture-admin"),
+            patch("app.db.database.async_session", self.sessions),
+            patch("app.services.agent_runtime.ensure_running",
+                  new=AsyncMock(side_effect=lambda agent_id, _: f"http://diagent-{agent_id}")),
+            patch("app.services.http_internal.internal_client",
+                  side_effect=lambda **opts: httpx.AsyncClient(transport=httpx.MockTransport(upstream), **opts)),
+        ):
+            await send_and_wait(reader)
+            await send_and_wait(writer)
+            await send_and_wait(reporter)
+
+        self.assertEqual(forwarded, {
+            reader.id: ("fixture-model", {"tool_ids": ["mcp"]}, ["ledger"]),
+            writer.id: ("fixture-model", {"tool_ids": []}, []),
+            reporter.id: ("fixture-model", None, []),
+        })
 
     async def test_managed_mcp_filters_discovery_and_revokes_with_the_turn(self):
         calls = []

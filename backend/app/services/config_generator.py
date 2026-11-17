@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from app.models.tables import Agent, LLMModel
+from app.services.admin_guard import subagents_for_task
 
 
 def build_task_config(
@@ -20,7 +21,7 @@ def build_task_config(
     used_model = model_override or agent.model
     capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
     reasoning = capabilities.get("reasoning", {}) if isinstance(capabilities.get("reasoning"), dict) else {}
-    subagents = capabilities.get("subagents", []) if isinstance(capabilities.get("subagents"), list) else []
+    subagents = subagents_for_task(capabilities)
 
     all_model_names = {used_model}
     all_model_names.discard("")
@@ -71,28 +72,7 @@ def build_task_config(
     if agent.mcp_config_path:
         task_section["mcp_config_path"] = agent.mcp_config_path
     if subagents:
-        converted: list[dict[str, Any]] = []
-        for s in subagents:
-            if not isinstance(s, dict):
-                continue
-            prompt = s.get("prompt") or s.get("system_prompt")
-            if not (s.get("name") and s.get("description") and prompt):
-                continue
-            converted.append(
-                {
-                    "name": s.get("name"),
-                    "description": s.get("description"),
-                    "prompt": prompt,
-                    "tools": s.get("tools", []),
-                    "model": s.get("model"),
-                    "task": s.get("task"),
-                    "mcp_config_path": s.get("mcp_config_path"),
-                    "skills_dir": s.get("skills_dir"),
-                    "skill_names": s.get("skill_names"),
-                }
-            )
-        if converted:
-            task_section["subagents"] = converted
+        task_section["subagents"] = subagents
 
     return {"models": models_section, "task": task_section}
 

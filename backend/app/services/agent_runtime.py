@@ -17,8 +17,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models.tables import A2ATask, Agent, AgentRuntime, LLMModel, McpServer
-from app.services.docker_runner import get_client, _host_path
-from app.services.model_proxy import MODEL_PROXY_BASE_PATH, check_model_workspace
+from app.services.docker_runner import get_client, has_managed_task_mount, _host_path
+from app.services.model_proxy import MODEL_PROXY_BASE_PATH, check_model_workspace, has_task_model_grant
 from app.services.service_skills import service_skill_sources
 
 logger = logging.getLogger(__name__)
@@ -153,7 +153,7 @@ async def ensure_running(agent_id: str, db: AsyncSession) -> str:
     agent = await db.get(Agent, agent_id)
     if not agent:
         raise ValueError(f"Agent {agent_id} not found")
-    if settings.diagent_service_model_proxy and agent.mode != "service":
+    if (settings.diagent_service_model_proxy or settings.diagent_task_model_proxy) and agent.mode != "service":
         raise RuntimeError("Managed inference requires a service-mode Agent")
     await check_model_workspace(db, agent)
     skill_sources = await service_skill_sources(agent.skills, db) if settings.diagent_service_model_proxy else {}
@@ -215,6 +215,12 @@ async def stop_agent(agent_id: str, db: AsyncSession) -> None:
 
 async def has_active_workspace_mount(agent_id: str, db: AsyncSession) -> bool:
     """确认工作区尚被常驻容器或已派发的任务占用，避免修改记录后丢失挂载归属。"""
+    active_task = await db.scalar(select(A2ATask.id).where(
+        A2ATask.agent_id == agent_id,
+        (A2ATask.status == "working") | ((A2ATask.status == "submitted") & has_task_model_grant()),
+    ).limit(1))
+    if active_task is not None:
+        return True
     runtime = await db.get(AgentRuntime, agent_id)
     reference = runtime.container_id if runtime else _container_name(agent_id)
     try:
@@ -223,7 +229,4 @@ async def has_active_workspace_mount(agent_id: str, db: AsyncSession) -> bool:
             return True
     except NotFound:
         pass
-    working_task = await db.scalar(select(A2ATask.id).where(
-        A2ATask.agent_id == agent_id, A2ATask.status == "working",
-    ).limit(1))
-    return working_task is not None
+    return settings.diagent_task_model_proxy and await asyncio.to_thread(has_managed_task_mount, agent_id)

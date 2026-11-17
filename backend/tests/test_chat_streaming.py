@@ -59,7 +59,9 @@ class ChatStreamingTests(unittest.IsolatedAsyncioTestCase):
         ]
 
         def upstream(request):
-            messages = json.loads(request.content)["messages"]
+            payload = json.loads(request.content)
+            self.assertEqual(payload["tool_selection"], {"tool_ids": ["shell", "publish_event"]})
+            messages = payload["messages"]
             self.assertEqual([(message["role"], message["content"]) for message in messages], [
                 ("user", "Call this draft Cedar"), ("assistant", "I will call it Cedar"), ("user", "Run reviewer"),
             ])

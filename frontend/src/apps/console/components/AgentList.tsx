@@ -88,6 +88,21 @@ export default function AgentList() {
     setDrawerMode(mode);
   };
 
+  const saveAgent = async (data: Partial<Agent>, agentId: string | null) => {
+    try {
+      if (agentId) {
+        await api.updateAgent(agentId, data);
+      } else {
+        await api.createAgent(data);
+      }
+      return true;
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "未知错误";
+      alert(`保存 Agent 失败\n${detail}`);
+      return false;
+    }
+  };
+
   const save = async () => {
     if (!editing?.name?.trim()) return;
     let capabilities: Record<string, unknown> = {};
@@ -116,13 +131,10 @@ export default function AgentList() {
       env: pairsToEnv(envPairs),
       capabilities,
     };
-    if (editId) {
-      await api.updateAgent(editId, data);
-    } else {
-      await api.createAgent(data);
+    if (await saveAgent(data, editId)) {
+      closeAll();
+      load();
     }
-    closeAll();
-    load();
   };
 
   const handleDelete = async (id: string, name: string) => {
@@ -133,15 +145,11 @@ export default function AgentList() {
   };
 
   const saveSkills = async (skills: string[]) => {
-    if (!targetAgentId) return;
-    await api.updateAgent(targetAgentId, { skills });
-    load();
+    if (targetAgentId && await saveAgent({ skills }, targetAgentId)) load();
   };
 
   const saveMcp = async (ids: string[]) => {
-    if (!targetAgentId) return;
-    await api.updateAgent(targetAgentId, { mcp_server_ids: ids });
-    load();
+    if (targetAgentId && await saveAgent({ mcp_server_ids: ids }, targetAgentId)) load();
   };
 
   const targetAgent = agents.find((a) => a.id === targetAgentId);
@@ -295,7 +303,7 @@ export default function AgentList() {
 
             <label>Capabilities (JSON)</label>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>
-              用于配置高级能力（如 dios_admin / reasoning / subagents）。
+              `diagent_tools` 可选 {editing.mode === "task" ? "skill、mcp、publish_event，开启任务模型刷新后也可选 shell、read、write、edit。子 Agent 通过 subagents 单独配置工具。" : "shell、skill、mcp、publish_event（受管推理）。"}空数组关闭当前 Agent 的常规工具。
             </div>
             <textarea
               rows={8}

@@ -19,6 +19,7 @@ from app.config import settings
 from app.db.database import get_db
 from app.models.schemas import SkillCreate, SkillOut, SkillUpdate
 from app.models.tables import Agent, Skill
+from app.services.admin_guard import selected_subagent_skills
 from app.services.service_skills import is_skill_name
 
 router = APIRouter(prefix="/skills", tags=["skills"])
@@ -177,11 +178,14 @@ async def delete_skill(skill_id: str, db: AsyncSession = Depends(get_db)):
 
 
 async def _require_unassigned_skill(db: AsyncSession, name: str) -> None:
-    """先解除常驻 Agent 的分配，避免目录被当前容器持有时失效。"""
+    """先解除受管 Agent 的分配，避免失效的 Skill 引用和挂载。"""
     if settings.diagent_service_model_proxy:
         assignments = await db.scalars(select(Agent.skills).where(Agent.mode == "service"))
         if any(name in (assigned or []) for assigned in assignments):
             raise HTTPException(409, "Unassign the Skill from managed service Agents first")
+    task_configs = await db.scalars(select(Agent.capabilities).where(Agent.mode == "task"))
+    if any(name in selected_subagent_skills(caps.get("subagents")) for caps in task_configs if isinstance(caps, dict)):
+        raise HTTPException(409, "Unassign the Skill from task subagents first")
 
 
 def _installed_skill_path(name: str) -> Path | None:

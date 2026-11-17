@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     diagent_image: str = "ghcr.io/hqit/diagent/agent-task:latest"
     diagent_service_image: str = "dios-diagent-service:latest"
     diagent_service_model_proxy: bool = False
+    diagent_task_model_proxy: bool = False
+    diagent_task_model_refresh: bool = False
+    diagent_task_model_access_ttl_seconds: int = Field(default=300, ge=1, le=3600)
     diagent_event_grants: dict[str, DiAgentEventGrant] = Field(default_factory=dict)
     diagent_service_url: str = "http://localhost:8001"  # fallback, runtime manager 会动态获取
     docker_network: str = ""

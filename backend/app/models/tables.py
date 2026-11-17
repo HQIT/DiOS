@@ -125,7 +125,7 @@ class AgentRuntime(Base):
 
 
 class ModelInferenceGrant(Base):
-    """单轮 Agent 对话的推理授权，只存令牌摘要和剩余调用次数。"""
+    """推理授权，只存令牌摘要和剩余调用次数。"""
 
     __tablename__ = "model_inference_grants"
 
@@ -135,6 +135,23 @@ class ModelInferenceGrant(Base):
     model_name: Mapped[str] = mapped_column(String(128), nullable=False)
     expires_at: Mapped[int] = mapped_column(index=True)
     remaining_calls: Mapped[int] = mapped_column()
+
+
+class TaskInferenceRefresh(Base):
+    """任务刷新凭据摘要及不会随换发延长的截止时间。"""
+
+    __tablename__ = "task_inference_refresh"
+    task_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    expires_at: Mapped[int] = mapped_column()
+
+
+class TaskInferenceGrant(Base):
+    """将推理授权绑定到一个持久化的 A2A 任务。"""
+
+    __tablename__ = "task_inference_grants"
+    task_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
 
 
 # ── Chat App（会话 + 消息持久化） ──
