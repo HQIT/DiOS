@@ -90,6 +90,8 @@ docker compose -f docker-compose.dev.yml up -d backend frontend
 
 只改工具名单会在下一轮生效。修改分配的 Skill 目录时仍按上文重建常驻容器。若回退到兼容模式，在关闭受管推理前从相关 Agent 的能力配置中移除 `diagent_tools`。
 
+删除或改名已启用的 Task Skill 前，先解除主 Agent 和子角色上的分配。主 Agent 显式关闭 `skill` 后，仍分配在子角色或受管常驻 Agent 上的同名 Skill 继续受保护。
+
 一次性任务需要带 `org.hqit.diagent.task-tool-selection=1` 标签的 DiAgent Task 镜像。DiOS 将任务配置和 MCP 轮次凭据放进目标容器私有目录，注册的内联 Skill 和已安装的 Skill 目录均按名单只读挂载。使用旧镜像时，带显式名单的 Task 会记录为启动失败。回退到旧镜像前可移除 `diagent_tools`，恢复旧任务的默认工具。
 
 ### 一次性任务的具名子 Agent

@@ -178,14 +178,20 @@ async def delete_skill(skill_id: str, db: AsyncSession = Depends(get_db)):
 
 
 async def _require_unassigned_skill(db: AsyncSession, name: str) -> None:
-    """先解除受管 Agent 的分配，避免失效的 Skill 引用和挂载。"""
+    """先解除仍启用的 Skill 分配，避免失效的任务引用和挂载。"""
     if settings.diagent_service_model_proxy:
         assignments = await db.scalars(select(Agent.skills).where(Agent.mode == "service"))
         if any(name in (assigned or []) for assigned in assignments):
             raise HTTPException(409, "Unassign the Skill from managed service Agents first")
-    task_configs = await db.scalars(select(Agent.capabilities).where(Agent.mode == "task"))
-    if any(name in selected_subagent_skills(caps.get("subagents")) for caps in task_configs if isinstance(caps, dict)):
-        raise HTTPException(409, "Unassign the Skill from task subagents first")
+    task_assignments = await db.execute(select(Agent.skills, Agent.capabilities).where(Agent.mode == "task"))
+    for assigned, capabilities in task_assignments:
+        caps = capabilities if isinstance(capabilities, dict) else {}
+        tools = caps.get("diagent_tools")
+        # 缺省名单会把主 Agent 的已分配 Skills 一并下发。
+        if name in (assigned or []) and ("diagent_tools" not in caps or isinstance(tools, list) and "skill" in tools):
+            raise HTTPException(409, "Unassign the Skill from task Agents first")
+        if name in selected_subagent_skills(caps.get("subagents")):
+            raise HTTPException(409, "Unassign the Skill from task subagents first")
 
 
 def _installed_skill_path(name: str) -> Path | None:

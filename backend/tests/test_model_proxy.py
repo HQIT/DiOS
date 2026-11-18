@@ -841,3 +841,25 @@ class ModelProxyTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual((await self.client.delete(path, headers=headers)).status_code, 409)
             renamed = await self.client.put(path, json={"name": "renamed-skill"}, headers=headers)
             self.assertEqual(renamed.status_code, 409)
+
+    async def test_task_root_skill_cannot_be_removed_or_renamed_until_disabled(self):
+        async with self.sessions() as db:
+            skill = Skill(name="task-review-skill", content="Review instructions")
+            agent = Agent(name="Task reviewer", mode="task", skills=[skill.name], capabilities={"diagent_tools": ["skill"]})
+            db.add_all([skill, agent])
+            await db.commit()
+        path = f"/api/os/skills/{skill.id}"
+
+        renamed = await self.client.put(path, json={"name": "renamed-skill"})
+        self.assertEqual(renamed.status_code, 409, renamed.text)
+        deleted = await self.client.delete(path)
+        self.assertEqual(deleted.status_code, 409, deleted.text)
+
+        agent_path = f"/api/os/agents/{agent.id}"
+        defaults = await self.client.put(agent_path, json={"capabilities": {}})
+        self.assertEqual(defaults.status_code, 200, defaults.text)
+        self.assertEqual((await self.client.delete(path)).status_code, 409)
+
+        disabled = await self.client.put(agent_path, json={"capabilities": {"diagent_tools": []}})
+        self.assertEqual(disabled.status_code, 200, disabled.text)
+        self.assertEqual((await self.client.delete(path)).status_code, 204)
