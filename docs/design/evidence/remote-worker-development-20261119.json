@@ -1,0 +1,164 @@
+{
+  "date": "2026-11-19",
+  "scope": "WSL separate Worker process, real Docker synthetic Agent, localhost mTLS; physical two-host and vendor Agent qualification remains #58",
+  "run_id": "e66ea1b4-e003-414a-9dd1-3660ec5771ed",
+  "state": "succeeded",
+  "browser": {
+    "runId": "e66ea1b4-e003-414a-9dd1-3660ec5771ed",
+    "approval": true,
+    "reportDownload": true,
+    "reportEvidence": true,
+    "mobileOverflow": false,
+    "url": "http://127.0.0.1:13082/dios/#console/tasks/e66ea1b4-e003-414a-9dd1-3660ec5771ed"
+  },
+  "renewal": {
+    "runId": "e66ea1b4-e003-414a-9dd1-3660ec5771ed",
+    "firstVersion": 1,
+    "version": 2,
+    "expiresAt": 1795078327.2370076,
+    "observedAt": 1795078268.439
+  },
+  "active_observation": {
+    "scope": "validation",
+    "observed_at": 1795078229.5219839,
+    "registered_slots": 4,
+    "confirmed_running_processes": 1,
+    "confirmed_running_sessions": 1,
+    "actual_concurrency": 1,
+    "unknown_attempts": 0,
+    "workers": [
+      {
+        "id": "85b6d7f0-6e73-4220-8c5c-0a937a6465ae",
+        "scope": "validation",
+        "instance": "eb6c2673-634f-4510-aed1-4aaadc268507",
+        "host": "Gang-Laptop",
+        "pid": 2267,
+        "slots": 1,
+        "draining": true,
+        "heartbeat_at": 1794563945.7050085
+      },
+      {
+        "id": "validation-worker:a9766879109e48a8ac06b853dd020e94",
+        "scope": "validation",
+        "instance": "3b9f2d97-3e11-4181-99dc-65dcff157a85",
+        "host": "Gang-Laptop",
+        "pid": 8802,
+        "slots": 1,
+        "draining": false,
+        "heartbeat_at": 1794581832.2759852
+      },
+      {
+        "id": "remote-review:6485acd4b0d64f34841d0c13956c286e",
+        "scope": "validation",
+        "instance": "9ccf0870-9e8f-427f-b813-dc40be37973c",
+        "host": "Gang-Laptop",
+        "pid": 1346,
+        "slots": 1,
+        "draining": false,
+        "heartbeat_at": 1795078203.4229903
+      },
+      {
+        "id": "remote-review:d5a5a9f9df6d422f8ad374d649cf302b",
+        "scope": "validation",
+        "instance": "9e768088-4179-4fcb-af4d-44c85cb3704d",
+        "host": "Gang-Laptop",
+        "pid": 2586,
+        "slots": 1,
+        "draining": false,
+        "heartbeat_at": 1795078225.8140178
+      }
+    ],
+    "attempts": [
+      {
+        "run_id": "e66ea1b4-e003-414a-9dd1-3660ec5771ed",
+        "attempt_id": "9f889f49-3548-4a65-a9ea-248abdccf5e7",
+        "phase": "streaming",
+        "worker_id": "remote-review:d5a5a9f9df6d422f8ad374d649cf302b",
+        "session_id": "validation-53a633f33f3946f0af3e41456dc7cf5e",
+        "process_id": 2844,
+        "process_instance": "f20607d90b4382d63e0a3162909441cd0063788b7171277ebe36827274031f4a:2026-11-19T08:50:25.998748573Z",
+        "last_output_at": 1795078227.6571083,
+        "freshness": "fresh",
+        "runtime": {
+          "handle": "9f889f49-3548-4a65-a9ea-248abdccf5e7",
+          "state": "running",
+          "alive": true,
+          "pid": 2844,
+          "process_instance": "f20607d90b4382d63e0a3162909441cd0063788b7171277ebe36827274031f4a:2026-11-19T08:50:25.998748573Z",
+          "exit_code": null,
+          "health": "not_configured",
+          "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+          "adapter": "local-docker-v1",
+          "worker_boot_id": "3f53c9cc-5227-4145-b29d-dcffbd199e81",
+          "observed_at": 1795078229.4279993
+        }
+      }
+    ]
+  },
+  "audit_action_counts": {
+    "accept_result": 2,
+    "admit": 1,
+    "credentials.issue": 1,
+    "credentials.renew": 1,
+    "execute": 2,
+    "remote-result": 1,
+    "remote-tool-channel": 68,
+    "tool-control": 1
+  },
+  "artifacts": [
+    {
+      "sha256": "c9fceedc5adcf04262c0d6e023c44111687280180e1e3319ed954cc8f70127c2",
+      "size": 84
+    },
+    {
+      "sha256": "1a4afc74dca0bed113b3fe51579ecbdcaefe9a499116ca3251c27c485b22dabc",
+      "size": 2169
+    },
+    {
+      "sha256": "4b39c1940163b28ff0932c28cfb64fb5d1ff1f9eb839365f92c1b42b3504772a",
+      "size": 1399
+    },
+    {
+      "sha256": "40ac459a172377dfae33cde0bec946616aefac5c628b140b9351397bc9f8f5d4",
+      "size": 1023
+    }
+  ],
+  "completed_uploads": 2,
+  "worker_has_database_or_operator_environment": false,
+  "worker_has_controller_database_open": false,
+  "separate_artifact_roots": true,
+  "frontend_build": "passed",
+  "frontend_tests": {
+    "passed": 9,
+    "failed": 0
+  },
+  "design_contract_checks": 681,
+  "migration": {
+    "scope": "validation",
+    "backup": "before-remote-1795077944",
+    "result": {
+      "version": 1,
+      "history_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "changed": true
+    },
+    "ready_before_upgrade": true
+  },
+  "browser_negative_cases": {
+    "checks": [
+      "invalid-approver-rejected",
+      "denied-tool-fails-run",
+      "previous-artifact-cleared",
+      "stale-cancel-version-rejected",
+      "cancel-confirmed-after-worker-exit",
+      "operator-auth-required",
+      "service-failure-visible",
+      "shared-navigation-and-mobile"
+    ],
+    "consoleErrors": []
+  }
+}

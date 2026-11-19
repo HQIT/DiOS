@@ -130,6 +130,8 @@ class WorkerToolChannel:
             code=exc.code if isinstance(exc,RuntimeErrorCode) else 'TOOL_CHANNEL_UNAVAILABLE'
             try:
                 await self._deny(code)
+            except Exception:pass
+            try:
                 writer.write(encoded({'ok':False,'error':code})+b'\n');await writer.drain()
             except Exception:pass
         finally:

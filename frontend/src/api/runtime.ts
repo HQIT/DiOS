@@ -46,7 +46,14 @@ async function response(path: string, init?: RequestInit) {
 }
 async function request<T>(path: string, init?: RequestInit): Promise<T> { return (await response(path, init)).json(); }
 const path = (id: string) => `/runs/${encodeURIComponent(id)}`;
+export interface WorkerStatus {
+  observed_at: number; actual_concurrency: number | null; unknown_attempts: number;
+  confirmed_running_processes: number; confirmed_running_sessions: number;
+  workers: { id: string; host: string; pid: number; draining: boolean; heartbeat_at: number }[];
+  attempts: { worker_id: string; run_id: string; phase: string; freshness: string }[];
+}
 export const runtimeApi = {
+  workers: (signal?: AbortSignal) => request<WorkerStatus>("/workers", { signal }),
   profiles: (signal?: AbortSignal) => request<{ items: Profile[] }>("/profiles", { signal }),
   samples: (signal?: AbortSignal) => request<{ items: Sample[] }>("/samples", { signal }),
   list: (cursor?: string, signal?: AbortSignal) => request<{ items: RunSummary[]; next_cursor: string | null; observed_at: number }>(

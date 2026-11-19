@@ -94,6 +94,10 @@ async def profiles(s=Depends(service)):
 async def samples(_=Depends(operator)):
     return {'items':[sample(k) for k in SAMPLES]}
 
+@router.get('/workers')
+async def workers(s=Depends(service)):
+    return await s.store.runtime_status()
+
 @router.get('/runs')
 async def listing(limit:int=Query(30,ge=1,le=100),cursor:str|None=Query(None,max_length=512),s=Depends(service)):
     return await s.list(limit=limit,cursor=cursor)

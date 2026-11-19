@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import { runtimeApi, RuntimeApiError } from "../../../api/runtime";
 import type { Profile, Sample, RunSummary, RunDetail, Preview } from "../../../api/runtime";
 import "./task-runs.css";
+import WorkerStatusPanel from "./WorkerStatusPanel";
 import ToolActions from "./ToolActions";
 
 const LABELS: Record<string, string> = {
@@ -193,6 +194,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
       </div>
     </aside>
     <main className="tr-detail">
+      <WorkerStatusPanel />
       {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>从一件具体工作开始</h3>
         <p>在左侧发起评审，或选择已有任务查看执行过程与成果。</p><div className="tr-steps"><span>① 发起任务</span><span>② 跟踪执行</span><span>③ 查看成果</span></div></div>}
       {detailError && <p className="tr-error" role="alert">{detailError} 当前保留的是上次取得的信息。</p>}

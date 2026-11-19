@@ -55,6 +55,10 @@ class RemoteToolProvider:
         envelope=dict(protocol=PROTOCOL,audience=c['audience'],scope=self.store.scope,profile=self.profile,
             profile_digest=self.spec.fingerprint(),binding=list(binding),message=message,access_token=token)
         if self.automatic:envelope['credential_mode']='automatic'
+        return await self.exchange(envelope)
+
+    async def exchange(self,envelope):
+        c=self.config
         raw=encoded(envelope)+b'\n'
         if len(raw)>REQUEST_LIMIT:raise RuntimeErrorCode('WORKER_GATEWAY_FRAME_INVALID')
         writer=None
@@ -132,6 +136,10 @@ class RemoteWorkerToolChannel(WorkerToolChannel):
     async def handle(self,message):
         if self.closing:raise RuntimeErrorCode('TOOL_CHANNEL_CLOSED')
         return await self.provider.request(self.binding,message)
+
+    async def _deny(self,code):
+        # Remote Workers have no controller database; bind the host diagnostic at the gateway.
+        await self.provider.request(self.binding,{'method':'channel_error','params':{'code':code}})
 
     async def verify_activity(self,activity):
         return await self.handle({'method':'verify_activity','params':{'activity':activity}})

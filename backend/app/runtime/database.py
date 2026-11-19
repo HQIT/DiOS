@@ -132,6 +132,7 @@ class Database:
         from .work_auth_schema import migrate as migrate_work_auth
         from .tool_schema import migrate as migrate_tools
         from .credential_schema import migrate as migrate_credentials
+        from .remote_schema import migrate as migrate_remote
         async with self.transaction('__runtime_migration__', check=False) as c:
             existing = await c.run_sync(lambda s: inspect(s).get_table_names())
             if 'runtime_schema' in existing:
@@ -148,8 +149,9 @@ class Database:
                 auth_changed = await migrate_work_auth(c)
                 tools_changed = await migrate_tools(c)
                 credentials_changed = await migrate_credentials(c)
+                remote_changed = await migrate_remote(c)
                 return {'version': SCHEMA_VERSION, 'history_version': 1, 'lifecycle_version': 1,
-                        'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'changed': changed or lifecycle_changed or auth_changed or tools_changed or credentials_changed}
+                        'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'changed': changed or lifecycle_changed or auth_changed or tools_changed or credentials_changed or remote_changed}
             if any(n.startswith('runtime_') for n in existing):
                 raise RuntimeErrorCode('UNVERSIONED_RUNTIME_SCHEMA')
             await c.run_sync(metadata.create_all)
@@ -159,7 +161,8 @@ class Database:
             await migrate_work_auth(c)
             await migrate_tools(c)
             await migrate_credentials(c)
-            return {'version': SCHEMA_VERSION, 'history_version': 1, 'lifecycle_version': 1, 'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'changed': True}
+            await migrate_remote(c)
+            return {'version': SCHEMA_VERSION, 'history_version': 1, 'lifecycle_version': 1, 'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'changed': True}
 
     async def now(self, c):
         query = "SELECT (julianday('now') - 2440587.5) * 86400.0" if c.dialect.name == 'sqlite' else 'SELECT EXTRACT(EPOCH FROM clock_timestamp())'

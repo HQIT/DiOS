@@ -5,6 +5,8 @@ import subprocess
 import ssl
 import json
 import time
+import os
+from types import SimpleNamespace
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
@@ -60,6 +62,39 @@ class RemoteToolTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(RuntimeErrorCode,'WORKER_CERTIFICATE_EXPIRED'):
             await self.gateway.handle(self.cert,time.time()-1,self.envelope())
         self.assertEqual(self.f.transport.calls,[])
+
+    async def test_remote_host_denial_is_audited_with_bound_attempt(self):
+        from app.runtime.work_auth_schema import decisions
+        self.assertEqual(await self.call('channel_error',{'code':'TOOL_SESSION_NOT_READY'}),{'recorded':True})
+        async with self.f.db.read(self.f.scope) as c:
+            row=(await c.execute(select(decisions.c.decision).where(decisions.c.run_id==self.f.run['id'],
+                decisions.c.action=='tool-control'))).scalars().all()[-1]
+        self.assertEqual(row['decision'],'deny')
+        self.assertIn('TOOL_SESSION_NOT_READY',row['reason_codes'])
+
+    async def test_ready_race_returns_retryable_error_without_worker_database(self):
+        from app.runtime.remote_tool_channel import RemoteWorkerToolChannel
+        from app.runtime.tool_channel_client import ToolChannelClient
+        events=[];ready_count=0
+        async def request(binding,message):
+            nonlocal ready_count
+            events.append(message['method'])
+            if message['method']=='ready':
+                ready_count+=1
+                if ready_count==1:raise RuntimeErrorCode('TOOL_SESSION_NOT_READY')
+                return {'session_id':'session'}
+            if message['method']=='channel_error':raise ConnectionError('audit temporarily unavailable')
+            return {'worker_secret_refs':[]}
+        provider=SimpleNamespace(store=SimpleNamespace(scope=self.f.scope),automatic=False,
+            request=request,credentials={})
+        channel=RemoteWorkerToolChannel(provider,self.f.binding,{'tools':{'search':'search'}},os.getuid())
+        await channel.open()
+        try:
+            client=ToolChannelClient(str(channel.directory/'channel.sock'))
+            result=await client.ready('session')
+            self.assertEqual(result['session_id'],'session');self.assertEqual(ready_count,2)
+            self.assertIn('channel_error',events)
+        finally:await channel.close()
 
     async def test_instance_and_epoch_are_bound_to_original_attempt(self):
         for index,value in [(3,'another-instance'),(4,999)]:

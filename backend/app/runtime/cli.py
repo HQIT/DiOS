@@ -18,6 +18,9 @@ async def execute(args):
         return await asyncio.to_thread(ReportSpool.inspect, args.file)
     if args.command == 'backup-verify': return await asyncio.to_thread(verify_backup,args.bundle)
     if args.command == 'restore': return await restore_sqlite(args.bundle,args.destination)
+    if args.command=='remote-worker':
+        from .remote_runtime import serve_remote
+        return await serve_remote(args)
     if not args.database_url:
         raise RuntimeErrorCode('RUNTIME_DATABASE_URL_REQUIRED')
     if args.command == 'backup':
@@ -177,6 +180,11 @@ def main(argv=None):
     worker.add_argument('--tools-file',default=os.environ.get('DIOS_RUNTIME_TOOLS_FILE'))
     worker.add_argument('--approvers-file',default=os.environ.get('DIOS_RUNTIME_APPROVERS_FILE'))
     worker.add_argument('--tool-gateway-file',help='host-only mTLS tool Provider configuration')
+    remote=commands.add_parser('remote-worker',help='mTLS Worker; no database URL or shared artifacts required')
+    remote.add_argument('--control-file',required=True);remote.add_argument('--profile',required=True)
+    remote.add_argument('--artifacts',required=True);remote.add_argument('--secrets-file')
+    remote.add_argument('--once',action='store_true');remote.add_argument('--timeout',type=float,default=300)
+    remote.add_argument('--poll-interval',type=float,default=.25)
     gateway=commands.add_parser('tool-gateway',help='serve the explicit mTLS tool Provider; no automatic migration')
     for name in ('config','artifacts','policy-file','tools-file','identities-file','profiles-file'):
         gateway.add_argument('--'+name,required=True)

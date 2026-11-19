@@ -17,6 +17,7 @@ from .lifecycle_schema import metadata as lifecycle_metadata, CHECKSUM as LIFECY
 from .work_auth_schema import metadata as work_auth_metadata, CHECKSUM as WORK_AUTH_CHECKSUM
 from .tool_schema import metadata as tool_metadata, CHECKSUM as TOOL_CHECKSUM
 from .credential_schema import metadata as credential_metadata, CHECKSUM as CREDENTIAL_CHECKSUM
+from .remote_schema import metadata as remote_metadata, CHECKSUM as REMOTE_CHECKSUM
 from .lifecycle import Lifecycle
 from .artifacts import LocalArtifacts
 
@@ -73,7 +74,8 @@ def _database_info(path):
             ('runtime_lifecycle_schema',lifecycle_metadata,LIFECYCLE_CHECKSUM),
             ('runtime_work_auth_schema',work_auth_metadata,WORK_AUTH_CHECKSUM),
             ('runtime_tool_schema',tool_metadata,TOOL_CHECKSUM),
-            ('runtime_credential_schema',credential_metadata,CREDENTIAL_CHECKSUM)]
+            ('runtime_credential_schema',credential_metadata,CREDENTIAL_CHECKSUM),
+            ('runtime_remote_schema',remote_metadata,REMOTE_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
             raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
@@ -96,6 +98,11 @@ def _database_info(path):
             entry={'sha256':hashed,'size':size}
             if key in objects and objects[key]!=entry: raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
             objects[key]=entry
+        if 'runtime_remote_schema' in tables:
+            for key,size in c.execute('SELECT key,size FROM runtime_remote_chunks UNION SELECT key,size FROM runtime_remote_uploads WHERE complete=1'):
+                if not re.fullmatch('[0-9a-f]{64}',key) or size<0:raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
+                if key in objects and objects[key]!={'sha256':key,'size':size}:raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
+                objects[key]={'sha256':key,'size':size}
         counts={name:c.execute('SELECT COUNT(*) FROM '+name).fetchone()[0]
             for name in ('runtime_runs','runtime_attempts','runtime_events','runtime_artifacts','runtime_imports')}
         return {'schemas':schemas,'objects':objects,'counts':counts}

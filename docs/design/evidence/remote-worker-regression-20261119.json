@@ -1,0 +1,110 @@
+{
+  "scope": "runtime foundation and existing backend regression; isolated execution fixtures; no production migration or Agent certification",
+  "python": "3.12.3",
+  "sqlalchemy": "2.0.48",
+  "platform": "Linux",
+  "postgresql_enabled": true,
+  "docker_worker_enabled": true,
+  "worker_concurrency_evidence": [
+    {
+      "configured_slots": 3,
+      "actual_concurrency": 3,
+      "workers": [
+        {
+          "id": "7e70f35a-1c22-47eb-bbb6-7c52bb8452d7",
+          "pid": 4282,
+          "instance": "e3c4ae06-584b-48b6-8955-6d95963df330"
+        },
+        {
+          "id": "9d22a5d1-b995-45b5-823f-cd397e45fedb",
+          "pid": 4283,
+          "instance": "553a6f93-7ede-4c34-90f4-9786f75e4544"
+        },
+        {
+          "id": "30680d74-8ab8-4234-8567-c5339a2a54b7",
+          "pid": 4281,
+          "instance": "0c3a07d3-0ccd-456b-a3cf-0266e2607d8b"
+        }
+      ],
+      "attempts": [
+        {
+          "run_id": "4b3fdcb5-82cf-4fc4-9f81-192c76036b19",
+          "attempt_id": "ffe787a0-5913-46c2-b87c-2efc4a5b089d",
+          "worker_id": "7e70f35a-1c22-47eb-bbb6-7c52bb8452d7",
+          "session_id": "16a21381-48ac-4e99-8aec-5dcf0e897a5f",
+          "process_id": 4358,
+          "process_instance": "3905f0e642834ee7d96028f802859d19cc2be25c6dd26290692fba9154a7c838:2026-11-19T08:52:23.495688653Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "51ab92ba-f2f8-4ae6-a3e9-e265e8d4419a",
+          "attempt_id": "85924774-4179-46fd-8309-71d5a30a7566",
+          "worker_id": "9d22a5d1-b995-45b5-823f-cd397e45fedb",
+          "session_id": "15732760-0169-41d0-8b31-297f6059daa9",
+          "process_id": 4396,
+          "process_instance": "445e55b3a27ddd1c833dcdeda16ad1d23750e283521bbc185d23f0a8c5dc1a3c:2026-11-19T08:52:23.543613212Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "28f4307c-7750-4519-876c-8d1a7834e96d",
+          "attempt_id": "b04b0032-509d-44c4-8bb7-f985cf450622",
+          "worker_id": "30680d74-8ab8-4234-8567-c5339a2a54b7",
+          "session_id": "3a2eede5-349b-46da-8915-d893ccfd2805",
+          "process_id": 4454,
+          "process_instance": "78133ae9ca600b937450dfa91b90cd06ee9f31b899218de3c041437f4df5a07f:2026-11-19T08:52:24.14751924Z",
+          "freshness": "fresh"
+        }
+      ]
+    }
+  ],
+  "tests_run": 353,
+  "skipped": 3,
+  "failures": 0,
+  "errors": 0,
+  "duration_seconds": 259.912,
+  "successful": true,
+  "cases": [
+    {
+      "test": "test_runtime_remote_control.PostgresRemoteControlTests.test_backup_contains_incomplete_upload_and_resumes",
+      "reason": "SQLite backup provider"
+    },
+    {
+      "test": "test_runtime_work_authorizations.PostgresWorkAuthorizationTests.test_backup_includes_authorization_component",
+      "reason": "SQLite backup provider"
+    },
+    {
+      "test": "test_runtime_worker_credentials.PostgresWorkerCredentialTests.test_restart_and_backup_preserve_hashes",
+      "reason": "SQLite backup provider"
+    }
+  ],
+  "limits": [
+    "PostgreSQL single isolated node; no HA/capacity claim",
+    "Windows process-tree and actual Agent tests pending",
+    "Legacy scheduler takeover and automatic circuit recovery remain separate integration work",
+    "Browser verification is recorded separately from this backend suite"
+  ],
+  "date": "2026-11-19",
+  "base_commit": "02c3d5a",
+  "source_sha256": {
+    "backend/app/runtime/remote_control.py": "6e3fe65c12ffa1f11bbe4d9bdda8ffcb260d340b365a51cee66491a1c30aa092",
+    "backend/app/runtime/remote_runtime.py": "8b808d1eda8b8d70c748283e4517017feeaeb9b6a9a60c45e9c7e66e7fe34413",
+    "backend/app/runtime/remote_schema.py": "7140e06551520451c937edf670b9b3427c7f0bc0dfe6fcfc09ba02008bf09235",
+    "backend/tests/test_runtime_remote_control.py": "a5e730451f1a7f6113b0d1e48375696498af3bc8900ff32fd4c41a84863390dd",
+    "frontend/src/apps/console/components/WorkerStatusPanel.tsx": "dc83a4ff5c7598563d42af10f1a1825a03793f53d204058796f89347cb8a6f0c",
+    "scripts/check_runtime_remote.mjs": "ad4e69c96635e7a5a0d87e9980719e616b8d57147f7ec4cf0b7b6854ee3a8b35",
+    "backend/app/api/os/runtime_tasks.py": "0e90ade96cf4372df53b09ff34ae587784c708738660bdf180f1d0f58bc92265",
+    "backend/app/runtime/cli.py": "10e98d97ed15b80aa67fa8f9f61b30afe9f74060333cfe205a16a4fadf63e46b",
+    "backend/app/runtime/database.py": "faee31e71ef6ed50cb63e8dc43b2ce181c8af146653977647848dc96120613e4",
+    "backend/app/runtime/gateway_admin.py": "4301d57c536c4d94eab28e53988e298b31b2b8022f79033732237e559f8c6996",
+    "backend/app/runtime/recovery.py": "2606eec68ecd7ac0c13c01101e71cf376af4bb8ca78566eceaeba265c4bf3502",
+    "backend/app/runtime/remote_tool_channel.py": "9836b6f0bb3c14be0dd799fc77ed54bcc94aef98f521708f5592f21b05a8ea78",
+    "backend/app/runtime/remote_tool_gateway.py": "042102aa4effaaa704d91d09368252892384e53d72b9d03939e5828c1c73a567",
+    "backend/app/runtime/worker.py": "ae3061021066d776258f4ce2d11f43016b7cfff0a2249f08eb1c4e73bdc1cf2e",
+    "backend/app/runtime/worker_tool_channel.py": "838bd611aff9150fa016ee9d1df82e2a61432e6fa4ba7fe901a1bf629086c4bb",
+    "backend/tests/test_runtime_remote_tools.py": "18a737e0e02cafc011f487c336fe7a83d11708ca59128d6314a01b4c1c7fb23a",
+    "frontend/src/api/runtime.ts": "cc9923e4387a03e8dd7395321070cc07d28e1f1be9139e3aaeecdaedd5a48d15",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "5b8af76e77e925ffe7da3c0a3dd3e966d731b2a7004acbb5d36d3f94c85aaba1",
+    "frontend/src/apps/console/components/task-runs.css": "710be83e0ccc43381baa1e8b469cc5fea3180fa00512304139e2aa11c3c4e902",
+    "scripts/check_runtime_console_errors.mjs": "a230a98f30868435d326da209ff120ef3f78a35ca6356fc356d6a161d4c579c4"
+  }
+}

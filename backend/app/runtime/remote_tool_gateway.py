@@ -18,11 +18,15 @@ class ToolGateway:
     def __init__(self,gate,identities,profiles,credentials=None):
         self.gate,self.identities,self.profiles=gate,identities,profiles
         self.credentials=credentials
+        self.runtime_control=None
         self.active={};self.tasks=set();self.server=None;self.stopping=False
         self.last_recovery=[];self.recovery_gates={}
 
     async def handle(self,fingerprint,certificate_expiry,envelope):
         if self.stopping:raise RuntimeErrorCode('WORKER_GATEWAY_DRAINING')
+        if isinstance(envelope,dict) and isinstance(envelope.get('message'),dict) and str(envelope['message'].get('method','')).startswith('runtime.'):
+            if self.runtime_control is None:raise RuntimeErrorCode('REMOTE_CONTROL_DISABLED')
+            return await self.runtime_control.handle(fingerprint,certificate_expiry,envelope)
         fields={'protocol','audience','scope','profile','profile_digest','binding','message','access_token'}
         if not isinstance(envelope,dict) or set(envelope) not in (fields,fields|{'credential_mode'}) or envelope['protocol']!=PROTOCOL:
             raise RuntimeErrorCode('WORKER_GATEWAY_FRAME_INVALID')
@@ -92,6 +96,12 @@ class ToolGateway:
                 await audit(c,gate.store.scope,binding[0],binding[1],'remote-tool-channel',
                     Decision('worker-identity','allow',('WORKER_CERTIFICATE_BOUND',),evidence={**peer,
                         'worker_instance':binding[3],'lease_epoch':binding[4],'message_digest':digest(envelope['message'])}),now)
+            if message['method']=='channel_error':
+                params=message['params']
+                if not isinstance(params,dict) or set(params)!={'code'}:raise RuntimeErrorCode('WORKER_GATEWAY_FRAME_INVALID')
+                identifier(params['code'])
+                await channel._deny(params['code'])
+                return {'recorded':True}
             value=await self.credentials.exchange(fingerprint,certificate_expiry,envelope) if exchange else await channel.handle(envelope['message'])
             if envelope['message'].get('method')=='describe':value={**value,'worker_secret_refs':mount_refs}
             return value
@@ -123,6 +133,7 @@ class ToolGateway:
     async def maintain(self):
         while not self.stopping:
             try:
+                if self.runtime_control is not None:await self.runtime_control.store.expire()
                 config=await asyncio.to_thread(document,self.profiles)
                 results=[]
                 profiles=config.get('profiles',{})

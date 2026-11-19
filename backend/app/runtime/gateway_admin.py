@@ -30,6 +30,9 @@ async def serve_gateway(args,db):
         credentials=WorkerCredentials(gate.store,identities,gate.policy,config['issuer_key_file'],ttl=config.get('credential_ttl_seconds',900))
         await asyncio.to_thread(credentials.key)
     gateway=ToolGateway(gate,identities,args.profiles_file,credentials)
+    if config.get('runtime_control_enabled') is True:
+        from .remote_control import RemoteControl
+        gateway.runtime_control=RemoteControl(gate.store,identities,args.profiles_file,gate.policy,gate.provider)
     stop=asyncio.Event();loop=asyncio.get_running_loop();installed=[]
     try:
         for sig in (signal.SIGINT,signal.SIGTERM):

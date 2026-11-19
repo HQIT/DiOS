@@ -21,7 +21,16 @@ try{
  checks.push('previous-artifact-cleared');
  await page.getByRole('button',{name:'发起评审',exact:true}).click();
  await page.getByLabel('独立审批凭据').waitFor({timeout:30000});
- await page.getByRole('button',{name:'取消任务',exact:true}).click();
+ for(let retry=0;retry<3;retry++){
+   const response=page.waitForResponse(r=>r.url().endsWith('/cancel')&&r.request().method()==='POST');
+   await page.getByRole('button',{name:'取消任务',exact:true}).click();
+   const result=await response;
+   if(result.ok())break;
+   if(result.status()!==409||(await result.json()).detail!=='VERSION_CONFLICT')throw new Error('Unexpected cancellation rejection');
+   await page.getByRole('alert').filter({hasText:'任务状态已更新'}).waitFor();
+   checks.push('stale-cancel-version-rejected');
+   await page.getByRole('button',{name:'刷新',exact:true}).first().click();await page.waitForTimeout(1000);
+ }
  await page.locator('.tr-detail .tr-cancelled').first().waitFor({timeout:30000});checks.push('cancel-confirmed-after-worker-exit');
  const unauthorized=await page.request.get('http://127.0.0.1:13081/api/os/runtime/runs');
  if(unauthorized.status()!==401)throw new Error('Missing operator gate');checks.push('operator-auth-required');

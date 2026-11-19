@@ -63,7 +63,7 @@ class Worker:
         self.authorization_verifier = authorization_verifier
         self.secret_resolver, self.secret_requests = secret_resolver, list(secret_requests)
         self.poll_interval, self.timeout, self.output_limit = poll_interval, timeout, output_limit
-        self.worker_id, self.instance = (remote_tools.worker_id if remote_tools else str(uuid4())), str(uuid4())
+        self.worker_id, self.instance = (getattr(store,'worker_id',None) or (remote_tools.worker_id if remote_tools else str(uuid4()))), str(uuid4())
         self.boot_id = boot_identity()
         self.stopping = False
         self._recovery_cursor = None
@@ -228,8 +228,8 @@ class Worker:
                         try:
                             await authorize_work(self.store,await self.store.get(a['run_id']),a,'execute',
                                 session_id=bridge.session_id,verifier=self.authorization_verifier)
-                            if self.secret_requests:
-                                await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,self.secret_requests)
+                            if self.secret_requests and requested:
+                                await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,requested)
                         except Exception as exc:
                             code=exc.code if isinstance(exc,RuntimeErrorCode) else 'WORK_AUTHORIZATION_UNAVAILABLE'
                             # Offline execution is disabled for governed work. Preserve exit output.
@@ -265,6 +265,7 @@ class Worker:
     async def recover(self, *, limit=100):
         """Bounded maintenance pass, including while the scope is draining."""
         if type(limit) is not int or not 1 <= limit <= 100: raise RuntimeErrorCode('INVALID_LIMIT')
+        if hasattr(self.store,'recover_worker'):return await self.store.recover_worker(self,limit)
         await relay_reports(self.store, self.spool)
         if self.tool_gate:self.last_tool_recovery=await self.tool_gate.recover_pending(self.profile_id,limit)
         await self.store.expire()
@@ -317,7 +318,7 @@ class Worker:
                 if result.get('state')=='idle': await asyncio.sleep(self.poll_interval)
         finally:
             try: await self.store.drain(self.worker_id)
-            except (RuntimeErrorCode, OperationalError, InterfaceError): pass
+            except (RuntimeErrorCode, OperationalError, InterfaceError, ConnectionError, TimeoutError): pass
             for sig in (signal.SIGTERM,signal.SIGINT):
                 try: loop.remove_signal_handler(sig)
                 except (NotImplementedError,RuntimeError): pass
