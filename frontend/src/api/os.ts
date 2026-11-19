@@ -53,7 +53,7 @@ export const api = {
     request<void>(`/agents/${agentId}/subscriptions/${subId}`, { method: "DELETE" }),
 
   // Events
-  listEvents: (params?: { source?: string; event_type?: string; status?: string; limit?: number; offset?: number }) => {
+  listEvents: (params?: { source?: string; event_type?: string; status?: string; limit?: number; offset?: number }, signal?: AbortSignal) => {
     const q = new URLSearchParams();
     if (params?.source) q.set("source", params.source);
     if (params?.event_type) q.set("event_type", params.event_type);
@@ -61,7 +61,7 @@ export const api = {
     if (params?.limit) q.set("limit", String(params.limit));
     if (params?.offset !== undefined) q.set("offset", String(params.offset));
     const qs = q.toString();
-    return request<{ items: import("../types").EventLog[]; total: number; limit: number; offset: number }>(`/events${qs ? `?${qs}` : ""}`);
+    return request<{ items: import("../types").EventLog[]; total: number; limit: number; offset: number }>(`/events${qs ? `?${qs}` : ""}`, { signal });
   },
   getEvent: (eventId: string) => request<import("../types").EventLog>(`/events/${eventId}`),
   getTask: (taskId: string, signal: AbortSignal) =>
@@ -74,14 +74,14 @@ export const api = {
   },
   getEventActivityOverview: (eventId: string) =>
     request<import("../types").EventActivityOverview>(`/events/${eventId}/activity-overview`),
-  getActivityGantt: (params?: { since_minutes?: number; date?: string; agent_ids?: string; limit?: number }) => {
+  getActivityGantt: (params?: { since_minutes?: number; date?: string; agent_ids?: string; limit?: number }, signal?: AbortSignal) => {
     const q = new URLSearchParams();
     if (params?.since_minutes) q.set("since_minutes", String(params.since_minutes));
     if (params?.date) q.set("date", params.date);
     if (params?.agent_ids) q.set("agent_ids", params.agent_ids);
     if (params?.limit) q.set("limit", String(params.limit));
     const qs = q.toString();
-    return request<import("../types").ActivityGanttResponse>(`/events/activity-gantt${qs ? `?${qs}` : ""}`);
+    return request<import("../types").ActivityGanttResponse>(`/events/activity-gantt${qs ? `?${qs}` : ""}`, { signal });
   },
   retryEvent: (eventId: string) => 
     request<{ message: string; event_id: string }>(`/events/${eventId}/retry`, { method: "POST" }),
