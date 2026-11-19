@@ -429,7 +429,10 @@
         "F01-1"
       ],
       "priority": "最高",
-      "status": "In Progress"
+      "status": "In Progress",
+      "progress": {
+        "development": "既有工作台原型保持；沿其任务与成果语义开发 Console 真实任务入口，浏览器工程验证已完成，产品验收待用户参与。"
+      }
     },
     {
       "id": "F03-2",
@@ -546,7 +549,22 @@
           "docs/design/worker-reconciliation-30.md",
           "docs/design/evidence/worker-reconciliation-regression-20261113.json"
         ],
-        "remaining": "下一批沿 #30 最小观测查询接入只读 Console；并按 #33/#34 接通凭据、E2AG 工作授权与撤销/续期。#30 继续分类故障/半开恢复、持久定时合并及死信处置；#56/#58 验证真实 Harness。认证跨主机对账及业务接管按独立门槛验收。"
+        "remaining": "下一批沿 #30 最小观测查询接入只读 Console；并按 #33/#34 接通凭据、E2AG 工作授权与撤销/续期。#30 继续分类故障/半开恢复、持久定时合并及死信处置；#56/#58 验证真实 Harness。认证跨主机对账及业务接管按独立门槛验收。",
+        "development": {
+          "date": "2026-11-13",
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "summary": "Console 任务入口、受保护 API、CLI、ACP v1 包装接入和成果预览/下载已形成开发稿；固定样例的行号与证据验证保留在应用层。构建、回归及浏览器工程验证已完成，真实 Agent 资格与用户产品验收分别推进。",
+          "acceptance_plan": "docs/design/task-entry-56.md",
+          "published": false,
+          "authorization": "docs/design/work-authorization-33-34.md",
+          "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md"
+        },
+        "next_step": {
+          "depends_on": "#33 Worker credential lifecycle (engineering verified)",
+          "scope": "远程 Worker 通过受控接口领取任务、心跳/补报和上传/读取产物，复用 E2AG、幂等、lease epoch 与回执。",
+          "acceptance": "隔离远程 Worker 完成提交到报告全链路；注入断连和重复补报，确认无重复派发、过期所有者写入或重复产物。",
+          "product_acceptance": "用户参与产品验收另行安排；自动化测试和开发部署随实现执行。"
+        }
       }
     },
     {
@@ -709,7 +727,37 @@
         "F02-1",
         "K02-2"
       ],
-      "priority": "最高"
+      "priority": "最高",
+      "status": "In Progress",
+      "progress": {
+        "date": "2026-11-13",
+        "validation_status": "engineering_verified_product_acceptance_pending",
+        "published": false,
+        "summary": "E2AG 完整元组策略、持久工作授权、Attempt/Session 绑定、续期/撤销与版本化凭据引用已形成开发稿；Console/API/CLI 接线，授权表纳入备份组件。构建、隔离迁移及自动化回归已验证，产品验收待用户参与。",
+        "acceptance_plan": "docs/design/work-authorization-33-34.md",
+        "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+        "remote_worker_tools": {
+          "date": "2026-11-13",
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "published": false,
+          "summary": "专用 mTLS 网关、证书绑定短时凭据、原 Attempt 身份校验、E2AG 派发前重检、Worker 本地 socket 转接及固定 Secret 分区已形成开发稿。",
+          "acceptance_plan": "docs/design/remote-worker-tools-33-34.md",
+          "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+          "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md"
+        },
+        "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md",
+        "credential_lifecycle": {
+          "date": "2026-11-13",
+          "published": false,
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "summary": "mTLS 机器身份兑换、绑定原 E2AG 工作授权的短时签发/轮换、响应丢失恢复和持久撤销已接通；新增独立 schema、备份和管理 CLI。",
+          "acceptance_plan": "docs/design/worker-credentials-33.md",
+          "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+          "validation_evidence": "docs/design/evidence/worker-credentials-20261113.json",
+          "development_evidence": "docs/design/evidence/worker-credential-renewal-20261113.json",
+          "validation_summary": "后端全量 319 项通过、2 项不适用跳过，失败和错误均为 0；启用 PostgreSQL 与真实 Docker。开发环境自动续期 v1→v2，审批后任务完成并下载报告。"
+        }
+      }
     },
     {
       "id": "K03-2",
@@ -744,7 +792,64 @@
         "K01-2",
         "K03-1"
       ],
-      "priority": "最高"
+      "priority": "最高",
+      "status": "In Progress",
+      "progress": {
+        "date": "2026-11-13",
+        "validation_status": "engineering_verified_product_acceptance_pending",
+        "published": false,
+        "summary": "E2AG 完整元组策略、持久工作授权、Attempt/Session 绑定、续期/撤销与版本化凭据引用已形成开发稿；Console/API/CLI 接线，授权表纳入备份组件。构建、隔离迁移及自动化回归已验证，产品验收待用户参与。",
+        "acceptance_plan": "docs/design/work-authorization-33-34.md",
+        "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+        "tool_authorization": {
+          "date": "2026-11-13",
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "published": false,
+          "summary": "持久动作审批、完整执行绑定、原子派发门禁及实际 MCP HTTP 调用出口已形成开发稿；Console/API/CLI 接线，未知结果阻止提前归档与重试。",
+          "acceptance_plan": "docs/design/tool-authorization-34.md",
+          "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+          "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md"
+        },
+        "worker_tool_channel": {
+          "date": "2026-11-13",
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "published": false,
+          "summary": "Worker 独立 Unix socket、会话绑定 MCP stdio 桥、审批后自动派发、ACP 受控只读操作和工具活动关联已形成开发稿。",
+          "acceptance_plan": "docs/design/worker-tool-channel-34.md",
+          "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+          "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md"
+        },
+        "receipts": {
+          "date": "2026-11-13",
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "published": false,
+          "summary": "工具响应和回执先持久化，按原调用/授权/契约及派发证据恢复；Worker 周期维护、Console/API/CLI、排空及未关联回执备份已接线。",
+          "acceptance_plan": "docs/design/tool-receipts-34.md",
+          "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+          "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md"
+        },
+        "remote_worker_tools": {
+          "date": "2026-11-13",
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "published": false,
+          "summary": "专用 mTLS 网关、证书绑定短时凭据、原 Attempt 身份校验、E2AG 派发前重检、Worker 本地 socket 转接及固定 Secret 分区已形成开发稿。",
+          "acceptance_plan": "docs/design/remote-worker-tools-33-34.md",
+          "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+          "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md"
+        },
+        "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md",
+        "credential_lifecycle": {
+          "date": "2026-11-13",
+          "published": false,
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "summary": "mTLS 机器身份兑换、绑定原 E2AG 工作授权的短时签发/轮换、响应丢失恢复和持久撤销已接通；新增独立 schema、备份和管理 CLI。",
+          "acceptance_plan": "docs/design/worker-credentials-33.md",
+          "remaining": "#30 远程任务领取、心跳/补报与产物访问；#33 证书/发行密钥托管轮换和外部账号凭据 Provider；#58 真实双主机及 Agent 资格验证。",
+          "validation_evidence": "docs/design/evidence/worker-credentials-20261113.json",
+          "development_evidence": "docs/design/evidence/worker-credential-renewal-20261113.json",
+          "validation_summary": "后端全量 319 项通过、2 项不适用跳过，失败和错误均为 0；启用 PostgreSQL 与真实 Docker。开发环境自动续期 v1→v2，审批后任务完成并下载报告。"
+        }
+      }
     },
     {
       "id": "K01-4",
@@ -773,7 +878,18 @@
         "K01-2",
         "K03-1"
       ],
-      "priority": "最高"
+      "priority": "最高",
+      "status": "In Progress",
+      "progress": {
+        "date": "2026-11-13",
+        "validation_status": "engineering_verified_product_acceptance_pending",
+        "summary": "Console 任务入口、受保护 API、CLI、ACP v1 包装接入和成果预览/下载已形成开发稿；固定样例的行号与证据验证保留在应用层。构建、回归及浏览器工程验证已完成，真实 Agent 资格与用户产品验收分别推进。",
+        "acceptance_plan": "docs/design/task-entry-56.md",
+        "published": false,
+        "remaining": "先验收 Cursor ACP 单任务链路、凭据及实际工具控制，再扩展取消/恢复语义和第二实现；A2A 互操作继续按原计划推进。",
+        "authorization_dependency": "工作授权与凭据接线已有开发稿，测试与真实 Agent 准入待统一验收。",
+        "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md"
+      }
     },
     {
       "id": "K03-3",
@@ -1362,7 +1478,8 @@
         "K03-2",
         "F03-2"
       ],
-      "priority": "最高"
+      "priority": "最高",
+      "next_acceptance": "docs/design/task-entry-56.md：用户回上海后执行首个真实任务切片验收，完整跨智能体验收按原范围保留。"
     },
     {
       "id": "A01-5",

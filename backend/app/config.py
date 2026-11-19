@@ -39,6 +39,17 @@ class Settings(BaseSettings):
     # 非空时启用 API Access Token（Authorization: Bearer 或 X-DiOS-Access-Token）
     access_token: str = ""
 
+    # Explicit trusted-operator runtime console. Workers remain separate processes.
+    runtime_console_enabled: bool = False
+    runtime_database_url: str = ""
+    runtime_scope: str = "local"
+    runtime_profiles_dir: str = ""
+    runtime_artifacts_root: str = ""
+    runtime_policy_file: str = ""
+    runtime_secrets_file: str = ""
+    runtime_tools_file: str = ""
+    runtime_approvers_file: str = ""
+
     model_config = {"env_prefix": "DIOS_"}
 
 

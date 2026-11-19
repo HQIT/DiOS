@@ -269,3 +269,29 @@ def verify_audit_chain(chain: list[dict[str, Any]]) -> bool:
             return False
         previous_hash = entry_hash
     return True
+
+
+def evaluate_work_permission(layers: Mapping[str, Any], permission: Mapping[str, Any]) -> Decision:
+    """Exact complete-tuple intersection for durable work; missing layers deny.
+
+    The trusted policy provider resolves resource versions and constraints. This
+    path does not inherit the legacy event evaluator's compatibility defaults.
+    """
+    fields=('action','resource_kind','resource_id','resource_version','constraint_revision')
+    required=('caller','service','workload','resource')
+    if set(permission)!=set(fields) or any(not isinstance(permission[k],str) or not permission[k] for k in fields):
+        return Decision('work-policy','deny',('WORK_PERMISSION_INVALID',))
+    if set(layers)!=set(required):return Decision('work-policy','deny',('WORK_PERMISSION_LAYER_MISSING',))
+    target=tuple(permission[k] for k in fields)
+    for layer in required:
+        rows=layers[layer]
+        if not isinstance(rows,list) or not rows:
+            return Decision('work-policy','deny',('WORK_PERMISSION_LAYER_MISSING',),evidence={'layer':layer})
+        allowed=set()
+        for row in rows:
+            if not isinstance(row,dict) or set(row)!=set(fields) or any(not isinstance(row[k],str) or not row[k] for k in fields):
+                return Decision('work-policy','deny',('WORK_PERMISSION_INVALID',),evidence={'layer':layer})
+            allowed.add(tuple(row[k] for k in fields))
+        if target not in allowed:
+            return Decision('work-policy','deny',('WORK_PERMISSION_DENIED',),evidence={'layer':layer,'action':permission['action']})
+    return Decision('work-policy','allow',('WORK_PERMISSION_GRANTED',),evidence={'permission':dict(permission)})

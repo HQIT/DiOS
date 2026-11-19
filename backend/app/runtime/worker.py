@@ -26,6 +26,13 @@ def read_profile(path):
     identifier(value['id'])
     if value.get('bridge') != 'jsonl-v1': raise RuntimeErrorCode('BRIDGE_UNSUPPORTED')
     config = dict(value['launch'])
+    from .worker_tool_channel import profile_policy, POLICY_ENV, SOCKET_ENV
+    environment=dict(config.get('environment',{}))
+    if POLICY_ENV in environment or SOCKET_ENV in environment:raise RuntimeErrorCode('TOOL_CHANNEL_ENV_RESERVED')
+    if value.get('tool_channel') is not None:
+        if value.get('governance',{}).get('mode')!='e2ag':raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
+        environment[POLICY_ENV]=encoded(profile_policy(value['tool_channel'])).decode('utf-8')
+    config['environment']=environment
     config['command'] = tuple(config['command'])
     config['mounts'] = tuple(Mount(**m) for m in config.get('mounts', []))
     spec = LaunchSpec(**config)
@@ -41,18 +48,22 @@ def boot_identity():
 
 class Worker:
     def __init__(self, store: RuntimeStore, adapter: RuntimeAdapter, profile_id, spec: LaunchSpec,
-                 artifacts: LocalArtifacts, *, poll_interval=.25, timeout=300, output_limit=1024*1024, authorization_verifier=None):
+                 artifacts: LocalArtifacts, *, poll_interval=.25, timeout=300, output_limit=1024*1024, authorization_verifier=None, secret_resolver=None, secret_requests=(), tool_gate=None, remote_tools=None):
         if not 0 < poll_interval <= 5 or not 0 < timeout <= 86400 or not 1 <= output_limit <= 4*1024*1024:
             raise RuntimeErrorCode('INVALID_WORKER_LIMIT')
         spec.validate()
         if spec.kind != 'task': raise RuntimeErrorCode('WORKER_REQUIRES_TASK_PROFILE')
         self.store, self.adapter, self.profile_id, self.spec = store, adapter, profile_id, spec
         self.artifacts = artifacts
+        self.tool_gate=tool_gate;self.remote_tools=remote_tools
+        if tool_gate is not None and remote_tools is not None:raise RuntimeErrorCode('TOOL_PROVIDER_CONFLICT')
+        if remote_tools and 'DIOS_TOOL_CHANNEL_POLICY' not in spec.environment:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
         self.spool = report_spool(artifacts, store.scope)
         self.receipts = ExitReceipts(artifacts, store.scope)
         self.authorization_verifier = authorization_verifier
+        self.secret_resolver, self.secret_requests = secret_resolver, list(secret_requests)
         self.poll_interval, self.timeout, self.output_limit = poll_interval, timeout, output_limit
-        self.worker_id, self.instance = str(uuid4()), str(uuid4())
+        self.worker_id, self.instance = (remote_tools.worker_id if remote_tools else str(uuid4())), str(uuid4())
         self.boot_id = boot_identity()
         self.stopping = False
         self._recovery_cursor = None
@@ -66,15 +77,46 @@ class Worker:
         if run['input'].get('profile_digest') != self.spec.fingerprint():
             await self.store.reject_unlaunched(binding,'PROFILE_CHANGED')
             return await self.store.get(a['run_id'])
+        channel=None
         try:
             await authorize_work(self.store, run, a, 'execute', verifier=self.authorization_verifier)
-        except RuntimeErrorCode as exc:
-            await self.store.reject_unlaunched(binding, exc.code)
+            secret_mounts = ()
+            from .worker_tool_channel import WorkerToolChannel, POLICY_ENV, SOCKET_ENV, MOUNT_PATH
+            if POLICY_ENV in self.spec.environment:
+                if self.tool_gate is None and self.remote_tools is None:raise RuntimeErrorCode('TOOL_GATE_NOT_CONFIGURED')
+                if self.adapter.name!='local-docker-v1':raise RuntimeErrorCode('TOOL_CHANNEL_RUNTIME_UNSUPPORTED')
+                if not self.spec.user.split(':')[0].isdigit() or int(self.spec.user.split(':')[0])==0:raise RuntimeErrorCode('TOOL_CHANNEL_NUMERIC_USER_REQUIRED')
+                if any(m.target==MOUNT_PATH or m.target.startswith(MOUNT_PATH+'/') for m in self.spec.mounts+secret_mounts):
+                    raise RuntimeErrorCode('SECRET_TARGET_CONFLICT')
+                policy=json.loads(self.spec.environment[POLICY_ENV]);uid=int(self.spec.user.split(':')[0])
+                channel=self.remote_tools.channel(binding,policy,uid) if self.remote_tools else WorkerToolChannel(self.tool_gate,binding,policy,uid)
+                secret_mounts=secret_mounts+(await channel.open(),)
+            if self.secret_requests:
+                if not run['input'].get('work_authorization_ref'):
+                    raise RuntimeErrorCode('SECRET_AUTHORIZATION_REQUIRED')
+                if run['input'].get('secret_refs') != self.secret_requests:
+                    raise RuntimeErrorCode('SECRET_REFERENCE_CHANGED')
+                requested=self.secret_requests
+                if self.remote_tools:requested=[x for x in requested if x['ref'] in channel.worker_secret_refs]
+                if requested:
+                    if self.secret_resolver is None:raise RuntimeErrorCode('SECRET_AUTHORIZATION_REQUIRED')
+                    resolved=await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,requested)
+                    if channel and any(m.target==MOUNT_PATH or m.target.startswith(MOUNT_PATH+'/') or MOUNT_PATH.startswith(m.target.rstrip('/')+'/') for m in resolved):
+                        raise RuntimeErrorCode('SECRET_TARGET_CONFLICT')
+                    secret_mounts=secret_mounts+resolved
+                if {m.target for m in self.spec.mounts}.intersection(m.target for m in secret_mounts):
+                    raise RuntimeErrorCode('SECRET_TARGET_CONFLICT')
+
+        except Exception as exc:
+            if channel:await channel.close()
+            code=exc.code if isinstance(exc,RuntimeErrorCode) else 'WORK_PREFLIGHT_UNAVAILABLE'
+            await self.store.reject_unlaunched(binding, code)
             return await self.store.get(a['run_id'])
         handle = a['id']
-        spec = replace(self.spec, environment=dict(self.spec.environment,
+        spec = replace(self.spec, mounts=self.spec.mounts+secret_mounts, environment=dict(self.spec.environment,
             DIOS_RUN_ID=a['run_id'], DIOS_ATTEMPT_ID=a['id'],
             DIOS_WORK_INPUT=encoded(run['input'].get('payload',{})).decode('utf-8')))
+        if channel:spec=replace(spec,environment=dict(spec.environment,**{SOCKET_ENV:MOUNT_PATH+'/channel.sock'}))
         bridge = JsonlBridge()
         sequence, phase, output_count = 0, 'claimed', 0
         last_receipt, code = None, None
@@ -83,6 +125,7 @@ class Worker:
             sequence += 1
             last_receipt = await enqueue_report(self.store, self.spool, binding, sequence, next_phase,
                 session_id=bridge.session_id, output=output,
+                output_excerpt=bridge.output_excerpt if output else None,
                 output_observed_at=time.time() if output else None, authorization_epoch=a['authorization_epoch'])
             phase = next_phase
         async def observe(observation):
@@ -129,7 +172,12 @@ class Worker:
                 if not cancelled and not revoked and not code:
                     try:
                         bridge.feed(logs.stdout)
-                        if bridge.session_id and phase == 'creating_session': await report('waiting_model')
+                        if bridge.session_id and phase == 'creating_session':
+                            if run['input'].get('work_authorization_ref'):
+                                await authorize_work(self.store,current,a,'execute',session_id=bridge.session_id,
+                                    verifier=self.authorization_verifier)
+                            await report('waiting_model')
+                            if channel:await channel.bind_session(bridge.session_id)
                         if bridge.output_count > output_count:
                             await report('streaming',output=True)
                             output_count = bridge.output_count
@@ -159,7 +207,11 @@ class Worker:
                         if code:
                             await self.store.finish_failed(binding,code)
                         else:
-                            if phase == 'creating_session': await report('waiting_model')
+                            if phase == 'creating_session':
+                                if run['input'].get('work_authorization_ref'):
+                                    await authorize_work(self.store,await self.store.get(a['run_id']),a,'execute',
+                                        session_id=bridge.session_id,verifier=self.authorization_verifier)
+                                await report('waiting_model')
                             await report('validating')
                             if await asyncio.to_thread(self.spool.contains, last_receipt):
                                 raise RuntimeErrorCode('REPORT_DELIVERY_PENDING')
@@ -172,6 +224,18 @@ class Worker:
                     return await self.store.get(a['run_id'])
                 await relay_reports(self.store, self.spool)
                 if time.monotonic()-heartbeat_at >= 5:
+                    if run['input'].get('work_authorization_ref'):
+                        try:
+                            await authorize_work(self.store,await self.store.get(a['run_id']),a,'execute',
+                                session_id=bridge.session_id,verifier=self.authorization_verifier)
+                            if self.secret_requests:
+                                await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,self.secret_requests)
+                        except Exception as exc:
+                            code=exc.code if isinstance(exc,RuntimeErrorCode) else 'WORK_AUTHORIZATION_UNAVAILABLE'
+                            # Offline execution is disabled for governed work. Preserve exit output.
+                            observation=await self.adapter.stop(handle)
+                            await observe(observation)
+                            continue
                     await self.store.heartbeat(*binding)
                     heartbeat_at = time.monotonic()
                 await asyncio.sleep(self.poll_interval)
@@ -182,7 +246,7 @@ class Worker:
             # Best effort local evidence, independent of controller availability.
             # A live workload stays discoverable; a read error never proves its death.
             try:
-                observed = await self.adapter.observe(handle)
+                observed = await self.adapter.stop(handle) if run['input'].get('work_authorization_ref') else await self.adapter.observe(handle)
                 if not observed.alive and observed.state in {'exited','dead'}:
                     saved_logs = await self.adapter.logs(handle,self.output_limit)
                     await asyncio.to_thread(self.receipts.save,a,observed,saved_logs,failure=code)
@@ -195,11 +259,14 @@ class Worker:
                 # Storage unavailable: lease expiration supplies the durable uncertainty state.
                 pass
             raise
+        finally:
+            if channel:await channel.close()
 
     async def recover(self, *, limit=100):
         """Bounded maintenance pass, including while the scope is draining."""
         if type(limit) is not int or not 1 <= limit <= 100: raise RuntimeErrorCode('INVALID_LIMIT')
         await relay_reports(self.store, self.spool)
+        if self.tool_gate:self.last_tool_recovery=await self.tool_gate.recover_pending(self.profile_id,limit)
         await self.store.expire()
         async with self.store.db.read(self.store.scope) as c:
             query = select(runs.c.id).where(runs.c.scope == self.store.scope,

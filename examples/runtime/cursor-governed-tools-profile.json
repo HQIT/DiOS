@@ -1,0 +1,53 @@
+{
+  "id": "cursor-governed-tools",
+  "bridge": "jsonl-v1",
+  "console": {
+    "enabled": false,
+    "input_kind": "inline-static-review",
+    "name": "Cursor · 受控工具评审",
+    "implementation": "Cursor ACP v1",
+    "description": "通过 Worker 独立工具通道进行受控评审，真实端点待验收",
+    "synthetic": false
+  },
+  "launch": {
+    "image": "dios-cursor-acp:local",
+    "command": [
+      "python",
+      "-m",
+      "app.apps.inline_review",
+      "--config",
+      "/opt/dios/acp.json"
+    ],
+    "network": "dios-model-egress",
+    "environment": {},
+    "mounts": [
+      {
+        "source": "/absolute/operator/acp.json",
+        "target": "/opt/dios/acp.json",
+        "read_only": true
+      }
+    ],
+    "memory_bytes": 1073741824,
+    "cpu_count": 1,
+    "pids_limit": 64,
+    "read_only_root": true
+  },
+  "governance": {
+    "mode": "e2ag"
+  },
+  "secrets": [
+    {
+      "ref": "model/cursor",
+      "version": "v1",
+      "target": "/run/secrets/cursor_api_key"
+    }
+  ],
+  "tool_channel": {
+    "tools": {
+      "repository_search": "repository-search"
+    },
+    "acp_names": {
+      "mcp__dios__repository_search": "repository_search"
+    }
+  }
+}

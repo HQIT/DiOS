@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "tools": {
+    "repository-search": {
+      "enabled": false,
+      "transport": "mcp-http",
+      "url": "http://127.0.0.1:19090/mcp",
+      "name": "repository_search",
+      "approval_required": true,
+      "permission": {
+        "action": "repository.search",
+        "resource_kind": "mcp_tool",
+        "resource_id": "code-review/repository-search",
+        "resource_version": "PIN_IMPLEMENTATION_SHA256",
+        "constraint_revision": "local-review-v1"
+      },
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "result_schema": {
+        "type": "object",
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "array"
+          },
+          "isError": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

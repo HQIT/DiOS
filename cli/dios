@@ -574,6 +574,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_agent_del.add_argument("--base-url", help="override base url for this command")
     p_agent_del.set_defaults(func=cmd_agent_delete)
 
+    sub.add_parser("task", help="submit and track tasks, preview and download results (dios task --help)")
+
     p_registry = sub.add_parser("registry", help="discover MCP, Skill, and Plugin capabilities")
     sub_registry = p_registry.add_subparsers(dest="registry_cmd", required=True)
     p_registry_mcp = sub_registry.add_parser("mcp", help="search the Official MCP Registry")
@@ -623,6 +625,103 @@ def build_request_parser() -> argparse.ArgumentParser:
     return p
 
 
+def cmd_task(args) -> int:
+    """HTTP task commands share the Console's operator, scope and idempotency contract."""
+    base_url = (args.base_url or _get_base_url()).rstrip("/")
+    token = os.environ.get("DIOS_ACCESS_TOKEN", "")
+    if not token:
+        print("DIOS_ACCESS_TOKEN is required for task commands", file=sys.stderr)
+        return 2
+    method, data, suffix = "GET", None, ""
+    command = args.task_command
+    quote = lambda value: urllib.parse.quote(value, safe="")
+    if command in {"profiles", "samples"}: suffix = "/" + command
+    elif command == "list":
+        suffix = "/runs?" + urllib.parse.urlencode({k:v for k,v in {"limit":args.limit,"cursor":args.cursor}.items() if v is not None})
+    elif command == "submit":
+        method, suffix = "POST", "/runs"
+        data = dict(profile_id=args.profile, sample_id=args.sample, goal=args.goal, idempotency_key=args.key)
+    elif command == "show": suffix = "/runs/" + quote(args.run_id)
+    elif command in {"cancel","revoke"}:
+        method, suffix = "POST", "/runs/" + quote(args.run_id) + "/" + command
+        data = dict(expected_version=args.revision)
+    elif command in {"preview", "download"}:
+        suffix = "/runs/" + quote(args.run_id) + "/artifacts/" + quote(args.artifact_id) + "/" + command
+        if command == "download": suffix += "?format=" + args.format
+    elif command.startswith("tool-"):
+        suffix="/runs/"+quote(args.run_id)+"/tools"
+        if command=="tool-request":
+            method="POST"
+            try:
+                arguments=json.loads(Path(args.arguments_file).read_text(encoding="utf-8"))
+            except (OSError,ValueError):
+                print("Invalid arguments JSON file",file=sys.stderr);return 2
+            data=dict(attempt_id=args.attempt,session_id=args.session,tool_id=args.tool,arguments=arguments,idempotency_key=args.key)
+        elif command!="tool-list":
+            suffix+="/"+quote(args.invocation_id)
+            if command!="tool-show":
+                method="POST";suffix+="/"+("receipt-recover" if command=="tool-recover" else command.removeprefix("tool-"))
+                data=dict(expected_version=args.revision)
+                if command=="tool-approval":data.update(decision=args.decision,reason=args.reason)
+    headers={"Content-Type":"application/json","X-DiOS-Access-Token":token}
+    if command=="tool-approval":
+        approver=os.environ.get("DIOS_APPROVER_TOKEN","")
+        if not approver:
+            print("DIOS_APPROVER_TOKEN is required",file=sys.stderr);return 2
+        headers["X-DiOS-Approver-Token"]=approver
+    request = urllib.request.Request(base_url + "/api/os/runtime" + suffix, method=method,
+        data=None if data is None else json.dumps(data,ensure_ascii=False).encode(),
+        headers=headers)
+    try:
+        with urllib.request.urlopen(request,timeout=100 if command=="tool-dispatch" else 30) as response:
+            if command == "download":
+                # Exclusive create protects existing reports; remove only our partial file.
+                destination=Path(args.output)
+                with destination.open("xb") as out:
+                    try:
+                        while chunk:=response.read(65536): out.write(chunk)
+                    except BaseException:
+                        out.close();destination.unlink(missing_ok=True);raise
+                print(json.dumps({"saved":str(destination.resolve())},ensure_ascii=False))
+            else:
+                print(response.read().decode("utf-8"))
+        return 0
+    except urllib.error.HTTPError as exc:
+        try:detail=json.loads(exc.read().decode()).get("detail","REQUEST_FAILED")
+        except (ValueError,UnicodeError):detail="REQUEST_FAILED"
+        print(json.dumps({"status":exc.code,"error":detail},ensure_ascii=False));return 2
+    except (OSError,UnicodeError):
+        print(json.dumps({"error":"TASK_REQUEST_OR_OUTPUT_FAILED"}));return 1
+
+
+def task_parser():
+    p=argparse.ArgumentParser(prog="dios task",description="Submit, track and download durable operator tasks")
+    commands=p.add_subparsers(dest="task_command",required=True)
+    for name in ("profiles","samples","list","submit","show","cancel","revoke","preview","download","tool-list","tool-request","tool-show","tool-approval","tool-dispatch","tool-reconcile","tool-recover"):
+        c=commands.add_parser(name);c.add_argument("--base-url")
+        if name=="list":c.add_argument("--limit",type=int,default=30);c.add_argument("--cursor")
+        if name=="submit":
+            c.add_argument("--profile",required=True);c.add_argument("--sample",required=True)
+            c.add_argument("--goal",required=True);c.add_argument("--key",required=True,help="reuse this key when retrying the same submission")
+        if name in {"show","cancel","revoke","preview","download"}:c.add_argument("run_id")
+        if name in {"cancel","revoke"}:c.add_argument("--revision",required=True,type=int)
+        if name in {"preview","download"}:c.add_argument("artifact_id")
+        if name.startswith("tool-"):
+            c.add_argument("run_id")
+            if name=="tool-request":
+                for flag in ("attempt","session","tool","arguments-file","key"):c.add_argument("--"+flag,required=True)
+            elif name!="tool-list":
+                c.add_argument("invocation_id")
+                if name!="tool-show":c.add_argument("--revision",required=True,type=int)
+                if name=="tool-approval":
+                    c.add_argument("--decision",choices=["approved","denied"],required=True)
+                    c.add_argument("--reason",default="")
+        if name=="download":
+            c.add_argument("--format",choices=["raw","markdown"],default="raw")
+            c.add_argument("--output",required=True)
+    return p
+
+
 def cmd_runtime(args) -> int:
     import subprocess
     backend = Path(__file__).resolve().parents[1] / "backend"
@@ -635,6 +734,8 @@ def cmd_runtime(args) -> int:
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "task":
+        return cmd_task(task_parser().parse_args(sys.argv[2:]))
     if len(sys.argv) > 1 and sys.argv[1] == "runtime":
         return cmd_runtime(sys.argv[2:])
     # 低层入口：仅保留给自动化/agent，不在 dios --help 暴露

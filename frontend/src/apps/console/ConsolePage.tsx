@@ -5,9 +5,11 @@ import EventLogList from "./components/EventLogList";
 import ConnectorsPage from "./components/ConnectorsPage";
 import RegistryPage from "./components/RegistryPage";
 import TopologyPage from "./components/TopologyPage";
+import TaskRunsPage from "./components/TaskRunsPage";
 
-type ConsoleTab = "agents" | "models" | "events" | "connectors" | "registry" | "topology";
+type ConsoleTab = "tasks" | "agents" | "models" | "events" | "connectors" | "registry" | "topology";
 const TABS: { key: ConsoleTab; label: string }[] = [
+  { key: "tasks", label: "任务与成果" },
   { key: "agents", label: "Agents" },
   { key: "events", label: "Events" },
   { key: "models", label: "Models" },
@@ -52,6 +54,7 @@ function Content({ sub }: { sub: string }) {
 
   return (
     <div className="main-content" style={{ height: "100%" }}>
+      {tab === "tasks" && <TaskRunsPage runId={rest} />}
       {tab === "agents" && <AgentList />}
       {tab === "events" && (
         <EventLogList

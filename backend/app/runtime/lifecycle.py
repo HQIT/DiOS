@@ -74,10 +74,17 @@ class Lifecycle:
                 runs.c.scope==self.scope,runs.c.state=='queued'))).scalar_one()
             event_count = (await c.execute(select(func.count()).select_from(events.join(runs,runs.c.id==events.c.run_id))
                 .where(runs.c.scope==self.scope))).scalar_one()
+            from .tool_schema import check as check_tools, invocations
+            tool_states={}
+            if await check_tools(c):
+                tool_states=dict((await c.execute(select(invocations.c.state,func.count()).where(
+                    invocations.c.scope==self.scope).group_by(invocations.c.state))).all())
+            tool_active=tool_states.get('dispatched',0);tool_unknown=tool_states.get('result_unknown',0)
             return dict(scope=self.scope, mode='restore_hold' if held else row['mode'], revision=row['revision'],
                 active_attempts=active, reconciliation_required=unknown, queued_runs=queued,
                 event_count=event_count, observed_at=await self.db.now(c),
-                ready_for_cutover=not held and row['mode']=='draining' and active==0 and unknown==0)
+                tool_calls_inflight=tool_active,tool_results_unknown=tool_unknown,
+                ready_for_cutover=not held and row['mode']=='draining' and active==0 and unknown==0 and tool_active==0 and tool_unknown==0)
 
     async def wait_drained(self, timeout=30, poll_interval=.1):
         if not math.isfinite(timeout) or timeout < 0 or not math.isfinite(poll_interval) or poll_interval <= 0:

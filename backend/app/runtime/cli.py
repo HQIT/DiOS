@@ -24,6 +24,9 @@ async def execute(args):
         return await asyncio.to_thread(backup_sqlite,args.database_url,args.artifacts,args.destination,timeout=args.timeout)
     db = Database(args.database_url)
     try:
+        if args.command == 'tool-gateway':
+            from .gateway_admin import serve_gateway
+            return await serve_gateway(args,db)
         if args.command == 'migrate': return await db.migrate()
         if args.command == 'upgrade':
             lifecycle=Lifecycle(db,args.scope)
@@ -49,13 +52,44 @@ async def execute(args):
             from .artifacts import LocalArtifacts
             from .docker_adapter import DockerRuntimeAdapter
             profile_id, spec = read_profile(args.profile)
+            from .work_policy import FileWorkPolicy, security_profile
+            from .work_authorizations import WorkAuthorizationVerifier
+            from .secret_provider import FileSecretMounts
+            mode,secret_requests=security_profile(args.profile)
+            policy_path=args.policy_file
+            policy=FileWorkPolicy(policy_path) if policy_path else None
+            if mode=='e2ag' and policy is None:raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
             if args.command == 'enqueue':
                 payload = json.loads(Path(args.file).read_text(encoding='utf-8')) if args.file else {}
+                descriptor=await asyncio.to_thread(policy.admission,profile_id,spec.fingerprint(),secret_requests) if mode=='e2ag' else None
                 return await store.submit(args.key,{'runtime_profile':profile_id,
-                    'profile_digest':spec.fingerprint(),'payload':payload})
-            runner = Worker(store,DockerRuntimeAdapter(args.scope),profile_id,spec,LocalArtifacts(Path(args.artifacts)),
-                timeout=args.timeout,poll_interval=args.poll_interval)
+                    'profile_digest':spec.fingerprint(),'secret_refs':secret_requests,'payload':payload},authorization=descriptor)
+            artifacts=LocalArtifacts(Path(args.artifacts))
+            secrets=FileSecretMounts(args.secrets_file,args.scope) if args.secrets_file else None
+            tool_gate=None;remote_tools=None
+            from .worker_tool_channel import POLICY_ENV
+            if args.tool_gateway_file:
+                from .remote_tool_channel import RemoteToolProvider
+                if args.tools_file or args.approvers_file:raise RuntimeErrorCode('TOOL_PROVIDER_CONFLICT')
+                remote_tools=RemoteToolProvider(args.tool_gateway_file,store,profile_id,spec)
+            if POLICY_ENV in spec.environment and remote_tools is None:
+                if not args.tools_file:raise RuntimeErrorCode('TOOL_GATE_NOT_CONFIGURED')
+                from .tool_invocations import ToolInvocations
+                from .tool_catalog import FileToolCatalog, FileApprovers
+                from .mcp_tool_transport import McpHttpTransport
+                tool_gate=ToolInvocations(store,policy,FileToolCatalog(args.tools_file),artifacts,McpHttpTransport(),
+                    FileApprovers(args.approvers_file) if args.approvers_file else None,secrets)
+            runner = Worker(store,DockerRuntimeAdapter(args.scope),profile_id,spec,artifacts,
+                timeout=args.timeout,poll_interval=args.poll_interval,
+                authorization_verifier=WorkAuthorizationVerifier(store,policy) if mode=='e2ag' else None,
+                secret_requests=secret_requests,
+                secret_resolver=secrets,tool_gate=tool_gate,remote_tools=remote_tools)
             return await runner.serve(once=args.once)
+        if args.command == 'credential':
+            from .worker_credentials import WorkerCredentials
+            service=WorkerCredentials(store,None,None,'unused')
+            if args.credential_command=='status':return await service.status(args.run_id)
+            return await service.revoke(args.credential_id,args.revision)
         if args.command == 'spool-flush':
             from .reporting import relay_reports
             # Explicit file must exist; inspection checks its schema without creating it.
@@ -65,10 +99,16 @@ async def execute(args):
             from .reconciliation import reconcile_run
             from .artifacts import LocalArtifacts
             from .docker_adapter import DockerRuntimeAdapter
+            from .work_policy import FileWorkPolicy
+            from .work_authorizations import WorkAuthorizationVerifier
+            verifier=WorkAuthorizationVerifier(store,FileWorkPolicy(args.policy_file)) if args.policy_file else None
             return await reconcile_run(store,DockerRuntimeAdapter(args.scope),
-                LocalArtifacts(Path(args.artifacts)),args.run_id)
+                LocalArtifacts(Path(args.artifacts)),args.run_id,verifier=verifier)
         if args.command == 'workers': return await store.runtime_status(fresh_seconds=args.fresh_seconds)
         if args.command == 'cancel': return await store.cancel(args.run_id,args.revision)
+        if args.command == 'revoke':
+            await store.revoke(args.run_id,args.revision)
+            return await store.get(args.run_id)
         if args.command == 'expire': return {'expired':await store.expire()}
         if args.command in {'runtime-inspect','runtime-cleanup'}:
             from dataclasses import asdict
@@ -122,6 +162,7 @@ def main(argv=None):
     relay.add_argument('--file',required=True)
     reconcile = commands.add_parser('reconcile',help='validate original exited workload; never launch or requeue')
     reconcile.add_argument('run_id');reconcile.add_argument('--artifacts',required=True)
+    reconcile.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))
     submit = commands.add_parser('submit',help='queue metadata only; does not launch an Agent')
     submit.add_argument('--key',required=True);submit.add_argument('--file',required=True)
     show = commands.add_parser('show');show.add_argument('run_id')
@@ -131,9 +172,24 @@ def main(argv=None):
     worker.add_argument('--profile',required=True);worker.add_argument('--artifacts',required=True)
     worker.add_argument('--once',action='store_true');worker.add_argument('--timeout',type=float,default=300)
     worker.add_argument('--poll-interval',type=float,default=.25)
-    status=commands.add_parser('workers',help='persisted process/session evidence, freshness and actual concurrency')
+    for command in (enqueue,worker):command.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))
+    worker.add_argument('--secrets-file',default=os.environ.get('DIOS_RUNTIME_SECRETS_FILE'))
+    worker.add_argument('--tools-file',default=os.environ.get('DIOS_RUNTIME_TOOLS_FILE'))
+    worker.add_argument('--approvers-file',default=os.environ.get('DIOS_RUNTIME_APPROVERS_FILE'))
+    worker.add_argument('--tool-gateway-file',help='host-only mTLS tool Provider configuration')
+    gateway=commands.add_parser('tool-gateway',help='serve the explicit mTLS tool Provider; no automatic migration')
+    for name in ('config','artifacts','policy-file','tools-file','identities-file','profiles-file'):
+        gateway.add_argument('--'+name,required=True)
+    gateway.add_argument('--approvers-file');gateway.add_argument('--secrets-file')
+    credential=commands.add_parser('credential',help='inspect or revoke host credentials without exposing secrets')
+    credential_commands=credential.add_subparsers(dest='credential_command',required=True)
+    credential_status=credential_commands.add_parser('status');credential_status.add_argument('run_id')
+    credential_revoke=credential_commands.add_parser('revoke');credential_revoke.add_argument('credential_id')
+    credential_revoke.add_argument('--revision',type=int,required=True)
+    status=commands.add_parser('workers' ,help='persisted process/session evidence, freshness and actual concurrency')
     status.add_argument('--fresh-seconds',type=float,default=15)
     cancel=commands.add_parser('cancel');cancel.add_argument('run_id');cancel.add_argument('--revision',required=True,type=int)
+    revoke=commands.add_parser('revoke');revoke.add_argument('run_id');revoke.add_argument('--revision',required=True,type=int)
     commands.add_parser('expire',help='fence expired leases for reconciliation; does not requeue')
     for name in ('runtime-inspect','runtime-cleanup'):
         command=commands.add_parser(name);command.add_argument('run_id')

@@ -14,6 +14,9 @@ from .database import Database, RuntimeErrorCode, SCHEMA_CHECKSUM
 from .schema import metadata as base_metadata
 from .history_schema import metadata as history_metadata, CHECKSUM as HISTORY_CHECKSUM
 from .lifecycle_schema import metadata as lifecycle_metadata, CHECKSUM as LIFECYCLE_CHECKSUM
+from .work_auth_schema import metadata as work_auth_metadata, CHECKSUM as WORK_AUTH_CHECKSUM
+from .tool_schema import metadata as tool_metadata, CHECKSUM as TOOL_CHECKSUM
+from .credential_schema import metadata as credential_metadata, CHECKSUM as CREDENTIAL_CHECKSUM
 from .lifecycle import Lifecycle
 from .artifacts import LocalArtifacts
 
@@ -67,7 +70,10 @@ def _database_info(path):
         tables={r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         components=[('runtime_schema',base_metadata,SCHEMA_CHECKSUM),
             ('runtime_history_schema',history_metadata,HISTORY_CHECKSUM),
-            ('runtime_lifecycle_schema',lifecycle_metadata,LIFECYCLE_CHECKSUM)]
+            ('runtime_lifecycle_schema',lifecycle_metadata,LIFECYCLE_CHECKSUM),
+            ('runtime_work_auth_schema',work_auth_metadata,WORK_AUTH_CHECKSUM),
+            ('runtime_tool_schema',tool_metadata,TOOL_CHECKSUM),
+            ('runtime_credential_schema',credential_metadata,CREDENTIAL_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
             raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
@@ -124,11 +130,25 @@ def backup_sqlite(url, artifact_root, destination, *, timeout=60):
             for chunk in _chunks(artifact_root/key):budget();yield chunk
         if _write(objects_dir/key,chunks())!=expected:
             raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
+    from .tool_receipt_backup import collect
+    tool_receipts,sources=collect(snapshot,artifact_root,budget)
+    if sources:
+        receipt_dir=destination/'tool-receipts';receipt_dir.mkdir(mode=0o700)
+        for name,path in sources.items():
+            budget()
+            if _write(receipt_dir/name,_chunks(path))!=tool_receipts['files'][name]:raise RuntimeErrorCode('BACKUP_TOOL_RECEIPTS_INVALID')
+        for key,expected in tool_receipts['objects'].items():
+            budget()
+            if key in info['objects']:
+                if info['objects'][key]!=expected:raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
+            elif _write(objects_dir/key,_chunks(artifact_root/key))!=expected:raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
+        _sync_dir(receipt_dir)
     # Flush database pages before publishing the complete manifest.
     with snapshot.open('rb') as f:os.fsync(f.fileno())
     _sync_dir(objects_dir)
     manifest={'format':1,'provider':'sqlite-local-v1','created_at':time.time(),
         'database':_file_info(snapshot),**info,'duration_seconds':round(time.monotonic()-started,3)}
+    if sources:manifest.update(format=2,tool_receipts=tool_receipts)
     encoded_manifest=json.dumps(manifest,ensure_ascii=False,sort_keys=True).encode('utf-8')
     if len(encoded_manifest)>8*1024*1024:raise RuntimeErrorCode('BACKUP_MANIFEST_TOO_LARGE')
     _write(destination/'manifest.json',[encoded_manifest])
@@ -144,7 +164,7 @@ def verify_backup(bundle):
         raise RuntimeErrorCode('BACKUP_MANIFEST_INVALID')
     try:
         manifest=json.loads(path.read_text(encoding='utf-8'))
-        if manifest['format']!=1 or manifest['provider']!='sqlite-local-v1':raise ValueError()
+        if manifest['format'] not in {1,2} or manifest['provider']!='sqlite-local-v1':raise ValueError()
         if not isinstance(manifest['objects'],dict):raise ValueError()
         for key,value in manifest['objects'].items():
             if not re.fullmatch('[0-9a-f]{64}',key) or value['sha256']!=key or type(value['size']) is not int or value['size']<0:
@@ -156,6 +176,10 @@ def verify_backup(bundle):
             raise RuntimeErrorCode('BACKUP_MANIFEST_MISMATCH')
         for key,value in manifest['objects'].items():
             if _file_info(bundle/'objects'/key)!=value:raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
+        if manifest['format']==2:
+            from .tool_receipt_backup import verify
+            verify(bundle/'state.sqlite',bundle/'tool-receipts',bundle/'objects',manifest['tool_receipts'])
+        elif 'tool_receipts' in manifest:raise RuntimeErrorCode('BACKUP_MANIFEST_INVALID')
         return manifest
     except (KeyError,TypeError,ValueError,UnicodeError) as exc:
         if isinstance(exc,RuntimeErrorCode):raise
@@ -173,6 +197,13 @@ def _prepare_restore(bundle,destination):
     for key,expected in manifest['objects'].items():
         if _write(destination/'objects'/key,_chunks(bundle/'objects'/key))!=expected:
             raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
+    if manifest['format']==2:
+        from .tool_receipt_backup import install
+        section=manifest['tool_receipts']
+        for key,expected in section['objects'].items():
+            if key not in manifest['objects'] and _write(destination/'objects'/key,_chunks(bundle/'objects'/key))!=expected:
+                raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
+        install(bundle/'tool-receipts',LocalArtifacts(destination/'objects'),section)
     return manifest
 
 

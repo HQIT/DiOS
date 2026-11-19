@@ -209,3 +209,19 @@ P0—P4 的编号替代此前按月份划分的阶段安排。原单机可靠性
 
 
 #30/#32 已进入实现，SQLite 按 [ADR 0010](docs/adr/0010-lightweight-runtime-default.md) 作为轻量阶段性默认，有界写队列和基本混合查询已验收。[Worker 离线报告](docs/design/worker-report-spool-30-32.md) 支持有界持久缓冲、补报去重、旧租约隔离和 CLI 查询。[历史关联查询](docs/design/history-query-32.md) 已提供原生执行视图、导入历史双向关系及分页 CLI。[恢复与排空基线](docs/operations/runtime-recovery.md) 已提供 SQLite/本地产物恢复包、恢复副本调度关闭和持久作用域排空，#11 完整交付继续推进。[#10/#30 Worker 执行基线](docs/design/worker-execution-10-30.md) 已串接独立进程、Docker 生命周期、会话/产物观测与自然排空，179 项后端测试通过。[恢复对账与 Worker spool 接线](docs/design/worker-reconciliation-30.md) 已提供原 Attempt 结果恢复及 E2AG 接收授权接口。下一小步沿 #30 最小观测查询提供只读 Console，同时衔接 #33/#34；跨主机及多副本控制面按实际拓扑独立验收，业务接管通过联合验收后切换。
+
+2026-11-13 开发进展：[#30/#56 任务入口与成果交付](docs/design/task-entry-56.md) 已形成代码开发稿，包含 Console/API/CLI、ACP 接入和报告预览下载。工程验证已补齐，产品验收待用户参与，代码未推送。#33/#34 工作授权与凭据、#58 真实跨智能体联合验收继续按既定依赖推进。
+
+#33/#34 后续开发：[E2AG 工作授权与凭据引用](docs/design/work-authorization-33-34.md) 已通过工程测试，覆盖准入事务、会话绑定、续期、撤销和恢复结果接收。执行治理继续向动作级 PEP 与实际控制点推进；工程回归已验证，产品验收待用户参与。
+
+#34 动作治理开发稿：[工具调用授权与审批](docs/design/tool-authorization-34.md)。新增参数/执行身份绑定、独立审批人、派发前事务复核与 MCP 请求出口，Console/API/CLI 同步接线；工程回归已验证，产品验收待用户参与。
+
+#34 Worker 接线开发稿：[独立工具通道与 ACP 控制点](docs/design/worker-tool-channel-34.md)。本地通道、会话绑定、审批后自动派发和受控只读客户端操作已形成代码，工程测试已通过，产品验收待用户参与；原生工具旁路资格及跨主机 Provider 继续推进；本地回执接线见下文。
+
+#30/#34 [工具结果回执与恢复对账](docs/design/tool-receipts-34.md)：完整/部分响应先持久化，恢复核对原身份、契约和 E2AG 派发证据；Worker 周期维护、Console/API/CLI、排空与回执备份同步接线。工程回归已验证；#33 跨主机身份与通道 Provider 已接通，#58 验证真实端点控制能力。
+
+#33/#34 [跨主机 Worker 身份与工具网关](docs/design/remote-worker-tools-33-34.md) 已通过工程测试：mTLS、证书绑定短时凭据、原执行身份、派发重检、回执和 Secret 分区贯通。短时凭据签发、自动续期、响应恢复与撤销已接通；下一步衔接 #30 完整远程控制面及产物通路；真实多主机和 Agent 验收由 #58 承接。工程测试及开发部署已完成，产品验收待用户参与。
+
+工程验证与用户验收分开管理：开发方持续执行构建、测试和开发部署。当前后端 292 项通过、1 项不适用跳过，前端构建/9 项测试及浏览器 Docker 审批执行流程通过；详见 [工程验证记录](docs/design/runtime-engineering-verification-20261113.md)。用户参与后续产品验收，#33/#34/#58 的剩余能力按原计划推进。
+
+#33 [Worker 自动凭据生命周期](docs/design/worker-credentials-33.md)：已实现绑定原工作授权的签发、自动轮换、响应丢失恢复和持久撤销，开发环境完成等待审批期间续期及报告下载。工程证据随文归档；下一主项 #30 远程任务控制与产物通路。

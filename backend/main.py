@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import APIRouter
 
 from app.db.database import init_db
-from app.api.os import models, agents, events, subscriptions, connectors, mcp_servers, skills, mcp_registry, a2a
+from app.api.os import models, agents, events, subscriptions, connectors, mcp_servers, skills, mcp_registry, a2a, runtime_tasks
 from app.api.apps import chat as chat_app
 from app.api.internal import e2ag_mcp
 from app.services.cron_scheduler import cron_scheduler
@@ -22,7 +22,8 @@ async def lifespan(app: FastAPI):
     await cron_scheduler.start()
     await imap_poller.start()
     retry_worker.start()
-    yield
+    async with runtime_tasks.console_lifespan(app):
+        yield
     retry_worker.stop()
     await imap_poller.stop()
     await cron_scheduler.stop()
@@ -48,6 +49,7 @@ os_router.include_router(mcp_servers.router)
 os_router.include_router(skills.router)
 os_router.include_router(mcp_registry.router)
 os_router.include_router(a2a.router)
+os_router.include_router(runtime_tasks.router)
 app.include_router(os_router)
 app.include_router(e2ag_mcp.router, prefix="/api")
 

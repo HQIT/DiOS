@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "policy_id": "inline-review-v1",
+  "subject": "operator:local",
+  "actor": "service:task-console",
+  "profiles": {
+    "cursor-inline-review": {
+      "profile_digest": "PIN_PROFILE_DIGEST",
+      "work_ttl_seconds": 86400,
+      "secret_refs": [
+        {
+          "ref": "model/cursor",
+          "version": "v1",
+          "target": "/run/secrets/cursor_api_key"
+        }
+      ],
+      "permissions": {
+        "caller": [
+          {
+            "action": "runtime.execute",
+            "resource_kind": "runtime_profile",
+            "resource_id": "cursor-inline-review",
+            "resource_version": "PIN_PROFILE_DIGEST",
+            "constraint_revision": "inline-review-v1"
+          },
+          {
+            "action": "runtime.accept_result",
+            "resource_kind": "runtime_profile",
+            "resource_id": "cursor-inline-review",
+            "resource_version": "PIN_PROFILE_DIGEST",
+            "constraint_revision": "inline-review-v1"
+          }
+        ],
+        "service": [
+          {
+            "action": "runtime.execute",
+            "resource_kind": "runtime_profile",
+            "resource_id": "cursor-inline-review",
+            "resource_version": "PIN_PROFILE_DIGEST",
+            "constraint_revision": "inline-review-v1"
+          },
+          {
+            "action": "runtime.accept_result",
+            "resource_kind": "runtime_profile",
+            "resource_id": "cursor-inline-review",
+            "resource_version": "PIN_PROFILE_DIGEST",
+            "constraint_revision": "inline-review-v1"
+          }
+        ],
+        "workload": [
+          {
+            "action": "runtime.execute",
+            "resource_kind": "runtime_profile",
+            "resource_id": "cursor-inline-review",
+            "resource_version": "PIN_PROFILE_DIGEST",
+            "constraint_revision": "inline-review-v1"
+          },
+          {
+            "action": "runtime.accept_result",
+            "resource_kind": "runtime_profile",
+            "resource_id": "cursor-inline-review",
+            "resource_version": "PIN_PROFILE_DIGEST",
+            "constraint_revision": "inline-review-v1"
+          }
+        ],
+        "resource": [
+          {
+            "action": "runtime.execute",
+            "resource_kind": "runtime_profile",
+            "resource_id": "cursor-inline-review",
+            "resource_version": "PIN_PROFILE_DIGEST",
+            "constraint_revision": "inline-review-v1"
+          },
+          {
+            "action": "runtime.accept_result",
+            "resource_kind": "runtime_profile",
+            "resource_id": "cursor-inline-review",
+            "resource_version": "PIN_PROFILE_DIGEST",
+            "constraint_revision": "inline-review-v1"
+          }
+        ]
+      }
+    }
+  }
+}

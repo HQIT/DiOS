@@ -131,9 +131,12 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result['attempts'][0]['error']['code'],'WORK_AUTHORIZATION_VERIFIER_REQUIRED')
 
     async def test_governed_recovery_requires_acceptance_verifier(self):
+        from work_auth_fixtures import policy_fixture
+        from app.runtime.work_authorizations import WorkAuthorizationVerifier
+        policy,descriptor=policy_fixture(self.root,'test-profile',self.spec)
         r=await self.store.submit('governed',{'runtime_profile':'test-profile',
-            'profile_digest':self.spec.fingerprint(),'work_authorization_ref':'grant-ref'})
-        async def allow(context,action):return True
+            'profile_digest':self.spec.fingerprint(),'secret_refs':[]},authorization=descriptor)
+        allow=WorkAuthorizationVerifier(self.store,policy)
         adapter=FakeAdapter()
         worker=Worker(self.store,adapter,'test-profile',self.spec,self.provider,authorization_verifier=allow)
         with patch.object(self.store,'complete',side_effect=ConnectionError()):

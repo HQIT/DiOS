@@ -44,15 +44,22 @@ class RuntimeStore:
     async def _event(self, c, run, kind, detail, now, **changes):
         version = run['version'] + 1
         state = changes.get('state', run['state'])
+        if state in TERMINAL and run['input'].get('work_authorization_ref'):
+            from .work_authorizations import close
+            await close(c,run)
         payload = {'run_id': run['id'], 'version': version, 'state': state, 'detail': detail}
         bounded(payload)
         await c.execute(runs.update().where(runs.c.id == run['id']).values(version=version, updated_at=now, **changes))
         await c.execute(events.insert().values(id=str(uuid4()), run_id=run['id'], version=version,
             type=kind, payload=payload, digest=digest(payload), created_at=now))
 
-    async def submit(self, key, value):
+    async def submit(self, key, value, *, authorization=None):
         identifier(key)
         if not isinstance(value, dict): raise RuntimeErrorCode("INVALID_ARGUMENT")
+        if authorization is not None:
+            bounded(authorization)
+            value=dict(value,work_authorization_ref='wa-'+digest([self.scope,key,authorization['policy_digest']])[:60],
+                work_policy_digest=authorization['policy_digest'])
         bounded(value)
         hashed = digest(value)
         async with self.db.transaction(self.scope) as c:
@@ -67,6 +74,9 @@ class RuntimeStore:
                 input=value, state='queued', version=0, epoch=0, attempt_id=None, authorization_epoch=1,
                 revoked=False, cancel_requested=False, created_at=now, updated_at=now)
             await c.execute(runs.insert().values(**record))
+            if authorization is not None:
+                from .work_authorizations import create
+                await create(c,self.scope,record,authorization,now)
             await self._event(c, record, 'run.accepted', {}, now)
             return await self._run(c, record['id'])
 
@@ -131,6 +141,9 @@ class RuntimeStore:
             raise RuntimeErrorCode('STALE_OWNER')
         if authorize and (run['revoked'] or run['cancel_requested'] or a['authorization_epoch'] != run['authorization_epoch']):
             raise RuntimeErrorCode('AUTH_REVOKED')
+        if authorize:
+            from .work_authorizations import require_current
+            await require_current(c,run,a,now)
         return run, dict(a), now
 
     async def heartbeat(self, run_id, attempt_id, worker_id, instance, epoch):
@@ -142,7 +155,7 @@ class RuntimeStore:
 
     async def report(self, run_id, attempt_id, worker_id, instance, epoch, sequence, phase,
                      *, session_id=None, process_id=None, process_instance=None, remote=None, output=False,
-                     output_observed_at=None, authorization_epoch=None):
+                     output_observed_at=None, authorization_epoch=None, output_excerpt=None):
         if not isinstance(sequence, int) or sequence < 1 or phase not in ACTIVE_ATTEMPTS:
             raise RuntimeErrorCode('INVALID_REPORT')
         if output_observed_at is not None and (type(output_observed_at) not in (int, float)
@@ -153,11 +166,18 @@ class RuntimeStore:
         # Preserve digests for existing producers that do not supply an observation time.
         if output_observed_at is not None: report['output_observed_at'] = output_observed_at
         if authorization_epoch is not None: report['authorization_epoch'] = authorization_epoch
+        if output_excerpt is not None:
+            if not output or not isinstance(output_excerpt,str) or len(output_excerpt)>2000:
+                raise RuntimeErrorCode('INVALID_REPORT')
+            report['output_excerpt']=output_excerpt
         bounded(report)
         async with self.db.transaction(self.scope) as c:
             run, a, now = await self._owned(c, run_id, attempt_id, worker_id, instance, epoch, authorize=True)
             if authorization_epoch is not None and authorization_epoch != a['authorization_epoch']:
                 raise RuntimeErrorCode('AUTH_REVOKED')
+            if session_id and run['input'].get('work_authorization_ref'):
+                from .work_authorizations import require_current
+                await require_current(c,run,a,now,session_id=session_id)
             if sequence < a['last_sequence']: return False
             if sequence == a['last_sequence']:
                 if digest(report) != a['report_digest']: raise RuntimeErrorCode('REPORT_CONFLICT')
@@ -176,6 +196,8 @@ class RuntimeStore:
                     raise RuntimeErrorCode('PROCESS_CHANGED')
                 changes.update(process_id=process_id, process_instance=process_instance)
             if remote is not None: changes['remote'] = remote
+            if output_excerpt is not None:
+                changes['remote']=dict(changes.get('remote',a['remote']),progress={'text':output_excerpt})
             if output:
                 observed = now if output_observed_at is None else min(output_observed_at, now)
                 changes['last_output_at'] = max(a['last_output_at'] or 0, observed)
@@ -190,7 +212,10 @@ class RuntimeStore:
         async with self.db.transaction(self.scope) as c:
             run = await self._run(c, run_id)
             if run['version'] != expected_version: raise RuntimeErrorCode('VERSION_CONFLICT')
-            await self._event(c, run, 'authorization.revoked', {}, await self.db.now(c), revoked=True,
+            now=await self.db.now(c)
+            from .work_authorizations import revoke
+            await revoke(c,run,now)
+            await self._event(c, run, 'authorization.revoked', {}, now, revoked=True,
                 authorization_epoch=run['authorization_epoch']+1)
 
     async def expire(self):
@@ -223,6 +248,8 @@ class RuntimeStore:
             if run['version'] != expected_version: raise RuntimeErrorCode('VERSION_CONFLICT')
             if run['state'] != 'retry_wait' or run['revoked'] or run['cancel_requested']:
                 raise RuntimeErrorCode('RETRY_NOT_ALLOWED')
+            from .tool_invocations import require_settled
+            await require_settled(c,self.scope,run_id)
             await self._event(c, run, 'run.retry_queued', {}, await self.db.now(c), state='queued')
 
     async def complete(self, run_id, attempt_id, worker_id, instance, epoch, provider, key, validator):
@@ -245,6 +272,10 @@ class RuntimeStore:
         async with self.db.transaction(self.scope) as c:
             run, a, now = await self._owned(c, run_id, attempt_id, worker_id, instance, epoch, authorize=True)
             if a['state'] != 'validating': raise RuntimeErrorCode('INVALID_TRANSITION')
+            from .work_authorizations import require_current
+            await require_current(c,run,a,now,'accept_result',session_id=a['session_id'])
+            from .tool_invocations import require_settled
+            await require_settled(c,self.scope,run_id)
             aid = str(uuid4())
             await c.execute(artifacts.insert().values(id=aid, run_id=run_id, attempt_id=attempt_id,
                 digest=blob.digest, size=blob.size, provider=provider.name, storage_key=blob.key, created_at=now))
@@ -450,6 +481,11 @@ class RuntimeStore:
             elif result_key: state, attempt_state = 'succeeded', 'completed'
             else: raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
             now = await self.db.now(c)
+            if state=='succeeded':
+                from .work_authorizations import require_current
+                await require_current(c,run,a,now,'accept_result',session_id=session_id)
+                from .tool_invocations import require_settled
+                await require_settled(c,self.scope,run['id'])
             linked = {}
             for kind, blob in blobs.items():
                 if kind == 'result' and state != 'succeeded': continue

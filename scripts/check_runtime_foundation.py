@@ -19,8 +19,8 @@ def main():
         'worker_concurrency_evidence':getattr(worker_module,'OBSERVED_CONCURRENCY',[]),
         'tests_run':result.testsRun,'skipped':len(result.skipped),'failures':len(result.failures),'errors':len(result.errors),
         'duration_seconds':round(time.monotonic()-started,3),'successful':result.wasSuccessful(),
-        'cases':[name for name,_ in result.skipped],
-        'limits':['PostgreSQL single isolated node; no HA/capacity claim','Windows process-tree and actual Agent tests pending','Legacy scheduler takeover, automatic circuit recovery, API authorization and UI pending']}
+        'cases':[{'test':case.id(),'reason':reason} for case,reason in result.skipped],
+        'limits':['PostgreSQL single isolated node; no HA/capacity claim','Windows process-tree and actual Agent tests pending','Legacy scheduler takeover and automatic circuit recovery remain separate integration work','Browser verification is recorded separately from this backend suite']}
     if args.output:
         output=args.output if args.output.is_absolute() else ROOT/args.output
         output.parent.mkdir(parents=True,exist_ok=True);output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

@@ -10,6 +10,7 @@ class JsonlBridge:
         self.session_id = None
         self.result = None
         self.output_count = 0
+        self.output_excerpt = ""
 
     def feed(self, data: bytes, *, final=False):
         if not data.startswith(self.seen):
@@ -34,7 +35,9 @@ class JsonlBridge:
                 self.session_id = sid
             elif kind == 'output' and self.session_id:
                 if not isinstance(message.get('text'), str): raise RuntimeErrorCode('RESULT_FORMAT_INVALID')
-                if message['text'].strip(): self.output_count += 1
+                if message['text'].strip():
+                    self.output_count += 1
+                    self.output_excerpt = (self.output_excerpt + message['text'])[-2000:]
             elif kind == 'result' and self.session_id:
                 if message.get('session_id') != self.session_id:
                     raise RuntimeErrorCode('SESSION_CHANGED')
