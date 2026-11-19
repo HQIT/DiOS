@@ -531,7 +531,7 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-19",
-        "summary": "远程 Worker 已经 mTLS 控制入口领取、补报和恢复原 Attempt；E2AG 分别核验执行与结果接收，产物分块校验后归档。Console 展示实际并发及心跳；全量回归和开发部署已验证。",
+        "summary": "分类故障、共享资源熔断和单路自动恢复已接通远程执行；原 Run 下新建 Attempt 并重新核验 E2AG。限流/额度开发演练验证 0→1→2 路恢复。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
@@ -549,7 +549,7 @@
           "docs/design/worker-reconciliation-30.md",
           "docs/design/evidence/worker-reconciliation-regression-20261113.json"
         ],
-        "remaining": "#30 分类故障、限流/额度熔断与单路恢复、持久定时合并；#58 双主机及真实 Agent 资格。",
+        "remaining": "持久定时、重叠触发合并与死信处置；供应商错误映射、双物理主机与实际 Agent 资格由 #56/#58 推进。",
         "development": {
           "date": "2026-11-13",
           "validation_status": "engineering_verified_product_acceptance_pending",
@@ -561,8 +561,8 @@
           "published_commit": "02c3d5a"
         },
         "next_step": {
-          "scope": "分类故障、端点限流/额度熔断、单路试恢复与并发恢复；随后持久定时和重叠触发合并。",
-          "acceptance": "故障消失后自动探测恢复；恢复前不重复派发、不扩大 E2AG 原授权。"
+          "scope": "持久定时、重叠触发合并与死信处置；并按整体路线推进 #56/#58 真实智能体接入。",
+          "acceptance": "触发去重、调度所有权及排空升级保持原任务身份和 E2AG 边界。"
         },
         "remote_control": {
           "date": "2026-11-19",
@@ -577,6 +577,18 @@
             "failed": 0
           },
           "deployment_evidence": "docs/design/evidence/remote-worker-development-20261119.json"
+        },
+        "fault_recovery": {
+          "published": true,
+          "validation_status": "engineering_verified_product_acceptance_pending",
+          "design": "docs/design/fault-recovery-30.md",
+          "regression": "docs/design/evidence/fault-recovery-regression-20261119.json",
+          "deployment": "docs/design/evidence/fault-recovery-development-20261119.json",
+          "tests": {
+            "passed": 383,
+            "skipped": 4,
+            "failed": 0
+          }
         }
       }
     },
@@ -919,10 +931,11 @@
         "validation_status": "engineering_verified_product_acceptance_pending",
         "summary": "Console 任务入口、受保护 API、CLI、ACP v1 包装接入和成果预览/下载已形成开发稿；固定样例的行号与证据验证保留在应用层。构建、回归及浏览器工程验证已完成，真实 Agent 资格与用户产品验收分别推进。",
         "acceptance_plan": "docs/design/task-entry-56.md",
-        "published": false,
+        "published": true,
         "remaining": "先验收 Cursor ACP 单任务链路、凭据及实际工具控制，再扩展取消/恢复语义和第二实现；A2A 互操作继续按原计划推进。",
-        "authorization_dependency": "工作授权与凭据接线已有开发稿，测试与真实 Agent 准入待统一验收。",
-        "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md"
+        "authorization_dependency": "工作授权、审批、短时凭据与远程控制已完成工程验证；真实 Agent 的实际控制点继续按 #58 资格验收。",
+        "validation_evidence": "docs/design/runtime-engineering-verification-20261113.md",
+        "published_commit": "02c3d5a"
       }
     },
     {
@@ -1513,7 +1526,7 @@
         "F03-2"
       ],
       "priority": "最高",
-      "next_acceptance": "docs/design/task-entry-56.md：用户回上海后执行首个真实任务切片验收，完整跨智能体验收按原范围保留。"
+      "next_acceptance": "工程测试和开发部署随实现执行；用户参与产品验收另行安排。先固定 Cursor ACP 真实受控切片，再按 #57 矩阵加入第二来源及 A2A 互操作。"
     },
     {
       "id": "A01-5",

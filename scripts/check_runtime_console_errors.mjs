@@ -9,6 +9,7 @@ try{
  await page.addInitScript(token=>sessionStorage.setItem('dios_access_token',token),tokens.operator);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:13082/dios/#console/tasks');
+ await page.getByLabel('执行 Agent').selectOption('validation-review');
  await page.getByRole('button',{name:'发起评审',exact:true}).click();
  await page.getByLabel('独立审批凭据').waitFor({timeout:30000});
  await page.getByLabel('独立审批凭据').fill('invalid-test');

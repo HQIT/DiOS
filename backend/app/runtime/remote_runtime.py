@@ -30,7 +30,7 @@ class RemoteRuntimeStore:
         if worker_id!=self.worker_id or slots!=1:raise RuntimeErrorCode('WORKER_MISMATCH')
         self.instance=instance
         return await self.call('register',dict(host=host,pid=pid))
-    async def claim(self,worker_id,instance,*,profile_id):
+    async def claim(self,worker_id,instance,*,profile_id,recovery_policy=None):
         if (worker_id,instance,profile_id)!=(self.worker_id,self.instance,self.transport.profile):raise RuntimeErrorCode('WORKER_MISMATCH')
         self.pending_claim=self.pending_claim or uuid4().hex
         a=await self.call('claim',{},self.pending_claim);self.pending_claim=None

@@ -133,7 +133,12 @@ class RemoteControl:
                 .where(peers.c.scope==s.scope,peers.c.certificate==m['certificate_sha256'],peers.c.machine_id==m['worker_id'],
                 attempts.c.state.in_(ACTIVE_ATTEMPTS|{'result_unknown'})))).scalar_one()
             if busy>=capacity:return None
-            a=await s.claim(e['worker_id'],e['instance'],profile_id=e['profile'])
+            from .worker import read_profile
+            from .faults import from_spec
+            entry=(await asyncio.to_thread(document,self.profiles))['profiles'][e['profile']]
+            _,spec=await asyncio.to_thread(read_profile,entry['path'])
+            if spec.fingerprint()!=e['profile_digest']:raise RuntimeErrorCode('PROFILE_CHANGED')
+            a=await s.claim(e['worker_id'],e['instance'],profile_id=e['profile'],recovery_policy=from_spec(spec))
             if a:
                 run=await s.get(a['run_id'])
                 if run['input'].get('profile_digest')!=e['profile_digest']:raise RuntimeErrorCode('PROFILE_CHANGED')

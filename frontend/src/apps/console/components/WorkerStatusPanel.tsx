@@ -24,6 +24,12 @@ export default function WorkerStatusPanel() {
     </div>
     {stale && <p role="status">节点观测暂不可用，当前保留最近一次信息。</p>}
     {status && !sorted.length && <p>暂无已注册 Worker。任务将在节点连接后领取。</p>}
+    {status?.circuits?.filter(c => c.state !== "closed").map(c => <p className="tr-notice" key={c.resource}>
+      {c.resource} · {stale ? "熔断观测待更新" : c.state === "half_open" ?
+        status.attempts.some(a => a.attempt_id === c.probe_attempt && a.freshness === "stale") ? "探测结果待对账，暂停新领取" : "单路探测中，确认恢复后放开并发" :
+        `冷却中，下次可探测 ${new Date(c.retry_at * 1000).toLocaleTimeString("zh-CN", { hour12: false })}`}
+      {c.reason && <small> · {c.reason}</small>}
+    </p>)}
     {sorted.slice(0, 6).map(w => {
       const fresh = !stale && status!.observed_at - w.heartbeat_at <= 15;
       const active = status!.attempts.filter(a => a.worker_id === w.id);

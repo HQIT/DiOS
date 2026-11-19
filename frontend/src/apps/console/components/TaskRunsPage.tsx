@@ -202,13 +202,18 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
       {detail && <>
         <section className="tr-card"><div className="tr-section-title"><h3>{detail.goal}</h3><Badge state={detail.state} /></div>
           <p className="tr-muted">{detail.display.name || detail.profile_id} · {detail.display.synthetic ? "合成端点" : detail.display.implementation}</p>
-          <div className="tr-metrics"><div><span>当前阶段</span><strong>{detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : LABELS[active?.state || detail.state] || active?.state}</strong></div>
+          <div className="tr-metrics"><div><span>当前阶段</span><strong>{detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : LABELS[active?.state || detail.state] || active?.state}</strong></div>
             <div><span>进程观测</span><strong>{detailError ? "更新中断" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.confirmed_running ? "确认运行中" : "尚未确认运行"}</strong></div>
             <div><span>最近有效输出</span><strong>{time(active?.last_output_at)}</strong></div>
           </div>
           {detail.state === "queued" && <p className="tr-notice">任务已入队，等待对应 Agent 的 Worker 领取。</p>}
           {detail.state === "reconciliation_required" && <p className="tr-notice">正在等待原执行结果对账，任务身份与已有输出已保留。</p>}
           {active?.error && <p className="tr-error">失败原因：{active.error.code}</p>}
+          {detail.recovery && <p className="tr-notice" role="status">
+            故障分类：{({ network: "网络故障", rate_limit: "服务限流", quota: "额度不足", session: "会话创建失败", process: "进程退出", format: "结果格式", evidence: "证据不足", authorization: "授权限制" } as Record<string,string>)[detail.recovery.category] || detail.recovery.category}
+            {detail.state === "retry_wait" && detail.recovery.retry_at && <> · 下次重试 {time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0))}，继续原任务</>}
+            {detail.recovery.reason && <> · 自动重试受限：{detail.recovery.reason}</>}
+          </p>}
           <div className="tr-actions"><span className="tr-muted">最近更新：{time(detail.observed_at)}</span>
             {!terminal(detail.state) && <button disabled={busy || detail.cancel_requested || !!detailError} onClick={() => void cancel()}>{detail.cancel_requested ? "取消待确认" : "取消任务"}</button>}</div>
         </section>

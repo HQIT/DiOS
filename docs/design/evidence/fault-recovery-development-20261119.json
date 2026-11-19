@@ -1,0 +1,711 @@
+{
+  "date": "2026-11-19",
+  "environment": "WSL localhost mTLS; two independent remote Worker processes and real Docker; synthetic provider failures",
+  "cases": [
+    {
+      "fault": "PROVIDER_RATE_LIMITED",
+      "run_id": "683001f8-2f7d-4b66-b140-06a705138a90",
+      "state": "succeeded",
+      "attempts": [
+        {
+          "id": "960477b3-4a09-4d54-9088-4e9c4eb30e10",
+          "state": "completed",
+          "session_id": "recovered-4fbfee1c225d4180b213ebe63b702365",
+          "worker_id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+          "error": null
+        },
+        {
+          "id": "23acc2d7-2e88-4d76-866e-3bb8e6dd7885",
+          "state": "failed",
+          "session_id": null,
+          "worker_id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+          "error": {
+            "code": "PROVIDER_RATE_LIMITED",
+            "category": "rate_limit",
+            "retry_at": 1795080399.2950077,
+            "retry_blocked": null
+          }
+        }
+      ],
+      "cooldown": {
+        "run_id": "683001f8-2f7d-4b66-b140-06a705138a90",
+        "scope": "validation",
+        "attempt_id": "23acc2d7-2e88-4d76-866e-3bb8e6dd7885",
+        "resource": "validation:model-account",
+        "state": "waiting",
+        "category": "rate_limit",
+        "code": "PROVIDER_RATE_LIMITED",
+        "retry_at": 1795080399.2950077,
+        "reason": null,
+        "updated_at": 1795080384.2950077,
+        "circuit": {
+          "scope": "validation",
+          "resource": "validation:model-account",
+          "state": "open",
+          "failures": 1,
+          "retry_at": 1795080399.2950077,
+          "probe_attempt": null,
+          "reason": "PROVIDER_RATE_LIMITED",
+          "updated_at": 1795080384.2950077
+        }
+      },
+      "probe_observation": {
+        "scope": "validation",
+        "observed_at": 1795080400.8900092,
+        "registered_slots": 7,
+        "confirmed_running_processes": 1,
+        "confirmed_running_sessions": 1,
+        "actual_concurrency": 1,
+        "unknown_attempts": 0,
+        "workers": [
+          {
+            "id": "85b6d7f0-6e73-4220-8c5c-0a937a6465ae",
+            "scope": "validation",
+            "instance": "eb6c2673-634f-4510-aed1-4aaadc268507",
+            "host": "Gang-Laptop",
+            "pid": 2267,
+            "slots": 1,
+            "draining": true,
+            "heartbeat_at": 1794563945.7050085
+          },
+          {
+            "id": "validation-worker:a9766879109e48a8ac06b853dd020e94",
+            "scope": "validation",
+            "instance": "3b9f2d97-3e11-4181-99dc-65dcff157a85",
+            "host": "Gang-Laptop",
+            "pid": 8802,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1794581832.2759852
+          },
+          {
+            "id": "remote-review:6485acd4b0d64f34841d0c13956c286e",
+            "scope": "validation",
+            "instance": "9ccf0870-9e8f-427f-b813-dc40be37973c",
+            "host": "Gang-Laptop",
+            "pid": 1346,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795078203.4229903
+          },
+          {
+            "id": "remote-review:d5a5a9f9df6d422f8ad374d649cf302b",
+            "scope": "validation",
+            "instance": "9e768088-4179-4fcb-af4d-44c85cb3704d",
+            "host": "Gang-Laptop",
+            "pid": 2586,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080155.3860097
+          },
+          {
+            "id": "remote-review:3ba4eb26e33d41c08780c6ffefd0cafc",
+            "scope": "validation",
+            "instance": "8e8de7d5-0e18-4b6c-a2ef-7536ff3e8135",
+            "host": "Gang-Laptop",
+            "pid": 8586,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080400.6610022
+          },
+          {
+            "id": "remote-review:0c1ef43f871d4a6c8898d8b72503a904",
+            "scope": "validation",
+            "instance": "e458ff72-79c7-4c5d-92d5-a18d2427f3b0",
+            "host": "Gang-Laptop",
+            "pid": 8588,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080400.7969902
+          },
+          {
+            "id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+            "scope": "validation",
+            "instance": "4e2da64f-c45b-4bb5-95c1-0a7f1b54c663",
+            "host": "Gang-Laptop",
+            "pid": 8587,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080399.939984
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "683001f8-2f7d-4b66-b140-06a705138a90",
+            "attempt_id": "960477b3-4a09-4d54-9088-4e9c4eb30e10",
+            "phase": "waiting_model",
+            "worker_id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+            "session_id": "recovered-4fbfee1c225d4180b213ebe63b702365",
+            "process_id": 9871,
+            "process_instance": "25e208d7b36719c3228329a14d549561814405697acd03b956667c23467c33f0:2026-11-19T09:26:40.108349227Z",
+            "last_output_at": null,
+            "freshness": "fresh",
+            "runtime": {
+              "handle": "960477b3-4a09-4d54-9088-4e9c4eb30e10",
+              "state": "running",
+              "alive": true,
+              "pid": 9871,
+              "process_instance": "25e208d7b36719c3228329a14d549561814405697acd03b956667c23467c33f0:2026-11-19T09:26:40.108349227Z",
+              "exit_code": null,
+              "health": "not_configured",
+              "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "3f53c9cc-5227-4145-b29d-dcffbd199e81",
+              "observed_at": 1795080400.6929874
+            }
+          }
+        ],
+        "circuits": [
+          {
+            "scope": "validation",
+            "resource": "validation:model-account",
+            "state": "half_open",
+            "failures": 1,
+            "retry_at": 1795080399.2950077,
+            "probe_attempt": "960477b3-4a09-4d54-9088-4e9c4eb30e10",
+            "reason": "PROVIDER_RATE_LIMITED",
+            "updated_at": 1795080399.4120047
+          }
+        ]
+      },
+      "restored_observation": {
+        "scope": "validation",
+        "observed_at": 1795080411.8749828,
+        "registered_slots": 7,
+        "confirmed_running_processes": 2,
+        "confirmed_running_sessions": 2,
+        "actual_concurrency": 2,
+        "unknown_attempts": 0,
+        "workers": [
+          {
+            "id": "85b6d7f0-6e73-4220-8c5c-0a937a6465ae",
+            "scope": "validation",
+            "instance": "eb6c2673-634f-4510-aed1-4aaadc268507",
+            "host": "Gang-Laptop",
+            "pid": 2267,
+            "slots": 1,
+            "draining": true,
+            "heartbeat_at": 1794563945.7050085
+          },
+          {
+            "id": "validation-worker:a9766879109e48a8ac06b853dd020e94",
+            "scope": "validation",
+            "instance": "3b9f2d97-3e11-4181-99dc-65dcff157a85",
+            "host": "Gang-Laptop",
+            "pid": 8802,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1794581832.2759852
+          },
+          {
+            "id": "remote-review:6485acd4b0d64f34841d0c13956c286e",
+            "scope": "validation",
+            "instance": "9ccf0870-9e8f-427f-b813-dc40be37973c",
+            "host": "Gang-Laptop",
+            "pid": 1346,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795078203.4229903
+          },
+          {
+            "id": "remote-review:d5a5a9f9df6d422f8ad374d649cf302b",
+            "scope": "validation",
+            "instance": "9e768088-4179-4fcb-af4d-44c85cb3704d",
+            "host": "Gang-Laptop",
+            "pid": 2586,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080155.3860097
+          },
+          {
+            "id": "remote-review:3ba4eb26e33d41c08780c6ffefd0cafc",
+            "scope": "validation",
+            "instance": "8e8de7d5-0e18-4b6c-a2ef-7536ff3e8135",
+            "host": "Gang-Laptop",
+            "pid": 8586,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080411.796005
+          },
+          {
+            "id": "remote-review:0c1ef43f871d4a6c8898d8b72503a904",
+            "scope": "validation",
+            "instance": "e458ff72-79c7-4c5d-92d5-a18d2427f3b0",
+            "host": "Gang-Laptop",
+            "pid": 8588,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080410.4209974
+          },
+          {
+            "id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+            "scope": "validation",
+            "instance": "4e2da64f-c45b-4bb5-95c1-0a7f1b54c663",
+            "host": "Gang-Laptop",
+            "pid": 8587,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080410.589011
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "eb7228f3-362e-4207-8a29-4f80abbbf38d",
+            "attempt_id": "91185531-04c5-4ac5-89b3-6c376ee6de8f",
+            "phase": "streaming",
+            "worker_id": "remote-review:0c1ef43f871d4a6c8898d8b72503a904",
+            "session_id": "recovered-04d716a697dd43ccb5ecad7bdc4511eb",
+            "process_id": 9948,
+            "process_instance": "5707dc1e21df903539f874b3897347f9db13f452b8f9aab727e60db1b617ff83:2026-11-19T09:26:50.599527173Z",
+            "last_output_at": 1795080411.3327332,
+            "freshness": "fresh",
+            "runtime": {
+              "handle": "91185531-04c5-4ac5-89b3-6c376ee6de8f",
+              "state": "running",
+              "alive": true,
+              "pid": 9948,
+              "process_instance": "5707dc1e21df903539f874b3897347f9db13f452b8f9aab727e60db1b617ff83:2026-11-19T09:26:50.599527173Z",
+              "exit_code": null,
+              "health": "not_configured",
+              "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "3f53c9cc-5227-4145-b29d-dcffbd199e81",
+              "observed_at": 1795080411.7690086
+            }
+          },
+          {
+            "run_id": "ceeb1935-8110-4ae2-9a88-cdb554904039",
+            "attempt_id": "68bb7857-769b-49ef-9ddd-4d13b89375f1",
+            "phase": "streaming",
+            "worker_id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+            "session_id": "recovered-9878b2bf643a4fc3b891b3e8a8e304f4",
+            "process_id": 9992,
+            "process_instance": "28f0ec468b6a3837aecd1210ac2eaf221efd35afa007cc9a28ad856e0dc5171f:2026-11-19T09:26:50.772084505Z",
+            "last_output_at": 1795080411.5872614,
+            "freshness": "fresh",
+            "runtime": {
+              "handle": "68bb7857-769b-49ef-9ddd-4d13b89375f1",
+              "state": "running",
+              "alive": true,
+              "pid": 9992,
+              "process_instance": "28f0ec468b6a3837aecd1210ac2eaf221efd35afa007cc9a28ad856e0dc5171f:2026-11-19T09:26:50.772084505Z",
+              "exit_code": null,
+              "health": "not_configured",
+              "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "3f53c9cc-5227-4145-b29d-dcffbd199e81",
+              "observed_at": 1795080411.3360195
+            }
+          }
+        ],
+        "circuits": [
+          {
+            "scope": "validation",
+            "resource": "validation:model-account",
+            "state": "closed",
+            "failures": 0,
+            "retry_at": 0,
+            "probe_attempt": null,
+            "reason": null,
+            "updated_at": 1795080409.833996
+          }
+        ]
+      },
+      "related_runs": [
+        "eb7228f3-362e-4207-8a29-4f80abbbf38d",
+        "ceeb1935-8110-4ae2-9a88-cdb554904039"
+      ],
+      "execution_grants": [
+        {
+          "attempt_id": "23acc2d7-2e88-4d76-866e-3bb8e6dd7885",
+          "epoch": 1,
+          "state": "closed"
+        },
+        {
+          "attempt_id": "960477b3-4a09-4d54-9088-4e9c4eb30e10",
+          "epoch": 2,
+          "state": "closed"
+        }
+      ]
+    },
+    {
+      "fault": "PROVIDER_QUOTA_EXHAUSTED",
+      "run_id": "158e4d07-f35f-44d2-be30-8e352a4c0dbe",
+      "state": "succeeded",
+      "attempts": [
+        {
+          "id": "fefd8bc8-65c6-49eb-b9c9-25697ea3f41a",
+          "state": "completed",
+          "session_id": "recovered-6db84de9587d4aaaa795ab56ed2c2808",
+          "worker_id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+          "error": null
+        },
+        {
+          "id": "056a6584-ea54-4154-b739-f5efdad1471e",
+          "state": "failed",
+          "session_id": null,
+          "worker_id": "remote-review:0c1ef43f871d4a6c8898d8b72503a904",
+          "error": {
+            "code": "PROVIDER_QUOTA_EXHAUSTED",
+            "category": "quota",
+            "retry_at": 1795080453.1899886,
+            "retry_blocked": null
+          }
+        }
+      ],
+      "cooldown": {
+        "run_id": "158e4d07-f35f-44d2-be30-8e352a4c0dbe",
+        "scope": "validation",
+        "attempt_id": "056a6584-ea54-4154-b739-f5efdad1471e",
+        "resource": "validation:model-account",
+        "state": "waiting",
+        "category": "quota",
+        "code": "PROVIDER_QUOTA_EXHAUSTED",
+        "retry_at": 1795080453.1899886,
+        "reason": null,
+        "updated_at": 1795080423.1899886,
+        "circuit": {
+          "scope": "validation",
+          "resource": "validation:model-account",
+          "state": "open",
+          "failures": 1,
+          "retry_at": 1795080453.1899886,
+          "probe_attempt": null,
+          "reason": "PROVIDER_QUOTA_EXHAUSTED",
+          "updated_at": 1795080423.1899886
+        }
+      },
+      "probe_observation": {
+        "scope": "validation",
+        "observed_at": 1795080455.4020047,
+        "registered_slots": 7,
+        "confirmed_running_processes": 1,
+        "confirmed_running_sessions": 1,
+        "actual_concurrency": 1,
+        "unknown_attempts": 0,
+        "workers": [
+          {
+            "id": "85b6d7f0-6e73-4220-8c5c-0a937a6465ae",
+            "scope": "validation",
+            "instance": "eb6c2673-634f-4510-aed1-4aaadc268507",
+            "host": "Gang-Laptop",
+            "pid": 2267,
+            "slots": 1,
+            "draining": true,
+            "heartbeat_at": 1794563945.7050085
+          },
+          {
+            "id": "validation-worker:a9766879109e48a8ac06b853dd020e94",
+            "scope": "validation",
+            "instance": "3b9f2d97-3e11-4181-99dc-65dcff157a85",
+            "host": "Gang-Laptop",
+            "pid": 8802,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1794581832.2759852
+          },
+          {
+            "id": "remote-review:6485acd4b0d64f34841d0c13956c286e",
+            "scope": "validation",
+            "instance": "9ccf0870-9e8f-427f-b813-dc40be37973c",
+            "host": "Gang-Laptop",
+            "pid": 1346,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795078203.4229903
+          },
+          {
+            "id": "remote-review:d5a5a9f9df6d422f8ad374d649cf302b",
+            "scope": "validation",
+            "instance": "9e768088-4179-4fcb-af4d-44c85cb3704d",
+            "host": "Gang-Laptop",
+            "pid": 2586,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080155.3860097
+          },
+          {
+            "id": "remote-review:3ba4eb26e33d41c08780c6ffefd0cafc",
+            "scope": "validation",
+            "instance": "8e8de7d5-0e18-4b6c-a2ef-7536ff3e8135",
+            "host": "Gang-Laptop",
+            "pid": 8586,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080455.2850068
+          },
+          {
+            "id": "remote-review:0c1ef43f871d4a6c8898d8b72503a904",
+            "scope": "validation",
+            "instance": "e458ff72-79c7-4c5d-92d5-a18d2427f3b0",
+            "host": "Gang-Laptop",
+            "pid": 8588,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080455.1190047
+          },
+          {
+            "id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+            "scope": "validation",
+            "instance": "4e2da64f-c45b-4bb5-95c1-0a7f1b54c663",
+            "host": "Gang-Laptop",
+            "pid": 8587,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080453.9810107
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "158e4d07-f35f-44d2-be30-8e352a4c0dbe",
+            "attempt_id": "fefd8bc8-65c6-49eb-b9c9-25697ea3f41a",
+            "phase": "streaming",
+            "worker_id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+            "session_id": "recovered-6db84de9587d4aaaa795ab56ed2c2808",
+            "process_id": 10479,
+            "process_instance": "55d7b6ea64eae078537349a769a629905fc2096dbd0f8119c70cf29e51d7a318:2026-11-19T09:27:34.175950315Z",
+            "last_output_at": 1795080455.0887527,
+            "freshness": "fresh",
+            "runtime": {
+              "handle": "fefd8bc8-65c6-49eb-b9c9-25697ea3f41a",
+              "state": "running",
+              "alive": true,
+              "pid": 10479,
+              "process_instance": "55d7b6ea64eae078537349a769a629905fc2096dbd0f8119c70cf29e51d7a318:2026-11-19T09:27:34.175950315Z",
+              "exit_code": null,
+              "health": "not_configured",
+              "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "3f53c9cc-5227-4145-b29d-dcffbd199e81",
+              "observed_at": 1795080454.8679903
+            }
+          }
+        ],
+        "circuits": [
+          {
+            "scope": "validation",
+            "resource": "validation:model-account",
+            "state": "half_open",
+            "failures": 1,
+            "retry_at": 1795080453.1899886,
+            "probe_attempt": "fefd8bc8-65c6-49eb-b9c9-25697ea3f41a",
+            "reason": "PROVIDER_QUOTA_EXHAUSTED",
+            "updated_at": 1795080453.4029813
+          }
+        ]
+      },
+      "restored_observation": {
+        "scope": "validation",
+        "observed_at": 1795080467.6189973,
+        "registered_slots": 7,
+        "confirmed_running_processes": 2,
+        "confirmed_running_sessions": 2,
+        "actual_concurrency": 2,
+        "unknown_attempts": 0,
+        "workers": [
+          {
+            "id": "85b6d7f0-6e73-4220-8c5c-0a937a6465ae",
+            "scope": "validation",
+            "instance": "eb6c2673-634f-4510-aed1-4aaadc268507",
+            "host": "Gang-Laptop",
+            "pid": 2267,
+            "slots": 1,
+            "draining": true,
+            "heartbeat_at": 1794563945.7050085
+          },
+          {
+            "id": "validation-worker:a9766879109e48a8ac06b853dd020e94",
+            "scope": "validation",
+            "instance": "3b9f2d97-3e11-4181-99dc-65dcff157a85",
+            "host": "Gang-Laptop",
+            "pid": 8802,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1794581832.2759852
+          },
+          {
+            "id": "remote-review:6485acd4b0d64f34841d0c13956c286e",
+            "scope": "validation",
+            "instance": "9ccf0870-9e8f-427f-b813-dc40be37973c",
+            "host": "Gang-Laptop",
+            "pid": 1346,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795078203.4229903
+          },
+          {
+            "id": "remote-review:d5a5a9f9df6d422f8ad374d649cf302b",
+            "scope": "validation",
+            "instance": "9e768088-4179-4fcb-af4d-44c85cb3704d",
+            "host": "Gang-Laptop",
+            "pid": 2586,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080155.3860097
+          },
+          {
+            "id": "remote-review:3ba4eb26e33d41c08780c6ffefd0cafc",
+            "scope": "validation",
+            "instance": "8e8de7d5-0e18-4b6c-a2ef-7536ff3e8135",
+            "host": "Gang-Laptop",
+            "pid": 8586,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080467.344004
+          },
+          {
+            "id": "remote-review:0c1ef43f871d4a6c8898d8b72503a904",
+            "scope": "validation",
+            "instance": "e458ff72-79c7-4c5d-92d5-a18d2427f3b0",
+            "host": "Gang-Laptop",
+            "pid": 8588,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080466.008988
+          },
+          {
+            "id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+            "scope": "validation",
+            "instance": "4e2da64f-c45b-4bb5-95c1-0a7f1b54c663",
+            "host": "Gang-Laptop",
+            "pid": 8587,
+            "slots": 1,
+            "draining": false,
+            "heartbeat_at": 1795080466.2159874
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "d9416d02-394c-498a-bdb2-f5d01f8a12f5",
+            "attempt_id": "f2d75a32-36f0-4553-94c9-a638b01019f9",
+            "phase": "streaming",
+            "worker_id": "remote-review:0c1ef43f871d4a6c8898d8b72503a904",
+            "session_id": "recovered-733c39eb62d3406c8af3055ae6e3edfe",
+            "process_id": 10565,
+            "process_instance": "dd3e4cb6af3e1d1718fe76fde071b3aff6fe9a6df721fe29d809a1184b7eea8f:2026-11-19T09:27:46.192937793Z",
+            "last_output_at": 1795080467.0465455,
+            "freshness": "fresh",
+            "runtime": {
+              "handle": "f2d75a32-36f0-4553-94c9-a638b01019f9",
+              "state": "running",
+              "alive": true,
+              "pid": 10565,
+              "process_instance": "dd3e4cb6af3e1d1718fe76fde071b3aff6fe9a6df721fe29d809a1184b7eea8f:2026-11-19T09:27:46.192937793Z",
+              "exit_code": null,
+              "health": "not_configured",
+              "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "3f53c9cc-5227-4145-b29d-dcffbd199e81",
+              "observed_at": 1795080467.5050168
+            }
+          },
+          {
+            "run_id": "660ea2e2-be9a-4bf1-b89c-baf0e22cc507",
+            "attempt_id": "a51bbf94-f17d-47a6-be7b-e8fd854cb97e",
+            "phase": "streaming",
+            "worker_id": "remote-review:08365e9559324cd4b61da9b2dc4cf0f6",
+            "session_id": "recovered-c7a0595c6def49edb929d3469538e364",
+            "process_id": 10617,
+            "process_instance": "fb8821bc21ad2fbcf83b971245ca8267e3a57124bbc80648551c065124759eb8:2026-11-19T09:27:46.44496468Z",
+            "last_output_at": 1795080467.3330572,
+            "freshness": "fresh",
+            "runtime": {
+              "handle": "a51bbf94-f17d-47a6-be7b-e8fd854cb97e",
+              "state": "running",
+              "alive": true,
+              "pid": 10617,
+              "process_instance": "fb8821bc21ad2fbcf83b971245ca8267e3a57124bbc80648551c065124759eb8:2026-11-19T09:27:46.44496468Z",
+              "exit_code": null,
+              "health": "not_configured",
+              "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "3f53c9cc-5227-4145-b29d-dcffbd199e81",
+              "observed_at": 1795080467.1609833
+            }
+          }
+        ],
+        "circuits": [
+          {
+            "scope": "validation",
+            "resource": "validation:model-account",
+            "state": "closed",
+            "failures": 0,
+            "retry_at": 0,
+            "probe_attempt": null,
+            "reason": null,
+            "updated_at": 1795080465.2759805
+          }
+        ]
+      },
+      "related_runs": [
+        "d9416d02-394c-498a-bdb2-f5d01f8a12f5",
+        "660ea2e2-be9a-4bf1-b89c-baf0e22cc507"
+      ],
+      "execution_grants": [
+        {
+          "attempt_id": "056a6584-ea54-4154-b739-f5efdad1471e",
+          "epoch": 1,
+          "state": "closed"
+        },
+        {
+          "attempt_id": "fefd8bc8-65c6-49eb-b9c9-25697ea3f41a",
+          "epoch": 2,
+          "state": "closed"
+        }
+      ]
+    }
+  ],
+  "console_errors": [],
+  "mobile_overflow": false,
+  "frontend_tests": {
+    "passed": 9
+  },
+  "frontend_build": "passed",
+  "design_contract_checks": 681,
+  "migration": {
+    "result": {
+      "version": 1,
+      "history_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "changed": true
+    },
+    "backup": "before-faults-1795080157",
+    "ready_before_upgrade": true
+  },
+  "observation_ui": {
+    "scope": "UI-only injected stale observation and unavailable endpoint",
+    "unknownProbeVisible": true,
+    "unknownConcurrencyVisible": true,
+    "staleCircuitRetained": true
+  },
+  "approval_compatibility": {
+    "runId": "1552f21e-2756-44fc-a33a-589b552c2a7c",
+    "approval": true,
+    "reportDownload": true,
+    "reportEvidence": true,
+    "mobileOverflow": false,
+    "url": "http://127.0.0.1:13082/dios/#console/tasks/1552f21e-2756-44fc-a33a-589b552c2a7c"
+  },
+  "negative_browser_cases": {
+    "checks": [
+      "invalid-approver-rejected",
+      "denied-tool-fails-run",
+      "previous-artifact-cleared",
+      "cancel-confirmed-after-worker-exit",
+      "operator-auth-required",
+      "service-failure-visible",
+      "shared-navigation-and-mobile"
+    ],
+    "consoleErrors": []
+  },
+  "remaining": [
+    "physical multi-host and vendor Agent qualification #58",
+    "provider-specific error mapping #56",
+    "independent permissions review before G2"
+  ]
+}

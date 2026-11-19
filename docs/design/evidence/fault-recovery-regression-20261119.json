@@ -1,0 +1,123 @@
+{
+  "scope": "runtime foundation and existing backend regression; isolated execution fixtures; no production migration or Agent certification",
+  "python": "3.12.3",
+  "sqlalchemy": "2.0.48",
+  "platform": "Linux",
+  "postgresql_enabled": true,
+  "docker_worker_enabled": true,
+  "worker_concurrency_evidence": [
+    {
+      "configured_slots": 3,
+      "actual_concurrency": 3,
+      "workers": [
+        {
+          "id": "9f853bfa-920c-4375-bab3-a6744d408c23",
+          "pid": 13258,
+          "instance": "13aeb135-db94-4427-9f3a-b956b7564d89"
+        },
+        {
+          "id": "0a8401a0-d38f-4a26-adbb-48a279549286",
+          "pid": 13259,
+          "instance": "79839913-89a7-4ea3-bb99-af921690a9e3"
+        },
+        {
+          "id": "dde3bb97-33ac-4e0d-be4b-58ff2f071506",
+          "pid": 13257,
+          "instance": "7e6ba30d-233b-4481-a5dc-79351a5c9b95"
+        }
+      ],
+      "attempts": [
+        {
+          "run_id": "af9047ed-5d27-4c76-9549-39cd3c51d712",
+          "attempt_id": "72dc48c2-c6f0-490b-af6e-c8d3a131f1ca",
+          "worker_id": "9f853bfa-920c-4375-bab3-a6744d408c23",
+          "session_id": "d5ff17ea-1a39-4b2a-b34a-de3dd0a8c6c1",
+          "process_id": 13333,
+          "process_instance": "a0db71373fc8cc2b6d5616ebd13f65611ada2690afb6bcf1da9b6948d93d5353:2026-11-19T09:33:47.262934539Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "0e5bd418-a75b-4ded-a620-b1c1863d3f26",
+          "attempt_id": "6233b860-2df2-40d9-a474-a46abaeb7ffb",
+          "worker_id": "0a8401a0-d38f-4a26-adbb-48a279549286",
+          "session_id": "9f915acd-d965-4fae-8786-ef666676d8e1",
+          "process_id": 13378,
+          "process_instance": "e34cf826f4259f84bea6870ba46db1589e883ea914fa2ef1cd68e35329791c82:2026-11-19T09:33:47.356550942Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "f67c4405-71a3-4e48-aef0-f641296ca16f",
+          "attempt_id": "d995aed9-77eb-40ed-b87b-b75f7e5823dd",
+          "worker_id": "dde3bb97-33ac-4e0d-be4b-58ff2f071506",
+          "session_id": "fc50b93a-6cef-4700-a4f6-fa0acd5bb2bd",
+          "process_id": 13429,
+          "process_instance": "ef545a28be2bbbf6b17d2fbe4c2c2626af6ec76f0f667997ddba585596cf5f3c:2026-11-19T09:33:47.576278285Z",
+          "freshness": "fresh"
+        }
+      ]
+    }
+  ],
+  "tests_run": 387,
+  "skipped": 4,
+  "failures": 0,
+  "errors": 0,
+  "duration_seconds": 328.722,
+  "successful": true,
+  "cases": [
+    {
+      "test": "test_runtime_faults.PostgresFaultTests.test_backup_contains_circuit_and_retry_plan",
+      "reason": "SQLite backup provider"
+    },
+    {
+      "test": "test_runtime_remote_control.PostgresRemoteControlTests.test_backup_contains_incomplete_upload_and_resumes",
+      "reason": "SQLite backup provider"
+    },
+    {
+      "test": "test_runtime_work_authorizations.PostgresWorkAuthorizationTests.test_backup_includes_authorization_component",
+      "reason": "SQLite backup provider"
+    },
+    {
+      "test": "test_runtime_worker_credentials.PostgresWorkerCredentialTests.test_restart_and_backup_preserve_hashes",
+      "reason": "SQLite backup provider"
+    }
+  ],
+  "limits": [
+    "PostgreSQL single isolated node; no HA/capacity claim",
+    "Windows process-tree and actual Agent tests pending",
+    "Legacy scheduler takeover, provider-specific error mapping and multi-host qualification remain separate integration work",
+    "Browser verification is recorded separately from this backend suite"
+  ],
+  "date": "2026-11-19",
+  "base_commit": "c9110d5",
+  "focused_verification": {
+    "reason": "Shared circuit ownership, E2AG, unknown effects and complete-result exit conflicts",
+    "command": "python -m unittest discover -s tests -p test_runtime_faults.py",
+    "passed": 31,
+    "skipped": 1,
+    "failed": 0
+  },
+  "source_sha256": {
+    "backend/app/runtime/fault_schema.py": "7398812c1747c2549f0fd3af1e26c2b9dd58444c32c52fdd1fdf66c02fedae3b",
+    "backend/app/runtime/faults.py": "755414e007f2465b55919a47dc9c0020c25b152446bcfd6f8e9f32b983c1946e",
+    "backend/tests/test_runtime_faults.py": "17e435003faf2ad495d38d72353ed61b792e26939b8f26f1cf9cc2057747be6c",
+    "scripts/check_runtime_fault_observation.mjs": "611d87011b44092c98d223babb3ce9a6363a326b3475a466566397af658cb94b",
+    "scripts/check_runtime_faults.mjs": "23c7b745593dfe410b762f5d6a7b110e6220f3e04f39ec848225dd70129daef4",
+    "backend/app/runtime/bridge.py": "0accdc6309b5f156e1d6d1b448d510399594984f42a290ef5ea291f29d8a69ab",
+    "backend/app/runtime/cli.py": "12f48e574ed9d44a2aeb34a01bf450a3183fdec9d51aba9e3562776b7d64fa1b",
+    "backend/app/runtime/database.py": "d3de94bee46e4b0ab03f0940e1328ffb12112f97a4c7c05233b1922e0ea17170",
+    "backend/app/runtime/reconciliation.py": "be87559f6dd359f4183485705af9592aab712ce5d1e5b78a880dd84363d00a1f",
+    "backend/app/runtime/recovery.py": "d94effbe944c6c9be6da56293426eee680d8c41c93b647ad0fed884ac8b27ec4",
+    "backend/app/runtime/remote_control.py": "2c98ade0d01d45b1648b18603e181aed3196262e419b366829c58b5854b28ef4",
+    "backend/app/runtime/remote_runtime.py": "e100c210aa660d68d2903cdea41fe051435519a35fac2c45a2bcbaa7ae2b0599",
+    "backend/app/runtime/store.py": "5859ccb80ae1f608a332fecef0793cce9a7be32096eb12cac3dfe2b947fd58a4",
+    "backend/app/runtime/worker.py": "e72101ae28ea2bd455cb168bd977355c5ca7c9f17ec60dac20a1c4408a00d5f5",
+    "backend/app/services/task_console.py": "487ab87a61dcf1fc9eabff06b63321b2ab0f46f2ac01c46ebfc6771a9189d19c",
+    "backend/tests/test_runtime_remote_control.py": "682abcc98e597fc2f2cd26c942f8fba2397acd2121e97d8805d57714121661d0",
+    "frontend/src/api/runtime.ts": "33a09479cb9c39de539adddf217c76850c8712ff3b236eb9a9604f209a25044f",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "e132ad53f0703f1088bab11e469afa25e75358037463f3c170e0cb8bc70901a4",
+    "frontend/src/apps/console/components/WorkerStatusPanel.tsx": "7844b7b1c31430e333dcc88d6cc1ac3f134b2eb6c43d15cf13c6071585e33aa8",
+    "scripts/check_runtime_console_errors.mjs": "f8fac5ad201b44e8aac66886297aee5134bbb900f239d536cdaafab39f71937f",
+    "scripts/check_runtime_foundation.py": "d43111a4607bb9ca8e0d982fc793c0d9ecd98cf2a4b54c4c3a786543eb58f86b",
+    "scripts/check_runtime_remote.mjs": "5f7d35a6ff08cb528cf0ce2a5d481a4db77b827386f7704974f73ed1db57c730"
+  }
+}

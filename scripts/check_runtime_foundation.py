@@ -20,7 +20,7 @@ def main():
         'tests_run':result.testsRun,'skipped':len(result.skipped),'failures':len(result.failures),'errors':len(result.errors),
         'duration_seconds':round(time.monotonic()-started,3),'successful':result.wasSuccessful(),
         'cases':[{'test':case.id(),'reason':reason} for case,reason in result.skipped],
-        'limits':['PostgreSQL single isolated node; no HA/capacity claim','Windows process-tree and actual Agent tests pending','Legacy scheduler takeover and automatic circuit recovery remain separate integration work','Browser verification is recorded separately from this backend suite']}
+        'limits':['PostgreSQL single isolated node; no HA/capacity claim','Windows process-tree and actual Agent tests pending','Legacy scheduler takeover, provider-specific error mapping and multi-host qualification remain separate integration work','Browser verification is recorded separately from this backend suite']}
     if args.output:
         output=args.output if args.output.is_absolute() else ROOT/args.output
         output.parent.mkdir(parents=True,exist_ok=True);output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

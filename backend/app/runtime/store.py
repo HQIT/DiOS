@@ -44,6 +44,11 @@ class RuntimeStore:
     async def _event(self, c, run, kind, detail, now, **changes):
         version = run['version'] + 1
         state = changes.get('state', run['state'])
+        if state in TERMINAL and run['attempt_id']:
+            from .faults import outcome
+            await outcome(c,self.scope,run['attempt_id'],state=='succeeded',now)
+            from .fault_schema import plans
+            await c.execute(plans.update().where(plans.c.run_id==run['id']).values(state=state,retry_at=None,updated_at=now))
         if state in TERMINAL and run['input'].get('work_authorization_ref'):
             from .work_authorizations import close
             await close(c,run)
@@ -101,7 +106,7 @@ class RuntimeStore:
             result = await c.execute(workers.update().where(workers.c.id == worker_id, workers.c.scope == self.scope).values(draining=True))
             if result.rowcount != 1: raise RuntimeErrorCode('NOT_FOUND')
 
-    async def claim(self, worker_id, instance, lease_seconds=60, *, profile_id=None):
+    async def claim(self, worker_id, instance, lease_seconds=60, *, profile_id=None, recovery_policy=None):
         if not 1 <= lease_seconds <= 60: raise RuntimeErrorCode('INVALID_LEASE')
         async with self.db.transaction(self.scope) as c:
             if not await admission(c, self.scope): return None
@@ -113,6 +118,9 @@ class RuntimeStore:
             busy = (await c.execute(select(attempts.c.id).where(attempts.c.worker_id == worker_id,
                 attempts.c.state.in_(ACTIVE_ATTEMPTS | {'result_unknown'})))).all()
             if len(busy) >= w['slots']: return None
+            from .faults import policy,ready,claimed
+            recovery_policy=policy(recovery_policy)
+            if not await ready(c,self,recovery_policy,profile_id,now):return None
             query = select(runs).where(runs.c.scope == self.scope, runs.c.state == 'queued',
                 runs.c.revoked == False, runs.c.cancel_requested == False)
             if profile_id is not None:
@@ -127,6 +135,7 @@ class RuntimeStore:
                 state='claimed', session_id=None, process_id=None, process_instance=None, last_sequence=0,
                 report_digest=None, remote={}, error=None, last_output_at=None, started_at=now, finished_at=None)
             await c.execute(attempts.insert().values(**record))
+            await claimed(c,self.scope,record,recovery_policy,now)
             await c.execute(workers.update().where(workers.c.id == worker_id).values(heartbeat_at=now))
             await self._event(c, run, 'attempt.claimed', {'attempt_id': aid, 'epoch': epoch}, now,
                 state='executing', epoch=epoch, attempt_id=aid)
@@ -250,6 +259,9 @@ class RuntimeStore:
                 raise RuntimeErrorCode('RETRY_NOT_ALLOWED')
             from .tool_invocations import require_settled
             await require_settled(c,self.scope,run_id)
+            from .fault_schema import plans
+            if (await c.execute(select(plans.c.run_id).where(plans.c.run_id==run_id))).first():
+                raise RuntimeErrorCode('RETRY_MANAGED_BY_POLICY')
             await self._event(c, run, 'run.retry_queued', {}, await self.db.now(c), state='queued')
 
     async def complete(self, run_id, attempt_id, worker_id, instance, epoch, provider, key, validator):
@@ -288,6 +300,9 @@ class RuntimeStore:
         async with self.db.read(self.scope) as c:
             run = await self._run(c, run_id)
             run['attempts'] = [dict(a) for a in (await c.execute(select(attempts).where(attempts.c.run_id == run_id).order_by(attempts.c.epoch))).mappings()]
+            from .faults import view,bound_policy
+            run['recovery']=await view(c,self.scope,run_id)
+            run['recovery_policy']=await bound_policy(c,self.scope,run['attempt_id'])
             run['observed_at'] = await self.db.now(c)
             return run
 
@@ -347,7 +362,7 @@ class RuntimeStore:
             if run['version'] != expected_version: raise RuntimeErrorCode('VERSION_CONFLICT')
             if run['state'] in TERMINAL: return run
             # Unclaimed work is safe to cancel immediately; running work needs confirmation.
-            state = 'cancelled' if run['state'] == 'queued' else run['state']
+            state = 'cancelled' if run['state'] in {'queued','retry_wait'} else run['state']
             await self._event(c, run, 'run.cancel_requested', {}, await self.db.now(c), state=state, cancel_requested=True)
             return await self._run(c, run_id)
 
@@ -408,9 +423,11 @@ class RuntimeStore:
             observation = a['remote'].get('runtime', {})
             if observation.get('alive') is not False or observation.get('state') not in {'exited','dead'}:
                 raise RuntimeErrorCode('PROCESS_EXIT_NOT_CONFIRMED')
+            from .faults import failed
+            state,error=await failed(c,self,run,a,code,now)
             await c.execute(attempts.update().where(attempts.c.id==a['id']).values(
-                state='failed',error={'code':code},finished_at=now))
-            await self._event(c,run,'attempt.failed',{'attempt_id':a['id'],'code':code},now,state='failed')
+                state='failed',error=error,finished_at=now))
+            await self._event(c,run,'attempt.failed',dict(attempt_id=a['id'],**error),now,state=state)
 
     async def mark_unknown(self, binding, code):
         """Observation/launch ambiguity fences the owner and never requeues automatically."""
@@ -427,6 +444,8 @@ class RuntimeStore:
         async with self.db.read(self.scope) as c:
             now = await self.db.now(c)
             worker_rows = [dict(r) for r in (await c.execute(select(workers).where(workers.c.scope==self.scope))).mappings()]
+            from .fault_schema import circuits
+            circuit_rows=[dict(r) for r in (await c.execute(select(circuits).where(circuits.c.scope==self.scope).order_by(circuits.c.updated_at.desc()).limit(50))).mappings()]
             rows = (await c.execute(select(attempts).join(runs,runs.c.id==attempts.c.run_id).where(
                 runs.c.scope==self.scope, attempts.c.state.in_(ACTIVE_ATTEMPTS|{'result_unknown'})))).mappings().all()
             observations, running, sessions, unknown = [], 0, 0, 0
@@ -445,7 +464,7 @@ class RuntimeStore:
             return {'scope':self.scope,'observed_at':now,'registered_slots':sum(w['slots'] for w in worker_rows),
                 'confirmed_running_processes':running,'confirmed_running_sessions':sessions,
                 'actual_concurrency':None if unknown else sessions,'unknown_attempts':unknown,
-                'workers':worker_rows,'attempts':observations}
+                'workers':worker_rows,'attempts':observations,'circuits':circuit_rows}
 
     async def resolve_exit(self, expected_run, expected_attempt, receipt, provider, *, session_id, result_key, failure):
         """Trusted reconciler commits evidence under CAS; it never restores the old lease."""
@@ -486,6 +505,10 @@ class RuntimeStore:
                 await require_current(c,run,a,now,'accept_result',session_id=session_id)
                 from .tool_invocations import require_settled
                 await require_settled(c,self.scope,run['id'])
+            error={'code':failure} if failure else None
+            if state=='failed':
+                from .faults import failed
+                state,error=await failed(c,self,run,a,failure,now)
             linked = {}
             for kind, blob in blobs.items():
                 if kind == 'result' and state != 'succeeded': continue
@@ -501,7 +524,7 @@ class RuntimeStore:
                     authorization_epoch=a['authorization_epoch']))
             await c.execute(attempts.update().where(attempts.c.id == a['id']).values(state=attempt_state,
                 session_id=session_id or a['session_id'], process_instance=obs['process_instance'], remote=remote,
-                error={'code':failure} if failure else None, finished_at=now))
+                error=error, finished_at=now))
             await self._event(c, run, 'attempt.exit_reconciled', dict(attempt_id=a['id'], artifacts=linked,
                 receipt_digest=digest(receipt), original_epoch=a['epoch'], authorization_epoch=a['authorization_epoch']),
                 now, state=state)

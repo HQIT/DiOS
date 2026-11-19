@@ -101,13 +101,15 @@ async def reconcile_run(store, adapter, provider, run_id, *, output_limit=1024*1
     if obs['handle'] != a['id']: raise RuntimeErrorCode('RUNTIME_BINDING_NOT_FOUND')
     bridge, result_key = JsonlBridge(), None
     failure = receipt['failure'] or ('OUTPUT_LIMIT_EXCEEDED' if receipt['truncated'] else None)
-    failure = failure or ('PROCESS_EXITED' if obs['exit_code'] != 0 else None)
+    # First validate retained output; teardown errors do not discard a complete result.
     try:
         data = await asyncio.to_thread(lambda: b''.join(provider.read(receipt['stdout'])))
         if len(data) > output_limit: raise RuntimeErrorCode('OUTPUT_LIMIT_EXCEEDED')
         bridge.feed(data, final=True)
     except RuntimeErrorCode as exc:
         failure = failure or exc.code
+    if not failure and obs['exit_code'] != 0 and not (bridge.result is not None and (run.get('recovery_policy') or {}).get('accept_complete_on_error')):
+        failure='RESULT_EXIT_CONFLICT' if bridge.result is not None and run.get('recovery_policy') else 'PROCESS_EXITED'
     if a['session_id'] and bridge.session_id != a['session_id']:
         raise RuntimeErrorCode('SESSION_CHANGED')
     if not failure and not run['cancel_requested'] and not run['revoked']:

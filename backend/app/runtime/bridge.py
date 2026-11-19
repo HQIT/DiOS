@@ -38,6 +38,11 @@ class JsonlBridge:
                 if message['text'].strip():
                     self.output_count += 1
                     self.output_excerpt = (self.output_excerpt + message['text'])[-2000:]
+            elif kind == 'error':
+                from .faults import CATEGORIES
+                code=message.get('code')
+                if set(message)!={'type','code'} or not isinstance(code,str) or code not in CATEGORIES:raise RuntimeErrorCode('RESULT_FORMAT_INVALID')
+                raise RuntimeErrorCode(code)
             elif kind == 'result' and self.session_id:
                 if message.get('session_id') != self.session_id:
                     raise RuntimeErrorCode('SESSION_CHANGED')

@@ -229,6 +229,25 @@ class RemoteControlTests(unittest.IsolatedAsyncioTestCase):
             return result
         finally:stop.set();await asyncio.wait_for(task,15)
     async def test_actual_tls_control_roundtrip(self):await self.actual_tls(self.adapter)
+
+    async def test_remote_retry_uses_server_profile_and_same_work_identity(self):
+        from app.runtime.fault_schema import circuits,plans
+        original=await self.f.store.get(self.run['id']);await self.f.store.cancel(original['id'],original['version'])
+        value=json.loads(self.profile.read_text());value['recovery']=dict(resource='shared-account',replay_safe=True,
+            max_attempts=3,base_delay=10,max_delay=30,quota_delay=60)
+        self.profile.write_text(json.dumps(value));_,self.f.spec=read_profile(self.profile)
+        self.policy,self.descriptor=policy_fixture(self.f.root,'test-profile',self.f.spec);self.server.policy=self.policy
+        remote=self.client();self.run=await self.submit('retry')
+        adapter=fixtures.FakeAdapter(b'{"type":"error","code":"PROVIDER_RATE_LIMITED"}\n');adapter.name='local-docker-v1'
+        worker=Worker(remote,adapter,'test-profile',self.f.spec,self.client_provider,authorization_verifier=remote.verifier,poll_interval=.05)
+        first=await worker.once();self.assertEqual(first['state'],'retry_wait')
+        async with self.f.db.transaction(self.f.scope) as c:
+            await c.execute(circuits.update().where(circuits.c.scope==self.f.scope).values(retry_at=0))
+            await c.execute(plans.update().where(plans.c.scope==self.f.scope).values(retry_at=0))
+        adapter.data=fixtures.protocol();result=await worker.once()
+        self.assertEqual(result['state'],'succeeded');self.assertEqual(result['id'],self.run['id'])
+        self.assertEqual(len((await self.f.store.get(self.run['id']))['attempts']),2)
+        self.assertEqual(result['recovery']['circuit']['state'],'closed')
     @unittest.skipUnless(os.environ.get('DIOS_TEST_DOCKER')=='1','isolated Docker not enabled')
     async def test_actual_tls_docker_worker_with_isolated_storage(self):
         adapter=fixtures.DockerRuntimeAdapter(self.f.scope)

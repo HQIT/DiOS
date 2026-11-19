@@ -108,6 +108,8 @@ class TaskConsole:
             # Kind comes from persisted event links, never by guessing JSON contents.
             kind_events=(await c.execute(select(events.c.payload,events.c.type).where(events.c.run_id==run_id,
                 events.c.type.in_(['run.completed','attempt.output_retained','attempt.exit_reconciled'])))).all()
+            from app.runtime.faults import view as recovery_view
+            recovery=await recovery_view(c,self.scope,run_id)
         kinds={}
         for payload,kind in kind_events:
             detail=payload['detail']
@@ -127,7 +129,7 @@ class TaskConsole:
                 'output_excerpt':a['remote'].get('progress',{}).get('text','')})
         from app.runtime.work_authorizations import view
         authorization=await view(self.store,run_id)
-        return dict(self.summary(run),observed_at=now,attempts=views,authorization=authorization,
+        return dict(self.summary(run),observed_at=now,attempts=views,authorization=authorization,recovery=recovery,
             sample=run['input']['payload']['sample'],
             artifacts=[{**{k:b[k] for k in ('id','attempt_id','digest','size','created_at')},'kind':kinds.get(b['id'],'raw')}
                 for b in blobs],

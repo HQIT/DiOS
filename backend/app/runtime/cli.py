@@ -107,6 +107,10 @@ async def execute(args):
             verifier=WorkAuthorizationVerifier(store,FileWorkPolicy(args.policy_file)) if args.policy_file else None
             return await reconcile_run(store,DockerRuntimeAdapter(args.scope),
                 LocalArtifacts(Path(args.artifacts)),args.run_id,verifier=verifier)
+        if args.command == 'circuits':
+            from .fault_schema import circuits
+            async with db.read(args.scope) as c:
+                return [dict(x) for x in (await c.execute(select(circuits).where(circuits.c.scope==args.scope))).mappings()]
         if args.command == 'workers': return await store.runtime_status(fresh_seconds=args.fresh_seconds)
         if args.command == 'cancel': return await store.cancel(args.run_id,args.revision)
         if args.command == 'revoke':
@@ -194,6 +198,7 @@ def main(argv=None):
     credential_status=credential_commands.add_parser('status');credential_status.add_argument('run_id')
     credential_revoke=credential_commands.add_parser('revoke');credential_revoke.add_argument('credential_id')
     credential_revoke.add_argument('--revision',type=int,required=True)
+    commands.add_parser('circuits',help='inspect persisted endpoint/account cooldown and single-probe ownership')
     status=commands.add_parser('workers' ,help='persisted process/session evidence, freshness and actual concurrency')
     status.add_argument('--fresh-seconds',type=float,default=15)
     cancel=commands.add_parser('cancel');cancel.add_argument('run_id');cancel.add_argument('--revision',required=True,type=int)

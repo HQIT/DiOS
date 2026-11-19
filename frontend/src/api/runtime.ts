@@ -29,6 +29,7 @@ export interface WorkAuthorization {
   decisions?: { id: string; action: string; created_at: number; outcome: string; reason_codes: string[] }[];
 }
 export interface RunDetail extends RunSummary {
+  recovery?: { category: string; code: string; state: string; retry_at: number | null; reason: string | null; circuit: Circuit | null } | null;
   authorization: WorkAuthorization;
   observed_at: number; sample: Sample; attempts: Attempt[]; artifacts: Artifact[];
   attempts_has_more: boolean; artifacts_at_limit: boolean;
@@ -47,11 +48,13 @@ async function response(path: string, init?: RequestInit) {
 async function request<T>(path: string, init?: RequestInit): Promise<T> { return (await response(path, init)).json(); }
 const path = (id: string) => `/runs/${encodeURIComponent(id)}`;
 export interface WorkerStatus {
+  circuits?: Circuit[];
   observed_at: number; actual_concurrency: number | null; unknown_attempts: number;
   confirmed_running_processes: number; confirmed_running_sessions: number;
   workers: { id: string; host: string; pid: number; draining: boolean; heartbeat_at: number }[];
-  attempts: { worker_id: string; run_id: string; phase: string; freshness: string }[];
+  attempts: { attempt_id: string; worker_id: string; run_id: string; phase: string; freshness: string }[];
 }
+export interface Circuit { resource: string; state: string; retry_at: number; reason: string | null; probe_attempt: string | null; }
 export const runtimeApi = {
   workers: (signal?: AbortSignal) => request<WorkerStatus>("/workers", { signal }),
   profiles: (signal?: AbortSignal) => request<{ items: Profile[] }>("/profiles", { signal }),

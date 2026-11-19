@@ -32,6 +32,11 @@ def read_profile(path):
     if value.get('tool_channel') is not None:
         if value.get('governance',{}).get('mode')!='e2ag':raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
         environment[POLICY_ENV]=encoded(profile_policy(value['tool_channel'])).decode('utf-8')
+    from .faults import POLICY_ENV as RECOVERY_ENV,policy as recovery_policy
+    if RECOVERY_ENV in environment:raise RuntimeErrorCode('RECOVERY_ENV_RESERVED')
+    if value.get('recovery') is not None:
+        if value.get('governance',{}).get('mode')!='e2ag':raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
+        environment[RECOVERY_ENV]=encoded(recovery_policy(value['recovery'])).decode('utf-8')
     config['environment']=environment
     config['command'] = tuple(config['command'])
     config['mounts'] = tuple(Mount(**m) for m in config.get('mounts', []))
@@ -55,6 +60,8 @@ class Worker:
         if spec.kind != 'task': raise RuntimeErrorCode('WORKER_REQUIRES_TASK_PROFILE')
         self.store, self.adapter, self.profile_id, self.spec = store, adapter, profile_id, spec
         self.artifacts = artifacts
+        from .faults import from_spec
+        self.recovery_policy=from_spec(spec)
         self.tool_gate=tool_gate;self.remote_tools=remote_tools
         if tool_gate is not None and remote_tools is not None:raise RuntimeErrorCode('TOOL_PROVIDER_CONFLICT')
         if remote_tools and 'DIOS_TOOL_CHANNEL_POLICY' not in spec.environment:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
@@ -70,7 +77,7 @@ class Worker:
 
     async def once(self):
         await self.store.register_worker(self.worker_id, self.instance, socket.gethostname(), os.getpid(), slots=1)
-        a = await self.store.claim(self.worker_id, self.instance, profile_id=self.profile_id)
+        a = await self.store.claim(self.worker_id, self.instance, profile_id=self.profile_id,recovery_policy=self.recovery_policy)
         if a is None: return {'worker_id':self.worker_id,'state':'idle'}
         binding = (a['run_id'], a['id'], self.worker_id, self.instance, a['epoch'])
         run = await self.store.get(a['run_id'])
@@ -199,7 +206,10 @@ class Worker:
                     if cancelled:
                         await self.store.confirm_cancel(*binding,'runtime-exit:'+observation.process_instance)
                     else:
-                        code = code or ('PROCESS_EXITED' if observation.exit_code != 0 else None)
+                        recover_complete=bridge.result is not None and self.recovery_policy and self.recovery_policy['accept_complete_on_error']
+                        if not code and bridge.result is not None and self.recovery_policy and observation.exit_code != 0 and not recover_complete:
+                            code='RESULT_EXIT_CONFLICT'
+                        code = code or ('PROCESS_EXITED' if observation.exit_code != 0 and not recover_complete else None)
                         if not code:
                             try:
                                 bridge.feed(logs.stdout,final=True)
