@@ -737,7 +737,36 @@ class ModelProxyTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(len(calls), 1)
             self.assertEqual(calls[0].headers["authorization"], "Bearer fixture-provider")
             self.assertEqual(str(calls[0].url), "https://model.test/v1/chat/completions")
-            self.assertEqual(json.loads(calls[0].content)["max_tokens"], 4096)
+            self.assertEqual(json.loads(calls[0].content)["max_tokens"], 100_000)
+
+    async def test_inference_proxy_leaves_output_budget_unset_when_omitted(self):
+        async with self.sessions() as db:
+            agent = Agent(name="Reviewer", model="reviewer")
+            model = LLMModel(name="reviewer", model="fixture-model", base_url="https://model.test/v1")
+            db.add_all([agent, model])
+            await db.commit()
+
+            forwarded = []
+
+            def upstream(request):
+                forwarded.append(json.loads(request.content))
+                return httpx.Response(200, json={"choices": []})
+
+            with (
+                patch.object(settings, "diagent_service_model_proxy", True),
+                patch.object(settings, "access_token", "fixture-admin"),
+                patch("app.api.internal.model_proxy.internal_client",
+                      side_effect=lambda **opts: httpx.AsyncClient(transport=httpx.MockTransport(upstream), **opts)),
+            ):
+                async with model_grant(db, agent, model) as headers:
+                    response = await self.client.post(
+                        "/api/internal/model-proxy/v1/chat/completions",
+                        json={"model": model.model, "messages": []},
+                        headers={"Authorization": f"Bearer {headers['X-DiAgent-Model-Grant']}"},
+                    )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(forwarded, [{"model": model.model, "messages": []}])
 
     async def test_turn_grant_is_revoked_during_stream_cancellation(self):
         with patch.object(settings, "diagent_service_model_proxy", True), patch.object(settings, "access_token", "fixture-admin"):

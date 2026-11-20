@@ -16,14 +16,14 @@ from app.db.database import get_db
 from app.services.e2ag_tool_gateway import service_mcp_endpoints
 from app.services.http_internal import internal_client
 from app.services.model_proxy import (
-    MAX_OUTPUT_TOKENS, MODEL_GRANT_CHECK_PATH, MODEL_GRANT_REFRESH_PATH, MODEL_PROXY_PATH,
+    MODEL_GRANT_CHECK_PATH, MODEL_GRANT_REFRESH_PATH, MODEL_PROXY_PATH,
     refresh_task_model_grant, reserve_model_call, verify_model_grant,
 )
 
 router = APIRouter()
 _REQUEST_FIELDS = {
     "model", "messages", "stream", "stream_options", "temperature", "top_p", "stop",
-    "tools", "tool_choice", "parallel_tool_calls", "reasoning_effort", "response_format",
+    "tools", "tool_choice", "parallel_tool_calls", "reasoning_effort", "response_format", "max_tokens",
 }
 
 
@@ -70,11 +70,11 @@ async def _read_payload(request: Request) -> dict:
         raise HTTPException(400, "Expected model and messages")
     if type(body.get("stream", False)) is not bool:
         raise HTTPException(400, "Invalid model inference stream option")
-    maximum = body.get("max_tokens", MAX_OUTPUT_TOKENS)
-    if type(maximum) is not int or maximum <= 0:
-        raise HTTPException(400, "Invalid model inference max_tokens")
-    return {**{key: value for key, value in body.items() if key in _REQUEST_FIELDS},
-            "max_tokens": min(maximum, MAX_OUTPUT_TOKENS)}
+    if "max_tokens" in body:
+        maximum = body["max_tokens"]
+        if type(maximum) is not int or maximum <= 0:
+            raise HTTPException(400, "Invalid model inference max_tokens")
+    return {key: value for key, value in body.items() if key in _REQUEST_FIELDS}
 
 
 @router.post(MODEL_PROXY_PATH, include_in_schema=False)

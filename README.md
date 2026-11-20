@@ -55,7 +55,9 @@ docker compose -f docker-compose.dev.yml up -d backend frontend
 
 #### 常驻 Agent 的受管模型
 
-使用支持受管推理的 DSH 常驻镜像时，可为 backend 设置 `DIOS_DIAGENT_SERVICE_MODEL_PROXY=true` 和 `DIOS_ACCESS_TOKEN`。供应商地址和 API key 在 DiOS 的模型管理里配置，响应只返回空的 `api_key` 字段。把模型分配给常驻 Agent 后，DiOS 每轮发放只可用于该 Agent 和指定模型的授权。DiAgent 启动 DSH 前会核验授权归属，推理请求由 DiOS 转发。每轮最多 32 次模型调用，有效期 5 分钟，每次最多生成 4096 tokens。会话结束后撤销授权。该授权属于短期 bearer 凭据，持有者可以在授权范围和额度内发起推理。
+使用支持受管推理的 DSH 常驻镜像时，可为 backend 设置 `DIOS_DIAGENT_SERVICE_MODEL_PROXY=true` 和 `DIOS_ACCESS_TOKEN`。供应商地址和 API key 在 DiOS 的模型管理里配置，响应只返回空的 `api_key` 字段。把模型分配给常驻 Agent 后，DiOS 每轮发放只可用于该 Agent 和指定模型的授权。DiAgent 启动 DSH 前会核验授权归属，推理请求由 DiOS 转发。每轮最多 32 次模型调用，有效期 5 分钟。会话结束后撤销授权。该授权属于短期 bearer 凭据，持有者可以在授权范围和额度内发起推理。
+
+常驻和一次性任务使用同一个模型代理。请求带 `max_tokens` 时，代理检查它是正整数，再按原值转发。请求省略该字段时，由模型供应商应用默认输出预算。
 
 切换前停止旧常驻容器，使用 DiOS 工作区根目录下独立的 Agent 目录，并将旧 `models.yaml`、`mcp_servers.json`、任务配置和备份移出 Agent 可读的挂载。受管模式检查这些已知旧文件和重叠工作区。修改工作区、切换模式或删除 Agent 前，先停止相关容器并等待已有任务收尾。启用受管模式后，DiOS 通过容器环境传模型代理地址及 Agent ID，并停止生成常驻模型目录和旧 MCP 配置。该模式覆盖在线 Chat 和常驻 A2A。需要回退时，先停止受管常驻容器，再关闭代理开关并使用旧模式启动。旧模式会重新生成 `models.yaml`。
 
@@ -65,7 +67,7 @@ docker compose -f docker-compose.dev.yml up -d backend frontend
 
 #### 一次性任务的受管模型
 
-在 DiOS backend 设置 `DIOS_DIAGENT_TASK_MODEL_PROXY=true` 和 `DIOS_ACCESS_TOKEN`，并使用支持私有任务配置的 DSH Task 镜像。为各 Task Agent 在 DiOS 分配 OpenAI 兼容模型。DiOS 通过容器私有配置提供推理地址和短期 bearer，使用自己保存的供应商密钥发送上游请求。任务最多调用模型 128 次，每次最多生成 4096 tokens。任务完成、取消或启动失败时撤销授权。已发往供应商的请求可以完成，撤销约束后续调用。
+在 DiOS backend 设置 `DIOS_DIAGENT_TASK_MODEL_PROXY=true` 和 `DIOS_ACCESS_TOKEN`，并使用支持私有任务配置的 DSH Task 镜像。为各 Task Agent 在 DiOS 分配 OpenAI 兼容模型。DiOS 通过容器私有配置提供推理地址和短期 bearer，使用自己保存的供应商密钥发送上游请求。任务最多调用模型 128 次。任务完成、取消或启动失败时撤销授权。已发往供应商的请求可以完成，撤销约束后续调用。
 
 受管任务通过 Agent 环境变量 `DIAGENT_TASK_TIMEOUT_MS` 配置运行超时，默认 30 分钟。关闭刷新时，模型令牌从签发起按任务时限加 2 分钟计算有效期。超时配置变更从下一次派发生效。MCP 凭据有独立的有效期。模型令牌到期后推理接口返回 HTTP 401，耗尽调用额度则返回 HTTP 429。若需重跑，可先检查已有产物或工具副作用，再重新派发任务。
 
