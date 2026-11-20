@@ -47,6 +47,27 @@ class WorkerToolChannelTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(RuntimeErrorCode,'ACP_TOOL_ACTIVITY_UNVERIFIED'):
             await self.channel.handle({'method':'verify_activity','params':{'activity':[{'name':'mcp__dios__search','arguments':{'query':'changed'}}]}})
 
+    async def test_proxy_permission_does_not_approve_or_execute_action(self):
+        result=await self.channel.handle({'method':'permit_proxy','params':{'name':'mcp__dios__search','arguments':{'query':'evidence'}}})
+        self.assertTrue(result['forward_to_gate']);self.assertEqual(self.fixture.transport.calls,[])
+        item=await self.request();self.assertEqual(item['state'],'awaiting_approval')
+        for name,args in [('terminal',{}),('mcp__dios__search',{'unexpected':True})]:
+            with self.assertRaises(Exception):
+                await self.channel.handle({'method':'permit_proxy','params':{'name':name,'arguments':args}})
+        self.assertEqual(self.fixture.transport.calls,[])
+
+    async def test_required_evidence_checks_success_session_and_exact_arguments(self):
+        requirement={'method':'verify_required','params':{'requirements':[{'tool':'search','arguments':{'query':'evidence'}}]}}
+        with self.assertRaisesRegex(RuntimeErrorCode,'EVIDENCE_INSUFFICIENT'):await self.channel.handle(requirement)
+        item=await self.request()
+        with self.assertRaisesRegex(RuntimeErrorCode,'EVIDENCE_INSUFFICIENT'):await self.channel.handle(requirement)
+        f=self.fixture
+        await f.gate.decide(f.run['id'],item['id'],item['version'],'approved','fixture-approval')
+        await self.channel.handle({'method':'advance','params':{'invocation_id':item['id']}})
+        self.assertTrue((await self.channel.handle(requirement))['verified'])
+        requirement['params']['requirements'][0]['arguments']['query']='other'
+        with self.assertRaisesRegex(RuntimeErrorCode,'EVIDENCE_INSUFFICIENT'):await self.channel.handle(requirement)
+
     async def test_socket_binds_peer_uid_and_closes_with_attempt(self):
         if not hasattr(socket,'SO_PEERCRED'):self.skipTest('Linux credentialled Unix sockets')
         self.channel.session_id=None

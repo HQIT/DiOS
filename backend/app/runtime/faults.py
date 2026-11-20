@@ -12,6 +12,12 @@ CATEGORIES={
     'PROVIDER_QUOTA_EXHAUSTED':'quota','SESSION_CREATE_FAILED':'session',
     'PROCESS_EXITED':'process','RESULT_FORMAT_INVALID':'format','RESULT_INCOMPLETE':'format',
     'EVIDENCE_INSUFFICIENT':'evidence','RESULT_EXIT_CONFLICT':'evidence','PROCESS_DEADLINE_EXCEEDED':'deadline',
+    'AGENT_EXECUTION_REJECTED':'unknown','REVIEW_BRIDGE_FAILED':'unknown',
+    'ACP_TOOL_ACTIVITY_UNVERIFIED':'evidence','ACP_TOOL_ACTIVITY_CHANGED':'evidence',
+    'TOOL_APPROVAL_DENIED':'authorization',
+    'ACP_QUERY_TIMEOUT':'deadline','ACP_PROCESS_EXITED':'process',
+    'ACP_TRANSPORT_FAILED':'control_connection','ACP_AUTH_FAILED':'configuration',
+    'ACP_REQUEST_FAILED':'unknown','ACP_FRAME_INVALID':'format','ACP_FRAME_TOO_LARGE':'format',
     'WORKER_GATEWAY_OBSERVATION_UNAVAILABLE':'control_connection','WORK_PREFLIGHT_UNAVAILABLE':'configuration',
 }
 TRANSIENT={'network','rate_limit','quota','session','process'}

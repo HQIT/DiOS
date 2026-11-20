@@ -144,7 +144,7 @@ class WorkerToolChannel:
         if not isinstance(message,dict):raise RuntimeErrorCode('TOOL_CHANNEL_FRAME_INVALID')
         method=message.get('method');params=message.get('params',{})
         allowed={'describe':set(),'ready':{'session_id'},'request':{'tool','arguments','key'},
-            'advance':{'invocation_id'},'verify_activity':{'activity'},'deny_native':{'method'}}
+            'advance':{'invocation_id'},'verify_activity':{'activity'},'verify_required':{'requirements'},'permit_proxy':{'name','arguments'},'deny_native':{'method'}}
         if set(message)!={'method','params'} or method not in allowed or not isinstance(params,dict) or set(params)!=allowed[method]:
             raise RuntimeErrorCode('TOOL_CHANNEL_METHOD_DENIED')
         run,a=await self._owner()
@@ -155,11 +155,27 @@ class WorkerToolChannel:
         if method=='ready':
             if params['session_id']!=self.session_id:raise RuntimeErrorCode('SESSION_CHANGED')
             return {'session_id':self.session_id}
+        if method=='permit_proxy':
+            from jsonschema import Draft202012Validator
+            alias=self.policy.get('acp_names',{}).get(params['name']) if isinstance(params['name'],str) else None
+            if alias not in self.registered:raise RuntimeErrorCode('TOOL_NOT_GRANTED')
+            reg=self.registered[alias]
+            if not isinstance(params['arguments'],dict) or not Draft202012Validator(reg['input_schema']).is_valid(params['arguments']):
+                raise RuntimeErrorCode('INVALID_TOOL_ARGUMENTS')
+            # Permission to enter our MCP proxy only. Actual action still passes
+            # request/approval/dispatch and cannot be authorized by the Agent.
+            async with self.store.db.transaction(self.store.scope) as c:
+                now=await self.store.db.now(c)
+                await audit(c,self.store.scope,self.binding[0],self.binding[1],'proxy-forward',
+                    Decision('worker-tool-control','allow',('ACP_PROXY_FORWARD_ALLOWED',),
+                        evidence={'tool_id':reg['id'],'arguments_digest':digest(params['arguments'])}),now)
+            return {'forward_to_gate':True}
         if method=='deny_native':
             if params['method'] not in {'session/request_permission','fs/write_text_file','terminal','unsupported'}:
                 raise RuntimeErrorCode('TOOL_CHANNEL_METHOD_DENIED')
             await self._deny('ACP_NATIVE_OPERATION_DENIED')
             return {'denied':True}
+        if method=='verify_required':return await self.verify_required(params['requirements'])
         if method=='verify_activity':return await self.verify_activity(params['activity'])
         if method=='request':
             alias=params['tool'];key=params['key']
@@ -207,6 +223,25 @@ class WorkerToolChannel:
     @staticmethod
     def status(item):
         return {k:item[k] for k in ('id','state','version','approval_state','expired','reason')}
+
+    async def verify_required(self,requirements):
+        if not isinstance(requirements,list) or not 1<=len(requirements)<=16:
+            raise RuntimeErrorCode('TOOL_REQUIREMENTS_INVALID')
+        async with self.store.db.read(self.store.scope) as c:
+            await require(c)
+            rows=(await c.execute(select(invocations).where(invocations.c.scope==self.store.scope,
+                invocations.c.run_id==self.binding[0],invocations.c.attempt_id==self.binding[1],
+                invocations.c.request_key.like('channel:%'),invocations.c.state=='succeeded').limit(129))).mappings().all()
+        for item in requirements:
+            if (not isinstance(item,dict) or set(item)!={'tool','arguments'} or
+                    not isinstance(item['tool'],str) or item['tool'] not in self.registered or
+                    not isinstance(item['arguments'],dict)):
+                raise RuntimeErrorCode('TOOL_REQUIREMENTS_INVALID')
+            tool=self.registered[item['tool']]['id']
+            if not any(row['tool_id']==tool and row['arguments_digest']==digest(item['arguments']) and
+                    row['binding']['session_id']==self.session_id for row in rows):
+                raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
+        return {'verified':True,'required_tool_count':len(requirements)}
 
     async def verify_activity(self,activity):
         if not isinstance(activity,list) or len(activity)>128:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')

@@ -17,10 +17,14 @@ def sample(sample_id):
     return value
 
 
-def sample_prompt(value, goal):
+def sample_prompt(value, goal, required_tool=None):
     numbered = '\n'.join(f'{n}: {line}' for n,line in enumerate(value['source'].splitlines(),1))
-    return ('Review only the synthetic source below using static reasoning. Do not use tools, '
-        'files, commands or network. Return ONLY a JSON object with summary (Chinese text) and '
+    tool_instruction = ('Do not use tools, files, commands or network. ' if required_tool is None else
+        f'First call the governed MCP tool {required_tool} once with query={value["sha256"]}. '
+        'Wait for its approval and result. If denied, stop and report insufficient evidence. '
+        'Do not use any other tools, files, commands or network. ')
+    return ('Review only the synthetic source below using static reasoning. '+tool_instruction+
+        'Return ONLY a JSON object with summary (Chinese text) and '
         'findings (array). Each finding must contain title, line_start, line_end, condition, '
         'evidence (an exact contiguous substring of the specified source lines), and impact. '
         'Use an empty findings array if there is no supported finding. Never invent evidence.\n'
@@ -53,14 +57,15 @@ def review_result(value, result):
         validation='source-references-checked',review_status='pending_review')
 
 
-def main():
+def main(acp_execute=None):
     """Application wrapper; ACP transport and runtime ownership remain generic."""
     import argparse
     import asyncio
     import json
     import os
-    from app.runtime.acp_bridge import execute, diagnostic
+    from app.runtime.acp_bridge import execute, diagnostic, emit
     parser=argparse.ArgumentParser();parser.add_argument('--config',required=True)
+    parser.add_argument('--required-tool',choices=['repository_search'])
     args=parser.parse_args()
     try:
         raw=os.environ.get('DIOS_WORK_INPUT','')
@@ -70,10 +75,15 @@ def main():
         if supplied!=value:raise RuntimeErrorCode('SAMPLE_DIGEST_MISMATCH')
         goal=payload.get('goal')
         if not isinstance(goal,str) or not 1<=len(goal.strip())<=2000:raise RuntimeErrorCode('INVALID_WORK_INPUT')
-        asyncio.run(execute(args.config,sample_prompt(value,goal),lambda result:review_result(value,result)))
-        return 0
+        return asyncio.run((acp_execute or execute)(args.config,sample_prompt(value,goal,args.required_tool),lambda result:review_result(value,result),
+            required_tools=([{'tool':args.required_tool,'arguments':{'query':value['sha256']}}] if args.required_tool else [])))
     except asyncio.CancelledError:diagnostic('ACP_CANCELLED');return 130
-    except RuntimeErrorCode as exc:diagnostic(exc.code);return 2
-    except Exception:diagnostic('REVIEW_BRIDGE_FAILED');return 1
+    except RuntimeErrorCode as exc:
+        from app.runtime.faults import CATEGORIES
+        diagnostic(exc.code)
+        emit({'type':'error','code':exc.code if exc.code in CATEGORIES else 'AGENT_EXECUTION_REJECTED'})
+        return 2
+    except Exception:
+        diagnostic('REVIEW_BRIDGE_FAILED');emit({'type':'error','code':'REVIEW_BRIDGE_FAILED'});return 1
 
 if __name__=='__main__':raise SystemExit(main())

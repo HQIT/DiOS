@@ -6,7 +6,7 @@
     "input_kind": "inline-static-review",
     "name": "Cursor · 受控工具评审",
     "implementation": "Cursor ACP v1",
-    "description": "通过 Worker 独立工具通道进行受控评审，真实端点待验收",
+    "description": "固定样例、E2AG 工具审批与证据报告；部署时固定镜像并完成环境验证",
     "synthetic": false
   },
   "launch": {
@@ -14,9 +14,11 @@
     "command": [
       "python",
       "-m",
-      "app.apps.inline_review",
+      "app.apps.cursor_review",
       "--config",
-      "/opt/dios/acp.json"
+      "/opt/dios/acp.json",
+      "--required-tool",
+      "repository_search"
     ],
     "network": "dios-model-egress",
     "environment": {},
@@ -48,6 +50,18 @@
     },
     "acp_names": {
       "mcp__dios__repository_search": "repository_search"
-    }
+    },
+    "worker_secret_refs": [
+      "model/cursor"
+    ]
+  },
+  "recovery": {
+    "resource": "model-endpoint:cursor-account-ref",
+    "replay_safe": false,
+    "max_attempts": 1,
+    "base_delay": 15,
+    "max_delay": 300,
+    "quota_delay": 900,
+    "accept_complete_on_error": true
   }
 }

@@ -4,6 +4,7 @@ import os
 import sys
 import time
 from uuid import uuid4
+from pathlib import Path
 
 
 def emit(value):
@@ -14,6 +15,11 @@ payload = json.loads(os.environ.get('DIOS_WORK_INPUT', '{}'))
 session = str(uuid4())
 emit({'type':'session', 'session_id':session})
 emit({'type':'output','text':'正在核验合成输入：中文🙂'})
+if payload.get('barrier'):
+    deadline=time.monotonic()+60
+    while not Path('/run/fixture/release').exists():
+        if time.monotonic()>deadline:raise RuntimeError('Fixture barrier deadline exceeded')
+        time.sleep(.1)
 time.sleep(float(payload.get('delay', .5)))
 mode = payload.get('mode','success')
 if mode == 'crash':

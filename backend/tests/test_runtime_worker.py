@@ -151,6 +151,8 @@ class DockerWorkerTests(WorkerTests):
     async def child(self,once=True):
         profile=self.root/'profile.json'
         value=json.loads((ROOT/'examples/runtime/fixture-profile.json').read_text());value['id']='test-profile'
+        if hasattr(self,'barrier'):
+            value['launch']['mounts']=[{'source':str(self.barrier),'target':'/run/fixture','read_only':True}]
         profile.write_text(json.dumps(value))
         args=[sys.executable,'-m','app.runtime.cli','--database-url',self.url,'--scope',self.scope,
             'worker','--profile',str(profile),'--artifacts',str(self.provider.root),'--poll-interval','.1']
@@ -165,7 +167,9 @@ class DockerWorkerTests(WorkerTests):
             await asyncio.sleep(.1)
         self.fail('runtime observation deadline exceeded')
     async def test_docker_three_independent_workers_sessions_and_natural_drain(self):
-        runs=[await self.submit(str(n),delay=4) for n in range(3)]
+        self.barrier=self.root/'barrier';self.barrier.mkdir(mode=0o755)
+        self.spec=replace(self.spec,mounts=(Mount(str(self.barrier),'/run/fixture',True),))
+        runs=[await self.submit(str(n),delay=.1,barrier=True) for n in range(3)]
         children=[await self.child() for _ in range(3)]
         status=await self.wait_state(lambda s:s['actual_concurrency']==3)
         self.assertEqual(len({w['pid'] for w in status['workers']}),3)
@@ -181,6 +185,7 @@ class DockerWorkerTests(WorkerTests):
         await Lifecycle(self.db,self.scope).begin_drain()
         extra=await self.child();stdout,stderr=await asyncio.wait_for(extra.communicate(),20)
         self.assertEqual(extra.returncode,0,stderr);self.assertEqual(json.loads(stdout)['state'],'idle')
+        (self.barrier/'release').touch()
         for p in children:
             _,err=await asyncio.wait_for(p.communicate(),20);self.assertEqual(p.returncode,0,err)
         for r in runs:self.assertEqual((await self.store.get(r['id']))['state'],'succeeded')

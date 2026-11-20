@@ -1,0 +1,90 @@
+{
+  "scope": "runtime foundation and existing backend regression; isolated execution fixtures; no production migration or Agent certification",
+  "python": "3.12.3",
+  "sqlalchemy": "2.0.48",
+  "platform": "Linux",
+  "postgresql_enabled": true,
+  "docker_worker_enabled": true,
+  "worker_concurrency_evidence": [
+    {
+      "configured_slots": 3,
+      "actual_concurrency": 3,
+      "workers": [
+        {
+          "id": "45335f2f-88ef-4b31-aa85-882969f0f682",
+          "pid": 26028,
+          "instance": "bbeac67c-de08-4d0a-a336-b6979d9b53a1"
+        },
+        {
+          "id": "5d449cb2-2da3-49fd-bfba-8afbd79ae1fa",
+          "pid": 26030,
+          "instance": "1918ba92-ae14-4904-ae51-8d91339f08db"
+        },
+        {
+          "id": "4a2d6b37-68aa-4209-8385-4fb79c9a10fd",
+          "pid": 26029,
+          "instance": "07831504-9c83-432a-8148-126761f49c75"
+        }
+      ],
+      "attempts": [
+        {
+          "run_id": "c1ec916e-1021-45a7-9ba1-1672cbf4cd60",
+          "attempt_id": "9908daf5-38b3-4e33-9aba-91f432036df8",
+          "worker_id": "45335f2f-88ef-4b31-aa85-882969f0f682",
+          "session_id": "94e208f8-b6c6-493a-b385-6a04f3dd0f12",
+          "process_id": 26150,
+          "process_instance": "6e9a7a3dcae02d35d555564942b72f276d0ca553292bdddbea1f9dbbcd060351:2026-11-20T02:12:10.205750436Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "6533879d-a792-4906-a4be-845b3b16a8d2",
+          "attempt_id": "022eea46-2eaa-4512-bc1c-624fde8b41b6",
+          "worker_id": "5d449cb2-2da3-49fd-bfba-8afbd79ae1fa",
+          "session_id": "b71e954a-b3e0-4211-a1b5-490ae942d110",
+          "process_id": 26112,
+          "process_instance": "26f445ebb2faa06dde49fe77391a7cae4dd5496f6c20b8dbcf6f382319365c64:2026-11-20T02:12:10.134395568Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "900c775a-c520-4231-b720-3f9b66bc4d4c",
+          "attempt_id": "d7047f34-f415-40ff-bf2f-58ea6e069be8",
+          "worker_id": "4a2d6b37-68aa-4209-8385-4fb79c9a10fd",
+          "session_id": "e7939844-fd5b-491b-afc2-0f876bcbf753",
+          "process_id": 26199,
+          "process_instance": "c376fc8347efcd71f15fd8e6a775ddb6d12cbc6c280bbf93f58e8fb1df3d8dbe:2026-11-20T02:12:10.311717468Z",
+          "freshness": "fresh"
+        }
+      ]
+    }
+  ],
+  "tests_run": 395,
+  "skipped": 4,
+  "failures": 0,
+  "errors": 0,
+  "duration_seconds": 478.154,
+  "successful": true,
+  "cases": [
+    {
+      "test": "test_runtime_faults.PostgresFaultTests.test_backup_contains_circuit_and_retry_plan",
+      "reason": "SQLite backup provider"
+    },
+    {
+      "test": "test_runtime_remote_control.PostgresRemoteControlTests.test_backup_contains_incomplete_upload_and_resumes",
+      "reason": "SQLite backup provider"
+    },
+    {
+      "test": "test_runtime_work_authorizations.PostgresWorkAuthorizationTests.test_backup_includes_authorization_component",
+      "reason": "SQLite backup provider"
+    },
+    {
+      "test": "test_runtime_worker_credentials.PostgresWorkerCredentialTests.test_restart_and_backup_preserve_hashes",
+      "reason": "SQLite backup provider"
+    }
+  ],
+  "limits": [
+    "PostgreSQL single isolated node; no HA/capacity claim",
+    "Windows process-tree and actual Agent tests pending",
+    "Legacy scheduler takeover, provider-specific error mapping and multi-host qualification remain separate integration work",
+    "Browser verification is recorded separately from this backend suite"
+  ]
+}

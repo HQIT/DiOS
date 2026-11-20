@@ -72,3 +72,83 @@ class ControlledClientOperationsTests(unittest.IsolatedAsyncioTestCase):
             'sessionUpdate':'tool_call','toolCallId':'call','name':'search','rawInput':{'query':query}}}}
         await self.peer.incoming(notification('one'))
         with self.assertRaisesRegex(RuntimeErrorCode,'ACP_TOOL_ACTIVITY_CHANGED'):await self.peer.incoming(notification('two'))
+
+
+class CompletionRetentionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_complete_result_survives_nonzero_server_shutdown(self):
+        import sys,tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from app.runtime.acp_bridge import execute
+        with tempfile.TemporaryDirectory() as root:
+            root=Path(root)
+            server=root/'server.py'
+            server.write_text("""import sys,json
+for line in sys.stdin:
+ m=json.loads(line);method=m.get('method')
+ if 'id' not in m:continue
+ if method=='initialize':r={'protocolVersion':1}
+ elif method=='session/new':r={'sessionId':'persistent-session'}
+ else:
+  print(json.dumps({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'persistent-session','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':'{"summary":"retained","evidence":["sample"]}'}}}}),flush=True)
+  r={'stopReason':'end_turn'}
+ print(json.dumps({'jsonrpc':'2.0','id':m['id'],'result':r}),flush=True)
+sys.exit(1)
+""",encoding='utf-8')
+            config=root/'config.json';config.write_text(json.dumps({'command':[sys.executable,str(server)],'cwd':str(root)}))
+            events=[]
+            with patch('app.runtime.acp_bridge.emit',events.append):
+                code=await execute(config,'review',lambda value:value)
+            self.assertEqual(code,2)
+            self.assertEqual(events[-1]['type'],'result')
+            self.assertEqual(events[-1]['session_id'],'persistent-session')
+            self.assertEqual(events[-1]['result']['summary'],'retained')
+
+    def test_acp_observation_timeout_never_auto_replays(self):
+        from app.runtime.faults import category,TRANSIENT
+        self.assertNotIn(category('ACP_QUERY_TIMEOUT'),TRANSIENT)
+        self.assertNotIn(category('ACP_REQUEST_FAILED'),TRANSIENT)
+        self.assertEqual(category('ACP_PROCESS_EXITED'),'process')
+
+
+class CursorMappingTests(unittest.TestCase):
+    def test_only_owned_mcp_proxy_is_forwarded(self):
+        from app.runtime.cursor_acp import proxy_permission,tool_activity
+        raw={'providerIdentifier':'dios','toolName':'repository_search','args':{'query':'sha'}}
+        self.assertEqual(proxy_permission({'rawInput':raw}),{'name':'mcp__dios__repository_search','arguments':{'query':'sha'}})
+        for changed in ({'command':'ls'},{**raw,'providerIdentifier':'external'}):
+            with self.assertRaises(RuntimeErrorCode):proxy_permission({'rawInput':changed})
+        with self.assertRaises(RuntimeErrorCode):tool_activity({'rawInput':raw,'status':'pending'})
+        self.assertEqual(tool_activity({'rawInput':raw,'status':'completed'})['rawInput'],{'query':'sha'})
+
+    def test_final_object_preserves_commentary_but_rejects_partial_answer(self):
+        from app.runtime.cursor_acp import final_object
+        self.assertEqual(final_object('Checking evidence.\n```json\n{"summary":"ok","findings":[]}\n```')['summary'],'ok')
+        for text in ('{"summary":"partial"','{"summary":"ok"} trailing text'):
+            with self.assertRaises(ValueError):final_object(text)
+
+
+class StreamingToolTests(unittest.IsolatedAsyncioTestCase):
+    asyncSetUp=AcpBridgeTests.asyncSetUp
+    async def test_arguments_stream_until_terminal_then_freeze(self):
+        self.peer.tool_client=object()
+        def frame(kind,raw,status):return {'method':'session/update','params':{'sessionId':'session','update':{
+            'sessionUpdate':kind,'toolCallId':'one','rawInput':raw,'status':status}}}
+        await self.peer.incoming(frame('tool_call',{},'pending'))
+        await self.peer.incoming(frame('tool_call_update',{'query':'sha'},'in_progress'))
+        await self.peer.incoming(frame('tool_call_update',{'query':'sha'},'completed'))
+        with self.assertRaisesRegex(RuntimeErrorCode,'ACP_TOOL_ACTIVITY_CHANGED'):
+            await self.peer.incoming(frame('tool_call_update',{'query':'other'},'completed'))
+
+    async def test_proxy_permission_requires_gate_and_allow_once(self):
+        from app.runtime.cursor_acp import proxy_permission
+        class Gate:
+            async def request(self,method,params):
+                self.method=method;return {'forward_to_gate':True}
+        gate=Gate();self.peer.tool_client=gate;self.peer.permission_decoder=proxy_permission
+        self.peer.tool_activity['native-one']={'rawInput':{'providerIdentifier':'dios','toolName':'search','args':{}}}
+        await self.peer.incoming({'jsonrpc':'2.0','id':10,'method':'session/request_permission','params':{
+            'sessionId':'session','toolCall':{'toolCallId':'native-one','title':'Search'},
+            'options':[{'kind':'allow_once','optionId':'once'},{'kind':'allow_always','optionId':'always'}]}})
+        self.assertEqual(gate.method,'permit_proxy')
+        self.assertEqual(self.process.stdin.messages[-1]['result']['outcome']['optionId'],'once')

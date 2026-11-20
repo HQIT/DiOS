@@ -27,9 +27,10 @@ def diagnostic(code):
 
 
 class AcpClient:
-    def __init__(self, process, *, emit_event=emit, limit=32000, tool_client=None, client_read_tool=None):
+    def __init__(self, process, *, emit_event=emit, limit=32000, tool_client=None, client_read_tool=None, permission_decoder=None):
         self.process=process;self.emit=emit_event;self.limit=limit
         self.pending={};self.counter=0;self.session_id=None;self.output=''
+        self.permission_decoder=permission_decoder
         self.tool_client=tool_client;self.client_read_tool=client_read_tool;self.tool_activity={}
         self.native_tool_seen=False;self.denials=0;self.reader=None;self.stderr=None;self.failure=None
 
@@ -75,10 +76,15 @@ class AcpClient:
                     if not isinstance(call_id,str) or not call_id or len(call_id)>160:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')
                     if call_id not in self.tool_activity and len(self.tool_activity)>=128:raise RuntimeErrorCode('TOOL_CALL_LIMIT_EXCEEDED')
                     record=self.tool_activity.setdefault(call_id,{})
-                    for field in ('name','rawInput'):
-                        if field in update:
-                            if field in record and record[field]!=update[field]:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_CHANGED')
+                    for field in ('name','title','rawInput'):
+                        if field in update and update[field] is not None:
+                            if field in record and record[field]!=update[field] and (record.get('status') in {'completed','failed'} or update.get('sessionUpdate')=='tool_call'):
+                                raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_CHANGED')
                             record[field]=update[field]
+                    if update.get('status') is not None:
+                        if record.get('status') in {'completed','failed'} and record['status']!=update['status']:
+                            raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_CHANGED')
+                        record['status']=update['status']
                 else:diagnostic('ACP_TOOL_ACTIVITY_UNVERIFIED')
             if update.get('sessionUpdate')=='agent_message_chunk':
                 content=update.get('content',{})
@@ -114,6 +120,18 @@ class AcpClient:
             if method=='session/request_permission':
                 if params.get('sessionId')!=self.session_id:raise RuntimeErrorCode('SESSION_CHANGED')
                 options=params.get('options',[])
+                if self.tool_client and self.permission_decoder:
+                    try:
+                        permission_call=params.get('toolCall',{})
+                        if not isinstance(permission_call,dict):raise RuntimeErrorCode('ACP_FRAME_INVALID')
+                        prior=self.tool_activity.get(permission_call.get('toolCallId'),{})
+                        mapped=self.permission_decoder({**prior,**{k:v for k,v in permission_call.items() if v is not None}})
+                        permit=await self.tool_client.request('permit_proxy',mapped)
+                        allow=next((x for x in options if isinstance(x,dict) and x.get('kind')=='allow_once'),None)
+                        if permit.get('forward_to_gate') is True and allow and isinstance(allow.get('optionId'),str):
+                            await self.send({'jsonrpc':'2.0','id':message['id'],'result':{'outcome':{'outcome':'selected','optionId':allow['optionId']}}})
+                            return
+                    except (RuntimeErrorCode,KeyError,TypeError):pass
                 reject=next((x for x in options if isinstance(x,dict) and x.get('kind')=='reject_once'),None)
                 outcome={'outcome':'selected','optionId':reject['optionId']} if reject else {'outcome':'cancelled'}
                 await self.send({'jsonrpc':'2.0','id':message['id'],'result':{'outcome':outcome}})
@@ -183,7 +201,7 @@ def configuration(path):
     return config,command,cwd,env
 
 
-async def execute(path, prompt, decode_result):
+async def execute(path, prompt, decode_result, *, required_tools=(), activity_decoder=None, output_decoder=None, permission_decoder=None):
     """Run one ACP turn and map its result through an application-owned validator."""
     config,command,cwd,env=configuration(path)
     timeout=config.get('prompt_timeout',240)
@@ -195,7 +213,7 @@ async def execute(path, prompt, decode_result):
     read_tool=tool_description.get('client_read_tool')
     process=await asyncio.create_subprocess_exec(*command,cwd=cwd,env=env,
         stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,limit=256*1024)
-    peer=AcpClient(process,tool_client=tool_client,client_read_tool=read_tool)
+    peer=AcpClient(process,tool_client=tool_client,client_read_tool=read_tool,permission_decoder=permission_decoder)
     peer.reader=asyncio.create_task(peer.read());peer.stderr=asyncio.create_task(peer.discard_stderr())
     loop=asyncio.get_running_loop();task=asyncio.current_task()
     for sig in (signal.SIGTERM,signal.SIGINT):
@@ -214,7 +232,7 @@ async def execute(path, prompt, decode_result):
         mcp_servers=[]
         if tool_client:
             mcp_servers=[{'name':'dios','command':sys.executable,
-                'args':['-m','app.runtime.worker_mcp_bridge','--socket',env[SOCKET_ENV],'--instance',str(uuid4())],'env':[]}]
+                'args':['-m','app.runtime.worker_mcp_bridge','--socket',env[SOCKET_ENV],'--instance',str(uuid4())],'env':[{'name':'PYTHONPATH','value':str(Path(__file__).resolve().parents[2])}]}]
         session=await peer.call('session/new',{'cwd':str(cwd),'mcpServers':mcp_servers})
         sid=session.get('sessionId')
         if not isinstance(sid,str) or not 1<=len(sid)<=160:raise RuntimeErrorCode('SESSION_INVALID')
@@ -232,11 +250,15 @@ async def execute(path, prompt, decode_result):
             if tool_client is None:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')
             activity=[]
             for call in peer.tool_activity.values():
+                if activity_decoder:call=activity_decoder(call)
                 if not isinstance(call.get('name'),str) or not isinstance(call.get('rawInput'),dict):
                     raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')
                 activity.append({'name':call['name'],'arguments':call['rawInput']})
             await tool_client.request('verify_activity',{'activity':activity})
-        try:parsed=json.loads(peer.output)
+        if required_tools:
+            if tool_client is None:raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
+            await tool_client.request('verify_required',{'requirements':list(required_tools)})
+        try:parsed=(output_decoder or json.loads)(peer.output)
         except ValueError:raise RuntimeErrorCode('RESULT_FORMAT_INVALID') from None
         result=decode_result(parsed)
         if len(encoded(result))>60000:raise RuntimeErrorCode('OUTPUT_LIMIT_EXCEEDED')
@@ -246,6 +268,9 @@ async def execute(path, prompt, decode_result):
             try:loop.remove_signal_handler(sig)
             except (NotImplementedError,RuntimeError):pass
     # Completion follows protocol validation and child cleanup; partial outputs remain visible.
-    if process.returncode != 0:raise RuntimeErrorCode('ACP_CHILD_EXIT_NONZERO')
     emit({'type':'result','session_id':sid,'result':result})
+    # Some persistent ACP servers exit nonzero when stdin closes after end_turn.
+    # Retain the validated result; the runtime's explicit acceptance policy decides.
+    if process.returncode != 0:diagnostic('ACP_CHILD_EXIT_NONZERO')
+    return 0 if process.returncode == 0 else 2
 
