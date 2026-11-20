@@ -156,6 +156,32 @@ class E2AGToolGatewayTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(invalid)
             self.assertEqual("TOOL_GRANT_INVALID", reason)
 
+    async def test_discovery_allows_legacy_negotiation_without_forwarding(self):
+        async with self.sessions() as db:
+            _, _, event_log, _, grant, token, _ = await self._fixtures(db)
+            payload = {"jsonrpc": "2.0", "id": 17, "method": "server/discover"}
+            with patch("app.api.internal.e2ag_mcp.httpx.AsyncClient") as upstream:
+                response = await proxy_mcp_call(grant.id, request_for(payload, token), db)
+            self.assertEqual(200, response.status_code)
+            body = json.loads(response.body)
+            self.assertEqual(17, body["id"])
+            self.assertEqual(-32601, body["error"]["code"])
+            upstream.assert_not_called()
+            await db.refresh(event_log)
+            audit = event_log.audit_chain[-1]
+            self.assertEqual("deny", audit["outcome"])
+            self.assertEqual("server/discover", audit["evidence"]["method"])
+
+    async def test_discovery_still_requires_a_valid_grant(self):
+        async with self.sessions() as db:
+            _, _, _, _, grant, _, _ = await self._fixtures(db)
+            payload = {"jsonrpc": "2.0", "id": 18, "method": "server/discover"}
+            with patch("app.api.internal.e2ag_mcp.httpx.AsyncClient") as upstream:
+                response = await proxy_mcp_call(grant.id, request_for(payload, "invalid-token"), db)
+            self.assertEqual(403, response.status_code)
+            self.assertEqual("TOOL_GRANT_INVALID", json.loads(response.body)["error"]["data"]["reason"])
+            upstream.assert_not_called()
+
     async def test_denied_tool_never_reaches_upstream(self):
         async with self.sessions() as db:
             _, _, _, _, grant, token, _ = await self._fixtures(db)

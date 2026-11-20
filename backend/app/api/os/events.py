@@ -1,9 +1,10 @@
 """Event Gateway API: webhook 接收 + 手动触发 + 事件目录 + 事件日志查询。"""
 
 from datetime import datetime, timedelta, timezone
+from fnmatch import fnmatchcase
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, Request, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -20,6 +21,16 @@ from app.services.event_router import match_subscriptions
 from app.services.event_dispatcher import dispatch_event
 
 router = APIRouter(prefix="/events", tags=["events"])
+
+_ACTIVITY_TASK_COLUMNS = (
+    A2ATask.id, A2ATask.agent_id, A2ATask.status, A2ATask.created_at, A2ATask.updated_at, A2ATask.error,
+    func.coalesce(func.json_array_length(A2ATask.artifacts), 0).label("artifacts_count"),
+)
+
+
+def _stored_utc(timestamp: datetime) -> datetime:
+    # SQLite 读回时丢失 tzinfo，库里的时间仍是 UTC。
+    return timestamp.replace(tzinfo=timezone.utc) if timestamp.tzinfo is None else timestamp
 
 
 async def _webhook_secrets(db: AsyncSession) -> dict[str, str]:
@@ -127,15 +138,25 @@ async def event_catalog(db: AsyncSession = Depends(get_db)):
 @router.post("/manual")
 async def trigger_manual_event(
     body: ManualEventBody,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """手动触发一个事件，用于测试/模拟。"""
+    scoped_grant = getattr(request.state, "diagent_event_grant", None)
+    if scoped_grant:
+        publisher, grant = scoped_grant
+        if body.event_type not in grant.event_types or not any(fnmatchcase(body.source, pattern) for pattern in grant.source_patterns):
+            raise HTTPException(403, "Event source or type is outside this Agent grant")
+        if await db.get(Agent, publisher) is None:
+            raise HTTPException(403, "Event grant belongs to an unavailable Agent")
     event = _make_event(
         source=body.source,
         event_type=body.event_type,
         subject=body.subject,
         data=body.data,
     )
+    if scoped_grant:
+        event["diagentid"] = scoped_grant[0]
 
     subs_result = await db.execute(
         select(Subscription).where(Subscription.enabled == True)  # noqa: E712
@@ -233,7 +254,8 @@ async def get_activity_gantt(
         range_end = range_start + timedelta(days=1)
 
     stmt = (
-        select(A2ATask, Agent.name, EventLog.id, EventLog.event_type, EventLog.source)
+        select(*_ACTIVITY_TASK_COLUMNS, Agent.name.label("agent_name"), EventLog.id.label("event_id"),
+               EventLog.event_type, EventLog.source)
         .join(Agent, Agent.id == A2ATask.agent_id)
         .outerjoin(EventLog, EventLog.id == A2ATask.context_id)
         .where(A2ATask.created_at >= range_start, A2ATask.created_at < range_end)
@@ -251,11 +273,12 @@ async def get_activity_gantt(
     timeline_start: datetime | None = None
     timeline_end: datetime | None = None
 
-    for task, agent_name, event_id, event_type, event_source in rows:
-        start_at = task.created_at
+    for task in rows:
+        start_at = _stored_utc(task.created_at)
+        updated_at = _stored_utc(task.updated_at) if task.updated_at is not None else None
         running = task.status in ("submitted", "working")
-        end_at = None if running else task.updated_at
-        effective_end = now if running else (task.updated_at or task.created_at)
+        end_at = None if running else updated_at
+        effective_end = now if running else (updated_at or start_at)
         duration_ms = max(0, int((effective_end - start_at).total_seconds() * 1000))
 
         behaviors = [{"type": "start", "at": start_at.isoformat(), "label": "开始"}]
@@ -265,29 +288,31 @@ async def get_activity_gantt(
             end_label = "结束" if task.status == "completed" else task.status
             behaviors.append({"type": "end", "at": end_at.isoformat(), "label": end_label})
         if task.error:
-            behaviors.append({"type": "error", "at": (task.updated_at or effective_end).isoformat(), "label": "失败"})
-        if len(task.artifacts or []) > 0:
+            behaviors.append({"type": "error", "at": (updated_at or effective_end).isoformat(), "label": "失败"})
+        if task.artifacts_count > 0:
             behaviors.append({"type": "artifact", "at": (task.updated_at or effective_end).isoformat(), "label": "产出"})
 
         bars.append({
             "task_id": task.id,
             "agent_id": task.agent_id,
-            "agent_name": agent_name or task.agent_id,
+            "agent_name": task.agent_name or task.agent_id,
             "status": task.status,
             "start_at": start_at.isoformat(),
             "end_at": end_at.isoformat() if end_at else None,
             "effective_end_at": effective_end.isoformat(),
             "duration_ms": duration_ms,
-            "event_id": event_id or "",
-            "event_type": event_type or "",
-            "source": event_source or "",
+            "event_id": task.event_id or "",
+            "event_type": task.event_type or "",
+            "source": task.source or "",
             "error": task.error or "",
-            "artifacts_count": len(task.artifacts or []),
+            "artifacts_count": task.artifacts_count,
             "behaviors": behaviors,
         })
 
         if task.agent_id not in agents_map:
-            agents_map[task.agent_id] = {"agent_id": task.agent_id, "agent_name": agent_name or task.agent_id, "task_count": 0}
+            agents_map[task.agent_id] = {
+                "agent_id": task.agent_id, "agent_name": task.agent_name or task.agent_id, "task_count": 0,
+            }
         agents_map[task.agent_id]["task_count"] += 1
 
         if timeline_start is None or start_at < timeline_start:
@@ -313,38 +338,28 @@ async def get_activity_gantt(
 
 @router.get("/{event_id}/activity-overview", response_model=EventActivityOverviewOut)
 async def get_event_activity_overview(event_id: str, db: AsyncSession = Depends(get_db)):
-    from datetime import datetime, timezone
-    from app.models.tables import A2ATask, Agent
-
     event_log = await db.get(EventLog, event_id)
     if not event_log:
         raise HTTPException(404, "Event not found")
 
-    task_result = await db.execute(
-        select(A2ATask)
+    tasks = (await db.execute(
+        select(*_ACTIVITY_TASK_COLUMNS, Agent.name.label("agent_name"))
+        .outerjoin(Agent, Agent.id == A2ATask.agent_id)
         .where(A2ATask.context_id == event_id)
         .order_by(A2ATask.created_at.asc())
-    )
-    tasks = list(task_result.scalars().all())
-
-    agent_name_map: dict[str, str] = {}
-    if tasks:
-        agent_ids = list({t.agent_id for t in tasks if t.agent_id})
-        if agent_ids:
-            agent_result = await db.execute(select(Agent).where(Agent.id.in_(agent_ids)))
-            agents = list(agent_result.scalars().all())
-            agent_name_map = {a.id: a.name for a in agents}
+    )).all()
 
     now = datetime.now(timezone.utc)
-    timeline_start = event_log.created_at
-    timeline_end = event_log.created_at
+    timeline_start = _stored_utc(event_log.created_at)
+    timeline_end = timeline_start
     items: list[EventActivityItemOut] = []
 
     for t in tasks:
-        started_at = t.created_at
+        started_at = _stored_utc(t.created_at)
+        updated_at = _stored_utc(t.updated_at) if t.updated_at is not None else None
         is_running = t.status in ("submitted", "working")
-        ended_at = None if is_running else t.updated_at
-        effective_end = now if is_running else (t.updated_at or t.created_at)
+        ended_at = None if is_running else updated_at
+        effective_end = now if is_running else (updated_at or started_at)
         duration_ms = max(0, int((effective_end - started_at).total_seconds() * 1000))
 
         if started_at < timeline_start:
@@ -356,13 +371,13 @@ async def get_event_activity_overview(event_id: str, db: AsyncSession = Depends(
             EventActivityItemOut(
                 task_id=t.id,
                 agent_id=t.agent_id,
-                agent_name=agent_name_map.get(t.agent_id, t.agent_id),
+                agent_name=t.agent_name if t.agent_name is not None else t.agent_id,
                 status=t.status,
                 started_at=started_at,
                 ended_at=ended_at,
                 duration_ms=duration_ms,
                 error=t.error or "",
-                artifacts_count=len(t.artifacts or []),
+                artifacts_count=t.artifacts_count,
             )
         )
 

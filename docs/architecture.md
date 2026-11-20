@@ -41,6 +41,8 @@ OS 层     ──  DiOS
 - **`service`（常驻型）**：长期运行的 HTTP 服务，提供 OpenAI 兼容的 `/v1/chat/completions` 接口，支持多轮会话。Chat App 只列出此类 Agent。
 - **`task`（一次性）**：执行单次任务后结束生命周期，边界清晰、可重试、可并行。由事件触发，不支持交互式聊天。
 
+DiOS backend 重启时，会按任务 ID 找回仍标为 `working` 的一次性任务容器。已退出的容器按退出码登记终态和产物，仍在执行的容器继续由新进程轮询。Docker 确认容器已不存在时，DiOS 将任务标为失败。短暂无法连接 Docker 时继续尝试查询，避免误报失败。恢复使用任务所属 Agent 的工作区配置。任务进入 `working` 前的派发和终态提交后的容器清理由各自的生命周期处理。
+
 Agent 通过 OS 获取所需资源（LLM、Skills、MCP Tools），不自行管理这些资源。
 
 ### App 层

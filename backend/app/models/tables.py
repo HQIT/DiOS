@@ -124,6 +124,36 @@ class AgentRuntime(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class ModelInferenceGrant(Base):
+    """推理授权，只存令牌摘要和剩余调用次数。"""
+
+    __tablename__ = "model_inference_grants"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    agent_id: Mapped[str] = mapped_column(String(12), nullable=False)
+    model_id: Mapped[str] = mapped_column(String(12), nullable=False)
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    expires_at: Mapped[int] = mapped_column(index=True)
+    remaining_calls: Mapped[int] = mapped_column()
+
+
+class TaskInferenceRefresh(Base):
+    """任务刷新凭据摘要及不会随换发延长的截止时间。"""
+
+    __tablename__ = "task_inference_refresh"
+    task_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    expires_at: Mapped[int] = mapped_column()
+
+
+class TaskInferenceGrant(Base):
+    """将推理授权绑定到一个持久化的 A2A 任务。"""
+
+    __tablename__ = "task_inference_grants"
+    task_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+
+
 # ── Chat App（会话 + 消息持久化） ──
 
 
@@ -226,6 +256,17 @@ class E2AGToolGrant(Base):
     call_count: Mapped[int] = mapped_column(default=0)
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class ServiceMcpGrant(Base):
+    """将常驻 MCP 授权绑定到发起它的模型轮次。"""
+
+    __tablename__ = "service_mcp_grants"
+
+    grant_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    model_token_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    server_name: Mapped[str] = mapped_column(String(32), nullable=False)
+    upstream_session_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
 
 
 class E2AGApproval(Base):

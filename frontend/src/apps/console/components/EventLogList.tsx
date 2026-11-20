@@ -1,7 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
-import type { EventLog, EventCatalog, EventCatalogType, ActivityGanttResponse } from "../../../types";
+/** 事件目录、投递日志和任务活动总览共用一个页面，后台轮询保留当前查询的视图。 */
+import { useEffect, useState, useCallback, useRef } from "react";
+import type { EventCatalog, EventCatalogType, ActivityGanttResponse } from "../../../types";
 import { api } from "../../../api/os";
 import Drawer from "../../../components/Drawer";
+import TaskArtifacts from "./TaskArtifacts";
 
 const STATUS_COLORS: Record<string, string> = {
   received: "var(--color-muted)",
@@ -21,17 +23,68 @@ const TASK_STATUS_COLORS: Record<string, string> = {
 
 type ActivitySubTab = "logs" | "catalog" | "activity";
 const EVENT_LOG_AUTO_REFRESH_KEY = "dios:eventlog:autoRefresh";
+// 事件查询只读，限制单次等待时间，避免连接挂起后阻塞后续轮询。
+const EVENT_QUERY_TIMEOUT_MS = 20_000;
 
+/** 以稳定的 load 回调区分查询，只允许当前查询有一个请求在途。 */
+function useEventQuery<T>(load: (signal: AbortSignal) => Promise<T>, isVisible: boolean, intervalMs: number | null) {
+  const [result, setResult] = useState<{ load: typeof load; data?: T; hasError: boolean }>();
+  const activeLoad = useRef<typeof load | null>(null);
+  const pendingRequest = useRef<AbortController | null>(null);
+
+  const refresh = useCallback(async (options?: { replacePending?: boolean }) => {
+    const load = activeLoad.current;
+    if (!load) return;
+    if (pendingRequest.current && !options?.replacePending) return;
+    pendingRequest.current?.abort();
+    const request = new AbortController();
+    pendingRequest.current = request;
+    try {
+      const signal = AbortSignal.any([request.signal, AbortSignal.timeout(EVENT_QUERY_TIMEOUT_MS)]);
+      const data = await load(signal);
+      if (!request.signal.aborted) setResult({ load, data, hasError: false });
+    } catch (error) {
+      if (!request.signal.aborted) {
+        console.error("Failed to refresh event view:", error);
+        setResult(previous => ({
+          load,
+          data: previous?.load === load ? previous.data : undefined,
+          hasError: true,
+        }));
+      }
+    } finally {
+      if (pendingRequest.current === request) pendingRequest.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    activeLoad.current = load;
+    void refresh();
+    return () => {
+      activeLoad.current = null;
+      pendingRequest.current?.abort();
+      pendingRequest.current = null;
+    };
+  }, [isVisible, load, refresh]);
+
+  useEffect(() => {
+    if (!isVisible || intervalMs === null) return;
+    const timer = window.setInterval(refresh, intervalMs);
+    return () => window.clearInterval(timer);
+  }, [isVisible, intervalMs, refresh]);
+
+  return { result: result?.load === load ? result : undefined, refresh };
+}
+
+/** 展示事件投递与任务活动，并从任务活动打开产物抽屉。 */
 export default function EventLogList({ subTab, onSubTabChange }: { subTab: ActivitySubTab; onSubTabChange: (t: ActivitySubTab) => void }) {
-  const [events, setEvents] = useState<EventLog[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const pageSize = 50;
   
   const [sourceFilter, setSourceFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState<boolean>(() => {
     try {
       const raw = localStorage.getItem(EVENT_LOG_AUTO_REFRESH_KEY);
@@ -42,8 +95,7 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
   });
 
   const [catalog, setCatalog] = useState<EventCatalog | null>(null);
-  const [gantt, setGantt] = useState<ActivityGanttResponse | null>(null);
-  const [ganttLoading, setGanttLoading] = useState(false);
+  const [artifactTask, setArtifactTask] = useState<{ id: string; agent: string } | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const d = new Date();
     const yyyy = d.getFullYear();
@@ -59,62 +111,24 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
   const [triggerData, setTriggerData] = useState("{}");
   const [triggerLoading, setTriggerLoading] = useState(false);
 
-  const loadLogs = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await api.listEvents({
-        source: sourceFilter || undefined,
-        status: statusFilter || undefined,
-        limit: pageSize,
-        offset: (page - 1) * pageSize,
-      });
-      setEvents(data.items);
-      setTotal(data.total);
-    } catch (err) {
-      console.error('Failed to load events:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [sourceFilter, statusFilter, page]);
+  const fetchLogs = useCallback((signal: AbortSignal) => api.listEvents({
+    source: sourceFilter || undefined,
+    status: statusFilter || undefined,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+  }, signal), [sourceFilter, statusFilter, page]);
+  const fetchGantt = useCallback((signal: AbortSignal) => api.getActivityGantt({
+    date: selectedDate,
+    agent_ids: agentFilter || undefined,
+    limit: 1000,
+  }, signal), [selectedDate, agentFilter]);
+  const { result: logs, refresh: refreshLogs } = useEventQuery(fetchLogs, subTab === "logs", autoRefresh ? 3000 : null);
+  const { result: activity, refresh: refreshGantt } = useEventQuery(fetchGantt, subTab === "activity", autoRefresh ? 5000 : null);
+  const events = logs?.data?.items ?? [];
+  const total = logs?.data?.total ?? 0;
+  const gantt = activity?.data;
 
-  const loadCatalog = () => {
-    api.getEventCatalog().then(setCatalog);
-  };
-  const loadGantt = useCallback(async () => {
-    setGanttLoading(true);
-    try {
-      const data = await api.getActivityGantt({
-        date: selectedDate,
-        agent_ids: agentFilter || undefined,
-        limit: 1000,
-      });
-      setGantt(data);
-    } catch (err) {
-      console.error("Failed to load activity gantt:", err);
-    } finally {
-      setGanttLoading(false);
-    }
-  }, [selectedDate, agentFilter]);
-
-  useEffect(() => { loadLogs(); }, [loadLogs]);
-  useEffect(() => { loadCatalog(); }, []);
-  useEffect(() => {
-    if (subTab !== "activity") return;
-    loadGantt();
-  }, [subTab, loadGantt]);
-
-  // 自动刷新
-  useEffect(() => {
-    if (!autoRefresh) return;
-    if (subTab === "logs") {
-      const interval = setInterval(loadLogs, 3000);
-      return () => clearInterval(interval);
-    }
-    if (subTab === "activity") {
-      const interval = setInterval(loadGantt, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [autoRefresh, subTab, loadLogs, loadGantt]);
+  useEffect(() => { api.getEventCatalog().then(setCatalog); }, []);
 
   useEffect(() => {
     try {
@@ -134,9 +148,9 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
     try {
       await api.retryEvent(eventId);
       alert('已重新加入重试队列');
-      loadLogs();
-    } catch (err: any) {
-      alert('重试失败: ' + (err.message || '未知错误'));
+      void refreshLogs({ replacePending: true });
+    } catch (error) {
+      alert('重试失败: ' + (error instanceof Error ? error.message : '未知错误'));
     }
   };
 
@@ -160,18 +174,17 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
         data: parsed,
       });
       setTriggerType(null);
-      loadLogs();
       onSubTabChange("logs");
     } finally {
       setTriggerLoading(false);
     }
   };
 
-  const configuredCategories = catalog
-    ? new Set(catalog.sources.filter((s) => catalog.connector_status?.[s.id] !== false).map((s) => s.id))
-    : new Set<string>();
+  // 通过配置文件声明的事件没有 Connector 状态，也应出现在目录中。
   const filteredTypes = catalog
-    ? catalog.event_types.filter((et) => configuredCategories.has(et.category) && (!filterCategory || et.category === filterCategory))
+    ? catalog.event_types.filter((et) =>
+        catalog.connector_status?.[et.category] !== false && (!filterCategory || et.category === filterCategory),
+      )
     : [];
   const grouped = Object.entries(
     filteredTypes.reduce<Record<string, EventCatalogType[]>>((acc, et) => {
@@ -213,8 +226,11 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                   const width = (Math.max(1, e - s) / total) * 100;
                   const color = TASK_STATUS_COLORS[it.status] || "var(--color-primary)";
                   return (
-                    <div
+                    <button
                       key={it.task_id}
+                      type="button"
+                      aria-label={`查看任务产物 ${it.agent_name} ${it.task_id}`}
+                      onClick={() => setArtifactTask({ id: it.task_id, agent: it.agent_name })}
                       style={{
                         position: "absolute",
                         left: `${Math.max(0, left)}%`,
@@ -223,6 +239,9 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                         height: 18,
                         borderRadius: 3,
                         background: color,
+                        border: 0,
+                        padding: 0,
+                        minWidth: 0,
                       }}
                       title={`${it.agent_name} | ${it.status} | ${it.event_type || "no-event"} | ${Math.max(0, Math.round(it.duration_ms / 1000))}s`}
                     >
@@ -247,7 +266,7 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                           />
                         );
                       })}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -296,8 +315,8 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
               />
               <span>自动刷新</span>
             </label>
-            <button className="btn-sm btn-secondary" onClick={loadLogs} disabled={loading}>
-              {loading ? '加载中...' : '刷新'}
+            <button className="btn-sm btn-secondary" onClick={() => void refreshLogs({ replacePending: true })}>
+              刷新
             </button>
           </div>
 
@@ -306,18 +325,20 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
             &nbsp; 支持 GitHub / GitLab / Gitea
           </div>
 
-          {loading && (
+          {logs?.hasError && <p role="alert">事件日志刷新失败，请重试。</p>}
+
+          {!logs && (
             <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
               <div className="spinner"></div>
               <span>加载中...</span>
             </div>
           )}
 
-          {!loading && events.length === 0 && (
+          {logs?.data && events.length === 0 && (
             <p className="empty-hint">暂无事件记录</p>
           )}
 
-          {!loading && events.length > 0 && (
+          {events.length > 0 && (
             <ul className="item-list">
               {events.map((ev) => (
                 <li key={ev.id} className="event-item">
@@ -487,18 +508,25 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
               value={agentFilter}
               onChange={(e) => setAgentFilter(e.target.value)}
             />
-            <button className="btn-sm btn-secondary" onClick={loadGantt} disabled={ganttLoading}>
-              {ganttLoading ? "加载中..." : "刷新"}
+            <button className="btn-sm btn-secondary" onClick={() => void refreshGantt({ replacePending: true })}>
+              刷新
             </button>
           </div>
-          {ganttLoading && (
+          {activity?.hasError && <p role="alert">活动总览刷新失败，请重试。</p>}
+          {!activity && (
             <div style={{ textAlign: "center", padding: "20px", color: "var(--text-secondary)" }}>
               <div className="spinner"></div>
               <span>加载中...</span>
             </div>
           )}
-          {!ganttLoading && gantt && renderGlobalGantt(gantt)}
+          {gantt && renderGlobalGantt(gantt)}
         </>
+      )}
+
+      {artifactTask && (
+        <Drawer open title={`${artifactTask.agent} · 任务产物`} onClose={() => setArtifactTask(null)}>
+          <TaskArtifacts key={artifactTask.id} taskId={artifactTask.id} />
+        </Drawer>
       )}
 
       <Drawer

@@ -6,6 +6,9 @@ import ModelSelect from "./ModelSelect";
 import SubscriptionEditor from "./SubscriptionEditor";
 import SkillsEditor from "./SkillsEditor";
 import McpEditor from "./McpEditor";
+import AgentCapabilitiesEditor from "./AgentCapabilitiesEditor";
+import { parseCapabilities } from "./agentCapabilities";
+import type { AgentCapabilities } from "./agentCapabilities";
 
 const EMPTY: Partial<Agent> = {
   name: "", mode: "service", group: "", role: "agent", description: "", model: "",
@@ -44,7 +47,9 @@ export default function AgentList() {
   const [filterGroup, setFilterGroup] = useState("");
   const [viewMode, setViewMode] = useState<'grid' | 'grouped'>('grid');
   const [envPairs, setEnvPairs] = useState<EnvPair[]>([]);
-  const [capabilitiesText, setCapabilitiesText] = useState("{}");
+  const [capabilitiesDraft, setCapabilitiesDraft] = useState<{ text: string; value: AgentCapabilities; error?: string }>({
+    text: "{}", value: {},
+  });
 
   const load = () => api.listAgents().then(setAgents);
   useEffect(() => { load(); }, []);
@@ -66,18 +71,27 @@ export default function AgentList() {
     setTargetAgentId(null);
   };
 
+  const editCapabilities = (text: string, reset = false) => {
+    const parsed = parseCapabilities(text);
+    setCapabilitiesDraft((previous) => ({
+      text,
+      value: parsed.value ?? (reset ? {} : previous.value),
+      error: parsed.error,
+    }));
+  };
+
   const startEdit = (a?: Agent) => {
     closeAll();
     if (a) {
       setEditId(a.id);
       setEditing({ ...a });
       setEnvPairs(envToPairs(a.env));
-      setCapabilitiesText(JSON.stringify(a.capabilities || {}, null, 2));
+      editCapabilities(JSON.stringify(a.capabilities || {}, null, 2), true);
     } else {
       setEditId(null);
       setEditing({ ...EMPTY });
       setEnvPairs([]);
-      setCapabilitiesText("{}");
+      editCapabilities("{}", true);
     }
     setDrawerMode("edit");
   };
@@ -88,18 +102,23 @@ export default function AgentList() {
     setDrawerMode(mode);
   };
 
-  const save = async () => {
-    if (!editing?.name?.trim()) return;
-    let capabilities: Record<string, unknown> = {};
+  const saveAgent = async (data: Partial<Agent>, agentId: string | null) => {
     try {
-      capabilities = JSON.parse(capabilitiesText || "{}");
-      if (typeof capabilities !== "object" || capabilities === null || Array.isArray(capabilities)) {
-        throw new Error("capabilities must be object");
+      if (agentId) {
+        await api.updateAgent(agentId, data);
+      } else {
+        await api.createAgent(data);
       }
-    } catch {
-      alert("Capabilities 必须是合法 JSON 对象");
-      return;
+      return true;
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "未知错误";
+      alert(`保存 Agent 失败\n${detail}`);
+      return false;
     }
+  };
+
+  const save = async () => {
+    if (!editing?.name?.trim() || capabilitiesDraft.error) return;
 
     const data: Partial<Agent> = {
       name: editing.name,
@@ -114,15 +133,12 @@ export default function AgentList() {
       mcp_server_ids: editing.mcp_server_ids || [],
       workspace_path: editing.workspace_path || "",
       env: pairsToEnv(envPairs),
-      capabilities,
+      capabilities: capabilitiesDraft.value,
     };
-    if (editId) {
-      await api.updateAgent(editId, data);
-    } else {
-      await api.createAgent(data);
+    if (await saveAgent(data, editId)) {
+      closeAll();
+      load();
     }
-    closeAll();
-    load();
   };
 
   const handleDelete = async (id: string, name: string) => {
@@ -133,15 +149,11 @@ export default function AgentList() {
   };
 
   const saveSkills = async (skills: string[]) => {
-    if (!targetAgentId) return;
-    await api.updateAgent(targetAgentId, { skills });
-    load();
+    if (targetAgentId && await saveAgent({ skills }, targetAgentId)) load();
   };
 
   const saveMcp = async (ids: string[]) => {
-    if (!targetAgentId) return;
-    await api.updateAgent(targetAgentId, { mcp_server_ids: ids });
-    load();
+    if (targetAgentId && await saveAgent({ mcp_server_ids: ids }, targetAgentId)) load();
   };
 
   const targetAgent = agents.find((a) => a.id === targetAgentId);
@@ -293,20 +305,17 @@ export default function AgentList() {
               >+ 添加环境变量</button>
             </div>
 
-            <label>Capabilities (JSON)</label>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>
-              用于配置高级能力（如 dios_admin / reasoning / subagents）。
-            </div>
-            <textarea
-              rows={8}
-              value={capabilitiesText}
-              onChange={(e) => setCapabilitiesText(e.target.value)}
-              style={{ fontFamily: "monospace", fontSize: 12 }}
-              placeholder='{"dios_admin":{"enabled":true}}'
+            <AgentCapabilitiesEditor
+              key={editId ?? "new"}
+              agent={editing}
+              value={capabilitiesDraft.value}
+              text={capabilitiesDraft.text}
+              error={capabilitiesDraft.error}
+              onTextChange={editCapabilities}
             />
 
             <div className="drawer-actions">
-              <button onClick={save}>保存</button>
+              <button onClick={save} disabled={Boolean(capabilitiesDraft.error)}>保存</button>
               <button className="btn-secondary" onClick={closeAll}>取消</button>
             </div>
           </div>

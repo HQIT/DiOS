@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import uuid
@@ -18,13 +19,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-from sqlalchemy import select
+from docker.errors import DockerException
+from requests.exceptions import RequestException
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models.tables import Agent, A2ATask, LLMModel, McpServer
+from app.services.admin_guard import selected_subagent_skills, subagents_for_task, validate_subagent_runtime
+from app.services.agent_tools import configured_agent_tools, select_service_tools
+from app.services.model_proxy import has_task_model_grant, revoke_task_model_grant
+from app.services.task_artifacts import collect_task_artifacts
 
 logger = logging.getLogger(__name__)
+_TASK_POLL_INTERVAL = 5
+_task_container_monitors: set[asyncio.Task[None]] = set()
 
 
 def _now() -> datetime:
@@ -176,11 +185,10 @@ async def send_message(
             await _send_to_task_agent(db, agent, task)
     except Exception as e:
         logger.exception("send_message failed for agent %s", agent_id)
-        task.status = "failed"
-        task.error = f"{type(e).__name__}: {e}"
-        task.updated_at = _now()
-        from app.services.e2ag_tool_gateway import revoke_task_grants
-        await revoke_task_grants(db, task.id)
+        await db.execute(update(A2ATask).where(
+            A2ATask.id == task.id, A2ATask.status.in_(("submitted", "working")),
+        ).values(status="failed", error=f"{type(e).__name__}: {e}", updated_at=_now()))
+        await _revoke_task_grants(db, task.id)
         if agent.workspace_path:
             _remove_task_secret_config(agent.workspace_path, task.id[:12])
         await db.commit()
@@ -211,21 +219,21 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
     import httpx
     from app.db.database import async_session
     from app.services.agent_runtime import ensure_running
+    from app.services.model_proxy import model_grant, resolve_agent_model
 
     try:
         async with async_session() as db:
             task = await db.get(A2ATask, task_id)
             if not task:
                 return
-            url = await ensure_running(agent_id, db)
 
             agent = await db.get(Agent, agent_id)
-            model_name = ""
-            if agent and agent.model:
-                m = await db.execute(select(LLMModel).where(LLMModel.name == agent.model))
-                mobj = m.scalar_one_or_none()
-                if mobj:
-                    model_name = mobj.model
+            if agent is None:
+                raise RuntimeError("Agent was removed before service execution")
+            selected = select_service_tools(agent, entry="a2a")
+            url = await ensure_running(agent_id, db)
+            model = await resolve_agent_model(db, agent.model)
+            model_name = model.model if model else ""
 
             text = _extract_text_from_message(task.message)
             openai_req: dict[str, Any] = {
@@ -234,11 +242,14 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
             }
             if model_name:
                 openai_req["model"] = model_name
+            include_mcp = "mcp" in (selected or ())
+            if selected is not None:
+                openai_req["tool_selection"] = {"tool_ids": selected}
 
             from app.services.http_internal import internal_client
 
-            async with internal_client(timeout=300) as client:
-                resp = await client.post(f"{url}/v1/chat/completions", json=openai_req)
+            async with model_grant(db, agent, model, include_mcp=include_mcp) as headers, internal_client(timeout=300) as client:
+                resp = await client.post(f"{url}/v1/chat/completions", json=openai_req, headers=headers)
                 resp.raise_for_status()
                 data = resp.json()
 
@@ -286,45 +297,107 @@ def _extract_text_from_message(message: dict[str, Any]) -> str:
 
 async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> None:
     """task 模式 Proxy：把 message 作为 task 输入，启动一次性容器。"""
-    import asyncio
-    from app.services.docker_runner import (
-        start_container,
-        get_container_status,
-        get_container_exit_code,
-        remove_container,
+    from app.services.docker_runner import PRIVATE_TASK_DIR, SUBAGENT_SKILLS_DIR, remove_container, start_container
+    from app.services.e2ag_tool_gateway import issue_task_mcp_config, streamable_mcp_servers, subagent_mcp_servers
+    from app.services.model_proxy import (
+        check_model_workspace, issue_task_model_config, managed_task_timeout_ms, resolve_agent_model, task_inference_env,
     )
+    from app.services.service_skills import service_skill_sources
 
     if not agent.workspace_path:
         raise ValueError(f"Agent {agent.id} has no workspace_path")
+    selected = configured_agent_tools(
+        agent.capabilities, mode=agent.mode, skills=agent.skills, mcp_server_ids=agent.mcp_server_ids,
+    )
+    subagents = subagents_for_task(agent.capabilities)
+    validate_subagent_runtime(subagents, mode=agent.mode)
+    child_mcp_servers = await subagent_mcp_servers(db, agent.capabilities, subagents)
+    await check_model_workspace(db, agent)
 
-    models_result = await db.execute(select(LLMModel))
-    llm_models = list(models_result.scalars().all())
-
+    managed = settings.diagent_task_model_proxy
+    env = agent.env or {}
+    timeout_ms = managed_task_timeout_ms(env.get("DIAGENT_TASK_TIMEOUT_MS")) if managed else None
     mcp_override = None
+    task_files = {} if managed or selected is not None else None
+    skill_sources = None
+    if selected is not None:
+        skill_sources = await service_skill_sources(agent.skills, db) if "skill" in selected else {}
+    child_skill_names = selected_subagent_skills(subagents)
+    child_skill_sources = await service_skill_sources(child_skill_names, db) if child_skill_names else {}
+    if child_skill_sources and skill_sources is None:
+        skill_sources = await service_skill_sources(agent.skills, db)
+    for role in subagents:
+        if "tool_selection" in role and role.get("skill_names"):
+            role["skills_dir"] = SUBAGENT_SKILLS_DIR
     mcp_ids = getattr(agent, "mcp_server_ids", None) or []
     workspace = Path(agent.workspace_path)
 
     run_id = task.id[:12]
 
-    if mcp_ids:
-        mcp_result = await db.execute(select(McpServer).where(McpServer.id.in_(mcp_ids)))
-        mcp_servers = list(mcp_result.scalars().all())
+    if mcp_ids and (selected is None or "mcp" in selected):
+        if selected is None:
+            mcp_servers = list(await db.scalars(select(McpServer).where(McpServer.id.in_(mcp_ids))))
+        else:
+            mcp_servers = await streamable_mcp_servers(db, mcp_ids)
+            if not mcp_servers:
+                raise ValueError("Task MCP selection requires a registered Streamable HTTP MCP server")
         if mcp_servers:
-            from app.services.e2ag_tool_gateway import issue_task_mcp_config
-
             mcp_cfg, omissions = await issue_task_mcp_config(
-                db, agent=agent, task=task, servers=mcp_servers,
+                db, agent=agent, task=task, servers=mcp_servers, normalize_names=selected is not None,
             )
-            config_dir = workspace / "config"
-            config_dir.mkdir(parents=True, exist_ok=True)
-            mcp_file = config_dir / f"mcp_servers_{run_id}.json"
-            mcp_file.write_text(json.dumps(mcp_cfg, ensure_ascii=False, indent=2), encoding="utf-8")
-            mcp_override = f"/workspace/config/mcp_servers_{run_id}.json"
+            if task_files is None:
+                config_dir = workspace / "config"
+                config_dir.mkdir(parents=True, exist_ok=True)
+                mcp_file = config_dir / f"mcp_servers_{run_id}.json"
+                mcp_file.write_text(json.dumps(mcp_cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+                mcp_override = f"/workspace/config/mcp_servers_{run_id}.json"
+            elif mcp_cfg or selected is None:
+                task_files["mcp.json"] = mcp_cfg
+                mcp_override = f"{PRIVATE_TASK_DIR}/mcp.json"
+            else:
+                raise ValueError("Task MCP selection produced no grants")
             if omissions:
                 logger.warning(
                     "E2AG withheld %d MCP server(s) for task %s: %s",
                     len(omissions), task.id, omissions,
                 )
+
+    if child_mcp_servers:
+        assert task_files is not None
+        for role in subagents:
+            servers = child_mcp_servers.get(role["name"])
+            if servers is None:
+                continue
+            config, omissions = await issue_task_mcp_config(
+                db, agent=agent, task=task, servers=servers, normalize_names=True,
+                subagent_tool_names=role.pop("mcp_tools"),
+            )
+            if omissions or len(config) != len(servers):
+                raise ValueError(f"Subagent {role['name']} MCP selection did not produce all requested grants")
+            role.pop("mcp_server_ids")
+            filename = f"subagent-{role['name']}-mcp.json"
+            task_files[filename] = config
+            role["mcp_config_path"] = f"{PRIVATE_TASK_DIR}/{filename}"
+
+    managed_model = None
+    llm_models = []
+    if timeout_ms is not None:
+        model = await resolve_agent_model(db, agent.model)
+        # 持有任务行的写锁直到授权提交，避免已经取消的任务再获签。
+        claimed = await db.scalar(update(A2ATask).where(
+            A2ATask.id == task.id, A2ATask.status == "submitted",
+        ).values(updated_at=_now()).returning(A2ATask.id))
+        if claimed is None:
+            await _revoke_task_grants(db, task.id)
+            await db.refresh(task)
+            return
+        managed_model, refresh_config = await issue_task_model_config(db, task, model, timeout_ms=timeout_ms)
+        if refresh_config is not None:
+            task_files["model-refresh.json"] = refresh_config
+        env = task_inference_env(env, model)
+        env["DIAGENT_TASK_TIMEOUT_MS"] = str(timeout_ms)
+    else:
+        llm_models = list(await db.scalars(select(LLMModel)))
 
     config = _build_proxy_task_config(
         agent=agent,
@@ -333,114 +406,195 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
         task_id=task.id,
         run_id=run_id,
         mcp_config_path_override=mcp_override,
+        managed_model=managed_model,
+        subagents=subagents,
     )
+    if task_files is None:
+        config_path = workspace / f"agent-task-{run_id}.json"
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        config_path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
+    if selected is not None:
+        config["task"]["tool_selection"] = {"tool_ids": selected}
+        if not skill_sources:
+            config["task"].pop("skill_names", None)
+        if mcp_override is None:
+            config["task"].pop("mcp_config_path", None)
+    if skill_sources:
+        config["task"]["skills_dir"] = f"{PRIVATE_TASK_DIR}/skills"
+    if task_files is not None:
+        task_files["task.json"] = config
 
-    config_path = workspace / f"agent-task-{run_id}.json"
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
     (workspace / "output" / "events" / run_id).mkdir(parents=True, exist_ok=True)
 
     # Docker SDK calls are synchronous. Keep image checks and container creation
     # off the ASGI event loop so one slow daemon call cannot stall every API.
+    if managed:
+        await db.commit()
+    launch_options: dict[str, Any] = {"managed_agent_id": agent.id} if managed else {}
+    if child_skill_sources:
+        launch_options["subagent_skill_sources"] = child_skill_sources
     container_id = await asyncio.to_thread(
-        start_container, run_id, workspace, agent.env or {}
+        start_container, run_id, workspace, env, task_files=task_files, skill_sources=skill_sources, **launch_options,
     )
     logger.info(
         "Start task container: task_id=%s agent_id=%s run_id=%s container_id=%s context_id=%s",
         task.id, agent.id, run_id, container_id, task.context_id,
     )
 
-    task.status = "working"
-    task.updated_at = _now()
+    started = await db.scalar(update(A2ATask).where(
+        A2ATask.id == task.id, A2ATask.status == "submitted",
+    ).values(status="working", updated_at=_now()).returning(A2ATask.id))
+    if started is None:
+        await _revoke_task_grants(db, task.id)
+        if not await asyncio.to_thread(remove_container, container_id):
+            logger.warning("Failed to remove container for task %s canceled during launch", task.id)
+        await db.refresh(task)
+        return
     await db.commit()
 
-    asyncio.create_task(_poll_task_container(task.id, run_id, container_id, str(workspace)))
+    _start_task_container_monitor(task.id, str(workspace), container_id)
 
 
-async def _poll_task_container(task_id: str, run_id: str, container_id: str, workspace_path: str) -> None:
-    """后台轮询容器状态，完成后更新 A2ATask。"""
-    import asyncio
+async def _revoke_task_grants(db: AsyncSession, task_id: str) -> None:
+    """在同一事务中撤销任务的推理和 MCP 授权。"""
+    from app.services.e2ag_tool_gateway import revoke_task_grants
+
+    await revoke_task_model_grant(db, task_id)
+    await revoke_task_grants(db, task_id)
+
+
+async def recover_task_containers() -> None:
+    """启动时为仍在执行的一次性任务恢复容器轮询。"""
+    from app.db.database import async_session
+
+    async with async_session() as db:
+        await db.execute(update(A2ATask).where(
+            A2ATask.status == "submitted", has_task_model_grant(),
+        ).values(status="working", updated_at=_now()))
+        await db.commit()
+        runs = (await db.execute(
+            select(A2ATask.id, Agent.workspace_path)
+            .join(Agent, Agent.id == A2ATask.agent_id)
+            .where(A2ATask.status == "working", Agent.mode == "task")
+        )).all()
+    for task_id, workspace_path in runs:
+        _start_task_container_monitor(task_id, workspace_path)
+
+
+async def stop_task_container_monitors() -> None:
+    """关闭进程内轮询，保留 Docker 中的在途容器供下次启动接管。"""
+    monitors = tuple(_task_container_monitors)
+    for monitor in monitors:
+        monitor.cancel()
+    await asyncio.gather(*monitors, return_exceptions=True)
+
+
+def _start_task_container_monitor(task_id: str, workspace_path: str, container_id: str | None = None) -> None:
+    monitor = asyncio.create_task(_poll_task_container(task_id, workspace_path, container_id))
+    _task_container_monitors.add(monitor)
+    monitor.add_done_callback(_task_container_monitors.discard)
+
+
+async def _poll_task_container(task_id: str, workspace_path: str, container_id: str | None) -> None:
+    """轮询 Docker 直到容器退出或消失，再登记任务结果。"""
     from app.db.database import async_session
     from app.services.docker_runner import (
+        find_task_container,
         get_container_status,
         get_container_exit_code,
         get_container_logs,
         remove_container,
     )
 
+    run_id = task_id[:12]
+    if container_id is not None:
+        # 正常派发先让事件路由完成自身的状态和审计登记。
+        await asyncio.sleep(_TASK_POLL_INTERVAL)
+    exit_code = None
+    container_logs = ""
+    never_started = False
     while True:
-        await asyncio.sleep(5)
-        status = await asyncio.to_thread(get_container_status, container_id)
-        if status is None or status == "exited":
-            break
-
-    exit_code = await asyncio.to_thread(get_container_exit_code, container_id)
-    container_logs = await asyncio.to_thread(get_container_logs, container_id)
-    await asyncio.to_thread(remove_container, container_id)
-
-    artifacts: list[dict[str, Any]] = []
-    result_root = Path(workspace_path) / "output" / "events" / run_id
-    result_file = result_root / "task_result.md"
-    if not result_file.exists() and result_root.exists():
-        nested_results = list(result_root.glob("*/task_result.md"))
-        if nested_results:
-            result_file = max(nested_results, key=lambda path: path.stat().st_mtime_ns)
-    if result_file.exists():
         try:
-            content = result_file.read_text(encoding="utf-8")
-            artifacts.append({
-                "artifactId": f"{task_id}-result",
-                "name": "task_result.md",
-                "parts": [{"kind": "text", "text": content}],
-            })
-        except Exception:
-            pass
+            if container_id is None:
+                container_id = await asyncio.to_thread(find_task_container, run_id)
+            if container_id is None:
+                break
+            status = await asyncio.to_thread(get_container_status, container_id)
+            if status is None:
+                break
+            if status == "created":
+                never_started = True
+                break
+            if status in ("exited", "dead"):
+                exit_code = await asyncio.to_thread(get_container_exit_code, container_id)
+                container_logs = await asyncio.to_thread(get_container_logs, container_id)
+                break
+        except (DockerException, RequestException) as exc:
+            # Docker 暂时不可用时保留 working，避免把连接失败记成任务失败。
+            logger.warning("Cannot inspect task container for run %s: %s", run_id, exc)
+        await asyncio.sleep(_TASK_POLL_INTERVAL)
+
+    files = await asyncio.to_thread(collect_task_artifacts, Path(workspace_path), run_id)
+    artifacts = [
+        {
+            "artifactId": f"{task_id}-result" if index == 0 else f"{task_id}-report-{index}",
+            "name": name,
+            "parts": [{"kind": "text", "text": content}],
+        }
+        for index, (name, content) in enumerate(files)
+    ]
+
+    status = "completed" if exit_code == 0 else "failed"
+    error = ""
+    if never_started:
+        error = "Task container was not started before DiOS restarted"
+    elif exit_code is None:
+        error = "Task container is missing"
+    elif exit_code != 0:
+        error = f"container exit code {exit_code}"
+        log_tail = container_logs[-4000:].strip()
+        if log_tail:
+            error += f"\ncontainer log tail:\n{log_tail}"
 
     async with async_session() as db:
-        task = await db.get(A2ATask, task_id)
-        if task is None:
-            logger.warning("Task %s disappeared during polling", task_id)
-            _remove_task_secret_config(workspace_path, run_id)
-            return
-        task.artifacts = artifacts
-        task.status = "completed" if exit_code == 0 else "failed"
-        if exit_code != 0:
-            log_tail = container_logs[-4000:].strip()
-            task.error = f"container exit code {exit_code}"
-            if log_tail:
-                task.error += f"\ncontainer log tail:\n{log_tail}"
-        task.updated_at = _now()
-        from app.services.e2ag_tool_gateway import revoke_task_grants
-        await revoke_task_grants(db, task.id)
-        if task.context_id:
-            from app.models.tables import EventLog
-            from app.services.e2ag import append_audit_entry
-
-            event_log = await db.get(EventLog, task.context_id)
-            if event_log is not None:
-                event_log.audit_chain = append_audit_entry(
-                    event_log.audit_chain or [],
-                    trace_id=task.trace_id,
-                    stage="a2a_task",
-                    outcome=task.status,
-                    evidence={
-                        "task_id": task.id,
-                        "agent_id": task.agent_id,
-                        "exit_code": exit_code,
-                        "artifact_count": len(artifacts),
-                    },
-                )
-        await db.commit()
+        # 条件更新防止已取消的任务或另一条轮询被重复登记。
+        task = (await db.scalars(
+            update(A2ATask)
+            .where(A2ATask.id == task_id, A2ATask.status == "working")
+            .values(artifacts=artifacts, status=status, error=error, updated_at=_now())
+            .returning(A2ATask)
+        )).one_or_none()
+        if task is not None:
+            await _record_task_completion(db, task, exit_code)
+            await db.commit()
     _remove_task_secret_config(workspace_path, run_id)
-    logger.info(
-        "A2A task finished: task_id=%s run_id=%s exit=%s status=%s context_id=%s artifacts=%s",
-        task_id,
-        run_id,
-        exit_code,
-        "completed" if exit_code == 0 else "failed",
-        task.context_id if task else "",
-        len(artifacts),
-    )
+    # 先提交结果，再清理容器。提交前重启时仍能读取容器退出码。
+    if container_id is not None:
+        await asyncio.to_thread(remove_container, container_id)
+
+
+async def _record_task_completion(db: AsyncSession, task: A2ATask, exit_code: int | None) -> None:
+    """在任务终态事务内撤销授权并追加审计记录。"""
+    if task.context_id:
+        from app.models.tables import EventLog
+        from app.services.e2ag import append_audit_entry
+
+        event_log = await db.get(EventLog, task.context_id)
+        if event_log is not None:
+            event_log.audit_chain = append_audit_entry(
+                event_log.audit_chain or [],
+                trace_id=task.trace_id,
+                stage="a2a_task",
+                outcome=task.status,
+                evidence={
+                    "task_id": task.id,
+                    "agent_id": task.agent_id,
+                    "exit_code": exit_code,
+                    "artifact_count": len(task.artifacts),
+                },
+            )
+    # 撤销函数会提交会话，审计需先加入同一事务。
+    await _revoke_task_grants(db, task.id)
 
 
 def _build_proxy_task_config(
@@ -450,6 +604,8 @@ def _build_proxy_task_config(
     task_id: str,
     run_id: str,
     mcp_config_path_override: Optional[str] = None,
+    managed_model: dict | None = None,
+    subagents: list[dict] | None = None,
 ) -> dict[str, Any]:
     """把 A2A Message 转为 DiAgent task config（与 event_dispatcher 的格式对齐）。"""
     used_model = agent.model or ""
@@ -461,7 +617,9 @@ def _build_proxy_task_config(
         return None
 
     models_section: dict[str, Any] = {"default_model": used_model, "models": {}}
-    resolved = _resolve_model()
+    resolved = _resolve_model() if managed_model is None else None
+    if managed_model is not None:
+        models_section["models"][used_model] = managed_model
     if used_model and resolved is not None:
         m = resolved
         entry: dict[str, Any] = {
@@ -488,7 +646,6 @@ def _build_proxy_task_config(
     task_text = "\n\n".join(text_parts) if text_parts else json.dumps(message, ensure_ascii=False)
     capabilities = (agent.capabilities or {}) if isinstance(agent.capabilities, dict) else {}
     reasoning = capabilities.get("reasoning", {}) if isinstance(capabilities.get("reasoning"), dict) else {}
-    subagents = capabilities.get("subagents", []) if isinstance(capabilities.get("subagents"), list) else []
 
     task_section: dict[str, Any] = {
         "task": task_text,
@@ -517,28 +674,7 @@ def _build_proxy_task_config(
     if mcp_path:
         task_section["mcp_config_path"] = mcp_path
     if subagents:
-        converted: list[dict[str, Any]] = []
-        for s in subagents:
-            if not isinstance(s, dict):
-                continue
-            prompt = s.get("prompt") or s.get("system_prompt")
-            if not (s.get("name") and s.get("description") and prompt):
-                continue
-            converted.append(
-                {
-                    "name": s.get("name"),
-                    "description": s.get("description"),
-                    "prompt": prompt,
-                    "tools": s.get("tools", []),
-                    "model": s.get("model"),
-                    "task": s.get("task"),
-                    "mcp_config_path": s.get("mcp_config_path"),
-                    "skills_dir": s.get("skills_dir"),
-                    "skill_names": s.get("skill_names"),
-                }
-            )
-        if converted:
-            task_section["subagents"] = converted
+        task_section["subagents"] = subagents
 
     return {"models": models_section, "task": task_section}
 
@@ -558,10 +694,13 @@ async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
         raise ValueError(f"Task {task_id} not found")
     if task.status in ("completed", "failed", "canceled"):
         return task
-    task.status = "canceled"
-    task.updated_at = _now()
-    from app.services.e2ag_tool_gateway import revoke_task_grants
-    await revoke_task_grants(db, task.id)
+    canceled = await db.scalar(update(A2ATask).where(
+        A2ATask.id == task_id, A2ATask.status.in_(("submitted", "working")),
+    ).values(status="canceled", updated_at=_now()).returning(A2ATask.id))
+    if canceled is None:
+        await db.refresh(task)
+        return task
+    await _revoke_task_grants(db, task.id)
     agent = await db.get(Agent, task.agent_id)
     if agent and agent.workspace_path:
         _remove_task_secret_config(agent.workspace_path, task.id[:12])

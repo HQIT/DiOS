@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
+
+from app.config import settings
+from app.services.service_skills import is_skill_name
 
 
 _RISK_POLICIES = {"allow", "hil_required"}
+_SUBAGENT_FILE_TOOLS = {"read", "write", "edit"}
+_SUBAGENT_TOOLS = _SUBAGENT_FILE_TOOLS | {"skill", "mcp"}
 
 
 def normalize_capabilities(capabilities: dict | None) -> dict:
@@ -82,6 +88,8 @@ def _normalize_reasoning(value: Any) -> dict:
 def _normalize_subagents(value: Any) -> list[dict]:
     if not isinstance(value, list):
         raise ValueError("capabilities.subagents must be an array")
+    if any(isinstance(item, dict) and "tool_selection" in item for item in value):
+        return _normalize_dsh_subagents(value)
     normalized: list[dict] = []
     for idx, item in enumerate(value):
         if not isinstance(item, dict):
@@ -116,4 +124,114 @@ def _normalize_subagents(value: Any) -> list[dict]:
             }
         )
     return normalized
+
+
+def _normalize_dsh_subagents(value: list) -> list[dict]:
+    normalized = []
+    names = set()
+    for idx, item in enumerate(value):
+        field = f"capabilities.subagents[{idx}]"
+        if not isinstance(item, dict) or "tool_selection" not in item:
+            raise ValueError(f"{field} requires tool_selection when configuring DSH subagents")
+        name = item.get("name")
+        description = item.get("description")
+        prompt = item.get("prompt") or item.get("system_prompt")
+        if not isinstance(name, str) or not re.fullmatch(r"[a-z][a-z0-9_-]{0,47}", name.strip()):
+            raise ValueError(f"{field}.name must be a tool-safe identifier")
+        name = name.strip()
+        if name in names:
+            raise ValueError(f"{field}.name must be unique")
+        names.add(name)
+        if not isinstance(description, str) or not description.strip() or not isinstance(prompt, str) or not prompt.strip():
+            raise ValueError(f"{field} requires non-empty description and prompt")
+        if (item.get("tools") is not None
+                or any(item.get(key) not in (None, "") for key in ("model", "task", "mcp_config_path", "skills_dir"))):
+            raise ValueError(f"{field} must use tool_selection and inherit the task model; overrides are unsupported")
+        selection = item["tool_selection"]
+        if not isinstance(selection, dict) or selection.get("tool_config") is not None:
+            raise ValueError(f"{field}.tool_selection requires tool_ids and does not accept tool_config")
+        tools = selection.get("tool_ids")
+        if not isinstance(tools, list) or any(
+            not isinstance(tool, str) or tool not in _SUBAGENT_TOOLS for tool in tools
+        ):
+            raise ValueError(f"{field}.tool_selection.tool_ids must be an array of skill, mcp, read, write, or edit")
+        skill_names = item.get("skill_names", [])
+        if not isinstance(skill_names, list) or not all(is_skill_name(name) for name in skill_names):
+            raise ValueError(f"{field}.skill_names must be an array of Skill names")
+        if ("skill" in tools) != bool(skill_names):
+            raise ValueError(f"{field} must configure skill_names together with the skill tool")
+        mcp_server_ids = item.get("mcp_server_ids", [])
+        mcp_tools = item.get("mcp_tools", [])
+        if not isinstance(mcp_server_ids, list) or any(
+            not isinstance(s, str) or not s.strip() for s in mcp_server_ids
+        ):
+            raise ValueError(f"{field}.mcp_server_ids must be an array of registered server IDs")
+        if not isinstance(mcp_tools, list) or any(
+            not isinstance(t, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+", t) for t in mcp_tools
+        ):
+            raise ValueError(f"{field}.mcp_tools must be an array of exact tool names")
+        if bool(mcp_server_ids) != ("mcp" in tools) or bool(mcp_tools) != ("mcp" in tools):
+            raise ValueError(f"{field} must configure mcp_server_ids and mcp_tools together with the mcp tool")
+        role = {
+            "name": name,
+            "description": description.strip(),
+            "prompt": prompt.strip(),
+            "tool_selection": {"tool_ids": list(dict.fromkeys(tools))},
+        }
+        if skill_names:
+            role["skill_names"] = list(dict.fromkeys(skill_names))
+        if mcp_server_ids:
+            role["mcp_server_ids"] = list(dict.fromkeys(mcp_server_ids))
+            role["mcp_tools"] = list(dict.fromkeys(mcp_tools))
+        normalized.append(role)
+    return normalized
+
+
+def subagents_for_task(capabilities: dict | None) -> list[dict]:
+    """生成下发给任务执行器的角色配置，保留存量格式的工具语义。"""
+    value = capabilities.get("subagents") if isinstance(capabilities, dict) else None
+    if not isinstance(value, list):
+        return []
+    if any(isinstance(item, dict) and "tool_selection" in item for item in value):
+        return _normalize_dsh_subagents(value)
+
+    # 存量任务沿用 Python 执行器的字段和缺省值。
+    converted = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        prompt = item.get("prompt") or item.get("system_prompt")
+        if item.get("name") and item.get("description") and prompt:
+            converted.append({
+                "name": item["name"], "description": item["description"], "prompt": prompt,
+                "tools": item.get("tools", []), "model": item.get("model"), "task": item.get("task"),
+                "mcp_config_path": item.get("mcp_config_path"), "skills_dir": item.get("skills_dir"),
+                "skill_names": item.get("skill_names"),
+            })
+    return converted
+
+
+def validate_subagent_runtime(subagents: list[dict], *, mode: str | None) -> None:
+    """在保存及发放任务授权前，确认当前部署能运行已验证的角色配置。"""
+    if not subagents or "tool_selection" not in subagents[0]:
+        return
+    if mode != "task":
+        raise ValueError("DSH subagents require task mode")
+    if not settings.diagent_task_model_proxy:
+        raise ValueError("DSH subagents require managed task inference")
+    if not settings.diagent_task_model_refresh and any(
+        _SUBAGENT_FILE_TOOLS.intersection(role["tool_selection"]["tool_ids"]) for role in subagents
+    ):
+        raise ValueError("DSH subagent file tools require managed task inference with grant refresh")
+
+
+def selected_subagent_skills(subagents: Any) -> list[str]:
+    """返回具名 DSH 子 Agent 请求的 Skill，供校验和只读挂载共用。"""
+    if not isinstance(subagents, list):
+        return []
+    return list(dict.fromkeys(
+        name for role in subagents
+        if isinstance(role, dict) and "tool_selection" in role and isinstance(role.get("skill_names"), list)
+        for name in role["skill_names"] if is_skill_name(name)
+    ))
 

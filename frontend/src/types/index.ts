@@ -86,6 +86,11 @@ export interface McpServer {
   created_at: string;
 }
 
+export interface McpToolCatalog {
+  server_name: string;
+  tools: Array<{ name: string; title: string; description: string }>;
+}
+
 export interface Skill {
   id: string;
   name: string;
@@ -150,6 +155,18 @@ export interface EventActivityItem {
   duration_ms: number;
   error?: string;
   artifacts_count?: number;
+}
+
+export interface TaskArtifact {
+  artifactId: string;
+  name: string;
+  parts: { kind: string; text?: string }[];
+}
+
+export interface TaskDetails {
+  status: string;
+  error: string;
+  artifacts: TaskArtifact[];
 }
 
 export interface EventActivityOverview {

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import io
+import json
+import tarfile
 import tempfile
 import unittest
 from pathlib import Path
@@ -47,6 +50,47 @@ class DockerRunnerTests(unittest.TestCase):
             "诊断日志",
         )
         container.logs.assert_called_once_with(stdout=True, stderr=True, tail=17)
+
+    def test_task_selection_requires_a_compatible_image_and_uses_the_generated_config(self) -> None:
+        client = MagicMock()
+        image = client.images.get.return_value
+        image.labels = {}
+        docker_runner._client = client
+        files = {"task.json": {"task": {"tool_selection": {"tool_ids": []}}}}
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(RuntimeError, "does not support tool_selection"):
+                docker_runner.start_container("run-1", Path(directory), task_files=files)
+            client.containers.run.assert_not_called()
+            client.containers.create.assert_not_called()
+
+            image.labels = {"org.hqit.diagent.task-tool-selection": "1"}
+            image.id = "sha256:fixture-task-image"
+            docker_runner.start_container("run-1", Path(directory), {"TASK_CONFIG": "/workspace/alternate.json"},
+                                          task_files=files)
+
+        args, options = client.containers.create.call_args
+        self.assertEqual(args, (image.id,))
+        self.assertEqual(options["environment"]["TASK_CONFIG"], "/run/diagent/task.json")
+        container = client.containers.create.return_value
+        destination, archive = container.put_archive.call_args.args
+        self.assertEqual(destination, "/run/diagent")
+        with tarfile.open(fileobj=io.BytesIO(archive)) as bundle:
+            self.assertEqual(bundle.getmember("task.json").mode, 0o400)
+            self.assertEqual(json.load(bundle.extractfile("task.json")), files["task.json"])
+        container.start.assert_called_once_with()
+
+    def test_named_subagents_require_the_task_image_capability_before_launch(self) -> None:
+        client = MagicMock()
+        client.images.get.return_value.labels = {"org.hqit.diagent.task-tool-selection": "1"}
+        docker_runner._client = client
+        files = {"task.json": {"task": {"subagents": [{
+            "name": "reviewer", "tool_selection": {"tool_ids": []},
+        }]}}}
+
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(RuntimeError, "does not support DSH subagents"):
+                docker_runner.start_container("run-1", Path(directory), task_files=files)
+        client.containers.create.assert_not_called()
 
     @patch("app.services.docker_runner.docker.from_env")
     def test_task_container_joins_configured_network(self, from_env: MagicMock) -> None:
