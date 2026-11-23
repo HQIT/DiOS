@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 import { useEffect, useState } from "react";
 import type { Connector, ConnectorConfigProperty, ConnectorType } from "../../../types";
 import { api } from "../../../api/os";
@@ -47,7 +48,7 @@ function ConfigField({
     control = (
       <select value={String(value ?? "")} onChange={(event) => onChange(event.target.value)}>
         {property.enum.map((option) => (
-          <option key={String(option)} value={String(option)}>{String(option)}</option>
+          <option key={String(option)} value={String(option)}>{translateUI(String(option))}</option>
         ))}
       </select>
     );
@@ -79,8 +80,8 @@ function ConfigField({
 
   return (
     <>
-      <label>{label}</label>
-      {control}
+      <label>{translateUI(label)}</label>
+      {translateUI(control)}
       {property.description && (
         <p className="text-muted" style={{ fontSize: 12 }}>{property.description}</p>
       )}
@@ -188,11 +189,9 @@ export default function ConnectorsPage() {
 
   return (
     <div className="panel">
-      <p className="text-muted" style={{ marginBottom: 12 }}>
-        事件源负责将外部事件接入 DiOS，用于触发 Agent。类型和配置项由 Connector Manifest 提供。
-      </p>
+      <p className="text-muted" style={{ marginBottom: 12 }}>{translateUI("事件源负责将外部事件接入 DiOS，用于触发 Agent。类型和配置项由 Connector Manifest 提供。")}</p>
 
-      {error && <p style={{ color: "var(--color-danger)", marginBottom: 12 }}>{error}</p>}
+      {error && <p style={{ color: "var(--color-danger)", marginBottom: 12 }}>{translateUI(error)}</p>}
 
       <div className="card-grid">
         {connectorTypes.map((manifest) => {
@@ -201,19 +200,19 @@ export default function ConnectorsPage() {
           return (
             <div key={manifest.type} className={`entity-card ${enabled ? "" : "connector-disabled"}`}>
               <div className="entity-card-header">
-                <span className="entity-card-name">{manifest.label}</span>
+                <span className="entity-card-name">{translateUI(manifest.label)}</span>
                 <label className="sub-toggle" onClick={(event) => event.stopPropagation()}>
                   <input
                     type="checkbox"
                     checked={enabled}
                     onChange={() => { void toggleEnabled(manifest); }}
                   />
-                  <span>{enabled ? "已启用" : "未启用"}</span>
+                  <span>{translateUI(enabled ? "已启用" : "未启用")}</span>
                 </label>
               </div>
               <p className="entity-card-desc">{manifest.description}</p>
               <div className="entity-card-actions">
-                <button className="btn-sm btn-secondary" onClick={() => openConfig(manifest)}>配置</button>
+                <button className="btn-sm btn-secondary" onClick={() => openConfig(manifest)}>{translateUI("配置")}</button>
               </div>
             </div>
           );
@@ -222,7 +221,7 @@ export default function ConnectorsPage() {
 
       <Drawer
         open={!!editManifest}
-        title={`配置 - ${editManifest?.label ?? ""}`}
+        title={translateUI(translateUI("配置 - {0}", [editManifest?.label ?? ""]))}
         onClose={() => setEditType(null)}
       >
         {editManifest && (
@@ -240,7 +239,7 @@ export default function ConnectorsPage() {
 
             {webhookSource && (
               <>
-                <label>Webhook 路径</label>
+                <label>{translateUI("Webhook 路径")}</label>
                 <input
                   readOnly
                   value={`/api/os/events/webhook/${webhookSource}`}
@@ -250,10 +249,10 @@ export default function ConnectorsPage() {
               </>
             )}
 
-            {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
+            {error && <p style={{ color: "var(--color-danger)" }}>{translateUI(error)}</p>}
             <div className="drawer-actions">
-              <button onClick={() => { void saveConfig(); }}>保存</button>
-              <button className="btn-secondary" onClick={() => setEditType(null)}>取消</button>
+              <button onClick={() => { void saveConfig(); }}>{translateUI("保存")}</button>
+              <button className="btn-secondary" onClick={() => setEditType(null)}>{translateUI("取消")}</button>
             </div>
           </div>
         )}

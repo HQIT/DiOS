@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DiOS</title>
+    <script>
+      // Apply before first paint; invalid or unavailable storage falls back to Auto.
+      (() => {
+        let preference = 'auto';
+        try { preference = localStorage.getItem('dios_theme') || 'auto'; } catch {}
+        const theme = preference === 'light' || preference === 'dark' ? preference : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

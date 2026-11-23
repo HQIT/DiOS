@@ -1,6 +1,9 @@
+import { t as translateUI } from "../lib/i18n";
 import { useEffect, useState, type ReactNode } from "react";
 import { apiPrefix } from "../lib/apiBase";
 import { getAccessToken, setAccessToken, clearAccessToken } from "../lib/auth";
+
+import PreferencesControls from "./PreferencesControls";
 
 export default function AccessGate({ children }: { children: ReactNode }) {
   const [checked, setChecked] = useState(false);
@@ -44,7 +47,7 @@ export default function AccessGate({ children }: { children: ReactNode }) {
       }
       if (!res.ok) {
         clearAccessToken();
-        setError(`验证失败 (${res.status})`);
+        setError(translateUI("验证失败 ({0})", [res.status]));
         return;
       }
       setUnlocked(true);
@@ -57,13 +60,13 @@ export default function AccessGate({ children }: { children: ReactNode }) {
   if (!checked) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontSize: 13, color: "var(--muted, #8b9cb3)" }}>加载中…</span>
+        <span style={{ fontSize: 13, color: "var(--muted, #8b9cb3)" }}>{translateUI("加载中…")}</span>
       </div>
     );
   }
 
   if (unlocked) {
-    return <>{children}</>;
+    return <>{translateUI(children)}</>;
   }
 
   return (
@@ -88,10 +91,9 @@ export default function AccessGate({ children }: { children: ReactNode }) {
           background: "var(--surface, #1a2332)",
         }}
       >
+        <PreferencesControls />
         <h2 style={{ margin: "0 0 8px", fontSize: 18 }}>DiOS</h2>
-        <p style={{ margin: "0 0 20px", fontSize: 13, color: "var(--muted, #8b9cb3)" }}>
-          请输入 Access Token 以继续
-        </p>
+        <p style={{ margin: "0 0 20px", fontSize: 13, color: "var(--muted, #8b9cb3)" }}>{translateUI("请输入 Access Token 以继续")}</p>
         <input
           type="password"
           autoComplete="off"
@@ -110,7 +112,7 @@ export default function AccessGate({ children }: { children: ReactNode }) {
           }}
         />
         {error && (
-          <p style={{ margin: "0 0 12px", fontSize: 13, color: "#f87171" }}>{error}</p>
+          <p style={{ margin: "0 0 12px", fontSize: 13, color: "#f87171" }}>{translateUI(error)}</p>
         )}
         <button
           type="submit"
@@ -124,9 +126,7 @@ export default function AccessGate({ children }: { children: ReactNode }) {
             fontSize: 14,
             cursor: "pointer",
           }}
-        >
-          进入
-        </button>
+        >{translateUI("进入")}</button>
       </form>
     </div>
   );

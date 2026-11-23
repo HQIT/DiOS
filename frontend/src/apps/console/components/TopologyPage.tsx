@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
   ReactFlow,
@@ -51,9 +52,9 @@ function ConnectorNode({ data }: NodeProps) {
   const d = data as { label: string; type: string; enabled: boolean };
   return (
     <div className={`topo-node topo-connector ${d.enabled ? "" : "topo-disabled"}`}>
-      <div className="topo-node-badge">{d.type}</div>
-      <div className="topo-node-label">{d.label}</div>
-      <div className="topo-node-status">{d.enabled ? "● Enabled" : "○ Disabled"}</div>
+      <div className="topo-node-badge">{translateUI(d.type)}</div>
+      <div className="topo-node-label">{translateUI(d.label)}</div>
+      <div className="topo-node-status">{translateUI(d.enabled ? "● Enabled" : "○ Disabled")}</div>
       <Handle type="source" position={Position.Right} />
     </div>
   );
@@ -64,12 +65,12 @@ function AgentNode({ data }: NodeProps) {
   return (
     <div className="topo-node topo-agent">
       <div className="topo-node-header">
-        <span className="topo-node-label">{d.label}</span>
-        {d.group && <span className="topo-node-tag">{d.group}</span>}
+        <span className="topo-node-label">{translateUI(d.label)}</span>
+        {d.group && <span className="topo-node-tag">{translateUI(d.group)}</span>}
       </div>
       <div className="topo-node-meta">
-        {d.model && <span>{d.model}</span>}
-        {d.skillCount > 0 && <span>Skills: {d.skillCount}</span>}
+        {d.model && <span>{translateUI(d.model)}</span>}
+        {d.skillCount > 0 && <span>Skills: {translateUI(d.skillCount)}</span>}
       </div>
       <Handle type="target" position={Position.Left} />
     </div>
@@ -133,7 +134,7 @@ function SubscriptionDetail({
     <>
       <div className="topo-detail-body">
         <div className="topo-detail-row">
-          <span className="topo-detail-label">Source</span>
+          <span className="topo-detail-label">{translateUI("Source")}</span>
           <span>{conn?.name || sub.source_pattern}</span>
         </div>
         <div className="topo-detail-row">
@@ -141,18 +142,18 @@ function SubscriptionDetail({
           <span>{agent?.name || sub.agent_id}</span>
         </div>
         <div className="topo-detail-row">
-          <span className="topo-detail-label">Pattern</span>
-          <span className="mono">{sub.source_pattern}</span>
+          <span className="topo-detail-label">{translateUI("Pattern")}</span>
+          <span className="mono">{translateUI(sub.source_pattern)}</span>
         </div>
         <div className="topo-detail-row">
-          <span className="topo-detail-label">Status</span>
-          <span>{sub.enabled ? "Enabled" : "Disabled"}</span>
+          <span className="topo-detail-label">{translateUI("Status")}</span>
+          <span>{translateUI(sub.enabled ? "Enabled" : "Disabled")}</span>
         </div>
-        <label style={{ marginTop: 12 }}>Event Types</label>
+        <label style={{ marginTop: 12 }}>{translateUI("Event Types")}</label>
         <div className="event-type-grid">
           {sub.event_types.map((ev) => (
             <span key={ev} className="event-type-badge">
-              {labelMap.get(ev) || ev}
+              {translateUI(labelMap.get(ev) || ev)}
             </span>
           ))}
         </div>
@@ -166,10 +167,10 @@ function SubscriptionDetail({
 function ConnectorDetail({ connector }: { connector: Connector }) {
   return (
     <div className="topo-detail-body">
-      <div className="topo-detail-row"><span className="topo-detail-label">Name</span><span>{connector.name}</span></div>
-      <div className="topo-detail-row"><span className="topo-detail-label">Type</span><span className="topo-node-badge" style={{ display: "inline-block" }}>{connector.type}</span></div>
-      <div className="topo-detail-row"><span className="topo-detail-label">Status</span><span>{connector.enabled ? "✓ Enabled" : "✗ Disabled"}</span></div>
-      <div className="topo-detail-row"><span className="topo-detail-label">Created</span><span>{new Date(connector.created_at).toLocaleString()}</span></div>
+      <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Name")}</span><span>{connector.name}</span></div>
+      <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Type")}</span><span className="topo-node-badge" style={{ display: "inline-block" }}>{translateUI(connector.type)}</span></div>
+      <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Status")}</span><span>{translateUI(connector.enabled ? "✓ Enabled" : "✗ Disabled")}</span></div>
+      <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Created")}</span><span>{translateUI(new Date(connector.created_at).toLocaleString())}</span></div>
     </div>
   );
 }
@@ -177,13 +178,13 @@ function ConnectorDetail({ connector }: { connector: Connector }) {
 function AgentDetail({ agent, subCount }: { agent: Agent; subCount: number }) {
   return (
     <div className="topo-detail-body">
-      <div className="topo-detail-row"><span className="topo-detail-label">Name</span><span>{agent.name}</span></div>
-      {agent.group && <div className="topo-detail-row"><span className="topo-detail-label">Group</span><span>{agent.group}</span></div>}
-      {agent.model && <div className="topo-detail-row"><span className="topo-detail-label">Model</span><span className="mono">{agent.model}</span></div>}
-      {agent.description && <div className="topo-detail-row"><span className="topo-detail-label">Description</span><span>{agent.description}</span></div>}
-      <div className="topo-detail-row"><span className="topo-detail-label">Skills</span><span>{agent.skills?.length || 0}</span></div>
-      <div className="topo-detail-row"><span className="topo-detail-label">Subscriptions</span><span>{subCount}</span></div>
-      <div className="topo-detail-row"><span className="topo-detail-label">Created</span><span>{new Date(agent.created_at).toLocaleString()}</span></div>
+      <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Name")}</span><span>{agent.name}</span></div>
+      {agent.group && <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Group")}</span><span>{translateUI(agent.group)}</span></div>}
+      {agent.model && <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Model")}</span><span className="mono">{translateUI(agent.model)}</span></div>}
+      {agent.description && <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Description")}</span><span>{agent.description}</span></div>}
+      <div className="topo-detail-row"><span className="topo-detail-label">Skills</span><span>{translateUI(agent.skills?.length || 0)}</span></div>
+      <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Subscriptions")}</span><span>{translateUI(subCount)}</span></div>
+      <div className="topo-detail-row"><span className="topo-detail-label">{translateUI("Created")}</span><span>{translateUI(new Date(agent.created_at).toLocaleString())}</span></div>
     </div>
   );
 }
@@ -344,16 +345,14 @@ export default function TopologyPage() {
       {loading && (
         <div className="topo-loading">
           <div className="spinner" />
-          <span>Loading topology...</span>
+          <span>{translateUI("Loading topology...")}</span>
         </div>
       )}
 
       {empty && (
         <div className="topo-empty">
-          <p>No Agents or Connectors found</p>
-          <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-            Add data on the Agents and Connectors pages first
-          </p>
+          <p>{translateUI("No Agents or Connectors found")}</p>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>{translateUI("Add data on the Agents and Connectors pages first")}</p>
         </div>
       )}
 
@@ -377,9 +376,7 @@ export default function TopologyPage() {
             style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
           />
           <Panel position="top-right">
-            <button className="btn-sm" onClick={loadData} style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}>
-              ↻ Refresh
-            </button>
+            <button className="btn-sm" onClick={loadData} style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}>{translateUI("↻ Refresh")}</button>
           </Panel>
         </ReactFlow>
       )}

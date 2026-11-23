@@ -1,3 +1,4 @@
+import { t as translateUI, languageTag } from "../../../lib/i18n";
 import { useEffect, useState } from "react";
 import { toolApi, RuntimeApiError } from "../../../api/runtime";
 import type { ToolInvocation } from "../../../api/runtime";
@@ -61,40 +62,40 @@ export default function ToolActions({ runId, active }: { runId: string; active: 
         : await toolApi.approve(runId, item, action, credential, reason);
       setItems(previous => previous.map(x => x.id === result.id && result.version >= x.version ? result : x));
     } catch (error) {
-      setFailure(error instanceof RuntimeApiError ? errors[error.code] || `操作未完成：${error.code}`
+      setFailure(error instanceof RuntimeApiError ? errors[error.code] || translateUI("操作未完成：{0}", [error.code])
         : "连接中断。派发结果请刷新查询。");
     } finally { setBusy(""); }
   }
   const pending = items.some(x => x.state === "awaiting_approval" && !x.expired);
   return <section className="tr-card tr-tools">
-    <div className="tr-section-title"><h3>工具调用与审批</h3><button onClick={() => setRefresh(x => x + 1)} disabled={!!busy}>刷新</button></div>
-    {message && <p className="tr-notice" role="status">{message}</p>}
-    {failure && <p className="tr-error" role="alert">{failure}</p>}
-    {!items.length && !message && <p className="tr-muted">本任务暂无工具调用申请。</p>}
+    <div className="tr-section-title"><h3>{translateUI("工具调用与审批")}</h3><button onClick={() => setRefresh(x => x + 1)} disabled={!!busy}>{translateUI("刷新")}</button></div>
+    {message && <p className="tr-notice" role="status">{translateUI(message)}</p>}
+    {failure && <p className="tr-error" role="alert">{translateUI(failure)}</p>}
+    {!items.length && !message && <p className="tr-muted">{translateUI("本任务暂无工具调用申请。")}</p>}
     {pending && active && <div className="tr-approval-credentials">
-      <label>独立审批凭据<input type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} disabled={!!busy} /></label>
-      <label>审批说明<textarea value={reason} onChange={e => setReason(e.target.value)} maxLength={2000} rows={2} disabled={!!busy} /></label>
+      <label>{translateUI("独立审批凭据")}<input type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} disabled={!!busy} /></label>
+      <label>{translateUI("审批说明")}<textarea value={reason} onChange={e => setReason(e.target.value)} maxLength={2000} rows={2} disabled={!!busy} /></label>
     </div>}
     {items.map(item => <article key={item.id} className="tr-tool-item">
-      <div className="tr-section-title"><strong>{item.tool_id}</strong><span className="tr-badge">{states[item.state] || item.state}</span></div>
-      <p>{item.permission.action} · {item.permission.resource_id} · {item.permission.resource_version}</p>
-      <details><summary>查看调用参数</summary><pre className="tr-output">{JSON.stringify(item.arguments, null, 2)}</pre></details>
-      <p className="tr-muted">有效至 {new Date(item.expires_at * 1000).toLocaleString("zh-CN")}{item.expired ? " · 已过期" : ""}
-        {item.approver ? ` · 审批人 ${item.approver}` : ""}</p>
-      {item.approval_reason && <p>{item.approval_reason}</p>}
-      {item.reason && <p className="tr-muted">{item.reason}</p>}
-      {item.receipt_available && ["dispatched", "result_unknown"].includes(item.state) && <p className="tr-muted">已保留本地回执，可校验并恢复原调用结果。</p>}
-      {(item.state === "result_unknown" || item.dispatch_overdue) && <p className="tr-notice">原调用结果待确认，请保留原调用记录并核对上游结果。</p>}
+      <div className="tr-section-title"><strong>{translateUI(item.tool_id)}</strong><span className="tr-badge">{translateUI(states[item.state] || item.state)}</span></div>
+      <p>{translateUI(item.permission.action)} · {translateUI(item.permission.resource_id)} · {translateUI(item.permission.resource_version)}</p>
+      <details><summary>{translateUI("查看调用参数")}</summary><pre className="tr-output">{JSON.stringify(item.arguments, null, 2)}</pre></details>
+      <p className="tr-muted">{translateUI("有效至")}{translateUI(new Date(item.expires_at * 1000).toLocaleString(languageTag()))}{translateUI(item.expired ? " · 已过期" : "")}
+        {translateUI(item.approver ? translateUI(" · 审批人 {0}", [item.approver]) : "")}</p>
+      {item.approval_reason && <p>{translateUI(item.approval_reason)}</p>}
+      {item.reason && <p className="tr-muted">{translateUI(item.reason)}</p>}
+      {item.receipt_available && ["dispatched", "result_unknown"].includes(item.state) && <p className="tr-muted">{translateUI("已保留本地回执，可校验并恢复原调用结果。")}</p>}
+      {(item.state === "result_unknown" || item.dispatch_overdue) && <p className="tr-notice">{translateUI("原调用结果待确认，请保留原调用记录并核对上游结果。")}</p>}
       <div className="tr-actions">
         {active && !item.expired && item.state === "awaiting_approval" && <>
-          <button disabled={!!busy || !token || !fresh} onClick={() => void act(item, "approved")}>批准本次调用</button>
-          <button disabled={!!busy || !token || !fresh} onClick={() => void act(item, "denied")}>拒绝</button>
+          <button disabled={!!busy || !token || !fresh} onClick={() => void act(item, "approved")}>{translateUI("批准本次调用")}</button>
+          <button disabled={!!busy || !token || !fresh} onClick={() => void act(item, "denied")}>{translateUI("拒绝")}</button>
         </>}
-        {active && !item.expired && item.state === "prepared" && <button disabled={!!busy || !fresh} onClick={() => void act(item, "dispatch")}>派发本次调用</button>}
-        {item.receipt_available && ["dispatched", "result_unknown"].includes(item.state) && <button disabled={!!busy || !fresh} onClick={() => void act(item, "recover")}>校验并恢复回执</button>}
-        {item.dispatch_overdue && <button disabled={!!busy || !fresh} onClick={() => void act(item, "reconcile")}>登记为待对账</button>}
+        {active && !item.expired && item.state === "prepared" && <button disabled={!!busy || !fresh} onClick={() => void act(item, "dispatch")}>{translateUI("派发本次调用")}</button>}
+        {item.receipt_available && ["dispatched", "result_unknown"].includes(item.state) && <button disabled={!!busy || !fresh} onClick={() => void act(item, "recover")}>{translateUI("校验并恢复回执")}</button>}
+        {item.dispatch_overdue && <button disabled={!!busy || !fresh} onClick={() => void act(item, "reconcile")}>{translateUI("登记为待对账")}</button>}
       </div>
     </article>)}
-    {limited && <p className="tr-muted">显示最近 50 次调用。可按调用 ID 查询历史详情。</p>}
+    {limited && <p className="tr-muted">{translateUI("显示最近 50 次调用。可按调用 ID 查询历史详情。")}</p>}
   </section>;
 }

@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import type { McpServer } from "../../../types";
 import { api } from "../../../api/os";
@@ -148,31 +149,31 @@ export default function McpServersPage() {
         <div>
           <div className="registry-title-line">
             <h3>MCP Servers</h3>
-            <span className="registry-standard-badge">Official Registry</span>
-            <span className="registry-standard-badge preview">Preview</span>
+            <span className="registry-standard-badge">{translateUI("Official Registry")}</span>
+            <span className="registry-standard-badge preview">{translateUI("Preview")}</span>
           </div>
-          <p>注册对外工具和数据服务；真正调用前仍需分配给 Agent，并由 E2AG 按任务授权。</p>
+          <p>{translateUI("注册对外工具和数据服务；真正调用前仍需分配给 Agent，并由 E2AG 按任务授权。")}</p>
         </div>
         <div className="registry-kpis">
-          <div><strong>{mcpServers.length}</strong><span>已注册</span></div>
-          <div><strong>{remoteCount}</strong><span>远程服务</span></div>
-          <div><strong>{mcpServers.length - remoteCount}</strong><span>本地进程</span></div>
+          <div><strong>{translateUI(mcpServers.length)}</strong><span>{translateUI("已注册")}</span></div>
+          <div><strong>{translateUI(remoteCount)}</strong><span>{translateUI("远程服务")}</span></div>
+          <div><strong>{translateUI(mcpServers.length - remoteCount)}</strong><span>{translateUI("本地进程")}</span></div>
         </div>
       </header>
 
       <section className="registry-block">
         <div className="registry-section-heading">
           <div>
-            <h4>发现 MCP Server</h4>
-            <p>数据来自 Official MCP Registry；它提供可验证的发布身份和安装元数据，不代表 DiOS 已授权。</p>
+            <h4>{translateUI("发现 MCP Server")}</h4>
+            <p>{translateUI("数据来自 Official MCP Registry；它提供可验证的发布身份和安装元数据，不代表 DiOS 已授权。")}</p>
           </div>
           <span className="registry-source-pill">registry.modelcontextprotocol.io</span>
         </div>
         <div className="registry-search-row">
-          <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="按名称或能力搜索，例如 github、database" onKeyDown={(event) => event.key === "Enter" && doSearch()} />
-          <button className="btn-sm" onClick={doSearch} disabled={searching || !searchQuery.trim()}>{searching ? "搜索中…" : "搜索 Registry"}</button>
+          <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder={translateUI("按名称或能力搜索，例如 github、database")} onKeyDown={(event) => event.key === "Enter" && doSearch()} />
+          <button className="btn-sm" onClick={doSearch} disabled={searching || !searchQuery.trim()}>{translateUI(searching ? "搜索中…" : "搜索 Registry")}</button>
         </div>
-        {searchError && <p className="registry-error">{searchError}</p>}
+        {searchError && <p className="registry-error">{translateUI(searchError)}</p>}
         {searchResults.length > 0 && (
           <div className="registry-results standardized">
             {searchResults.map((server) => {
@@ -183,28 +184,28 @@ export default function McpServersPage() {
                   <div className="registry-result-info">
                     <div className="registry-result-title">
                       <span className="registry-result-name">{server.title || server.name}</span>
-                      {server.version && <span className="registry-version">v{server.version}</span>}
-                      <span className={`transport-badge ${server.url ? "transport-remote" : "transport-stdio"}`}>{server.url ? "REMOTE" : (server.registry_type || "PACKAGE").toUpperCase()}</span>
+                      {server.version && <span className="registry-version">v{translateUI(server.version)}</span>}
+                      <span className={`transport-badge ${server.url ? "transport-remote" : "transport-stdio"}`}>{translateUI(server.url ? "REMOTE" : (server.registry_type || "PACKAGE").toUpperCase())}</span>
                     </div>
-                    <span className="registry-result-desc">{server.description || "无描述"}</span>
-                    <span className="registry-result-cmd">{server.url || [server.command, ...(server.args || [])].filter(Boolean).join(" ")}</span>
+                    <span className="registry-result-desc">{translateUI(server.description || "无描述")}</span>
+                    <span className="registry-result-cmd">{translateUI(server.url || [server.command, ...(server.args || [])].filter(Boolean).join(" "))}</span>
                   </div>
-                  <button className={registered || !registrable ? "btn-sm btn-secondary" : "btn-sm"} onClick={() => addFromRegistry(server)} disabled={registered || !registrable}>{registered ? "已注册" : registrable ? "注册" : "需手动配置"}</button>
+                  <button className={registered || !registrable ? "btn-sm btn-secondary" : "btn-sm"} onClick={() => addFromRegistry(server)} disabled={registered || !registrable}>{translateUI(registered ? "已注册" : registrable ? "注册" : "需手动配置")}</button>
                 </article>
               );
             })}
           </div>
         )}
-        {searchDone && searchResults.length === 0 && !searchError && <div className="registry-inline-empty">没有匹配的 MCP Server</div>}
+        {searchDone && searchResults.length === 0 && !searchError && <div className="registry-inline-empty">{translateUI("没有匹配的 MCP Server")}</div>}
       </section>
 
       <section className="registry-block">
         <div className="registry-section-heading">
-          <div><h4>已注册 MCP Servers</h4><p>远程服务适合独立系统；stdio 仅用于本机受控进程。</p></div>
-          <button className="btn-sm btn-secondary" onClick={() => openEdit()}>手动注册</button>
+          <div><h4>{translateUI("已注册 MCP Servers")}</h4><p>{translateUI("远程服务适合独立系统；stdio 仅用于本机受控进程。")}</p></div>
+          <button className="btn-sm btn-secondary" onClick={() => openEdit()}>{translateUI("手动注册")}</button>
         </div>
         {mcpServers.length === 0 ? (
-          <div className="registry-inline-empty">尚未注册 MCP Server，可从官方 Registry 搜索或手动添加。</div>
+          <div className="registry-inline-empty">{translateUI("尚未注册 MCP Server，可从官方 Registry 搜索或手动添加。")}</div>
         ) : (
           <div className="registry-card-grid">
             {mcpServers.map((server) => {
@@ -213,12 +214,12 @@ export default function McpServersPage() {
                 <article key={server.id} className="registry-resource-card">
                   <div className="registry-resource-head">
                     <span className="entity-card-name">{server.name}</span>
-                    <span className={`transport-badge ${remote ? "transport-remote" : "transport-stdio"}`}>{remote ? "REMOTE" : "STDIO"}</span>
+                    <span className={`transport-badge ${remote ? "transport-remote" : "transport-stdio"}`}>{translateUI(remote ? "REMOTE" : "STDIO")}</span>
                   </div>
-                  <div className="registry-resource-meta mono">{metaLine(server)}</div>
+                  <div className="registry-resource-meta mono">{translateUI(metaLine(server))}</div>
                   <div className="registry-card-footer">
-                    <span>{Object.keys(remote ? server.headers || {} : server.env || {}).length} 个配置项</span>
-                    <div><button className="btn-sm btn-secondary" onClick={() => openEdit(server)}>编辑</button><button className="btn-sm btn-danger" onClick={async () => { await api.deleteMcpServer(server.id); load(); }}>删除</button></div>
+                    <span>{translateUI(Object.keys(remote ? server.headers || {} : server.env || {}).length)}{translateUI("个配置项")}</span>
+                    <div><button className="btn-sm btn-secondary" onClick={() => openEdit(server)}>{translateUI("编辑")}</button><button className="btn-sm btn-danger" onClick={async () => { await api.deleteMcpServer(server.id); load(); }}>{translateUI("删除")}</button></div>
                   </div>
                 </article>
               );
@@ -227,58 +228,58 @@ export default function McpServersPage() {
         )}
       </section>
 
-      <Drawer open={!!mcpEdit} title={mcpEdit?.id ? "编辑 MCP Server" : "注册 MCP Server"} onClose={() => setMcpEdit(null)}>
+      <Drawer open={!!mcpEdit} title={translateUI(mcpEdit?.id ? "编辑 MCP Server" : "注册 MCP Server")} onClose={() => setMcpEdit(null)}>
         {mcpEdit && (
           <div className="drawer-form">
-            <label>Name</label>
+            <label>{translateUI("Name")}</label>
             <input value={mcpEdit.name || ""} onChange={(event) => setMcpEdit({ ...mcpEdit, name: event.target.value })} placeholder="e.g. git-perf" />
-            <label>Transport</label>
+            <label>{translateUI("Transport")}</label>
             <select value={mcpEdit.transport || "streamable_http"} onChange={(event) => setMcpEdit({ ...mcpEdit, transport: event.target.value })}>
-              <option value="streamable_http">streamable_http（远程，推荐）</option>
-              <option value="sse">sse（远程，兼容）</option>
-              <option value="stdio">stdio（本地进程）</option>
+              <option value="streamable_http">{translateUI("streamable_http（远程，推荐）")}</option>
+              <option value="sse">{translateUI("sse（远程，兼容）")}</option>
+              <option value="stdio">{translateUI("stdio（本地进程）")}</option>
             </select>
             {isRemote ? (
               <>
                 <label>URL</label>
                 <input value={mcpEdit.url || ""} onChange={(event) => setMcpEdit({ ...mcpEdit, url: event.target.value })} placeholder="https://example.com/mcp" />
-                <label>Headers（敏感值不会出现在 Registry 搜索结果中）</label>
+                <label>{translateUI("Headers（敏感值不会出现在 Registry 搜索结果中）")}</label>
                 {headerPairs.map((pair, index) => (
                   <div key={`${pair.key}-${index}`} className="registry-field-row">
                     <input value={pair.key} onChange={(event) => updateHeaderPair(index, "key", event.target.value)} placeholder="Authorization" />
-                    <input value={pair.value} onChange={(event) => updateHeaderPair(index, "value", event.target.value)} placeholder={pair.hint || "Bearer …"} />
+                    <input value={pair.value} onChange={(event) => updateHeaderPair(index, "value", event.target.value)} placeholder={translateUI(pair.hint || "Bearer …")} />
                     <button className="btn-sm btn-danger" onClick={() => setHeaderPairs((previous) => previous.filter((_, current) => current !== index))}>×</button>
                   </div>
                 ))}
-                <button className="btn-sm btn-secondary" onClick={() => setHeaderPairs((previous) => [...previous, { key: "", value: "", hint: "" }])}>+ Header</button>
+                <button className="btn-sm btn-secondary" onClick={() => setHeaderPairs((previous) => [...previous, { key: "", value: "", hint: "" }])}>{translateUI("+ Header")}</button>
               </>
             ) : (
               <>
-                <label>Command</label>
+                <label>{translateUI("Command")}</label>
                 <input value={mcpEdit.command || ""} onChange={(event) => setMcpEdit({ ...mcpEdit, command: event.target.value })} placeholder="npx / uvx / docker" />
-                <label>Args</label>
+                <label>{translateUI("Args")}</label>
                 {(mcpEdit.args || []).map((arg, index) => (
                   <div key={index} className="registry-field-row single">
-                    <input value={arg} onChange={(event) => updateArg(index, event.target.value)} placeholder={`arg ${index + 1}`} />
+                    <input value={arg} onChange={(event) => updateArg(index, event.target.value)} placeholder={translateUI(`arg ${index + 1}`)} />
                     <button className="btn-sm btn-danger" onClick={() => setMcpEdit((previous) => previous ? { ...previous, args: (previous.args || []).filter((_, current) => current !== index) } : previous)}>×</button>
                   </div>
                 ))}
-                <button className="btn-sm btn-secondary" onClick={() => setMcpEdit((previous) => previous ? { ...previous, args: [...(previous.args || []), ""] } : previous)}>+ Arg</button>
-                <label>Environment</label>
+                <button className="btn-sm btn-secondary" onClick={() => setMcpEdit((previous) => previous ? { ...previous, args: [...(previous.args || []), ""] } : previous)}>{translateUI("+ Arg")}</button>
+                <label>{translateUI("Environment")}</label>
                 {envPairs.map((pair, index) => (
                   <div key={`${pair.key}-${index}`}>
                     <div className="registry-field-row">
                       <input value={pair.key} onChange={(event) => updateEnvPair(index, "key", event.target.value)} placeholder="KEY" />
-                      <input value={pair.value} onChange={(event) => updateEnvPair(index, "value", event.target.value)} placeholder={pair.hint || "VALUE"} />
+                      <input value={pair.value} onChange={(event) => updateEnvPair(index, "value", event.target.value)} placeholder={translateUI(pair.hint || "VALUE")} />
                       <button className="btn-sm btn-danger" onClick={() => setEnvPairs((previous) => previous.filter((_, current) => current !== index))}>×</button>
                     </div>
-                    {pair.hint && !pair.value && <span className="registry-field-hint">{pair.hint}</span>}
+                    {pair.hint && !pair.value && <span className="registry-field-hint">{translateUI(pair.hint)}</span>}
                   </div>
                 ))}
-                <button className="btn-sm btn-secondary" onClick={() => setEnvPairs((previous) => [...previous, { key: "", value: "" }])}>+ Environment</button>
+                <button className="btn-sm btn-secondary" onClick={() => setEnvPairs((previous) => [...previous, { key: "", value: "" }])}>{translateUI("+ Environment")}</button>
               </>
             )}
-            <div className="drawer-actions"><button onClick={save}>保存</button><button className="btn-secondary" onClick={() => setMcpEdit(null)}>取消</button></div>
+            <div className="drawer-actions"><button onClick={save}>{translateUI("保存")}</button><button className="btn-secondary" onClick={() => setMcpEdit(null)}>{translateUI("取消")}</button></div>
           </div>
         )}
       </Drawer>

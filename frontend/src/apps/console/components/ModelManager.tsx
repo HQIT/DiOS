@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 import { useEffect, useState } from "react";
 import type { LLMModel } from "../../../types";
 import { api } from "../../../api/os";
@@ -46,46 +47,46 @@ export default function ModelManager() {
       <div className="card-grid">
         <div className="entity-card add-card" onClick={() => startEdit()}>
           <span className="add-card-icon">+</span>
-          <span className="add-card-label">添加模型</span>
+          <span className="add-card-label">{translateUI("添加模型")}</span>
         </div>
         {models.map((m) => (
           <div key={m.id} className="entity-card" onClick={() => startEdit(m)}>
             <div className="entity-card-header">
               <span className="entity-card-name">{m.display_name || m.name}</span>
-              <span className="entity-card-tag">{m.provider}</span>
+              <span className="entity-card-tag">{translateUI(m.provider)}</span>
             </div>
             {m.description && <p className="entity-card-desc">{m.description}</p>}
             <div className="entity-card-meta">
-              <span>{m.model}</span>
-              {m.context_length && <span>{m.context_length.toLocaleString()} tokens</span>}
+              <span>{translateUI(m.model)}</span>
+              {m.context_length && <span>{translateUI(m.context_length.toLocaleString())} tokens</span>}
             </div>
             <div className="entity-card-actions">
-              <button className="btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); handleDelete(m.id); }}>删除</button>
+              <button className="btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); handleDelete(m.id); }}>{translateUI("删除")}</button>
             </div>
           </div>
         ))}
       </div>
 
-      <Drawer open={!!editing} title={editId ? "编辑模型" : "添加模型"} onClose={() => setEditing(null)}>
+      <Drawer open={!!editing} title={translateUI(editId ? "编辑模型" : "添加模型")} onClose={() => setEditing(null)}>
         {editing && (
           <div className="drawer-form">
-            <label>名称（ID）*</label>
-            <input placeholder="唯一标识，如 gpt-4o" value={editing.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
+            <label>{translateUI("名称（ID）*")}</label>
+            <input placeholder={translateUI("唯一标识，如 gpt-4o")} value={editing.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
 
-            <label>显示名称</label>
-            <input placeholder="可选，如 GPT-4o" value={editing.display_name || ""} onChange={(e) => setEditing({ ...editing, display_name: e.target.value })} />
+            <label>{translateUI("显示名称")}</label>
+            <input placeholder={translateUI("可选，如 GPT-4o")} value={editing.display_name || ""} onChange={(e) => setEditing({ ...editing, display_name: e.target.value })} />
 
-            <label>描述</label>
-            <textarea placeholder="模型用途说明（可选）" value={editing.description || ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} />
+            <label>{translateUI("描述")}</label>
+            <textarea placeholder={translateUI("模型用途说明（可选）")} value={editing.description || ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} />
 
-            <label>API 协议</label>
+            <label>{translateUI("API 协议")}</label>
             <select value={editing.provider || "openai"} onChange={(e) => setEditing({ ...editing, provider: e.target.value })}>
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
             </select>
 
-            <label>模型名 *</label>
-            <input placeholder="实际模型名，如 gpt-4o" value={editing.model || ""} onChange={(e) => setEditing({ ...editing, model: e.target.value })} />
+            <label>{translateUI("模型名 *")}</label>
+            <input placeholder={translateUI("实际模型名，如 gpt-4o")} value={editing.model || ""} onChange={(e) => setEditing({ ...editing, model: e.target.value })} />
 
             <label>API Base URL *</label>
             <input placeholder="https://api.openai.com/v1" value={editing.base_url || ""} onChange={(e) => setEditing({ ...editing, base_url: e.target.value })} />
@@ -93,12 +94,12 @@ export default function ModelManager() {
             <label>API Key</label>
             <input type="password" placeholder="sk-..." value={editing.api_key || ""} onChange={(e) => setEditing({ ...editing, api_key: e.target.value })} />
 
-            <label>上下文长度</label>
+            <label>{translateUI("上下文长度")}</label>
             <input type="number" placeholder="128000" value={editing.context_length ?? ""} onChange={(e) => setEditing({ ...editing, context_length: e.target.value ? Number(e.target.value) : undefined })} />
 
             <div className="drawer-actions">
-              <button onClick={save}>保存</button>
-              <button className="btn-secondary" onClick={() => setEditing(null)}>取消</button>
+              <button onClick={save}>{translateUI("保存")}</button>
+              <button className="btn-secondary" onClick={() => setEditing(null)}>{translateUI("取消")}</button>
             </div>
           </div>
         )}

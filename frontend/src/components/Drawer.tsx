@@ -1,3 +1,4 @@
+import { t as translateUI } from "../lib/i18n";
 import type { ReactNode } from "react";
 
 interface Props {
@@ -15,10 +16,10 @@ export default function Drawer({ open, title, onClose, children }: Props) {
       <div className="drawer-overlay" onClick={onClose} />
       <div className="drawer">
         <div className="drawer-header">
-          <h3>{title}</h3>
+          <h3>{translateUI(title)}</h3>
           <button className="btn-icon" onClick={onClose}>&times;</button>
         </div>
-        <div className="drawer-body">{children}</div>
+        <div className="drawer-body">{translateUI(children)}</div>
       </div>
     </>
   );

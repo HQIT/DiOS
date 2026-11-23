@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 import { useEffect, useState } from "react";
 import { api } from "../../../api/os";
 
@@ -53,7 +54,7 @@ export default function SkillsEditor({ agentId, skills, onSave }: Props) {
     <div className="sub-editor">
       {builtin.length > 0 && (
         <>
-          <h4 className="catalog-section-title">内建 Skills</h4>
+          <h4 className="catalog-section-title">{translateUI("内建 Skills")}</h4>
           <div className="skills-grid">
             {builtin.map((s) => (
               <label key={s.name} className="skill-option">
@@ -68,7 +69,7 @@ export default function SkillsEditor({ agentId, skills, onSave }: Props) {
 
       {custom.length > 0 && (
         <>
-          <h4 className="catalog-section-title" style={{ marginTop: 16 }}>自定义 Skills</h4>
+          <h4 className="catalog-section-title" style={{ marginTop: 16 }}>{translateUI("自定义 Skills")}</h4>
           <div className="skills-grid">
             {custom.map((s) => (
               <label key={s.name} className="skill-option">
@@ -83,12 +84,12 @@ export default function SkillsEditor({ agentId, skills, onSave }: Props) {
 
       {extraSelected.length > 0 && (
         <>
-          <h4 className="catalog-section-title" style={{ marginTop: 16 }}>已选（手动添加）</h4>
+          <h4 className="catalog-section-title" style={{ marginTop: 16 }}>{translateUI("已选（手动添加）")}</h4>
           <div className="skills-grid">
             {extraSelected.map((name) => (
               <label key={name} className="skill-option">
                 <input type="checkbox" checked onChange={() => toggle(name)} />
-                <span className="skill-name">{name}</span>
+                <span className="skill-name">{translateUI(name)}</span>
               </label>
             ))}
           </div>
@@ -96,7 +97,7 @@ export default function SkillsEditor({ agentId, skills, onSave }: Props) {
       )}
 
       <div className="drawer-actions">
-        <button onClick={handleSave} disabled={saving}>{saving ? "保存中..." : "保存"}</button>
+        <button onClick={handleSave} disabled={saving}>{translateUI(saving ? "保存中..." : "保存")}</button>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../lib/i18n";
 import { useState, useCallback } from "react";
 import AgentList from "./components/AgentList";
 import ModelManager from "./components/ModelManager";
@@ -37,7 +38,7 @@ function Nav({ sub }: { sub: string }) {
           className={tab === t.key ? "header-tab active" : "header-tab"}
           onClick={() => { window.location.hash = `console/${t.key}`; }}
         >
-          {t.label}
+          {translateUI(t.label)}
         </button>
       ))}
     </nav>

@@ -1,3 +1,4 @@
+import { t as translateUI, languageTag } from "../../../lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import ReactMarkdown from "react-markdown";
@@ -35,18 +36,18 @@ const ERRORS: Record<string, string> = {
   RUNTIME_DRAINING: "运行环境正在排空，恢复服务后可发起新任务。",
 };
 function errorText(error: unknown) {
-  if (error instanceof RuntimeApiError) return ERRORS[error.code] || (error.status === 401 ? "访问令牌失效，请重新登录。" : `操作未完成：${error.code}`);
+  if (error instanceof RuntimeApiError) return ERRORS[error.code] || (error.status === 401 ? "访问令牌失效，请重新登录。" : translateUI("操作未完成：{0}", [error.code]));
   return "连接中断，已保留页面信息。请重试。";
 }
 const terminal = (state: string) => ["succeeded", "failed", "cancelled"].includes(state);
-const time = (stamp?: number | null) => stamp ? new Date(stamp * 1000).toLocaleString("zh-CN", { hour12: false }) : "暂无";
-function Badge({ state }: { state: string }) { return <span className={`tr-badge tr-${state}`}>{LABELS[state] || state}</span>; }
+const time = (stamp?: number | null) => stamp ? new Date(stamp * 1000).toLocaleString(languageTag(), { hour12: false }) : "暂无";
+function Badge({ state }: { state: string }) { return <span className={`tr-badge tr-${state}`}>{translateUI(LABELS[state] || state)}</span>; }
 
 export default function TaskRunsPage({ runId }: { runId: string }) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [samples, setSamples] = useState<Sample[]>([]);
   const [profile, setProfile] = useState(""); const [sample, setSample] = useState("");
-  const [goal, setGoal] = useState("检查这段代码的边界条件，说明问题、触发条件和代码证据。");
+  const [goal, setGoal] = useState(() => translateUI("检查这段代码的边界条件，说明问题、触发条件和代码证据。"));
   const [catalogError, setCatalogError] = useState(""); const [listError, setListError] = useState("");
   const [actionError, setActionError] = useState(""); const [detailError, setDetailError] = useState("");
   const [items, setItems] = useState<RunSummary[]>([]); const [cursor, setCursor] = useState<string>();
@@ -161,103 +162,102 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
     if (!availableSamples.some(s => s.id === sample)) setSample(availableSamples[0]?.id || "");
   }, [profile, samples, sample, profiles]);
   useEffect(() => {
-    setGoal(business ? "整理所选资料的来源、版本与引用，列出需要业务人员确认的信息。" : "检查这段代码的边界条件，说明问题、触发条件和代码证据。");
+    setGoal(translateUI(business ? "整理所选资料的来源、版本与引用，列出需要业务人员确认的信息。" : "检查这段代码的边界条件，说明问题、触发条件和代码证据。"));
   }, [business]);
   const policyMissing = chosenProfile?.governance === "e2ag" && !chosenProfile.policy_configured;
   const source = samples.find(s => s.id === sample);
   const active = detail?.attempts.find(a => a.id === detail.attempt_id);
 
   return <section className="task-runs">
-    <header className="tr-heading"><div><p className="tr-eyebrow">DiOS · 任务与成果</p><h2>交给 Agent，带回成果</h2>
-      <p>选择已登记的工作类型与执行配置，跟踪进展并查看有来源的成果。</p></div>
-      <button onClick={() => setRefresh(x => x + 1)}>刷新</button></header>
-    {catalogError && <p className="tr-notice" role="status">{catalogError}</p>}
-    {actionError && <p className="tr-error" role="alert">{actionError}</p>}
+    <header className="tr-heading"><div><p className="tr-eyebrow">{translateUI("DiOS · 任务与成果")}</p><h2>{translateUI("交给 Agent，带回成果")}</h2>
+      <p>{translateUI("选择已登记的工作类型与执行配置，跟踪进展并查看有来源的成果。")}</p></div>
+      <button onClick={() => setRefresh(x => x + 1)}>{translateUI("刷新")}</button></header>
+    {catalogError && <p className="tr-notice" role="status">{translateUI(catalogError)}</p>}
+    {actionError && <p className="tr-error" role="alert">{translateUI(actionError)}</p>}
     <div className="tr-layout"><aside className="tr-sidebar">
-      <form className="tr-card" onSubmit={submit}><h3>发起任务</h3>
-        <label>执行 Agent<select value={profile} onChange={e => setProfile(e.target.value)} disabled={busy || !profiles.length} required>
-          {!profiles.length && <option value="">暂无已启用的执行配置</option>}
-          {profiles.map(p => <option key={p.id} value={p.id} disabled={p.governance === "e2ag" && !p.policy_configured}>{p.name}{p.synthetic ? " · 合成端点" : ""}{p.governance === "e2ag" && !p.policy_configured ? " · 待配置授权" : ""}</option>)}
+      <form className="tr-card" onSubmit={submit}><h3>{translateUI("发起任务")}</h3>
+        <label>{translateUI("执行 Agent")}<select value={profile} onChange={e => setProfile(e.target.value)} disabled={busy || !profiles.length} required>
+          {!profiles.length && <option value="">{translateUI("暂无已启用的执行配置")}</option>}
+          {profiles.map(p => <option key={p.id} value={p.id} disabled={p.governance === "e2ag" && !p.policy_configured}>{p.name}{translateUI(p.synthetic ? " · 合成端点" : "")}{translateUI(p.governance === "e2ag" && !p.policy_configured ? " · 待配置授权" : "")}</option>)}
         </select></label>
         {profiles.find(p => p.id === profile)?.description && <p className="tr-muted">{profiles.find(p => p.id === profile)?.description}</p>}
-        <label>{business ? "业务任务输入" : "评审样例"}<select value={sample} onChange={e => setSample(e.target.value)} disabled={busy} required>
+        <label>{translateUI(business ? "业务任务输入" : "评审样例")}<select value={sample} onChange={e => setSample(e.target.value)} disabled={busy} required>
           {availableSamples.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select></label>
         {source && <pre className="tr-source"><code>{source.source}</code></pre>}
-        <label>工作目标<textarea value={goal} onChange={e => setGoal(e.target.value)} maxLength={2000} rows={4} required disabled={busy} /></label>
+        <label>{translateUI("工作目标")}<textarea aria-label={translateUI("工作目标")} value={goal} onChange={e => setGoal(e.target.value)} maxLength={2000} rows={4} required disabled={busy} /></label>
         <button className="tr-primary" type="submit" disabled={busy || !profile || !sample || !goal.trim() || !!catalogError || policyMissing}>
-          {busy ? "提交中…" : business ? "发起资料核查" : "发起评审"}</button>
-        <p className="tr-muted">{business ? "按已登记范围检索资料。业务结论与后续操作需由业务人员确认。" : "使用固定样例代码。执行结束后，结论进入人工复核。"}</p>
+          {translateUI(busy ? "提交中…" : business ? "发起资料核查" : "发起评审")}</button>
+        <p className="tr-muted">{translateUI(business ? "按已登记范围检索资料。业务结论与后续操作需由业务人员确认。" : "使用固定样例代码。执行结束后，结论进入人工复核。")}</p>
       </form>
-      <div className="tr-card"><div className="tr-section-title"><h3>任务记录</h3><span className="tr-muted">{items.length} 项</span></div>
-        {listError && <p className="tr-error" role="alert">{listError}</p>}
-        {!items.length && !listError && <p className="tr-empty-small">发起任务后，这里会保留执行记录与成果。</p>}
+      <div className="tr-card"><div className="tr-section-title"><h3>{translateUI("任务记录")}</h3><span className="tr-muted">{translateUI(items.length)}{translateUI("项")}</span></div>
+        {listError && <p className="tr-error" role="alert">{translateUI(listError)}</p>}
+        {!items.length && !listError && <p className="tr-empty-small">{translateUI("发起任务后，这里会保留执行记录与成果。")}</p>}
         <div className="tr-run-list">{items.map(item => <button key={item.id} className={`tr-run ${selectedId === item.id ? "selected" : ""}`}
           onClick={() => { window.location.hash = `console/tasks/${item.id}`; }}>
-          <span className="tr-run-title">{item.goal || "工作任务"}</span><Badge state={item.state} />
-          <small>{item.display.name || item.profile_id} · {time(item.created_at)}</small>
+          <span className="tr-run-title">{item.goal || translateUI("工作任务")}</span><Badge state={item.state} />
+          <small>{item.display.name || item.profile_id} · {translateUI(time(item.created_at))}</small>
         </button>)}</div>
-        <div className="tr-actions">{cursor && <button onClick={() => setCursor(undefined)}>返回最新</button>}
-          {nextCursor && <button onClick={() => setCursor(nextCursor)}>更早的任务</button>}</div>
+        <div className="tr-actions">{cursor && <button onClick={() => setCursor(undefined)}>{translateUI("返回最新")}</button>}
+          {nextCursor && <button onClick={() => setCursor(nextCursor)}>{translateUI("更早的任务")}</button>}</div>
       </div>
     </aside>
     <main className="tr-detail">
       <WorkerStatusPanel />
-      {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>从一件具体工作开始</h3>
-        <p>在左侧发起任务，或选择已有任务查看执行过程与成果。</p><div className="tr-steps"><span>① 发起任务</span><span>② 跟踪执行</span><span>③ 查看成果</span></div></div>}
-      {detailError && <p className="tr-error" role="alert">{detailError} 当前保留的是上次取得的信息。</p>}
-      {selectedId && !detail && !detailError && <p className="tr-empty-small" role="status">正在读取任务…</p>}
+      {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>{translateUI("从一件具体工作开始")}</h3>
+        <p>{translateUI("在左侧发起任务，或选择已有任务查看执行过程与成果。")}</p><div className="tr-steps"><span>{translateUI("① 发起任务")}</span><span>{translateUI("② 跟踪执行")}</span><span>{translateUI("③ 查看成果")}</span></div></div>}
+      {detailError && <p className="tr-error" role="alert">{translateUI(detailError)}{translateUI("当前保留的是上次取得的信息。")}</p>}
+      {selectedId && !detail && !detailError && <p className="tr-empty-small" role="status">{translateUI("正在读取任务…")}</p>}
       {detail && <>
         <section className="tr-card"><div className="tr-section-title"><h3>{detail.goal}</h3><Badge state={detail.state} /></div>
-          <p className="tr-muted">{detail.display.name || detail.profile_id} · {detail.display.synthetic ? "合成端点" : detail.display.implementation}</p>
-          <div className="tr-metrics"><div><span>当前阶段</span><strong>{detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : LABELS[active?.state || detail.state] || active?.state}</strong></div>
-            <div><span>进程观测</span><strong>{detailError ? "更新中断" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.confirmed_running ? "确认运行中" : "尚未确认运行"}</strong></div>
-            <div><span>最近有效输出</span><strong>{time(active?.last_output_at)}</strong></div>
+          <p className="tr-muted">{detail.display.name || detail.profile_id} · {translateUI(detail.display.synthetic ? "合成端点" : detail.display.implementation)}</p>
+          <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>
+            <div><span>{translateUI("进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
+            <div><span>{translateUI("最近有效输出")}</span><strong>{translateUI(time(active?.last_output_at))}</strong></div>
           </div>
-          {detail.state === "queued" && <p className="tr-notice">任务已入队，等待对应 Agent 的 Worker 领取。</p>}
-          {detail.state === "reconciliation_required" && <p className="tr-notice">正在等待原执行结果对账，任务身份与已有输出已保留。</p>}
-          {active?.error && <p className="tr-error">失败原因：{active.error.code}</p>}
-          {detail.recovery && <p className="tr-notice" role="status">
-            故障分类：{({ network: "网络故障", rate_limit: "服务限流", quota: "额度不足", session: "会话创建失败", process: "进程退出", format: "结果格式", evidence: "证据不足", authorization: "授权限制" } as Record<string,string>)[detail.recovery.category] || detail.recovery.category}
-            {detail.state === "retry_wait" && detail.recovery.retry_at && <> · 下次重试 {time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0))}，继续原任务</>}
-            {detail.recovery.reason && <> · 自动重试受限：{detail.recovery.reason}</>}
+          {detail.state === "queued" && <p className="tr-notice">{translateUI("任务已入队，等待对应 Agent 的 Worker 领取。")}</p>}
+          {detail.state === "reconciliation_required" && <p className="tr-notice">{translateUI("正在等待原执行结果对账，任务身份与已有输出已保留。")}</p>}
+          {active?.error && <p className="tr-error">{translateUI("失败原因：")}{translateUI(active.error.code)}</p>}
+          {detail.recovery && <p className="tr-notice" role="status">{translateUI("故障分类：")}{translateUI(({ network: "网络故障", rate_limit: "服务限流", quota: "额度不足", session: "会话创建失败", process: "进程退出", format: "结果格式", evidence: "证据不足", authorization: "授权限制" } as Record<string,string>)[detail.recovery.category] || detail.recovery.category)}
+            {detail.state === "retry_wait" && detail.recovery.retry_at && <>{translateUI("· 下次重试")}{translateUI(time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0)))}{translateUI("，继续原任务")}</>}
+            {detail.recovery.reason && <>{translateUI("· 自动重试受限：")}{translateUI(detail.recovery.reason)}</>}
           </p>}
-          <div className="tr-actions"><span className="tr-muted">最近更新：{time(detail.observed_at)}</span>
-            {!terminal(detail.state) && <button disabled={busy || detail.cancel_requested || !!detailError} onClick={() => void cancel()}>{detail.cancel_requested ? "取消待确认" : "取消任务"}</button>}</div>
+          <div className="tr-actions"><span className="tr-muted">{translateUI("最近更新：")}{translateUI(time(detail.observed_at))}</span>
+            {!terminal(detail.state) && <button disabled={busy || detail.cancel_requested || !!detailError} onClick={() => void cancel()}>{translateUI(detail.cancel_requested ? "取消待确认" : "取消任务")}</button>}</div>
         </section>
-        <section className="tr-card"><div className="tr-section-title"><h3>执行授权</h3>
-          <span className="tr-badge">{detail.authorization.mode === "e2ag" ? "E2AG" : "受信本地配置"}</span></div>
+        <section className="tr-card"><div className="tr-section-title"><h3>{translateUI("执行授权")}</h3>
+          <span className="tr-badge">{translateUI(detail.authorization.mode === "e2ag" ? "E2AG" : "受信本地配置")}</span></div>
           {detail.authorization.mode === "e2ag" ? <>
-            <div className="tr-metrics"><div><span>工作授权</span><strong>{AUTH_STATES[detail.authorization.state || ""] || "待确认"}</strong></div>
-              <div><span>策略</span><strong>{detail.authorization.policy_id}</strong></div><div><span>工作期限</span><strong>{time(detail.authorization.expires_at)}</strong></div></div>
-            {detail.authorization.grant && <p className="tr-muted">执行授权版本 {detail.authorization.grant.version} · 到期 {time(detail.authorization.grant.expires_at)} · {detail.authorization.grant.session_id ? "已绑定会话" : "等待会话绑定"}</p>}
-            {detail.authorization.state === "revoked" && !terminal(detail.state) && <p className="tr-notice">工作授权已撤销，等待执行端退出确认。</p>}
-            {!!detail.authorization.secret_refs?.length && <p className="tr-muted">凭据引用：{detail.authorization.secret_refs.map(s => `${s.ref} / ${s.version}`).join("、")}</p>}
-            <details className="tr-auth-decisions"><summary>授权记录</summary><ol className="tr-timeline">
-              {detail.authorization.decisions?.map(d => <li key={d.id}><time>{time(d.created_at)}</time><span>{d.outcome === "allow" ? "允许" : "拒绝"}</span><code>{d.reason_codes.join("、")}</code></li>)}
+            <div className="tr-metrics"><div><span>{translateUI("工作授权")}</span><strong>{translateUI(AUTH_STATES[detail.authorization.state || ""] || "待确认")}</strong></div>
+              <div><span>{translateUI("策略")}</span><strong>{translateUI(detail.authorization.policy_id)}</strong></div><div><span>{translateUI("工作期限")}</span><strong>{translateUI(time(detail.authorization.expires_at))}</strong></div></div>
+            {detail.authorization.grant && <p className="tr-muted">{translateUI("执行授权版本")}{translateUI(detail.authorization.grant.version)}{translateUI("· 到期")}{translateUI(time(detail.authorization.grant.expires_at))} · {translateUI(detail.authorization.grant.session_id ? "已绑定会话" : "等待会话绑定")}</p>}
+            {detail.authorization.state === "revoked" && !terminal(detail.state) && <p className="tr-notice">{translateUI("工作授权已撤销，等待执行端退出确认。")}</p>}
+            {!!detail.authorization.secret_refs?.length && <p className="tr-muted">{translateUI("凭据引用：")}{translateUI(detail.authorization.secret_refs.map(s => `${s.ref} / ${s.version}`).join("、"))}</p>}
+            <details className="tr-auth-decisions"><summary>{translateUI("授权记录")}</summary><ol className="tr-timeline">
+              {detail.authorization.decisions?.map(d => <li key={d.id}><time>{translateUI(time(d.created_at))}</time><span>{translateUI(d.outcome === "allow" ? "允许" : "拒绝")}</span><code>{d.reason_codes.join("、")}</code></li>)}
             </ol></details>
-            {!terminal(detail.state) && detail.authorization.state === "active" && <div className="tr-actions"><button disabled={busy || !!detailError} onClick={() => void revoke()}>撤销工作授权</button></div>}
-          </> : <p className="tr-muted">此任务沿用受信操作员配置。企业工作授权需使用已配置 E2AG 的执行入口。</p>}
+            {!terminal(detail.state) && detail.authorization.state === "active" && <div className="tr-actions"><button disabled={busy || !!detailError} onClick={() => void revoke()}>{translateUI("撤销工作授权")}</button></div>}
+          </> : <p className="tr-muted">{translateUI("此任务沿用受信操作员配置。企业工作授权需使用已配置 E2AG 的执行入口。")}</p>}
         </section>
         <ToolActions key={detail.id} runId={detail.id} active={!terminal(detail.state) && detail.authorization.state === "active" && !detail.cancel_requested} />
-        <section className="tr-card"><div className="tr-section-title"><h3>最近输出</h3><span className="tr-muted">保留最近片段</span></div>
+        <section className="tr-card"><div className="tr-section-title"><h3>{translateUI("最近输出")}</h3><span className="tr-muted">{translateUI("保留最近片段")}</span></div>
           <pre className="tr-output">{active?.output_excerpt || "等待 Agent 的有效输出。"}</pre></section>
-        <section className="tr-card"><div className="tr-section-title"><h3>成果与附件</h3>{detail.state === "succeeded" && <span className="tr-badge">待人工复核</span>}</div>
-          {!detail.artifacts.length && <p className="tr-empty-small">执行结束后，报告和原始输出将在这里归档。</p>}
+        <section className="tr-card"><div className="tr-section-title"><h3>{translateUI("成果与附件")}</h3>{detail.state === "succeeded" && <span className="tr-badge">{translateUI("待人工复核")}</span>}</div>
+          {!detail.artifacts.length && <p className="tr-empty-small">{translateUI("执行结束后，报告和原始输出将在这里归档。")}</p>}
           <div className="tr-artifacts">{detail.artifacts.map(a => <button key={a.id} className={artifact === a.id ? "selected" : ""} onClick={() => setArtifact(a.id)}>
-            {a.kind === "result" ? "任务成果" : a.kind === "stdout" ? "原始输出" : a.kind === "stderr" ? "诊断记录" : "附件"}<small>{(a.size / 1024).toFixed(1)} KB</small></button>)}</div>
-          {previewError && <p className="tr-error" role="alert">{previewError}</p>}
-          {artifact && <div className="tr-actions"><button disabled={downloading} onClick={() => void download(false)}>下载原文件</button>
-            {preview?.markdown && <button disabled={downloading} onClick={() => void download(true)}>下载 Markdown 报告</button>}</div>}
+            {translateUI(a.kind === "result" ? "任务成果" : a.kind === "stdout" ? "原始输出" : a.kind === "stderr" ? "诊断记录" : "附件")}<small>{translateUI((a.size / 1024).toFixed(1))} KB</small></button>)}</div>
+          {previewError && <p className="tr-error" role="alert">{translateUI(previewError)}</p>}
+          {artifact && <div className="tr-actions"><button disabled={downloading} onClick={() => void download(false)}>{translateUI("下载原文件")}</button>
+            {preview?.markdown && <button disabled={downloading} onClick={() => void download(true)}>{translateUI("下载 Markdown 报告")}</button>}</div>}
           {preview?.markdown ? <article className="tr-report"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml
             components={{ img: ({ alt }) => <span>{alt || "图片"}</span>, a: ({ children, href }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{preview.markdown}</ReactMarkdown></article>
             : preview && <pre className="tr-output">{preview.text}</pre>}
         </section>
-        <details className="tr-card"><summary>执行记录与来源</summary>
-          <p className="tr-muted">任务 {detail.id}</p><p className="tr-muted">输入 {detail.sample.name} · SHA256 {detail.sample.sha256}</p>
-          {detail.attempts.map(a => <div className="tr-attempt" key={a.id}><Badge state={a.state} /><span>尝试 {a.epoch}</span><code>{a.id}</code><small>会话 {a.session_id || "尚未创建"} · 进程 {a.process_id || "未知"}</small></div>)}
-          {detail.attempts_has_more && <p className="tr-muted">此处显示最近 20 次尝试。</p>}
-          <ol className="tr-timeline">{detail.events.map(e => <li key={e.id}><time>{time(e.created_at)}</time><span>{LABELS[e.state] || e.state}</span><code>{e.type}</code></li>)}</ol>
+        <details className="tr-card"><summary>{translateUI("执行记录与来源")}</summary>
+          <p className="tr-muted">{translateUI("任务")}{translateUI(detail.id)}</p><p className="tr-muted">{translateUI("输入")}{detail.sample.name} · SHA256 {translateUI(detail.sample.sha256)}</p>
+          {detail.attempts.map(a => <div className="tr-attempt" key={a.id}><Badge state={a.state} /><span>{translateUI("尝试")}{translateUI(a.epoch)}</span><code>{a.id}</code><small>{translateUI("会话")}{translateUI(a.session_id || "尚未创建")}{translateUI("· 进程")}{translateUI(a.process_id || "未知")}</small></div>)}
+          {detail.attempts_has_more && <p className="tr-muted">{translateUI("此处显示最近 20 次尝试。")}</p>}
+          <ol className="tr-timeline">{detail.events.map(e => <li key={e.id}><time>{translateUI(time(e.created_at))}</time><span>{translateUI(LABELS[e.state] || e.state)}</span><code>{e.type}</code></li>)}</ol>
         </details>
       </>}
     </main></div>

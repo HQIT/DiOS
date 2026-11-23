@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 import { useEffect, useState } from "react";
 import type { LLMModel } from "../../../types";
 import { api } from "../../../api/os";
@@ -15,7 +16,7 @@ export default function ModelSelect({ value, onChange, allowEmpty = true, emptyL
 
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)}>
-      {allowEmpty && <option value="">{emptyLabel}</option>}
+      {allowEmpty && <option value="">{translateUI(emptyLabel)}</option>}
       {models.map((m) => (
         <option key={m.id} value={m.name}>{m.display_name || m.name}</option>
       ))}

@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../lib/i18n";
 import { useEffect, useRef, useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -168,7 +169,7 @@ export default function ChatPage() {
           continue;
         }
         if (e.type === "reasoning") {
-          pushLiveEvent(`思考中: ${e.content.slice(0, 120)}`);
+          pushLiveEvent(translateUI("思考中: {0}", [e.content.slice(0, 120)]));
           continue;
         }
         if (e.type === "tool_call_start") {
@@ -177,20 +178,20 @@ export default function ChatPage() {
           const count = (toolInvokeCount.get(key) || 0) + 1;
           toolInvokeCount.set(key, count);
           if (count > 1) {
-            pushLiveEvent(`重复调用(${count}) ${e.tool_name} args=${argText}`);
+            pushLiveEvent(translateUI("重复调用({0}) {1} args={2}", [count, e.tool_name, argText]));
           } else {
-            pushLiveEvent(`调用工具 ${e.tool_name} args=${argText}`);
+            pushLiveEvent(translateUI("调用工具 {0} args={1}", [e.tool_name, argText]));
           }
           continue;
         }
         if (e.type === "tool_call_end") {
           const cost = typeof e.duration_ms === "number" ? ` (${Math.round(e.duration_ms)}ms)` : "";
           const result = e.result ? ` result=${e.result.slice(0, 80)}` : "";
-          pushLiveEvent(`工具完成 ${e.tool_name}${cost}${result}`);
+          pushLiveEvent(translateUI("工具完成 {0}{1}{2}", [e.tool_name, cost, result]));
           continue;
         }
         if (e.type === "tool_call_error") {
-          pushLiveEvent(`工具失败: ${e.tool_name} (${e.error})`);
+          pushLiveEvent(translateUI("工具失败: {0} ({1})", [e.tool_name, e.error]));
           continue;
         }
         if (e.type === "status") {
@@ -211,11 +212,11 @@ export default function ChatPage() {
           setHilPending(pending);
           setHilSubmitting(false);
           setHilNotice("");
-          pushLiveEvent(`HIL 待确认: ${pending.method || ""} ${pending.path || ""}`.trim());
+          pushLiveEvent(translateUI("HIL 待确认: {0} {1}", [pending.method || "", pending.path || ""]).trim());
           continue;
         }
         if (e.type === "error") {
-          pushLiveEvent(`流错误: ${e.error}`);
+          pushLiveEvent(translateUI("流错误: {0}", [e.error]));
           continue;
         }
       }
@@ -229,7 +230,7 @@ export default function ChatPage() {
           role: "assistant",
           content: last.content
             ? last.content + (aborted ? "\n\n[已中断]" : `\n\n[错误：${err instanceof Error ? err.message : String(err)}]`)
-            : (aborted ? "[已中断]" : `错误：${err instanceof Error ? err.message : String(err)}`),
+            : (aborted ? "[已中断]" : translateUI("错误：{0}", [err instanceof Error ? err.message : String(err)])),
         };
         return updated;
       });
@@ -275,9 +276,7 @@ export default function ChatPage() {
     <div style={{ display: "flex", height: "100%" }}>
       {/* Sidebar: Agents + Sessions */}
       <div className="sidebar" style={{ width: 260, minWidth: 220, padding: "16px 12px", display: "flex", flexDirection: "column" }}>
-        <h3 style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>
-          Agents
-        </h3>
+        <h3 style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>{translateUI("Agents")}</h3>
         {agents.map((a) => (
           <button
             key={a.id}
@@ -303,9 +302,7 @@ export default function ChatPage() {
         {selectedAgent && (
           <>
             <div style={{ display: "flex", alignItems: "center", marginTop: 20, marginBottom: 8 }}>
-              <h3 style={{ fontSize: 13, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, flex: 1, margin: 0 }}>
-                Sessions
-              </h3>
+              <h3 style={{ fontSize: 13, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, flex: 1, margin: 0 }}>{translateUI("Sessions")}</h3>
               <button onClick={newChat} style={{ background: "none", border: "none", color: "var(--color-primary)", cursor: "pointer", fontSize: 18, lineHeight: 1, padding: "0 4px" }} title="New chat">
                 +
               </button>
@@ -340,10 +337,8 @@ export default function ChatPage() {
                           fontSize: 12,
                           fontWeight: 600,
                         }}
-                        title="确认删除该会话"
-                      >
-                        确认删除
-                      </button>
+                        title={translateUI("确认删除该会话")}
+                      >{translateUI("确认删除")}</button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setPendingDeleteSessionId(null); }}
                         style={{
@@ -356,10 +351,8 @@ export default function ChatPage() {
                           cursor: "pointer",
                           fontSize: 12,
                         }}
-                        title="取消删除"
-                      >
-                        取消
-                      </button>
+                        title={translateUI("取消删除")}
+                      >{translateUI("取消")}</button>
                     </div>
                   ) : (
                     <button
@@ -376,15 +369,13 @@ export default function ChatPage() {
                         fontSize: 12,
                         fontWeight: 500,
                       }}
-                      title="删除会话"
-                    >
-                      删除
-                    </button>
+                      title={translateUI("删除会话")}
+                    >{translateUI("删除")}</button>
                   )}
                 </div>
               ))}
               {sessions.length === 0 && (
-                <div style={{ color: "var(--text-secondary)", fontSize: 12, padding: "8px 12px" }}>No sessions yet</div>
+                <div style={{ color: "var(--text-secondary)", fontSize: 12, padding: "8px 12px" }}>{translateUI("No sessions yet")}</div>
               )}
             </div>
           </>
@@ -396,7 +387,7 @@ export default function ChatPage() {
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 8px" }}>
           {messages.length === 0 && selectedAgent && (
             <div style={{ textAlign: "center", color: "var(--text-secondary)", marginTop: 80 }}>
-              <div style={{ fontSize: 18, marginBottom: 8 }}>Chat with {selectedAgent.name}</div>
+              <div style={{ fontSize: 18, marginBottom: 8 }}>{translateUI("Chat with")}{selectedAgent.name}</div>
               <div style={{ fontSize: 13 }}>{selectedAgent.description || "Send a message to start"}</div>
             </div>
           )}
@@ -440,10 +431,8 @@ export default function ChatPage() {
                                 padding: "2px 8px",
                               }}
                               onClick={() => { void navigator.clipboard?.writeText(text); }}
-                              title="复制代码"
-                            >
-                              复制
-                            </button>
+                              title={translateUI("复制代码")}
+                            >{translateUI("复制")}</button>
                             <code className={className} {...props}>{children}</code>
                           </div>
                         );
@@ -472,20 +461,20 @@ export default function ChatPage() {
                 color: "var(--text)",
               }}
             >
-              <div style={{ fontWeight: 600, marginBottom: 6 }}>高风险操作待确认</div>
+              <div style={{ fontWeight: 600, marginBottom: 6 }}>{translateUI("高风险操作待确认")}</div>
               <div style={{ color: "var(--text-secondary)", marginBottom: 8 }}>
-                {(hilPending.method || "") + " " + (hilPending.path || "")}
+                {translateUI((hilPending.method || "") + " " + (hilPending.path || ""))}
               </div>
               {hilPending.message && (
                 <div style={{ color: "var(--text-secondary)", marginBottom: 8 }}>{hilPending.message}</div>
               )}
               <div style={{ color: hilExpired ? "#ef4444" : "var(--text-secondary)", marginBottom: 8 }}>
-                {hilExpired
+                {translateUI(hilExpired
                   ? "确认已过期，请重新发起操作"
-                  : `确认剩余时间：${hilRemainSeconds != null ? formatSeconds(hilRemainSeconds) : "--:--"}`}
+                  : translateUI("确认剩余时间：{0}", [hilRemainSeconds != null ? formatSeconds(hilRemainSeconds) : "--:--"]))}
               </div>
               {hilNotice && (
-                <div style={{ color: "var(--color-primary)", marginBottom: 8 }}>{hilNotice}</div>
+                <div style={{ color: "var(--color-primary)", marginBottom: 8 }}>{translateUI(hilNotice)}</div>
               )}
               <div style={{ display: "flex", gap: 8 }}>
                 <button
@@ -502,9 +491,7 @@ export default function ChatPage() {
                     setHilPending(null);
                     send(`请只执行以下确认命令，不要修改参数：\n${cmd}`);
                   }}
-                >
-                  确认执行
-                </button>
+                >{translateUI("确认执行")}</button>
                 <button
                   type="button"
                   className="btn-sm btn-secondary"
@@ -517,9 +504,7 @@ export default function ChatPage() {
                     setHilPending(null);
                     send(`取消本次高风险操作，不执行。token=${token}`);
                   }}
-                >
-                  取消
-                </button>
+                >{translateUI("取消")}</button>
               </div>
             </div>
           )}
@@ -537,7 +522,7 @@ export default function ChatPage() {
               }}
             >
               {liveEvents.map((line, idx) => (
-                <div key={`${idx}-${line}`}>{line}</div>
+                <div key={`${idx}-${line}`}>{translateUI(line)}</div>
               ))}
             </div>
           )}
@@ -547,7 +532,7 @@ export default function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={selectedAgent ? `Message ${selectedAgent.name}...` : "Select an agent"}
+              placeholder={translateUI(selectedAgent ? `Message ${selectedAgent.name}...` : "Select an agent")}
               disabled={!selectedAgent || loading}
               rows={1}
               style={{
@@ -565,10 +550,8 @@ export default function ChatPage() {
                   border: "1px solid var(--border)", cursor: "pointer",
                   fontSize: 14, fontWeight: 500, height: 42,
                 }}
-                title="中断本次对话"
-              >
-                Stop
-              </button>
+                title={translateUI("中断本次对话")}
+              >{translateUI("Stop")}</button>
             ) : (
               <button
                 onClick={() => send()}
@@ -579,9 +562,7 @@ export default function ChatPage() {
                   color: "#fff", border: "none", cursor: "pointer",
                   fontSize: 14, fontWeight: 500, height: 42, transition: "background 0.15s",
                 }}
-              >
-                Send
-              </button>
+              >{translateUI("Send")}</button>
             )}
           </div>
         </div>

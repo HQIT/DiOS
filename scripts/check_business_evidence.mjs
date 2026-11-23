@@ -6,7 +6,7 @@ const root=process.argv[2];if(!root)throw new Error('Provide private demo direct
 const tokens=JSON.parse(await fs.readFile(root+'/tokens.json','utf8'));
 const browser=await chromium.launch({headless:true});const evidence=[];
 try {
- const page=await browser.newPage({viewport:{width:1440,height:1000}});
+ const page=await browser.newPage({locale:"zh-CN",viewport:{width:1440,height:1000}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(t=>sessionStorage.setItem('dios_access_token',t),tokens.operator);
  for(const key of ['sales','construction']) {

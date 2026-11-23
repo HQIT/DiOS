@@ -1,8 +1,12 @@
+import { t as translateUI } from "./lib/i18n";
 import { useEffect, useState } from "react";
 import AccessGate from "./components/AccessGate";
 import ConsolePage from "./apps/console/ConsolePage";
 import ChatPage from "./apps/chat/ChatPage";
 import WorkbenchPage from "./apps/workbench/WorkbenchPage";
+
+import PreferencesControls from "./components/PreferencesControls";
+import { usePreferences } from "./lib/preferences";
 
 type AppId = "console" | "chat" | "workbench";
 const APPS: { id: AppId; label: string }[] = [
@@ -19,6 +23,7 @@ function readHash(): { app: AppId; sub: string } {
 }
 
 export default function App() {
+  usePreferences();
   const [currentApp, setCurrentApp] = useState<AppId>(() => readHash().app);
   const [sub, setSub] = useState(() => readHash().sub);
 
@@ -48,11 +53,12 @@ export default function App() {
               className={currentApp === a.id ? "header-tab active" : "header-tab"}
               onClick={() => { window.location.hash = a.id; }}
             >
-              {a.label}
+              {translateUI(a.label)}
             </button>
           ))}
         </nav>
         {currentApp === "console" && <ConsolePage.Nav sub={sub} />}
+        <PreferencesControls />
       </header>
 
       <div style={{ height: "calc(100vh - 57px)" }}>

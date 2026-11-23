@@ -1,4 +1,12 @@
-:root {
+ :root {
+  --bg: #f5f7fa; --bg-surface: #ffffff; --bg-hover: #e9edf4;
+  --border: #d8dee9; --text: #1d293d; --text-secondary: #56647a;
+  --color-primary: #3d60cf; --color-info: #126c9e; --color-success: #16754c;
+  --color-danger: #c52e4c; --color-warning: #916000; --color-muted: #657084;
+  --radius: 8px; --surface: var(--bg-surface); --muted: var(--text-secondary); --border-color: var(--border);
+  --accent-surface: #e3eafa; --button-text: #fff;
+}
+:root[data-theme="dark"] {
   --bg: #0f1117;
   --bg-surface: #1a1d27;
   --bg-hover: #232730;
@@ -11,7 +19,7 @@
   --color-danger: #f14668;
   --color-warning: #f0a020;
   --color-muted: #555;
-  --radius: 8px;
+  --accent-surface: #2d3a5e; --button-text: #101522;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -203,7 +211,7 @@ button:hover { opacity: 0.9; }
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 12px;
-  background: #2d3a5e;
+  background: var(--accent-surface);
   color: var(--color-primary);
   font-weight: 500;
   white-space: nowrap;
@@ -330,8 +338,8 @@ button:hover { opacity: 0.9; }
   font-weight: 600;
   text-transform: uppercase;
 }
-.role-main { background: #2d3a5e; color: var(--color-primary); }
-.role-sub { background: #233040; color: var(--color-info); }
+.role-main { background: var(--accent-surface); color: var(--color-primary); }
+.role-sub { background: var(--accent-surface); color: var(--color-info); }
 
 .status-dot {
   width: 8px; height: 8px;
@@ -451,7 +459,7 @@ details summary {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 12px;
-  background: #2d3a5e;
+  background: var(--accent-surface);
   color: var(--color-primary);
   font-weight: 500;
 }
@@ -899,7 +907,7 @@ details summary {
   border-radius: 12px;
   background:
     radial-gradient(circle at 88% 10%, rgba(78, 168, 222, 0.18), transparent 34%),
-    linear-gradient(135deg, rgba(108, 142, 239, 0.13), rgba(26, 29, 39, 0.78));
+    linear-gradient(135deg, rgba(108, 142, 239, 0.13), var(--bg-surface));
 }
 .registry-eyebrow {
   display: block;
@@ -925,7 +933,7 @@ details summary {
   padding: 5px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: rgba(15, 17, 23, 0.7);
+  background: var(--bg);
   color: var(--text);
   font-weight: 500;
 }
@@ -960,7 +968,7 @@ details summary {
 .registry-content {
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(26, 29, 39, 0.5);
+  background: var(--bg-surface);
 }
 .registry-page { padding: 20px; }
 .registry-page-header {
@@ -1149,3 +1157,10 @@ details summary {
   .registry-empty-state { grid-template-columns: auto minmax(0, 1fr); }
   .registry-empty-state > button { grid-column: 1 / -1; width: 100%; }
 }
+
+.preferences-controls { display:flex; gap:10px; align-items:center; flex-shrink:0; margin-left:auto; padding:6px 0; }
+.preferences-controls label { display:flex; align-items:center; gap:6px; color:var(--text-secondary); font-size:12px; white-space:nowrap; }
+.preferences-controls select { width:auto; min-height:32px; padding:5px 7px; font-size:12px; background:var(--bg-surface); color:var(--text); }
+.preferences-controls select:focus-visible { outline:2px solid var(--color-primary); outline-offset:2px; }
+.app-header > .preferences-controls { position:sticky; right:-24px; padding:8px 14px; background:var(--bg); z-index:2; }
+@media(max-width:720px) { .preferences-controls label>span { display:none; } .preferences-controls { gap:5px; } }

@@ -5,7 +5,7 @@ const root=process.argv[2]||fileURLToPath(new URL('../workspace/validation-20261
 const token=JSON.parse(await fs.readFile(root+'/tokens.json','utf8')).operator;
 const browser=await chromium.launch();const checks=[];
 try {
- const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const page=await browser.newPage({locale:"zh-CN",viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(t=>sessionStorage.setItem('dios_access_token',t),token);
  const api='http://127.0.0.1:13081/api/os/runtime';const headers={'X-DiOS-Access-Token':token};
  const get=async path=>{const r=await page.request.get(api+path,{headers});if(!r.ok())throw Error('GET '+path+' '+r.status());return r.json();};

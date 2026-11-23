@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 import { useEffect, useState } from "react";
 import type { Agent } from "../../../types";
 import { api } from "../../../api/os";
@@ -126,7 +127,7 @@ export default function AgentList() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    const ok = window.confirm(`确认删除智能体「${name}」吗？此操作不可撤销。`);
+    const ok = window.confirm(translateUI("确认删除智能体「{0}」吗？此操作不可撤销。", [name]));
     if (!ok) return;
     await api.deleteAgent(id);
     load();
@@ -150,20 +151,20 @@ export default function AgentList() {
     <div key={a.id} className="entity-card" onClick={() => startEdit(a)}>
       <div className="entity-card-header">
         <span className="entity-card-name">{a.name}</span>
-        <span className="entity-card-tag" style={a.mode === "task" ? { background: "var(--color-warning)", color: "#000" } : {}}>{a.mode || "service"}</span>
-        {a.group && <span className="entity-card-tag">{a.group}</span>}
+        <span className="entity-card-tag" style={a.mode === "task" ? { background: "var(--color-warning)", color: "#000" } : {}}>{translateUI(a.mode || "service")}</span>
+        {a.group && <span className="entity-card-tag">{translateUI(a.group)}</span>}
       </div>
       {a.description && <p className="entity-card-desc">{a.description}</p>}
       <div className="entity-card-meta">
-        <span>{a.model || "default model"}</span>
-        {(a.skills?.length || 0) > 0 && <span>Skills: {a.skills!.length}</span>}
-        {(a.mcp_server_ids?.length || 0) > 0 && <span>MCP: {a.mcp_server_ids!.length}</span>}
+        <span>{translateUI(a.model || "default model")}</span>
+        {(a.skills?.length || 0) > 0 && <span>Skills: {translateUI(a.skills!.length)}</span>}
+        {(a.mcp_server_ids?.length || 0) > 0 && <span>MCP: {translateUI(a.mcp_server_ids!.length)}</span>}
       </div>
       <div className="entity-card-actions">
-        <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); openDrawer(a.id, "subscriptions"); }}>订阅</button>
+        <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); openDrawer(a.id, "subscriptions"); }}>{translateUI("订阅")}</button>
         <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); openDrawer(a.id, "skills"); }}>Skills</button>
         <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); openDrawer(a.id, "mcp"); }}>MCP</button>
-        <button className="btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); handleDelete(a.id, a.name); }}>删除</button>
+        <button className="btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); handleDelete(a.id, a.name); }}>{translateUI("删除")}</button>
       </div>
     </div>
   );
@@ -173,13 +174,13 @@ export default function AgentList() {
       <div className="panel-toolbar" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         {groups.length > 0 && (
           <select value={filterGroup} onChange={(e) => setFilterGroup(e.target.value)} style={{ fontSize: 13, maxWidth: 160 }}>
-            <option value="">全部分组</option>
-            {groups.map((g) => <option key={g} value={g}>{g}</option>)}
+            <option value="">{translateUI("全部分组")}</option>
+            {groups.map((g) => <option key={g} value={g}>{translateUI(g)}</option>)}
           </select>
         )}
         <select value={viewMode} onChange={(e) => setViewMode(e.target.value as any)} style={{ fontSize: 13, maxWidth: 120 }}>
-          <option value="grid">网格视图</option>
-          <option value="grouped">分组视图</option>
+          <option value="grid">{translateUI("网格视图")}</option>
+          <option value="grouped">{translateUI("分组视图")}</option>
         </select>
       </div>
 
@@ -187,9 +188,9 @@ export default function AgentList() {
         <div className="card-grid">
           <div className="entity-card add-card" onClick={() => startEdit()}>
             <span className="add-card-icon">+</span>
-            <span className="add-card-label">添加 Agent</span>
+            <span className="add-card-label">{translateUI("添加 Agent")}</span>
           </div>
-          {filtered.map(renderAgentCard)}
+          {translateUI(filtered.map(renderAgentCard))}
         </div>
       )}
 
@@ -206,15 +207,15 @@ export default function AgentList() {
                 alignItems: 'center',
                 gap: '8px'
               }}>
-                {groupName}
-                <span style={{ fontSize: '12px', opacity: 0.7 }}>({groupAgents.length})</span>
+                {translateUI(groupName)}
+                <span style={{ fontSize: '12px', opacity: 0.7 }}>({translateUI(groupAgents.length)})</span>
               </h3>
               <div className="card-grid">
                 <div className="entity-card add-card" onClick={() => startEdit()}>
                   <span className="add-card-icon">+</span>
-                  <span className="add-card-label">添加 Agent</span>
+                  <span className="add-card-label">{translateUI("添加 Agent")}</span>
                 </div>
-                {groupAgents.map(renderAgentCard)}
+                {translateUI(groupAgents.map(renderAgentCard))}
               </div>
             </div>
           ))}
@@ -222,34 +223,32 @@ export default function AgentList() {
       )}
 
       {/* 基础信息 Drawer */}
-      <Drawer open={drawerMode === "edit"} title={editId ? "编辑 Agent" : "添加 Agent"} onClose={closeAll}>
+      <Drawer open={drawerMode === "edit"} title={translateUI(editId ? "编辑 Agent" : "添加 Agent")} onClose={closeAll}>
         {editing && (
           <div className="drawer-form">
-            <label>名称 *</label>
-            <input placeholder="例如：code-reviewer" value={editing.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
+            <label>{translateUI("名称 *")}</label>
+            <input placeholder={translateUI("例如：code-reviewer")} value={editing.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
 
-            <label>模式</label>
+            <label>{translateUI("模式")}</label>
             <select value={editing.mode || "service"} onChange={(e) => setEditing({ ...editing, mode: e.target.value })}>
-              <option value="service">Service（常驻 / 可聊天）</option>
-              <option value="task">Task（一次性任务）</option>
+              <option value="service">{translateUI("Service（常驻 / 可聊天）")}</option>
+              <option value="task">{translateUI("Task（一次性任务）")}</option>
             </select>
 
-            <label>分组</label>
-            <input placeholder="可选，如：代码审查、论文写作" value={editing.group || ""} onChange={(e) => setEditing({ ...editing, group: e.target.value })} />
+            <label>{translateUI("分组")}</label>
+            <input placeholder={translateUI("可选，如：代码审查、论文写作")} value={editing.group || ""} onChange={(e) => setEditing({ ...editing, group: e.target.value })} />
 
-            <label>模型</label>
+            <label>{translateUI("模型")}</label>
             <ModelSelect value={editing.model || ""} onChange={(v) => setEditing({ ...editing, model: v })} emptyLabel="未指定" />
 
-            <label>描述</label>
-            <input placeholder="该 Agent 的职责说明" value={editing.description || ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
+            <label>{translateUI("描述")}</label>
+            <input placeholder={translateUI("该 Agent 的职责说明")} value={editing.description || ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
 
-            <label>系统提示词</label>
+            <label>{translateUI("系统提示词")}</label>
             <textarea placeholder="System prompt" value={editing.system_prompt || ""} onChange={(e) => setEditing({ ...editing, system_prompt: e.target.value })} rows={4} />
 
-            <label>环境变量 / 凭据</label>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>
-              注入任务容器的环境变量。Key 包含 TOKEN/KEY/SECRET/PASSWORD/CREDENTIAL 的 value 会被脱敏（显示为 ***xxxx）。保留 *** 前缀即不修改原值。
-            </div>
+            <label>{translateUI("环境变量 / 凭据")}</label>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>{translateUI("注入任务容器的环境变量。Key 包含 TOKEN/KEY/SECRET/PASSWORD/CREDENTIAL 的 value 会被脱敏（显示为 ***xxxx）。保留 *** 前缀即不修改原值。")}</div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {envPairs.map((pair, i) => {
@@ -257,7 +256,7 @@ export default function AgentList() {
                 return (
                   <div key={i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
                     <input
-                      placeholder="KEY（如 GIT_PLATFORM_TOKEN）"
+                      placeholder={translateUI("KEY（如 GIT_PLATFORM_TOKEN）")}
                       value={pair.key}
                       onChange={(e) => {
                         const next = [...envPairs];
@@ -281,7 +280,7 @@ export default function AgentList() {
                       type="button"
                       className="btn-sm btn-danger"
                       onClick={() => setEnvPairs(envPairs.filter((_, j) => j !== i))}
-                    >删除</button>
+                    >{translateUI("删除")}</button>
                   </div>
                 );
               })}
@@ -290,13 +289,11 @@ export default function AgentList() {
                 className="btn-sm btn-secondary"
                 style={{ alignSelf: "flex-start" }}
                 onClick={() => setEnvPairs([...envPairs, { key: "", value: "" }])}
-              >+ 添加环境变量</button>
+              >{translateUI("+ 添加环境变量")}</button>
             </div>
 
             <label>Capabilities (JSON)</label>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>
-              用于配置高级能力（如 dios_admin / reasoning / subagents）。
-            </div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -6, marginBottom: 6 }}>{translateUI("用于配置高级能力（如 dios_admin / reasoning / subagents）。")}</div>
             <textarea
               rows={8}
               value={capabilitiesText}
@@ -306,8 +303,8 @@ export default function AgentList() {
             />
 
             <div className="drawer-actions">
-              <button onClick={save}>保存</button>
-              <button className="btn-secondary" onClick={closeAll}>取消</button>
+              <button onClick={save}>{translateUI("保存")}</button>
+              <button className="btn-secondary" onClick={closeAll}>{translateUI("取消")}</button>
             </div>
           </div>
         )}
@@ -316,7 +313,7 @@ export default function AgentList() {
       {/* 事件订阅 Drawer */}
       <Drawer
         open={drawerMode === "subscriptions" && !!targetAgentId}
-        title={`事件订阅 - ${targetAgent?.name ?? ""}`}
+        title={translateUI(translateUI("事件订阅 - {0}", [targetAgent?.name ?? ""]))}
         onClose={closeAll}
       >
         {drawerMode === "subscriptions" && targetAgentId && <SubscriptionEditor agentId={targetAgentId} />}
@@ -325,7 +322,7 @@ export default function AgentList() {
       {/* Skills Drawer */}
       <Drawer
         open={drawerMode === "skills" && !!targetAgentId}
-        title={`Skills - ${targetAgent?.name ?? ""}`}
+        title={translateUI(`Skills - ${targetAgent?.name ?? ""}`)}
         onClose={closeAll}
       >
         {drawerMode === "skills" && targetAgent && (
@@ -336,7 +333,7 @@ export default function AgentList() {
       {/* MCP Drawer */}
       <Drawer
         open={drawerMode === "mcp" && !!targetAgentId}
-        title={`MCP 服务 - ${targetAgent?.name ?? ""}`}
+        title={translateUI(translateUI("MCP 服务 - {0}", [targetAgent?.name ?? ""]))}
         onClose={closeAll}
       >
         {drawerMode === "mcp" && targetAgent && (

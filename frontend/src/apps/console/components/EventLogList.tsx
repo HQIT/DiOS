@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 import { useEffect, useState, useCallback } from "react";
 import type { EventLog, EventCatalog, EventCatalogType, ActivityGanttResponse } from "../../../types";
 import { api } from "../../../api/os";
@@ -191,19 +192,17 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
     }, {});
     return (
       <div style={{ marginTop: 10, border: "1px solid var(--border)", borderRadius: 6, padding: 10 }}>
-        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
-          智能体活动总览（{data.date || selectedDate}）· {data.bars.length} 个任务
-        </div>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>{translateUI("智能体活动总览（")}{translateUI(data.date || selectedDate)}）· {translateUI(data.bars.length)}{translateUI("个任务")}</div>
         {data.agents.length === 0 && (
-          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>暂无关联任务记录</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{translateUI("暂无关联任务记录")}</div>
         )}
         {data.agents.map((agent) => {
           const bars = barsByAgent[agent.agent_id] || [];
           return (
             <div key={agent.agent_id} style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: 8, marginBottom: 10 }}>
               <div style={{ fontSize: 12 }}>
-                <div>{agent.agent_name}</div>
-                <div style={{ color: "var(--text-secondary)" }}>{agent.task_count} 个任务</div>
+                <div>{translateUI(agent.agent_name)}</div>
+                <div style={{ color: "var(--text-secondary)" }}>{translateUI(agent.task_count)}{translateUI("个任务")}</div>
               </div>
               <div style={{ position: "relative", minHeight: 24, background: "var(--bg-muted)", borderRadius: 4 }}>
                 {bars.map((it) => {
@@ -224,7 +223,7 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                         borderRadius: 3,
                         background: color,
                       }}
-                      title={`${it.agent_name} | ${it.status} | ${it.event_type || "no-event"} | ${Math.max(0, Math.round(it.duration_ms / 1000))}s`}
+                      title={translateUI(`${it.agent_name} | ${it.status} | ${it.event_type || "no-event"} | ${Math.max(0, Math.round(it.duration_ms / 1000))}s`)}
                     >
                       {it.behaviors.map((b, idx) => {
                         const bm = new Date(b.at).getTime();
@@ -232,7 +231,7 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                         return (
                           <span
                             key={`${it.task_id}-${idx}`}
-                            title={b.label}
+                            title={translateUI(b.label)}
                             style={{
                               position: "absolute",
                               left: `${Math.max(0, Math.min(100, bl))}%`,
@@ -261,32 +260,26 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
   return (
     <div className="panel">
       <div className="tabs">
-        <button className={`tab ${subTab === "logs" ? "active" : ""}`} onClick={() => onSubTabChange("logs")}>
-          事件日志
-        </button>
-        <button className={`tab ${subTab === "catalog" ? "active" : ""}`} onClick={() => onSubTabChange("catalog")}>
-          事件目录
-        </button>
-        <button className={`tab ${subTab === "activity" ? "active" : ""}`} onClick={() => onSubTabChange("activity")}>
-          活动总览
-        </button>
+        <button className={`tab ${subTab === "logs" ? "active" : ""}`} onClick={() => onSubTabChange("logs")}>{translateUI("事件日志")}</button>
+        <button className={`tab ${subTab === "catalog" ? "active" : ""}`} onClick={() => onSubTabChange("catalog")}>{translateUI("事件目录")}</button>
+        <button className={`tab ${subTab === "activity" ? "active" : ""}`} onClick={() => onSubTabChange("activity")}>{translateUI("活动总览")}</button>
       </div>
 
       {subTab === "logs" && (
         <>
           <div className="event-filters">
             <input
-              placeholder="按来源过滤 (如 github)"
+              placeholder={translateUI("按来源过滤 (如 github)")}
               value={sourceFilter}
               onChange={(e) => { setSourceFilter(e.target.value); setPage(1); }}
             />
             <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
-              <option value="">全部状态</option>
-              <option value="received">received</option>
-              <option value="dispatching">dispatching</option>
-              <option value="dispatched">dispatched</option>
-              <option value="failed">failed</option>
-              <option value="dead_letter">dead_letter</option>
+              <option value="">{translateUI("全部状态")}</option>
+              <option value="received">{translateUI("received")}</option>
+              <option value="dispatching">{translateUI("dispatching")}</option>
+              <option value="dispatched">{translateUI("dispatched")}</option>
+              <option value="failed">{translateUI("failed")}</option>
+              <option value="dead_letter">{translateUI("dead_letter")}</option>
             </select>
             <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px' }}>
               <input
@@ -294,27 +287,25 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                 checked={autoRefresh}
                 onChange={(e) => setAutoRefresh(e.target.checked)}
               />
-              <span>自动刷新</span>
+              <span>{translateUI("自动刷新")}</span>
             </label>
             <button className="btn-sm btn-secondary" onClick={loadLogs} disabled={loading}>
-              {loading ? '加载中...' : '刷新'}
+              {translateUI(loading ? '加载中...' : '刷新')}
             </button>
           </div>
 
           <div className="webhook-hint">
-            Webhook URL: <code>POST /api/events/webhook/&#123;source&#125;</code>
-            &nbsp; 支持 GitHub / GitLab / Gitea
-          </div>
+            Webhook URL: <code>POST /api/events/webhook/&#123;source&#125;</code>{translateUI("  支持 GitHub / GitLab / Gitea")}</div>
 
           {loading && (
             <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
               <div className="spinner"></div>
-              <span>加载中...</span>
+              <span>{translateUI("加载中...")}</span>
             </div>
           )}
 
           {!loading && events.length === 0 && (
-            <p className="empty-hint">暂无事件记录</p>
+            <p className="empty-hint">{translateUI("暂无事件记录")}</p>
           )}
 
           {!loading && events.length > 0 && (
@@ -322,54 +313,52 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
               {events.map((ev) => (
                 <li key={ev.id} className="event-item">
                   <div className="event-row" onClick={() => setExpanded(expanded === ev.id ? null : ev.id)}>
-                    <span className="event-time">{fmtTime(ev.created_at)}</span>
+                    <span className="event-time">{translateUI(fmtTime(ev.created_at))}</span>
                     <span className="event-source">{ev.source}</span>
-                    <span className="event-type-badge">{ev.event_type}</span>
-                    <span className="event-match">{ev.matched_agent_ids.length} 匹配</span>
+                    <span className="event-type-badge">{translateUI(ev.event_type)}</span>
+                    <span className="event-match">{translateUI(ev.matched_agent_ids.length)}{translateUI("匹配")}</span>
                     <span
                       className="event-status"
                       style={{ color: STATUS_COLORS[ev.status] || "var(--text-secondary)" }}
                     >
-                      {ev.status}
-                      {ev.status === 'failed' && ev.retry_count !== undefined && ` (${ev.retry_count}/${ev.max_retries})`}
+                      {translateUI(ev.status)}
+                      {translateUI(ev.status === 'failed' && ev.retry_count !== undefined && ` (${ev.retry_count}/${ev.max_retries})`)}
                     </span>
                   </div>
                   {expanded === ev.id && (
                     <div className="event-detail">
                       <div className="event-detail-row">
-                        <strong>Subject:</strong> {ev.subject || "-"}
+                        <strong>{translateUI("Subject:")}</strong> {translateUI(ev.subject || "-")}
                       </div>
                       <div className="event-detail-row">
-                        <strong>匹配 Agent:</strong>{" "}
-                        {ev.matched_agent_ids.length > 0 ? ev.matched_agent_ids.join(", ") : "无匹配"}
+                        <strong>{translateUI("匹配 Agent:")}</strong>{translateUI(" ")}
+                        {translateUI(ev.matched_agent_ids.length > 0 ? ev.matched_agent_ids.join(", ") : "无匹配")}
                       </div>
                       
                       {ev.status === 'failed' && (
                         <div style={{ background: '#fff3cd', padding: '8px', borderRadius: '4px', marginTop: '8px' }}>
-                          <div><strong>状态:</strong> 投递失败，等待重试</div>
-                          <div><strong>重试:</strong> {ev.retry_count || 0} / {ev.max_retries || 3}</div>
+                          <div><strong>{translateUI("状态:")}</strong>{translateUI("投递失败，等待重试")}</div>
+                          <div><strong>{translateUI("重试:")}</strong> {translateUI(ev.retry_count || 0)} / {translateUI(ev.max_retries || 3)}</div>
                           {ev.next_retry_at && (
-                            <div><strong>下次重试:</strong> {new Date(ev.next_retry_at).toLocaleString()}</div>
+                            <div><strong>{translateUI("下次重试:")}</strong> {translateUI(new Date(ev.next_retry_at).toLocaleString())}</div>
                           )}
                         </div>
                       )}
                       
                       {ev.status === 'dead_letter' && (
                         <div style={{ background: '#f8d7da', padding: '8px', borderRadius: '4px', marginTop: '8px' }}>
-                          <div><strong>状态:</strong> 投递失败，已超过最大重试次数</div>
+                          <div><strong>{translateUI("状态:")}</strong>{translateUI("投递失败，已超过最大重试次数")}</div>
                           <button 
                             className="btn-sm" 
                             style={{ marginTop: '8px' }}
                             onClick={(e) => { e.stopPropagation(); handleRetry(ev.id); }}
-                          >
-                            手动重试
-                          </button>
+                          >{translateUI("手动重试")}</button>
                         </div>
                       )}
                       
                       {ev.error_message && (
                         <div style={{ marginTop: '8px' }}>
-                          <strong>错误详情:</strong>
+                          <strong>{translateUI("错误详情:")}</strong>
                           <pre style={{ 
                             background: '#f5f5f5', 
                             padding: '8px', 
@@ -383,7 +372,7 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                         </div>
                       )}
                       <details style={{ marginTop: '8px' }}>
-                        <summary>CloudEvent 详情</summary>
+                        <summary>{translateUI("CloudEvent 详情")}</summary>
                         <pre className="log-box">{JSON.stringify(ev.cloud_event, null, 2)}</pre>
                       </details>
                     </div>
@@ -405,21 +394,15 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                 className="btn-sm"
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
-              >
-                上一页
-              </button>
+              >{translateUI("上一页")}</button>
               
-              <span style={{ fontSize: '13px' }}>
-                第 {page} / {totalPages} 页（共 {total} 条）
-              </span>
+              <span style={{ fontSize: '13px' }}>{translateUI("第")}{translateUI(page)} / {translateUI(totalPages)}{translateUI("页（共")}{translateUI(total)}{translateUI("条）")}</span>
               
               <button
                 className="btn-sm"
                 disabled={page === totalPages}
                 onClick={() => setPage(page + 1)}
-              >
-                下一页
-              </button>
+              >{translateUI("下一页")}</button>
             </div>
           )}
         </>
@@ -430,7 +413,7 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
           {catalog && (
             <>
               <div className="catalog-sources">
-                <h3 className="catalog-section-title">事件源</h3>
+                <h3 className="catalog-section-title">{translateUI("事件源")}</h3>
                 <div className="catalog-source-grid">
                   {catalog.sources
                     .filter((s) => catalog.connector_status?.[s.id] !== false)
@@ -447,28 +430,22 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
                 </div>
               </div>
 
-              <h3 className="catalog-section-title" style={{ marginTop: 20 }}>
-                事件类型
-                {filterCategory && (
-                  <button className="btn-sm btn-secondary" style={{ marginLeft: 8, fontSize: 11 }} onClick={() => setFilterCategory(null)}>
-                    清除过滤
-                  </button>
+              <h3 className="catalog-section-title" style={{ marginTop: 20 }}>{translateUI("事件类型")}{filterCategory && (
+                  <button className="btn-sm btn-secondary" style={{ marginLeft: 8, fontSize: 11 }} onClick={() => setFilterCategory(null)}>{translateUI("清除过滤")}</button>
                 )}
               </h3>
               {grouped.map(([category, types]) => (
                 <div key={category} className="catalog-category">
-                  <h4 className="catalog-category-title">{category}</h4>
+                  <h4 className="catalog-category-title">{translateUI(category)}</h4>
                   <div className="catalog-type-list">
                     {types.map((et) => (
                       <div key={et.type} className="catalog-type-row">
-                        <span className="event-type-badge">{et.type}</span>
+                        <span className="event-type-badge">{translateUI(et.type)}</span>
                         <span className="catalog-type-desc">{et.description}</span>
                         <button
                           className="btn-sm"
                           onClick={() => openTrigger(et)}
-                        >
-                          触发
-                        </button>
+                        >{translateUI("触发")}</button>
                       </div>
                     ))}
                   </div>
@@ -483,49 +460,49 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
           <div className="event-filters">
             <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
             <input
-              placeholder="按 agent_id 过滤（逗号分隔）"
+              placeholder={translateUI("按 agent_id 过滤（逗号分隔）")}
               value={agentFilter}
               onChange={(e) => setAgentFilter(e.target.value)}
             />
             <button className="btn-sm btn-secondary" onClick={loadGantt} disabled={ganttLoading}>
-              {ganttLoading ? "加载中..." : "刷新"}
+              {translateUI(ganttLoading ? "加载中..." : "刷新")}
             </button>
           </div>
           {ganttLoading && (
             <div style={{ textAlign: "center", padding: "20px", color: "var(--text-secondary)" }}>
               <div className="spinner"></div>
-              <span>加载中...</span>
+              <span>{translateUI("加载中...")}</span>
             </div>
           )}
-          {!ganttLoading && gantt && renderGlobalGantt(gantt)}
+          {translateUI(!ganttLoading && gantt && renderGlobalGantt(gantt))}
         </>
       )}
 
       <Drawer
         open={triggerType !== null}
-        title={`手动触发 - ${triggerType?.type ?? ""}`}
+        title={translateUI(translateUI("手动触发 - {0}", [triggerType?.type ?? ""]))}
         onClose={() => setTriggerType(null)}
       >
         {triggerType && (
           <div className="drawer-form">
-            <label>事件类型</label>
+            <label>{translateUI("事件类型")}</label>
             <input value={triggerType.type} disabled />
 
-            <label>来源 (source)</label>
+            <label>{translateUI("来源 (source)")}</label>
             <input
               placeholder="manual/test"
               value={triggerSource}
               onChange={(e) => setTriggerSource(e.target.value)}
             />
 
-            <label>主题 (subject)</label>
+            <label>{translateUI("主题 (subject)")}</label>
             <input
-              placeholder="如 refs/heads/main"
+              placeholder={translateUI("如 refs/heads/main")}
               value={triggerSubject}
               onChange={(e) => setTriggerSubject(e.target.value)}
             />
 
-            <label>数据 (JSON)</label>
+            <label>{translateUI("数据 (JSON)")}</label>
             <textarea
               rows={6}
               value={triggerData}
@@ -535,9 +512,9 @@ export default function EventLogList({ subTab, onSubTabChange }: { subTab: Activ
 
             <div className="drawer-actions">
               <button onClick={doTrigger} disabled={triggerLoading}>
-                {triggerLoading ? "发送中..." : "触发事件"}
+                {translateUI(triggerLoading ? "发送中..." : "触发事件")}
               </button>
-              <button className="btn-secondary" onClick={() => setTriggerType(null)}>取消</button>
+              <button className="btn-secondary" onClick={() => setTriggerType(null)}>{translateUI("取消")}</button>
             </div>
           </div>
         )}

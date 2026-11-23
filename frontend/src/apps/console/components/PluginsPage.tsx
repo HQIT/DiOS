@@ -1,3 +1,4 @@
+import { t as translateUI } from "../../../lib/i18n";
 const COMPONENTS = [
   {
     name: "Skills",
@@ -27,41 +28,41 @@ export default function PluginsPage() {
       <header className="registry-page-header">
         <div>
           <div className="registry-title-line">
-            <h3>Plugin Packages</h3>
-            <span className="registry-standard-badge preview">兼容预览</span>
+            <h3>{translateUI("Plugin Packages")}</h3>
+            <span className="registry-standard-badge preview">{translateUI("兼容预览")}</span>
           </div>
-          <p>Plugin 是组合分发格式；组件仍由 DiOS 按 MCP、Skill、Agent 和 Runtime 分别治理。</p>
+          <p>{translateUI("Plugin 是组合分发格式；组件仍由 DiOS 按 MCP、Skill、Agent 和 Runtime 分别治理。")}</p>
         </div>
         <div className="registry-kpis">
-          <div><strong>0</strong><span>已注册</span></div>
-          <div><strong>Open Plugins</strong><span>兼容目标</span></div>
-          <div><strong>Phase 3</strong><span>安装通道</span></div>
+          <div><strong>0</strong><span>{translateUI("已注册")}</span></div>
+          <div><strong>Open Plugins</strong><span>{translateUI("兼容目标")}</span></div>
+          <div><strong>Phase 3</strong><span>{translateUI("安装通道")}</span></div>
         </div>
       </header>
 
       <section className="registry-block">
         <div className="registry-section-heading">
           <div>
-            <h4>Plugin Registry</h4>
-            <p>当前没有行业统一的公共 Plugin Registry；DiOS 先固定清单映射和准入界面。</p>
+            <h4>{translateUI("Plugin Registry")}</h4>
+            <p>{translateUI("当前没有行业统一的公共 Plugin Registry；DiOS 先固定清单映射和准入界面。")}</p>
           </div>
           <span className="registry-source-pill">Open Plugins format</span>
         </div>
         <div className="registry-empty-state">
           <span className="registry-empty-icon">P</span>
           <div>
-            <strong>尚未配置可信插件源</strong>
-            <p>单机 Phase 0 不会因为目录存在就加载并执行插件代码。外部安装将在签名、版本锁定和权限预览完成后开放。</p>
+            <strong>{translateUI("尚未配置可信插件源")}</strong>
+            <p>{translateUI("单机 Phase 0 不会因为目录存在就加载并执行插件代码。外部安装将在签名、版本锁定和权限预览完成后开放。")}</p>
           </div>
-          <button className="btn-sm btn-secondary" disabled>安装通道未开放</button>
+          <button className="btn-sm btn-secondary" disabled>{translateUI("安装通道未开放")}</button>
         </div>
       </section>
 
       <section className="registry-block">
         <div className="registry-section-heading">
           <div>
-            <h4>Component Mapping</h4>
-            <p>Plugin 只负责打包；每类能力进入现有控制面后才可启用。</p>
+            <h4>{translateUI("Component Mapping")}</h4>
+            <p>{translateUI("Plugin 只负责打包；每类能力进入现有控制面后才可启用。")}</p>
           </div>
         </div>
         <div className="plugin-component-grid">
@@ -70,18 +71,18 @@ export default function PluginsPage() {
               <div>
                 <strong>{component.name}</strong>
                 <span className={component.status === "可映射" ? "registry-status ready" : "registry-status"}>
-                  {component.status}
+                  {translateUI(component.status)}
                 </span>
               </div>
-              <p>{component.description}</p>
+              <p>{translateUI(component.description)}</p>
             </article>
           ))}
         </div>
       </section>
 
       <aside className="registry-policy-note">
-        <strong>OS 边界</strong>
-        <span>注册不等于授权。Plugin 内的 Skill 不能扩大 MCP 权限，MCP Server 仍需按 Agent 或任务显式分配。</span>
+        <strong>{translateUI("OS 边界")}</strong>
+        <span>{translateUI("注册不等于授权。Plugin 内的 Skill 不能扩大 MCP 权限，MCP Server 仍需按 Agent 或任务显式分配。")}</span>
       </aside>
     </div>
   );
