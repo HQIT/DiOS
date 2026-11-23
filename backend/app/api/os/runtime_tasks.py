@@ -10,7 +10,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.config import settings
 from app.runtime.database import Database, RuntimeErrorCode
 from app.services.task_console import TaskConsole
-from app.apps.inline_review import sample, SAMPLES
 
 
 class RuntimeRoute(APIRoute):
@@ -91,8 +90,8 @@ async def profiles(s=Depends(service)):
     return {'items':await asyncio.to_thread(s.catalog)}
 
 @router.get('/samples')
-async def samples(_=Depends(operator)):
-    return {'items':[sample(k) for k in SAMPLES]}
+async def samples(s=Depends(service)):
+    return {'items':await asyncio.to_thread(s.samples)}
 
 @router.get('/workers')
 async def workers(s=Depends(service)):

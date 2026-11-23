@@ -155,13 +155,21 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
     finally { setDownloading(false); }
   }
   const chosenProfile = profiles.find(p => p.id === profile);
+  const availableSamples = samples.filter(s => !chosenProfile?.input_ids || chosenProfile.input_ids.includes(s.id));
+  const business = chosenProfile?.input_kind === "knowledge-evidence";
+  useEffect(() => {
+    if (!availableSamples.some(s => s.id === sample)) setSample(availableSamples[0]?.id || "");
+  }, [profile, samples, sample, profiles]);
+  useEffect(() => {
+    setGoal(business ? "整理所选资料的来源、版本与引用，列出需要业务人员确认的信息。" : "检查这段代码的边界条件，说明问题、触发条件和代码证据。");
+  }, [business]);
   const policyMissing = chosenProfile?.governance === "e2ag" && !chosenProfile.policy_configured;
   const source = samples.find(s => s.id === sample);
   const active = detail?.attempts.find(a => a.id === detail.attempt_id);
 
   return <section className="task-runs">
     <header className="tr-heading"><div><p className="tr-eyebrow">DiOS · 任务与成果</p><h2>交给 Agent，带回成果</h2>
-      <p>选择执行 Agent，发起一次样例代码评审，跟踪进展并查看报告。</p></div>
+      <p>选择已登记的工作类型与执行配置，跟踪进展并查看有来源的成果。</p></div>
       <button onClick={() => setRefresh(x => x + 1)}>刷新</button></header>
     {catalogError && <p className="tr-notice" role="status">{catalogError}</p>}
     {actionError && <p className="tr-error" role="alert">{actionError}</p>}
@@ -172,21 +180,21 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           {profiles.map(p => <option key={p.id} value={p.id} disabled={p.governance === "e2ag" && !p.policy_configured}>{p.name}{p.synthetic ? " · 合成端点" : ""}{p.governance === "e2ag" && !p.policy_configured ? " · 待配置授权" : ""}</option>)}
         </select></label>
         {profiles.find(p => p.id === profile)?.description && <p className="tr-muted">{profiles.find(p => p.id === profile)?.description}</p>}
-        <label>评审样例<select value={sample} onChange={e => setSample(e.target.value)} disabled={busy} required>
-          {samples.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        <label>{business ? "业务任务输入" : "评审样例"}<select value={sample} onChange={e => setSample(e.target.value)} disabled={busy} required>
+          {availableSamples.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select></label>
         {source && <pre className="tr-source"><code>{source.source}</code></pre>}
         <label>工作目标<textarea value={goal} onChange={e => setGoal(e.target.value)} maxLength={2000} rows={4} required disabled={busy} /></label>
         <button className="tr-primary" type="submit" disabled={busy || !profile || !sample || !goal.trim() || !!catalogError || policyMissing}>
-          {busy ? "提交中…" : "发起评审"}</button>
-        <p className="tr-muted">使用固定样例代码。执行结束后，结论进入人工复核。</p>
+          {busy ? "提交中…" : business ? "发起资料核查" : "发起评审"}</button>
+        <p className="tr-muted">{business ? "按已登记范围检索资料。业务结论与后续操作需由业务人员确认。" : "使用固定样例代码。执行结束后，结论进入人工复核。"}</p>
       </form>
       <div className="tr-card"><div className="tr-section-title"><h3>任务记录</h3><span className="tr-muted">{items.length} 项</span></div>
         {listError && <p className="tr-error" role="alert">{listError}</p>}
         {!items.length && !listError && <p className="tr-empty-small">发起任务后，这里会保留执行记录与成果。</p>}
         <div className="tr-run-list">{items.map(item => <button key={item.id} className={`tr-run ${selectedId === item.id ? "selected" : ""}`}
           onClick={() => { window.location.hash = `console/tasks/${item.id}`; }}>
-          <span className="tr-run-title">{item.goal || "静态评审"}</span><Badge state={item.state} />
+          <span className="tr-run-title">{item.goal || "工作任务"}</span><Badge state={item.state} />
           <small>{item.display.name || item.profile_id} · {time(item.created_at)}</small>
         </button>)}</div>
         <div className="tr-actions">{cursor && <button onClick={() => setCursor(undefined)}>返回最新</button>}
@@ -196,7 +204,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
     <main className="tr-detail">
       <WorkerStatusPanel />
       {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>从一件具体工作开始</h3>
-        <p>在左侧发起评审，或选择已有任务查看执行过程与成果。</p><div className="tr-steps"><span>① 发起任务</span><span>② 跟踪执行</span><span>③ 查看成果</span></div></div>}
+        <p>在左侧发起任务，或选择已有任务查看执行过程与成果。</p><div className="tr-steps"><span>① 发起任务</span><span>② 跟踪执行</span><span>③ 查看成果</span></div></div>}
       {detailError && <p className="tr-error" role="alert">{detailError} 当前保留的是上次取得的信息。</p>}
       {selectedId && !detail && !detailError && <p className="tr-empty-small" role="status">正在读取任务…</p>}
       {detail && <>
@@ -237,7 +245,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         <section className="tr-card"><div className="tr-section-title"><h3>成果与附件</h3>{detail.state === "succeeded" && <span className="tr-badge">待人工复核</span>}</div>
           {!detail.artifacts.length && <p className="tr-empty-small">执行结束后，报告和原始输出将在这里归档。</p>}
           <div className="tr-artifacts">{detail.artifacts.map(a => <button key={a.id} className={artifact === a.id ? "selected" : ""} onClick={() => setArtifact(a.id)}>
-            {a.kind === "result" ? "评审成果" : a.kind === "stdout" ? "原始输出" : a.kind === "stderr" ? "诊断记录" : "附件"}<small>{(a.size / 1024).toFixed(1)} KB</small></button>)}</div>
+            {a.kind === "result" ? "任务成果" : a.kind === "stdout" ? "原始输出" : a.kind === "stderr" ? "诊断记录" : "附件"}<small>{(a.size / 1024).toFixed(1)} KB</small></button>)}</div>
           {previewError && <p className="tr-error" role="alert">{previewError}</p>}
           {artifact && <div className="tr-actions"><button disabled={downloading} onClick={() => void download(false)}>下载原文件</button>
             {preview?.markdown && <button disabled={downloading} onClick={() => void download(true)}>下载 Markdown 报告</button>}</div>}
@@ -246,7 +254,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             : preview && <pre className="tr-output">{preview.text}</pre>}
         </section>
         <details className="tr-card"><summary>执行记录与来源</summary>
-          <p className="tr-muted">任务 {detail.id}</p><p className="tr-muted">样例 {detail.sample.filename} · SHA256 {detail.sample.sha256}</p>
+          <p className="tr-muted">任务 {detail.id}</p><p className="tr-muted">输入 {detail.sample.name} · SHA256 {detail.sample.sha256}</p>
           {detail.attempts.map(a => <div className="tr-attempt" key={a.id}><Badge state={a.state} /><span>尝试 {a.epoch}</span><code>{a.id}</code><small>会话 {a.session_id || "尚未创建"} · 进程 {a.process_id || "未知"}</small></div>)}
           {detail.attempts_has_more && <p className="tr-muted">此处显示最近 20 次尝试。</p>}
           <ol className="tr-timeline">{detail.events.map(e => <li key={e.id}><time>{time(e.created_at)}</time><span>{LABELS[e.state] || e.state}</span><code>{e.type}</code></li>)}</ol>

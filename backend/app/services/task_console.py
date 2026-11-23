@@ -9,7 +9,7 @@ from app.runtime.artifacts import LocalArtifacts
 from app.runtime.database import RuntimeErrorCode
 from app.runtime.schema import runs, attempts, artifacts, events
 from app.runtime.store import RuntimeStore
-from app.apps.inline_review import sample
+from app.services.task_inputs import KINDS, inputs
 from app.runtime.worker import read_profile
 from app.runtime.work_policy import security_profile
 
@@ -32,7 +32,8 @@ class TaskConsole:
             if display.get('enabled') is not True: continue
             profile_id,spec=read_profile(path)
             if any(x['id']==profile_id for x in profiles):raise RuntimeErrorCode('DUPLICATE_PROFILE_ID')
-            if display.get('input_kind')!='inline-static-review':continue
+            if display.get('input_kind') not in KINDS:continue
+            registered_inputs=inputs(display)
             # Explicit operator activation; API never accepts commands, paths or secrets.
             if spec.mounts and any(not m.read_only for m in spec.mounts):
                 raise RuntimeErrorCode('PROFILE_REQUIRES_READ_ONLY_MOUNTS')
@@ -41,14 +42,27 @@ class TaskConsole:
                 description=str(display.get('description',''))[:500],
                 implementation=str(display.get('implementation','unknown'))[:120],
                 synthetic=display.get('synthetic') is True,profile_digest=spec.fingerprint(),
+                input_kind=display['input_kind'],input_ids=[x['id'] for x in registered_inputs],
                 governance=mode,policy_configured=self.policy is not None if mode=='e2ag' else True))
         return profiles
+
+    def samples(self):
+        rows={}
+        for path in sorted(self.profiles_dir.glob('*.json')):
+            raw=json.loads(path.read_text(encoding='utf-8'));display=raw.get('console',{})
+            if display.get('enabled') is not True:continue
+            for item in inputs(display):
+                if item['id'] in rows and rows[item['id']]!=item:raise RuntimeErrorCode('INVALID_INPUT_CATALOG')
+                rows[item['id']]=item
+        return list(rows.values())
 
     async def submit(self, profile_id, sample_id, goal, key):
         profiles=await asyncio.to_thread(self.catalog)
         profile=next((x for x in profiles if x['id']==profile_id),None)
         if not profile:raise RuntimeErrorCode('PROFILE_NOT_AVAILABLE')
-        value=sample(sample_id)
+        value=next((x for x in await asyncio.to_thread(self.samples) if x['id']==sample_id and sample_id in profile['input_ids']),None)
+        if value is None:raise RuntimeErrorCode('SAMPLE_NOT_FOUND')
+        if profile['input_kind']=='knowledge-evidence' and profile['governance']!='e2ag':raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
         descriptor=None;refs=[]
         if profile['governance']=='e2ag':
             if self.policy is None:raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
@@ -66,7 +80,7 @@ class TaskConsole:
             refs=await asyncio.to_thread(resolve_registration)
             descriptor=await asyncio.to_thread(self.policy.admission,profile_id,profile['profile_digest'],refs)
         run=await self.store.submit(key,dict(runtime_profile=profile_id,profile_digest=profile['profile_digest'],
-            task_kind='inline-static-review',payload=dict(goal=goal,sample=value),
+            task_kind=profile['input_kind'],payload=dict(goal=goal,sample=value),
             secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor)
         return await self.detail(run['id'])
 
@@ -75,11 +89,11 @@ class TaskConsole:
         value=run['input'];payload=value.get('payload',{})
         return {**{k:run[k] for k in ('id','state','version','attempt_id','created_at','updated_at','cancel_requested')},
             'goal':payload.get('goal',''), 'sample_id':payload.get('sample',{}).get('id'),
-            'profile_id':value.get('runtime_profile'), 'display':value.get('display',{})}
+            'task_kind':value.get('task_kind'),'profile_id':value.get('runtime_profile'), 'display':value.get('display',{})}
 
     async def list(self, *, limit=30, cursor=None):
         if not 1<=limit<=100:raise RuntimeErrorCode('INVALID_LIMIT')
-        query=select(runs).where(runs.c.scope==self.scope,runs.c.input['task_kind'].as_string()=='inline-static-review')
+        query=select(runs).where(runs.c.scope==self.scope,runs.c.input['task_kind'].as_string().in_(KINDS))
         if cursor:
             try:
                 stamp,rid=json.loads(base64.urlsafe_b64decode(cursor.encode()).decode())
@@ -97,7 +111,7 @@ class TaskConsole:
     async def detail(self, run_id):
         async with self.db.read(self.scope) as c:
             run=await self.store._run(c,run_id)
-            if run['input'].get('task_kind')!='inline-static-review':raise RuntimeErrorCode('NOT_FOUND')
+            if run['input'].get('task_kind') not in KINDS:raise RuntimeErrorCode('NOT_FOUND')
             now=await self.db.now(c)
             rows=(await c.execute(select(attempts).where(attempts.c.run_id==run_id)
                 .order_by(attempts.c.epoch.desc()).limit(20))).mappings().all()
@@ -139,7 +153,7 @@ class TaskConsole:
     async def artifact(self, run_id, artifact_id):
         async with self.db.read(self.scope) as c:
             run=await self.store._run(c,run_id)
-            if run['input'].get('task_kind')!='inline-static-review':raise RuntimeErrorCode('NOT_FOUND')
+            if run['input'].get('task_kind') not in KINDS:raise RuntimeErrorCode('NOT_FOUND')
             b=(await c.execute(select(artifacts).where(artifacts.c.id==artifact_id,artifacts.c.run_id==run_id))).mappings().first()
         if not b:raise RuntimeErrorCode('NOT_FOUND')
         if b['provider']!=self.provider.name:raise RuntimeErrorCode('ARTIFACT_PROVIDER_UNAVAILABLE')
