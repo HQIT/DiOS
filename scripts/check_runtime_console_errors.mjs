@@ -10,7 +10,7 @@ try{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:13082/dios/#console/tasks');
  await page.getByLabel('执行 Agent').selectOption('validation-review');
- await page.getByRole('button',{name:'发起评审',exact:true}).click();
+ await page.getByRole('button',{name:'发起任务',exact:true}).click();
  await page.getByLabel('独立审批凭据').waitFor({timeout:30000});
  await page.getByLabel('独立审批凭据').fill('invalid-test');
  await page.getByRole('button',{name:'批准本次调用',exact:true}).click();
@@ -20,7 +20,7 @@ try{
  await page.locator('.tr-detail .tr-failed').first().waitFor({timeout:30000});checks.push('denied-tool-fails-run');
  if(await page.getByRole('button',{name:'下载 Markdown 报告',exact:true}).count())throw new Error('Old report leaked into new run');
  checks.push('previous-artifact-cleared');
- await page.getByRole('button',{name:'发起评审',exact:true}).click();
+ await page.getByRole('button',{name:'发起任务',exact:true}).click();
  await page.getByLabel('独立审批凭据').waitFor({timeout:30000});
  for(let retry=0;retry<3;retry++){
    const response=page.waitForResponse(r=>r.url().endsWith('/cancel')&&r.request().method()==='POST');

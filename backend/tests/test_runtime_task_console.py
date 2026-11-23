@@ -22,8 +22,11 @@ class TaskConsoleTests(unittest.IsolatedAsyncioTestCase):
         self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name)
         self.db=Database('sqlite+aiosqlite:///'+str(self.root/'runtime.sqlite'));await self.db.migrate()
         self.profiles=self.root/'profiles';self.profiles.mkdir()
-        self.profile=dict(id='review',bridge='jsonl-v1',
-            console=dict(enabled=True,input_kind='inline-static-review',name='Test Agent',implementation='test',synthetic=True),
+        catalog=json.loads((Path(__file__).resolve().parents[2]/'examples/runtime/review-inputs.json').read_text())
+        catalog['requires_e2ag']=False
+        self.input_catalog=self.root/'review-inputs.json';self.input_catalog.write_text(json.dumps(catalog))
+        self.profile=dict(id='review' ,bridge='jsonl-v1',
+            console=dict(enabled=True,input_kind='inline-static-review',input_catalog=str(self.input_catalog),name='Test Agent',implementation='test',synthetic=True),
             launch=dict(image='test-image',command=['test-command'],environment={'PRIVATE_EXAMPLE':'do-not-return'}))
         (self.profiles/'review.json').write_text(json.dumps(self.profile))
         self.console=TaskConsole(self.db,'one',self.profiles,self.root/'objects')

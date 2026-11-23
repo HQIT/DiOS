@@ -1,6 +1,6 @@
 # 业务资料核查工程样例
 
-两个合成输入演示销售资料准备与项目资料引用。它们是独立 L3 应用样例，资料均标注“工程样例”。客户交付系统的规则、数据和 UI 在各自应用中维护。
+两个合成输入演示销售资料准备与项目资料引用。它们是同仓 L3 参考应用样例，资料均标注“工程样例”。客户交付系统的规则、数据和 UI 在各自应用中维护。
 
 通用接口与分层见 [知识接入契约](../../docs/design/business-evidence-39.md)。运行需管理员配置：
 
@@ -14,3 +14,5 @@
 `catalog.json` 是轻量 Provider 的工程输入格式，包含资料 ID、项目、版本、source、locator、更新时间、active、正文和 digest。修改正文或来源后必须更新指纹及资料授权。不要把原始客户资料或凭据写入此示例目录。
 
 自动浏览器验证：`node scripts/check_business_evidence.mjs /absolute/private-demo-directory`。验证目录提供已配置服务的 tokens.json（operator、approver）；脚本实际提交两个样例，检查审批、报告下载、刷新、旧评审输入切换及移动布局。
+
+独立应用发布边界与后续打包见 [ADR 0011](../../docs/adr/0011-capability-only-platform-boundary.md)。DiOS 入口通过[数据化输入契约](../../docs/design/application-input-registration.md)接入，不导入此应用的业务验证器。

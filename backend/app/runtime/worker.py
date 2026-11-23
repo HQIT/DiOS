@@ -21,8 +21,8 @@ from sqlalchemy.exc import OperationalError, InterfaceError
 from .schema import runs
 
 
-def read_profile(path):
-    value = json.loads(Path(path).read_text(encoding='utf-8'))
+def read_profile(path, *, value=None):
+    value = json.loads(Path(path).read_text(encoding='utf-8')) if value is None else value
     identifier(value['id'])
     if value.get('bridge') != 'jsonl-v1': raise RuntimeErrorCode('BRIDGE_UNSUPPORTED')
     config = dict(value['launch'])

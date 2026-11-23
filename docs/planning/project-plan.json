@@ -1,6 +1,6 @@
 {
   "title": "DiOS · Agent OS 分层建设",
-  "description": "DiOS 内核 → 数字员工管理与服务 → 开放业务应用；按阶段、依赖和验收推进可扩展企业平台",
+  "description": "DiOS 业务无关能力优先完成；L2 业务平台和 L3 客户应用独立发布，按 ADR 0011 分别验收",
   "milestones": [
     {
       "id": "P0",
@@ -15,7 +15,7 @@
     {
       "id": "P2",
       "title": "P2 · 数字员工管理与服务闭环",
-      "description": "数字员工绑定不同执行实现，Workspace/知识/协作保持统一权限；跨会话、远端成果和撤销通过验收。持续静态评审参考应用验证通用服务，生产切换独立安排。"
+      "description": "DiOS 通用对象访问、Provider 与能力服务；组织、数字员工和业务工作闭环在独立上层产品验收，作为接入参考。"
     },
     {
       "id": "P3",
@@ -42,7 +42,8 @@
       ],
       "kind": "工作包",
       "priority": "最高",
-      "status": "Done"
+      "status": "Done",
+      "product_scope": "coordination-package"
     },
     {
       "id": "F02",
@@ -54,7 +55,8 @@
       ],
       "kind": "工作包",
       "priority": "最高",
-      "status": "Done"
+      "status": "Done",
+      "product_scope": "coordination-package"
     },
     {
       "id": "F03",
@@ -67,7 +69,8 @@
       ],
       "kind": "工作包",
       "priority": "最高",
-      "status": "In Progress"
+      "status": "In Progress",
+      "product_scope": "coordination-package"
     },
     {
       "id": "K01",
@@ -83,7 +86,8 @@
       ],
       "kind": "工作包",
       "priority": "最高",
-      "status": "In Progress"
+      "status": "In Progress",
+      "product_scope": "coordination-package"
     },
     {
       "id": "K02",
@@ -96,7 +100,8 @@
         "K02-3"
       ],
       "kind": "工作包",
-      "priority": "最高"
+      "priority": "最高",
+      "product_scope": "coordination-package"
     },
     {
       "id": "K03",
@@ -109,7 +114,8 @@
         "K03-3"
       ],
       "kind": "工作包",
-      "priority": "最高"
+      "priority": "最高",
+      "product_scope": "coordination-package"
     },
     {
       "id": "S01",
@@ -121,7 +127,8 @@
         "S01-2"
       ],
       "kind": "工作包",
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "coordination-package"
     },
     {
       "id": "S02",
@@ -134,7 +141,8 @@
         "S02-3"
       ],
       "kind": "工作包",
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "coordination-package"
     },
     {
       "id": "S03",
@@ -147,7 +155,8 @@
         "S03-3"
       ],
       "kind": "工作包",
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "coordination-package"
     },
     {
       "id": "K04",
@@ -160,7 +169,8 @@
         "K04-3"
       ],
       "kind": "工作包",
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "coordination-package"
     },
     {
       "id": "A01",
@@ -175,7 +185,8 @@
         "A01-5"
       ],
       "kind": "工作包",
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "coordination-package"
     },
     {
       "id": "D01",
@@ -190,7 +201,8 @@
         "D01-5"
       ],
       "kind": "工作包",
-      "priority": "最高"
+      "priority": "最高",
+      "product_scope": "coordination-package"
     }
   ],
   "tasks": [
@@ -240,7 +252,8 @@
           "F01-2",
           "F02-1"
         ]
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "F01-1",
@@ -297,7 +310,8 @@
           "K02-2",
           "F03-1"
         ]
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "F01-2",
@@ -349,7 +363,8 @@
           "K02-2",
           "D01-4"
         ]
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "F02-1",
@@ -403,13 +418,14 @@
           "K01-4",
           "K01-5"
         ]
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "F03-1",
       "pkg": "F03",
       "stage": "P0",
-      "layer": "L2 服务",
+      "layer": "外部业务应用",
       "title": "设计员工工作台、主管视图与管理入口",
       "scope": [
         "明确 Console 与员工 Portal 的入口、权限及导航",
@@ -432,7 +448,16 @@
       "status": "In Progress",
       "progress": {
         "development": "既有工作台原型保持；沿其任务与成果语义开发 Console 真实任务入口，浏览器工程验证已完成，产品验收待用户参与。"
-      }
+      },
+      "product_scope": "external-application",
+      "application_scope": [
+        "明确 Console 与员工 Portal 的入口、权限及导航",
+        "设计数字员工、Workspace、任务/审批、知识、Studio 和运营核心流程",
+        "区分员工、主管、平台管理员操作",
+        "增加智能体实现/端点绑定、协议与能力展示、会话/任务状态、取消待确认和受限功能界面",
+        "设计排队/准备/建会话/等待模型/输出/校验/冷却及观测过期视图，分别显示实际并发、配置上限、最近有效输出与同步新鲜度"
+      ],
+      "dios_scope": []
     },
     {
       "id": "F03-2",
@@ -458,7 +483,8 @@
         "F01-1"
       ],
       "priority": "最高",
-      "status": "In Progress"
+      "status": "In Progress",
+      "product_scope": "dios-capability"
     },
     {
       "id": "K01-1",
@@ -492,7 +518,8 @@
           "docs/design/worker-execution-10-30.md",
           "docs/design/evidence/worker-runtime-regression-20261112.json"
         ]
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "K01-2",
@@ -590,7 +617,8 @@
             "failed": 0
           }
         }
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "K01-3",
@@ -612,7 +640,8 @@
         "F01-1"
       ],
       "priority": "最高",
-      "existing": 9
+      "existing": 9,
+      "product_scope": "dios-capability"
     },
     {
       "id": "K02-1",
@@ -636,7 +665,8 @@
         "F01-1",
         "K01-1"
       ],
-      "priority": "最高"
+      "priority": "最高",
+      "product_scope": "dios-capability"
     },
     {
       "id": "K02-2",
@@ -687,7 +717,8 @@
           "docs/design/evidence/recovery-drill-20261111.json"
         ],
         "remaining": "下一批沿 #30 最小观测查询接入只读 Console；并按 #33/#34 接通凭据、E2AG 工作授权与撤销/续期。#30 继续分类故障/半开恢复、持久定时合并及死信处置；#56/#58 验证真实 Harness。认证跨主机对账及业务接管按独立门槛验收。"
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "K02-3",
@@ -722,7 +753,8 @@
         "date": "2026-11-12",
         "summary": "基于 #32 已交付存储子集，完成 SQLite/本地产物恢复基线及恢复调度关闭；新目录恢复保留身份、事件与历史关联。154 项后端回归和合成恢复演练通过。",
         "remaining": "完整交付仍依赖 #32/#30 联合验收；外置配置/workspace、Secret 服务与 Worker spool 的备份策略、远端重认证/对账后启用、Windows ACL、PostgreSQL 与多节点恢复待完成。"
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "K03-1",
@@ -791,7 +823,8 @@
           "summary": "#30 远程任务控制已复用 E2AG 执行/结果核验及短时凭据；等待工具审批期间自动续期，批准后报告回传已验证。",
           "evidence": "docs/design/evidence/remote-worker-development-20261119.json"
         }
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "K03-2",
@@ -895,7 +928,8 @@
           "summary": "#30 远程任务控制已复用 E2AG 执行/结果核验及短时凭据；等待工具审批期间自动续期，批准后报告回传已验证。",
           "evidence": "docs/design/evidence/remote-worker-development-20261119.json"
         }
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "K01-4",
@@ -932,7 +966,8 @@
         "summary": "固定版本 Cursor ACP 真实任务、E2AG 工具批准/拒绝、报告与 Worker 中断后原结果恢复。",
         "validation_evidence": "docs/design/cursor-acp-56-58.md",
         "remaining": "真实取消/撤销与旧 epoch、跨主机故障、Cursor 原生 resume、第二来源 Agent 和 A2A；G2 独立权限评审及用户验收。"
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "K03-3",
@@ -961,36 +996,54 @@
         "K01-2",
         "K01-5"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "dios-capability"
     },
     {
       "id": "S01-1",
       "pkg": "S01",
       "stage": "P2",
-      "layer": "L2 服务",
+      "layer": "跨产品契约",
       "title": "建设单企业组织、岗位、用户与 SSO",
       "scope": [
-        "部门、岗位、人员、用户组、角色及对象权限模型",
-        "OIDC/SSO 接入与账号生命周期，标准目录同步接口",
-        "将组织规则转换为内核可校验执行授权"
+        "可信身份源/OIDC 接入、主体映射、代理链与凭据生命周期，归 #33/#35",
+        "资源策略与对象权限的能力接口，归 #38",
+        "上层交付另行追踪：组织、部门、岗位、成员与业务角色；归独立业务平台"
       ],
       "accept": [
-        "双部门权限矩阵在服务 API 上验证",
-        "SSO 用户与服务代理身份可追溯",
-        "停用/撤销同步至执行边界，组织语义不进入内核"
+        "可信发行方、受众、主体及受控代理验证通过 #33/#35",
+        "身份停用和撤销传播至实际能力边界；组织模型由外部系统拥有"
       ],
       "deps": [
         "F02-1",
         "K02-2",
         "K03-1"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "split-delivery",
+      "dios_scope": [
+        "可信身份源/OIDC 接入、主体映射、代理链与凭据生命周期，归 #33/#35",
+        "资源策略与对象权限的能力接口，归 #38"
+      ],
+      "application_scope": [
+        "组织、部门、岗位、成员与业务角色；归独立业务平台"
+      ],
+      "application_deps": [
+        "F02-1",
+        "K02-2",
+        "K03-1"
+      ],
+      "application_accept": [
+        "双部门权限矩阵在服务 API 上验证",
+        "SSO 用户与服务代理身份可追溯",
+        "停用/撤销同步至执行边界，组织语义不进入内核"
+      ]
     },
     {
       "id": "S01-2",
       "pkg": "S01",
       "stage": "P2",
-      "layer": "L2 服务",
+      "layer": "外部业务应用",
       "title": "建设数字员工档案、岗位模板与基础发布",
       "scope": [
         "长期身份、岗位、职责、负责人、服务对象、能力/知识引用",
@@ -1010,64 +1063,101 @@
         "K03-3",
         "K01-5"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "external-application",
+      "application_scope": [
+        "长期身份、岗位、职责、负责人、服务对象、能力/知识引用",
+        "员工模板与实例覆盖，员工→多 Agent/Deployment 映射",
+        "提供配置、测试、发布、停用和历史",
+        "员工按工作类型绑定 Agent 实现/端点与能力要求，切换实现走授权和兼容检查"
+      ],
+      "dios_scope": []
     },
     {
       "id": "S02-1",
       "pkg": "S02",
       "stage": "P2",
-      "layer": "L2 服务",
+      "layer": "L1 能力服务",
       "title": "建设 Workspace、文件、会话、成果与分享",
       "scope": [
-        "个人/团队 Workspace、文件夹、来源、会话和 Artifact 映射",
-        "共享对象、权限、版本、保留及删除",
-        "为长期记忆与跨端连续性提供可替换服务接口",
-        "区分平台会话、Agent 会话与远端数据副本；文件传递遵循 ACL、外发与保留策略"
+        "资源对象、文件/会话/产物引用、版本、读取/下载授权、留存与撤销机制",
+        "上层交付另行追踪：个人/团队/项目 Workspace、业务目录、分享对象选择与业务归属"
       ],
       "accept": [
-        "跨用户文件/会话/成果越权被拒绝",
-        "分享与撤销作用于 API 和实际下载/读取",
-        "Workspace 与 execution workspace 明确关联，Runtime 重启不丢工作历史",
-        "切换实现时按授权转交上下文，远端不可删除或不可迁移内容显式显示"
+        "不同主体间对象读取、会话和成果下载越权被拒绝",
+        "授权、撤销、版本、留存和删除在 API 与实际存储读取路径一致",
+        "外部业务对象只以不透明引用关联，Runtime 更换不丢失对象与证据关系"
       ],
       "deps": [
+        "K02-2",
+        "K03-3",
+        "K03-1"
+      ],
+      "priority": "高",
+      "product_scope": "split-delivery",
+      "dios_scope": [
+        "资源对象、文件/会话/产物引用、版本、读取/下载授权、留存与撤销机制"
+      ],
+      "application_scope": [
+        "个人/团队/项目 Workspace、业务目录、分享对象选择与业务归属"
+      ],
+      "application_deps": [
         "F03-1",
         "S01-1",
         "K02-2",
         "K03-3"
       ],
-      "priority": "高"
+      "application_accept": [
+        "跨用户文件/会话/成果越权被拒绝",
+        "分享与撤销作用于 API 和实际下载/读取",
+        "Workspace 与 execution workspace 明确关联，Runtime 重启不丢工作历史",
+        "切换实现时按授权转交上下文，远端不可删除或不可迁移内容显式显示"
+      ]
     },
     {
       "id": "S02-2",
       "pkg": "S02",
       "stage": "P2",
-      "layer": "L2 服务",
+      "layer": "L1 能力服务",
       "title": "建设可插拔知识、检索、图谱与记忆服务",
       "scope": [
-        "知识空间、来源、密级、版本、时效、引用与生命周期",
-        "Provider 契约适配知识/图谱/检索/记忆，后端可替换",
-        "连接源 ACL，读取/检索执行授权，覆盖更新和删除传播",
-        "外部 Agent 经主体限定的数据接口获取知识，记录检索授权及数据外发范围",
-        "优先验证授权资料检索与来源版本引用切片；客户流程留在独立应用层，客户资料接入依赖企业身份与成果对象权限"
+        "可替换知识/检索/图谱/记忆 Provider 契约、授权上下文、来源版本、更新/删除传播",
+        "上层交付另行追踪：项目知识库、资料分类、业务密级规则、客户数据映射及具体源系统 ACL"
       ],
       "accept": [
+        "同一查询不同主体仅返回获准资源与可核验来源",
+        "更新、过期、撤销和删除按 Provider 契约传播至索引和缓存",
+        "替代 Provider 验证相同契约，不依赖项目或岗位实体"
+      ],
+      "deps": [
+        "S02-1",
+        "K03-1",
+        "K03-3"
+      ],
+      "priority": "高",
+      "product_scope": "split-delivery",
+      "dios_scope": [
+        "可替换知识/检索/图谱/记忆 Provider 契约、授权上下文、来源版本、更新/删除传播"
+      ],
+      "application_scope": [
+        "项目知识库、资料分类、业务密级规则、客户数据映射及具体源系统 ACL"
+      ],
+      "application_deps": [
+        "S01-1",
+        "S02-1"
+      ],
+      "application_accept": [
         "同一查询不同身份返回符合各自授权的结果",
         "过期、撤销和删除在索引/缓存中得到处理",
         "以替代 Provider 验证接口，知识来源与执行证据可关联",
         "远端 Agent 的查询与来源引用满足相同 ACL；缓存与副本撤销能力有明确边界"
-      ],
-      "deps": [
-        "S01-1",
-        "S02-1"
-      ],
-      "priority": "高"
+      ]
     },
     {
       "id": "S02-3",
       "pkg": "S02",
       "stage": "P2",
-      "layer": "L2 服务",
+      "layer": "外部业务应用",
       "title": "建设 WorkItem、人机协作与审批待办",
       "scope": [
         "工作分派、时限、上下级汇总、并行协作、复核和业务关闭",
@@ -1089,65 +1179,102 @@
         "S01-2",
         "S02-1"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "external-application",
+      "application_scope": [
+        "工作分派、时限、上下级汇总、并行协作、复核和业务关闭",
+        "映射多个 Run，支持事件/人工/定时触发、接管及升级",
+        "审批待办与内核审批门禁对接；明确重试和补偿",
+        "处理异步远端任务、ACP 多轮会话、外部审批请求和取消待确认；保留人工接管",
+        "长期后台工作使用稳定 WorkItem/Scope 关联，不按定时触发新建聊天；结果待验证和人工复核有归属"
+      ],
+      "dios_scope": []
     },
     {
       "id": "S03-1",
       "pkg": "S03",
       "stage": "P3",
-      "layer": "L2 服务",
+      "layer": "L1 能力服务",
       "title": "建设 Studio 自然语言开发、diff 与错误修复",
       "scope": [
-        "模板配置与自然语言开发共同生成真实文件/配置",
-        "浏览器编辑、diff、隔离测试与调试修复",
-        "调用 Runtime 测试与版本接口，输出可审阅变更",
-        "Studio 通过统一接入契约选择 Harness，按能力支持文件/diff/交互审批与开发会话"
+        "能力与运行配置编辑、diff、受控验证和错误诊断",
+        "上层交付另行追踪：岗位配置、业务流程设计和客户模板"
       ],
       "accept": [
-        "受训用户独立创建一个应用并修复一次预置错误",
-        "实际文件变化、运行结果和诊断可见",
-        "开发环境受控，发布走正式审核契约",
-        "至少两个已验收实现完成同类开发任务；文件操作和审批约束分别验证"
+        "能力与运行配置编辑可审阅 diff，经 Schema/授权校验后发布",
+        "工具及 Harness 调用沿用 E2AG，无业务模型依赖"
       ],
       "deps": [
+        "S02-1",
+        "K02-1",
+        "K03-2",
+        "K01-5"
+      ],
+      "priority": "高",
+      "product_scope": "split-delivery",
+      "dios_scope": [
+        "能力与运行配置编辑、diff、受控验证和错误诊断"
+      ],
+      "application_scope": [
+        "岗位配置、业务流程设计和客户模板"
+      ],
+      "application_deps": [
         "S01-2",
         "S02-1",
         "K02-1",
         "K03-2",
         "K01-5"
       ],
-      "priority": "高"
+      "application_accept": [
+        "受训用户独立创建一个应用并修复一次预置错误",
+        "实际文件变化、运行结果和诊断可见",
+        "开发环境受控，发布走正式审核契约",
+        "至少两个已验收实现完成同类开发任务；文件操作和审批约束分别验证"
+      ]
     },
     {
       "id": "S03-2",
       "pkg": "S03",
       "stage": "P3",
-      "layer": "L2 服务",
+      "layer": "L1 能力服务",
       "title": "建设评测、审批发布、环境晋级与回滚",
       "scope": [
-        "建立代表性场景评测集和版本比较",
-        "开发/测试/生产逻辑作用域及发布审批",
-        "变更固定版本、晋级、回滚及回归证据",
-        "Agent/Adapter/协议版本或远端端点能力变化触发评测和准入复核"
+        "能力评测、准入、版本兼容、环境晋级与回滚契约",
+        "上层交付另行追踪：业务质量指标、业务审核和验收签字"
       ],
       "accept": [
-        "未评测/未批准版本不能进入受控生产发布",
-        "工具、知识、模型或 Prompt 变更可以比较质量",
-        "发布后回滚到已知版本且保持工作/执行历史",
-        "仅对可控版本承诺回滚；远端变化有冻结分派、切换或人工处置方案"
+        "版本化技术评测、能力准入、环境晋级及失败回滚可验证",
+        "业务质量审批通过外部引用关联，不成为底座业务表"
       ],
       "deps": [
+        "S03-1",
+        "K02-1"
+      ],
+      "priority": "高",
+      "product_scope": "split-delivery",
+      "dios_scope": [
+        "能力评测、准入、版本兼容、环境晋级与回滚契约"
+      ],
+      "application_scope": [
+        "业务质量指标、业务审核和验收签字"
+      ],
+      "application_deps": [
         "S03-1",
         "S02-3",
         "K02-1"
       ],
-      "priority": "高"
+      "application_accept": [
+        "未评测/未批准版本不能进入受控生产发布",
+        "工具、知识、模型或 Prompt 变更可以比较质量",
+        "发布后回滚到已知版本且保持工作/执行历史",
+        "仅对可控版本承诺回滚；远端变化有冻结分派、切换或人工处置方案"
+      ]
     },
     {
       "id": "S03-3",
       "pkg": "S03",
       "stage": "P3",
-      "layer": "L2 服务",
+      "layer": "外部业务应用",
       "title": "建设数字员工质量、成本与服务运营视图",
       "scope": [
         "业务完成率、时效、接管率、满意度与质量评价",
@@ -1165,7 +1292,15 @@
         "S02-3",
         "K04-3"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "external-application",
+      "application_scope": [
+        "业务完成率、时效、接管率、满意度与质量评价",
+        "按员工、岗位、部门归因成本与用量",
+        "服务目录、SLA、异常告警和运营权限",
+        "用量区分实测、供应方报告、估算与未知，质量按 Agent/端点版本归因"
+      ],
+      "dios_scope": []
     },
     {
       "id": "K04-1",
@@ -1191,7 +1326,8 @@
         "K03-2",
         "K01-5"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "dios-capability"
     },
     {
       "id": "K04-2",
@@ -1216,7 +1352,8 @@
         "K01-2",
         "K03-3"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "dios-capability"
     },
     {
       "id": "K04-3",
@@ -1244,38 +1381,55 @@
         "K03-2",
         "K01-2"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "dios-capability"
     },
     {
       "id": "A01-1",
       "pkg": "A01",
       "stage": "P4",
-      "layer": "L3 应用",
+      "layer": "L1 能力服务",
       "title": "定义开放行业包契约、SDK 与扩展验收",
       "scope": [
-        "定义 App/流程/模板/知识引用/Connector 配置组成、版本和依赖",
-        "提供打包、启用、升级、回滚与验收模板",
-        "为首批参考之外的新业务演示接入路径",
-        "行业包声明所需能力、治理级别及可用 Agent 配置，按兼容矩阵绑定实现"
+        "独立应用/工作负载包、版本化 API/事件/客户端契约、登记 Schema 与兼容验收",
+        "上层交付另行追踪：行业包内容、客户流程、业务模型和应用页面"
       ],
       "accept": [
-        "新增行业或场景不修改 L1 通用内核",
-        "同一 L1/L2 版本可运行不同业务包",
-        "业务包升级、移除不破坏其他包与共享服务",
-        "同一行业包至少用两个已兼容的执行实现验证，能力不足时拒绝部署或要求显式变更"
+        "新增任务类型不修改 DiOS，输入与结果按版本化契约校验",
+        "独立应用包升级、停用和回滚不改变其他应用与既有运行历史",
+        "两个兼容执行实现通过对应授权、版本与恢复验收"
       ],
       "deps": [
+        "S03-2",
+        "K04-1",
+        "K03-1",
+        "K03-3"
+      ],
+      "priority": "高",
+      "product_scope": "split-delivery",
+      "dios_scope": [
+        "独立应用/工作负载包、版本化 API/事件/客户端契约、登记 Schema 与兼容验收"
+      ],
+      "application_scope": [
+        "行业包内容、客户流程、业务模型和应用页面"
+      ],
+      "application_deps": [
         "S02-3",
         "S03-2",
         "K04-1"
       ],
-      "priority": "高"
+      "application_accept": [
+        "新增行业或场景不修改 L1 通用内核",
+        "同一 L1/L2 版本可运行不同业务包",
+        "业务包升级、移除不破坏其他包与共享服务",
+        "同一行业包至少用两个已兼容的执行实现验证，能力不足时拒绝部署或要求显式变更"
+      ]
     },
     {
       "id": "A01-2",
       "pkg": "A01",
       "stage": "P4",
-      "layer": "L3 应用",
+      "layer": "外部业务应用",
       "title": "参考场景：专业服务与售前交付闭环",
       "scope": [
         "基于专业咨询和规格匹配形成方案/报价成果",
@@ -1292,13 +1446,20 @@
         "F03-2",
         "K04-2"
       ],
-      "priority": "常规"
+      "priority": "常规",
+      "product_scope": "external-application",
+      "application_scope": [
+        "基于专业咨询和规格匹配形成方案/报价成果",
+        "接入知识引用、任务、人工复核和受控交付",
+        "沿用已有专业验证，定义领域正确率与业务验收口径"
+      ],
+      "dios_scope": []
     },
     {
       "id": "A01-3",
       "pkg": "A01",
       "stage": "P4",
-      "layer": "L3 应用",
+      "layer": "外部业务应用",
       "title": "参考场景：多岗位任务协同与汇总复核",
       "scope": [
         "配置上级/岗位员工模板与共享能力",
@@ -1314,13 +1475,20 @@
         "A01-1",
         "F03-2"
       ],
-      "priority": "常规"
+      "priority": "常规",
+      "product_scope": "external-application",
+      "application_scope": [
+        "配置上级/岗位员工模板与共享能力",
+        "计划收集、分派、提交、汇总和复核",
+        "覆盖超时、人工接管、重试和岗位权限"
+      ],
+      "dios_scope": []
     },
     {
       "id": "A01-4",
       "pkg": "A01",
       "stage": "P4",
-      "layer": "L3 应用",
+      "layer": "外部业务应用",
       "title": "参考场景：个人数字分身与工作空间协作",
       "scope": [
         "持久身份、个人/团队材料、会话/记忆与 Studio 产出",
@@ -1337,7 +1505,14 @@
         "S02-2",
         "F03-2"
       ],
-      "priority": "常规"
+      "priority": "常规",
+      "product_scope": "external-application",
+      "application_scope": [
+        "持久身份、个人/团队材料、会话/记忆与 Studio 产出",
+        "成果分享、撤销和跨端上下文接口",
+        "定义 Cloud/Local 接入能力矩阵"
+      ],
+      "dios_scope": []
     },
     {
       "id": "D01-1",
@@ -1366,7 +1541,8 @@
         "K03-2",
         "K01-5"
       ],
-      "priority": "最高"
+      "priority": "最高",
+      "product_scope": "dios-capability"
     },
     {
       "id": "D01-2",
@@ -1390,7 +1566,8 @@
         "K02-3",
         "K01-2"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "dios-capability"
     },
     {
       "id": "D01-3",
@@ -1416,7 +1593,8 @@
         "K04-2",
         "K04-3"
       ],
-      "priority": "高"
+      "priority": "高",
+      "product_scope": "dios-capability"
     },
     {
       "id": "D01-4",
@@ -1443,9 +1621,16 @@
         "D01-1",
         "D01-3",
         "A01-1",
-        "S03-3"
+        "K04-3"
       ],
-      "priority": "常规"
+      "priority": "常规",
+      "product_scope": "dios-capability",
+      "application_deps": [
+        "D01-1",
+        "D01-3",
+        "A01-1",
+        "S03-3"
+      ]
     },
     {
       "id": "F01-3",
@@ -1492,7 +1677,8 @@
           "K03-2",
           "K03-3"
         ]
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "K01-5",
@@ -1531,13 +1717,14 @@
         "summary": "固定版本 Cursor ACP 真实任务、E2AG 工具批准/拒绝、报告与 Worker 中断后原结果恢复。",
         "validation_evidence": "docs/design/cursor-acp-56-58.md",
         "remaining": "真实取消/撤销与旧 epoch、跨主机故障、Cursor 原生 resume、第二来源 Agent 和 A2A；G2 独立权限评审及用户验收。"
-      }
+      },
+      "product_scope": "dios-capability"
     },
     {
       "id": "A01-5",
       "pkg": "A01",
       "stage": "P2",
-      "layer": "L3 应用",
+      "layer": "外部业务应用",
       "priority": "高",
       "title": "建设持续静态评审参考应用与覆盖账本",
       "scope": [
@@ -1557,13 +1744,21 @@
         "K01-5",
         "K02-2",
         "S02-3"
-      ]
+      ],
+      "product_scope": "external-application",
+      "application_scope": [
+        "Codeup/GitHub RepoProvider 聚合发现与手工配置、分支选择和活动/规模摘要；六个月默认排除可覆盖，不推断业务主分支",
+        "冻结 ScopeRevision/SHA，完整基线后增量；按代码及上下文复用评审，保留全部分支/版本/位置关联",
+        "实现不可缩水覆盖账本、证据与根因聚合、缺陷/修复独立评测、同口径查询与 Excel/Markdown 导出",
+        "接入旧系统只读投影和隔离样例，复用 L1/L2 服务；生产切换由 D01-5 单独验收"
+      ],
+      "dios_scope": []
     },
     {
       "id": "D01-5",
       "pkg": "D01",
       "stage": "P4",
-      "layer": "跨层",
+      "layer": "外部业务应用",
       "priority": "高",
       "title": "验收持续评审历史接入、分区切换与回滚",
       "scope": [
@@ -1581,7 +1776,15 @@
         "D01-1",
         "D01-2",
         "K02-3"
-      ]
+      ],
+      "product_scope": "external-application",
+      "application_scope": [
+        "形成并演练一致性只读清点、来源身份映射、增量观察、隔离验证、单分区试点与扩大接管流程",
+        "明确切换所有权 epoch、旧系统停领与活跃任务自然排空、最终产物/outbox 水位、未知会话对账",
+        "验证新增历史回交、回滚兼容和前向修复；确定试点范围、数据外发、质量预算、RPO/RTO 和切换窗口"
+      ],
+      "dios_scope": []
     }
-  ]
+  ],
+  "boundary_decision": "docs/adr/0011-capability-only-platform-boundary.md"
 }

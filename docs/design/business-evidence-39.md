@@ -2,6 +2,12 @@
 
 2026-11-23。当前工程切片对应 #39、#56；#36、#37、#38、#40 保留各自完整交付范围。
 
+## 2026-11-24 边界修订
+
+[ADR 0011](../adr/0011-capability-only-platform-boundary.md) 优先适用。L2/L3 为外部业务产品；当前本地知识 Provider 和资料核查是同仓参考实现。独立进程/容器已验证，应用独立构建与发布包按 #47 接续。project_id 属于参考应用输入协议，通用任务入口只作登记 Schema/摘要校验，不解释项目权限。
+
+原末节中 #36/#37 的组织/岗位、#40 业务确认归外部平台；DiOS 先交付 #33/#35/#38 的主体、受控授权与对象权限。新增任务类型通过数据目录登记，使用默认 E2AG 要求，见 [输入登记契约](application-input-registration.md)。
+
 ## 分层与当前能力
 
 DiOS 内核提供执行、E2AG 授权、工具审批、恢复与产物存储。L2 知识服务管理受限资料供给和来源版本。客户交付应用独立管理业务规则、数据模型、界面和业务验收；通过公开接口调用通用服务。
@@ -26,7 +32,7 @@ Run Attempt Session Artifact]
   O --> B
 ```
 
-`backend/app/runtime` 保持通用执行职责。`services/knowledge.py` 是 L2 的轻量本地 Provider；`apps/evidence_brief.py` 是独立部署到 Worker 的 L3 参考应用，只整理资料依据。`examples/business` 保存工程样例输入，客户名、实际业务记录与客户规则均留在交付应用及其配置中。Console 是运维与联调入口，客户产品继续使用各自 UI。
+`backend/app/runtime` 保持通用执行职责。`services/knowledge.py` 是 L2 的轻量本地 Provider；`apps/evidence_brief.py` 是运行于 Worker 容器的 L3 参考应用，只整理资料依据。`examples/business` 保存工程样例输入，客户名、实际业务记录与客户规则均留在交付应用及其配置中。Console 是运维与联调入口，客户产品继续使用各自 UI。
 
 ## 实现契约
 

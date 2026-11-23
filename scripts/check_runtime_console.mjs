@@ -8,8 +8,8 @@ try {
  const page=await browser.newPage({locale:"zh-CN",viewport:{width:1440,height:1000}});
  await page.addInitScript(token=>sessionStorage.setItem('dios_access_token',token),tokens.operator);
  await page.goto('http://127.0.0.1:13082/dios/#console/tasks');
- await page.getByRole('button',{name:'发起评审',exact:true}).waitFor();
- await page.getByRole('button',{name:'发起评审',exact:true}).click();
+ await page.getByRole('button',{name:'发起任务',exact:true}).waitFor();
+ await page.getByRole('button',{name:'发起任务',exact:true}).click();
  await page.waitForURL(/console\/tasks\//);
  const runId=page.url().split('/').at(-1);
  try {

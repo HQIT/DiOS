@@ -1,5 +1,8 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "任务输入": "Task input",
+  "根据所选输入完成任务，返回可核验的结果与依据。": "Complete the task using the selected input and return verifiable results and evidence.",
+  "按登记的输入与执行配置运行，保留任务状态和成果依据。": "Run with the registered input and execution profile; retain task status and result evidence.",
   "工作台原型": "Workbench prototype",
   "任务与成果": "Tasks & results",
   "[已中断]": "[Interrupted]",

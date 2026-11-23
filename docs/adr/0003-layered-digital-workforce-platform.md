@@ -1,6 +1,6 @@
 # ADR 0003：DiOS 内核、数字员工服务与业务应用三层架构
 
-- 状态：已接受
+- 状态：执行语义继续有效；产品归属与部署边界由 [ADR 0011](0011-capability-only-platform-boundary.md) 修订（2026-11-24）。
 - 日期：2026-11-11
 - 相关：[Roadmap](../../ROADMAP.md)、[架构说明](../architecture.md)、ADR 0001、ADR 0002
 - 实现状态：本 ADR 确认目标边界；领域 API、数据模型与验收按 Roadmap P0—P4 交付。

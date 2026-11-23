@@ -8,7 +8,7 @@ export class RuntimeApiError extends Error {
   constructor(code: string, status: number) { super(code); this.code = code; this.status = status; }
 }
 export interface Profile { input_kind?: string; input_ids?: string[]; id: string; name: string; description: string; implementation: string; synthetic: boolean; governance: string; policy_configured: boolean; }
-export interface Sample { task_kind?: string; project_id?: string; id: string; name: string; filename: string; source: string; sha256: string; }
+export interface Sample { [key: string]: unknown; id: string; name: string; filename?: string; source?: string; sha256: string; }
 export interface RunSummary {
   id: string; state: string; version: number; attempt_id: string | null;
   goal: string; profile_id: string; created_at: number; updated_at: number; cancel_requested: boolean;

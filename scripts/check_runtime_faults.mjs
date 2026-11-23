@@ -14,7 +14,7 @@ try {
   await fs.writeFile(root+'/fault-mode',code);
   await page.goto('http://127.0.0.1:13082/dios/#console/tasks');
   await page.getByLabel('执行 Agent').selectOption('validation-recovery');
-  await page.getByRole('button',{name:'发起评审',exact:true}).click();await page.waitForURL(/console\/tasks\//);
+  await page.getByRole('button',{name:'发起任务',exact:true}).click();await page.waitForURL(/console\/tasks\//);
   const runId=page.url().split('/').at(-1);
   const cooling=await until(async()=>{const x=await get('/runs/'+runId);return x.state==='retry_wait'&&x;});
   await page.getByText('冷却待重试',{exact:true}).waitFor();

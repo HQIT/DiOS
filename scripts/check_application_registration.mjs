@@ -1,0 +1,34 @@
+import fs from 'node:fs/promises';
+const {chromium}=await import(new URL('../node_modules/playwright/index.mjs',import.meta.url));
+const root=process.argv[2], output=process.argv[3]||root;
+if(!root)throw Error('Provide private development configuration directory');
+const tokens=JSON.parse(await fs.readFile(root+'/tokens.json','utf8'));
+const browser=await chromium.launch({headless:true});const checks=[];
+try{
+ const page=await browser.newPage({locale:'en-US',viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(token=>sessionStorage.setItem('dios_access_token',token),tokens.operator);
+ await page.goto('http://127.0.0.1:13082/dios/#console/tasks');
+ await page.getByRole('button',{name:'Start task',exact:true}).waitFor();
+ await page.getByLabel('Task input',{exact:true}).waitFor();checks.push('generic-English-controls');
+ await page.getByLabel('Work objective',{exact:true}).fill('Persistent user draft 用户输入');
+ await page.getByLabel('Execution Agent').selectOption('evidence-sales');
+ await page.getByLabel('Execution Agent').selectOption('validation-review');
+ if(await page.getByLabel('Work objective',{exact:true}).inputValue()!=='Persistent user draft 用户输入')throw Error('Profile switch erased draft');
+ checks.push('profile-switch-retains-user-draft');
+ await page.getByLabel('Language',{exact:true}).selectOption('zh');
+ await page.getByRole('button',{name:'发起任务',exact:true}).waitFor();
+ if(await page.getByLabel('工作目标',{exact:true}).inputValue()!=='Persistent user draft 用户输入')throw Error('Language switch erased draft');
+ checks.push('generic-Chinese-controls-and-draft');
+ const fixture={id:'third-kind',name:'Contract UI fixture',description:'',implementation:'fixture',synthetic:true,governance:'e2ag',policy_configured:true,input_kind:'third.custom/v1',input_ids:['opaque']};
+ await page.route('**/api/os/runtime/profiles',route=>route.fulfill({json:{items:[fixture]}}));
+ await page.route('**/api/os/runtime/samples',route=>route.fulfill({json:{items:[{id:'opaque',name:'Opaque input',sha256:'a'.repeat(64),payload:{opaque_key:'中文 structured input'}}]}}));
+ await page.getByRole('button',{name:'刷新',exact:true}).first().click();
+ await page.getByLabel('执行 Agent').selectOption('third-kind');
+ await page.getByText('中文 structured input',{exact:false}).waitFor();
+ checks.push('third-kind-structured-input-rendered-without-business-branch');
+ await page.setViewportSize({width:390,height:844});
+ if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Overflow');checks.push('mobile-layout');
+ if(errors.length)throw Error(errors.join('\n'));
+ await fs.writeFile(output+'/generic-ui.json',JSON.stringify({checks,errors,third_kind_ui:'mocked catalog, no submission; API admission separately tested'},null,2));
+ console.log(JSON.stringify({checks,errors}));
+}finally{await browser.close()}

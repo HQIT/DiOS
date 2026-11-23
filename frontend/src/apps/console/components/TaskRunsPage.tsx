@@ -47,7 +47,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [samples, setSamples] = useState<Sample[]>([]);
   const [profile, setProfile] = useState(""); const [sample, setSample] = useState("");
-  const [goal, setGoal] = useState(() => translateUI("检查这段代码的边界条件，说明问题、触发条件和代码证据。"));
+  const [goal, setGoal] = useState(() => translateUI("根据所选输入完成任务，返回可核验的结果与依据。"));
   const [catalogError, setCatalogError] = useState(""); const [listError, setListError] = useState("");
   const [actionError, setActionError] = useState(""); const [detailError, setDetailError] = useState("");
   const [items, setItems] = useState<RunSummary[]>([]); const [cursor, setCursor] = useState<string>();
@@ -157,13 +157,9 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   }
   const chosenProfile = profiles.find(p => p.id === profile);
   const availableSamples = samples.filter(s => !chosenProfile?.input_ids || chosenProfile.input_ids.includes(s.id));
-  const business = chosenProfile?.input_kind === "knowledge-evidence";
   useEffect(() => {
     if (!availableSamples.some(s => s.id === sample)) setSample(availableSamples[0]?.id || "");
   }, [profile, samples, sample, profiles]);
-  useEffect(() => {
-    setGoal(translateUI(business ? "整理所选资料的来源、版本与引用，列出需要业务人员确认的信息。" : "检查这段代码的边界条件，说明问题、触发条件和代码证据。"));
-  }, [business]);
   const policyMissing = chosenProfile?.governance === "e2ag" && !chosenProfile.policy_configured;
   const source = samples.find(s => s.id === sample);
   const active = detail?.attempts.find(a => a.id === detail.attempt_id);
@@ -181,14 +177,14 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           {profiles.map(p => <option key={p.id} value={p.id} disabled={p.governance === "e2ag" && !p.policy_configured}>{p.name}{translateUI(p.synthetic ? " · 合成端点" : "")}{translateUI(p.governance === "e2ag" && !p.policy_configured ? " · 待配置授权" : "")}</option>)}
         </select></label>
         {profiles.find(p => p.id === profile)?.description && <p className="tr-muted">{profiles.find(p => p.id === profile)?.description}</p>}
-        <label>{translateUI(business ? "业务任务输入" : "评审样例")}<select value={sample} onChange={e => setSample(e.target.value)} disabled={busy} required>
+        <label>{translateUI("任务输入")}<select value={sample} onChange={e => setSample(e.target.value)} disabled={busy} required>
           {availableSamples.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select></label>
-        {source && <pre className="tr-source"><code>{source.source}</code></pre>}
+        {source && <pre className="tr-source"><code>{typeof source.source === "string" ? source.source : JSON.stringify(source, null, 2)}</code></pre>}
         <label>{translateUI("工作目标")}<textarea aria-label={translateUI("工作目标")} value={goal} onChange={e => setGoal(e.target.value)} maxLength={2000} rows={4} required disabled={busy} /></label>
         <button className="tr-primary" type="submit" disabled={busy || !profile || !sample || !goal.trim() || !!catalogError || policyMissing}>
-          {translateUI(busy ? "提交中…" : business ? "发起资料核查" : "发起评审")}</button>
-        <p className="tr-muted">{translateUI(business ? "按已登记范围检索资料。业务结论与后续操作需由业务人员确认。" : "使用固定样例代码。执行结束后，结论进入人工复核。")}</p>
+          {translateUI(busy ? "提交中…" : "发起任务")}</button>
+        <p className="tr-muted">{translateUI("按登记的输入与执行配置运行，保留任务状态和成果依据。")}</p>
       </form>
       <div className="tr-card"><div className="tr-section-title"><h3>{translateUI("任务记录")}</h3><span className="tr-muted">{translateUI(items.length)}{translateUI("项")}</span></div>
         {listError && <p className="tr-error" role="alert">{translateUI(listError)}</p>}

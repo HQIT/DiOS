@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-24",
+  "scope": "Capability boundary and data-only application admission; existing reference apps remain same-repository packages",
+  "backend": {
+    "tests_run": 415,
+    "passed": 298,
+    "skipped": 117,
+    "failures": 0,
+    "errors": 0,
+    "skip_reason": "PostgreSQL/Docker-specific test prerequisites not configured for this discovery run"
+  },
+  "focused": {
+    "application_registration": 8,
+    "task_console": 8,
+    "business_evidence": 12,
+    "work_authorizations": {
+      "run": 24,
+      "skipped": 11
+    },
+    "worker": {
+      "run": 23,
+      "skipped": 13
+    }
+  },
+  "frontend_build": true,
+  "design_contract_checks": 681,
+  "authorization_contract_checks": 263,
+  "diagrams_rendered": 3,
+  "plan_tasks_checked": 39,
+  "application_dependency_blockers": 0,
+  "browser": {
+    "evidence": [
+      {
+        "key": "sales",
+        "runId": "aa3ba9c2-b6f8-4988-ba02-260cfac8c5f5",
+        "approval": true,
+        "report": true,
+        "historyReload": true,
+        "url": "http://127.0.0.1:13082/dios/#console/tasks/aa3ba9c2-b6f8-4988-ba02-260cfac8c5f5"
+      },
+      {
+        "key": "construction",
+        "runId": "ad2082bf-4c75-4bb2-9700-2d77429a85cc",
+        "approval": true,
+        "report": true,
+        "historyReload": true,
+        "url": "http://127.0.0.1:13082/dios/#console/tasks/ad2082bf-4c75-4bb2-9700-2d77429a85cc"
+      }
+    ],
+    "mobileOverflow": false,
+    "legacySelection": true,
+    "pageErrors": []
+  },
+  "generic_ui": {
+    "checks": [
+      "generic-English-controls",
+      "profile-switch-retains-user-draft",
+      "generic-Chinese-controls-and-draft",
+      "third-kind-structured-input-rendered-without-business-branch",
+      "mobile-layout"
+    ],
+    "errors": [],
+    "third_kind_ui": "mocked catalog, no submission; API admission separately tested"
+  },
+  "history_before": 37,
+  "history_after": 39,
+  "all_prior_ids_retained": true,
+  "deployment": {
+    "api": "127.0.0.1:13081",
+    "frontend": "127.0.0.1:13082/dios/",
+    "active_runs_before": 0,
+    "workers_restarted": false,
+    "profile_backup": "operator-local validation-20261124-boundary"
+  },
+  "remaining": [
+    "Independent application packages and public client contracts remain #47",
+    "Multi-principal resource and artifact ACL remain #33/#35/#38",
+    "Reference knowledge Provider project_id semantics stay application-owned until packaging extraction"
+  ],
+  "cli_registered_inputs": true,
+  "ui_check_script": "scripts/check_application_registration.mjs"
+}

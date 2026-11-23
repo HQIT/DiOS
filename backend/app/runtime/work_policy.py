@@ -40,8 +40,8 @@ class FileWorkPolicy:
         return result
 
 
-def security_profile(path):
-    raw=json.loads(Path(path).read_text(encoding='utf-8'))
+def security_profile(path, *, raw=None):
+    raw=json.loads(Path(path).read_text(encoding='utf-8')) if raw is None else raw
     if not isinstance(raw,dict):raise RuntimeErrorCode('WORK_GOVERNANCE_MODE_INVALID')
     governance=raw.get('governance',{})
     if not isinstance(governance,dict):raise RuntimeErrorCode('WORK_GOVERNANCE_MODE_INVALID')
