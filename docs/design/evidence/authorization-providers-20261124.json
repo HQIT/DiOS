@@ -1,0 +1,338 @@
+{
+  "scope": "upstream API semantics on synthetic memory stores; not a performance benchmark",
+  "permission": {
+    "action": "repository.search",
+    "resource_kind": "mcp_tool",
+    "resource_id": "review/search",
+    "resource_version": "fixture-v1",
+    "constraint_revision": "fixture-policy-v1"
+  },
+  "providers": [
+    {
+      "provider": "opa",
+      "identity": {
+        "image": "openpolicyagent/opa:1.17.0",
+        "image_id": "sha256:a87f4268abd4b733e3af5381adebd33e0f05039d6f9ef0d316b596c78a51d2ad",
+        "repo_digests": [
+          "openpolicyagent/opa@sha256:3c6e9e4d433b6e94df424c3385134312a95042aa991cdfc8e01944115675fb9d"
+        ]
+      },
+      "checks": [
+        {
+          "scenario": "complete-tuple-four-layer-allow",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "changed-action",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_kind",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_id",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_version",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-constraint_revision",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "unknown-principal",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-caller-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-service-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-workload-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-resource-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "unrelated-revocation-preserves-a",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "related-revocation-denies-b",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "waiting-then-recheck-denies",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "fresh-authorization-after-restore",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "repeated-read",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "provider-unavailable",
+          "actual": "transport-error-not-allow"
+        }
+      ],
+      "observations": {
+        "old_allow_survives_in_caller_memory": true,
+        "old_allow_is_not_a_dispatch_reservation": true
+      },
+      "not_tested": [
+        "durable-restart",
+        "production-scale",
+        "cross-database-atomicity",
+        "external-effects",
+        "DiOS-adapter-integration"
+      ],
+      "cleanup": "owned-container-removed"
+    },
+    {
+      "provider": "openfga",
+      "identity": {
+        "image": "openfga/openfga:v1.23.0",
+        "image_id": "sha256:44a1a3e84ab946ac8c3008b6e3eaee5d6f247259a4c060d190cf804ccf6686c9",
+        "repo_digests": [
+          "openfga/openfga@sha256:2a1b4ef95f2f27e6d420f11cf14390b4f537e699de8d18b6a07d8b355e11cf02"
+        ]
+      },
+      "checks": [
+        {
+          "scenario": "complete-tuple-four-layer-allow",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "changed-action",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_kind",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_id",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_version",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-constraint_revision",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "unknown-principal",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-caller-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-service-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-workload-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-resource-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "unrelated-revocation-preserves-a",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "related-revocation-denies-b",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "waiting-then-recheck-denies",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "fresh-authorization-after-restore",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "repeated-read",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "provider-unavailable",
+          "actual": "transport-error-not-allow"
+        }
+      ],
+      "observations": {
+        "old_allow_survives_in_caller_memory": true,
+        "old_allow_is_not_a_dispatch_reservation": true,
+        "pinned_model_and_higher_consistency": true
+      },
+      "not_tested": [
+        "durable-restart",
+        "production-scale",
+        "cross-database-atomicity",
+        "external-effects",
+        "DiOS-adapter-integration"
+      ],
+      "cleanup": "owned-container-removed"
+    },
+    {
+      "provider": "spicedb",
+      "identity": {
+        "image": "authzed/spicedb:v1.57.1",
+        "image_id": "sha256:23e84f8969c3f6b353705297ead3f4ecbb0421e4a04b03222267776834c9751a",
+        "repo_digests": [
+          "authzed/spicedb@sha256:9ea6df2d3cca23ed63aa7205639cf6babaaf1dc9a264ffb1f50c6455658fd6ba"
+        ]
+      },
+      "checks": [
+        {
+          "scenario": "complete-tuple-four-layer-allow",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "changed-action",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_kind",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_id",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-resource_version",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "changed-constraint_revision",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "unknown-principal",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-caller-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-service-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-workload-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "missing-resource-denied",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "unrelated-revocation-preserves-a",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "related-revocation-denies-b",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "waiting-then-recheck-denies",
+          "expected": false,
+          "actual": false
+        },
+        {
+          "scenario": "fresh-authorization-after-restore",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "repeated-read",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "scenario": "provider-unavailable",
+          "actual": "transport-error-not-allow"
+        }
+      ],
+      "observations": {
+        "old_allow_survives_in_caller_memory": true,
+        "old_allow_is_not_a_dispatch_reservation": true,
+        "revocation_checks_use_latest_write_zedtoken": true
+      },
+      "not_tested": [
+        "durable-restart",
+        "production-scale",
+        "cross-database-atomicity",
+        "external-effects",
+        "DiOS-adapter-integration"
+      ],
+      "cleanup": "owned-container-removed"
+    }
+  ]
+}
