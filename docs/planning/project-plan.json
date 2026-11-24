@@ -839,7 +839,22 @@
         ],
         "evidence": "docs/design/evidence/runtime-principals-20261124.json"
       },
-      "implementation_selection": "成熟方案实测见 docs/design/e2ag-mature-solutions-20261124.md；OPA Data API 接入共用工具执行点，自定义 authority 原型已移出运行源码。关系授权及跨服务撤销排序保持专项评审。"
+      "implementation_selection": "成熟方案实测见 docs/design/e2ag-mature-solutions-20261124.md；OPA Data API 接入共用工具执行点，自定义 authority 原型已移出运行源码。关系授权及跨服务撤销排序保持专项评审。",
+      "identity_protocol_qualification": {
+        "date": "2026-11-24",
+        "state": "protocol_verified_runtime_integration_pending",
+        "design": "docs/design/enterprise-identity-33.md",
+        "evidence": "docs/design/evidence/identity-provider-20261124.json",
+        "checks_passed": 25,
+        "observed_gap": "源 Access Token 撤销后交换 Access Token 仍有效，标准交换结果无 act 委派声明",
+        "next": "#33 可信身份准入与 Secret 引用生命周期；随后按 #35 关联上游依赖并接既有 E2AG 撤销",
+        "remaining": [
+          "真实企业 IdP 与登录入口接线",
+          "签名/客户端密钥轮换及安全存储",
+          "标准注销/安全事件交付与恢复对账",
+          "三层委派及严格撤销并发验收"
+        ]
+      }
     },
     {
       "id": "K03-2",
@@ -1028,7 +1043,22 @@
         "K01-5"
       ],
       "priority": "高",
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "identity_protocol_qualification": {
+        "date": "2026-11-24",
+        "state": "protocol_verified_runtime_integration_pending",
+        "design": "docs/design/enterprise-identity-33.md",
+        "evidence": "docs/design/evidence/identity-provider-20261124.json",
+        "checks_passed": 25,
+        "observed_gap": "源 Access Token 撤销后交换 Access Token 仍有效，标准交换结果无 act 委派声明",
+        "next": "#33 可信身份准入与 Secret 引用生命周期；随后按 #35 关联上游依赖并接既有 E2AG 撤销",
+        "remaining": [
+          "真实企业 IdP 与登录入口接线",
+          "签名/客户端密钥轮换及安全存储",
+          "标准注销/安全事件交付与恢复对账",
+          "三层委派及严格撤销并发验收"
+        ]
+      }
     },
     {
       "id": "S01-1",

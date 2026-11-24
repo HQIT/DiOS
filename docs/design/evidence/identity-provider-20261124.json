@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "image": "quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3",
+  "library": {
+    "Authlib": "1.9.10",
+    "httpx": "0.28.1",
+    "joserfc": "1.8.0",
+    "cryptography": "50.0.2",
+    "compatibility_note": "Authlib 1.9.10 accepts httpx 0.28.1 but emits a deprecation warning recommending httpx2; qualify supported transport before production integration."
+  },
+  "checks": [
+    "discovery-issuer-and-introspection",
+    "browser-authorization-code-S256",
+    "audience-and-client-separation",
+    "callback-state-mismatch-rejected",
+    "ID-token-nonce-mismatch-rejected",
+    "PKCE-wrong-verifier-rejected",
+    "authorization-code-replay-rejected",
+    "unknown-token-inactive",
+    "audience-positive-control",
+    "introspection-client-authentication",
+    "wrong-resource-audience-inactive",
+    "distinct-user-subjects",
+    "refresh-preserves-subject",
+    "refresh-token-rotated",
+    "refresh-token-replay-rejected",
+    "exchange-preserves-subject",
+    "exchange-narrows-audience",
+    "source-revocation-endpoint",
+    "source-access-token-inactive",
+    "unrelated-user-remains-active",
+    "session-logout-accepted",
+    "session-logout-introspection-inactive",
+    "service-identity-distinct",
+    "provider-restart-retains-session",
+    "provider-offline-is-observation-failure"
+  ],
+  "observations": {
+    "exchange_expiry_within_source": true,
+    "exchange_actor_claim_present": false,
+    "exchanged_access_active_after_source_revocation": true
+  },
+  "limits": [
+    "isolated-loopback-development-IdP",
+    "embedded-storage-restart-only",
+    "no-DiOS-runtime-SSO-integration",
+    "no-physical-multihost-or-TLS-qualification",
+    "standard-token-exchange-not-delegation-qualification"
+  ],
+  "source_sha256": {
+    "scripts/probe_identity_provider.py": "4027b98ea73cb907f1b206f97dff41cf3930de8e21542f57e05bd5343a099801",
+    "scripts/probe_identity_login.mjs": "bdea0cf77c1ffc12d2c3e3adb3d1b7e1bb8cd8f890d7bf52c5cf1e5152258286"
+  },
+  "qualification_status": "passed-with-explicit-delegation-gap",
+  "checks_passed": 25
+}
