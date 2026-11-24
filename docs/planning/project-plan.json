@@ -830,7 +830,8 @@
         "state": "in_progress",
         "delivered": [
           "可信主体 Provider 与独立令牌，准入和运行时 E2AG 绑定",
-          "任务归属、查询过滤、Run 关联产物读取和分享撤销，Console/CLI/SDK 同步"
+          "任务归属、查询过滤、Run 关联产物读取和分享撤销，Console/CLI/SDK 同步",
+          "已登记 OAuth 来源与工作授权绑定、故障分类及实际工具执行前复核"
         ],
         "remaining": [
           "企业 OIDC/SSO、签发与密钥托管轮换",
@@ -842,17 +843,35 @@
       "implementation_selection": "成熟方案实测见 docs/design/e2ag-mature-solutions-20261124.md；OPA Data API 接入共用工具执行点，自定义 authority 原型已移出运行源码。关系授权及跨服务撤销排序保持专项评审。",
       "identity_protocol_qualification": {
         "date": "2026-11-24",
-        "state": "protocol_verified_runtime_integration_pending",
+        "state": "protocol_and_registered_source_runtime_verified",
         "design": "docs/design/enterprise-identity-33.md",
         "evidence": "docs/design/evidence/identity-provider-20261124.json",
         "checks_passed": 25,
         "observed_gap": "源 Access Token 撤销后交换 Access Token 仍有效，标准交换结果无 act 委派声明",
-        "next": "#33 可信身份准入与 Secret 引用生命周期；随后按 #35 关联上游依赖并接既有 E2AG 撤销",
+        "next": "#33 企业登录入口及托管来源凭据生命周期；#35 注销/安全事件对账与受控委派",
         "remaining": [
           "真实企业 IdP 与登录入口接线",
           "签名/客户端密钥轮换及安全存储",
           "标准注销/安全事件交付与恢复对账",
           "三层委派及严格撤销并发验收"
+        ]
+      },
+      "oauth_source_integration": {
+        "date": "2026-11-24",
+        "state": "development_verified_full_identity_lifecycle_pending",
+        "design": "docs/design/runtime-oauth-source-33.md",
+        "evidence": "docs/design/evidence/runtime-oauth-source-20261124.json",
+        "delivered": [
+          "Authlib/RFC 7662 可信来源准入与 E2AG 执行复核，工作绝对期限不超过来源",
+          "真实身份服务故障保留审批、恢复原调用；工具初始化时撤销阻止实际调用且旧 Grant 持久失效",
+          "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
+        ],
+        "remaining": [
+          "浏览器授权码/PKCE 产品入口、托管来源凭据登记与刷新",
+          "托管 Secret、签名及客户端密钥轮换、Windows ACL Provider 资格",
+          "标准注销/安全事件和恢复对账",
+          "三层委派收窄与跨服务撤销/派发排序",
+          "真实企业身份服务及物理多主机资格"
         ]
       }
     },
@@ -975,6 +994,24 @@
           "OPA 原生策略查询与 Bundle 版本绑定",
           "失败关闭、审批保留、真实 Worker 与浏览器审批报告验证"
         ]
+      },
+      "oauth_source_integration": {
+        "date": "2026-11-24",
+        "state": "development_verified_full_identity_lifecycle_pending",
+        "design": "docs/design/runtime-oauth-source-33.md",
+        "evidence": "docs/design/evidence/runtime-oauth-source-20261124.json",
+        "delivered": [
+          "Authlib/RFC 7662 可信来源准入与 E2AG 执行复核，工作绝对期限不超过来源",
+          "真实身份服务故障保留审批、恢复原调用；工具初始化时撤销阻止实际调用且旧 Grant 持久失效",
+          "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
+        ],
+        "remaining": [
+          "浏览器授权码/PKCE 产品入口、托管来源凭据登记与刷新",
+          "托管 Secret、签名及客户端密钥轮换、Windows ACL Provider 资格",
+          "标准注销/安全事件和恢复对账",
+          "三层委派收窄与跨服务撤销/派发排序",
+          "真实企业身份服务及物理多主机资格"
+        ]
       }
     },
     {
@@ -1046,17 +1083,35 @@
       "product_scope": "dios-capability",
       "identity_protocol_qualification": {
         "date": "2026-11-24",
-        "state": "protocol_verified_runtime_integration_pending",
+        "state": "protocol_and_registered_source_runtime_verified",
         "design": "docs/design/enterprise-identity-33.md",
         "evidence": "docs/design/evidence/identity-provider-20261124.json",
         "checks_passed": 25,
         "observed_gap": "源 Access Token 撤销后交换 Access Token 仍有效，标准交换结果无 act 委派声明",
-        "next": "#33 可信身份准入与 Secret 引用生命周期；随后按 #35 关联上游依赖并接既有 E2AG 撤销",
+        "next": "#33 企业登录入口及托管来源凭据生命周期；#35 注销/安全事件对账与受控委派",
         "remaining": [
           "真实企业 IdP 与登录入口接线",
           "签名/客户端密钥轮换及安全存储",
           "标准注销/安全事件交付与恢复对账",
           "三层委派及严格撤销并发验收"
+        ]
+      },
+      "oauth_source_integration": {
+        "date": "2026-11-24",
+        "state": "development_verified_full_identity_lifecycle_pending",
+        "design": "docs/design/runtime-oauth-source-33.md",
+        "evidence": "docs/design/evidence/runtime-oauth-source-20261124.json",
+        "delivered": [
+          "Authlib/RFC 7662 可信来源准入与 E2AG 执行复核，工作绝对期限不超过来源",
+          "真实身份服务故障保留审批、恢复原调用；工具初始化时撤销阻止实际调用且旧 Grant 持久失效",
+          "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
+        ],
+        "remaining": [
+          "浏览器授权码/PKCE 产品入口、托管来源凭据登记与刷新",
+          "托管 Secret、签名及客户端密钥轮换、Windows ACL Provider 资格",
+          "标准注销/安全事件和恢复对账",
+          "三层委派收窄与跨服务撤销/派发排序",
+          "真实企业身份服务及物理多主机资格"
         ]
       }
     },

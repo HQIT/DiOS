@@ -605,6 +605,8 @@ export const messages: Record<string, string> = {
   "生产治理操作 · 待身份与 E2AG 验收": "Production governance · Identity and E2AG acceptance pending",
   "请输入 Access Token": "Enter an Access Token",
   "Access Token 无效": "Invalid Access Token",
+  "身份服务暂不可用，请稍后重试。": "The identity service is unavailable. Please try again later.",
+  "来源授权已失效，请重新获取授权。": "The source authorization is no longer valid. Obtain a new authorization.",
   "无法连接服务，请稍后重试": "Unable to connect. Try again shortly.",
   "请输入 Access Token 以继续": "Enter your Access Token to continue",
   "进入": "Continue",

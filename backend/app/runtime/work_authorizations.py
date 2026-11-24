@@ -6,6 +6,7 @@ Remote machine authentication and sender-bound token issuance remain #33 work.
 from .work_policy import policy_matches
 from .principals import admit
 import asyncio
+import math
 from uuid import uuid4
 from sqlalchemy import select
 from .database import RuntimeErrorCode
@@ -20,6 +21,22 @@ async def audit(c,scope,run_id,attempt_id,action,decision,now):
         attempt_id=attempt_id,action=action,decision=decision.as_dict(),created_at=now))
 
 
+async def persist_identity_revocation(c,scope,reference):
+    await c.execute(work.update().where(work.c.id==reference,work.c.scope==scope,work.c.state=='active')
+        .values(state='revoked',version=work.c.version+1))
+    await c.execute(grants.update().where(grants.c.authorization_id.in_(select(work.c.id).where(work.c.id==reference,work.c.scope==scope)),grants.c.state=='active')
+        .values(state='revoked',version=grants.c.version+1))
+
+
+async def observe_identity_revocation(store,run,code):
+    if code not in {'AUTH_PRINCIPAL_REVOKED','AUTH_PRINCIPAL_EXPIRED'}:return
+    async with store.db.transaction(store.scope) as c:
+        await require(c)
+        await persist_identity_revocation(c,store.scope,run['input']['work_authorization_ref'])
+        await audit(c,store.scope,run['id'],run['attempt_id'],'identity',
+            Decision('work-authorization','deny',(code,)),await store.db.now(c))
+
+
 async def create(c,scope,run,descriptor,now):
     await require(c)
     if (descriptor['profile_id']!=run['input'].get('runtime_profile')
@@ -31,10 +48,15 @@ async def create(c,scope,run,descriptor,now):
     for action in ('execute','accept_result'):
         decision=evaluate_work_permission(descriptor['permissions'],permission(descriptor,action))
         if not decision.permits_execution:raise RuntimeErrorCode(decision.reason_codes[0])
+    expires_at=now+descriptor['work_ttl_seconds']
+    if 'work_expires_at' in descriptor:
+        deadline=descriptor['work_expires_at']
+        if type(deadline) not in (int,float) or not math.isfinite(deadline) or deadline<=now:raise RuntimeErrorCode('WORK_DEADLINE_INVALID')
+        expires_at=min(expires_at,deadline)
     await c.execute(work.insert().values(id=run['input']['work_authorization_ref'],scope=scope,run_id=run['id'],
         **{key:descriptor[key] for key in ('subject','actor','policy_id','policy_digest','profile_id','profile_digest','permissions','secret_refs')},
         state='active',version=1,authorization_epoch=run['authorization_epoch'],created_at=now,
-        expires_at=now+descriptor['work_ttl_seconds']))
+        expires_at=expires_at))
     await audit(c,scope,run['id'],None,'admit',Decision('work-admission','allow',('WORK_AUTHORIZATION_CREATED',)),now)
 
 
@@ -165,10 +187,7 @@ class WorkAuthorizationVerifier:
                 failure=exc
                 if exc.code in {'AUTH_PRINCIPAL_REVOKED','AUTH_PRINCIPAL_EXPIRED'}:
                     # Once observed, re-enabling an identity cannot resurrect its old grant.
-                    await c.execute(work.update().where(work.c.id==context.authorization_ref,work.c.scope==self.store.scope,work.c.state=='active')
-                        .values(state='revoked',version=work.c.version+1))
-                    await c.execute(grants.update().where(grants.c.authorization_id==context.authorization_ref,grants.c.state=='active')
-                        .values(state='revoked',version=grants.c.version+1))
+                    await persist_identity_revocation(c,self.store.scope,context.authorization_ref)
                 await audit(c,self.store.scope,context.run_id,context.attempt_id,action,
                     Decision('work-authorization','deny',(exc.code,)),now)
         if failure:raise failure

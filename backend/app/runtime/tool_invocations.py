@@ -40,8 +40,13 @@ class ToolInvocations:
     async def _configuration(self,run_id,tool_id):
         run=await self.store.get(run_id)
         if not run['input'].get('work_authorization_ref'):raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
-        current=await asyncio.to_thread(admit,self.policy,run['input']['runtime_profile'],
-            run['input']['profile_digest'],run['input'].get('secret_refs',[]),run['input'].get('principal'))
+        try:
+            current=await asyncio.to_thread(admit,self.policy,run['input']['runtime_profile'],
+                run['input']['profile_digest'],run['input'].get('secret_refs',[]),run['input'].get('principal'))
+        except RuntimeErrorCode as exc:
+            from .work_authorizations import observe_identity_revocation
+            await observe_identity_revocation(self.store,run,exc.code)
+            raise
         registration=await asyncio.to_thread(self.catalog.registration,tool_id)
         return current,registration
 
@@ -127,7 +132,7 @@ class ToolInvocations:
         async with self.store.db.transaction(self.store.scope) as c:
             item=await self._row(c,run_id,call_id);now=await self.store.db.now(c)
             try:
-                if access_guard:access_guard(await self.store._run(c,run_id))
+                if access_guard:await asyncio.to_thread(access_guard,await self.store._run(c,run_id))
                 if item['version']!=version:raise RuntimeErrorCode('VERSION_CONFLICT')
                 if item['state']!='awaiting_approval' or item['approval_state']!='pending':raise RuntimeErrorCode('APPROVAL_ALREADY_DECIDED')
                 if self.approvers.authenticate(token,self.store.scope,item['tool_id'])!=actor:raise RuntimeErrorCode('APPROVER_FORBIDDEN')

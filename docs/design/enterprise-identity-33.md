@@ -52,6 +52,6 @@ workspace/identity-qualification-33/bin/python scripts/probe_identity_provider.p
 
 同一测试中，源 Access Token 已被 introspection 判为 inactive，交换后的下游 Access Token 仍为 active；标准交换结果无 act 委派声明。测试配置下交换有效期未超过来源有效期。这三项是本实例观察结果，后续代理链、刷新与撤销验收须分别覆盖。
 
-Authlib 低层客户端需由调用方保存授权请求返回的 state，并在换取令牌时传入该值；本探针包含错配拒绝测试。PKCE、state、nonce 各自独立验证。Authlib 1.9.10 与本仓库现用 httpx 0.28.1 的组合通过本轮检查，但库提示推荐迁移 httpx2；正式接入前补传输兼容资格。
+Authlib 低层客户端需由调用方保存授权请求返回的 state，并在换取令牌时传入该值；本探针包含错配拒绝测试。PKCE、state、nonce 各自独立验证。Authlib 1.9.10 与本仓库现用 httpx 0.28.1 的组合通过本轮检查，但库提示推荐迁移 httpx2；当前 Runtime 与真实身份服务集成回归覆盖该组合；httpx2 升级仍须独立验证传输兼容。
 
-当前通过的是隔离协议资格，现有 Runtime 登录入口保持原状态。下一实现按 #33 接入可信身份准入与 Secret 引用生命周期，再连通上游授权依赖和 E2AG 执行点。OAuth2 Proxy、真实企业 IdP、签名密钥轮换、标准注销事件交付和物理多主机尚待对应资格，#33/#35 原验收范围不变。
+[Runtime 来源授权接入](runtime-oauth-source-33.md)已使用 Authlib/RFC 7662 接入已登记来源凭据的 API 准入、E2AG 工作复核与工具执行；真实 IdP 停机恢复、撤销和开发 Worker 链路通过验证。当前采用可信主机登记及 POSIX Secret 引用，Console 仍以 Access Token 登录。下一步接企业登录入口及托管凭据生命周期；OAuth2 Proxy、真实企业 IdP、签名密钥轮换、标准注销事件交付、三层委派和物理多主机继续按原 #33/#35 验收。

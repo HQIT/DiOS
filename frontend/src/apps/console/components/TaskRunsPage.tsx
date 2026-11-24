@@ -17,6 +17,9 @@ const LABELS: Record<string, string> = {
 };
 const AUTH_STATES: Record<string, string> = { active: "有效", expired: "已过期", revoked: "已撤销", closed: "已结束" };
 const ERRORS: Record<string, string> = {
+  AUTH_PROVIDER_UNAVAILABLE: "身份服务暂不可用，请稍后重试。",
+  AUTH_PRINCIPAL_REVOKED: "来源授权已失效，请重新获取授权。",
+  AUTH_PRINCIPAL_EXPIRED: "来源授权已失效，请重新获取授权。",
   INVALID_WORK_INPUT: "任务输入不符合登记的输入要求，请检查字段、大小和内容摘要。",
   DYNAMIC_INPUT_NOT_ALLOWED: "此执行配置只接受已登记的输入。",
   RUNTIME_CONSOLE_DISABLED: "任务入口尚未启用。管理员完成运行环境配置后即可使用。",

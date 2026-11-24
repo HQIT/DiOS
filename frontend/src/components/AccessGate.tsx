@@ -44,6 +44,12 @@ export default function AccessGate({ children }: { children: ReactNode }) {
         const identity = await res.json();
         if (identity.mode === "principal") window.location.hash = "console/tasks";
       } else {
+        const failure = await res.clone().json().catch(() => ({}));
+        if (["AUTH_PROVIDER_UNAVAILABLE", "AUTH_PRINCIPAL_REVOKED", "AUTH_PRINCIPAL_EXPIRED"].includes(failure.detail)) {
+          clearAccessToken();
+          setError(failure.detail === "AUTH_PROVIDER_UNAVAILABLE" ? "身份服务暂不可用，请稍后重试。" : "来源授权已失效，请重新获取授权。");
+          return;
+        }
         res = await fetch(`${apiPrefix()}/os/models`, { headers: { "X-DiOS-Access-Token": value } });
       }
       if (res.status === 401) {

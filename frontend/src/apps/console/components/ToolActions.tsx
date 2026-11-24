@@ -8,6 +8,9 @@ const states: Record<string, string> = {
   succeeded: "调用完成", failed: "工具返回失败", denied: "已拒绝", result_unknown: "结果待对账",
 };
 const errors: Record<string, string> = {
+  AUTH_PROVIDER_UNAVAILABLE: "身份服务暂不可用，请稍后重试。",
+  AUTH_PRINCIPAL_REVOKED: "来源授权已失效，请重新获取授权。",
+  AUTH_PRINCIPAL_EXPIRED: "来源授权已失效，请重新获取授权。",
   APPROVER_UNAUTHENTICATED: "审批凭据无效。", APPROVER_FORBIDDEN: "此审批人没有该工具的审批权限。",
   APPROVER_MUST_BE_INDEPENDENT: "需要由独立于任务发起者的审批人处理。",
   APPROVER_SEPARATE_CREDENTIAL_REQUIRED: "请输入独立审批凭据。",

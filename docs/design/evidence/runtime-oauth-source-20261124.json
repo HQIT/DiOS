@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-24",
+  "status": "development_verified_full_identity_lifecycle_pending",
+  "implementation": {
+    "library": "Authlib 1.9.10",
+    "protocol": "RFC 7662",
+    "qualification_provider": "Keycloak 26.8.2",
+    "source_storage": "trusted POSIX private file reference; no automatic refresh",
+    "authorization": "existing E2AG Work/Grant/Attempt/Session and OPA tool policy"
+  },
+  "tests": {
+    "backend_full": {
+      "total": 467,
+      "passed": 347,
+      "skipped": 120,
+      "seconds": 504.387,
+      "log": "workspace/validation-20261124-identity/backend-final.log",
+      "scope": "Full suite with real OPA and OAuth integration; started before final provider binding digest addition"
+    },
+    "final_authorization_regression": {
+      "total": 68,
+      "passed": 54,
+      "skipped": 14,
+      "seconds": 94.921,
+      "log": "workspace/validation-20261124-identity/authorization-final.log",
+      "scope": "Final source files including trusted provider digest and absolute expiry cap"
+    },
+    "frontend_build": "passed; existing chunk size warning",
+    "design_contract_checks": 681,
+    "authorization_contract_checks": 263
+  },
+  "real_identity_mcp": {
+    "checks": [
+      "real-IdP-approval",
+      "provider-stop-retains-approval",
+      "provider-restart-same-call-resume",
+      "real-MCP-success-once",
+      "source-revoked-during-MCP-initialize-no-tools-call",
+      "work-revocation-persisted",
+      "token-not-in-run-record"
+    ],
+    "actual_tools_calls": 1,
+    "source_work_state": "revoked"
+  },
+  "development": {
+    "run_id": "f686d4d2-1a12-4f58-84b8-e995c0630fce",
+    "state": "succeeded",
+    "subject": "principal:a",
+    "upstream": {
+      "ref": "development/source-user",
+      "version": "v4",
+      "issuer": "http://127.0.0.1:13187/realms/dios-development",
+      "subject": "fd571e66-3d1a-4ca8-9749-e0086bdad270",
+      "audience": "dios-api",
+      "client_id": "portal",
+      "expires_at": 1795491734,
+      "digest": "378693342b44187dc606d164eabfa1279aac86a62c53a54d6abad7a38bd0a906",
+      "provider_digest": "80c63c4276b7bd41f0842527aaebe5cf697045ac8639b27f890bd8f927cb0695"
+    },
+    "artifact_sha256": "dc458a42ea20ff16eec96937ae577d8f5c5c2e4b954f3df797841e26173d443e",
+    "history_before": 52,
+    "history_after": 53,
+    "old_history_preserved": true,
+    "token_absent_from_run": true,
+    "cli_identity_matches_sdk": true
+  },
+  "browser": {
+    "run_id": "f686d4d2-1a12-4f58-84b8-e995c0630fce",
+    "checks": [
+      "principal-login",
+      "profile-filter",
+      "global-worker-panel-hidden",
+      "owned-report",
+      "approval-controls-filtered",
+      "mobile-layout",
+      "cross-principal-denied"
+    ],
+    "pageErrors": []
+  },
+  "localized_identity_errors": {
+    "checks": [
+      "zh-CN-outage-and-revocation-distinct",
+      "en-US-outage-and-revocation-distinct"
+    ],
+    "fixture": "HTTP error injection into actual login page"
+  },
+  "remaining": [
+    "Browser authorization code/PKCE product entry and managed credential intake/refresh",
+    "Managed Secret and signing/client key rotation; Windows ACL provider qualification",
+    "Standard logout/security events with recovery reconciliation",
+    "Three-level narrowed delegation and cross-service revoke/dispatch ordering",
+    "Real enterprise identity provider and physical multihost qualification"
+  ]
+}

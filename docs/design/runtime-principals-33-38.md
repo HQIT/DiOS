@@ -56,3 +56,7 @@ objects 当前按 Run ID 显式配置 run.read、artifact.read、tool.read、too
 ## 验证
 
 [工程证据](evidence/runtime-principals-20261124.json) 包括中间件下的跨主体任务隔离、同摘要跨关联读取拒绝、只读分享无法取消、轮换、期限/受众/作用域拒绝、在途撤销及结果拒收、下载中撤销、真实独立 Worker/E2AG 与浏览器入口。真实企业 SSO 和物理双主机资格继续按 #33/#58 验收。
+
+## OAuth 来源接入
+
+目录可增加可信 OAuth Provider 和版本化来源引用，令牌状态通过 Authlib/RFC 7662 验证并关联 E2AG 工作授权。源令牌、客户端密钥及文件路径不进入任务载荷，来源配置和版本变化使旧执行绑定失效。详见[来源授权配置及证据](runtime-oauth-source-33.md)。

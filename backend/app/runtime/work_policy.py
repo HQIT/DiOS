@@ -64,7 +64,7 @@ class FileWorkPolicy:
             if lifetime<60:raise RuntimeErrorCode('AUTH_PRINCIPAL_EXPIRED')
             scoped.update(principal=principal,principal_grant=grant,principal_expires_at=identity['expires_at'])
             result.update(subject=principal['subject'],actor=principal['actor'],permissions=permissions,
-                policy_digest=hashlib.sha256(encoded(scoped)).hexdigest(),work_ttl_seconds=lifetime)
+                policy_digest=hashlib.sha256(encoded(scoped)).hexdigest(),work_ttl_seconds=lifetime,work_expires_at=identity['expires_at'])
             result.pop('legacy_policy_digest')
         bounded(result)
         for action in ('execute','accept_result'):
