@@ -1,5 +1,6 @@
 import { t as translateUI } from "../../lib/i18n";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useContext } from "react";
+import { AuthSessionContext } from "../../lib/authSession";
 import AgentList from "./components/AgentList";
 import ModelManager from "./components/ModelManager";
 import EventLogList from "./components/EventLogList";
@@ -30,9 +31,10 @@ function parseSub(sub: string): { tab: ConsoleTab; rest: string } {
 
 function Nav({ sub }: { sub: string }) {
   const { tab } = parseSub(sub);
+  const { principal } = useContext(AuthSessionContext);
   return (
     <nav className="header-nav">
-      {TABS.map((t) => (
+      {TABS.filter(t => !principal || t.key === "tasks").map((t) => (
         <button
           key={t.key}
           className={tab === t.key ? "header-tab active" : "header-tab"}

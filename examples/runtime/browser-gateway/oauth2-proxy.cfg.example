@@ -1,0 +1,35 @@
+# Private deployment configuration; replace endpoints and mount native secrets.
+# Browser ingress: nginx.conf.template; IdP: dedicated confidential OIDC client.
+http_address = "127.0.0.1:4180"
+provider = "oidc"
+oidc_issuer_url = "https://identity.example.invalid/realms/enterprise"
+client_id = "dios-console"
+client_secret_file = "/run/secrets/oidc-client-secret"
+redirect_url = "https://dios.example.invalid/oauth2/callback"
+scope = "openid email profile"
+email_domains = ["example.invalid"]
+code_challenge_method = "S256"
+insecure_oidc_skip_nonce = false
+cookie_secret_file = "/run/secrets/oauth-cookie-secret"
+cookie_secure = true
+cookie_httponly = true
+cookie_samesite = "lax"
+cookie_refresh = "5m"
+cookie_expire = "8h"
+session_store_type = "redis"
+redis_connection_url = "redis://127.0.0.1:6379/0"
+# Supply Redis credentials through the native Secret/environment configuration.
+# Use TLS to remote stores. Keep AOF, access controls and storage backups native.
+upstreams = ["static://202"]
+set_xauthrequest = true
+pass_access_token = true
+pass_authorization_header = false
+pass_basic_auth = false
+reverse_proxy = true
+trusted_proxy_ips = ["127.0.0.1/32"]
+skip_provider_button = true
+auth_logging = false
+request_logging = false
+standard_logging = false
+# Enable only after qualifying this provider's logout semantics:
+backend_logout_url = "https://identity.example.invalid/realms/enterprise/protocol/openid-connect/logout?id_token_hint={id_token}"

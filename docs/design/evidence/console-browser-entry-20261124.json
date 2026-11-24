@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-24",
+  "implementation": "Native Nginx auth_request, OAuth2 Proxy and Valkey; DiOS source intake and E2AG remain authoritative",
+  "images": {
+    "nginx": "nginx:stable-alpine@sha256:8eb2b5540eae779603cc3db84b3986a15ecb5308b54303146eee9837c137b51a",
+    "proxy": "quay.io/oauth2-proxy/oauth2-proxy:v7.15.6@sha256:c3415e8660af553f5e18f5d90db050614c02493c0ac6260ac59442f6d9b12048",
+    "store": "valkey/valkey:9.2.0@sha256:1c2b25b09f354c66fe994733acdf12fcfd4bdf6f3bd92b88a93a70378d884056"
+  },
+  "nginx_version": "1.30.8",
+  "backend_suite": {
+    "total": 517,
+    "passed": 390,
+    "skipped": 127,
+    "failures": 0
+  },
+  "final_targeted": [
+    15,
+    11
+  ],
+  "frontend_build": "passed",
+  "changed_frontend_eslint": "passed",
+  "real_browser_workflow": {
+    "checks": [
+      "enterprise-entry-no-token-input",
+      "native-login-to-dios-principal",
+      "automatic-source-intake",
+      "principal-navigation",
+      "no-browser-oauth-token-storage",
+      "native-httponly-session-ticket",
+      "mixed-bearer-cookie-denied",
+      "forwarded-identity-stripped",
+      "missing-origin-denied",
+      "foreign-origin-denied",
+      "null-origin-denied",
+      "same-site-not-same-origin-denied",
+      "missing-custom-header-denied",
+      "cors-preflight-denied",
+      "operator-routes-unavailable",
+      "internal-auth-unavailable",
+      "logout-get-denied",
+      "logout-csrf-denied",
+      "real-browser-cross-origin-form-with-cookie-denied",
+      "direct-backend-cookie-and-forged-headers-denied",
+      "browser-submission-with-csrf",
+      "real-worker-independent-approval-report",
+      "artifact-digest-and-citations",
+      "parallel-session-request-0",
+      "parallel-session-request-1",
+      "native-refresh-new-source",
+      "refresh-retry-six-original-receipts",
+      "mobile-layout",
+      "ui-sign-out-clears-session",
+      "old-ticket-replay-denied",
+      "no-page-errors"
+    ],
+    "run_id": "1895ad36-fd61-404c-99a7-155f2cf89721",
+    "firstSource": "enrolled/c2489756da7a88bd1858b515c5c83f5a7d0ab857da7f62a79c75cdeb795fa519",
+    "refreshedSource": "enrolled/5eebc0e9430fa46b04bf638bde8d3d1f134686f63f14468f7748830cb8f6556a",
+    "errors": []
+  },
+  "final_ui_security": {
+    "checks": [
+      "enterprise-entry-no-token-input",
+      "native-login-to-dios-principal",
+      "automatic-source-intake",
+      "principal-navigation",
+      "no-browser-oauth-token-storage",
+      "native-httponly-session-ticket",
+      "mixed-bearer-cookie-denied",
+      "forwarded-identity-stripped",
+      "missing-origin-denied",
+      "foreign-origin-denied",
+      "null-origin-denied",
+      "same-site-not-same-origin-denied",
+      "missing-custom-header-denied",
+      "cors-preflight-denied",
+      "operator-routes-unavailable",
+      "internal-auth-unavailable",
+      "logout-get-denied",
+      "logout-csrf-denied",
+      "real-browser-cross-origin-form-with-cookie-denied",
+      "direct-backend-cookie-and-forged-headers-denied",
+      "parallel-session-request-0",
+      "parallel-session-request-1",
+      "parallel-session-request-2",
+      "parallel-session-request-3",
+      "parallel-session-request-4",
+      "native-refresh-new-source",
+      "english-session-controls",
+      "mobile-layout",
+      "mobile-sign-out-visible",
+      "ui-sign-out-clears-session",
+      "old-ticket-replay-denied",
+      "english-login-entry",
+      "no-page-errors"
+    ],
+    "firstSource": "enrolled/40239ca31b2a557c734e01e6eeb25f13b3b7c534a1f2a6e640adb941690b5f89",
+    "refreshedSource": "enrolled/8b2dbe6c68595e614f4b7a9ba543b78066b64113888e277052e2e017cba09da4",
+    "errors": []
+  },
+  "manual_token": {
+    "checks": [
+      "manual-token-login",
+      "reviewer-scope",
+      "reload-retains-principal-navigation"
+    ],
+    "errors": []
+  },
+  "clients": {
+    "sdk_identity": true,
+    "cli_same_identity": true
+  },
+  "development": {
+    "run_id": "1895ad36-fd61-404c-99a7-155f2cf89721",
+    "state": "succeeded",
+    "history_before": 59,
+    "history_after": 60,
+    "history_preserved": true,
+    "active_runs": 0,
+    "work_source_unchanged": true,
+    "work_deadline_unchanged": true,
+    "independent_approval": {
+      "run_id": "1895ad36-fd61-404c-99a7-155f2cf89721",
+      "tool_id": "d4f0eed0-5e4a-4dc9-bcd4-a76dfb825c03",
+      "independent_reviewer": true
+    },
+    "stale_manual_fixture": {
+      "status": 403,
+      "detail": "AUTH_PRINCIPAL_REVOKED"
+    }
+  },
+  "remaining": [
+    "Enterprise IdP and TLS qualification",
+    "Standard logout events and reconciliation",
+    "Governed long-task renewal",
+    "Strict revocation ordering across services",
+    "Physical multi-host and HA qualification"
+  ]
+}

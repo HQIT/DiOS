@@ -34,11 +34,11 @@ IdP 停机时，网关可能继续转发已有会话。HTTP 200 仅表示请求�
 
 ## 与现有代码的接入顺序
 
-`source_binding()` 把来源版本和摘要绑定到工作授权。[多来源绑定](source-sessions-33.md)已支持主体引用多个来源版本；追加来源保持其他会话和历史工作绑定。[托管来源自动登记](source-intake-33.md)已接入，下一步接 Console 登录入口。
+`source_binding()` 把来源版本和摘要绑定到工作授权。[多来源绑定](source-sessions-33.md)已支持主体引用多个来源版本；追加来源保持其他会话和历史工作绑定。[托管来源自动登记](source-intake-33.md)及 [Console 企业登录入口](console-browser-entry-33.md)已接入。
 
 1. **主体与来源引用分离（已接入）**：主体权限和 revision 保持现有契约；来源按不可变版本保存，同一主体允许多个有效来源。任务保存准入时的来源引用，查询和执行依该引用复核，不改写历史 Work。退出或撤销按已验证的来源/会话范围定位。
 2. **可信来源准入（已接入）**：凭据经固定 issuer、API audience、client、subject、必需 scope 与期限校验，再按可信映射登记。OpenBao 原生 CAS=0 将凭据和来源元数据存为一条不可覆盖记录；重试读回固定版本，登记无需改写主体目录。到期不可读采用原生保留策略。
-3. **受保护浏览器入口**：接入网关专用认证路径、CSRF 和统一错误语义；Console 提供企业登录/退出状态。CLI/SDK 沿用各自已授权客户端，浏览器和服务端均不把网关 ID Token 当成 DiOS Access Token。
+3. **受保护浏览器入口（已接入）**：接入网关专用认证路径、CSRF 和统一错误语义；Console 提供企业登录/退出状态。CLI/SDK 沿用各自已授权客户端，浏览器和服务端均不把网关 ID Token 当成 DiOS Access Token。
 4. **刷新与工作授权衔接**：网关负责 OAuth 刷新。新令牌形成新来源版本供新请求使用；已有工作保留原绝对期限。长任务通过既定续期接口重新验证权限、审批和来源依赖，旧 Grant 的撤销状态保持单调。后台服务身份按原工作负载身份计划接入。
 5. **注销事件与恢复对账**：按 #35 接 OIDC Back-Channel Logout / 安全事件，校验 issuer、audience、sid/sub、签名与重放，结合当前状态查询处理丢失事件。不同会话的关联标识及可用性须针对真实 IdP 资格验证；不从邮箱或任意请求头推断。
 
@@ -54,4 +54,4 @@ backend/.venv/bin/python scripts/probe_login_gateway.py \
 
 需要 Docker、后端依赖、仓库 Playwright 和 Chromium。探针检查回环端口 13192/13194/13195/13196 空闲，使用隔离 Realm、随机凭据及独立临时 AOF 目录，结束后清理本次容器。只调用现有 OAuth 来源验证器；现有 DiOS 服务、数据库及运行任务保持原状态。
 
-本次覆盖单机容器重启与依赖故障；企业部署还须验收 HTTPS、Secure Cookie、可信代理链、密钥托管轮换、物理多主机及 HA。回环 HTTP 和短期测试账号配置仅用于此探针。Console 当前仍使用 Access Token 登录，浏览器 SSO 产品接线按上述顺序推进。
+本次覆盖单机容器重启与依赖故障；企业部署还须验收 HTTPS、Secure Cookie、可信代理链、密钥托管轮换、物理多主机及 HA。回环 HTTP 和短期测试账号配置仅用于此探针。Console 已接入企业登录、同源写请求与刷新回执恢复，详见 [Console 浏览器入口](console-browser-entry-33.md)。

@@ -849,9 +849,9 @@
         "evidence": "docs/design/evidence/identity-provider-20261124.json",
         "checks_passed": 25,
         "observed_gap": "源 Access Token 撤销后交换 Access Token 仍有效，标准交换结果无 act 委派声明",
-        "next": "#33 企业登录入口及托管来源凭据生命周期；#35 注销/安全事件对账与受控委派",
+        "next": "#35 标准注销/安全事件对账、受控委派；#33 企业 IdP 与密钥生命周期资格",
         "remaining": [
-          "真实企业 IdP 与登录入口接线",
+          "真实企业 IdP 资格",
           "签名/客户端密钥轮换及安全存储",
           "标准注销/安全事件交付与恢复对账",
           "三层委派及严格撤销并发验收"
@@ -868,7 +868,6 @@
           "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
         ],
         "remaining": [
-          "浏览器授权码/PKCE 产品入口、托管来源凭据登记与刷新",
           "签名及客户端密钥轮换、通用 Worker Secret 挂载、Windows ACL Provider 资格",
           "标准注销/安全事件和恢复对账",
           "三层委派收窄与跨服务撤销/派发排序",
@@ -881,7 +880,6 @@
         "design": "docs/design/managed-secrets-33.md",
         "implementation": "OpenBao KV v2 固定版本引用；原生 Agent 负责 AppRole 续期及重认证；E2AG 检查来源版本及失效",
         "remaining": [
-          "浏览器 SSO 与 OAuth 来源令牌刷新",
           "通用 Worker Secret 挂载、签名与客户端密钥轮换",
           "企业 TLS、托管解封、重启身份投递和真实多主机资格"
         ],
@@ -909,7 +907,7 @@
       },
       "independent_source_sessions": {
         "date": "2026-11-24",
-        "state": "development_verified_browser_intake_pending",
+        "state": "development_verified_full_lifecycle_pending",
         "design": "docs/design/source-sessions-33.md",
         "evidence": "docs/design/evidence/source-sessions-20261124.json",
         "delivered": [
@@ -918,14 +916,13 @@
           "旧目录转换保留已有绑定，历史任务和产物按当前主体权限读取"
         ],
         "remaining": [
-          "可信网关与 Console 登录、CSRF、刷新后的提交回执恢复",
           "标准注销事件、长任务受控续期与跨服务撤销排序"
         ],
         "verification": "后端 502 项：375 通过、127 条件跳过；多来源专项 11 项、真实 IdP/MCP 8 项；两个来源的 Worker/CLI/SDK/浏览器通过，55 条历史全部保留"
       },
       "automatic_source_intake": {
         "date": "2026-11-24",
-        "state": "development_verified_browser_entry_pending",
+        "state": "development_verified_full_lifecycle_pending",
         "design": "docs/design/source-intake-33.md",
         "evidence": "docs/design/evidence/source-intake-20261124.json",
         "implementation": "Authlib/RFC 7662 可信映射及 scope 准入；OpenBao KV v2 原生 CAS=0 保存凭据与元数据，固定版本读回；原生 Agent 托管写入角色",
@@ -935,11 +932,26 @@
           "原生定时删除使过期记录不可读，源记录恢复不复活已撤销 Work/Grant"
         ],
         "remaining": [
-          "Console 可信网关入口与 CSRF",
-          "来源刷新后的提交回执恢复与受控长任务续期",
+          "受控长任务续期",
           "标准注销事件、企业留存物理销毁/审计策略和跨服务严格撤销"
         ],
         "verification": "后端 513 项：386 通过、127 条件跳过；原生 OpenBao/IdP 13 项、专项回归通过；两个自动来源完成 Worker、CLI/SDK、浏览器和服务重启验证，57 条历史保留"
+      },
+      "console_browser_entry": {
+        "date": "2026-11-24",
+        "state": "development_verified_enterprise_acceptance_pending",
+        "design": "docs/design/console-browser-entry-33.md",
+        "evidence": "docs/design/evidence/console-browser-entry-20261124.json",
+        "delivered": [
+          "原生 OAuth2 Proxy/Valkey/Nginx 登录、刷新与退出；Console 中英及移动入口",
+          "同源写请求与身份头白名单；CLI/SDK 独立 Bearer 入口",
+          "刷新后原 Run/Work 回执恢复，保留期限和来源，配置/输入变化继续冲突"
+        ],
+        "verification": "后端 517 项：390 通过、127 条件跳过；真实浏览器、Worker、独立审批与报告通过；六路刷新重试返回原任务；59 条原历史保留，当前 60 条",
+        "remaining": [
+          "企业 IdP、TLS/主机隔离与 HA",
+          "标准注销事件、受控长任务续期及严格撤销排序"
+        ]
       }
     },
     {
@@ -1073,7 +1085,6 @@
           "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
         ],
         "remaining": [
-          "浏览器授权码/PKCE 产品入口、托管来源凭据登记与刷新",
           "托管 Secret、签名及客户端密钥轮换、Windows ACL Provider 资格",
           "标准注销/安全事件和恢复对账",
           "三层委派收窄与跨服务撤销/派发排序",
@@ -1086,7 +1097,6 @@
         "design": "docs/design/managed-secrets-33.md",
         "implementation": "OpenBao KV v2 固定版本引用；原生 Agent 负责 AppRole 续期及重认证；E2AG 检查来源版本及失效",
         "remaining": [
-          "浏览器 SSO 与 OAuth 来源令牌刷新",
           "通用 Worker Secret 挂载、签名与客户端密钥轮换",
           "企业 TLS、托管解封、重启身份投递和真实多主机资格"
         ],
@@ -1095,7 +1105,7 @@
       },
       "independent_source_sessions": {
         "date": "2026-11-24",
-        "state": "development_verified_browser_intake_pending",
+        "state": "development_verified_full_lifecycle_pending",
         "design": "docs/design/source-sessions-33.md",
         "evidence": "docs/design/evidence/source-sessions-20261124.json",
         "delivered": [
@@ -1104,14 +1114,13 @@
           "旧目录转换保留已有绑定，历史任务和产物按当前主体权限读取"
         ],
         "remaining": [
-          "可信网关与 Console 登录、CSRF、刷新后的提交回执恢复",
           "标准注销事件、长任务受控续期与跨服务撤销排序"
         ],
         "verification": "后端 502 项：375 通过、127 条件跳过；多来源专项 11 项、真实 IdP/MCP 8 项；两个来源的 Worker/CLI/SDK/浏览器通过，55 条历史全部保留"
       },
       "automatic_source_intake": {
         "date": "2026-11-24",
-        "state": "development_verified_browser_entry_pending",
+        "state": "development_verified_full_lifecycle_pending",
         "design": "docs/design/source-intake-33.md",
         "evidence": "docs/design/evidence/source-intake-20261124.json",
         "implementation": "Authlib/RFC 7662 可信映射及 scope 准入；OpenBao KV v2 原生 CAS=0 保存凭据与元数据，固定版本读回；原生 Agent 托管写入角色",
@@ -1121,11 +1130,26 @@
           "原生定时删除使过期记录不可读，源记录恢复不复活已撤销 Work/Grant"
         ],
         "remaining": [
-          "Console 可信网关入口与 CSRF",
-          "来源刷新后的提交回执恢复与受控长任务续期",
+          "受控长任务续期",
           "标准注销事件、企业留存物理销毁/审计策略和跨服务严格撤销"
         ],
         "verification": "后端 513 项：386 通过、127 条件跳过；原生 OpenBao/IdP 13 项、专项回归通过；两个自动来源完成 Worker、CLI/SDK、浏览器和服务重启验证，57 条历史保留"
+      },
+      "console_browser_entry": {
+        "date": "2026-11-24",
+        "state": "development_verified_enterprise_acceptance_pending",
+        "design": "docs/design/console-browser-entry-33.md",
+        "evidence": "docs/design/evidence/console-browser-entry-20261124.json",
+        "delivered": [
+          "原生 OAuth2 Proxy/Valkey/Nginx 登录、刷新与退出；Console 中英及移动入口",
+          "同源写请求与身份头白名单；CLI/SDK 独立 Bearer 入口",
+          "刷新后原 Run/Work 回执恢复，保留期限和来源，配置/输入变化继续冲突"
+        ],
+        "verification": "后端 517 项：390 通过、127 条件跳过；真实浏览器、Worker、独立审批与报告通过；六路刷新重试返回原任务；59 条原历史保留，当前 60 条",
+        "remaining": [
+          "企业 IdP、TLS/主机隔离与 HA",
+          "标准注销事件、受控长任务续期及严格撤销排序"
+        ]
       }
     },
     {
@@ -1202,9 +1226,9 @@
         "evidence": "docs/design/evidence/identity-provider-20261124.json",
         "checks_passed": 25,
         "observed_gap": "源 Access Token 撤销后交换 Access Token 仍有效，标准交换结果无 act 委派声明",
-        "next": "#33 企业登录入口及托管来源凭据生命周期；#35 注销/安全事件对账与受控委派",
+        "next": "#35 标准注销/安全事件对账、受控委派；#33 企业 IdP 与密钥生命周期资格",
         "remaining": [
-          "真实企业 IdP 与登录入口接线",
+          "真实企业 IdP 资格",
           "签名/客户端密钥轮换及安全存储",
           "标准注销/安全事件交付与恢复对账",
           "三层委派及严格撤销并发验收"
@@ -1221,7 +1245,6 @@
           "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
         ],
         "remaining": [
-          "浏览器授权码/PKCE 产品入口、托管来源凭据登记与刷新",
           "托管 Secret、签名及客户端密钥轮换、Windows ACL Provider 资格",
           "标准注销/安全事件和恢复对账",
           "三层委派收窄与跨服务撤销/派发排序",

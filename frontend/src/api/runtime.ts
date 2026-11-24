@@ -1,5 +1,5 @@
 import { apiPrefix } from "../lib/apiBase";
-import { authHeaders } from "../lib/auth";
+import { authHeaders, sessionExpired } from "../lib/auth";
 
 const BASE = `${apiPrefix()}/os/runtime`;
 export class RuntimeApiError extends Error {
@@ -41,6 +41,7 @@ export interface Preview { id: string; kind: string; text: string; markdown: str
 async function response(path: string, init?: RequestInit) {
   const result = await fetch(`${BASE}${path}`, { ...init, headers: authHeaders(init?.headers), cache: "no-store" });
   if (!result.ok) {
+    if (result.status === 401) sessionExpired();
     const value = await result.json().catch(() => ({}));
     throw new RuntimeApiError(typeof value.detail === "string" ? value.detail : "REQUEST_FAILED", result.status);
   }

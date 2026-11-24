@@ -1,19 +1,27 @@
 """Single trusted operator service over the durable runtime. No executor in HTTP."""
 import asyncio
-import copy
 import base64
+import copy
 import json
 import math
 from pathlib import Path
-from sqlalchemy import select, and_, or_, false
+
+from sqlalchemy import and_, or_, select
+
 from app.runtime.artifacts import LocalArtifacts
 from app.runtime.database import RuntimeErrorCode
-from app.runtime.schema import runs, attempts, artifacts, events
-from app.runtime.store import RuntimeStore, digest
 from app.runtime.principals import admit
-from app.services.task_inputs import (CONSOLE_ORIGIN, LEGACY_INPUT_KINDS, is_console_input, registration, dynamic_input)
-from app.runtime.worker import read_profile
+from app.runtime.schema import artifacts, attempts, events, runs
+from app.runtime.store import RuntimeStore, digest
 from app.runtime.work_policy import security_profile
+from app.runtime.worker import read_profile
+from app.services.task_inputs import (
+    CONSOLE_ORIGIN,
+    LEGACY_INPUT_KINDS,
+    dynamic_input,
+    is_console_input,
+    registration,
+)
 
 
 class TaskConsole:
@@ -125,18 +133,28 @@ class TaskConsole:
         if registered['requires_e2ag'] and profile['governance']!='e2ag':
             raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
         if self.principal is not None and profile['governance']!='e2ag':raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
+        # The client request identifies a receipt; the first accepted source owns
+        # Work. OAuth refresh must never replace that Work or extend its deadline.
+        owner = ({k:self.principal[k] for k in ('issuer','id','scope','subject','actor')}
+                 if self.principal is not None else None)
+        submission_digest=digest(dict(owner=owner,profile_id=profile_id,sample_id=sample_id,
+            input_payload=input_payload,goal=goal,registered_input=value,
+            registration_digest=registered['registration_digest'],profile_digest=profile['profile_digest'],
+            secret_refs=registered['refs']))
+        if self.principal is not None:key='principal-'+digest([self.principal['issuer'],self.principal['id'],key])
+        receipt=await self.store.submission_receipt(key,submission_digest)
+        if receipt is not None:return await self.detail(receipt['id'])
         descriptor=None;refs=registered['refs']
         if profile['governance']=='e2ag':
             if self.policy is None:raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
             descriptor=await asyncio.to_thread(admit,self.policy,profile_id,profile['profile_digest'],refs,self.principal)
-        if self.principal is not None:key='principal-'+digest([self.principal['issuer'],self.principal['id'],key])
         run=await self.store.submit(key,dict(origin=CONSOLE_ORIGIN,
             **({'principal':self.principal} if self.principal is not None else {}),
             input_registration=dict(digest=registered['registration_digest'],
                 **({'result_schema':registered['contract']['result_schema']} if registered['contract']['result_schema'] is not None else {})),
             runtime_profile=profile_id,profile_digest=profile['profile_digest'],
             task_kind=profile['input_kind'],payload=dict(goal=goal,sample=value),
-            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor)
+            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest)
         return await self.detail(run['id'])
 
     @staticmethod

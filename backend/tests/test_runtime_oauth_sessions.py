@@ -100,6 +100,49 @@ class MultiSourceTests(fixtures.SourceFixture, unittest.IsolatedAsyncioTestCase)
         ):
             self.assertNotIn(private, response.text)
 
+    async def test_refreshed_submission_returns_original_receipt_without_renewal(self):
+        run = await self.submit_as("a", "receipt")
+        before = await self.console.store.get(run["id"])
+        self.claims[self.access]["active"] = False
+        with patch("app.services.task_console.admit", side_effect=AssertionError("No new admission")):
+            replay = await self.submit_as("peer", "receipt")
+        self.assertEqual(replay["id"], run["id"])
+        self.assertEqual(replay["authorization"]["expires_at"], run["authorization"]["expires_at"])
+        after = await self.console.store.get(run["id"])
+        self.assertEqual({k:v for k,v in after.items() if k!='observed_at'},
+                         {k:v for k,v in before.items() if k!='observed_at'})
+        self.assertEqual(len((await self.get("peer", "runs")).json()["items"]), 1)
+
+    async def test_refreshed_receipt_conflict_and_current_permissions(self):
+        await self.submit_as("a", "receipt")
+        body = dict(profile_id="review", sample_id="first-item", goal="changed", idempotency_key="receipt")
+        response = await self.client.post("/api/os/runtime/runs", headers=self.headers_for("peer"), json=body)
+        self.assertEqual(response.status_code, 409)
+        body["goal"] = "review"
+        self.directory["principals"]["a"]["profiles"]["review"]["actions"].remove("run.submit")
+        self.save()
+        response = await self.client.post("/api/os/runtime/runs", headers=self.headers_for("peer"), json=body)
+        self.assertEqual(response.status_code, 404)
+
+    async def test_concurrent_sources_accept_one_work_and_keep_winning_binding(self):
+        first, second = await asyncio.gather(self.submit_as("a", "concurrent"), self.submit_as("peer", "concurrent"))
+        self.assertEqual(first["id"], second["id"])
+        run = await self.console.store.get(first["id"])
+        self.assertIn(run["input"]["principal"]["upstream"]["ref"], [self.reference["ref"], "session-b"])
+        self.assertEqual(len((await self.get("peer", "runs")).json()["items"]), 1)
+
+    async def test_receipt_does_not_resurrect_revoked_work(self):
+        run = await self.submit_as("a", "revoked-receipt")
+        context = await self.context(run)
+        self.claims[self.access]["active"] = False
+        with self.assertRaisesRegex(RuntimeErrorCode, "AUTH_PRINCIPAL_REVOKED"):
+            await self.verifier(context, "execute")
+        replay = await self.submit_as("peer", "revoked-receipt")
+        self.assertEqual(replay["id"], run["id"])
+        self.claims[self.access]["active"] = True
+        with self.assertRaisesRegex(RuntimeErrorCode, "AUTH_REVOKED"):
+            await self.verifier(context, "execute")
+
     async def test_append_refresh_version_preserves_work_binding_and_deadline(self):
         run = await self.submit_as("a", "original")
         context = await self.context(run)

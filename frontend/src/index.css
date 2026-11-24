@@ -77,6 +77,13 @@ body {
 }
 .app-header > h1, .app-header > .header-nav { flex-shrink: 0; }
 .app-header .header-tab { white-space: nowrap; }
+.session-label { font-size: 12px; white-space: nowrap; }
+.session-exit { white-space: nowrap; flex-shrink: 0; }
+@media(max-width:720px) {
+  .browser-session .app-header { gap: 8px; padding-left: 12px; padding-right: 12px; }
+  .browser-session .app-header > .header-nav, .browser-session .session-label { display: none; }
+  .browser-session .app-header > .preferences-controls { position: static; padding: 0; }
+}
 .app-header h1 { font-size: 20px; font-weight: 700; color: var(--color-primary); }
 .header-nav { display: flex; gap: 4px; }
 .header-tab {

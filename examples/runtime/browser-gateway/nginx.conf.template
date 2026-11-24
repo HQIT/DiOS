@@ -1,0 +1,118 @@
+# Render only ${DIOS_*} placeholders, preserving native Nginx variables.
+# This ingress serves built /srv/dios assets, not a development proxy.
+worker_processes 1;
+pid /tmp/nginx.pid;
+error_log /dev/stderr crit;
+events { worker_connections 512; }
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+  client_body_temp_path /tmp/client;
+  proxy_temp_path /tmp/proxy;
+  fastcgi_temp_path /tmp/fastcgi;
+  uwsgi_temp_path /tmp/uwsgi;
+  scgi_temp_path /tmp/scgi;
+  log_format safe '$request_method $uri $status $request_time';
+  access_log /dev/stdout safe;
+  map $request_method $dios_write { default 1; GET 0; HEAD 0; }
+  map $http_origin $dios_origin { default 0; "${DIOS_BROWSER_ORIGIN}" 1; }
+  map $http_sec_fetch_site $dios_fetch { default 0; "" 1; same-origin 1; }
+  map "$dios_write:$dios_origin:$dios_fetch:$http_x_csrf_token" $dios_csrf {
+    default 0;
+    ~^0: 1;
+    "1:1:1:1" 1;
+  }
+  map "$http_authorization$http_x_dios_access_token" $dios_mixed { default 1; "" 0; }
+  server {
+    listen ${DIOS_BROWSER_LISTEN};
+    server_name ${DIOS_BROWSER_HOST};
+    root /srv;
+    client_max_body_size 1m;
+    add_header Cache-Control "no-store" always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy no-referrer always;
+    # Access Token comes only from the native auth subrequest. No caller identity
+    # headers, cookies or wildcard CORS policy reach the DiOS API.
+    location = /_dios_auth {
+      internal;
+      proxy_pass ${DIOS_OAUTH_UPSTREAM}/oauth2/auth;
+      proxy_pass_request_body off;
+      proxy_pass_request_headers off;
+      proxy_set_header Content-Length "";
+      proxy_set_header Cookie $http_cookie;
+      proxy_set_header Host ${DIOS_BROWSER_HOST};
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-Proto ${DIOS_BROWSER_SCHEME};
+    }
+    location = /dios/api/auth/status {
+      default_type application/json;
+      return 200 '{"mode":"browser_sso","access_token_required":false}';
+    }
+    location ^~ /dios/api/os/runtime/ {
+      if ($request_method = OPTIONS) { return 405; }
+      if ($dios_mixed = 1) { return 400; }
+      if ($dios_csrf = 0) { return 403; }
+      auth_request /_dios_auth;
+      auth_request_set $dios_access $upstream_http_x_auth_request_access_token;
+      auth_request_set $dios_cookie $upstream_http_set_cookie;
+      add_header Set-Cookie $dios_cookie always;
+      add_header Cache-Control no-store always;
+      add_header X-Content-Type-Options nosniff always;
+      error_page 401 = @unauthenticated;
+      error_page 500 502 504 = @unavailable;
+      proxy_pass_request_headers off;
+      proxy_set_header Authorization "Bearer $dios_access";
+      proxy_set_header X-DiOS-Approver-Token $http_x_dios_approver_token;
+      proxy_set_header Content-Type $http_content_type;
+      proxy_set_header Host ${DIOS_API_HOST};
+      proxy_hide_header Access-Control-Allow-Origin;
+      proxy_hide_header Access-Control-Allow-Credentials;
+      proxy_pass ${DIOS_API_UPSTREAM}/api/os/runtime/;
+    }
+    location @unauthenticated {
+      default_type application/json;
+      return 401 '{"detail":"AUTH_UNAUTHENTICATED"}';
+    }
+    location @unavailable {
+      default_type application/json;
+      return 503 '{"detail":"AUTH_PROVIDER_UNAVAILABLE"}';
+    }
+    location = /oauth2/start {
+      if ($request_method != GET) { return 405; }
+      proxy_pass_request_headers off;
+      proxy_set_header Cookie $http_cookie;
+      proxy_set_header Host ${DIOS_BROWSER_HOST};
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-Proto ${DIOS_BROWSER_SCHEME};
+      proxy_pass ${DIOS_OAUTH_UPSTREAM}/oauth2/start?rd=%2Fdios%2F;
+    }
+    location = /oauth2/callback {
+      if ($request_method != GET) { return 405; }
+      proxy_pass_request_headers off;
+      proxy_set_header Cookie $http_cookie;
+      proxy_set_header Host ${DIOS_BROWSER_HOST};
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-Proto ${DIOS_BROWSER_SCHEME};
+      proxy_pass ${DIOS_OAUTH_UPSTREAM};
+    }
+    location = /oauth2/sign_out {
+      if ($request_method != POST) { return 405; }
+      if ($dios_mixed = 1) { return 400; }
+      if ($dios_csrf = 0) { return 403; }
+      proxy_pass_request_body off;
+      proxy_pass_request_headers off;
+      proxy_method GET;
+      proxy_set_header Content-Length "";
+      proxy_set_header Cookie $http_cookie;
+      proxy_set_header Host ${DIOS_BROWSER_HOST};
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-Proto ${DIOS_BROWSER_SCHEME};
+      proxy_pass ${DIOS_OAUTH_UPSTREAM}/oauth2/sign_out?rd=%2Fdios%2F;
+    }
+    location /dios/api/ { return 404; }
+    location /dios/ { try_files $uri $uri/ /dios/index.html; }
+    location = / { return 302 /dios/; }
+    location / { return 404; }
+  }
+}

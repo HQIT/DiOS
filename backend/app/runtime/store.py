@@ -4,10 +4,21 @@ import hashlib
 import json
 import math
 from uuid import uuid4
-from sqlalchemy import select, and_, exists
+
+from sqlalchemy import and_, exists, select
+
 from .database import RuntimeErrorCode
-from .schema import runs, workers, attempts, events, acks, projections, artifacts, imports
 from .lifecycle import admission
+from .schema import (
+    acks,
+    artifacts,
+    attempts,
+    events,
+    imports,
+    projections,
+    runs,
+    workers,
+)
 
 TERMINAL = {'succeeded', 'failed', 'cancelled'}
 ACTIVE_ATTEMPTS = {'claimed', 'preparing', 'creating_session', 'waiting_model', 'streaming', 'validating'}
@@ -59,9 +70,27 @@ class RuntimeStore:
         await c.execute(events.insert().values(id=str(uuid4()), run_id=run['id'], version=version,
             type=kind, payload=payload, digest=digest(payload), created_at=now))
 
-    async def submit(self, key, value, *, authorization=None):
+    async def submission_receipt(self, key, submission_digest):
+        """Read an immutable accepted request without creating or renewing Work."""
+        identifier(key)
+        async with self.db.read(self.scope) as c:
+            existing = (await c.execute(select(runs).where(
+                runs.c.scope == self.scope, runs.c.idempotency_key == key))).mappings().first()
+            if existing is None:return None
+            # Legacy records retain exact input/authority matching in submit().
+            if 'submission_digest' not in existing['input']:return None
+            if existing['input'].get('submission_digest') != submission_digest:
+                raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
+            return dict(existing)
+
+    async def submit(self, key, value, *, authorization=None, submission_digest=None):
         identifier(key)
         if not isinstance(value, dict): raise RuntimeErrorCode("INVALID_ARGUMENT")
+        if submission_digest is not None:
+            if (not isinstance(submission_digest,str) or len(submission_digest)!=64
+                    or any(x not in '0123456789abcdef' for x in submission_digest)):
+                raise RuntimeErrorCode('INVALID_ARGUMENT')
+            value=dict(value,submission_digest=submission_digest)
         if authorization is not None:
             bounded(authorization)
             value=dict(value,work_authorization_ref='wa-'+digest([self.scope,key,authorization['policy_digest']])[:60],
@@ -71,7 +100,11 @@ class RuntimeStore:
         async with self.db.transaction(self.scope) as c:
             existing = (await c.execute(select(runs).where(runs.c.scope == self.scope, runs.c.idempotency_key == key))).mappings().first()
             if existing:
-                if existing['input_digest'] != hashed:
+                same_receipt = (submission_digest is not None
+                    and existing['input'].get('submission_digest') == submission_digest)
+                legacy_exact = ('submission_digest' not in existing['input']
+                    and existing['input_digest'] == digest({k:v for k,v in value.items() if k!='submission_digest'}))
+                if existing['input_digest'] != hashed and not same_receipt and not legacy_exact:
                     raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
                 return dict(existing)
             if not await admission(c, self.scope): raise RuntimeErrorCode('RUNTIME_DRAINING')
@@ -119,7 +152,7 @@ class RuntimeStore:
             busy = (await c.execute(select(attempts.c.id).where(attempts.c.worker_id == worker_id,
                 attempts.c.state.in_(ACTIVE_ATTEMPTS | {'result_unknown'})))).all()
             if len(busy) >= w['slots']: return None
-            from .faults import policy,ready,claimed
+            from .faults import claimed, policy, ready
             recovery_policy=policy(recovery_policy)
             if not await ready(c,self,recovery_policy,profile_id,now):return None
             query = select(runs).where(runs.c.scope == self.scope, runs.c.state == 'queued',
@@ -311,7 +344,7 @@ class RuntimeStore:
         async with self.db.read(self.scope) as c:
             run = await self._run(c, run_id)
             run['attempts'] = [dict(a) for a in (await c.execute(select(attempts).where(attempts.c.run_id == run_id).order_by(attempts.c.epoch))).mappings()]
-            from .faults import view,bound_policy
+            from .faults import bound_policy, view
             run['recovery']=await view(c,self.scope,run_id)
             run['recovery_policy']=await bound_policy(c,self.scope,run['attempt_id'])
             run['observed_at'] = await self.db.now(c)
