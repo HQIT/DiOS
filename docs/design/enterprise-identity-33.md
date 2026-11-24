@@ -8,8 +8,8 @@ DiOS 接入企业已有身份服务，以可信发行方和 subject 标识主体
 
 | 能力 | 成熟实现与标准 | DiOS 接入责任 |
 | --- | --- | --- |
-| 浏览器登录、授权码、PKCE、OIDC ID Token | Authlib 的 OAuth/OIDC 客户端与 joserfc；企业现有 IdP，Keycloak 作为资格实例 | 固定可信发行方和回调，持久关联 state/nonce，验证签名、受众与主体映射 |
-| 浏览器会话托管 | OAuth2 Proxy 支持 Cookie/Redis 会话后端，可作部署选项 | 验证网关头注入与旁路、CSRF、退出、跨实例会话；当前尚未完成该选项资格 |
+| 浏览器登录、授权码、PKCE、OIDC ID Token | OAuth2 Proxy 原生浏览器入口；Authlib/joserfc 协议资格；企业 IdP，Keycloak 作为资格实例 | 固定可信发行方和回调，持久关联 state/nonce，验证签名、受众与主体映射 |
+| 浏览器会话托管 | OAuth2 Proxy 支持 Cookie/Redis 会话后端，可作部署选项 | 已完成原生网关/Valkey 单实例资格；DiOS 入口隔离、CSRF、多来源绑定及多实例仍须接入验收 |
 | API 令牌当前状态 | RFC 7662 Introspection；Authlib 原生客户端 | 明确 API audience、允许的 client、过期时间和 scope；不可达时拒绝新准入，区分身份撤销与暂时无法观察 |
 | 下游令牌交换 | RFC 8693；Keycloak 标准 Token Exchange | 受众和范围收窄、原工作期限、subject/actor 分离、来源引用及撤销依赖 |
 | 用户退出与安全事件 | OIDC Back-Channel Logout；SSF/CAEP | 校验签名、issuer/audience、事件类型、sid/sub、时间及重放；映射到既有授权撤销并进行恢复对账 |
@@ -54,4 +54,4 @@ workspace/identity-qualification-33/bin/python scripts/probe_identity_provider.p
 
 Authlib 低层客户端需由调用方保存授权请求返回的 state，并在换取令牌时传入该值；本探针包含错配拒绝测试。PKCE、state、nonce 各自独立验证。Authlib 1.9.10 与本仓库现用 httpx 0.28.1 的组合通过本轮检查，但库提示推荐迁移 httpx2；当前 Runtime 与真实身份服务集成回归覆盖该组合；httpx2 升级仍须独立验证传输兼容。
 
-[Runtime 来源授权接入](runtime-oauth-source-33.md)已使用 Authlib/RFC 7662 接入已登记来源凭据的 API 准入、E2AG 工作复核与工具执行；真实 IdP 停机恢复、撤销和开发 Worker 链路通过验证。当前采用可信主机登记，Secret 支持 POSIX 文件及 [OpenBao KV v2 托管引用](managed-secrets-33.md)，Console 仍以 Access Token 登录。下一步接企业登录入口及托管凭据生命周期；OAuth2 Proxy、真实企业 IdP、签名密钥轮换、标准注销事件交付、三层委派和物理多主机继续按原 #33/#35 验收。
+[Runtime 来源授权接入](runtime-oauth-source-33.md)已使用 Authlib/RFC 7662 接入已登记来源凭据的 API 准入、E2AG 工作复核与工具执行；真实 IdP 停机恢复、撤销和开发 Worker 链路通过验证。当前采用可信主机登记，Secret 支持 POSIX 文件及 [OpenBao KV v2 托管引用](managed-secrets-33.md)，Console 仍以 Access Token 登录。[浏览器 SSO 接入](browser-sso-33.md)记录原生网关、Valkey、身份源故障和既有 DiOS 来源验证的结果。下一步先分离主体与多来源绑定，再接企业登录入口；真实企业 IdP、签名密钥轮换、标准注销事件交付、三层委派和物理多主机继续按原 #33/#35 验收。

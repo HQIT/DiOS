@@ -831,7 +831,8 @@
         "delivered": [
           "可信主体 Provider 与独立令牌，准入和运行时 E2AG 绑定",
           "任务归属、查询过滤、Run 关联产物读取和分享撤销，Console/CLI/SDK 同步",
-          "已登记 OAuth 来源与工作授权绑定、故障分类及实际工具执行前复核"
+          "已登记 OAuth 来源与工作授权绑定、故障分类及实际工具执行前复核",
+          "OpenBao KV v2 托管来源引用与原生 Agent 服务身份续期，E2AG 来源失效控制已验证"
         ],
         "remaining": [
           "企业 OIDC/SSO、签发与密钥托管轮换",
@@ -868,7 +869,7 @@
         ],
         "remaining": [
           "浏览器授权码/PKCE 产品入口、托管来源凭据登记与刷新",
-          "托管 Secret、签名及客户端密钥轮换、Windows ACL Provider 资格",
+          "签名及客户端密钥轮换、通用 Worker Secret 挂载、Windows ACL Provider 资格",
           "标准注销/安全事件和恢复对账",
           "三层委派收窄与跨服务撤销/派发排序",
           "真实企业身份服务及物理多主机资格"
@@ -886,6 +887,25 @@
         ],
         "evidence": "docs/design/evidence/managed-secrets-20261124.json",
         "verification": "原生服务 14 项、真实 KV/IdP/MCP 边界 7 项通过；真实 Worker、CLI/SDK、浏览器及来源版本切换通过；53 条原历史保留"
+      },
+      "browser_sso_qualification": {
+        "date": "2026-11-24",
+        "state": "native_gateway_verified_DiOS_browser_intake_pending",
+        "design": "docs/design/browser-sso-33.md",
+        "evidence": "docs/design/evidence/login-gateway-20261124.json",
+        "selection": "OAuth2 Proxy 原生登录/刷新；Valkey Redis 协议会话存储；企业 IdP 可替换",
+        "next": [
+          "主体与多个版本化来源引用分离，保持旧 Work/Grant 的来源及绝对期限",
+          "可信网关准入、CSRF 与 Console 企业登录入口",
+          "真实 IdP 注销事件、恢复对账与多主机资格"
+        ],
+        "observed_boundaries": [
+          "未使用的身份头可以透传，必须限定 API 信任入口",
+          "携带 Cookie 的任意 Origin POST 可到上游，必须接应用 CSRF",
+          "身份源故障时网关可返回 200，保留独立 RFC 7662/E2AG 检查"
+        ],
+        "checks_passed": 25,
+        "verification": "真实浏览器、并发原生刷新、服务重启、退出与旧票据重放、身份源停机/过期时既有 DiOS 来源验证器拒绝、恢复后新登录通过"
       }
     },
     {

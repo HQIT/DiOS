@@ -1,0 +1,81 @@
+{
+  "recorded_at_utc": "2026-11-24T03:38:56Z",
+  "images": {
+    "gateway": "quay.io/oauth2-proxy/oauth2-proxy:v7.15.6@sha256:c3415e8660af553f5e18f5d90db050614c02493c0ac6260ac59442f6d9b12048",
+    "session_store": "valkey/valkey:9.2.0@sha256:1c2b25b09f354c66fe994733acdf12fcfd4bdf6f3bd92b88a93a70378d884056",
+    "identity_provider": "quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3"
+  },
+  "checks": [
+    "anonymous-request-denied",
+    "real-browser-code-PKCE-nonce-state",
+    "audience-client-and-subject",
+    "http-only-lax-ticket-no-browser-token-storage",
+    "authorization-callback-replay-rejected",
+    "tampered-ticket-rejected",
+    "state-mismatch-rejected",
+    "nonce-mismatch-rejected",
+    "pkce-mismatch-rejected",
+    "managed-user-and-access-token-headers-overwritten",
+    "parallel-refresh-beyond-original-expiry",
+    "native-refresh-survives-original-access-expiry",
+    "independent-user-session",
+    "gateway-restart-preserves-session",
+    "AOF-store-restart-preserves-session",
+    "local-logout-denies-session",
+    "logged-out-ticket-replay-rejected",
+    "local-logout-keeps-IdP-SSO",
+    "configured-backend-logout-invalidates-IdP-source",
+    "other-user-survives-independent-logout",
+    "store-outage-fails-closed",
+    "DiOS-source-accepts-current-gateway-token",
+    "DiOS-source-fails-closed-during-IdP-outage",
+    "DiOS-source-rejects-expired-token",
+    "fresh-login-after-dependency-recovery"
+  ],
+  "checks_passed": 25,
+  "observations": {
+    "unused_headers_forwarded": {
+      "authorization_is_forged": true,
+      "xauth_is_forged": true
+    },
+    "upstream_post_with_untrusted_origin_status": 200,
+    "parallel_refresh": {
+      "rounds": 5,
+      "requests_per_round": 6
+    },
+    "after_store_outage_status": 302,
+    "DiOS_source_during_IdP_outage": "AUTH_PROVIDER_UNAVAILABLE",
+    "IdP_outage_refresh": {
+      "status": 200,
+      "source_active": null,
+      "source_expires_at": null,
+      "observed_at": 1795491493,
+      "upstream_reached": true,
+      "same_token": true
+    },
+    "IdP_outage_after_source_expiry": {
+      "status": 302,
+      "source_active": null,
+      "source_expires_at": null,
+      "observed_at": 1795491515,
+      "upstream_reached": false,
+      "same_token": false
+    },
+    "after_IdP_recovery": {
+      "status": 302,
+      "source_active": null,
+      "source_expires_at": null,
+      "observed_at": 1795491533,
+      "upstream_reached": false,
+      "same_token": false
+    }
+  },
+  "scope": "Native gateway and existing DiOS OAuth source validator; no browser principal intake or runtime migration",
+  "remaining": [
+    "Production TLS and Secure cookies",
+    "Gateway-only backend transport and application CSRF protection",
+    "Versioned source-session intake and concurrent browser sessions",
+    "Background work source lifetime and OAuth refresh semantics",
+    "Standard logout/security events and recovery reconciliation"
+  ]
+}
