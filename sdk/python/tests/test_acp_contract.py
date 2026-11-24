@@ -11,6 +11,7 @@ class Writer:
     def __init__(self):self.messages=[]
     def write(self,data):self.messages.append(json.loads(data))
     async def drain(self):pass
+    def close(self):pass
 
 
 class AcpBridgeTests(unittest.IsolatedAsyncioTestCase):
@@ -43,7 +44,10 @@ class AcpBridgeTests(unittest.IsolatedAsyncioTestCase):
     async def test_timeout_is_explicit_and_partial_output_kept(self):
         self.peer.output='partial'
         with self.assertRaisesRegex(RuntimeErrorCode,'ACP_QUERY_TIMEOUT'):await self.peer.call('session/prompt',{},timeout=.01)
-        self.assertEqual(self.peer.output,'partial');self.assertFalse(self.peer.pending)
+        self.assertEqual(self.peer.output,'partial')
+        self.assertFalse(self.peer.prompt_task.done())
+        await self.peer.connection.close()
+        await asyncio.gather(self.peer.prompt_task,return_exceptions=True)
 
     async def test_native_tool_notification_is_unverified(self):
         await self.peer.incoming({'method':'session/update','params':{'sessionId':'session','update':{'sessionUpdate':'tool_call'}}})
@@ -61,7 +65,8 @@ class ControlledClientOperationsTests(unittest.IsolatedAsyncioTestCase):
         gate=Gate();self.peer.tool_client=gate;self.peer.client_read_tool='read_source'
         await self.peer.incoming({'jsonrpc':'2.0','id':4,'method':'fs/read_text_file',
             'params':{'sessionId':'session','path':'/repo/main.py','line':2,'limit':10}})
-        self.assertEqual(gate.calls[0],('read_source',{'path':'/repo/main.py','line':2,'limit':10},'acp-read:4'))
+        self.assertEqual(gate.calls[0][:2],('read_source',{'path':'/repo/main.py','line':2,'limit':10}))
+        self.assertTrue(gate.calls[0][2].startswith('acp-read:'))
         self.assertEqual(self.process.stdin.messages[-1]['result']['content'],'read-only 中文')
         await self.peer.incoming({'jsonrpc':'2.0','id':5,'method':'fs/write_text_file','params':{'sessionId':'session'}})
         self.assertEqual(len(gate.calls),1);self.assertEqual(gate.denials[-1][1]['method'],'fs/write_text_file')

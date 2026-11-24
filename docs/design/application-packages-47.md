@@ -11,7 +11,7 @@ DiOS 管理执行和证据；应用拥有业务输入、规则、数据与业务
 | knowledge-source | 参考资料授权供给与版本 | dios-knowledge-source |
 | static-review | 静态评审规则与 ACP/Cursor 报告 | dios-review / dios-cursor-review |
 
-三个应用包只依赖 dios-sdk>=0.1.0,<0.2。Cursor 可执行程序、模型凭据和版本配置由部署者单独提供。现有固定镜像的旧评审任务继续兼容；新 SDK 的 ACP 测试覆盖协议场景，真实供应商版本认证仍按 #56/#58 执行。
+知识应用依赖轻量 dios-sdk；static-review 0.1.1 依赖 dios-sdk[acp]>=0.1.2,<0.2，ACP 扩展固定官方 agent-client-protocol 1.0.0。Cursor 可执行程序、模型凭据和版本配置由部署者单独提供。真实供应商版本认证按 #56/#58 执行，见 [取消与授权验证](acp-cancellation-56-58.md)。
 
 ## 构建与安装
 
@@ -22,7 +22,7 @@ python scripts/build_application_packages.py --output /absolute/releases
 pip install --no-index --find-links=/absolute/releases dios-sdk knowledge-evidence
 ```
 
-输出四组 wheel/sdist、三个 bundle.zip 和 checksums.json。每个 bundle 仅包含应用清单、Dockerfile、适用的输入目录及 SDK/应用 wheel；解压后可用 docker build 构建镜像。记录实际镜像 digest，再登记到执行 profile。application.json 描述版本和协议；Registry 自动安装及兼容认证仍由 #44/#47 接续。构建不会发布到外部包仓库。
+输出四组 wheel/sdist、三个 bundle.zip 和 checksums.json。每个 bundle 包含应用清单、Dockerfile、适用的输入目录、SDK/应用及完整依赖 wheel；解压后可用 docker build 离线安装依赖。依赖解析需要可访问配置的包索引，默认目标为 Linux x86_64 / Python 3.12；ARM64 构建传入 `--platform manylinux2014_aarch64`，在对应架构执行镜像验证。checksums.json 保存目标平台及构建物摘要。记录实际镜像 digest，再登记到执行 profile。application.json 描述版本和协议；Registry 自动安装及兼容认证仍由 #44/#47 接续。
 
 ## 输入、任务与成果
 

@@ -2,6 +2,8 @@
 
 Cursor CLI 固定版本 `2026.11.05-86047df`。本批在 Linux/WSL Docker 中使用真实 Cursor 模型，覆盖固定样例任务、E2AG 工具审批、证据报告和 Worker 中断恢复。原有 Windows 持续评审保持独立运行。
 
+当前独立应用使用 dios-sdk[acp] 0.1.2 和 ACP 官方 SDK 1.0.0；真实取消、撤权与正常批准路径见 [取消与受控执行契约](acp-cancellation-56-58.md)。
+
 ## 执行与授权
 
 ```mermaid
@@ -35,7 +37,7 @@ ACP 的 `allow_once` 只允许请求进入 DiOS 提供的 MCP 代理。工具网
 
 `permit_proxy` 与 `verify_required` 均绑定当前 Run、Attempt、Worker、Session、租约及授权版本，沿用自动 Worker 凭据和远程控制通道。前者没有审批或执行权限；后者要求同一尝试/会话下存在参数摘要一致、执行成功的工具记录。任务声称使用检索但缺少该记录时返回证据不足。
 
-通用 ACP 客户端负责协议生命周期和流式事件；`runtime/cursor_acp.py` 负责 Cursor 工具元数据与最终答案格式，`apps/cursor_review.py` 负责选择适配入口，Runtime 调度、恢复和 E2AG 没有 Cursor 分支。
+通用 SDK ACP 客户端负责协议生命周期和流式事件；`dios_sdk.cursor` 负责 Cursor 工具元数据与最终答案格式，独立 `dios_review.cursor` 应用负责报告入口。Runtime 调度、恢复和 E2AG 共用通用执行契约。
 
 ## 实际兼容性
 
@@ -61,7 +63,7 @@ ACP 的 `allow_once` 只允许请求进入 DiOS 提供的 MCP 代理。工具网
 - 沙箱：非 root、只读镜像、无宿主工作区挂载；实际根目录写入失败，直接外连失败，代理拒绝未许可域名。`/tmp` 为临时可写空间。
 - 开发 Console：通过真实 UI 提交、查看审批和实际并发、批准并下载 Markdown；工程身份与真实用户产品验收分别登记。
 
-本批恢复能力为已完成输出的持久对账。Cursor 原生 `session/load` 跨进程恢复、运行中会话重连、真实模型取消确认、供应商结构化限流/额度映射仍需独立验证。当前 profile 的 `replay_safe=false`，不会自动重发模型任务。
+本批恢复能力为已完成输出的持久对账。Cursor 原生 `session/load` 跨进程恢复、运行中会话重连、供应商结构化限流/额度映射仍需独立验证。当前 profile 的 `replay_safe=false`，不会自动重发模型任务。
 
 Agent 内部读取和未经过 ACP 回调的内置工具路径仍待完整资格验证；当前仅开放固定样例，没有企业源码挂载。模型凭据在执行容器内使用，更强的凭据代理隔离由 #33/#58 继续推进。
 
@@ -71,7 +73,7 @@ Agent 内部读取和未经过 ACP 回调的内置工具路径仍待完整资格
 
 1. 从 Cursor 官方分发源取得固定版本 Linux 包，记录包摘要，并将二进制和 DiOS 应用代码固化进镜像；profile 使用镜像 ID。
 2. 使用版本化 Secret 引用提供 `CURSOR_API_KEY` 或 `CURSOR_AUTH_TOKEN`，凭据由宿主秘密目录挂载。仓库示例不包含凭据。Worker 的 `worker_secret_refs` 必须显式允许对应引用。
-3. 选择 `app.apps.cursor_review --config ... --required-tool repository_search`，注册工具别名、ACP 名称映射、工作权限和独立审批身份。工具动作仍由网关持有。
+3. 选择 `dios-cursor-review --config ... --required-tool repository_search`，注册工具别名、ACP 名称映射、工作权限和独立审批身份。工具动作仍由网关持有。
 4. 将执行容器放入内部网络，仅经许可域名代理访问模型。受控检索服务位于可信端，Agent 通过 Worker 工具通道访问。
 5. 工程验证使用 `scripts/fixtures/runtime_review_source.py --root <隔离样例目录>` 提供两个固定源文件，以及 `scripts/check_runtime_cursor.mjs <开发配置目录>` 验证 Console 路径。该样例服务用于资格测试。
 6. 更新前停止领取、等待活跃任务和工具调用排空，保留数据库、对象、任务身份与旧配置。新配置失败时恢复旧 profile/服务配置；已有任务和历史继续保留。
@@ -80,6 +82,6 @@ Console、API 与 CLI 继续共用既有任务契约；CLI 通过注册 profile 
 
 ## 后续安排
 
-#56/#58 保持进行中。下一段优先补齐真实任务取消、撤销/旧 epoch 与跨主机断连验证，再按 #57 兼容矩阵接入第二来源 Agent 和 A2A。#31 固定版本发布、#36 企业身份继续沿既定路线衔接。G2 的独立权限评审与用户产品验收保留为后续门槛。
+#56/#58 保持进行中。真实任务取消确认、审批等待中撤权和旧授权拒绝已通过独立应用镜像验证。下一段按 #57 接入 DeepSeek Harness 替换对照、Codex Adapter 和 A2A 互操作，继续覆盖跨主机断连及双来源旧 epoch 场景。#31 固定版本发布、#36 企业身份继续沿既定路线衔接。G2 的独立权限评审与用户产品验收保留为后续门槛。
 
 协议参考：[Cursor ACP 文档](https://cursor.com/docs/cli/acp)、[ACP 会话设置](https://agentclientprotocol.com/protocol/v1/session-setup)。本页能力结论以固定版本实测为准。

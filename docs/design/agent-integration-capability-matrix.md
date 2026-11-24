@@ -2,6 +2,8 @@
 
 日期：2026-11-11 · 关联：[F01-3 #57](https://github.com/HQIT/DiOS/issues/57) · 状态：能力勘察完成。执行实现、协议兼容整改和生产准入由 #25/#27/#30/#34/#35/#56/#58 承接。
 
+2026-11-24 工程证据：[Cursor 官方 SDK 接入、真实取消与撤权](acp-cancellation-56-58.md)。DiOS 统一执行和治理能力；DiAgent、框架构建的 Agent、dsh、Codex、Cursor 等 Harness 经开放协议或独立 Adapter 接入。下表中的未验证能力继续按固定版本逐项验收。
+
 ## 选择结论
 
 第一组为 **DiAgent 当前任务路径 + Cursor 原生 ACP**：覆盖既有执行语义与第三方 Harness，便于暴露平台任务/会话映射和恢复差异。DiAgent 路径须先通过规范符合性检查，当前 A2A 风格 API 不直接计为完整标准 A2A 实现。
@@ -34,7 +36,7 @@
 | 任务/会话 | 源码：A2ATask 与 AgentRuntime；缺 Attempt | 实测 new、ask、含输出会话同进程 load；空会话 load 返回参数错误 | 声明 new/list/resume/close，跨进程持久会话 | Schema 有 thread/turn；Adapter 转为 ACP session | 声明 ACP；版本能力须协商 |
 | 更新与输出 | 服务路径当前非流式；任务读日志/文件 | 实测 session/update 与 end_turn，合成代码评审 JSON 可解析 | 声明提交后的语义更新；不暴露原始 provider delta | Schema/Adapter 声明流式 item/turn 与工具事件 | 声明工具、权限和输出事件 |
 | 产物 | 源码内嵌 JSON/文本文件；缺验收 | 平台须从协议输出归集和校验 | 平台保存更新/产物；原始日志接入另定 | 平台保存事件/产物；不依赖可视界面 | 同左，需验证 SDK 返回完整度 |
-| 取消 | 源码主要修改记录状态，执行中断未闭环 | 声明 session/cancel；真实终止/迟到结果待测 | 声明 cancel/close 及所属活动排空；范围和后续自发活动需测试 | Schema 有 turn/interrupt；ACP 映射待测 | 声明取消；子进程/子任务收敛待测 |
+| 取消 | 源码主要修改记录状态，执行中断未闭环 | 实测 session/cancel → cancelled 确认及进程退出；SDK 保留迟到输出 | 声明 cancel/close 及所属活动排空；范围和后续自发活动需测试 | Schema 有 turn/interrupt；ACP 映射待测 | 声明取消；子进程/子任务收敛待测 |
 | 恢复 | 当前进程内轮询无持久恢复保证 | 同进程含输出会话 load 成功；跨进程、活动中断连、优雅退出仍待验证 | 声明 session/resume；不支持 session/load/历史重放 | Schema 有 thread/resume；Adapter 历史和重连语义待测 | v1/v2 能力不同，选定版本测试恢复/重放 |
 | 权限控制 | 已有部分 MCP grant；Docker 挂载 rw | 声明 request_permission；ask/plan 模式需强制只读测试 | 声明一次 allow/reject；stdio MCP 命令和 HTTP 地址由可信 Client 授权 | Adapter 声明审批/sandbox/permission profile；本地 Schema 有 read-only | 声明工具权限；实际控制范围待测 |
 | MCP | 当前平台已有配置与工具入口 | 实测声明 HTTP/SSE；文档还说明 stdio；逐项待测 | 声明 stdio/HTTP；不支持 SSE；仅消费 MCP tools | 声明 stdio/HTTP；具体版本待测 | 声明 Client MCP；具体传输待测 |

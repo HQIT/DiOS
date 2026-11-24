@@ -1,0 +1,156 @@
+{
+  "qualification": "ACP SDK cancellation and E2AG authority",
+  "date": "2026-11-24",
+  "scope": "isolated synthetic-source Linux/WSL Docker qualification",
+  "versions": {
+    "dios_sdk": "0.1.2",
+    "static_review": "0.1.1",
+    "agent_client_protocol": "1.0.0",
+    "cursor_cli": "2026.11.05-86047df"
+  },
+  "image": "sha256:4277a903ea3f722905c85d14782aa3c089dde48514b6a0e6edc8ed1e2a91bcbe",
+  "runs": [
+    {
+      "case": "cancel",
+      "run_id": "a558f6d6-0ef8-4d28-beb4-bbd888cad3c8",
+      "attempt_id": "f046e108-76d8-4bee-8129-400f75f05c56",
+      "attempt_count": 1,
+      "session_id": "a75e19c6-21ac-4cb3-b938-a7d59296637d",
+      "worker_id": "11c64721-f572-4002-96f9-22af7c9063ca",
+      "process_id": 129887,
+      "state": "cancelled",
+      "error": null,
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 1,
+      "tool_calls": 0,
+      "result_frames": 0,
+      "diagnostic_codes": [
+        "ACP_CANCEL_REQUESTED",
+        "ACP_CANCEL_ACKNOWLEDGED"
+      ],
+      "exit_state": "exited",
+      "exit_code": 130,
+      "process_instance": "87fdd4210b35b992fb94d8be0d5e0853069d0b07ff9454b8066b40bf38e3435a:2026-11-24T14:09:08.123119576Z",
+      "stdout_sha256": "5869e733e33d4733330fb7806e6326ea45dc19fafda83506c64276d68110e3da",
+      "stderr_sha256": "11657ecfa55143026845d71a5bbea535edeb68920d4f7faaddc48f80f106a5ab",
+      "exit_receipt_sha256": "7288abd42ded862084ac91ad06d61c338aca6ef584dd5dc13689f5844dee564d",
+      "stale_owner_rejected": "STALE_OWNER"
+    },
+    {
+      "case": "revoke",
+      "run_id": "520347d6-4b28-45dd-b00f-d8436952bb59",
+      "attempt_id": "5bbeb4df-a1f2-4003-94a8-e8e5422239f4",
+      "attempt_count": 1,
+      "session_id": "6dff47af-2a70-4b9b-99fd-bd2e0228d876",
+      "worker_id": "ed78acb6-7fab-4e25-b876-ba7d5856058f",
+      "process_id": 130085,
+      "state": "failed",
+      "error": {
+        "code": "AUTH_REVOKED",
+        "category": "authorization",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 2,
+      "tool_calls": 0,
+      "result_frames": 0,
+      "diagnostic_codes": [
+        "ACP_CANCEL_REQUESTED",
+        "ACP_CANCEL_ACKNOWLEDGED"
+      ],
+      "exit_state": "exited",
+      "exit_code": 130,
+      "process_instance": "e0945fddd08182ee8cb705490762850a6d5f16fb0b83c4c9882cb336df177a23:2026-11-24T14:09:25.522623885Z",
+      "stdout_sha256": "aa4455145169990be054dc75f74044c46b466dd9d53042c92fd8b59c236916bc",
+      "stderr_sha256": "22a8327bb414a766f4f4c70dfe8d8e10d1b8ece0f7afd06410b533f817cd8007",
+      "exit_receipt_sha256": "da1a2a26ba31c8c7bb62718603591850ea1d5ddeeb841711ac671324f7fe2814",
+      "stale_owner_rejected": "STALE_OWNER"
+    },
+    {
+      "case": "approve",
+      "run_id": "0b99eb57-30b3-467a-ab81-559ab5d97bea",
+      "attempt_id": "00304dee-5dea-4488-a159-6b043bb4bd3e",
+      "attempt_count": 1,
+      "session_id": "a0cd1eb9-2537-48b1-88f7-85595b7ddcf0",
+      "worker_id": "70877ce8-630c-427b-98db-4b44072ada23",
+      "process_id": 130313,
+      "state": "succeeded",
+      "error": null,
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 1,
+      "tool_calls": 1,
+      "result_frames": 1,
+      "diagnostic_codes": [
+        "ACP_CHILD_EXIT_NONZERO"
+      ],
+      "exit_state": "exited",
+      "exit_code": 2,
+      "process_instance": "3314ba148f7aa6ec3e9d9dc41729c559c0ec6ae67cf95e3fb162308e618763d6:2026-11-24T14:09:43.941127328Z",
+      "stdout_sha256": "56408bef17906926069ae9ffe441cb5eb70aabcdbc074dc53d4b12f598983b02",
+      "stderr_sha256": "9d20730ab57a517085ca1ffba18e888d22ec8abd4193fbe9657cb3d0077d27ee",
+      "exit_receipt_sha256": "944a2dca67320b3f7ae712eeca6f724b6fcd5a4b5875cb8c603b8d2d43dba1a0",
+      "stale_owner_rejected": "STALE_OWNER"
+    }
+  ],
+  "tests": {
+    "installed-tests": {
+      "total": 33,
+      "passed": 33,
+      "skipped": 0,
+      "seconds": 3.741,
+      "log_sha256": "5ed39972462f7305f5d1d694a6893dd443b65a6857c629793e55153bc016a569"
+    },
+    "image-tests": {
+      "total": 33,
+      "passed": 33,
+      "skipped": 0,
+      "seconds": 4.702,
+      "log_sha256": "b4404a7395adbe1b21fd36d270c778090e18e70a4a2c9301664f108962f61dcf"
+    },
+    "core-only-tests": {
+      "total": 9,
+      "passed": 9,
+      "skipped": 0,
+      "seconds": 4.149,
+      "log_sha256": "2d13b4405247acfc966b14602b52793e7ea9df13427e4cc2feb1fe4daebad656"
+    },
+    "backend-regression": {
+      "total": 123,
+      "passed": 80,
+      "skipped": 43,
+      "seconds": 66.835,
+      "log_sha256": "9ae4fd1b90326b6565e7e0124eb179d04c7075cf3a98b4f730a87472b7b73f54"
+    }
+  },
+  "source_sha256": {
+    "sdk/python/src/dios_sdk/acp.py": "85d1e885ffa56c7773f9cee6350770faaf15a7eaa89614a3af131dd298425e68",
+    "sdk/python/src/dios_sdk/acp_transport.py": "b26711bacf19795f8bded1735598e6932705e68cf1e64c5632f26660f45f7baa",
+    "sdk/python/src/dios_sdk/cursor.py": "0b0646c6cac4baa552ca6be6da951c5da56de741d0ce309e8eccf1c8e41e556e",
+    "sdk/python/tests/test_acp_cancellation.py": "785843be97340e6bc46e8392dc7e88f20af37621f9c0c391dec388f21fc18d1c",
+    "scripts/build_application_packages.py": "20a5064bcca5c06098a8197153d17ecb240d9ba6e1462020295922df475aa23d"
+  },
+  "bundle_sha256": "d707ce0edc1d9ed0ecc256fef96e398c531d65ce0896d66f0000f2ae8b6cb8b3",
+  "dependencies": [
+    "agent_client_protocol-1.0.0-py3-none-any.whl",
+    "annotated_types-0.8.0-py3-none-any.whl",
+    "dios_sdk-0.1.2-py3-none-any.whl",
+    "pydantic-2.14.4-py3-none-any.whl",
+    "pydantic_core-2.50.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+    "static_review-0.1.1-py3-none-any.whl",
+    "typing_extensions-4.16.0-py3-none-any.whl",
+    "typing_inspection-0.4.5-py3-none-any.whl"
+  ],
+  "existing_development_health": {
+    "status": "ok"
+  },
+  "not_qualified": [
+    "second-source harness",
+    "A2A interoperability",
+    "physical cross-host failures",
+    "native session resume/reconnect",
+    "all internal vendor tool paths",
+    "cross-source delegation and stale epoch matrix",
+    "G2 independent security review and user acceptance"
+  ]
+}
