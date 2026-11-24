@@ -7,6 +7,7 @@ import secrets
 import time
 from pathlib import Path
 from typing import Protocol
+
 from .database import RuntimeErrorCode
 from .store import identifier
 
@@ -28,25 +29,41 @@ class FilePrincipals:
             with self.path.open('rb') as f:raw=f.read(262145)
             if len(raw)>262144:raise ValueError()
             value=json.loads(raw)
-            if set(value)-{'version','issuer','audience','principals','oauth2'} or not {'version','issuer','audience','principals'}<=set(value) or value['version']!=1 or value['audience']!=self.audience:raise ValueError()
+            if set(value)-{'version','issuer','audience','principals','oauth2','oauth_sources'} or not {'version','issuer','audience','principals'}<=set(value) or value['version']!=1 or value['audience']!=self.audience:raise ValueError()
             identifier(value['issuer']);rows=value['principals']
             if 'oauth2' in value:
                 from .oauth_source import validate_provider
                 validate_provider(value['oauth2'])
             if not isinstance(rows,dict) or len(rows)>256:raise ValueError()
-            hashes=set()
+            hashes=set();versions=set();owners=set()
+            sources=value.get('oauth_sources',{})
+            if not isinstance(sources,dict) or len(sources)>1024:raise ValueError()
+            def validate_source(source):
+                from .oauth_source import validate_reference
+                validate_reference(source,value['oauth2'])
+                version=(source['issuer'],source['ref'],source['version'])
+                if source['sha256'] in hashes or version in versions:raise ValueError()
+                hashes.add(source['sha256']);versions.add(version)
+            for source_id,source in sources.items():
+                identifier(source_id);validate_source(source)
             for pid,row in rows.items():
                 identifier(pid)
-                if set(row)-{'subject','actor','scope','enabled','revision','expires_at','tokens','profiles','objects','upstream'}:raise ValueError()
+                if set(row)-{'subject','actor','scope','enabled','revision','expires_at','tokens','profiles','objects','upstream','source_refs'}:raise ValueError()
                 for k in ('subject','actor','scope'):identifier(row[k])
                 if type(row['enabled']) is not bool or type(row['revision']) is not int or row['revision']<1:raise ValueError()
                 if type(row['expires_at']) not in (int,float) or not math.isfinite(row['expires_at']):raise ValueError()
-                if 'upstream' in row:
-                    from .oauth_source import validate_reference
-                    validate_reference(row['upstream'],value['oauth2'])
-                    if row['upstream']['sha256'] in hashes:raise ValueError()
-                    hashes.add(row['upstream']['sha256'])
-                if not isinstance(row['tokens'],list) or not (0 if 'upstream' in row else 1)<=len(row['tokens'])<=8:raise ValueError()
+                if 'upstream' in row:validate_source(row['upstream'])
+                if 'source_refs' in row:
+                    refs=row['source_refs']
+                    if 'upstream' in row or not isinstance(refs,list) or len(refs)>64 or row['tokens']!=[]:raise ValueError()
+                    identity=set()
+                    for ref in refs:
+                        identifier(ref)
+                        if ref not in sources or ref in owners:raise ValueError()
+                        owners.add(ref);source=sources[ref]
+                        identity.add((source['issuer'],source['subject'],source['client_id']))
+                    if len(identity)>1:raise ValueError()
+                if not isinstance(row['tokens'],list) or not (0 if 'upstream' in row or 'source_refs' in row else 1)<=len(row['tokens'])<=8:raise ValueError()
                 for token in row['tokens']:
                     if set(token)!={'sha256','enabled','not_before','expires_at'}:raise ValueError()
                     if not re.fullmatch('[0-9a-f]{64}',token['sha256']) or token['sha256'] in hashes:raise ValueError()
@@ -73,10 +90,16 @@ class FilePrincipals:
         except (OSError,ValueError,TypeError,KeyError,AttributeError,RecursionError,RuntimeErrorCode):
             raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
 
-    def binding(self,doc,pid,row):
+    @staticmethod
+    def sources(doc,row):
+        if 'upstream' in row:return [row['upstream']]
+        return [doc['oauth_sources'][ref] for ref in row.get('source_refs',[])]
+
+    def binding(self,doc,pid,row,source=None):
         from .oauth_source import source_binding
+        source=row.get('upstream') if source is None else source
         return dict(issuer=doc['issuer'],audience=doc['audience'],id=pid,
-            **({'upstream':source_binding(row['upstream'],doc['oauth2'])} if 'upstream' in row else {}),
+            **({'upstream':source_binding(source,doc['oauth2'])} if source is not None else {}),
             **{k:row[k] for k in ('subject','actor','scope','revision')})
 
     def authenticate(self,token,scope):
@@ -84,9 +107,10 @@ class FilePrincipals:
             raise RuntimeErrorCode('AUTH_UNAUTHENTICATED')
         doc=self.document();hashed=hashlib.sha256(token.encode()).hexdigest();now=time.time()
         for pid,row in doc['principals'].items():
-            if secrets.compare_digest(row.get('upstream',{}).get('sha256',''),hashed):
-                if row['scope']!=scope:raise RuntimeErrorCode('AUTH_UNAUTHENTICATED')
-                binding=self.binding(doc,pid,row);self.current(binding);return binding
+            for source in self.sources(doc,row):
+                if secrets.compare_digest(source['sha256'],hashed):
+                    if row['scope']!=scope:raise RuntimeErrorCode('AUTH_UNAUTHENTICATED')
+                    binding=self.binding(doc,pid,row,source);self.current(binding);return binding
             for credential in row['tokens']:
                 if not re.fullmatch('[A-Za-z0-9_-]{43,128}',token):continue
                 if secrets.compare_digest(hashed,credential['sha256']):
@@ -100,12 +124,19 @@ class FilePrincipals:
         doc=self.document()
         try:
             row=doc['principals'][binding['id']]
-            if binding!=self.binding(doc,binding['id'],row):raise ValueError()
+            source=None
+            if 'upstream' in row or 'source_refs' in row:
+                from .oauth_source import source_binding
+                source=next((ref for ref in self.sources(doc,row)
+                    if source_binding(ref,doc['oauth2'])==binding.get('upstream')),None)
+                if source is None:raise ValueError()
+            if binding!=self.binding(doc,binding['id'],row,source):raise ValueError()
             if not row['enabled'] or row['expires_at']<=time.time():raise ValueError()
-            if 'upstream' in row:
+            if source is not None:
                 from .oauth_source import OAuthSource
-                OAuthSource(doc['oauth2']).current(row['upstream'])
-                return dict(row,expires_at=min(row['expires_at'],row['upstream']['expires_at']))
+                OAuthSource(doc['oauth2']).current(source)
+                # Other sessions' metadata and lifetimes are not part of this work's authority.
+                return dict(row,expires_at=min(row['expires_at'],source['expires_at']))
             return row
         except RuntimeErrorCode:raise
         except (KeyError,TypeError,ValueError):raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED') from None

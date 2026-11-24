@@ -895,7 +895,7 @@
         "evidence": "docs/design/evidence/login-gateway-20261124.json",
         "selection": "OAuth2 Proxy 原生登录/刷新；Valkey Redis 协议会话存储；企业 IdP 可替换",
         "next": [
-          "主体与多个版本化来源引用分离，保持旧 Work/Grant 的来源及绝对期限",
+          "托管来源自动登记、幂等与失败清理；多来源绑定已实现",
           "可信网关准入、CSRF 与 Console 企业登录入口",
           "真实 IdP 注销事件、恢复对账与多主机资格"
         ],
@@ -906,6 +906,23 @@
         ],
         "checks_passed": 25,
         "verification": "真实浏览器、并发原生刷新、服务重启、退出与旧票据重放、身份源停机/过期时既有 DiOS 来源验证器拒绝、恢复后新登录通过"
+      },
+      "independent_source_sessions": {
+        "date": "2026-11-24",
+        "state": "development_verified_browser_intake_pending",
+        "design": "docs/design/source-sessions-33.md",
+        "evidence": "docs/design/evidence/source-sessions-20261124.json",
+        "delivered": [
+          "主体权限与多个来源引用分离，按实际选定来源认证和执行复核",
+          "追加来源不改变原 Work/Grant 绑定和绝对期限；一路撤销不影响其他有效来源",
+          "旧目录转换保留已有绑定，历史任务和产物按当前主体权限读取"
+        ],
+        "remaining": [
+          "托管来源自动登记、幂等与失败清理",
+          "可信网关与 Console 登录、CSRF、刷新后的提交回执恢复",
+          "标准注销事件、长任务受控续期与跨服务撤销排序"
+        ],
+        "verification": "后端 502 项：375 通过、127 条件跳过；多来源专项 11 项、真实 IdP/MCP 8 项；两个来源的 Worker/CLI/SDK/浏览器通过，55 条历史全部保留"
       }
     },
     {
@@ -1058,6 +1075,23 @@
         ],
         "evidence": "docs/design/evidence/managed-secrets-20261124.json",
         "verification": "原生服务 14 项、真实 KV/IdP/MCP 边界 7 项通过；真实 Worker、CLI/SDK、浏览器及来源版本切换通过；53 条原历史保留"
+      },
+      "independent_source_sessions": {
+        "date": "2026-11-24",
+        "state": "development_verified_browser_intake_pending",
+        "design": "docs/design/source-sessions-33.md",
+        "evidence": "docs/design/evidence/source-sessions-20261124.json",
+        "delivered": [
+          "主体权限与多个来源引用分离，按实际选定来源认证和执行复核",
+          "追加来源不改变原 Work/Grant 绑定和绝对期限；一路撤销不影响其他有效来源",
+          "旧目录转换保留已有绑定，历史任务和产物按当前主体权限读取"
+        ],
+        "remaining": [
+          "托管来源自动登记、幂等与失败清理",
+          "可信网关与 Console 登录、CSRF、刷新后的提交回执恢复",
+          "标准注销事件、长任务受控续期与跨服务撤销排序"
+        ],
+        "verification": "后端 502 项：375 通过、127 条件跳过；多来源专项 11 项、真实 IdP/MCP 8 项；两个来源的 Worker/CLI/SDK/浏览器通过，55 条历史全部保留"
       }
     },
     {

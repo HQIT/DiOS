@@ -1,0 +1,89 @@
+{
+  "date": "2026-11-24",
+  "implementation": "FilePrincipals oauth_sources/source_refs; existing Authlib and E2AG execution checks",
+  "backend_suite": {
+    "total": 502,
+    "passed": 375,
+    "skipped": 127,
+    "failed": 0,
+    "scope": "Default environment; opt-in PostgreSQL, Docker and external-service cases remain skipped as recorded in test output"
+  },
+  "multi_source_regressions": {
+    "passed": 11
+  },
+  "native": {
+    "recorded_at_utc": "2026-11-24T03:48:14Z",
+    "checks": [
+      "real-browser-same-subject-independent-IdP-sessions",
+      "native-refresh-new-version-preserves-original-work",
+      "original-approved-tool-executes-after-refresh",
+      "source-session-revoked-peer-remains-active",
+      "revoked-session-tool-blocked-before-MCP-call",
+      "independent-peer-approved-tool-still-executes",
+      "revocation-remains-persistent",
+      "credentials-absent-from-persisted-runs"
+    ],
+    "checks_passed": 8,
+    "actual_tools_calls": 2,
+    "scope": "Actual synthetic IdP browser sessions, native OAuth refresh/revocation, DiOS E2AG and real MCP HTTP; isolated Runtime database"
+  },
+  "development": {
+    "runs": [
+      {
+        "source_version": "v6",
+        "run_id": "adafe8a2-8bb1-4601-8a88-d80b62ef7509",
+        "state": "succeeded",
+        "artifact_sha256": "ee2473fa314b45f0343fe5325c12a3adae5c8ff8790d378152d4b44f2ebdb419",
+        "cli_matches_sdk": true
+      },
+      {
+        "source_version": "v7",
+        "run_id": "fb64f6d8-1f7a-4956-a71c-a70e872068dc",
+        "state": "succeeded",
+        "artifact_sha256": "ee2473fa314b45f0343fe5325c12a3adae5c8ff8790d378152d4b44f2ebdb419",
+        "cli_matches_sdk": true
+      }
+    ],
+    "history_before": 55,
+    "history_after": 57,
+    "old_history_preserved": true,
+    "withdrawn_source_denied_peer_and_history_access_preserved": true,
+    "credentials_absent_from_runs": true,
+    "active_runs": 0
+  },
+  "browser": {
+    "a": {
+      "run_id": "adafe8a2-8bb1-4601-8a88-d80b62ef7509",
+      "checks": [
+        "principal-login",
+        "profile-filter",
+        "global-worker-panel-hidden",
+        "owned-report",
+        "approval-controls-filtered",
+        "mobile-layout",
+        "cross-principal-denied"
+      ],
+      "pageErrors": []
+    },
+    "peer": {
+      "run_id": "fb64f6d8-1f7a-4956-a71c-a70e872068dc",
+      "checks": [
+        "principal-login",
+        "profile-filter",
+        "global-worker-panel-hidden",
+        "owned-report",
+        "approval-controls-filtered",
+        "mobile-layout",
+        "cross-principal-denied"
+      ],
+      "pageErrors": []
+    }
+  },
+  "remaining": [
+    "Automatic managed-source intake, idempotency and orphan cleanup",
+    "Trusted gateway entry, CSRF and Console SSO",
+    "Submission receipt recovery after source refresh",
+    "Standard logout events, governed long-task renewal and strict cross-service revocation",
+    "Enterprise IdP and physical multi-host qualification"
+  ]
+}
