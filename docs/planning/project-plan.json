@@ -530,7 +530,9 @@
           "docs/design/managed-history-10-30-32.md",
           "docs/design/evidence/managed-history-20261124.json",
           "docs/design/managed-service-recovery-10-30.md",
-          "docs/design/evidence/managed-service-recovery-20261124.json"
+          "docs/design/evidence/managed-service-recovery-20261124.json",
+          "docs/design/managed-adoption-10-30-51.md",
+          "docs/design/evidence/managed-adoption-20261124.json"
         ],
         "project_sync": "Issue 正文与仓库计划同步；Project 字段受既有令牌 scope 限制"
       },
@@ -547,6 +549,13 @@
         "evidence": "docs/design/evidence/managed-service-recovery-20261124.json",
         "summary": "共享请求原生所有权、持久结果回执、报告原子收尾及中断后对账已接通；原 HTTP 请求进程强杀后通过独立 CLI 恢复报告，上游请求保持一次。",
         "remaining": "旧无所有权记录执行的显式接管、远端未知请求查询/取消、多主机资格。"
+      },
+      "existing_execution_adoption": {
+        "design": "docs/design/managed-adoption-10-30-51.md",
+        "evidence": "docs/design/evidence/managed-adoption-20261124.json",
+        "state": "verified_deployed",
+        "summary": "既有兼容任务通过只读预检、明确停写交接和原对象绑定接入恢复；原实例报告与取消通过真实容器和独立 CLI 验证。E2AG 撤权及审计与映射原子提交。",
+        "remaining": "跨主机及其他 Provider 接管资格、源控制器停写的运维交接、完整部署回退与 G2 验收。"
       }
     },
     {
@@ -606,7 +615,9 @@
           "docs/design/managed-history-10-30-32.md",
           "docs/design/evidence/managed-history-20261124.json",
           "docs/design/managed-service-recovery-10-30.md",
-          "docs/design/evidence/managed-service-recovery-20261124.json"
+          "docs/design/evidence/managed-service-recovery-20261124.json",
+          "docs/design/managed-adoption-10-30-51.md",
+          "docs/design/evidence/managed-adoption-20261124.json"
         ],
         "remaining": "持久定时、重叠触发合并与死信处置；供应商错误映射、双物理主机与实际 Agent 资格由 #56/#58 推进。",
         "development": {
@@ -679,7 +690,7 @@
         "design": "docs/design/managed-task-recovery-10-30.md",
         "evidence": "docs/design/evidence/managed-recovery-20261124.json",
         "state": "native_api_restart_verified",
-        "next": "继续活跃旧执行显式核验与持权接管、缺少回执的远端未知请求查询/取消，以及持久定时、重叠触发和死信。共享请求已有持久回执时可自动恢复报告，不重放模型。"
+        "next": "继续持久定时、重叠触发和死信；远端未知请求查询/取消及跨主机接管按 Provider 资格推进。本机既有兼容任务可经显式交接接入原对象恢复。"
       },
       "managed_upgrade": {
         "design": "docs/design/managed-upgrade-10-30.md",
@@ -698,7 +709,14 @@
         "design": "docs/design/managed-service-recovery-10-30.md",
         "evidence": "docs/design/evidence/managed-service-recovery-20261124.json",
         "summary": "共享请求原生所有权、持久结果回执、报告原子收尾及中断后对账已接通；原 HTTP 请求进程强杀后通过独立 CLI 恢复报告，上游请求保持一次。",
-        "remaining": "旧无所有权记录执行的显式接管、远端未知请求查询/取消、多主机资格。"
+        "remaining": "缺少回执的远端未知请求查询/取消、跨主机与其他 Provider 的接管资格。"
+      },
+      "existing_execution_adoption": {
+        "design": "docs/design/managed-adoption-10-30-51.md",
+        "evidence": "docs/design/evidence/managed-adoption-20261124.json",
+        "state": "verified_deployed",
+        "summary": "既有兼容任务通过只读预检、明确停写交接和原对象绑定接入恢复；原实例报告与取消通过真实容器和独立 CLI 验证。E2AG 撤权及审计与映射原子提交。",
+        "remaining": "跨主机及其他 Provider 接管资格、源控制器停写的运维交接、完整部署回退与 G2 验收。"
       }
     },
     {
@@ -2057,7 +2075,14 @@
         "K01-5"
       ],
       "priority": "最高",
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "existing_execution_adoption": {
+        "design": "docs/design/managed-adoption-10-30-51.md",
+        "evidence": "docs/design/evidence/managed-adoption-20261124.json",
+        "state": "engineering_evidence_available",
+        "summary": "既有兼容任务通过只读预检、明确停写交接和原对象绑定接入恢复；原实例报告与取消通过真实容器和独立 CLI 验证。E2AG 撤权及审计与映射原子提交。",
+        "remaining": "跨主机及其他 Provider 接管资格、源控制器停写的运维交接、完整部署回退与 G2 验收。"
+      }
     },
     {
       "id": "D01-2",

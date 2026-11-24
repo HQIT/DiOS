@@ -94,3 +94,9 @@ class ServiceEndpointRuntimeAdapter(RuntimeAdapter, Protocol):
     async def endpoint(self, handle: str, port: int) -> str:
         """Return a reachable service URL for this adapter's deployment topology."""
         ...
+
+
+class AdoptableRuntimeAdapter(RuntimeAdapter, Protocol):
+    """Optional explicit existing-object binding; never launches or restarts it."""
+    async def inspect_existing(self, native_id: str) -> dict: ...
+    def bind_existing(self, handle: str, identity: dict) -> RuntimeAdapter: ...

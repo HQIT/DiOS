@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "c69989d4a3ea9d7bd400fe047302859f9119379e",
+  "state": "engineering_verified_deployed_issues_open",
+  "tests": {
+    "backend": {
+      "total": 746,
+      "passed": 545,
+      "skipped": 201,
+      "seconds": 350.744,
+      "log_sha256": "dd9adc8ee09087056f41f68418795acb7b858575e13655771a463d4f36c58c89"
+    },
+    "final_native_and_recovery": {
+      "total": 47,
+      "passed": 47,
+      "skipped": 0,
+      "seconds": 59.031,
+      "log_sha256": "fb2a08e18445a255ca1b8edb28d1c7c30a38e5090b3fbc975fa48463a03e005f"
+    },
+    "image_adoption": {
+      "total": 13,
+      "passed": 11,
+      "skipped": 2,
+      "seconds": 14.03,
+      "log_sha256": "567f4cb1272b7a7d40fea1551e1452efaa30c09d7c7ff2fb380dd472c61db1a9"
+    }
+  },
+  "verification_scope": "Full regression followed by final native/targeted and image qualification of provider errors, audit and binding consistency.",
+  "image": {
+    "image": "sha256:3593389a0dd316ed365ae35703ac7ff1c3400760b78956e5277d8ad356f3c8c4",
+    "checks": [
+      "health",
+      "registry_poll_contract",
+      "secret_write_only",
+      "isolated_empty_connectors",
+      "graceful_exit",
+      "managed_runtime_imports",
+      "managed_recovery_api",
+      "managed_recovery_cli",
+      "upgrade_api_drain",
+      "upgrade_cli_persistent_state",
+      "upgrade_api_resume",
+      "history_archive_migration",
+      "history_archive_cli_pipeline",
+      "adoption_image_regressions",
+      "adoption_operator_required",
+      "adoption_native_id_validation",
+      "adoption_missing_task_rejected",
+      "adoption_table_initialized",
+      "adoption_cli"
+    ],
+    "exit_code": 0
+  },
+  "development": {
+    "checks": [
+      "development_api_healthy",
+      "deployed_poll_contract",
+      "a2a_discovery_healthy",
+      "managed_recovery_api",
+      "runtime_history_preserved",
+      "events_history_preserved",
+      "worker-sales_process_alive",
+      "worker-construction_process_alive",
+      "knowledge_process_alive",
+      "dios-dev-identity-reconcile.timer_active",
+      "dios-dev-delegation-reconcile.timer_active",
+      "browser_sso_healthy",
+      "managed_ledger_initialized_without_history_import",
+      "managed_recovery_cli",
+      "upgrade_combines_kernel_and_compatibility",
+      "upgrade_operator_required",
+      "upgrade_both_gates_draining",
+      "upgrade_api_cli_state_consistency",
+      "upgrade_stale_revision_rejected",
+      "upgrade_idle_settle",
+      "upgrade_both_gates_resumed",
+      "upgrade_status_not_cached",
+      "history_archive_schema_initialized_without_import",
+      "project_cli_history_commands",
+      "service_recovery_tables_initialized_without_import",
+      "coordinated_drain_before_deployment",
+      "adoption_table_initialized_without_production_adoption",
+      "adoption_operator_required",
+      "adoption_missing_task_rejected",
+      "project_cli_adoption_commands"
+    ],
+    "history_count": 84,
+    "history_identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "event_count": 0,
+    "active_runs": 0,
+    "backup": "backup-before",
+    "schema_migration_required": true,
+    "schema_change": "additive managed_task_adoptions",
+    "migration_applied_by": "existing application init_db while drained"
+  },
+  "design_contract_checks": 681,
+  "new_modules_lint": "passed",
+  "coverage": [
+    "readonly preview does not create task execution or expose source configuration credentials",
+    "draining and explicit source-controller quiescence attestation required",
+    "native full ID, Engine ID, startup instance, configuration and task input verified",
+    "changed preview, wrong run labels, wrong workspace and wrong input rejected",
+    "duplicate concurrent confirmation retains one binding and one E2AG audit entry",
+    "old E2AG grant revoked atomically; no replacement grant issued",
+    "original cancellation intent survives missing-process-identity repair",
+    "original legacy container adopted by independent CLI without changing its startup instance",
+    "original native container completes and its report is retained; original container cancellation verified",
+    "bound adapter refuses launch and changed host/process/configuration",
+    "corrupt binding or inconsistent execution path prevents native operations",
+    "symlink and oversized source/report files rejected; nested report compatibility preserved",
+    "operator API and project CLI exposed; absent task rejected before contacting Docker",
+    "missing provider sanitized to explicit RUNTIME_PROVIDER_UNAVAILABLE",
+    "application schema added under coordinated drain; 84 native history identities preserved"
+  ],
+  "source_quiescence_evidence": "operator_attested; native inspection does not establish source-controller shutdown",
+  "reused_components": [
+    "Docker Engine Inspect and existing Docker SDK",
+    "RuntimeAdapter optional adoption contract",
+    "existing native file locks",
+    "SQLAlchemy transaction and existing ManagedTaskExecution recovery",
+    "existing E2AG grant revocation and audit chain",
+    "os.open directory descriptors and O_NOFOLLOW"
+  ],
+  "limits": [
+    "qualified for Linux local Docker socket and reachable original workspace; remote Docker adoption rejected",
+    "source controller must remain quiesced after operator confirmation",
+    "existing container isolation settings retained and shown; deployment safety qualification remains separate",
+    "source task configuration and unique legacy run ID required",
+    "no model relaunch or automatic E2AG reauthorization",
+    "shared service requests use their own recovery, not container-task adoption",
+    "real containers used synthetic reports; production reviewer unchanged"
+  ],
+  "remaining": [
+    "persistent schedules, overlap deduplication and dead letters",
+    "remote unknown service request query/cancel qualification",
+    "other-provider and cross-host adoption qualification",
+    "full deployment and rollback qualification under #51",
+    "G2 and user acceptance"
+  ],
+  "project_fields_updated": false
+}

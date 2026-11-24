@@ -380,25 +380,19 @@ async def _poll_task_container(task_id: str, run_id: str, runtime_handle: str, w
 
 async def _finish_task_runtime(task_id, run_id, workspace_path, exit_code, container_logs):
     from app.db.database import async_session
+    from app.services.managed_files import read_result
+    import asyncio
     artifacts: list[dict[str, Any]] = []
-    result_root = Path(workspace_path) / "output" / "events" / run_id
-    result_file = result_root / "task_result.md"
-    if not result_file.exists() and result_root.exists():
-        nested_results = list(result_root.glob("*/task_result.md"))
-        if nested_results:
-            result_file = max(nested_results, key=lambda path: path.stat().st_mtime_ns)
-    if result_file.exists():
-        try:
-            content = result_file.read_text(encoding="utf-8")
-            if not content.strip():
-                raise ValueError("RUNTIME_RESULT_EMPTY")
+    try:
+        content = await asyncio.to_thread(read_result, workspace_path, run_id)
+        if content and content.strip():
             artifacts.append({
                 "artifactId": f"{task_id}-result",
                 "name": "task_result.md",
                 "parts": [{"kind": "text", "text": content}],
             })
-        except Exception:
-            pass
+    except (OSError, RuntimeErrorCode, UnicodeError):
+        pass
 
     async with async_session() as db:
         task = await db.get(A2ATask, task_id)
@@ -552,9 +546,10 @@ def _build_proxy_task_config(
 
 def _remove_task_secret_config(workspace_path: str, run_id: str) -> None:
     """Delete the exact per-task MCP file that contains the bearer ToolGrant."""
+    from app.services.managed_files import remove_file
     try:
-        (Path(workspace_path) / "config" / f"mcp_servers_{run_id}.json").unlink(missing_ok=True)
-    except OSError as exc:
+        remove_file(workspace_path, f"config/mcp_servers_{run_id}.json")
+    except (OSError, RuntimeErrorCode) as exc:
         logger.warning("Failed to remove task MCP secret config for run %s: %s", run_id, exc)
 
 
@@ -592,7 +587,8 @@ async def _cancel_task_locked(db: AsyncSession, task_id: str) -> A2ATask:
     await db.commit()
     adapter = None
     if task.status != "submitted":
-        adapter = managed_runtime.managed_adapter()
+        from app.services.managed_adoption import adapter_for
+        adapter = await adapter_for(db, task_id)
         if execution and execution.process_instance:
             current = await adapter.observe(runtime_handle)
             if current.process_instance != execution.process_instance:
@@ -605,7 +601,7 @@ async def _cancel_task_locked(db: AsyncSession, task_id: str) -> A2ATask:
             execution.process_instance = observed.process_instance
             execution.observation = asdict(observed)
             execution.observed_at = _now()
-            await managed_runtime.retain_logs(runtime_handle, Path(execution.workspace_path), observed.process_instance)
+            await managed_runtime.retain_logs(runtime_handle, Path(execution.workspace_path), observed.process_instance, adapter=adapter)
     task.status = "canceled"
     task.updated_at = _now()
     await db.commit()

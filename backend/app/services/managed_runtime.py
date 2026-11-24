@@ -115,9 +115,9 @@ def log_archive(runtime_handle: str) -> LocalArtifacts:
 
 
 async def retain_logs(
-    runtime_handle: str, workspace: Path, process_instance: str | None
+    runtime_handle: str, workspace: Path, process_instance: str | None, *, adapter=None
 ):
-    snapshot = await managed_adapter().logs(runtime_handle, 64 * 1024)
+    snapshot = await (adapter or managed_adapter()).logs(runtime_handle, 64 * 1024)
     record = {
         "runtime_handle": runtime_handle,
         "process_instance": process_instance,

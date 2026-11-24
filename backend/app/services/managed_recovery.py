@@ -70,7 +70,8 @@ async def reconcile(task_id):
             task = await db.get(A2ATask, task_id)
             if task is None:
                 raise RuntimeErrorCode("TASK_RECORD_MISSING")
-            adapter = managed_runtime.managed_adapter()
+            from app.services.managed_adoption import adapter_for
+            adapter = await adapter_for(db, task_id)
             observed = await adapter.observe(runtime_handle)
             execution.observation = asdict(observed)
             execution.observed_at = datetime.now(UTC)
@@ -104,6 +105,7 @@ async def reconcile(task_id):
                     runtime_handle,
                     Path(execution.workspace_path),
                     observed.process_instance,
+                    adapter=adapter,
                 )
                 logs = (snapshot.stdout + b"\n" + snapshot.stderr).decode(
                     "utf-8", errors="replace"

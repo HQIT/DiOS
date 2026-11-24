@@ -528,6 +528,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("runtime", help="local durable runtime administration; runtime --help")
     sub.add_parser("managed-history", help="export, verify and import compatibility history; managed-history --help")
+    sub.add_parser("managed-adoption", help="inspect and explicitly adopt existing task runtimes; managed-adoption --help")
 
     p_config = sub.add_parser("config", help="manage cli config (openclaw style)")
     sub_config = p_config.add_subparsers(dest="config_cmd", required=True)
@@ -753,6 +754,8 @@ def main() -> int:
         return cmd_runtime(sys.argv[2:])
     if len(sys.argv) > 1 and sys.argv[1] == "managed-history":
         return cmd_runtime(sys.argv[2:], "app.services.managed_history")
+    if len(sys.argv) > 1 and sys.argv[1] == "managed-adoption":
+        return cmd_runtime(sys.argv[2:], "app.services.managed_adoption")
     # 低层入口：仅保留给自动化/agent，不在 dios --help 暴露
     if len(sys.argv) > 1 and sys.argv[1] == "request":
         req_args = build_request_parser().parse_args(sys.argv[2:])

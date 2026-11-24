@@ -96,6 +96,14 @@ class DockerRuntimeAdapter:
     async def observe(self, handle):
         return await _native_call(lambda: self._observation(handle, self._get(handle)))
 
+    async def inspect_existing(self, native_id):
+        from .docker_binding import inspect_existing
+        return await inspect_existing(self, native_id)
+
+    def bind_existing(self, handle, identity):
+        from .docker_binding import BoundDockerAdapter
+        return BoundDockerAdapter(self, handle, identity)
+
     async def endpoint(self, handle, port):
         if type(port) is not int or not 1 <= port <= 65535:
             raise RuntimeErrorCode('INVALID_SERVICE_PORT')

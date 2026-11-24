@@ -226,6 +226,20 @@ class ManagedTaskExecution(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class ManagedTaskAdoption(Base):
+    """Immutable operator-confirmed binding to an existing execution object."""
+    __tablename__ = "managed_task_adoptions"
+    task_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(128), index=True)
+    native_id: Mapped[str] = mapped_column(String(64), unique=True)
+    record: Mapped[dict] = mapped_column(JSON, nullable=False)
+    digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    actor: Mapped[str] = mapped_column(String(128), nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    source_quiescence: Mapped[str] = mapped_column(String(32), default="operator_attested")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class ManagedRuntimeControl(Base):
     __tablename__ = "managed_runtime_control"
     scope: Mapped[str] = mapped_column(String(128), primary_key=True)
