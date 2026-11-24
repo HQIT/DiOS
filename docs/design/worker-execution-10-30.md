@@ -23,7 +23,7 @@ Agent 协议与生命周期分离。当前 `jsonl-v1` 面向注册包装进程�
 
 第三方 Harness 启动配置可用同一 LaunchSpec 表达，例如自建 Codex 镜像、`command=["codex", "exec", "--json", "..."]`、独立 workspace 只读挂载与显式网络。该配置仅说明生命周期表达能力；真实输出需要 Codex 协议桥及 #33 凭据、#34 E2AG 验收后接入，不能将原生厂商 JSON 当成 jsonl-v1。
 
-现有 legacy `docker_runner` 调用方保留，迁移到统一生命周期接口仍属于 #10 后续收敛。当前实现没有公开任意命令执行 API。
+旧 `docker_runner` 调用方已迁至统一生命周期接口，服务与 A2A task 复用 Provider、资源限制和确认退出后回收规则，见[托管生命周期](managed-lifecycle-10.md)。旧对象迁移及共享 service 的逐请求治理继续沿 #10/#33/#34 推进。当前实现没有公开任意命令执行 API。
 
 ## 持久身份与观测
 

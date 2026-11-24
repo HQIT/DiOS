@@ -22,6 +22,7 @@ from app.db.database import get_db
 from app.models.tables import Agent, A2ATask
 from app.models.schemas import A2ATaskOut
 from app.services import a2a_service
+from app.runtime.database import RuntimeErrorCode
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +125,10 @@ async def agent_jsonrpc(agent_id: str, request: Request, db: AsyncSession = Depe
 
         return _jsonrpc_error(req_id, -32601, f"Method not found: {method}")
 
+    except RuntimeErrorCode as e:
+        if str(e) in {"TASK_CANCELLATION_UNSUPPORTED", "RUNTIME_OPERATION_IN_PROGRESS", "RUNTIME_STOP_UNCONFIRMED", "RUNTIME_FROZEN_STOP_UNAVAILABLE"}:
+            return _jsonrpc_error(req_id, -32002, "Task cannot be canceled", {"reason":str(e)})
+        return _jsonrpc_error(req_id, -32603, "Runtime operation failed", {"reason":str(e)})
     except ValueError as e:
         return _jsonrpc_error(req_id, -32001, str(e))
     except Exception as e:

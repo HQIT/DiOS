@@ -2,12 +2,15 @@
 
 import asyncio
 import os
+import tempfile
 import unittest
 from dataclasses import replace
+from pathlib import Path
+from unittest.mock import patch
 from uuid import uuid4
 
 import test_runtime_work_authorizations as auth
-from app.runtime.adapter import LaunchSpec
+from app.runtime.adapter import LaunchSpec, Mount
 from app.runtime.database import RuntimeErrorCode
 from app.runtime.docker_adapter import DockerRuntimeAdapter
 from app.runtime.identity_wait import identity_wait
@@ -135,6 +138,27 @@ class IdentityPauseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(adapter.resumed, 0)
         self.assertTrue(adapter.stopped)
 
+    async def test_unavailable_frozen_stop_keeps_revoked_attempt_unresolved(self):
+        run, adapter, recovered, task = await self.launch()
+        current = await self.paused_record(run["id"])
+
+        async def unavailable(*args, **kwargs):
+            raise RuntimeErrorCode("RUNTIME_FROZEN_STOP_UNAVAILABLE")
+
+        adapter.stop = unavailable
+        await self.store.revoke(run["id"], current["version"])
+        recovered.set()
+        with self.assertRaisesRegex(
+            RuntimeErrorCode, "RUNTIME_FROZEN_STOP_UNAVAILABLE"
+        ):
+            await asyncio.wait_for(task, 4)
+        result = await self.store.get(run["id"])
+        self.assertEqual(result["state"], "reconciliation_required")
+        self.assertEqual(len(result["attempts"]), 1)
+        self.assertEqual((adapter.started, adapter.resumed), (1, 0))
+        self.assertTrue(adapter.paused)
+        self.assertEqual((await view(self.store, run["id"]))["state"], "revoked")
+
     async def test_cancel_while_paused_confirms_exit_without_resuming(self):
         run, adapter, recovered, task = await self.launch()
         current = await self.paused_record(run["id"])
@@ -205,45 +229,102 @@ class IdentityPauseTests(unittest.IsolatedAsyncioTestCase):
     os.environ.get("DIOS_TEST_DOCKER") == "1", "native Docker qualification not enabled"
 )
 class DockerFreezeTests(unittest.IsolatedAsyncioTestCase):
-    async def test_native_freeze_preserves_instance_and_kill_never_runs_more_code(self):
-        adapter = DockerRuntimeAdapter("freeze-test-" + str(uuid4()))
+    async def test_unavailable_frozen_termination_preserves_pause(self):
+        adapter = DockerRuntimeAdapter("freeze-denied-" + str(uuid4()))
         handle = str(uuid4())
-        spec = LaunchSpec(
-            "dios-worker-fixture:local",
-            (
-                "python",
-                "-u",
-                "-c",
-                "import time\ni=0\nwhile True:\n print(i,flush=True)\n i+=1\n time.sleep(.05)",
-            ),
-        )
         try:
-            first = await adapter.start(handle, spec)
-            await asyncio.sleep(0.25)
-            paused = await adapter.pause(handle, first.process_instance)
-            self.assertEqual(paused.state, "paused")
-            self.assertTrue(paused.alive)
-            self.assertEqual(paused.pid, first.pid)
-            await asyncio.sleep(0.2)  # Docker log delivery can lag process freezing.
-            before = await adapter.logs(handle, 65536)
-            await asyncio.sleep(0.2)
-            self.assertEqual((await adapter.logs(handle, 65536)).stdout, before.stdout)
-            with self.assertRaisesRegex(RuntimeErrorCode, "PROCESS_CHANGED"):
-                await adapter.resume(handle, "wrong-instance")
-            resumed = await adapter.resume(handle, first.process_instance)
-            self.assertEqual(resumed.process_instance, first.process_instance)
-            await asyncio.sleep(0.2)
-            self.assertNotEqual(
-                (await adapter.logs(handle, 65536)).stdout, before.stdout
+            first = await adapter.start(
+                handle,
+                LaunchSpec(
+                    "dios-worker-fixture:local",
+                    ("python", "-c", "import time;time.sleep(30)"),
+                ),
             )
             await adapter.pause(handle, first.process_instance)
-            await asyncio.sleep(0.2)
-            before = await adapter.logs(handle, 65536)
-            exited = await adapter.stop(handle)
-            self.assertFalse(exited.alive)
-            self.assertEqual(exited.exit_code, 137)
-            self.assertEqual((await adapter.logs(handle, 65536)).stdout, before.stdout)
+            with (
+                patch(
+                    "app.runtime.docker_adapter.kill_frozen_container",
+                    side_effect=RuntimeErrorCode("RUNTIME_FROZEN_STOP_UNAVAILABLE"),
+                ),
+                self.assertRaisesRegex(
+                    RuntimeErrorCode, "RUNTIME_FROZEN_STOP_UNAVAILABLE"
+                ),
+            ):
+                await adapter.stop(handle)
+            observed = await adapter.observe(handle)
+            self.assertEqual(observed.state, "paused")
+            self.assertEqual(observed.process_instance, first.process_instance)
         finally:
+            # Explicit fixture teardown, after checking fail-closed behavior.
+            observed = await adapter.observe(handle)
+            if observed.state == "paused":
+                await adapter.resume(handle, observed.process_instance)
             await adapter.stop(handle, 0)
             await adapter.remove(handle)
             adapter.client.close()
+
+    @unittest.skipUnless(
+        os.environ.get("DIOS_TEST_CGROUP_KILL") == "1",
+        "native cgroup write permission qualification not enabled",
+    )
+    async def test_native_freeze_preserves_instance_and_kill_never_runs_more_code(self):
+        adapter = DockerRuntimeAdapter("freeze-test-" + str(uuid4()))
+        handle = str(uuid4())
+        with tempfile.TemporaryDirectory() as directory:
+            Path(directory).chmod(0o777)
+            # Parent and descendant both fsync a host-visible record before logging.
+            # Docker log delivery can lag freezing; file contents measure execution.
+            script = (
+                "import os,time\nchild=os.fork()==0\n"
+                "f=open('/evidence/'+('child' if child else 'parent'),'ab',buffering=0)\n"
+                "while True:\n f.write(b'x');os.fsync(f.fileno());print('x',flush=True);time.sleep(.001)"
+            )
+            spec = LaunchSpec(
+                "dios-worker-fixture:local",
+                ("python", "-u", "-c", script),
+                mounts=(Mount(directory, "/evidence", False),),
+            )
+
+            def snapshot():
+                return {
+                    name: (Path(directory) / name).read_bytes()
+                    for name in ("parent", "child")
+                }
+
+            try:
+                first = await adapter.start(handle, spec)
+                for _ in range(100):
+                    if all(
+                        (Path(directory) / name).exists()
+                        for name in ("parent", "child")
+                    ):
+                        break
+                    await asyncio.sleep(0.02)
+                paused = await adapter.pause(handle, first.process_instance)
+                self.assertEqual(paused.state, "paused")
+                self.assertTrue(paused.alive)
+                self.assertEqual(paused.pid, first.pid)
+                before = snapshot()
+                await asyncio.sleep(0.2)
+                self.assertEqual(snapshot(), before)
+                with self.assertRaisesRegex(RuntimeErrorCode, "PROCESS_CHANGED"):
+                    await adapter.resume(handle, "wrong-instance")
+                resumed = await adapter.resume(handle, first.process_instance)
+                self.assertEqual(resumed.process_instance, first.process_instance)
+                await asyncio.sleep(0.2)
+                self.assertTrue(
+                    all(len(snapshot()[name]) > len(before[name]) for name in before)
+                )
+                await adapter.pause(handle, first.process_instance)
+                before = snapshot()
+                exited = await adapter.stop(handle)
+                self.assertFalse(exited.alive)
+                self.assertEqual(exited.exit_code, 137)
+                self.assertEqual(snapshot(), before)
+            finally:
+                observed = await adapter.observe(handle)
+                if observed.state == "paused":
+                    await adapter.resume(handle, observed.process_instance)
+                await adapter.stop(handle, 0)
+                await adapter.remove(handle)
+                adapter.client.close()

@@ -7,6 +7,17 @@ from docker.errors import NotFound, APIError, ImageNotFound
 from docker.types import Mount as DockerMount, LogConfig
 from .adapter import LaunchSpec, Observation, LogSnapshot
 from .database import RuntimeErrorCode
+from .linux_cgroup import kill_frozen_container
+
+
+async def _native_call(operation):
+    """Keep ownership until a synchronous daemon operation actually returns."""
+    task = asyncio.create_task(asyncio.to_thread(operation))
+    try:
+        return await asyncio.shield(task)
+    except asyncio.CancelledError:
+        await task
+        raise
 
 
 class DockerRuntimeAdapter:
@@ -59,7 +70,7 @@ class DockerRuntimeAdapter:
                 return self._observation(handle, c)
             host = str(self.client.info().get('ID', 'unknown'))
             try:
-                c = self.client.containers.create(image.id, command=list(spec.command),
+                c = self.client.containers.create(image.id, command=list(spec.command) if spec.command is not None else None,
                     name=self._name(handle), environment=spec.environment,
                     working_dir=spec.working_dir, user=spec.user, network=spec.network,
                     mounts=[DockerMount(m.target, m.source, type='bind', read_only=m.read_only) for m in spec.mounts],
@@ -68,6 +79,7 @@ class DockerRuntimeAdapter:
                     cap_drop=['ALL'], security_opt=['no-new-privileges:true'],
                     tmpfs={'/tmp':'rw,noexec,nosuid,size=64m'}, init=True,
                     restart_policy={'Name':'no'},
+                    extra_hosts=spec.host_aliases or None,
                     log_config=LogConfig(type='json-file', config={'max-size':'4m','max-file':'1'}),
                     labels={'dios.runtime.scope':self.scope, 'dios.runtime.spec':fingerprint,
                             'dios.runtime.kind':spec.kind, 'dios.runtime.host':host})
@@ -79,10 +91,26 @@ class DockerRuntimeAdapter:
                 return self._observation(handle, c)
             c.start()
             return self._observation(handle, c)
-        return await asyncio.to_thread(launch)
+        return await _native_call(launch)
 
     async def observe(self, handle):
-        return await asyncio.to_thread(lambda: self._observation(handle, self._get(handle)))
+        return await _native_call(lambda: self._observation(handle, self._get(handle)))
+
+    async def endpoint(self, handle, port):
+        if type(port) is not int or not 1 <= port <= 65535:
+            raise RuntimeErrorCode('INVALID_SERVICE_PORT')
+        def address():
+            c = self._get(handle)
+            if c is None:
+                raise RuntimeErrorCode('RUNTIME_NOT_FOUND')
+            c.reload()
+            network = c.attrs.get('HostConfig', {}).get('NetworkMode')
+            details = c.attrs.get('NetworkSettings', {}).get('Networks', {}).get(network, {})
+            ip = details.get('IPAddress')
+            if not ip:
+                raise RuntimeErrorCode('RUNTIME_ENDPOINT_UNAVAILABLE')
+            return f'http://{ip}:{port}'
+        return await _native_call(address)
 
     async def logs(self, handle, max_bytes):
         if not 1 <= max_bytes <= 128*1024*1024:
@@ -109,7 +137,7 @@ class DockerRuntimeAdapter:
                     stream.close()
                 result.append(bytes(data))
             return LogSnapshot(*result, truncated)
-        return await asyncio.to_thread(read)
+        return await _native_call(read)
 
     async def stop(self, handle, grace_seconds=5):
         if not 0 <= grace_seconds <= 60: raise RuntimeErrorCode('INVALID_STOP_GRACE')
@@ -118,13 +146,14 @@ class DockerRuntimeAdapter:
             if c is not None:
                 c.reload()
                 if c.attrs['State'].get('Paused'):
-                    # Kill while frozen; never give revoked code a graceful execution window.
-                    c.kill(signal='SIGKILL')
+                    # Docker kill thaws the cgroup, permitting descendants to run.
+                    # Native whole-cgroup kill preserves the freeze until exit.
+                    kill_frozen_container(c.id, c.attrs['State'].get('Pid'))
                     c.wait(timeout=5)
                 else:
                     c.stop(timeout=grace_seconds)
             return self._observation(handle, c)
-        return await asyncio.to_thread(stop)
+        return await _native_call(stop)
 
     async def _freeze(self, handle, process_instance, paused):
         def change():
@@ -139,7 +168,7 @@ class DockerRuntimeAdapter:
             elif not paused and current.state == 'paused':
                 c.unpause()
             return self._observation(handle, c)
-        return await asyncio.to_thread(change)
+        return await _native_call(change)
 
     async def pause(self, handle, process_instance):
         return await self._freeze(handle, process_instance, True)
@@ -155,4 +184,4 @@ class DockerRuntimeAdapter:
             if c.attrs['State'].get('Running'):
                 raise RuntimeErrorCode('RUNTIME_STILL_RUNNING')
             c.remove(force=False)
-        await asyncio.to_thread(remove)
+        await _native_call(remove)

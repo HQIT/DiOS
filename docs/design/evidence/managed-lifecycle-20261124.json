@@ -1,0 +1,224 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "1a91030a604d882f8ac50438c419a34b823314d5",
+  "state": "managed_lifecycle_engineering_verified_deployed_issue_open",
+  "tests": {
+    "backend": {
+      "total": 666,
+      "passed": 471,
+      "skipped": 195,
+      "seconds": 607.881,
+      "log_sha256": "7bcd151d1d4e93ee7f64517de432a458489b53adae88d6530c20c3afff200b84"
+    },
+    "final_targeted": {
+      "total": 38,
+      "passed": 36,
+      "skipped": 2,
+      "seconds": 40.446,
+      "log_sha256": "f9b23cd0d9d82f9abe12f276e4238f56b7cc2d50e0f99dfe6b8835c356f76ef3"
+    },
+    "native_lifecycle_and_concurrency": {
+      "total": 4,
+      "passed": 4,
+      "skipped": 0,
+      "seconds": 57.874,
+      "log_sha256": "7134d40dda6657c2e44430d27465a728f86575250fd6162793921e79f8023bf8"
+    },
+    "native_frozen_control": {
+      "total": 2,
+      "passed": 2,
+      "skipped": 0,
+      "seconds": 1.818,
+      "log_sha256": "0275ae759de82fc5fee0387b655e49af8a1eabb920dbac64baea588960fabc58"
+    },
+    "changed_python_lint": "passed"
+  },
+  "native_concurrency": [
+    {
+      "configured_slots": 3,
+      "actual_concurrency": 3,
+      "workers": [
+        {
+          "id": "60c6ea74-44eb-4b82-b7f7-691e56b699c7",
+          "pid": 44209,
+          "instance": "6c400b82-aeed-4472-9d9a-caeb961bb498"
+        },
+        {
+          "id": "f41a5939-d72c-476a-a016-ec6fcb38dd43",
+          "pid": 44212,
+          "instance": "4ccdf4e3-252f-4df0-9fc5-beb560a73584"
+        },
+        {
+          "id": "107fe620-4f0f-45f5-9d9b-7d58717ea412",
+          "pid": 44211,
+          "instance": "a935ee0b-944f-4a93-9870-d1bcf3bbffe3"
+        }
+      ],
+      "attempts": [
+        {
+          "run_id": "d4d8c458-46ed-46ae-90d0-413d01686153",
+          "attempt_id": "c9b3a0c1-c10a-455c-937d-73f6f2f41138",
+          "worker_id": "60c6ea74-44eb-4b82-b7f7-691e56b699c7",
+          "session_id": "034ca245-4282-445e-a8ee-d65923433c70",
+          "process_id": 44288,
+          "process_instance": "47883dc1a99e948a861e36daf010bd4841bc11f8f78fb8a283d94d309f00287b:2026-11-24T09:14:10.921480958Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "9e08bddc-6990-41eb-9741-360d98761207",
+          "attempt_id": "4a360a25-cffd-4237-870f-d573fed84abb",
+          "worker_id": "f41a5939-d72c-476a-a016-ec6fcb38dd43",
+          "session_id": "efb89496-9b29-4448-a0e5-4e2b63b6f441",
+          "process_id": 44340,
+          "process_instance": "a29d25e00d4e6b02b72c65470f4cd62067ce3802a182ff0e77bbfb61eeb57104:2026-11-24T09:14:11.46453569Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "fa757cb3-7eeb-4a4e-ba71-3cbc1fb47e0f",
+          "attempt_id": "aa408b90-0605-4c27-a2b6-1c78c607c811",
+          "worker_id": "107fe620-4f0f-45f5-9d9b-7d58717ea412",
+          "session_id": "9241ff9e-e300-4593-a0cc-d5c45d857edf",
+          "process_id": 44396,
+          "process_instance": "b6395a78ceb76104f958210ff920741474d4140182f9d2f03ed1dae97e814ad5:2026-11-24T09:14:12.239516566Z",
+          "freshness": "fresh"
+        }
+      ]
+    }
+  ],
+  "frozen_termination": {
+    "mechanism": "Linux cgroup v2 cgroup.kill after local container identity and frozen state verification",
+    "qualified_account": "isolated native test with host cgroup write permission",
+    "native_freeze_control_tests": 2,
+    "counter_trials": [
+      {
+        "trial": 0,
+        "before": 33,
+        "after": 33,
+        "extra_logs": 0,
+        "exit": 137
+      },
+      {
+        "trial": 1,
+        "before": 34,
+        "after": 34,
+        "extra_logs": 0,
+        "exit": 137
+      },
+      {
+        "trial": 2,
+        "before": 37,
+        "after": 37,
+        "extra_logs": 0,
+        "exit": 137
+      },
+      {
+        "trial": 3,
+        "before": 39,
+        "after": 39,
+        "extra_logs": 0,
+        "exit": 137
+      },
+      {
+        "trial": 4,
+        "before": 40,
+        "after": 40,
+        "extra_logs": 0,
+        "exit": 137
+      }
+    ],
+    "pre_fix_docker_kill": [
+      {
+        "trial": 0,
+        "before": 38,
+        "after": 38,
+        "extra_logs": 0,
+        "exit": 137
+      },
+      {
+        "trial": 1,
+        "before": 39,
+        "after": 40,
+        "extra_logs": 0,
+        "exit": 137
+      },
+      {
+        "trial": 2,
+        "before": 40,
+        "after": 41,
+        "extra_logs": 0,
+        "exit": 137
+      },
+      {
+        "trial": 3,
+        "before": 40,
+        "after": 40,
+        "extra_logs": 0,
+        "exit": 137
+      },
+      {
+        "trial": 4,
+        "before": 40,
+        "after": 40,
+        "extra_logs": 2,
+        "exit": 137
+      }
+    ],
+    "development_default": "ordinary account lacks cgroup write permission; retains frozen workload and reports RUNTIME_FROZEN_STOP_UNAVAILABLE",
+    "remote_daemon_or_cgroup_v1": "requires qualified target-host termination provider; no thaw fallback"
+  },
+  "image": {
+    "image": "sha256:539edccc9f3faaad7b3a940752ac3548ed49d24c2bdad0b898d01df9adcc9142",
+    "checks": [
+      "health",
+      "registry_poll_contract",
+      "secret_write_only",
+      "isolated_empty_connectors",
+      "graceful_exit",
+      "managed_runtime_imports"
+    ],
+    "exit_code": 0
+  },
+  "development": {
+    "checks": [
+      "development_api_healthy",
+      "deployed_poll_contract",
+      "a2a_discovery_healthy",
+      "runtime_history_preserved",
+      "events_history_preserved",
+      "worker-sales_process_alive",
+      "worker-construction_process_alive",
+      "knowledge_process_alive",
+      "dios-dev-identity-reconcile.timer_active",
+      "dios-dev-delegation-reconcile.timer_active",
+      "browser_sso_healthy"
+    ],
+    "history_count": 84,
+    "history_identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "event_count": 0,
+    "active_runs": 0,
+    "backup": "backup-before",
+    "schema_migration_required": false
+  },
+  "execution_evidence": {
+    "service": "actual existing dios-diagent-service image; native health, process reuse, stop, logs and removal",
+    "task": "synthetic native task; E2AG grant revoked before confirmed exit and content-addressed log retention",
+    "concurrency": "3 real Workers, distinct container instances and synthetic protocol sessions; not model inference",
+    "existing_cursor_qualification": "docs/design/evidence/cursor-acp-regression-20261120.json"
+  },
+  "earlier_failures": {
+    "first_backend": "2 identity-pause test deadline failures; retained backend-first-failed.log",
+    "first_concurrency": "observation deadline; retained native-final-first-failed.log",
+    "frozen_stop": "extra child execution reproduced with fsynced counter; native cgroup kill replaces Docker kill"
+  },
+  "remaining": [
+    "legacy record drain/conversion and production upgrade rehearsal",
+    "legacy A2A task observer startup recovery via existing durable Worker",
+    "shared service per-request authorization, credential references and cancellation capability",
+    "remote frozen termination provider qualification and execution-node permissions",
+    "G2 independent review and product acceptance"
+  ],
+  "project_status_update": {
+    "state": "existing_token_scope_missing",
+    "issue_and_repository_plan": "updated separately"
+  }
+}

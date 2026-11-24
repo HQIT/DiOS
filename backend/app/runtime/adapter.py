@@ -17,7 +17,7 @@ class Mount:
 @dataclass(frozen=True)
 class LaunchSpec:
     image: str
-    command: tuple[str, ...]
+    command: tuple[str, ...] | None
     kind: str = 'task'
     environment: dict[str, str] = field(default_factory=dict)
     mounts: tuple[Mount, ...] = ()
@@ -28,10 +28,11 @@ class LaunchSpec:
     cpu_count: float = 1.0
     pids_limit: int = 64
     read_only_root: bool = True
+    host_aliases: dict[str, str] = field(default_factory=dict)
 
     def validate(self):
-        if (not self.image or not self.command or self.kind not in {'task', 'service'}
-                or not all(isinstance(s, str) and s for s in self.command)
+        if (not self.image or self.command == () or self.command == [] or self.kind not in {'task', 'service'}
+                or (self.command is not None and not all(isinstance(s, str) and s for s in self.command))
                 or not self.network or not self.user or not self.working_dir.startswith('/')
                 or type(self.memory_bytes) is not int or self.memory_bytes < 16 * 1024 * 1024
                 or not 0 < self.cpu_count <= 128 or not 1 <= self.pids_limit <= 4096):
@@ -43,10 +44,15 @@ class LaunchSpec:
             raise RuntimeErrorCode('DUPLICATE_MOUNT')
         if not all(isinstance(k, str) and isinstance(v, str) for k, v in self.environment.items()):
             raise RuntimeErrorCode('INVALID_ENVIRONMENT')
+        if not all(isinstance(k, str) and k and isinstance(v, str) and v for k, v in self.host_aliases.items()):
+            raise RuntimeErrorCode('INVALID_HOST_ALIASES')
 
     def fingerprint(self):
         self.validate()
-        return hashlib.sha256(json.dumps(asdict(self), sort_keys=True).encode()).hexdigest()
+        values = asdict(self)
+        if not self.host_aliases:
+            values.pop('host_aliases')  # Preserve already persisted profile digests.
+        return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -82,3 +88,9 @@ class SuspendableRuntimeAdapter(RuntimeAdapter, Protocol):
     """Optional native process freeze; resume preserves the observed instance."""
     async def pause(self, handle: str, process_instance: str) -> Observation: ...
     async def resume(self, handle: str, process_instance: str) -> Observation: ...
+
+
+class ServiceEndpointRuntimeAdapter(RuntimeAdapter, Protocol):
+    async def endpoint(self, handle: str, port: int) -> str:
+        """Return a reachable service URL for this adapter's deployment topology."""
+        ...

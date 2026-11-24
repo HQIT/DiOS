@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # All poll owners for one installation share this local filesystem directory.
     connector_poll_enabled: bool = True
     connector_poll_lock_dir: str = ""
+    managed_runtime_user: str = "1000:1000"
+    managed_runtime_memory_bytes: int = 512 * 1024 * 1024
+    managed_runtime_lock_dir: str = ""
 
     # Webhook 签名验证密钥，按平台名存储
     # 如 {"github": "xxx", "gitlab": "yyy", "gitea": "zzz"}
@@ -36,7 +39,7 @@ class Settings(BaseSettings):
     e2ag_tool_grant_ttl_seconds: int = 900
     e2ag_approval_ttl_seconds: int = 3600
     # One-shot DiAgent containers are Docker siblings, not Compose services.
-    # The host-gateway mapping in docker_runner makes this URL portable.
+    # The managed lifecycle launch profile supplies the host-gateway alias.
     e2ag_internal_base_url: str = "http://host.docker.internal:8000"
 
     # 非空时启用 API Access Token（Authorization: Bearer 或 X-DiOS-Access-Token）

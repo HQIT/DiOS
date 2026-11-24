@@ -511,13 +511,20 @@
       "existing": 10,
       "status": "In Progress",
       "progress": {
-        "date": "2026-11-12",
-        "summary": "独立 Worker 已串接持久认领、Docker task/service 生命周期、真实进程/会话观测、产物校验和清理。三路并发、取消、Worker 崩溃不重派及自然排空通过；全后端 179 项通过、0 跳过，新镜像 17 项关键回归及 CLI 迁移通过。",
-        "remaining": "继续收敛 legacy docker_runner 调用方、Secret/策略注入与真实 Harness 生命周期联合验收；保持协议桥和 Runtime Adapter 分离。",
+        "date": "2026-11-24",
+        "summary": "托管 task/service 与持久 Worker 共用 RuntimeAdapter；移除 docker_runner；取消先撤销 E2AG grant、确认退出后保留日志和回收。冻结终止改用原生 cgroup.kill；能力缺失时保持冻结并等待对账。",
+        "validation_status": "engineering_verified_deployed_remaining_scope_open",
+        "verification": "后端 666 项中 471 通过、195 跳过；最终专项 38 项中 36 通过、2 跳过；原生生命周期及三路独立并发 4 项通过，冻结控制 2 项及 5 次落盘计数验证通过；镜像运行 6 项、开发部署 11 项通过，84 条历史身份不变。",
+        "design": "docs/design/managed-lifecycle-10.md",
+        "validation_evidence": "docs/design/evidence/managed-lifecycle-20261124.json",
+        "remaining": "旧运行对象排空与记录迁移、旧 A2A 观察器接入持久恢复、共享服务逐请求治理、目标节点冻结终止权限与跨主机资格、G2 评审及产品验收。",
         "evidence_paths": [
           "docs/design/worker-execution-10-30.md",
-          "docs/design/evidence/worker-runtime-regression-20261112.json"
-        ]
+          "docs/design/evidence/worker-runtime-regression-20261112.json",
+          "docs/design/managed-lifecycle-10.md",
+          "docs/design/evidence/managed-lifecycle-20261124.json"
+        ],
+        "project_sync": "Issue 正文与仓库计划同步；Project 字段受既有令牌 scope 限制"
       },
       "product_scope": "dios-capability"
     },
@@ -637,6 +644,11 @@
           "Unknown external side effects are not replayed; total task and Work expiry remain bounded"
         ],
         "next": "#30 暂停对象重启后的受控对账与持久调度；#35 标准注销事件和三层受控委派按原规划继续"
+      },
+      "frozen_termination": {
+        "design": "docs/design/managed-lifecycle-10.md",
+        "state": "local_cgroup_v2_qualified_permission_required",
+        "next": "为目标执行节点提供受控 cgroup 权限与跨主机资格；权限不足保持冻结并进入待对账，禁止 Docker kill 解冻回退"
       }
     },
     {

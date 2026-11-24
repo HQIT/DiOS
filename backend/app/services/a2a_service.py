@@ -22,6 +22,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.runtime.database import RuntimeErrorCode
+from app.services import managed_runtime
 from app.models.tables import Agent, A2ATask, LLMModel, McpServer
 
 logger = logging.getLogger(__name__)
@@ -74,6 +76,7 @@ def build_agent_card(agent: Agent, base_url: str) -> dict[str, Any]:
         "_dios": {
             "agent_id": agent.id,
             "mode": agent.mode,
+            "task_cancellation": agent.mode == "task",
             "group": agent.group,
         },
     }
@@ -173,9 +176,19 @@ async def send_message(
         if agent.mode == "service":
             await _send_to_service_agent(db, agent, task)
         else:
-            await _send_to_task_agent(db, agent, task)
+            async with managed_runtime.exclusive(managed_runtime.handle("task", task.id)):
+                await db.refresh(task)
+                if task.status == "submitted":
+                    await _send_to_task_agent(db, agent, task)
     except Exception as e:
         logger.exception("send_message failed for agent %s", agent_id)
+        await db.refresh(task)
+        if task.status in {"completed", "failed", "canceled"}:
+            return task
+        if task.status == "working":
+            task.error = "RUNTIME_START_UNCONFIRMED:" + type(e).__name__
+            await db.commit()
+            return task
         task.status = "failed"
         task.error = f"{type(e).__name__}: {e}"
         task.updated_at = _now()
@@ -287,12 +300,7 @@ def _extract_text_from_message(message: dict[str, Any]) -> str:
 async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> None:
     """task 模式 Proxy：把 message 作为 task 输入，启动一次性容器。"""
     import asyncio
-    from app.services.docker_runner import (
-        start_container,
-        get_container_status,
-        get_container_exit_code,
-        remove_container,
-    )
+
 
     if not agent.workspace_path:
         raise ValueError(f"Agent {agent.id} has no workspace_path")
@@ -340,44 +348,64 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
     config_path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
     (workspace / "output" / "events" / run_id).mkdir(parents=True, exist_ok=True)
 
-    # Docker SDK calls are synchronous. Keep image checks and container creation
-    # off the ASGI event loop so one slow daemon call cannot stall every API.
-    container_id = await asyncio.to_thread(
-        start_container, run_id, workspace, agent.env or {}
-    )
-    logger.info(
-        "Start task container: task_id=%s agent_id=%s run_id=%s container_id=%s context_id=%s",
-        task.id, agent.id, run_id, container_id, task.context_id,
-    )
-
     task.status = "working"
     task.updated_at = _now()
     await db.commit()
+    runtime_handle = managed_runtime.handle("task", task.id)
+    try:
+        await managed_runtime.start_task(task.id, run_id, workspace, agent.env or {})
+    finally:
+        # An observation failure does not establish that execution never started.
+        asyncio.create_task(_poll_task_container(task.id, run_id, runtime_handle, str(workspace)))
 
-    asyncio.create_task(_poll_task_container(task.id, run_id, container_id, str(workspace)))
 
 
-async def _poll_task_container(task_id: str, run_id: str, container_id: str, workspace_path: str) -> None:
-    """后台轮询容器状态，完成后更新 A2ATask。"""
+async def _poll_task_container(task_id: str, run_id: str, runtime_handle: str, workspace_path: str, *, poll_interval: float = 5) -> None:
     import asyncio
     from app.db.database import async_session
-    from app.services.docker_runner import (
-        get_container_status,
-        get_container_exit_code,
-        get_container_logs,
-        remove_container,
-    )
-
+    adapter = managed_runtime.managed_adapter()
     while True:
-        await asyncio.sleep(5)
-        status = await asyncio.to_thread(get_container_status, container_id)
-        if status is None or status == "exited":
-            break
+        await asyncio.sleep(poll_interval)
+        try:
+            observed = await adapter.observe(runtime_handle)
+        except Exception as exc:  # noqa: BLE001 - observation failure is not process death
+            logger.warning("Runtime observation unavailable for %s: %s", task_id, type(exc).__name__)
+            continue
+        if observed.state == "absent":
+            async with async_session() as db:
+                task = await db.get(A2ATask, task_id)
+                if task and task.status not in {"completed", "failed", "canceled"}:
+                    task.error = "RUNTIME_OBSERVATION_ABSENT"
+                    await db.commit()
+            return
+        if observed.alive or observed.state not in {"exited", "dead"}:
+            continue
+        try:
+            async with managed_runtime.exclusive(runtime_handle):
+                async with async_session() as db:
+                    task = await db.get(A2ATask, task_id)
+                    if not task:
+                        return
+                    if task.status in {"completed", "failed", "canceled"}:
+                        await adapter.remove(runtime_handle)
+                        return
+                observed = await adapter.observe(runtime_handle)
+                if observed.alive or observed.state not in {"exited", "dead"}:
+                    continue
+                snapshot = await managed_runtime.retain_logs(runtime_handle, Path(workspace_path), observed.process_instance)
+                logs = (snapshot.stdout + b"\n" + snapshot.stderr).decode("utf-8", errors="replace")
+                await _finish_task_runtime(task_id, run_id, workspace_path, observed.exit_code, logs)
+                await adapter.remove(runtime_handle)
+                return
+        except RuntimeErrorCode as exc:
+            if str(exc) != "RUNTIME_OPERATION_IN_PROGRESS":
+                logger.warning("Runtime finalization pending for %s: %s", task_id, str(exc))
+        except Exception as exc:  # noqa: BLE001 - retain execution until evidence and cleanup are available
+            logger.warning("Runtime finalization pending for %s: %s", task_id, type(exc).__name__)
 
-    exit_code = await asyncio.to_thread(get_container_exit_code, container_id)
-    container_logs = await asyncio.to_thread(get_container_logs, container_id)
-    await asyncio.to_thread(remove_container, container_id)
 
+async def _finish_task_runtime(task_id, run_id, workspace_path, exit_code, container_logs):
+    from app.db.database import async_session
     artifacts: list[dict[str, Any]] = []
     result_root = Path(workspace_path) / "output" / "events" / run_id
     result_file = result_root / "task_result.md"
@@ -388,6 +416,8 @@ async def _poll_task_container(task_id: str, run_id: str, container_id: str, wor
     if result_file.exists():
         try:
             content = result_file.read_text(encoding="utf-8")
+            if not content.strip():
+                raise ValueError("RUNTIME_RESULT_EMPTY")
             artifacts.append({
                 "artifactId": f"{task_id}-result",
                 "name": "task_result.md",
@@ -403,7 +433,9 @@ async def _poll_task_container(task_id: str, run_id: str, container_id: str, wor
             _remove_task_secret_config(workspace_path, run_id)
             return
         task.artifacts = artifacts
-        task.status = "completed" if exit_code == 0 else "failed"
+        task.status = "completed" if exit_code == 0 and artifacts else "failed"
+        if exit_code == 0 and not artifacts:
+            task.error = "RUNTIME_RESULT_MISSING"
         if exit_code != 0:
             log_tail = container_logs[-4000:].strip()
             task.error = f"container exit code {exit_code}"
@@ -552,22 +584,39 @@ def _remove_task_secret_config(workspace_path: str, run_id: str) -> None:
 
 
 async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
-    """取消 Task。Phase 1C 先仅做状态变更，容器层面的中断在后续补全。"""
-    task = await db.get(A2ATask, task_id)
-    if not task:
-        raise ValueError(f"Task {task_id} not found")
-    if task.status in ("completed", "failed", "canceled"):
+    """Cancel only after owned execution is confirmed stopped."""
+    runtime_handle = managed_runtime.handle("task", task_id)
+    async with managed_runtime.exclusive(runtime_handle):
+        task = await db.get(A2ATask, task_id)
+        if not task:
+            raise ValueError(f"Task {task_id} not found")
+        await db.refresh(task)
+        if task.status in {"completed", "failed", "canceled"}:
+            return task
+        agent = await db.get(Agent, task.agent_id)
+        if agent and agent.mode == "service":
+            # The current shared chat endpoint has no per-request cancellation API.
+            raise RuntimeErrorCode("TASK_CANCELLATION_UNSUPPORTED")
+        from app.services.e2ag_tool_gateway import revoke_task_grants
+        await revoke_task_grants(db, task.id)
+        await db.commit()
+        adapter = None
+        if task.status != "submitted":
+            adapter = managed_runtime.managed_adapter()
+            observed = await adapter.stop(runtime_handle, grace_seconds=10)
+            if observed.alive or observed.state not in {"exited", "dead"}:
+                raise RuntimeErrorCode("RUNTIME_STOP_UNCONFIRMED")
+            if agent and agent.workspace_path:
+                await managed_runtime.retain_logs(runtime_handle, Path(agent.workspace_path), observed.process_instance)
+        task.status = "canceled"
+        task.updated_at = _now()
+        await db.commit()
+        if adapter is not None:
+            await adapter.remove(runtime_handle)
+        if agent and agent.workspace_path:
+            _remove_task_secret_config(agent.workspace_path, task.id[:12])
+        await db.refresh(task)
         return task
-    task.status = "canceled"
-    task.updated_at = _now()
-    from app.services.e2ag_tool_gateway import revoke_task_grants
-    await revoke_task_grants(db, task.id)
-    agent = await db.get(Agent, task.agent_id)
-    if agent and agent.workspace_path:
-        _remove_task_secret_config(agent.workspace_path, task.id[:12])
-    await db.commit()
-    await db.refresh(task)
-    return task
 
 
 # ── 工具：CloudEvent -> A2A Message ────────────────────────────────

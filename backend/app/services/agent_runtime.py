@@ -1,32 +1,21 @@
-"""Agent Runtime Manager — 为 service 模式 Agent 管理独立的 DiAgent 容器。"""
-
+"""Managed Agent service configuration and health; lifecycle via RuntimeAdapter."""
+import asyncio
 import json
 import logging
 import os
-import asyncio
 from pathlib import Path
 
 import yaml
-import httpx
-
-from app.services.http_internal import internal_client
-import docker
-from docker.errors import NotFound, APIError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models.tables import Agent, AgentRuntime, LLMModel, McpServer
-from app.services.docker_runner import get_client, _host_path
+from app.runtime.database import RuntimeErrorCode
+from app.services import managed_runtime
+from app.services.http_internal import internal_client
 
 logger = logging.getLogger(__name__)
-
-DOCKER_NETWORK = os.getenv("DIOS_DOCKER_NETWORK", "nana-os_default")
-
-
-def _container_name(agent_id: str) -> str:
-    return f"dios-agent-{agent_id}"
-
 
 async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str]:
     """为 Agent 的 workspace 生成 models.yaml 和 mcp_servers.json，返回环境变量 dict。"""
@@ -78,106 +67,79 @@ async def _sync_agent_workspace(agent: Agent, db: AsyncSession) -> dict[str, str
     return env
 
 
-def _start_container(agent: Agent, env: dict[str, str]) -> tuple[str, str]:
-    """启动 DiAgent 服务容器，返回 (container_id, internal_url)。"""
-    client = get_client()
-    name = _container_name(agent.id)
-
-    try:
-        old = client.containers.get(name)
-        old.remove(force=True)
-    except NotFound:
-        pass
-
-    host_ws = _host_path(Path(agent.workspace_path))
-
-    host_shared_skills = _host_path(settings.workspace_root / "skills")
-    host_shared_cli = settings.host_shared_cli_root or _host_path(settings.shared_cli_root)
-
-    container = client.containers.run(
-        image=settings.diagent_service_image,
-        name=name,
-        labels={"dios.agent_id": agent.id, "dios.type": "service"},
-        environment=env,
-        volumes={
-            host_ws: {"bind": "/workspace", "mode": "rw"},
-            host_shared_skills: {"bind": "/workspace/skills", "mode": "ro"},
-            host_shared_cli: {"bind": "/workspace/cli", "mode": "ro"},
-        },
-        network=DOCKER_NETWORK,
-        detach=True,
-        auto_remove=False,
-    )
-    url = f"http://{name}:8000"
-    logger.info("Started service container %s for agent %s at %s", container.short_id, agent.id, url)
-    return container.id, url
-
-
 async def _health_check(url: str, retries: int = 20, interval: float = 1.0) -> bool:
     for _ in range(retries):
         try:
             async with internal_client(timeout=2) as client:
-                resp = await client.get(f"{url}/health")
-                if resp.status_code == 200:
+                if (await client.get(f"{url}/health")).status_code == 200:
                     return True
-        except Exception:
+        except Exception:  # noqa: BLE001 - transient health observation
             pass
         await asyncio.sleep(interval)
     return False
 
 
 async def ensure_running(agent_id: str, db: AsyncSession) -> str:
-    """确保 Agent 的 DiAgent 服务容器正在运行，返回其 URL。"""
-    runtime = await db.get(AgentRuntime, agent_id)
-
-    if runtime and runtime.status == "running":
-        client = get_client()
-        try:
-            c = client.containers.get(runtime.container_id)
-            c.reload()
-            if c.status == "running":
-                return runtime.url
-        except NotFound:
-            pass
-        runtime.status = "stopped"
+    runtime_handle = managed_runtime.handle("service", agent_id)
+    async with managed_runtime.exclusive(runtime_handle):
+        runtime = await db.get(AgentRuntime, agent_id)
+        if runtime and runtime.container_id != runtime_handle:
+            raise RuntimeErrorCode("LEGACY_RUNTIME_REQUIRES_DRAIN")
+        agent = await db.get(Agent, agent_id)
+        if not agent or not agent.workspace_path:
+            raise ValueError("Agent workspace is required")
+        adapter = managed_runtime.managed_adapter()
+        current = await adapter.observe(runtime_handle)
+        if current.alive:
+            if current.state != "running":
+                raise RuntimeErrorCode("RUNTIME_NOT_READY")
+            url = await adapter.endpoint(runtime_handle, 8000)
+        else:
+            if current.state not in {"absent", "exited", "dead"}:
+                raise RuntimeErrorCode("RUNTIME_START_UNCONFIRMED")
+            if current.state != "absent":
+                await managed_runtime.retain_logs(runtime_handle, Path(agent.workspace_path), current.process_instance)
+                await adapter.remove(runtime_handle)
+            env = await _sync_agent_workspace(agent, db)
+            # Persist intent before starting; an uncertain start remains inspectable.
+            if runtime is None:
+                runtime = AgentRuntime(agent_id=agent_id, container_id=runtime_handle, url="", status="starting")
+                db.add(runtime)
+            else:
+                runtime.status = "starting"
+            await db.commit()
+            current = await adapter.start(runtime_handle, managed_runtime.launch_spec("service", Path(agent.workspace_path), env))
+            url = await adapter.endpoint(runtime_handle, 8000)
+        if runtime is None:
+            runtime = AgentRuntime(agent_id=agent_id, container_id=runtime_handle, url=url, status="starting")
+            db.add(runtime)
+        healthy = await _health_check(url)
+        runtime.url, runtime.status = url, "running" if healthy else "error"
         await db.commit()
-
-    agent = await db.get(Agent, agent_id)
-    if not agent:
-        raise ValueError(f"Agent {agent_id} not found")
-
-    env = await _sync_agent_workspace(agent, db)
-    container_id, url = _start_container(agent, env)
-
-    healthy = await _health_check(url)
-    status = "running" if healthy else "error"
-
-    if runtime:
-        runtime.container_id = container_id
-        runtime.url = url
-        runtime.status = status
-    else:
-        runtime = AgentRuntime(agent_id=agent_id, container_id=container_id, url=url, status=status)
-        db.add(runtime)
-
-    await db.commit()
-
-    if not healthy:
-        raise RuntimeError(f"DiAgent container for agent {agent_id} failed health check")
-
-    return url
+        if not healthy:
+            observed = await adapter.stop(runtime_handle)
+            if observed.alive or observed.state not in {"exited", "dead"}:
+                raise RuntimeErrorCode("RUNTIME_STOP_UNCONFIRMED")
+            await managed_runtime.retain_logs(runtime_handle, Path(agent.workspace_path), observed.process_instance)
+            raise RuntimeErrorCode("RUNTIME_HEALTH_FAILED")
+        return url
 
 
 async def stop_agent(agent_id: str, db: AsyncSession) -> None:
-    runtime = await db.get(AgentRuntime, agent_id)
-    if not runtime:
-        return
-    client = get_client()
-    try:
-        c = client.containers.get(runtime.container_id)
-        c.stop(timeout=10)
-        c.remove(force=True)
-    except (NotFound, APIError):
-        pass
-    await db.delete(runtime)
-    await db.commit()
+    runtime_handle = managed_runtime.handle("service", agent_id)
+    async with managed_runtime.exclusive(runtime_handle):
+        runtime = await db.get(AgentRuntime, agent_id)
+        if not runtime:
+            return
+        if runtime.container_id != runtime_handle:
+            raise RuntimeErrorCode("LEGACY_RUNTIME_REQUIRES_DRAIN")
+        adapter = managed_runtime.managed_adapter()
+        observed = await adapter.stop(runtime_handle, grace_seconds=10)
+        if observed.alive or observed.state not in {"absent", "exited", "dead"}:
+            raise RuntimeErrorCode("RUNTIME_STOP_UNCONFIRMED")
+        agent = await db.get(Agent, agent_id)
+        if observed.state != "absent" and agent and agent.workspace_path:
+            await managed_runtime.retain_logs(runtime_handle, Path(agent.workspace_path), observed.process_instance)
+        await adapter.remove(runtime_handle)
+        await db.delete(runtime)
+        await db.commit()
