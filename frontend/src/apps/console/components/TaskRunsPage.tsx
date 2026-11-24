@@ -239,8 +239,8 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
       {detail && <>
         <section className="tr-card"><div className="tr-section-title"><h3>{detail.goal}</h3><Badge state={detail.state} /></div>
           <p className="tr-muted">{detail.display.name || detail.profile_id} · {translateUI(detail.display.synthetic ? "合成端点" : detail.display.implementation)}</p>
-          <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>
-            <div><span>{translateUI("进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
+          <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : active?.runtime_state === "paused" && !terminal(detail.state) ? "执行已暂停" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>
+            <div><span>{translateUI("进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.runtime_state === "paused" ? "执行已暂停" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
             <div><span>{translateUI("最近有效输出")}</span><strong>{translateUI(time(active?.last_output_at))}</strong></div>
           </div>
           {detail.state === "queued" && <p className="tr-notice">{translateUI("任务已入队，等待对应 Agent 的 Worker 领取。")}</p>}
@@ -256,6 +256,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         <section className="tr-card"><div className="tr-section-title"><h3>{translateUI("执行授权")}</h3>
           <span className="tr-badge">{translateUI(detail.authorization.mode === "e2ag" ? "E2AG" : "受信本地配置")}</span></div>
           {detail.authorization.mode === "e2ag" ? <>
+            {active?.runtime_state === "paused" && !terminal(detail.state) && <p className="tr-notice" data-testid="execution-paused">{translateUI("执行已暂停，身份恢复并通过授权复核后继续。")}</p>}
             <div className="tr-metrics"><div><span>{translateUI("工作授权")}</span><strong>{translateUI(AUTH_STATES[detail.authorization.state || ""] || "待确认")}</strong></div>
               <div><span>{translateUI("策略")}</span><strong>{translateUI(detail.authorization.policy_id)}</strong></div><div><span>{translateUI("工作期限")}</span><strong>{translateUI(time(detail.authorization.expires_at))}</strong></div></div>
             {detail.authorization.grant && <p className="tr-muted">{translateUI("执行授权版本")}{translateUI(detail.authorization.grant.version)}{translateUI("· 到期")}{translateUI(time(detail.authorization.grant.expires_at))} · {translateUI(detail.authorization.grant.session_id ? "已绑定会话" : "等待会话绑定")}</p>}

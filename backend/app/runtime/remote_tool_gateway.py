@@ -76,7 +76,7 @@ class ToolGateway:
         try:
             gate=copy.copy(self.gate);gate.identity_guard=identity_guard;gate.sender_evidence=peer
             channel=WorkerToolChannel(gate,tuple(binding),json.loads(spec.environment[POLICY_ENV]),-1)
-            run,a=await channel._owner()
+            run,a=await channel._owner(wait=True)
             if run['input']['runtime_profile']!=profile or run['input']['profile_digest']!=spec.fingerprint():
                 raise RuntimeErrorCode('PROFILE_CHANGED')
             await channel.initialize()

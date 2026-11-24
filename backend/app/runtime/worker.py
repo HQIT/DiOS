@@ -85,8 +85,45 @@ class Worker:
             await self.store.reject_unlaunched(binding,'PROFILE_CHANGED')
             return await self.store.get(a['run_id'])
         channel=None
+        handle, started, paused_instance = None, None, None
+        async def maintain_authority():
+            if handle is None:return  # No Grant exists yet; initial wait stays below the claim lease.
+            if started is not None and time.monotonic()-started >= self.timeout:
+                raise RuntimeErrorCode('PROCESS_DEADLINE_EXCEEDED')
+            await self.store.heartbeat(*binding)
+            if paused_instance is not None:
+                current=await self.adapter.observe(handle)
+                if current.process_instance!=paused_instance:raise RuntimeErrorCode('PROCESS_CHANGED')
+                await observe(current)
+        async def suspend_identity():
+            nonlocal paused_instance
+            if handle is None:return
+            current=await self.adapter.observe(handle)
+            if not current.alive and current.state in {'exited','dead'}:return
+            if not callable(getattr(self.adapter,'pause',None)) or not callable(getattr(self.adapter,'resume',None)):
+                raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE')
+            paused=await self.adapter.pause(handle,current.process_instance)
+            await observe(paused)
+            if paused.state!='paused' or not paused.alive:
+                raise RuntimeErrorCode('RUNTIME_PAUSE_UNCONFIRMED')
+            paused_instance=paused.process_instance
+        async def resume_identity():
+            nonlocal paused_instance
+            if paused_instance is None:return
+            resumed=await self.adapter.resume(handle,paused_instance)
+            await observe(resumed)
+            if resumed.state not in {'running','exited','dead'}:
+                raise RuntimeErrorCode('RUNTIME_RESUME_UNCONFIRMED')
+            paused_instance=None
+        async def authorized(action,session_id=None):
+            from .identity_wait import identity_wait
+            async def check():
+                return await authorize_work(self.store,await self.store.get(a['run_id']),a,action,
+                    session_id=session_id,verifier=self.authorization_verifier)
+            await identity_wait(check,maintain=maintain_authority,suspend=suspend_identity,resume=resume_identity,
+                timeout=min(60,self.timeout-(time.monotonic()-started) if started is not None else 15))
         try:
-            await authorize_work(self.store, run, a, 'execute', verifier=self.authorization_verifier)
+            await authorized('execute')
             secret_mounts = ()
             from .worker_tool_channel import WorkerToolChannel, POLICY_ENV, SOCKET_ENV, MOUNT_PATH
             if POLICY_ENV in self.spec.environment:
@@ -181,8 +218,7 @@ class Worker:
                         bridge.feed(logs.stdout)
                         if bridge.session_id and phase == 'creating_session':
                             if run['input'].get('work_authorization_ref'):
-                                await authorize_work(self.store,current,a,'execute',session_id=bridge.session_id,
-                                    verifier=self.authorization_verifier)
+                                await authorized('execute',bridge.session_id)
                             await report('waiting_model')
                             if channel:await channel.bind_session(bridge.session_id)
                         if bridge.output_count > output_count:
@@ -195,6 +231,7 @@ class Worker:
                     await observe(observation)
                     logs = await self.adapter.logs(handle,self.output_limit)
                 if not observation.alive:
+                    cancelled=(await self.store.get(a['run_id']))['cancel_requested']
                     # "Created" or a missing container does not prove execution/cleanup.
                     if observation.state not in {'exited','dead'}:
                         await retain(logs)
@@ -221,14 +258,12 @@ class Worker:
                         else:
                             if phase == 'creating_session':
                                 if run['input'].get('work_authorization_ref'):
-                                    await authorize_work(self.store,await self.store.get(a['run_id']),a,'execute',
-                                        session_id=bridge.session_id,verifier=self.authorization_verifier)
+                                    await authorized('execute',bridge.session_id)
                                 await report('waiting_model')
                             await report('validating')
                             if await asyncio.to_thread(self.spool.contains, last_receipt):
                                 raise RuntimeErrorCode('REPORT_DELIVERY_PENDING')
-                            await authorize_work(self.store, await self.store.get(a['run_id']), a,
-                                'accept_result', session_id=bridge.session_id, verifier=self.authorization_verifier)
+                            await authorized('accept_result',bridge.session_id)
                             blob = await asyncio.to_thread(self.artifacts.put,[encoded(bridge.result)])
                             await self.store.complete(*binding,self.artifacts,blob.key,JsonlBridge.validate)
                     # Explicit cleanup follows durable terminal state and raw-output retention.
@@ -238,8 +273,7 @@ class Worker:
                 if time.monotonic()-heartbeat_at >= 5:
                     if run['input'].get('work_authorization_ref'):
                         try:
-                            await authorize_work(self.store,await self.store.get(a['run_id']),a,'execute',
-                                session_id=bridge.session_id,verifier=self.authorization_verifier)
+                            await authorized('execute',bridge.session_id)
                             if self.secret_requests and requested:
                                 await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,requested)
                         except Exception as exc:

@@ -19,6 +19,7 @@ export interface Attempt {
   process_id: number | null; started_at: number; finished_at: number | null; last_output_at: number | null;
   error: { code: string } | null; freshness: "fresh" | "stale" | "final";
   confirmed_running: boolean; output_excerpt: string;
+  runtime_state?: string | null;
 }
 export interface Artifact { id: string; attempt_id: string; kind: string; size: number; digest: string; created_at: number; }
 export interface WorkAuthorization {
@@ -54,8 +55,9 @@ export interface WorkerStatus {
   circuits?: Circuit[];
   observed_at: number; actual_concurrency: number | null; unknown_attempts: number;
   confirmed_running_processes: number; confirmed_running_sessions: number;
+  confirmed_paused_processes?: number;
   workers: { id: string; host: string; pid: number; draining: boolean; heartbeat_at: number }[];
-  attempts: { attempt_id: string; worker_id: string; run_id: string; phase: string; freshness: string }[];
+  attempts: { attempt_id: string; worker_id: string; run_id: string; phase: string; freshness: string; runtime?: {state?: string} }[];
 }
 export interface Circuit { resource: string; state: string; retry_at: number; reason: string | null; probe_attempt: string | null; }
 export const runtimeApi = {

@@ -55,7 +55,12 @@ class WorkerToolChannel:
         self.session_id=None;self.server=None;self.directory=None;self.connections=set();self.closing=False
         self.registered={};self.busy=False;self.request_lock=asyncio.Lock()
 
-    async def _owner(self):
+    async def _owner(self, *, wait=False):
+        from .identity_wait import identity_wait
+        # Pure identity/owner check only. The action below is entered once.
+        return await identity_wait(self._owner_once) if wait else await self._owner_once()
+
+    async def _owner_once(self):
         async with self.store.db.read(self.store.scope) as c:
             run,a,now=await self.store._owned(c,*self.binding,authorize=True)
             if not run['input'].get('work_authorization_ref'):raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
@@ -149,7 +154,7 @@ class WorkerToolChannel:
             'advance':{'invocation_id'},'verify_activity':{'activity'},'verify_required':{'requirements'},'permit_proxy':{'name','arguments'},'deny_native':{'method'}}
         if set(message)!={'method','params'} or method not in allowed or not isinstance(params,dict) or set(params)!=allowed[method]:
             raise RuntimeErrorCode('TOOL_CHANNEL_METHOD_DENIED')
-        run,a=await self._owner()
+        run,a=await self._owner(wait=True)
         if method=='describe':
             return {'tools':[{'name':alias,'description':'E2AG governed tool: '+alias,'inputSchema':reg['input_schema']}
                 for alias,reg in self.registered.items()], 'client_read_tool':self.policy.get('client_read_tool')}

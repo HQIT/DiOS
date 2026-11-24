@@ -493,12 +493,14 @@ class RuntimeStore:
             circuit_rows=[dict(r) for r in (await c.execute(select(circuits).where(circuits.c.scope==self.scope).order_by(circuits.c.updated_at.desc()).limit(50))).mappings()]
             rows = (await c.execute(select(attempts).join(runs,runs.c.id==attempts.c.run_id).where(
                 runs.c.scope==self.scope, attempts.c.state.in_(ACTIVE_ATTEMPTS|{'result_unknown'})))).mappings().all()
-            observations, running, sessions, unknown = [], 0, 0, 0
+            observations, running, sessions, unknown, paused = [], 0, 0, 0, 0
             for a in rows:
                 obs = a['remote'].get('runtime', {})
                 fresh = (a['state']!='result_unknown' and a['lease_until']>now
                     and obs.get('observed_at',0)>=now-fresh_seconds)
-                alive = fresh and obs.get('alive') is True and bool(obs.get('pid')) and bool(obs.get('process_instance'))
+                exists = fresh and obs.get('alive') is True and bool(obs.get('pid')) and bool(obs.get('process_instance'))
+                paused += int(bool(exists and obs.get('state')=='paused'))
+                alive = exists and obs.get('state')!='paused'
                 running += int(bool(alive))
                 sessions += int(bool(alive and a['session_id'] and a['state'] in {'waiting_model','streaming','validating'}))
                 unknown += int(not fresh)
@@ -507,7 +509,7 @@ class RuntimeStore:
                     'process_instance':a['process_instance'],'last_output_at':a['last_output_at'],
                     'freshness':'fresh' if fresh else 'stale','runtime':obs})
             return {'scope':self.scope,'observed_at':now,'registered_slots':sum(w['slots'] for w in worker_rows),
-                'confirmed_running_processes':running,'confirmed_running_sessions':sessions,
+                'confirmed_running_processes':running,'confirmed_running_sessions':sessions,'confirmed_paused_processes':paused,
                 'actual_concurrency':None if unknown else sessions,'unknown_attempts':unknown,
                 'workers':worker_rows,'attempts':observations,'circuits':circuit_rows}
 

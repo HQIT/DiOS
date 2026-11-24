@@ -23,6 +23,7 @@ export default function WorkerStatusPanel() {
     <div className="tr-worker-heading"><strong>{translateUI("执行节点")}</strong>
       <span>{translateUI(!status || stale ? "观测待更新" : translateUI("在线 {0} · 实际并发 {1}", [online, status.actual_concurrency ?? "待确认"]))}</span>
     </div>
+    {!!status?.confirmed_paused_processes && !stale && <p>{translateUI("已暂停 {0} 个进程", [status.confirmed_paused_processes])}</p>}
     {stale && <p role="status">{translateUI("节点观测暂不可用，当前保留最近一次信息。")}</p>}
     {status && !sorted.length && <p>{translateUI("暂无已注册 Worker。任务将在节点连接后领取。")}</p>}
     {status?.circuits?.filter(c => c.state !== "closed").map(c => <p className="tr-notice" key={c.resource}>
@@ -36,7 +37,7 @@ export default function WorkerStatusPanel() {
       const active = status!.attempts.filter(a => a.worker_id === w.id);
       return <div className="tr-worker-row" key={w.id}>
         <div><strong>{translateUI(w.host)}</strong><small title={translateUI(w.id)}>{translateUI(w.id)}</small></div>
-        <span>{translateUI(!fresh ? "观测过期" : w.draining ? "排空中" : active.length ? "执行中" : "在线待命")}</span>
+        <span>{translateUI(!fresh ? "观测过期" : w.draining ? "排空中" : active.some(a => a.runtime?.state === "paused") ? "执行已暂停" : active.length ? "执行中" : "在线待命")}</span>
         <span>{translateUI("最近心跳")}{translateUI(new Date(w.heartbeat_at * 1000).toLocaleTimeString("zh-CN", { hour12: false }))}</span>
         <div>{active.map(a => <a key={a.run_id} href={`#console/tasks/${a.run_id}`}>{translateUI("查看任务")}</a>)}</div>
       </div>;

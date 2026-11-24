@@ -116,9 +116,36 @@ class DockerRuntimeAdapter:
         def stop():
             c = self._get(handle)
             if c is not None:
-                c.stop(timeout=grace_seconds)
+                c.reload()
+                if c.attrs['State'].get('Paused'):
+                    # Kill while frozen; never give revoked code a graceful execution window.
+                    c.kill(signal='SIGKILL')
+                    c.wait(timeout=5)
+                else:
+                    c.stop(timeout=grace_seconds)
             return self._observation(handle, c)
         return await asyncio.to_thread(stop)
+
+    async def _freeze(self, handle, process_instance, paused):
+        def change():
+            c = self._get(handle)
+            current = self._observation(handle, c)
+            if not process_instance or current.process_instance != process_instance:
+                raise RuntimeErrorCode('PROCESS_CHANGED')
+            if not current.alive:
+                return current
+            if paused and current.state != 'paused':
+                c.pause()
+            elif not paused and current.state == 'paused':
+                c.unpause()
+            return self._observation(handle, c)
+        return await asyncio.to_thread(change)
+
+    async def pause(self, handle, process_instance):
+        return await self._freeze(handle, process_instance, True)
+
+    async def resume(self, handle, process_instance):
+        return await self._freeze(handle, process_instance, False)
 
     async def remove(self, handle):
         def remove():

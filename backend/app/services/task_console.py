@@ -218,7 +218,8 @@ class TaskConsole:
             views.append({**{k:a[k] for k in ('id','epoch','state','session_id','worker_id','process_id',
                 'started_at','finished_at','last_output_at','error')},
                 'freshness':'final' if terminal else ('fresh' if fresh else 'stale'),
-                'confirmed_running':bool(fresh and not terminal and obs.get('alive') and obs.get('pid') and obs.get('process_instance')),
+                'runtime_state':obs.get('state'),
+                'confirmed_running':bool(fresh and not terminal and obs.get('state')!='paused' and obs.get('alive') and obs.get('pid') and obs.get('process_instance')),
                 'output_excerpt':a['remote'].get('progress',{}).get('text','')})
         from app.runtime.work_authorizations import view
         authorization=await view(self.store,run_id)
