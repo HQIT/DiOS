@@ -530,6 +530,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("managed-history", help="export, verify and import compatibility history; managed-history --help")
     sub.add_parser("managed-adoption", help="inspect and explicitly adopt existing task runtimes; managed-adoption --help")
     sub.add_parser("schedules", help="inspect persistent timers and resolve dead letters; schedules --help")
+    sub.add_parser("run-schedules", help="manage durable Profile/Run schedules over the operator API")
 
     p_config = sub.add_parser("config", help="manage cli config (openclaw style)")
     sub_config = p_config.add_subparsers(dest="config_cmd", required=True)
@@ -638,7 +639,35 @@ def cmd_task(args) -> int:
     method, data, suffix = "GET", None, ""
     command = args.task_command
     quote = lambda value: urllib.parse.quote(value, safe="")
-    if command in {"profiles", "samples", "identity"}: suffix = "/" + command
+    if command.startswith("schedule-"):
+        suffix = "/run-schedules"
+        name = command.removeprefix("schedule-")
+        if name in {"history", "pause", "resume", "reauthorize", "resolve"}:
+            suffix += "/" + quote(args.schedule_id)
+        if name in {"list", "history"}:
+            if name == "history": suffix += "/occurrences"
+            suffix += "?" + urllib.parse.urlencode({k:v for k,v in {"limit":args.limit,"before":args.before}.items() if v is not None})
+        else:
+            method = "POST"
+            if name == "create":
+                try:
+                    with open(args.template_file, "rb") as source: raw = source.read(16385)
+                    if len(raw) > 16384: raise ValueError()
+                    data = json.loads(raw.decode("utf-8"))
+                    if not isinstance(data, dict) or set(data) - {"profile_id","sample_id","input_payload","goal"}: raise ValueError()
+                except (OSError, ValueError, UnicodeError):
+                    print(json.dumps({"error":"INVALID_SCHEDULE_TEMPLATE"})); return 2
+                data.update(cron_expression=args.cron, idempotency_key=args.key)
+            else:
+                data = dict(actor=args.actor, reason=args.reason)
+                if name == "resolve":
+                    suffix += "/occurrences/" + quote(args.occurrence_id) + "/resolve"
+                    data.update(action=args.action, idempotency_key=args.key)
+                else:
+                    data["expected_version"] = args.revision
+                    suffix += "/reauthorize" if name == "reauthorize" else "/control"
+                    if name != "reauthorize": data["enabled"] = name == "resume"
+    elif command in {"profiles", "samples", "identity"}: suffix = "/" + command
     elif command == "list":
         suffix = "/runs?" + urllib.parse.urlencode({k:v for k,v in {"limit":args.limit,"cursor":args.cursor}.items() if v is not None})
     elif command == "submit":
@@ -737,6 +766,28 @@ def task_parser():
     return p
 
 
+def run_schedule_parser():
+    p = argparse.ArgumentParser(prog="dios run-schedules", description="Durable UTC Profile/Run schedules; operator token required")
+    commands = p.add_subparsers(dest="schedule_command", required=True)
+    for name in ("list", "create", "history", "pause", "resume", "reauthorize", "resolve"):
+        c = commands.add_parser(name); c.add_argument("--base-url")
+        c.set_defaults(task_command="schedule-" + name)
+        if name not in {"list", "create"}: c.add_argument("schedule_id")
+        if name in {"list", "history"}:
+            c.add_argument("--limit", type=int, default=50); c.add_argument("--before")
+        elif name == "create":
+            c.add_argument("--template-file", required=True, help="JSON: profile_id, sample_id or input_payload, goal")
+            c.add_argument("--cron", required=True, help="five fields in UTC")
+            c.add_argument("--key", required=True)
+        else:
+            c.add_argument("--actor", required=True); c.add_argument("--reason", required=True)
+            if name == "resolve":
+                c.add_argument("occurrence_id"); c.add_argument("--action", choices=["retry", "discard"], required=True)
+                c.add_argument("--key", required=True)
+            else: c.add_argument("--revision", type=int, required=True)
+    return p
+
+
 def cmd_runtime(args, module="app.runtime.cli") -> int:
     import subprocess
     backend = Path(__file__).resolve().parents[1] / "backend"
@@ -749,6 +800,8 @@ def cmd_runtime(args, module="app.runtime.cli") -> int:
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "run-schedules":
+        return cmd_task(run_schedule_parser().parse_args(sys.argv[2:]))
     if len(sys.argv) > 1 and sys.argv[1] == "task":
         return cmd_task(task_parser().parse_args(sys.argv[2:]))
     if len(sys.argv) > 1 and sys.argv[1] == "runtime":

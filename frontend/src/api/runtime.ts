@@ -52,6 +52,24 @@ async function response(path: string, init?: RequestInit) {
   return result;
 }
 async function request<T>(path: string, init?: RequestInit): Promise<T> { return (await response(path, init)).json(); }
+export interface ScheduledOccurrence {
+  id: string; state: string; first_due: number; last_due: number; trigger_count: number | null;
+  run_id: string | null; error: string; retry_at: number | null; failures: number;
+}
+export interface RunSchedule {
+  id: string; version: number; enabled: boolean; expression: string; next_due: number;
+  template: {profile_id: string; goal: string};
+  binding: {subject: string; actor: string; policy_id: string; policy_digest: string};
+  active: ScheduledOccurrence | null; buffered: ScheduledOccurrence | null;
+}
+const schedulePath = (id: string) => `/run-schedules/${encodeURIComponent(id)}`;
+export const scheduleApi = {
+  list: (before?: string, signal?: AbortSignal) => request<{items: RunSchedule[]; next_cursor: string | null; observed_at: number; scheduler_enabled: boolean}>(`/run-schedules?limit=20${before ? `&before=${encodeURIComponent(before)}` : ""}`, {signal}),
+  create: (data: {profile_id: string; sample_id?: string; input_payload?: Record<string, unknown>; goal: string; cron_expression: string; idempotency_key: string}) => request<RunSchedule>("/run-schedules", {method: "POST", body: JSON.stringify(data)}),
+  control: (row: RunSchedule, action: "pause" | "resume" | "reauthorize", reason: string) => request<RunSchedule>(`${schedulePath(row.id)}/${action === "reauthorize" ? "reauthorize" : "control"}`, {method: "POST", body: JSON.stringify({expected_version: row.version, actor: "console-operator", reason, ...(action === "reauthorize" ? {} : {enabled: action === "resume"})})}),
+  history: (id: string, before?: string, signal?: AbortSignal) => request<{items: ScheduledOccurrence[]; next_cursor: string | null}>(`${schedulePath(id)}/occurrences?limit=20${before ? `&before=${encodeURIComponent(before)}` : ""}`, {signal}),
+  resolve: (row: RunSchedule, item: ScheduledOccurrence, action: "retry" | "discard", reason: string, key: string) => request<RunSchedule>(`${schedulePath(row.id)}/occurrences/${encodeURIComponent(item.id)}/resolve`, {method: "POST", body: JSON.stringify({action, reason, actor: "console-operator", idempotency_key: key})}),
+};
 const path = (id: string) => `/runs/${encodeURIComponent(id)}`;
 export interface WorkerStatus {
   circuits?: Circuit[];

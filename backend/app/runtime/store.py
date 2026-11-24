@@ -83,7 +83,7 @@ class RuntimeStore:
                 raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
             return dict(existing)
 
-    async def submit(self, key, value, *, authorization=None, submission_digest=None):
+    async def submit(self, key, value, *, authorization=None, submission_digest=None, admission_guard=None):
         identifier(key)
         if not isinstance(value, dict): raise RuntimeErrorCode("INVALID_ARGUMENT")
         if submission_digest is not None:
@@ -112,6 +112,8 @@ class RuntimeStore:
                     raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
                 return dict(existing)
             if not await admission(c, self.scope): raise RuntimeErrorCode('RUNTIME_DRAINING')
+            if admission_guard is not None:
+                await admission_guard(c)
             now = await self.db.now(c)
             record = dict(id=str(uuid4()), scope=self.scope, idempotency_key=key, input_digest=hashed,
                 input=value, state='queued', version=0, epoch=0, attempt_id=None, authorization_epoch=1,

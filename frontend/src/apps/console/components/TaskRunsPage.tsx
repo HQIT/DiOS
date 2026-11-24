@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { runtimeApi, RuntimeApiError } from "../../../api/runtime";
+import { runtimeApi, RuntimeApiError, scheduleApi } from "../../../api/runtime";
 import type { Profile, Sample, RunSummary, RunDetail, Preview } from "../../../api/runtime";
 import "./task-runs.css";
 import WorkerStatusPanel from "./WorkerStatusPanel";
 import ToolActions from "./ToolActions";
 import DelegationEvidence from "./DelegationEvidence";
+import RunSchedulesPanel from "./RunSchedulesPanel";
 
 const LABELS: Record<string, string> = {
   queued: "排队中", executing: "执行中", claimed: "已领取", preparing: "准备中", creating_session: "创建会话",
@@ -70,6 +71,8 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [detail, setDetail] = useState<RunDetail>(); const [busy, setBusy] = useState(false);
   const [operatorMode, setOperatorMode] = useState(false);
+  const [scheduled, setScheduled] = useState(false);
+  const [cron, setCron] = useState("0 1 * * *");
   const [principalName, setPrincipalName] = useState("");
   const [refresh, setRefresh] = useState(0); const [artifact, setArtifact] = useState("");
   const [preview, setPreview] = useState<Preview>(); const [previewError, setPreviewError] = useState("");
@@ -143,7 +146,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         supplied = canonicalInput(value) as Record<string, unknown>;
       } catch { setActionError("任务输入必须是有效的 JSON 对象。"); setBusy(false); return; }
     }
-    const input = { profile_id: profile, ...(customInput ? {input_payload: supplied} : {sample_id: sample}), goal: goal.trim() };
+    const input = { profile_id: profile, ...(customInput ? {input_payload: supplied} : {sample_id: sample}), goal: goal.trim(), ...(scheduled && operatorMode ? {cron_expression: cron.trim()} : {}) };
     const content = JSON.stringify(input);
     if (!keyRef.current) {
       try { keyRef.current = JSON.parse(sessionStorage.getItem("dios_pending_task") || "null"); } catch { /* storage unavailable */ }
@@ -151,11 +154,12 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
     if (keyRef.current?.content !== content) keyRef.current = { content, key: crypto.randomUUID() };
     try { sessionStorage.setItem("dios_pending_task", JSON.stringify(keyRef.current)); } catch { /* in-memory retry still works */ }
     try {
-      const value = await runtimeApi.submit({ ...input, idempotency_key: keyRef.current.key });
+      const isSchedule = scheduled && operatorMode;
+      const value = isSchedule ? await scheduleApi.create({ ...input, cron_expression: cron.trim(), idempotency_key: keyRef.current.key }) : await runtimeApi.submit({ ...input, idempotency_key: keyRef.current.key });
       keyRef.current = null;
       try { sessionStorage.removeItem("dios_pending_task"); } catch { /* storage unavailable */ }
       setCursor(undefined); setRefresh(x => x + 1);
-      window.location.hash = `console/tasks/${value.id}`;
+      window.location.hash = isSchedule ? "console/tasks" : `console/tasks/${value.id}`;
     } catch (error) { setActionError(errorText(error)); }
     finally { setBusy(false); }
   }
@@ -217,8 +221,14 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           {source && <pre className="tr-source"><code>{typeof source.source === "string" ? source.source : JSON.stringify(source, null, 2)}</code></pre>}
         </>}
         <label>{translateUI("工作目标")}<textarea aria-label={translateUI("工作目标")} value={goal} onChange={e => setGoal(e.target.value)} maxLength={2000} rows={4} required disabled={busy} /></label>
-        <button className="tr-primary" type="submit" disabled={busy || !profile || (!customInput && !sample) || (customInput && !customDrafts[profile]?.trim()) || !goal.trim() || !!catalogError || policyMissing}>
-          {translateUI(busy ? "提交中…" : "发起任务")}</button>
+        {operatorMode && <label><input type="checkbox" checked={scheduled} onChange={e => setScheduled(e.target.checked)} disabled={busy}/>{translateUI("定时执行")}</label>}
+        {operatorMode && scheduled && <>
+          <label>{translateUI("执行时间（Cron · UTC）")}<input value={cron} onChange={e => setCron(e.target.value)} maxLength={64} required disabled={busy}/></label>
+          <p className="tr-muted">{translateUI("五字段 UTC 时间。例如 0 1 * * * 表示北京时间每天 09:00。每次执行独立核验 E2AG 服务授权。")}</p>
+          {chosenProfile?.governance !== "e2ag" && <p className="tr-notice">{translateUI("定时执行需要已配置服务策略的 E2AG Agent。")}</p>}
+        </>}
+        <button className="tr-primary" type="submit" disabled={busy || !profile || (!customInput && !sample) || (customInput && !customDrafts[profile]?.trim()) || !goal.trim() || !!catalogError || policyMissing || (operatorMode && scheduled && (chosenProfile?.governance !== "e2ag" || !cron.trim()))}>
+          {translateUI(busy ? "提交中…" : operatorMode && scheduled ? "创建定时任务" : "发起任务")}</button>
         <p className="tr-muted">{translateUI("按登记的输入与执行配置运行，保留任务状态和成果依据。")}</p>
       </form>
       <div className="tr-card"><div className="tr-section-title"><h3>{translateUI("任务记录")}</h3><span className="tr-muted">{translateUI(items.length)}{translateUI("项")}</span></div>
@@ -236,6 +246,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
     <main className="tr-detail">
       {principalName && <p className="tr-muted">{translateUI("当前主体：{0}", [principalName])}</p>}
       {operatorMode && <WorkerStatusPanel />}
+      {operatorMode && !selectedId && <RunSchedulesPanel refresh={refresh} />}
       {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>{translateUI("从一件具体工作开始")}</h3>
         <p>{translateUI("在左侧发起任务，或选择已有任务查看执行过程与成果。")}</p><div className="tr-steps"><span>{translateUI("① 发起任务")}</span><span>{translateUI("② 跟踪执行")}</span><span>{translateUI("③ 查看成果")}</span></div></div>}
       {detailError && <p className="tr-error" role="alert">{translateUI(detailError)}{translateUI("当前保留的是上次取得的信息。")}</p>}

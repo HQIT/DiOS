@@ -25,6 +25,7 @@ from .logout_schema import metadata as logout_metadata, CHECKSUM as LOGOUT_CHECK
 from .delegation_schema import metadata as delegation_metadata, CHECKSUM as DELEGATION_CHECKSUM
 from .delegation_identity_schema import metadata as delegation_identity_metadata, CHECKSUM as DELEGATION_IDENTITY_CHECKSUM
 from .delegation_check_schema import metadata as delegation_check_metadata, CHECKSUM as DELEGATION_CHECKSUM_CHECK
+from .schedule_schema import metadata as schedule_metadata, CHECKSUM as SCHEDULE_CHECKSUM
 from .lifecycle import Lifecycle
 from .artifacts import LocalArtifacts
 
@@ -89,7 +90,8 @@ def _database_info(path):
             ('runtime_logout_schema',logout_metadata,LOGOUT_CHECKSUM),
             ('runtime_delegation_schema',delegation_metadata,DELEGATION_CHECKSUM),
             ('runtime_delegation_identity_schema',delegation_identity_metadata,DELEGATION_IDENTITY_CHECKSUM),
-            ('runtime_delegation_check_schema',delegation_check_metadata,DELEGATION_CHECKSUM_CHECK)]
+            ('runtime_delegation_check_schema',delegation_check_metadata,DELEGATION_CHECKSUM_CHECK),
+            ('runtime_schedule_schema',schedule_metadata,SCHEDULE_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
             raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')

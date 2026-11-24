@@ -595,7 +595,7 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-24",
-        "summary": "远程执行、分类恢复及兼容订阅持久定时接通；定时水位、触发合并、原任务恢复、死信和 E2AG 审批恢复已测试并部署。",
+        "summary": "兼容订阅与内核 Profile/Run 均具备持久定时；内核提交使用事务内租约围栏和 E2AG 服务策略绑定，API/CLI/Console、备份恢复和排空部署已验证。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
@@ -619,9 +619,11 @@
           "docs/design/managed-adoption-10-30-51.md",
           "docs/design/evidence/managed-adoption-20261124.json",
           "docs/design/durable-subscription-schedules-30.md",
-          "docs/design/evidence/durable-subscription-schedules-20261124.json"
+          "docs/design/evidence/durable-subscription-schedules-20261124.json",
+          "docs/design/durable-run-schedules-30.md",
+          "docs/design/evidence/durable-run-schedules-20261124.json"
         ],
-        "remaining": "Profile/Run 定时入口与长期工作授权、跨控制主机仲裁、可配置时区/补触发、全局死信运营及定时历史归档关联；真实供应商与多主机资格仍按 #56/#58 推进。",
+        "remaining": "服务身份 Provider、跨控制主机与 PostgreSQL 故障资格、可配置时间策略、全局死信与历史归档、容量及 G2；真实供应商和多主机资格按 #56/#58 继续。",
         "development": {
           "date": "2026-11-13",
           "validation_status": "engineering_verified_product_acceptance_pending",
@@ -633,8 +635,8 @@
           "published_commit": "02c3d5a"
         },
         "next_step": {
-          "scope": "将相同定时语义接入既有 Profile/Run 提交和 E2AG 工作授权，复用原 RuntimeStore 幂等回执；并继续 #56/#58 真实智能体资格。",
-          "acceptance": "每次触发核验当前授权，重启保持同一 Run，未知任务阻止重叠派发，API/CLI/Console 口径一致。"
+          "scope": "沿既定主线推进 #56/#58 真实协议、取消/撤销和恢复资格；#30 继续服务身份 Provider 与跨主机调度仲裁。",
+          "acceptance": "公开协议与成熟方案先行比较；供应商行为依据实测，原 Run/Work/会话与授权边界保持一致。"
         },
         "remote_control": {
           "date": "2026-11-19",
@@ -692,7 +694,7 @@
         "design": "docs/design/managed-task-recovery-10-30.md",
         "evidence": "docs/design/evidence/managed-recovery-20261124.json",
         "state": "native_api_restart_verified",
-        "next": "兼容订阅持久定时与死信已交付；继续内核 Profile/Run 定时提交、远端未知请求和跨主机资格。"
+        "next": "兼容与内核定时已接通；继续远端未知请求对账、服务身份 Provider 和跨主机资格。"
       },
       "managed_upgrade": {
         "design": "docs/design/managed-upgrade-10-30.md",
@@ -726,11 +728,24 @@
         "state": "compatibility_entry_verified_deployed",
         "summary": "兼容订阅定时持久水位、事务发件箱、BUFFER_ONE、原任务恢复与死信处置接通；API/CLI/Console 同步，E2AG 准入和审批恢复经过验证。",
         "remaining": [
-          "Profile/Run durable schedule submission and renewable authorization source",
-          "multi-control-host scheduling ownership and fencing qualification",
-          "configurable timezone, overlap and catchup policies",
-          "global dead-letter operations and scheduled-history archive linkage",
-          "capacity and scheduling latency qualification; G2 and user acceptance"
+          "service identity Provider and scoped client credentials qualification",
+          "cross-control-host database fencing and failover qualification",
+          "configurable timezone, overlap and catch-up policy",
+          "global dead-letter operations and schedule archive linkage",
+          "capacity, provider and G2/user acceptance"
+        ]
+      },
+      "durable_run_schedules": {
+        "design": "docs/design/durable-run-schedules-30.md",
+        "evidence": "docs/design/evidence/durable-run-schedules-20261124.json",
+        "state": "verified_deployed",
+        "summary": "内核 Profile/Run 持久定时、事务内租约围栏和 E2AG 服务授权接通；每次触发独立 Work，原执行恢复保持身份。API/HTTP CLI/中英文 Console、备份恢复及排空部署经过验证。",
+        "remaining": [
+          "service identity Provider and scoped client credentials qualification",
+          "cross-control-host database fencing and failover qualification",
+          "configurable timezone, overlap and catch-up policy",
+          "global dead-letter operations and schedule archive linkage",
+          "capacity, provider and G2/user acceptance"
         ]
       }
     },
@@ -2109,6 +2124,19 @@
           "configurable timezone, overlap and catchup policies",
           "global dead-letter operations and scheduled-history archive linkage",
           "capacity and scheduling latency qualification; G2 and user acceptance"
+        ]
+      },
+      "durable_run_schedules": {
+        "design": "docs/design/durable-run-schedules-30.md",
+        "evidence": "docs/design/evidence/durable-run-schedules-20261124.json",
+        "state": "verified_deployed",
+        "summary": "内核 Profile/Run 持久定时、事务内租约围栏和 E2AG 服务授权接通；每次触发独立 Work，原执行恢复保持身份。API/HTTP CLI/中英文 Console、备份恢复及排空部署经过验证。",
+        "remaining": [
+          "service identity Provider and scoped client credentials qualification",
+          "cross-control-host database fencing and failover qualification",
+          "configurable timezone, overlap and catch-up policy",
+          "global dead-letter operations and schedule archive linkage",
+          "capacity, provider and G2/user acceptance"
         ]
       }
     },

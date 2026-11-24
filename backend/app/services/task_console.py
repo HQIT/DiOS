@@ -117,7 +117,7 @@ class TaskConsole:
                 rows[item['id']]=item
         return list(rows.values())
 
-    async def submit(self, profile_id, sample_id, goal, key, *, input_payload=None):
+    async def prepare_submission(self, profile_id, sample_id, goal, *, input_payload=None):
         registered=next((x for x in await asyncio.to_thread(self._registrations)
                          if x['view']['id']==profile_id),None)
         if registered is None:raise RuntimeErrorCode('PROFILE_NOT_AVAILABLE')
@@ -141,6 +141,21 @@ class TaskConsole:
             input_payload=input_payload,goal=goal,registered_input=value,
             registration_digest=registered['registration_digest'],profile_digest=profile['profile_digest'],
             secret_refs=registered['refs']))
+        return dict(registered=registered, profile=profile, value=value, submission_digest=submission_digest)
+
+    @staticmethod
+    def schedule_binding(prepared, descriptor):
+        if descriptor is None or prepared['profile']['governance'] != 'e2ag':
+            raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
+        return dict(source='service-policy', submission_digest=prepared['submission_digest'],
+            profile_digest=prepared['profile']['profile_digest'],
+            **{key:descriptor[key] for key in ('subject','actor','policy_id','policy_digest')})
+
+    async def submit(self, profile_id, sample_id, goal, key, *, input_payload=None,
+                     expected_schedule_binding=None, admission_guard=None):
+        prepared=await self.prepare_submission(profile_id,sample_id,goal,input_payload=input_payload)
+        registered,profile,value=(prepared[k] for k in ('registered','profile','value'))
+        submission_digest=prepared['submission_digest']
         if self.principal is not None:key='principal-'+digest([self.principal['issuer'],self.principal['id'],key])
         receipt=await self.store.submission_receipt(key,submission_digest)
         if receipt is not None:return await self.detail(receipt['id'])
@@ -148,13 +163,16 @@ class TaskConsole:
         if profile['governance']=='e2ag':
             if self.policy is None:raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
             descriptor=await asyncio.to_thread(admit,self.policy,profile_id,profile['profile_digest'],refs,self.principal)
+        if expected_schedule_binding is not None:
+            if self.principal is not None or self.schedule_binding(prepared,descriptor)!=expected_schedule_binding:
+                raise RuntimeErrorCode('SCHEDULE_BINDING_CHANGED')
         run=await self.store.submit(key,dict(origin=CONSOLE_ORIGIN,
             **({'principal':self.principal} if self.principal is not None else {}),
             input_registration=dict(digest=registered['registration_digest'],
                 **({'result_schema':registered['contract']['result_schema']} if registered['contract']['result_schema'] is not None else {})),
             runtime_profile=profile_id,profile_digest=profile['profile_digest'],
             task_kind=profile['input_kind'],payload=dict(goal=goal,sample=value),
-            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest)
+            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest,admission_guard=admission_guard)
         return await self.detail(run['id'])
 
     @staticmethod

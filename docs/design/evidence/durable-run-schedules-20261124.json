@@ -1,0 +1,113 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "e9703fb4472e94ec5c852b7857ca61006bf56c1e",
+  "state": "kernel_profile_run_schedules_verified_deployed_issue_30_open",
+  "tests": {
+    "backend_full": {
+      "total": 786,
+      "passed": 583,
+      "skipped": 203,
+      "seconds": 399.899,
+      "sha256": "57470789c03b5ae85cd817d1f25a6800715c18d4c74e6e9fe77d019c20fd4a91"
+    },
+    "final_scheduler_native_recovery_e2ag": {
+      "total": 79,
+      "passed": 60,
+      "skipped": 19,
+      "seconds": 44.11,
+      "sha256": "7ad252616fa028643a0cdf181acb2dde1ef3e49e05792010f46de22341e56dbe"
+    },
+    "final_image": {
+      "total": 28,
+      "passed": 28,
+      "skipped": 0,
+      "seconds": 21.024,
+      "sha256": "77bbec1e495eeddacf51f02c21104e5da9bbe5eb5a2a3d6c411ce799973d41c4"
+    }
+  },
+  "verification_scope": "Full backend regression, followed by final scheduler/native/recovery/E2AG and image suites covering late-failure fencing after reauthorization.",
+  "development": {
+    "checks": [
+      "api-health",
+      "drain-revisions-survive-upgrade",
+      "both-gates-resumed",
+      "kernel-scheduler-enabled-api",
+      "operator-gate",
+      "compatibility-schedules-healthy",
+      "explicit-schema-installed",
+      "runtime-history-preserved",
+      "events-history-preserved",
+      "backend-process-alive",
+      "knowledge-process-alive",
+      "worker-sales-process-alive",
+      "worker-construction-process-alive",
+      "dios-dev-identity-reconcile.timer-active",
+      "dios-dev-delegation-reconcile.timer-active",
+      "browser-sso",
+      "http-cli-api-consistency"
+    ],
+    "history_count": 84,
+    "active_runs": 0,
+    "production_review_migrated": false
+  },
+  "browser": {
+    "browser_path": "Browser plugin not available; existing Playwright",
+    "url": "http://127.0.0.1:13082/dios/#console/tasks",
+    "title": "DiOS",
+    "checks": [
+      "live-create-service-authorized-future-schedule",
+      "deployed-background-loop-observes-schedule",
+      "reason-required-and-pause-persisted",
+      "resume-and-explicit-reauthorization",
+      "occurrence-history",
+      "english-light-dark-and-mobile",
+      "http-cli-create-idempotency",
+      "http-cli-list-history-pause",
+      "stale-cas-and-invalid-token-rejected"
+    ],
+    "errors": [],
+    "qualification_schedule_id": "3c450dfe38714aa88d3e2c39879f278c"
+  },
+  "image_id": "sha256:7ba081f1870f2506ffa5c6528f2526926e243ccacf57485690bfe1af87d5d74c",
+  "frontend_build": "passed",
+  "new_modules_lint": "passed",
+  "diff_check": "passed",
+  "coverage": [
+    "three independent scheduler processes produce one Run",
+    "native Docker Worker accepts E2AG Work and returns UTF-8 report",
+    "next occurrence gets distinct Work identity",
+    "background loop submits without manual tick",
+    "database-transaction lease epoch fencing at Run commit",
+    "pause and reauthorization compete with submission safely",
+    "late failure cannot revive discarded occurrence",
+    "policy change requires explicit reauthorization",
+    "accepted Run recovered without renewing Work even if policy source disappears",
+    "unknown or queued Run blocks overlap",
+    "bounded catch-up and persistent buffer counts",
+    "transient backoff retains occurrence identity",
+    "dead-letter retry excludes accepted Runs",
+    "backup restore retains schedule, occurrence, Run and authorization binding",
+    "explicit migration and operator-only API",
+    "HTTP CLI create/idempotency/list/history/control matches Console",
+    "live UI create, pause, resume, reauthorize and history; English and theme/responsive rendering"
+  ],
+  "limits": [
+    "native qualification uses synthetic report, not provider model",
+    "qualified with same-host independent processes and shared SQLite; cross-physical-host and PostgreSQL failover remain unqualified",
+    "five-field UTC, fixed 24-hour catch-up and buffer_one",
+    "initial authorization source is trusted FileWorkPolicy; external service identity token issuance not implemented"
+  ],
+  "remaining": [
+    "service identity Provider and scoped client credentials qualification",
+    "cross-control-host database fencing and failover qualification",
+    "configurable timezone, overlap and catch-up policy",
+    "global dead-letter operations and schedule archive linkage",
+    "capacity, provider and G2/user acceptance"
+  ],
+  "project_fields_updated": false,
+  "screenshots": {
+    "run-schedules-light.png": "b93ffbb0d430f45f2c7ef2e8c6aa37ca898b35873a12ef9b8674c61e08870cbf",
+    "run-schedules-dark.png": "babc710bccb6e532af1ecd5b2d8ee53bcc1ce3c3d0378dfd2530cc3e2bbc544f",
+    "run-schedules-mobile.png": "8d794bc31b196b2486e071bceb4bc4f7b0ac03fea01c0442cf3754fa8a79a92b"
+  }
+}

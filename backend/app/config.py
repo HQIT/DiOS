@@ -48,6 +48,7 @@ class Settings(BaseSettings):
 
     # Explicit trusted-operator runtime console. Workers remain separate processes.
     runtime_console_enabled: bool = False
+    runtime_schedules_enabled: bool = False
     runtime_database_url: str = ""
     runtime_scope: str = "local"
     runtime_profiles_dir: str = ""

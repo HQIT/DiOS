@@ -50,7 +50,7 @@ async def operator(request: Request):
 
 @asynccontextmanager
 async def console_lifespan(app):
-    db=None;app.state.runtime_console=None
+    db=None;app.state.runtime_console=None;schedule_loop=None
     if (settings.runtime_console_enabled and settings.runtime_database_url
             and settings.runtime_profiles_dir and settings.runtime_artifacts_root):
         db=Database(settings.runtime_database_url)
@@ -68,8 +68,13 @@ async def console_lifespan(app):
                 McpHttpTransport(),FileApprovers(settings.runtime_approvers_file) if settings.runtime_approvers_file else None,
                 FileSecretMounts(settings.runtime_secrets_file,settings.runtime_scope) if settings.runtime_secrets_file else None)
 
+    if app.state.runtime_console is not None and settings.runtime_schedules_enabled:
+        from app.services.run_schedule_worker import ScheduleLoop
+        schedule_loop=ScheduleLoop(app.state.runtime_console)
+        schedule_loop.start()
     try:yield
     finally:
+        if schedule_loop:await schedule_loop.stop()
         if db:await db.close()
         app.state.runtime_console=None
 
