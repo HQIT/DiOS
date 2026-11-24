@@ -21,11 +21,19 @@ def permission(record,action):
 class FileWorkPolicy:
     def __init__(self,path):self.path=Path(path)
 
-    def admission(self,profile_id,profile_digest,secret_refs):
+    def configuration(self):
         if self.path.stat().st_size>128*1024:raise RuntimeErrorCode('WORK_POLICY_TOO_LARGE')
-        config=json.loads(self.path.read_text(encoding='utf-8'))
+        return json.loads(self.path.read_text(encoding='utf-8'))
+
+    def identity_provider(self):
+        from .principals import FilePrincipals
+        value=self.configuration().get('identity_catalog')
+        return FilePrincipals(value) if value else None
+
+    def admission(self,profile_id,profile_digest,secret_refs,*,principal=None):
+        config=self.configuration()
         if not isinstance(config,dict) or config.get('version')!=1:raise RuntimeErrorCode('WORK_POLICY_VERSION_UNSUPPORTED')
-        if set(config)-{'version','policy_id','subject','actor','profiles'}:raise RuntimeErrorCode('WORK_POLICY_UNSUPPORTED_FIELDS')
+        if set(config)-{'version','policy_id','subject','actor','profiles','identity_catalog'}:raise RuntimeErrorCode('WORK_POLICY_UNSUPPORTED_FIELDS')
         identifier(config.get('policy_id'));identifier(config.get('subject'));identifier(config.get('actor'))
         profiles=config.get('profiles',{})
         if not isinstance(profiles,dict):raise RuntimeErrorCode('WORK_POLICY_INVALID')
@@ -43,6 +51,21 @@ class FileWorkPolicy:
             policy_digest=hashlib.sha256(encoded(scoped)).hexdigest(),
             legacy_policy_digest=hashlib.sha256(encoded(config)).hexdigest(),profile_id=profile_id,profile_digest=profile_digest,
             permissions=row.get('permissions',{}),secret_refs=secret_refs,work_ttl_seconds=ttl)
+        if principal is not None:
+            import time
+            from .principals import FilePrincipals
+            if not config.get('identity_catalog'):raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
+            identity=FilePrincipals(config['identity_catalog']).current(principal)
+            grant=identity['profiles'].get(profile_id,{})
+            if 'run.submit' not in grant.get('actions',[]):raise RuntimeErrorCode('AUTH_PROFILE_DENIED')
+            permissions={k:list(v) for k,v in result['permissions'].items()}
+            permissions['caller']=[p for p in permissions.get('caller',[]) if p in grant['permissions']]
+            lifetime=min(ttl,int(identity['expires_at']-time.time()))
+            if lifetime<60:raise RuntimeErrorCode('AUTH_PRINCIPAL_EXPIRED')
+            scoped.update(principal=principal,principal_grant=grant,principal_expires_at=identity['expires_at'])
+            result.update(subject=principal['subject'],actor=principal['actor'],permissions=permissions,
+                policy_digest=hashlib.sha256(encoded(scoped)).hexdigest(),work_ttl_seconds=lifetime)
+            result.pop('legacy_policy_digest')
         bounded(result)
         for action in ('execute','accept_result'):
             decision=evaluate_work_permission(result['permissions'],permission(result,action))

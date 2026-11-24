@@ -1,5 +1,6 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "当前主体：{0}": "Current principal: {0}",
   "使用自定义输入": "Use custom input",
   "自定义任务输入（JSON）": "Custom task input (JSON)",
   "输入要求": "Input requirements",

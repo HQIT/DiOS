@@ -26,7 +26,7 @@ class FileToolCatalog:
         if not isinstance(rows,dict):raise RuntimeErrorCode('TOOL_CONFIGURATION_INVALID')
         row=rows.get(tool_id)
         if not isinstance(row,dict) or row.get('enabled') is not True:raise RuntimeErrorCode('TOOL_NOT_AVAILABLE')
-        fields={'enabled','transport','url','name','permission','approval_required','input_schema','result_schema','credential_ref'}
+        fields={'enabled','transport','url','name','permission','approval_required','input_schema','result_schema','credential_ref','policy_evaluator'}
         if set(row)-fields or row.get('transport')!='mcp-http':raise RuntimeErrorCode('TOOL_CONFIGURATION_INVALID')
         if not isinstance(row.get('url'),str):raise RuntimeErrorCode('TOOL_ENDPOINT_INVALID')
         url=urlsplit(row['url'])
@@ -47,6 +47,9 @@ class FileToolCatalog:
             try:Draft202012Validator.check_schema(row[key])
             except Exception:raise RuntimeErrorCode('TOOL_CONFIGURATION_INVALID') from None
         if not isinstance(row.get('permission'),dict):raise RuntimeErrorCode('TOOL_PERMISSION_INVALID')
+        if 'policy_evaluator' in row:
+            from .policy_evaluator import validate
+            validate(row['policy_evaluator'])
         implementation={k:v for k,v in row.items() if k not in {'permission','enabled'}}
         if row['permission'].get('resource_version')!=digest(implementation):raise RuntimeErrorCode('TOOL_VERSION_NOT_PINNED')
         return {**row,'id':tool_id,'digest':digest(row)}

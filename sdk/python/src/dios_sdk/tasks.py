@@ -71,6 +71,7 @@ class TaskClient:
         except (ValueError, UnicodeError):
             raise WorkloadError('TASK_RESPONSE_INVALID') from None
 
+    def identity(self): return self._request('/identity')
     def profiles(self): return self._request('/profiles')['items']
     def inputs(self): return self._request('/samples')['items']
     def submit(self, profile_id, input_id, goal, *, idempotency_key):

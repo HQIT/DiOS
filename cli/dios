@@ -635,7 +635,7 @@ def cmd_task(args) -> int:
     method, data, suffix = "GET", None, ""
     command = args.task_command
     quote = lambda value: urllib.parse.quote(value, safe="")
-    if command in {"profiles", "samples"}: suffix = "/" + command
+    if command in {"profiles", "samples", "identity"}: suffix = "/" + command
     elif command == "list":
         suffix = "/runs?" + urllib.parse.urlencode({k:v for k,v in {"limit":args.limit,"cursor":args.cursor}.items() if v is not None})
     elif command == "submit":
@@ -707,7 +707,7 @@ def cmd_task(args) -> int:
 def task_parser():
     p=argparse.ArgumentParser(prog="dios task",description="Submit, track and download durable operator tasks")
     commands=p.add_subparsers(dest="task_command",required=True)
-    for name in ("profiles","samples","list","submit","show","cancel","revoke","preview","download","tool-list","tool-request","tool-show","tool-approval","tool-dispatch","tool-reconcile","tool-recover"):
+    for name in ("identity","profiles","samples","list","submit","show","cancel","revoke","preview","download","tool-list","tool-request","tool-show","tool-approval","tool-dispatch","tool-reconcile","tool-recover"):
         c=commands.add_parser(name);c.add_argument("--base-url")
         if name=="list":c.add_argument("--limit",type=int,default=30);c.add_argument("--cursor")
         if name=="submit":

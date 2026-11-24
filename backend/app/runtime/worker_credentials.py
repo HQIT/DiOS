@@ -1,5 +1,6 @@
 """Short-lived sender-bound credentials, with durable rotation and idempotent recovery."""
 from .work_policy import policy_matches
+from .principals import admit
 import asyncio
 import base64
 import hashlib
@@ -48,7 +49,7 @@ class WorkerCredentials:
         work=await checked_work(c,run,attempt,now,'execute')
         if not work or run['input']['runtime_profile']!=envelope['profile'] or run['input']['profile_digest']!=envelope['profile_digest']:
             raise RuntimeErrorCode('WORKER_CREDENTIAL_BINDING_CHANGED')
-        current=await asyncio.to_thread(self.policy.admission,envelope['profile'],envelope['profile_digest'],run['input'].get('secret_refs',[]))
+        current=await asyncio.to_thread(admit,self.policy,envelope['profile'],envelope['profile_digest'],run['input'].get('secret_refs',[]),run['input'].get('principal'))
         if not policy_matches(current,work['policy_digest']):raise RuntimeErrorCode('WORK_POLICY_CHANGED')
         authority={'machine_digest':machine['machine_digest'],'certificate_sha256':fingerprint,'subject':machine['subject'],
             'audience':self.identities.audience,'profile':envelope['profile'],'profile_digest':envelope['profile_digest'],

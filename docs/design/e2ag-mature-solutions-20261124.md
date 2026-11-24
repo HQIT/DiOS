@@ -55,12 +55,16 @@
 
 | 职责 | 直接采用或适配 | 尚需完成 |
 | --- | --- | --- |
-| 完整权限元组、四层交集和工具参数判定 | OPA 原生策略/API 已实测可用；优先接入既有 PolicyEvaluator 边界 | 真实 DiOS PEP 调用、策略版本绑定、不可用时阻止派发 |
+| 完整权限元组、四层交集和工具参数判定 | OPA 原生策略/API 已实测可用；优先接入既有 PolicyEvaluator 边界 | 已完成真实工具执行点、策略版本绑定与失败关闭；继续严格撤销与出口资格 |
 | 关系授权与对象分享 | OpenFGA/SpiceDB 原生 API 均通过本轮检查 | 持久后端、身份/资源映射、恢复和实际规模评测后确定 Provider |
 | 标准互操作 | AuthZEN 1.0 Final 作为 PDP/PEP 接口参照 | OpenFGA AuthZEN 接口目前标为 [Experimental](https://openfga.dev/docs/interacting/authzen)，原生 API 的测试结果不计作标准符合性验证 |
 | 审批消费、Run/Attempt/Session 绑定 | 复用现有 Runtime 状态机及成熟事务/Outbox 模式 | 对接外部授权后验证撤销与派发提交窗口；覆盖旧事件执行链 |
 | 外部效果恢复 | 复用现有意图、幂等和未知结果处理 | 端点接受/回执契约与真实 Harness 验证；PDP 查询不代替外部效果证明 |
 
-本轮核对的 [OPA](https://raw.githubusercontent.com/open-policy-agent/opa/v1.17.0/LICENSE)、[OpenFGA](https://raw.githubusercontent.com/openfga/openfga/v1.23.0/LICENSE)、[SpiceDB](https://raw.githubusercontent.com/authzed/spicedb/v1.57.1/LICENSE) 所选版本均附 Apache-2.0 LICENSE。发布时按实际分发物核对 NOTICE、依赖及商标信息。当前只使用官方镜像完成临时资格验证。
+本轮核对的 [OPA](https://raw.githubusercontent.com/open-policy-agent/opa/v1.17.0/LICENSE)、[OpenFGA](https://raw.githubusercontent.com/openfga/openfga/v1.23.0/LICENSE)、[SpiceDB](https://raw.githubusercontent.com/authzed/spicedb/v1.57.1/LICENSE) 所选版本均附 Apache-2.0 LICENSE。发布时按实际分发物核对 NOTICE、依赖及商标信息。资格验证使用官方镜像；OPA 已另行接入开发环境，验证见下文。
 
-下一实施项：在既有 PolicyEvaluator 职责内接入 OPA，并用真实工具派发验证拒绝、超时和当前策略绑定。关系授权 Provider 保持独立可选；本轮结果不支持把自定义 authority 状态库直接定为默认后端。新增授权语义或自研协调机制须先说明成熟机制的具体缺口并讨论。
+OPA 接入及真实工具派发验证已完成，详见下文。关系授权 Provider 保持独立可选；本轮结果不支持把自定义 authority 状态库直接定为默认后端。新增授权语义或自研协调机制须先说明成熟机制的具体缺口并讨论。
+
+## OPA 接入进展
+
+[OPA 工具策略执行](opa-tool-enforcement-34.md)已接通原生 Data API 和 Bundle provenance，实际 ToolInvocations 在请求、审批及派发时调用。自定义 authority 原型移出运行源码并保留本地完整副本；后续实现优先沿用成熟 Provider。跨服务撤销排序仍按原验收推进。

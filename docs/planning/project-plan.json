@@ -824,7 +824,22 @@
           "evidence": "docs/design/evidence/remote-worker-development-20261119.json"
         }
       },
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "implementation_progress": {
+        "date": "2026-11-24",
+        "state": "in_progress",
+        "delivered": [
+          "可信主体 Provider 与独立令牌，准入和运行时 E2AG 绑定",
+          "任务归属、查询过滤、Run 关联产物读取和分享撤销，Console/CLI/SDK 同步"
+        ],
+        "remaining": [
+          "企业 OIDC/SSO、签发与密钥托管轮换",
+          "三层受控委派及上游撤销传播 #35",
+          "单产物 ACL 与持久对象授权管理 #38"
+        ],
+        "evidence": "docs/design/evidence/runtime-principals-20261124.json"
+      },
+      "implementation_selection": "成熟方案实测见 docs/design/e2ag-mature-solutions-20261124.md；OPA Data API 接入共用工具执行点，自定义 authority 原型已移出运行源码。关系授权及跨服务撤销排序保持专项评审。"
     },
     {
       "id": "K03-2",
@@ -929,7 +944,23 @@
           "evidence": "docs/design/evidence/remote-worker-development-20261119.json"
         }
       },
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "implementation_selection": "成熟方案实测见 docs/design/e2ag-mature-solutions-20261124.md；OPA Data API 接入共用工具执行点，自定义 authority 原型已移出运行源码。关系授权及跨服务撤销排序保持专项评审。",
+      "opa_integration": {
+        "date": "2026-11-24",
+        "state": "development_verified",
+        "design": "docs/design/opa-tool-enforcement-34.md",
+        "remaining": [
+          "跨服务撤销与本地派发排序",
+          "旧事件链与机器身份授权协调",
+          "真实第三方完整中介资格"
+        ],
+        "evidence": "docs/design/evidence/opa-tool-enforcement-20261124.json",
+        "delivered": [
+          "OPA 原生策略查询与 Bundle 版本绑定",
+          "失败关闭、审批保留、真实 Worker 与浏览器审批报告验证"
+        ]
+      }
     },
     {
       "id": "K01-4",
@@ -1112,7 +1143,22 @@
         "分享与撤销作用于 API 和实际下载/读取",
         "Workspace 与 execution workspace 明确关联，Runtime 重启不丢工作历史",
         "切换实现时按授权转交上下文，远端不可删除或不可迁移内容显式显示"
-      ]
+      ],
+      "implementation_progress": {
+        "date": "2026-11-24",
+        "state": "in_progress",
+        "delivered": [
+          "可信主体 Provider 与独立令牌，准入和运行时 E2AG 绑定",
+          "任务归属、查询过滤、Run 关联产物读取和分享撤销，Console/CLI/SDK 同步"
+        ],
+        "remaining": [
+          "企业 OIDC/SSO、签发与密钥托管轮换",
+          "三层受控委派及上游撤销传播 #35",
+          "单产物 ACL 与持久对象授权管理 #38"
+        ],
+        "evidence": "docs/design/evidence/runtime-principals-20261124.json"
+      },
+      "implementation_selection": "成熟方案实测见 docs/design/e2ag-mature-solutions-20261124.md；OPA Data API 接入共用工具执行点，自定义 authority 原型已移出运行源码。关系授权及跨服务撤销排序保持专项评审。"
     },
     {
       "id": "S02-2",

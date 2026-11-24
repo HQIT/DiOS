@@ -217,9 +217,10 @@ class RuntimeStore:
                 state='validating' if phase == 'validating' else 'executing')
             return True
 
-    async def revoke(self, run_id, expected_version):
+    async def revoke(self, run_id, expected_version, *, access_guard=None):
         async with self.db.transaction(self.scope) as c:
             run = await self._run(c, run_id)
+            if access_guard:access_guard(run)
             if run['version'] != expected_version: raise RuntimeErrorCode('VERSION_CONFLICT')
             now=await self.db.now(c)
             from .work_authorizations import revoke
@@ -365,9 +366,10 @@ class RuntimeStore:
             return value
 
 
-    async def cancel(self, run_id, expected_version):
+    async def cancel(self, run_id, expected_version, *, access_guard=None):
         async with self.db.transaction(self.scope) as c:
             run = await self._run(c, run_id)
+            if access_guard:access_guard(run)
             if run['version'] != expected_version: raise RuntimeErrorCode('VERSION_CONFLICT')
             if run['state'] in TERMINAL: return run
             # Unclaimed work is safe to cancel immediately; running work needs confirmation.

@@ -35,6 +35,10 @@ class AccessTokenMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         path = request.url.path
+        # Runtime routes authenticate every request through their own principal dependency.
+        if path == "/api/os/runtime" or path.startswith("/api/os/runtime/"):
+            return await call_next(request)
+
         if _is_public(path) or request.method == "OPTIONS":
             return await call_next(request)
 

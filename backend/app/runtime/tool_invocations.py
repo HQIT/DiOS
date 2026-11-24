@@ -1,5 +1,6 @@
 """Durable E2AG action gate. Only dispatch() may call the registered transport."""
 from .work_policy import policy_matches
+from .principals import admit
 import asyncio
 import json
 from uuid import uuid4
@@ -22,9 +23,11 @@ async def audit(c,scope,call_id,stage,outcome,reason,now,details=None):
 
 
 class ToolInvocations:
-    def __init__(self,store,policy,catalog,provider,transport,approvers=None,secrets=None,identity_guard=None):
+    def __init__(self,store,policy,catalog,provider,transport,approvers=None,secrets=None,identity_guard=None,policy_evaluator=None):
         self.store,self.policy,self.catalog,self.provider=store,policy,catalog,provider
         self.transport,self.approvers,self.secrets=transport,approvers,secrets
+        from .policy_evaluator import OpaEvaluator
+        self.policy_evaluator=policy_evaluator or OpaEvaluator()
         self.identity_guard=identity_guard;self.sender_evidence=None
         self.receipts=ToolReceipts(provider,store.scope);self._receipt_cursor=None
 
@@ -37,8 +40,8 @@ class ToolInvocations:
     async def _configuration(self,run_id,tool_id):
         run=await self.store.get(run_id)
         if not run['input'].get('work_authorization_ref'):raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
-        current=await asyncio.to_thread(self.policy.admission,run['input']['runtime_profile'],
-            run['input']['profile_digest'],run['input'].get('secret_refs',[]))
+        current=await asyncio.to_thread(admit,self.policy,run['input']['runtime_profile'],
+            run['input']['profile_digest'],run['input'].get('secret_refs',[]),run['input'].get('principal'))
         registration=await asyncio.to_thread(self.catalog.registration,tool_id)
         return current,registration
 
@@ -64,6 +67,23 @@ class ToolInvocations:
             subject=work['subject'],actor=work['actor'])
         return binding,min(now+600,grant['expires_at'],work['expires_at'])
 
+    async def _evaluate_policy(self,c,call_id,binding,registration,arguments):
+        configuration=registration.get('policy_evaluator')
+        if configuration is None:return
+        authorization=(await c.execute(select(work).where(work.c.id==binding['authorization_ref'],
+            work.c.scope==self.store.scope,work.c.run_id==binding['run_id']))).mappings().one()
+        permission=registration['permission']
+        value={'subject':{'type':'principal','id':binding['subject']},
+            'action':{'name':permission['action'],'properties':{'arguments':arguments}},
+            'resource':{'type':permission['resource_kind'],'id':permission['resource_id'],
+                'properties':{'version':permission['resource_version']}},
+            'context':{'scope':self.store.scope,'binding':binding,'permission':permission,'permissions':authorization['permissions']}}
+        result=await self.policy_evaluator.evaluate(configuration,value)
+        now=await self.store.db.now(c)
+        await audit(c,self.store.scope,call_id,'policy','allow' if result['allow'] else 'deny',
+            'POLICY_ALLOWED' if result['allow'] else 'POLICY_DENIED',now,result)
+        if not result['allow']:raise RuntimeErrorCode('POLICY_DENIED')
+
     async def request(self,run_id,attempt_id,session_id,tool_id,arguments,key):
         identifier(key);identifier(tool_id);bounded(arguments)
         if not isinstance(arguments,dict):raise RuntimeErrorCode('INVALID_TOOL_ARGUMENTS')
@@ -79,6 +99,9 @@ class ToolInvocations:
                 return self.public(old,now)
             try:
                 binding,deadline=await self._binding(c,run_id,attempt_id,session_id,current,reg,now)
+                if reg.get('policy_evaluator'):
+                    await self._evaluate_policy(c,call_id,binding,reg,arguments)
+                    binding,deadline=await self._binding(c,run_id,attempt_id,session_id,current,reg,await self.store.db.now(c))
                 state='awaiting_approval' if reg['approval_required'] else 'prepared'
                 await c.execute(calls.insert().values(id=call_id,scope=self.store.scope,run_id=run_id,attempt_id=attempt_id,
                     request_key=key,request_digest=request_hash,tool_id=tool_id,registration_digest=reg['digest'],binding=binding,
@@ -93,18 +116,21 @@ class ToolInvocations:
         if failure:raise failure
         return await self.get(run_id,call_id)
 
-    async def decide(self,run_id,call_id,version,decision,token,reason=''):
+    async def decide(self,run_id,call_id,version,decision,token,reason='',*,required_subject=None,access_guard=None):
         if decision not in {'approved','denied'} or len(reason)>2000:raise RuntimeErrorCode('INVALID_APPROVAL_DECISION')
         row=await self.get(run_id,call_id)
         if self.approvers is None:raise RuntimeErrorCode('APPROVER_PROVIDER_REQUIRED')
         actor=await asyncio.to_thread(self.approvers.authenticate,token,self.store.scope,row['tool_id'])
+        if required_subject is not None and actor!=required_subject:raise RuntimeErrorCode('AUTH_APPROVER_MISMATCH')
         current,reg=await self._configuration(run_id,row['tool_id'])
         failure=None
         async with self.store.db.transaction(self.store.scope) as c:
             item=await self._row(c,run_id,call_id);now=await self.store.db.now(c)
             try:
+                if access_guard:access_guard(await self.store._run(c,run_id))
                 if item['version']!=version:raise RuntimeErrorCode('VERSION_CONFLICT')
                 if item['state']!='awaiting_approval' or item['approval_state']!='pending':raise RuntimeErrorCode('APPROVAL_ALREADY_DECIDED')
+                if self.approvers.authenticate(token,self.store.scope,item['tool_id'])!=actor:raise RuntimeErrorCode('APPROVER_FORBIDDEN')
                 if actor in {item['binding']['subject'],item['binding']['actor']}:raise RuntimeErrorCode('APPROVER_MUST_BE_INDEPENDENT')
                 await self._recheck(c,item,current,reg,now)
                 await c.execute(calls.update().where(calls.c.id==call_id).values(state='prepared' if decision=='approved' else 'denied',
@@ -117,11 +143,19 @@ class ToolInvocations:
         return await self.get(run_id,call_id)
 
     async def _recheck(self,c,item,current,reg,now):
+        if reg['approval_required'] and item['approver']:
+            if self.approvers is None:raise RuntimeErrorCode('APPROVER_PROVIDER_REQUIRED')
+            self.approvers.eligible(item['approver'],self.store.scope,item['tool_id'])
         if item['expires_at']<=now:raise RuntimeErrorCode('TOOL_AUTHORIZATION_EXPIRED')
         if reg['digest']!=item['registration_digest']:raise RuntimeErrorCode('TOOL_REGISTRATION_CHANGED')
         binding,_=await self._binding(c,item['run_id'],item['attempt_id'],item['binding']['session_id'],current,reg,now)
         if binding!=item['binding']:raise RuntimeErrorCode('TOOL_BINDING_CHANGED')
         if digest(item['arguments'])!=item['arguments_digest']:raise RuntimeErrorCode('TOOL_ARGUMENTS_CHANGED')
+        if reg.get('policy_evaluator'):
+            await self._evaluate_policy(c,item['id'],binding,reg,item['arguments'])
+            now=await self.store.db.now(c)
+            if item['expires_at']<=now:raise RuntimeErrorCode('TOOL_AUTHORIZATION_EXPIRED')
+            await self._binding(c,item['run_id'],item['attempt_id'],item['binding']['session_id'],current,reg,now)
 
     async def dispatch(self,run_id,call_id,version):
         row=await self.get(run_id,call_id)

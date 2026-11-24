@@ -29,6 +29,7 @@ export interface WorkAuthorization {
   decisions?: { id: string; action: string; created_at: number; outcome: string; reason_codes: string[] }[];
 }
 export interface RunDetail extends RunSummary {
+  access?: string[];
   recovery?: { category: string; code: string; state: string; retry_at: number | null; reason: string | null; circuit: Circuit | null } | null;
   authorization: WorkAuthorization;
   observed_at: number; sample: Sample; attempts: Attempt[]; artifacts: Artifact[];
@@ -56,6 +57,7 @@ export interface WorkerStatus {
 }
 export interface Circuit { resource: string; state: string; retry_at: number; reason: string | null; probe_attempt: string | null; }
 export const runtimeApi = {
+  identity: (signal?: AbortSignal) => request<{ mode: "operator" | "principal"; principal: { id: string; subject: string } | null }>("/identity", { signal }),
   workers: (signal?: AbortSignal) => request<WorkerStatus>("/workers", { signal }),
   profiles: (signal?: AbortSignal) => request<{ items: Profile[] }>("/profiles", { signal }),
   samples: (signal?: AbortSignal) => request<{ items: Sample[] }>("/samples", { signal }),

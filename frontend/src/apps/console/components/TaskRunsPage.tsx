@@ -62,6 +62,8 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   const [items, setItems] = useState<RunSummary[]>([]); const [cursor, setCursor] = useState<string>();
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [detail, setDetail] = useState<RunDetail>(); const [busy, setBusy] = useState(false);
+  const [operatorMode, setOperatorMode] = useState(false);
+  const [principalName, setPrincipalName] = useState("");
   const [refresh, setRefresh] = useState(0); const [artifact, setArtifact] = useState("");
   const [preview, setPreview] = useState<Preview>(); const [previewError, setPreviewError] = useState("");
   const [downloading, setDownloading] = useState(false);
@@ -70,7 +72,8 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    Promise.all([runtimeApi.profiles(controller.signal), runtimeApi.samples(controller.signal)]).then(([p, s]) => {
+    Promise.all([runtimeApi.profiles(controller.signal), runtimeApi.samples(controller.signal), runtimeApi.identity(controller.signal)]).then(([p, s, identity]) => {
+      setOperatorMode(identity.mode === "operator"); setPrincipalName(identity.principal?.subject || "");
       setProfiles(p.items); setSamples(s.items); setCatalogError("");
       setProfile(current => p.items.some(x => x.id === current) ? current : p.items[0]?.id || "");
       setSample(current => s.items.some(x => x.id === current) ? current : s.items[0]?.id || "");
@@ -106,7 +109,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         setItems(current => current.map(item => item.id === value.id && value.version >= item.version
           ? { ...item, state: value.state, version: value.version, updated_at: value.updated_at,
               attempt_id: value.attempt_id, cancel_requested: value.cancel_requested } : item));
-        setArtifact(current => current || value.artifacts.find(a => a.kind === "result")?.id || "");
+        setArtifact(current => value.access && !value.access.includes("artifact.read") ? "" : current || value.artifacts.find(a => a.kind === "result")?.id || "");
         if (terminal(value.state)) return;
       } catch (error) { if (!controller.signal.aborted) setDetailError(errorText(error)); }
       if (!controller.signal.aborted) timer = setTimeout(poll, 2000);
@@ -177,6 +180,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   useEffect(() => {
     if (!availableSamples.some(s => s.id === sample)) setSample(availableSamples[0]?.id || "");
   }, [profile, samples, sample, profiles]);
+  const can = (action: string) => !detail?.access || detail.access.includes(action);
   const customInput = !!chosenProfile?.dynamic_inputs && (customMode || availableSamples.length === 0);
   const policyMissing = chosenProfile?.governance === "e2ag" && !chosenProfile.policy_configured;
   const source = samples.find(s => s.id === sample);
@@ -223,7 +227,8 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
       </div>
     </aside>
     <main className="tr-detail">
-      <WorkerStatusPanel />
+      {principalName && <p className="tr-muted">{translateUI("当前主体：{0}", [principalName])}</p>}
+      {operatorMode && <WorkerStatusPanel />}
       {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>{translateUI("从一件具体工作开始")}</h3>
         <p>{translateUI("在左侧发起任务，或选择已有任务查看执行过程与成果。")}</p><div className="tr-steps"><span>{translateUI("① 发起任务")}</span><span>{translateUI("② 跟踪执行")}</span><span>{translateUI("③ 查看成果")}</span></div></div>}
       {detailError && <p className="tr-error" role="alert">{translateUI(detailError)}{translateUI("当前保留的是上次取得的信息。")}</p>}
@@ -243,7 +248,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             {detail.recovery.reason && <>{translateUI("· 自动重试受限：")}{translateUI(detail.recovery.reason)}</>}
           </p>}
           <div className="tr-actions"><span className="tr-muted">{translateUI("最近更新：")}{translateUI(time(detail.observed_at))}</span>
-            {!terminal(detail.state) && <button disabled={busy || detail.cancel_requested || !!detailError} onClick={() => void cancel()}>{translateUI(detail.cancel_requested ? "取消待确认" : "取消任务")}</button>}</div>
+            {can("run.cancel") && !terminal(detail.state) && <button disabled={busy || detail.cancel_requested || !!detailError} onClick={() => void cancel()}>{translateUI(detail.cancel_requested ? "取消待确认" : "取消任务")}</button>}</div>
         </section>
         <section className="tr-card"><div className="tr-section-title"><h3>{translateUI("执行授权")}</h3>
           <span className="tr-badge">{translateUI(detail.authorization.mode === "e2ag" ? "E2AG" : "受信本地配置")}</span></div>
@@ -256,15 +261,15 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             <details className="tr-auth-decisions"><summary>{translateUI("授权记录")}</summary><ol className="tr-timeline">
               {detail.authorization.decisions?.map(d => <li key={d.id}><time>{translateUI(time(d.created_at))}</time><span>{translateUI(d.outcome === "allow" ? "允许" : "拒绝")}</span><code>{d.reason_codes.join("、")}</code></li>)}
             </ol></details>
-            {!terminal(detail.state) && detail.authorization.state === "active" && <div className="tr-actions"><button disabled={busy || !!detailError} onClick={() => void revoke()}>{translateUI("撤销工作授权")}</button></div>}
+            {can("run.revoke") && !terminal(detail.state) && detail.authorization.state === "active" && <div className="tr-actions"><button disabled={busy || !!detailError} onClick={() => void revoke()}>{translateUI("撤销工作授权")}</button></div>}
           </> : <p className="tr-muted">{translateUI("此任务沿用受信操作员配置。企业工作授权需使用已配置 E2AG 的执行入口。")}</p>}
         </section>
-        <ToolActions key={detail.id} runId={detail.id} active={!terminal(detail.state) && detail.authorization.state === "active" && !detail.cancel_requested} />
+        {can("tool.read") && <ToolActions key={detail.id} runId={detail.id} canApprove={can("tool.approve")} operator={operatorMode} active={!terminal(detail.state) && detail.authorization.state === "active" && !detail.cancel_requested} />}
         <section className="tr-card"><div className="tr-section-title"><h3>{translateUI("最近输出")}</h3><span className="tr-muted">{translateUI("保留最近片段")}</span></div>
           <pre className="tr-output">{active?.output_excerpt || "等待 Agent 的有效输出。"}</pre></section>
         <section className="tr-card"><div className="tr-section-title"><h3>{translateUI("成果与附件")}</h3>{detail.state === "succeeded" && <span className="tr-badge">{translateUI("待人工复核")}</span>}</div>
           {!detail.artifacts.length && <p className="tr-empty-small">{translateUI("执行结束后，报告和原始输出将在这里归档。")}</p>}
-          <div className="tr-artifacts">{detail.artifacts.map(a => <button key={a.id} className={artifact === a.id ? "selected" : ""} onClick={() => setArtifact(a.id)}>
+          <div className="tr-artifacts">{detail.artifacts.map(a => <button key={a.id} className={artifact === a.id ? "selected" : ""} disabled={!can("artifact.read")} onClick={() => setArtifact(a.id)}>
             {translateUI(a.kind === "result" ? "任务成果" : a.kind === "stdout" ? "原始输出" : a.kind === "stderr" ? "诊断记录" : "附件")}<small>{translateUI((a.size / 1024).toFixed(1))} KB</small></button>)}</div>
           {previewError && <p className="tr-error" role="alert">{translateUI(previewError)}</p>}
           {artifact && <div className="tr-actions"><button disabled={downloading} onClick={() => void download(false)}>{translateUI("下载原文件")}</button>

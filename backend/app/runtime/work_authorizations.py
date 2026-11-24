@@ -4,6 +4,7 @@ Grants are database-owned authorization records, not transferable bearer tokens.
 Remote machine authentication and sender-bound token issuance remain #33 work.
 """
 from .work_policy import policy_matches
+from .principals import admit
 import asyncio
 from uuid import uuid4
 from sqlalchemy import select
@@ -101,9 +102,10 @@ class WorkAuthorizationVerifier:
             row=(await c.execute(select(work).where(work.c.id==context.authorization_ref,work.c.scope==self.store.scope))).mappings().first()
             if not row:raise RuntimeErrorCode('WORK_AUTHORIZATION_NOT_FOUND')
             captured=dict(row)
+            principal=(await self.store._run(c,context.run_id))['input'].get('principal')
         policy_error=None
         try:
-            current=await asyncio.to_thread(self.policy.admission,captured['profile_id'],captured['profile_digest'],captured['secret_refs'])
+            current=await asyncio.to_thread(admit,self.policy,captured['profile_id'],captured['profile_digest'],captured['secret_refs'],principal)
             # Legacy grants remain valid only against the exact original whole-file digest.
             if not policy_matches(current,captured['policy_digest']):
                 policy_error=RuntimeErrorCode('WORK_POLICY_CHANGED')
@@ -161,6 +163,12 @@ class WorkAuthorizationVerifier:
                 else:raise RuntimeErrorCode('INVALID_AUTHORIZATION_ACTION')
             except RuntimeErrorCode as exc:
                 failure=exc
+                if exc.code in {'AUTH_PRINCIPAL_REVOKED','AUTH_PRINCIPAL_EXPIRED'}:
+                    # Once observed, re-enabling an identity cannot resurrect its old grant.
+                    await c.execute(work.update().where(work.c.id==context.authorization_ref,work.c.scope==self.store.scope,work.c.state=='active')
+                        .values(state='revoked',version=work.c.version+1))
+                    await c.execute(grants.update().where(grants.c.authorization_id==context.authorization_ref,grants.c.state=='active')
+                        .values(state='revoked',version=grants.c.version+1))
                 await audit(c,self.store.scope,context.run_id,context.attempt_id,action,
                     Decision('work-authorization','deny',(exc.code,)),now)
         if failure:raise failure

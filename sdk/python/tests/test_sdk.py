@@ -54,6 +54,11 @@ class ClientTests(unittest.TestCase):
             with self.assertRaises(TransportError) as caught:self.client.submit('p','i','g',idempotency_key='same')
         self.assertTrue(caught.exception.ambiguous);self.assertEqual(caught.exception.idempotency_key,'same')
         self.assertNotIn('private-token',str(caught.exception))
+    def test_identity_uses_authenticated_runtime_endpoint(self):
+        self.body={'mode':'principal','principal':{'id':'one'}}
+        self.assertEqual(self.client.identity()['principal']['id'],'one')
+        self.assertTrue(self.requests[-1][1].endswith('/identity'))
+        self.assertEqual(self.requests[-1][3],'Bearer private-token')
     def test_artifact_size_and_digest_are_verified(self):
         raw='中文结果🙂'.encode();record={'id':'a','digest':hashlib.sha256(raw).hexdigest(),'size':len(raw)}
         with patch.object(self.client,'get',return_value={'artifacts':[record]}):

@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-24",
+  "status": "development-deployed-and-verified",
+  "authority_backend": "file-bootstrap",
+  "transactional_authority_deployed": false,
+  "live": {
+    "run_id": "5aa3f1ed-0d0a-4efd-895e-80757e8d9479",
+    "revoked_queued_run_id": "0faecc24-203d-4d2e-bdc8-2a20d6b89e22",
+    "actual_work_subject": "principal:a",
+    "actual_session": "evidence-0ff58d91-3a5e-4bfb-b36a-c1c8efdcbb2d",
+    "checks": [
+      "sdk-identity",
+      "same-profile-cross-principal-hidden",
+      "operator-not-content-reader",
+      "global-worker-status-denied",
+      "caller-cannot-use-other-approver-token",
+      "approver-credential-must-match-authenticated-subject",
+      "independent-approval-and-real-worker-result",
+      "queued-principal-revocation-no-tool-call",
+      "explicit-share-download",
+      "share-revocation-download-denied",
+      "cli-identity"
+    ],
+    "artifact_sha256": "09f995ec7901b8962e09a22ac233bbb8aca6f76bd91e3d0504526eadf590bc83"
+  },
+  "browser": {
+    "run_id": "5aa3f1ed-0d0a-4efd-895e-80757e8d9479",
+    "checks": [
+      "principal-login",
+      "profile-filter",
+      "global-worker-panel-hidden",
+      "owned-report",
+      "approval-controls-filtered",
+      "mobile-layout",
+      "cross-principal-denied"
+    ],
+    "pageErrors": []
+  },
+  "limitations": [
+    "OIDC not integrated",
+    "single-run ACL only",
+    "file-provider validation does not close policy-check/commit race",
+    "cross-service revocation coordination remains open after mature-provider comparison"
+  ],
+  "backend": {
+    "tests": 451,
+    "passed": 331,
+    "skipped": 120,
+    "seconds": 273.025,
+    "opa_integration_tests": 6,
+    "adapter_tests": 5
+  },
+  "sdk": {
+    "version": "0.1.1",
+    "installed_wheel_tests": 20
+  }
+}

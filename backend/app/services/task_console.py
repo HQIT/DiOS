@@ -1,14 +1,16 @@
 """Single trusted operator service over the durable runtime. No executor in HTTP."""
 import asyncio
+import copy
 import base64
 import json
 import math
 from pathlib import Path
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, false
 from app.runtime.artifacts import LocalArtifacts
 from app.runtime.database import RuntimeErrorCode
 from app.runtime.schema import runs, attempts, artifacts, events
-from app.runtime.store import RuntimeStore
+from app.runtime.store import RuntimeStore, digest
+from app.runtime.principals import admit
 from app.services.task_inputs import (CONSOLE_ORIGIN, LEGACY_INPUT_KINDS, is_console_input, registration, dynamic_input)
 from app.runtime.worker import read_profile
 from app.runtime.work_policy import security_profile
@@ -19,9 +21,55 @@ class TaskConsole:
         self.db, self.scope = db, scope
         self.policy=policy
         self.tools=None
+        self.principal=None
+        self.access_enforced=False
         self.store = RuntimeStore(db,scope)
         self.profiles_dir = Path(profiles_dir)
         self.provider = LocalArtifacts(Path(artifacts_root))
+
+    def identity_provider(self):
+        return self.policy.identity_provider() if self.policy and hasattr(self.policy,'identity_provider') else None
+
+    def for_principal(self,principal):
+        value=copy.copy(self);value.principal=principal;value.access_enforced=True
+        return value
+
+    def access_row(self):
+        if self.principal is None:return None
+        provider=self.identity_provider()
+        if provider is None:raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
+        return provider.current(self.principal)
+
+    def profile_allowed(self,profile_id,action='run.submit'):
+        row=self.access_row()
+        return row is None or action in row['profiles'].get(profile_id,{}).get('actions',[])
+
+    def check_access(self,run,action):
+        if not self.access_enforced:return
+        owner=run['input'].get('principal')
+        if self.principal is None:
+            if owner is not None:raise RuntimeErrorCode('NOT_FOUND')
+            return
+        row=self.access_row()
+        own=owner is not None and all(owner[k]==self.principal[k] for k in ('issuer','id','scope','subject','actor'))
+        actions=row['profiles'].get(run['input'].get('runtime_profile'),{}).get('actions',[]) if own else row.get('objects',{}).get(run['id'],[])
+        if action not in actions:raise RuntimeErrorCode('NOT_FOUND')
+
+    async def authorize(self,run_id,action):
+        async with self.db.read(self.scope) as c:run=await self.store._run(c,run_id)
+        await asyncio.to_thread(self.check_access,run,action)
+        return run
+
+    def access_filter(self):
+        if not self.access_enforced:return None
+        if self.principal is None:return runs.c.input['principal'].as_string().is_(None)
+        row=self.access_row();owner=runs.c.input['principal']
+        profiles=[pid for pid,g in row['profiles'].items() if 'run.read' in g['actions']]
+        shared=[rid for rid,actions in row.get('objects',{}).items() if 'run.read' in actions]
+        own=and_(owner['issuer'].as_string()==self.principal['issuer'],owner['id'].as_string()==self.principal['id'],
+            owner['subject'].as_string()==self.principal['subject'],owner['actor'].as_string()==self.principal['actor'],
+            owner['scope'].as_string()==self.scope,runs.c.input['runtime_profile'].as_string().in_(profiles))
+        return or_(own,runs.c.id.in_(shared))
 
     def _registrations(self):
         profiles=[]
@@ -32,6 +80,7 @@ class TaskConsole:
             display=raw.get('console',{})
             if display.get('enabled') is not True: continue
             profile_id,spec=read_profile(path,value=raw)
+            if not self.profile_allowed(profile_id):continue
             if any(x['view']['id']==profile_id for x in profiles):raise RuntimeErrorCode('DUPLICATE_PROFILE_ID')
             registered=registration(display)
             registered_inputs=registered['inputs']
@@ -65,6 +114,8 @@ class TaskConsole:
                          if x['view']['id']==profile_id),None)
         if registered is None:raise RuntimeErrorCode('PROFILE_NOT_AVAILABLE')
         profile=registered['view']
+        if self.principal is not None and not await asyncio.to_thread(self.profile_allowed,profile_id,'run.read'):
+            raise RuntimeErrorCode('AUTH_ACTION_DENIED')
         if (sample_id is None)==(input_payload is None):raise RuntimeErrorCode('INVALID_WORK_INPUT')
         if input_payload is not None:
             value=dynamic_input(registered['contract'],input_payload)
@@ -73,11 +124,14 @@ class TaskConsole:
             if value is None:raise RuntimeErrorCode('SAMPLE_NOT_FOUND')
         if registered['requires_e2ag'] and profile['governance']!='e2ag':
             raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
+        if self.principal is not None and profile['governance']!='e2ag':raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
         descriptor=None;refs=registered['refs']
         if profile['governance']=='e2ag':
             if self.policy is None:raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
-            descriptor=await asyncio.to_thread(self.policy.admission,profile_id,profile['profile_digest'],refs)
+            descriptor=await asyncio.to_thread(admit,self.policy,profile_id,profile['profile_digest'],refs,self.principal)
+        if self.principal is not None:key='principal-'+digest([self.principal['issuer'],self.principal['id'],key])
         run=await self.store.submit(key,dict(origin=CONSOLE_ORIGIN,
+            **({'principal':self.principal} if self.principal is not None else {}),
             input_registration=dict(digest=registered['registration_digest'],
                 **({'result_schema':registered['contract']['result_schema']} if registered['contract']['result_schema'] is not None else {})),
             runtime_profile=profile_id,profile_digest=profile['profile_digest'],
@@ -105,6 +159,8 @@ class TaskConsole:
             except Exception:raise RuntimeErrorCode('INVALID_CURSOR') from None
             query=query.where(or_(runs.c.created_at<stamp,and_(runs.c.created_at==stamp,runs.c.id<rid)))
         async with self.db.read(self.scope) as c:
+            access=await asyncio.to_thread(self.access_filter)
+            if access is not None:query=query.where(access)
             rows=(await c.execute(query.order_by(runs.c.created_at.desc(),runs.c.id.desc()).limit(limit+1))).mappings().all()
             now=await self.db.now(c)
         page=rows[:limit];next_cursor=None
@@ -116,6 +172,7 @@ class TaskConsole:
         async with self.db.read(self.scope) as c:
             run=await self.store._run(c,run_id)
             if not is_console_input(run['input']):raise RuntimeErrorCode('NOT_FOUND')
+            await asyncio.to_thread(self.check_access,run,'run.read')
             now=await self.db.now(c)
             rows=(await c.execute(select(attempts).where(attempts.c.run_id==run_id)
                 .order_by(attempts.c.epoch.desc()).limit(20))).mappings().all()
@@ -147,7 +204,12 @@ class TaskConsole:
                 'output_excerpt':a['remote'].get('progress',{}).get('text','')})
         from app.runtime.work_authorizations import view
         authorization=await view(self.store,run_id)
-        return dict(self.summary(run),observed_at=now,attempts=views,authorization=authorization,recovery=recovery,
+        access=[]
+        for action in ('run.read','run.cancel','run.revoke','artifact.read','tool.read','tool.approve'):
+            try:await asyncio.to_thread(self.check_access,run,action);access.append(action)
+            except RuntimeErrorCode as exc:
+                if exc.code!='NOT_FOUND':raise
+        return dict(self.summary(run),access=access,observed_at=now,attempts=views,authorization=authorization,recovery=recovery,
             sample=run['input']['payload']['sample'],
             artifacts=[{**{k:b[k] for k in ('id','attempt_id','digest','size','created_at')},'kind':kinds.get(b['id'],'raw')}
                 for b in blobs],
@@ -158,12 +220,27 @@ class TaskConsole:
         async with self.db.read(self.scope) as c:
             run=await self.store._run(c,run_id)
             if not is_console_input(run['input']):raise RuntimeErrorCode('NOT_FOUND')
+            await asyncio.to_thread(self.check_access,run,'run.read')
+            await asyncio.to_thread(self.check_access,run,'artifact.read')
             b=(await c.execute(select(artifacts).where(artifacts.c.id==artifact_id,artifacts.c.run_id==run_id))).mappings().first()
         if not b:raise RuntimeErrorCode('NOT_FOUND')
         if b['provider']!=self.provider.name:raise RuntimeErrorCode('ARTIFACT_PROVIDER_UNAVAILABLE')
         blob=await asyncio.to_thread(self.provider.verify,b['storage_key'])
         if (blob.digest,blob.size)!=(b['digest'],b['size']):raise RuntimeErrorCode('ARTIFACT_DIGEST_MISMATCH')
         return dict(b)
+
+    async def stream_artifact(self,run_id,blob):
+        run=await self.authorize(run_id,'artifact.read')
+        stream=iter(self.provider.read(blob['storage_key']))
+        try:
+            while True:
+                chunk=await asyncio.to_thread(next,stream,None)
+                if chunk is None:break
+                await asyncio.to_thread(self.check_access,run,'run.read')
+                await asyncio.to_thread(self.check_access,run,'artifact.read')
+                yield chunk
+        finally:
+            if hasattr(stream,'close'):await asyncio.to_thread(stream.close)
 
     async def preview(self, run_id, artifact_id):
         blob=await self.artifact(run_id,artifact_id)
@@ -178,4 +255,5 @@ class TaskConsole:
             try:value=json.loads(text)
             except ValueError:value={}
             if isinstance(value,dict) and isinstance(value.get('markdown'),str):markdown=value['markdown']
+        await self.authorize(run_id,'artifact.read')
         return dict(id=artifact_id,kind=kind,text=text,markdown=markdown,size=blob['size'],digest=blob['digest'])

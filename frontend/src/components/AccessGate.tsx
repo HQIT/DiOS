@@ -37,9 +37,15 @@ export default function AccessGate({ children }: { children: ReactNode }) {
     setError("");
     setAccessToken(value);
     try {
-      const res = await fetch(`${apiPrefix()}/os/models`, {
+      let res = await fetch(`${apiPrefix()}/os/runtime/identity`, {
         headers: { "X-DiOS-Access-Token": value },
       });
+      if (res.ok) {
+        const identity = await res.json();
+        if (identity.mode === "principal") window.location.hash = "console/tasks";
+      } else {
+        res = await fetch(`${apiPrefix()}/os/models`, { headers: { "X-DiOS-Access-Token": value } });
+      }
       if (res.status === 401) {
         clearAccessToken();
         setError("Access Token 无效");

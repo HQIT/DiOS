@@ -24,6 +24,9 @@ class RuntimeRoute(APIRoute):
             except RuntimeErrorCode as exc:
                 status=404 if exc.code in {'NOT_FOUND','SAMPLE_NOT_FOUND','PROFILE_NOT_AVAILABLE'} else 409
                 if exc.code.startswith('INVALID_'):status=422
+                if exc.code.startswith('AUTH_'):status=403
+                if exc.code=='AUTH_UNAUTHENTICATED':status=401
+                if exc.code=='AUTH_PROVIDER_UNAVAILABLE':status=503
                 if exc.code in {'PREVIEW_TOO_LARGE','PREVIEW_NOT_TEXT'}:status=413
                 raise HTTPException(status,detail=exc.code) from None
             except (SQLAlchemyError,OSError,ValueError):
@@ -33,11 +36,16 @@ class RuntimeRoute(APIRoute):
 
 async def operator(request: Request):
     if not settings.runtime_console_enabled:raise HTTPException(503,detail='RUNTIME_CONSOLE_DISABLED')
-    if not settings.access_token:raise HTTPException(503,detail='RUNTIME_OPERATOR_TOKEN_REQUIRED')
     auth=request.headers.get('authorization','')
     token=auth[7:].strip() if auth.lower().startswith('bearer ') else request.headers.get('x-dios-access-token','')
-    if not secrets.compare_digest(token.encode(),settings.access_token.encode()):
-        raise HTTPException(401,detail='Invalid or missing access token')
+    if settings.access_token and secrets.compare_digest(token.encode(),settings.access_token.encode()):return None
+    console=getattr(request.app.state,'runtime_console',None)
+    if console:
+        async with console.db.read(console.scope):
+            provider=await asyncio.to_thread(console.identity_provider)
+            if provider is not None:return await asyncio.to_thread(provider.authenticate,token,console.scope)
+    if not settings.access_token:raise HTTPException(503,detail='RUNTIME_OPERATOR_TOKEN_REQUIRED')
+    raise HTTPException(401,detail='Invalid or missing access token')
 
 
 @asynccontextmanager
@@ -69,7 +77,7 @@ async def console_lifespan(app):
 async def service(request:Request,_=Depends(operator)):
     value=getattr(request.app.state,'runtime_console',None)
     if value is None:raise HTTPException(503,detail='RUNTIME_CONFIGURATION_REQUIRED')
-    return value
+    return value.for_principal(_)
 
 
 router=APIRouter(prefix='/runtime',tags=['runtime-tasks'],route_class=RuntimeRoute)
@@ -92,6 +100,12 @@ class Cancel(BaseModel):
     model_config=ConfigDict(extra='forbid')
     expected_version: int=Field(ge=0)
 
+@router.get('/identity')
+async def identity(s=Depends(service)):
+    if s.principal is None:return {'mode':'operator','principal':None}
+    row=await asyncio.to_thread(s.access_row)
+    return {'mode':'principal','principal':s.principal,'profiles':{k:v['actions'] for k,v in row['profiles'].items()}}
+
 @router.get('/profiles')
 async def profiles(s=Depends(service)):
     return {'items':await asyncio.to_thread(s.catalog)}
@@ -102,6 +116,7 @@ async def samples(s=Depends(service)):
 
 @router.get('/workers')
 async def workers(s=Depends(service)):
+    if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
     return await s.store.runtime_status()
 
 @router.get('/runs')
@@ -119,13 +134,15 @@ async def detail(run_id:str,s=Depends(service)):
 @router.post('/runs/{run_id}/cancel')
 async def cancel(run_id:str,body:Cancel,s=Depends(service)):
     await s.detail(run_id)
-    await s.store.cancel(run_id,body.expected_version)
+    await s.authorize(run_id,'run.cancel')
+    await s.store.cancel(run_id,body.expected_version,access_guard=lambda run:s.check_access(run,'run.cancel'))
     return await s.detail(run_id)
 
 @router.post('/runs/{run_id}/revoke')
 async def revoke(run_id:str,body:Cancel,s=Depends(service)):
     await s.detail(run_id)
-    await s.store.revoke(run_id,body.expected_version)
+    await s.authorize(run_id,'run.revoke')
+    await s.store.revoke(run_id,body.expected_version,access_guard=lambda run:s.check_access(run,'run.revoke'))
     return await s.detail(run_id)
 
 @router.get('/runs/{run_id}/artifacts/{artifact_id}/preview')
@@ -143,12 +160,13 @@ async def download(run_id:str,artifact_id:str,format:str=Query('raw',pattern='^(
     blob=await s.artifact(run_id,artifact_id)
     headers['Content-Disposition']=f'attachment; filename="artifact-{artifact_id}.bin"'
     headers['Content-Length']=str(blob['size'])
-    return StreamingResponse(s.provider.read(blob['storage_key']),media_type='application/octet-stream',headers=headers)
+    return StreamingResponse(s.stream_artifact(run_id,blob),media_type='application/octet-stream',headers=headers)
 
 
 async def tool_service(s=Depends(service)):
     if s.tools is None:raise HTTPException(503,detail='TOOL_GATE_NOT_CONFIGURED')
-    return s.tools
+    from app.services.runtime_access import AuthorizedTools
+    return AuthorizedTools(s)
 
 
 class ToolRequest(BaseModel):

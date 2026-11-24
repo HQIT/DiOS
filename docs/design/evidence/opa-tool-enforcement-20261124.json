@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-24",
+  "status": "development-deployed-and-verified",
+  "provider": "OPA Data API",
+  "image": "openpolicyagent/opa:1.17.0@sha256:3c6e9e4d433b6e94df424c3385134312a95042aa991cdfc8e01944115675fb9d",
+  "backend": {
+    "tests": 451,
+    "passed": 331,
+    "skipped": 120,
+    "seconds": 273.025,
+    "opa_integration_tests": 6,
+    "adapter_tests": 5
+  },
+  "frontend": {
+    "build": "passed",
+    "warning": "existing bundle exceeds 500 kB"
+  },
+  "live": {
+    "run_id": "24ddb698-fc92-416e-95c6-1548831af11c",
+    "invocation_id": "e94deadb-2628-415f-875f-65dfe33bb83e",
+    "state": "succeeded",
+    "session_id": "evidence-7e7b87cb-b4ec-46d9-9c6b-c195433b9880",
+    "work_subject": "principal:a",
+    "policy_decisions": [
+      {
+        "allow": true,
+        "provider": "opa",
+        "bundles": {
+          "/policy": "dios-tools-v1"
+        },
+        "input_digest": "75282b0c0075129c18aa7e01822e3821ae88f9d05896fb5e2a467cfc1618e8f0",
+        "decision_id": null
+      },
+      {
+        "allow": true,
+        "provider": "opa",
+        "bundles": {
+          "/policy": "dios-tools-v1"
+        },
+        "input_digest": "75282b0c0075129c18aa7e01822e3821ae88f9d05896fb5e2a467cfc1618e8f0",
+        "decision_id": null
+      },
+      {
+        "allow": true,
+        "provider": "opa",
+        "bundles": {
+          "/policy": "dios-tools-v1"
+        },
+        "input_digest": "75282b0c0075129c18aa7e01822e3821ae88f9d05896fb5e2a467cfc1618e8f0",
+        "decision_id": null
+      },
+      {
+        "allow": true,
+        "provider": "opa",
+        "bundles": {
+          "/policy": "dios-tools-v1"
+        },
+        "input_digest": "75282b0c0075129c18aa7e01822e3821ae88f9d05896fb5e2a467cfc1618e8f0",
+        "decision_id": null
+      }
+    ],
+    "artifact_sha256": "381f75fd4c5345ef96af3d808db3cd35ab8309e906edde176a8be4014dbad8e4",
+    "history_before": 50,
+    "history_after": 51,
+    "old_history_preserved": true,
+    "attempts": 1
+  },
+  "browser": {
+    "run_id": "d404cb85-4eca-4a8f-884b-61c6b7aec529",
+    "checks": [
+      "owner-ui-submit",
+      "independent-reviewer-ui-approval",
+      "worker-result-ui",
+      "markdown-download"
+    ],
+    "pageErrors": [],
+    "report_sha256": "f13a51ce451d736fca954ef9f5612fb1f62958e6de84a708981e4c3cb592e658"
+  },
+  "checks": [
+    "deny-before-tools-call",
+    "changed-bundle-after-approval",
+    "changed-bundle-during-MCP-initialize",
+    "OPA-stopped",
+    "bounded-timeout",
+    "approval-retained-on-provider-error",
+    "receipt-and-idempotent-replay",
+    "management-write-denied"
+  ],
+  "limitations": [
+    "cross-service-revocation-linearization-open",
+    "file-principal-provider-nontransactional",
+    "no-remote-signed-bundle-qualification",
+    "no-physical-multihost-qualification"
+  ],
+  "history": {
+    "before": 50,
+    "after": 52,
+    "preserved": true,
+    "active_runs": 0
+  }
+}
