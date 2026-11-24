@@ -59,6 +59,19 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(self.client.identity()['principal']['id'],'one')
         self.assertTrue(self.requests[-1][1].endswith('/identity'))
         self.assertEqual(self.requests[-1][3],'Bearer private-token')
+    def test_delegation_transport_keeps_identity_server_owned_and_ambiguous_key(self):
+        args=('root','profile','actor:target',[],12345)
+        self.client.issue_delegation(*args,idempotency_key='stable-delegation')
+        self.assertEqual(self.requests[-1][1],'/api/os/runtime/delegations')
+        self.assertNotIn('issuer_actor',self.requests[-1][2])
+        self.assertEqual(self.requests[-1][3],'Bearer private-token')
+        self.client.delegation('ref/one');self.client.revoke_delegation('ref/one',expected_version=2)
+        self.assertTrue(self.requests[-1][1].endswith('/ref%2Fone/revoke'))
+        self.assertEqual(self.requests[-1][2],{'expected_version':2})
+        with patch.object(self.client._opener,'open',side_effect=TimeoutError()):
+            with self.assertRaises(TransportError) as caught:self.client.issue_delegation(*args,idempotency_key='stable-delegation')
+        self.assertTrue(caught.exception.ambiguous)
+        self.assertEqual(caught.exception.idempotency_key,'stable-delegation')
     def test_artifact_size_and_digest_are_verified(self):
         raw='中文结果🙂'.encode();record={'id':'a','digest':hashlib.sha256(raw).hexdigest(),'size':len(raw)}
         with patch.object(self.client,'get',return_value={'artifacts':[record]}):

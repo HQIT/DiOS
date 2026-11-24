@@ -132,6 +132,39 @@ class Cancel(BaseModel):
     model_config=ConfigDict(extra='forbid')
     expected_version: int=Field(ge=0)
 
+class DelegationPermission(BaseModel):
+    model_config=ConfigDict(extra='forbid',strict=True)
+    action: str=Field(min_length=1,max_length=160)
+    resource_kind: str=Field(min_length=1,max_length=160)
+    resource_id: str=Field(min_length=1,max_length=160)
+    resource_version: str=Field(min_length=1,max_length=160)
+    constraint_revision: str=Field(min_length=1,max_length=160)
+
+class DelegationIssue(BaseModel):
+    model_config=ConfigDict(extra='forbid',strict=True)
+    idempotency_key: str=Field(min_length=1,max_length=160)
+    parent_ref: str=Field(min_length=1,max_length=80)
+    profile_id: str=Field(min_length=1,max_length=160)
+    actor: str=Field(min_length=1,max_length=160)
+    expires_at: float=Field(gt=0,allow_inf_nan=False)
+    permissions: list[DelegationPermission]=Field(min_length=1,max_length=64)
+
+async def delegation_service(s=Depends(service)):
+    from app.services.delegation_access import AuthorizedDelegations
+    return AuthorizedDelegations(s)
+
+@router.post('/delegations',status_code=201)
+async def delegation_issue(body:DelegationIssue,s=Depends(delegation_service)):
+    return await s.issue(body.model_dump())
+
+@router.get('/delegations/{reference}')
+async def delegation_show(reference:str,s=Depends(delegation_service)):
+    return await s.show(reference)
+
+@router.post('/delegations/{reference}/revoke')
+async def delegation_revoke(reference:str,body:Cancel,s=Depends(delegation_service)):
+    return await s.revoke(reference,body.expected_version)
+
 @router.get('/identity')
 async def identity(s=Depends(service)):
     if s.principal is None:return {'mode':'operator','principal':None}

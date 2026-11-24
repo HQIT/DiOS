@@ -47,6 +47,8 @@ def receipt(chain, run_id, subject, actor, scope):
 async def evaluate(
     c, db, scope, reference, binding, chain, permission, config, evaluator=None
 ):
+    from .delegation_identity import validate_chain
+    await validate_chain(c, scope, chain)
     now = await db.now(c)
     if any(
         x["state"] != "active"
@@ -93,6 +95,7 @@ async def evaluate(
     result = await (evaluator or OpaEvaluator()).evaluate(config, {"context": context})
     if not result["allow"]:
         raise RuntimeErrorCode("DELEGATION_DENIED")
+    await validate_chain(c, scope, chain)
     # Expiry can pass while OPA waits; the local authorization commit uses DB time.
     finished_at = await db.now(c)
     if any(x["expires_at"] <= finished_at for x in chain):
@@ -116,6 +119,7 @@ class Delegations:
         policy_evaluator=None,
         parent_ref=None,
         issuer_actor=None,
+        issuer_source=None,
     ):
         for value in (key, subject, actor):
             identifier(value)
@@ -146,11 +150,18 @@ class Delegations:
             issuer_actor=issuer_actor,
             policy_evaluator=policy_evaluator,
         )
+        if issuer_source is not None:
+            request['issuer_source'] = issuer_source
         bounded(request)
         ref = "dl-" + digest([self.store.scope, key])[:60]
         fingerprint = digest(request)
         async with self.store.db.transaction(self.store.scope) as c:
             await require(c)
+            if issuer_source is not None:
+                from .delegation_identity import validate_source
+                if not parent_ref or issuer_actor != issuer_source['principal']['actor']:
+                    raise RuntimeErrorCode('AUTH_ACTION_DENIED')
+                await validate_source(c, self.store.scope, issuer_source, permissions, expires_at)
             now = await self.store.db.now(c)
             old = (
                 (
@@ -212,7 +223,12 @@ class Delegations:
                 config,
                 self.evaluator,
             )
+            if issuer_source is not None:
+                await validate_source(c, self.store.scope, issuer_source, permissions, expires_at)
             await c.execute(links.insert().values(**row))
+            if issuer_source is not None:
+                from .delegation_identity import bind_issuer
+                await bind_issuer(c, self.store.scope, ref, issuer_source)
             await c.execute(
                 events.insert().values(
                     id=str(uuid4()),
@@ -222,6 +238,9 @@ class Delegations:
                     details={
                         "parent_ref": parent_ref,
                         "issuer_actor": issuer_actor,
+                        **({'authenticated_issuer': {k: issuer_source['principal'][k]
+                            for k in ('issuer','id','scope','subject','actor','revision')}}
+                            if issuer_source is not None else {}),
                         "decision": decision,
                     },
                     created_at=await self.store.db.now(c),
@@ -229,12 +248,14 @@ class Delegations:
             )
             return self.public(row)
 
-    async def revoke(self, ref, version):
+    async def revoke(self, ref, version, *, access_guard=None):
         from .work_auth_schema import work, grants
 
         async with self.store.db.transaction(self.store.scope) as c:
             await require(c)
             chain = await lineage(c, self.store.scope, ref)
+            if access_guard is not None:
+                await access_guard(c, chain)
             row = chain[-1]
             if row["state"] == "revoked":
                 return self.public(row)
@@ -290,10 +311,12 @@ class Delegations:
             )
             return self.public(changed)
 
-    async def show(self, ref):
+    async def show(self, ref, *, access_guard=None):
         async with self.store.db.read(self.store.scope) as c:
             await require(c)
             chain = await lineage(c, self.store.scope, ref)
+            if access_guard is not None:
+                await access_guard(c, chain)
             now = await self.store.db.now(c)
             history = (
                 (

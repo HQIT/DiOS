@@ -1,0 +1,108 @@
+{
+  "date": "2026-11-24",
+  "state": "authenticated_issuer_and_native_logout_verified",
+  "tests": {
+    "backend": {
+      "total": 612,
+      "passed": 421,
+      "skipped": 191,
+      "log_sha256": "0f49802a69553948e03a1f8b2f558b12d1d649118da9e05d5f6fcbdaa04529ca"
+    },
+    "native_opa_authenticated_api": {
+      "total": 26,
+      "passed": 26,
+      "skipped": 0,
+      "log_sha256": "e1c556ef5de6ce4bb7ad5114712178c892374193be22a9f8d7e988e69f4926c5"
+    },
+    "logout_regression": {
+      "total": 7,
+      "passed": 7,
+      "skipped": 0,
+      "log_sha256": "66a1721a677d349e19fa30267d947d2aba2169799319500a9b4c8713c3c8ee75"
+    },
+    "sdk": {
+      "total": 21,
+      "passed": 21,
+      "skipped": 0,
+      "log_sha256": "e2ee89dc4d3e7a584fea553c4021e325f33e034765b0a753671c0a8d8ab2a0ad"
+    }
+  },
+  "migration": {
+    "backup_verified": true,
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "changed": true
+    },
+    "history_preserved": 80,
+    "active_runs": 0
+  },
+  "live": {
+    "checks": [
+      "native-sso-issued-child",
+      "complete-native-worker",
+      "same-attempt-report",
+      "logout-native-worker",
+      "issuer-logout-fences-work-and-grant",
+      "issuer-link-durably-revoked",
+      "native-exit-confirmed",
+      "unapproved-tool-not-executed",
+      "report-preserved-after-issuer-logout",
+      "browser-completed",
+      "history-preserved",
+      "no-active-work"
+    ],
+    "completed": "690a3aec-58cc-4d18-9741-9d8623c4fb47",
+    "revoked": "f71128d5-3715-42ef-b012-dfd002355f9e",
+    "issuer_ref": "dl-86716050610fea8624ca99dac74a90038a244f70cb5dd6bf3cf42de00e76",
+    "browser": {
+      "checks": [
+        "native-sso-issuer",
+        "authenticated-api-issuance",
+        "issuance-idempotency",
+        "issuer-audit",
+        "native-issuer-signout"
+      ]
+    },
+    "history_before": 80,
+    "history_after": 82,
+    "native_exit": {
+      "handle": "bae339cc-a980-4d07-8c37-187f886dc945",
+      "state": "exited",
+      "alive": false,
+      "pid": null,
+      "process_instance": "161c45935daff6ca7823f0e2e917d87dae0278b4ed538614c90537ba18030e69:2026-11-24T07:40:52.612308951Z",
+      "exit_code": 2,
+      "health": "not_configured",
+      "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+      "adapter": "local-docker-v1",
+      "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe",
+      "observed_at": 1795506057.166019
+    },
+    "active_runs": 0,
+    "configuration_restored": true
+  },
+  "development": {
+    "api": "healthy",
+    "browser_sso": "healthy",
+    "identity_timer": "active",
+    "history": 82,
+    "active_runs": 0
+  },
+  "remaining": [
+    "Background identity reconciliation for standalone delegation records",
+    "Cross-provider revocation ordering and cross-service audience transitions",
+    "PostgreSQL and physical multihost qualification",
+    "Authorization transaction throughput and latency qualification"
+  ]
+}

@@ -36,7 +36,7 @@ run = client.submit_input(profile_id, input_payload, goal,
 observed = client.wait(run["id"], timeout=60)
 ```
 
-逻辑任务键由应用持久化。网络提交失败时保留同一键；观察超时保留 Run 身份，继续查询。HTTP 客户端拒绝重定向和非本地明文连接，产物下载校验大小与 SHA256。当前客户端使用操作员身份；企业主体与逐对象读取权限按 #33/#35/#38 推进。
+逻辑任务键由应用持久化。网络提交失败时保留同一键；观察超时保留 Run 身份，继续查询。HTTP 客户端拒绝重定向和非本地明文连接，产物下载校验大小与 SHA256。客户端可使用 Runtime 认证主体或受信操作员凭据；服务端执行对应的 profile 与逐对象权限检查。[认证委派接口](delegation-identity-35.md)通过 `TaskClient.issue_delegation`、`delegation`、`revoke_delegation` 使用，签发身份由服务端认证确定。
 
 每个 Run 冻结输入、目录摘要和结果 Schema；应用不提供可执行校验器。JSON Schema 仅允许本地引用。输入最大 12 KiB；单条 JSONL 和声明 Schema 的结果最大 64 KiB。Worker、本地/远程完成接口、恢复对账均校验结果；不完整成果进入 EVIDENCE_INSUFFICIENT，保留每次尝试及原始输出。技术成功和应用 review_status 分别记录。
 

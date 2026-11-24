@@ -25,7 +25,7 @@ flowchart LR
 
 `delegation issue --file request.json` 接受 `key`、`subject`、`actor`、`permissions`、`expires_at`，根授权另含 `policy_evaluator`；子级另含 `parent_ref` 和 `issuer_actor`。期限采用 Unix 秒。权限为完整五字段元组：`action`、`resource_kind`、`resource_id`、`resource_version`、`constraint_revision`。
 
-根授权由受信主机管理员签发。子级发起者须匹配父级 actor，subject 保持一致，权限为父级子集，期限不晚于父级；PDP 配置从父级继承。当前 CLI 的身份依据是主机管理权限；面向应用的认证签发 API 待接入。
+根授权由受信主机管理员签发。子级发起者须匹配父级 actor，subject 保持一致，权限为父级子集，期限不晚于父级；PDP 配置从父级继承。CLI 的身份依据是主机管理权限；面向应用的[认证签发 API](delegation-identity-35.md)绑定实际认证身份，并持续检查签发来源。
 
 相同 scope/key 和相同请求返回原记录；请求内容不同返回 `IDEMPOTENCY_CONFLICT`。授权范围、父级和期限签发后不可修改。撤销后需要新 key 建立新授权，原回执和历史记录保留。
 
@@ -62,4 +62,4 @@ cd backend
 
 [验证记录](evidence/delegation-lifecycle-20261124.json)包含原生 OPA 生命周期测试、完整后端回归、真实 Worker 的审批报告与撤销退出、备份恢复，以及中英文和手机宽度浏览器检查。开发数据库原 78 条历史保留，新增 2 条验证任务；WSL 重启后授权链和报告仍可读取。
 
-下一步接入认证服务的委派管理 API，将发起者绑定到实际认证身份，并纳入上游身份撤权依赖。跨服务 audience 转换、远程授权源排序、PostgreSQL 并发及物理多主机资格继续按 #35 和整体计划推进。PDP 查询在授权事务内执行，吞吐和延迟仍需容量实验；当前结果证明功能链路，不构成性能结论。
+认证委派 API、签发身份绑定和 OIDC 注销级联见[认证身份与委派签发](delegation-identity-35.md)。独立委派的后台身份巡检、跨服务 audience 转换、远程授权源排序、PostgreSQL 并发及物理多主机资格继续按 #35 和整体计划推进。PDP 查询在授权事务内执行，吞吐和延迟仍需容量实验。

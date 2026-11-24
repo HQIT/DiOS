@@ -1338,13 +1338,12 @@
         "implementation": "examples/policies/opa-delegation",
         "verification": "真实 OPA/Runtime/MCP 委派组件 16 项通过，基础 OPA 路径另 8 项回归通过；根授权至三层委派真实工具调用和各类拒绝已验证",
         "remaining": [
-          "Authenticated delegation management API and binding issuer to authenticated identity",
-          "Upstream identity revocation dependencies",
-          "Cross-service audience transitions and strict remote authority ordering",
+          "Background identity reconciliation for standalone delegation records",
+          "Cross-provider revocation ordering and cross-service audience transitions",
           "PostgreSQL and physical multihost qualification",
-          "PDP transaction latency and throughput qualification"
+          "Authorization transaction throughput and latency qualification"
         ],
-        "next": "委派生命周期已接入；继续认证服务签发身份绑定、上游撤权依赖与跨服务资格验证"
+        "next": "认证委派与注销级联已完成；继续独立委派巡检、跨 Provider 撤权排序及多主机资格"
       },
       "delegation_lifecycle": {
         "date": "2026-11-24",
@@ -1354,13 +1353,26 @@
         "implementation": "backend/app/runtime/delegations.py",
         "verification": "后端 586 项中 421 通过、165 跳过；原生 OPA 生命周期 18 项、策略回归 16 项、最终恢复 1 项通过；开发真实执行 15 项和浏览器 7 项通过，80 条历史保留",
         "remaining": [
-          "Authenticated delegation management API and binding issuer to authenticated identity",
-          "Upstream identity revocation dependencies",
-          "Cross-service audience transitions and strict remote authority ordering",
+          "Background identity reconciliation for standalone delegation records",
+          "Cross-provider revocation ordering and cross-service audience transitions",
           "PostgreSQL and physical multihost qualification",
-          "PDP transaction latency and throughput qualification"
+          "Authorization transaction throughput and latency qualification"
         ],
-        "next": "#35 认证服务委派管理 API：绑定实际发起身份并贯通上游撤权"
+        "next": "认证委派与注销级联已完成；继续独立委派巡检、跨 Provider 撤权排序及多主机资格"
+      },
+      "delegation_identity": {
+        "date": "2026-11-24",
+        "state": "authenticated_api_sdk_and_native_sso_verified",
+        "design": "docs/design/delegation-identity-35.md",
+        "evidence": "docs/design/evidence/delegation-identity-20261124.json",
+        "verification": "后端 612 项中 421 通过、191 跳过；原生 OPA/认证 API 26 项、注销 7 项、SDK 21 项通过；真实 OIDC 签发与 Worker/注销链路 12 项、浏览器 5 项通过；82 条历史保留",
+        "remaining": [
+          "Background identity reconciliation for standalone delegation records",
+          "Cross-provider revocation ordering and cross-service audience transitions",
+          "PostgreSQL and physical multihost qualification",
+          "Authorization transaction throughput and latency qualification"
+        ],
+        "next": "#35 独立委派的后台身份巡检；跨服务与物理多主机资格按整体部署计划推进"
       }
     },
     {

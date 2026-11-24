@@ -72,6 +72,15 @@ class TaskClient:
             raise WorkloadError('TASK_RESPONSE_INVALID') from None
 
     def identity(self): return self._request('/identity')
+    def issue_delegation(self, parent_ref, profile_id, actor, permissions, expires_at, *, idempotency_key):
+        if not isinstance(idempotency_key,str) or not idempotency_key:
+            raise ValueError('Supply a stable idempotency key for delegation issuance')
+        return self._request('/delegations',method='POST',body=dict(parent_ref=parent_ref,
+            profile_id=profile_id,actor=actor,permissions=permissions,expires_at=expires_at,idempotency_key=idempotency_key))
+    def delegation(self, reference):
+        return self._request('/delegations/'+quote(reference,safe=''))
+    def revoke_delegation(self, reference, *, expected_version):
+        return self._request('/delegations/'+quote(reference,safe='')+'/revoke',method='POST',body={'expected_version':expected_version})
     def profiles(self): return self._request('/profiles')['items']
     def inputs(self): return self._request('/samples')['items']
     def submit(self, profile_id, input_id, goal, *, idempotency_key):

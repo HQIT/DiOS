@@ -11,7 +11,8 @@ from typing import Protocol
 from .database import RuntimeErrorCode
 from .store import identifier
 
-ACTIONS={'run.submit','run.read','run.cancel','run.revoke','artifact.read','tool.read','tool.approve'}
+ACTIONS={'run.submit','run.read','run.cancel','run.revoke','artifact.read','tool.read','tool.approve',
+         'delegation.issue','delegation.read','delegation.revoke'}
 SHARE_ACTIONS={'run.read','artifact.read','tool.read','tool.approve'}
 BINDING_KEYS=('issuer','audience','scope','id','subject','actor','revision')
 
