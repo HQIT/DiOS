@@ -1,5 +1,7 @@
 # Runtime 备份、恢复与排空
 
+含兼容 A2A、聊天共享服务与 Worker 的安装，使用[统一升级排空](../design/managed-upgrade-10-30.md)关闭全部执行入口并核对两侧状态。本文的 Runtime 命令只控制运行内核。
+
 状态：开发分支基线，待 G2 联合评审。责任人：Codex；独立评审人：待认领。
 日期：2026-11-12。关联：#11 / K02-3、#30、#32；依赖：ADR 0010、Runtime/History Schema v1。
 

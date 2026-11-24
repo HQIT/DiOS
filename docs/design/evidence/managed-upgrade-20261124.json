@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "63b9df5be5a02ba538a169e92434ea5621656134",
+  "state": "engineering_verified_deployed_issue_open",
+  "tests": {
+    "backend": {
+      "total": 695,
+      "passed": 499,
+      "skipped": 196,
+      "seconds": 664.559,
+      "log_sha256": "53db17fc0755b32e72d343cb5c0823569af9163bf9f5f73ddb5ee5e2de8fd27d"
+    },
+    "final_targeted": {
+      "total": 67,
+      "passed": 67,
+      "skipped": 0,
+      "seconds": 75.618,
+      "log_sha256": "b0499b3fac7c9a779fa06126299dd5503365d28b2d389a86d51afe55fdde1976"
+    },
+    "native": {
+      "total": 1,
+      "passed": 1,
+      "skipped": 0,
+      "seconds": 11.832,
+      "log_sha256": "a72e0f8b7505d31c1866f58ffad2e3faa0e1f20241aab604c4122ac857311b01"
+    },
+    "new_modules_lint": "passed"
+  },
+  "native_stream_and_restart": [
+    {
+      "api_pid_before": 63305,
+      "api_pid_after": 63526,
+      "stream_active_during_drain": true,
+      "new_request_rejected": true,
+      "original_process_preserved_until_done": true,
+      "idle_service_logs_retained": true,
+      "drain_persisted_after_restart": true,
+      "stale_resume_rejected": true
+    }
+  ],
+  "image": {
+    "image": "sha256:20d28856c21f0b026ec44409247f1e59550ddd3af0b5492b06ffb4c94bb9e860",
+    "checks": [
+      "health",
+      "registry_poll_contract",
+      "secret_write_only",
+      "isolated_empty_connectors",
+      "graceful_exit",
+      "managed_runtime_imports",
+      "managed_recovery_api",
+      "managed_recovery_cli",
+      "upgrade_api_drain",
+      "upgrade_cli_persistent_state",
+      "upgrade_api_resume"
+    ],
+    "exit_code": 0
+  },
+  "development": {
+    "checks": [
+      "development_api_healthy",
+      "deployed_poll_contract",
+      "a2a_discovery_healthy",
+      "managed_recovery_api",
+      "runtime_history_preserved",
+      "events_history_preserved",
+      "worker-sales_process_alive",
+      "worker-construction_process_alive",
+      "knowledge_process_alive",
+      "dios-dev-identity-reconcile.timer_active",
+      "dios-dev-delegation-reconcile.timer_active",
+      "browser_sso_healthy",
+      "managed_ledger_initialized_without_history_import",
+      "managed_recovery_cli",
+      "upgrade_combines_kernel_and_compatibility",
+      "upgrade_operator_required",
+      "upgrade_both_gates_draining",
+      "upgrade_api_cli_state_consistency",
+      "upgrade_stale_revision_rejected",
+      "upgrade_idle_settle",
+      "upgrade_both_gates_resumed",
+      "upgrade_status_not_cached"
+    ],
+    "history_count": 84,
+    "history_identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "event_count": 0,
+    "active_runs": 0,
+    "backup": "backup-before",
+    "schema_migration_required": true,
+    "schema_change": "additive managed_runtime_control and managed_service_calls tables",
+    "migration_applied_by": "application initialization"
+  },
+  "reused_capabilities": [
+    "existing Runtime Lifecycle admission/drain/resume",
+    "SQLAlchemy application transactions",
+    "filelock native async host ownership",
+    "RuntimeAdapter stop/observation/log retention",
+    "existing E2AG approval and tool-call settlement"
+  ],
+  "coverage": [
+    "persistent gates survive API restart",
+    "already-admitted task allowed to finish",
+    "new A2A/chat rejected before creation",
+    "stream remains outstanding until real upstream DONE and output persistence",
+    "interrupted stream remains unknown",
+    "event fanout admission finishes before drain",
+    "drain does not consume approval or event retry budget",
+    "same-task nested gate with independent child-task ownership",
+    "unavailable kernel blocks service cleanup and cutover",
+    "partial drain failure leaves compatibility closed",
+    "revision conflicts and restore hold reject reopening",
+    "wait timeout never kills or replays",
+    "empty shared service logs retained before removal",
+    "bounded request blockers with observation timestamps",
+    "API operator authentication and CLI state consistency"
+  ],
+  "migration": {
+    "added_tables": [
+      "managed_runtime_control",
+      "managed_service_calls"
+    ],
+    "application_and_runtime_backup": true,
+    "existing_history_rewritten": false
+  },
+  "limits": [
+    "compatibility provider qualified on designated control host with shared local lock directory",
+    "cross-database gates are ordered and independently durable; no atomic distributed transaction",
+    "unconfigured kernel database yields compatibility-only coverage",
+    "outstanding active service calls are ledger state, not proof of current process concurrency",
+    "unknown service request resolution still requires provider completion evidence",
+    "real API/container fixture uses synthetic streaming output; no new vendor/model qualification",
+    "first deployment of request ledger requires pre-existing compatible execution to be idle"
+  ],
+  "remaining": [
+    "explicit legacy task/object mapping and unified Run/Attempt/Session audit linkage",
+    "shared service per-request authorization/cancel/resume and unknown-call reconciliation",
+    "durable cron overlap handling and dead letter controls",
+    "cross-host provider qualification and production upgrade/rollback drill",
+    "G2 independent review and user acceptance"
+  ],
+  "project_status": "Issue bodies and repository plan updated; Project fields unavailable with current tool/token scope"
+}

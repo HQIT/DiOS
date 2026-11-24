@@ -1,0 +1,98 @@
+"""Persistent compatibility admission, serialized by the configured native host lock."""
+
+import asyncio
+from contextlib import asynccontextmanager
+from contextvars import ContextVar
+from datetime import UTC, datetime
+from uuid import uuid4
+
+from app.config import settings
+from app.models.tables import A2ATask, ManagedRuntimeControl, ManagedServiceCall
+from app.runtime.database import RuntimeErrorCode
+from app.services import managed_runtime
+
+_owner = ContextVar("managed_admission_owner", default=None)
+
+
+@asynccontextmanager
+async def gate(db, *, admitted_task_id=None):
+    # Nested calls in the same fan-out retain one admission. Spawned tasks must
+    # acquire independently, even though asyncio copies their context.
+    if _owner.get() is asyncio.current_task():
+        yield
+        return
+    async with managed_runtime.serialized("admission:" + settings.runtime_scope):
+        control = await db.get(
+            ManagedRuntimeControl, settings.runtime_scope, populate_existing=True
+        )
+        if control and control.mode != "running":
+            task = await db.get(A2ATask, admitted_task_id) if admitted_task_id else None
+            if not task or task.status not in {"submitted", "working"}:
+                raise RuntimeErrorCode("RUNTIME_DRAINING")
+        token = _owner.set(asyncio.current_task())
+        try:
+            yield
+        finally:
+            _owner.reset(token)
+
+
+async def begin_call(db, agent_id, *, task_id=None):
+    if task_id:
+        task = await db.get(A2ATask, task_id)
+        if (
+            not task
+            or task.agent_id != agent_id
+            or task.status not in {"submitted", "working"}
+        ):
+            raise RuntimeErrorCode("SERVICE_CALL_TASK_MISMATCH")
+    async with gate(db, admitted_task_id=task_id):
+        call = ManagedServiceCall(
+            id=uuid4().hex,
+            scope=settings.runtime_scope,
+            agent_id=agent_id,
+            task_id=task_id,
+        )
+        db.add(call)
+        await db.commit()
+    return call.id
+
+
+async def validate_call(db, call_id, agent_id):
+    call = await db.get(ManagedServiceCall, call_id)
+    if (
+        not call
+        or call.scope != settings.runtime_scope
+        or call.agent_id != agent_id
+        or call.state != "active"
+    ):
+        raise RuntimeErrorCode("SERVICE_CALL_NOT_ACTIVE")
+    return call
+
+
+async def dispatch(call_id):
+    from app.db.database import async_session
+
+    async with async_session() as db:
+        call = await db.get(ManagedServiceCall, call_id)
+        if not call or call.scope != settings.runtime_scope or call.state != "active":
+            raise RuntimeErrorCode("SERVICE_CALL_NOT_ACTIVE")
+        call.dispatched = True
+        call.updated_at = datetime.now(UTC)
+        await db.commit()
+
+
+async def finish(call_id, *, complete=False, error=""):
+    from app.db.database import async_session
+
+    async with async_session() as db:
+        call = await db.get(ManagedServiceCall, call_id)
+        if not call or call.scope != settings.runtime_scope:
+            raise RuntimeErrorCode("SERVICE_CALL_NOT_FOUND")
+        if call.state in {"completed", "failed"}:
+            return
+        call.state = (
+            "completed" if complete else "unknown" if call.dispatched else "failed"
+        )
+        call.error = error
+        call.updated_at = datetime.now(UTC)
+        await db.commit()

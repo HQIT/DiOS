@@ -22,6 +22,16 @@ class EventRetryWorker:
         self._task: asyncio.Task | None = None
     
     async def _tick(self):
+        from app.runtime.database import RuntimeErrorCode
+        from app.services.managed_admission import gate
+        try:
+            async with async_session() as db, gate(db):
+                await self._tick_admitted()
+        except RuntimeErrorCode as exc:
+            if exc.code not in {"RUNTIME_DRAINING", "RUNTIME_OPERATION_IN_PROGRESS"}:
+                raise
+
+    async def _tick_admitted(self):
         """扫描并重试失败的事件"""
         from app.services.event_dispatcher import dispatch_event
         

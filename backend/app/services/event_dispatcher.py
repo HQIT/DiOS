@@ -95,6 +95,18 @@ async def dispatch_event(
     is_retry: bool = False,
     original_log_id: str | None = None,
 ) -> tuple[EventLog | None, str | None]:
+    from app.services.managed_admission import gate
+    async with gate(db):
+        return await _dispatch_event(event, agent_ids, db, is_retry, original_log_id)
+
+
+async def _dispatch_event(
+    event: CloudEvent,
+    agent_ids: list[str],
+    db: AsyncSession,
+    is_retry: bool = False,
+    original_log_id: str | None = None,
+) -> tuple[EventLog | None, str | None]:
     """将事件投递给匹配的 Agent 列表，创建 EventLog 记录。
     
     Args:

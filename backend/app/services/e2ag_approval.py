@@ -49,6 +49,21 @@ async def decide_approval(
     actor: str,
     reason: str = "",
 ) -> tuple[E2AGApproval, EventLog]:
+    if decision == "approved":
+        from app.services.managed_admission import gate
+        async with gate(db):
+            return await _decide_approval(db, approval_id, decision=decision, actor=actor, reason=reason)
+    return await _decide_approval(db, approval_id, decision=decision, actor=actor, reason=reason)
+
+
+async def _decide_approval(
+    db: AsyncSession,
+    approval_id: str,
+    *,
+    decision: str,
+    actor: str,
+    reason: str = "",
+) -> tuple[E2AGApproval, EventLog]:
     """Consume a pending approval exactly once, then resume only if approved."""
     if decision not in {"approved", "rejected"}:
         raise ValueError("APPROVAL_DECISION_INVALID")

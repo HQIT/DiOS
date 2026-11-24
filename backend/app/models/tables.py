@@ -226,6 +226,27 @@ class ManagedTaskExecution(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class ManagedRuntimeControl(Base):
+    __tablename__ = "managed_runtime_control"
+    scope: Mapped[str] = mapped_column(String(128), primary_key=True)
+    mode: Mapped[str] = mapped_column(String(16), default="running")
+    revision: Mapped[int] = mapped_column(default=0)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class ManagedServiceCall(Base):
+    __tablename__ = "managed_service_calls"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(128), index=True)
+    agent_id: Mapped[str] = mapped_column(String(12), index=True)
+    task_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    state: Mapped[str] = mapped_column(String(16), default="active", index=True)
+    dispatched: Mapped[bool] = mapped_column(Boolean, default=False)
+    error: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class E2AGToolGrant(Base):
     """Short-lived authorization for one task to call one remote MCP server."""
 

@@ -66,6 +66,41 @@ def _extract_hil_pending(result_text: str) -> dict | None:
 
 @router.post("/completions")
 async def chat_completions(request: Request, db: AsyncSession = Depends(get_db)):
+    from app.services import managed_admission
+    from app.runtime.database import RuntimeErrorCode
+    body = await request.json()
+    agent_id = body.get("agent_id")
+    if not agent_id:
+        raise HTTPException(400, "agent_id is required")
+    if not await db.get(Agent, agent_id):
+        raise HTTPException(404, "Agent not found")
+    try:
+        call_id = await managed_admission.begin_call(db, agent_id)
+    except RuntimeErrorCode as exc:
+        raise HTTPException(503, detail=exc.code) from None
+    try:
+        response = await _chat_completions(request, db, call_id=call_id)
+    except BaseException as exc:
+        await managed_admission.finish(call_id, error=type(exc).__name__)
+        raise
+    if isinstance(response, StreamingResponse):
+        original = response.body_iterator
+        async def tracked():
+            try:
+                async for chunk in original:
+                    yield chunk
+            finally:
+                try:
+                    await original.aclose()
+                finally:
+                    await managed_admission.finish(call_id, error="SERVICE_STREAM_INCOMPLETE")
+        response.body_iterator = tracked()
+    else:
+        await managed_admission.finish(call_id, complete=True)
+    return response
+
+
+async def _chat_completions(request: Request, db: AsyncSession, *, call_id):
     body = await request.json()
     agent_id = body.get("agent_id")
     if not agent_id:
@@ -137,7 +172,7 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
 
     # 确保 Agent 容器运行中
     try:
-        diagent_url = await ensure_running(agent_id, db)
+        diagent_url = await ensure_running(agent_id, db, call_id=call_id)
     except Exception as e:
         raise HTTPException(503, f"Failed to start agent service: {e}")
 
@@ -156,9 +191,12 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
 
     if payload["stream"]:
         async def _stream():
+            from app.services import managed_admission
+            upstream_done = False
             collected: list[str] = []
             current_event: str | None = None
             try:
+                await managed_admission.dispatch(call_id)
                 async with internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
                     async with client.stream("POST", f"{diagent_url}/v1/chat/completions", json=payload) as resp:
                         if resp.status_code != 200:
@@ -168,6 +206,8 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
                             yield "data: [DONE]\n\n"
                             return
                         async for line in resp.aiter_lines():
+                            if line.startswith("data:") and line[5:].strip() == "[DONE]":
+                                upstream_done = True
                             # 保持 SSE 行格式，确保前端解析器不会等待悬空分隔符
                             yield line + "\n"
                             if line.startswith("event: "):
@@ -205,6 +245,8 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
                             session_id=session_id, role="assistant", content="".join(collected)
                         ))
                         await save_db.commit()
+                if upstream_done:
+                    await managed_admission.finish(call_id, complete=True)
 
         return StreamingResponse(
             _stream(),
@@ -214,6 +256,8 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         )
 
     # 非流式
+    from app.services import managed_admission
+    await managed_admission.dispatch(call_id)
     async with internal_client(timeout=httpx.Timeout(300, connect=10)) as client:
         resp = await client.post(f"{diagent_url}/v1/chat/completions", json=payload)
         if resp.status_code != 200:

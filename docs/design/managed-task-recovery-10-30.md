@@ -47,7 +47,7 @@ flowchart LR
 
 新增表随现有数据库初始化创建，历史 A2ATask、EventLog 和 Runtime Run 不重置。升级前备份应用数据库和运行数据库。没有运行关联的既有任务显示在 `untracked_active_tasks`；旧运行记录的身份核验、显式映射与排空迁移继续由 #10/#51 完成。兼容记录保存最后观察与当前错误；统一 Run/Attempt/Session 历史与完整审计关联继续沿迁移计划接入。
 
-`executions_settled` 表示当前兼容任务已无待收尾或无映射活跃记录。升级切换还需要关闭新任务准入、排空共享 service，并结合现有 Runtime Lifecycle 的状态判定。共享 service 的 HTTP 请求续接、逐请求授权与取消仍按原计划推进。
+`executions_settled` 表示当前兼容任务已无待收尾或无映射活跃记录。升级切换通过[统一排空入口](managed-upgrade-10-30.md)关闭新任务准入、排空共享 service，并结合现有 Runtime Lifecycle 判定。共享 service 的 HTTP 请求续接、逐请求授权与取消仍按原计划推进。
 
 ## 验证
 

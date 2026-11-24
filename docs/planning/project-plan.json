@@ -512,19 +512,21 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-24",
-        "summary": "托管 task/service 共用 RuntimeAdapter；新增任务运行意图与取消请求持久化，API 重启对账原进程、归档原结果并续接清理。E2AG 撤权先落账；冻结终止使用原生 cgroup.kill，能力缺失保持冻结。",
+        "summary": "托管 task/service 共用 RuntimeAdapter，原执行恢复持久化；升级统一关闭兼容与 Worker 入口，等待任务、请求与 E2AG 工具结清，再归档回收共享服务。事件 fan-out、审批和重试受同一准入控制。",
         "validation_status": "engineering_verified_deployed_remaining_scope_open",
-        "verification": "后端 683 项中 487 通过、196 跳过；最终专项 34 项通过；原生容器 4 项通过，包含 API 进程强杀/重启；镜像运行 8 项、开发部署 14 项通过，84 条历史身份不变。",
+        "verification": "后端 695 项中 499 通过、196 跳过；最终专项 67 项、真实 API/容器流式排空与重启测试通过；镜像 11 项、开发部署 22 项通过，84 条历史任务身份不变。",
         "design": "docs/design/managed-lifecycle-10.md",
-        "validation_evidence": "docs/design/evidence/managed-recovery-20261124.json",
-        "remaining": "无映射历史任务的身份核验与显式接管、统一 Run/Attempt/Session 关联迁移、统一升级准入与服务排空、共享服务逐请求治理、目标节点冻结终止权限与跨主机资格、G2 评审及产品验收。",
+        "validation_evidence": "docs/design/evidence/managed-upgrade-20261124.json",
+        "remaining": "无映射历史任务的显式接管、统一 Run/Attempt/Session 审计关联迁移、共享服务逐请求治理与未知结果对账、目标节点冻结终止权限与跨主机资格、生产升级/回退演练、G2 评审及产品验收。",
         "evidence_paths": [
           "docs/design/worker-execution-10-30.md",
           "docs/design/evidence/worker-runtime-regression-20261112.json",
           "docs/design/managed-lifecycle-10.md",
           "docs/design/evidence/managed-lifecycle-20261124.json",
           "docs/design/managed-task-recovery-10-30.md",
-          "docs/design/evidence/managed-recovery-20261124.json"
+          "docs/design/evidence/managed-recovery-20261124.json",
+          "docs/design/managed-upgrade-10-30.md",
+          "docs/design/evidence/managed-upgrade-20261124.json"
         ],
         "project_sync": "Issue 正文与仓库计划同步；Project 字段受既有令牌 scope 限制"
       },
@@ -656,7 +658,13 @@
         "design": "docs/design/managed-task-recovery-10-30.md",
         "evidence": "docs/design/evidence/managed-recovery-20261124.json",
         "state": "native_api_restart_verified",
-        "next": "统一准入关闭、兼容/Worker 状态和共享服务排空门槛；显式核验接管旧记录，不重放未知调用。"
+        "next": "显式核验接管旧记录与统一历史映射；共享服务未知请求按证据对账；持久定时/重叠触发/死信沿原计划推进。"
+      },
+      "managed_upgrade": {
+        "design": "docs/design/managed-upgrade-10-30.md",
+        "evidence": "docs/design/evidence/managed-upgrade-20261124.json",
+        "state": "native_stream_restart_verified_deployed",
+        "remaining": "共享服务逐请求授权及未知调用证明；生产升级/回退及跨主机资格。"
       }
     },
     {

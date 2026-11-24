@@ -164,13 +164,11 @@ async def send_message(
     if not agent:
         raise ValueError(f"Agent {agent_id} not found")
 
-    task = await create_task(
-        db,
-        agent_id=agent_id,
-        message=message,
-        context_id=context_id,
-        trace_id=trace_id,
-    )
+    from app.services.managed_admission import gate
+    async with gate(db):
+        task = await create_task(
+            db, agent_id=agent_id, message=message, context_id=context_id, trace_id=trace_id)
+
 
     try:
         if agent.mode == "service":
@@ -210,8 +208,6 @@ async def _send_to_service_agent(db: AsyncSession, agent: Agent, task: A2ATask) 
     未来 DiAgent 若实现原生 A2A 端点，可直接替换为透传 JSON-RPC。
     """
     import asyncio
-    from app.services.agent_runtime import ensure_running
-
     task.status = "working"
     task.updated_at = _now()
     await db.commit()
@@ -221,16 +217,17 @@ async def _send_to_service_agent(db: AsyncSession, agent: Agent, task: A2ATask) 
 
 async def _run_service_call(task_id: str, agent_id: str) -> None:
     """后台执行 service 模式转发，避免阻塞 send_message 返回。"""
-    import httpx
     from app.db.database import async_session
     from app.services.agent_runtime import ensure_running
-
+    from app.services import managed_admission
+    call_id = None
     try:
         async with async_session() as db:
             task = await db.get(A2ATask, task_id)
             if not task:
                 return
-            url = await ensure_running(agent_id, db)
+            call_id = await managed_admission.begin_call(db, agent_id, task_id=task_id)
+            url = await ensure_running(agent_id, db, call_id=call_id)
 
             agent = await db.get(Agent, agent_id)
             model_name = ""
@@ -250,10 +247,12 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
 
             from app.services.http_internal import internal_client
 
+            await managed_admission.dispatch(call_id)
             async with internal_client(timeout=300) as client:
                 resp = await client.post(f"{url}/v1/chat/completions", json=openai_req)
                 resp.raise_for_status()
                 data = resp.json()
+            await managed_admission.finish(call_id, complete=True)
 
             content = ""
             try:
@@ -273,6 +272,8 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
             task.updated_at = _now()
             await db.commit()
     except Exception as e:
+        if call_id:
+            await managed_admission.finish(call_id, error=type(e).__name__)
         logger.exception("service A2A call failed: task=%s", task_id)
         async with async_session() as db:
             task = await db.get(A2ATask, task_id)

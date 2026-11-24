@@ -5,7 +5,7 @@ import json
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from filelock import FileLock, Timeout
+from filelock import AsyncFileLock, FileLock, Timeout
 
 from app.config import settings
 from app.runtime.adapter import LaunchSpec, Mount
@@ -46,6 +46,21 @@ async def exclusive(runtime_handle: str):
         yield
     finally:
         lock.release()
+
+
+@asynccontextmanager
+async def serialized(runtime_handle: str, *, timeout=5):
+    root = (Path(settings.managed_runtime_lock_dir) if settings.managed_runtime_lock_dir
+            else settings.workspace_root / "managed-runtime-locks")
+    root.mkdir(parents=True, exist_ok=True, mode=0o700)
+    lock = AsyncFileLock(root / (hashlib.sha256(runtime_handle.encode()).hexdigest() + ".lock"),
+                         timeout=timeout, mode=0o600, fallback_to_soft=False,
+                         preserve_lock_file=True, run_in_executor=False)
+    try:
+        async with lock:
+            yield
+    except Timeout:
+        raise RuntimeErrorCode("RUNTIME_OPERATION_IN_PROGRESS") from None
 
 
 def host_workspace(path: Path) -> str:

@@ -79,7 +79,16 @@ async def _health_check(url: str, retries: int = 20, interval: float = 1.0) -> b
     return False
 
 
-async def ensure_running(agent_id: str, db: AsyncSession) -> str:
+async def ensure_running(agent_id: str, db: AsyncSession, *, call_id=None) -> str:
+    from app.services.managed_admission import gate, validate_call
+    if call_id:
+        await validate_call(db, call_id, agent_id)
+        return await _ensure_running(agent_id, db)
+    async with gate(db):
+        return await _ensure_running(agent_id, db)
+
+
+async def _ensure_running(agent_id: str, db: AsyncSession) -> str:
     runtime_handle = managed_runtime.handle("service", agent_id)
     async with managed_runtime.exclusive(runtime_handle):
         runtime = await db.get(AgentRuntime, agent_id)
