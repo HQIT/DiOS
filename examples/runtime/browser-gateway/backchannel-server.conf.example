@@ -1,0 +1,20 @@
+# Optional dedicated provider ingress inside the existing Nginx http block.
+# Use a provider-reachable address, an exact allowed source range, and TLS for
+# non-development networks. The JWT verifier remains the authority check.
+server {
+  listen ${DIOS_LOGOUT_LISTEN};
+  server_name _;
+  allow ${DIOS_IDP_CIDR};
+  deny all;
+  add_header Cache-Control no-store always;
+  location = /dios/api/os/runtime/identity/logout/enterprise {
+    if ($request_method != POST) { return 405; }
+    client_max_body_size 32k;
+    client_body_timeout 3s;
+    proxy_pass_request_headers off;
+    proxy_set_header Content-Type $http_content_type;
+    proxy_set_header Host ${DIOS_API_HOST};
+    proxy_pass ${DIOS_API_UPSTREAM}/api/os/runtime/identity/logout/enterprise;
+  }
+  location / { return 404; }
+}

@@ -1,0 +1,145 @@
+{
+  "checks": [
+    "two-independent-live-processes-and-sessions",
+    "trusted-distinct-native-session-bindings",
+    "only-qualification-tasks-active",
+    "periodic-reconciliation-stopped",
+    "native-callback-persisted",
+    "work-and-grant-revoked",
+    "peer-work-grant-and-deadline-unchanged",
+    "independent-peer-approval",
+    "native-exit-confirmed",
+    "native-die-and-cleanup-confirmed",
+    "unapproved-tool-never-completed",
+    "post-logout-approval-denied",
+    "same-peer-attempt-session-report",
+    "native-browser-history-and-report",
+    "one-shot-independent-worker-finished",
+    "history-preserved",
+    "no-active-tasks"
+  ],
+  "runs": {
+    "revoked": "a4bde1b5-a13a-4873-bc1e-00e5c6096807",
+    "peer": "76a4d87c-ab6c-4988-83e0-82c4596c847c"
+  },
+  "attempts": {
+    "revoked": {
+      "id": "15f1595b-a5ed-4f27-80c1-6c57d4a339e0",
+      "process_id": 125451,
+      "session_id": "evidence-dfae9aff-97b8-4b48-9156-b37b27711a05"
+    },
+    "peer": {
+      "id": "ca7be8dc-ca23-429a-ba86-94e606bf7657",
+      "process_id": 125518,
+      "session_id": "evidence-69713d13-e247-467d-858d-e5a5abd054bf"
+    }
+  },
+  "event": {
+    "id": "2f6bf53ec720ea238479a05bbc9be39506ebc5650ff0c1cb4d0e419020775a76",
+    "issued_at": 1795500916.0,
+    "received_at": 1795500916.2929983,
+    "revoked_work_count": 1
+  },
+  "native_exit": {
+    "handle": "15f1595b-a5ed-4f27-80c1-6c57d4a339e0",
+    "state": "exited",
+    "alive": false,
+    "pid": null,
+    "process_instance": "732977de5aa9e315d60ae6c96e4db4d7ce46abf135b9f499a1436f067edac626:2026-11-24T06:15:05.923892362Z",
+    "exit_code": 2,
+    "health": "not_configured",
+    "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+    "adapter": "local-docker-v1",
+    "worker_boot_id": "3253fb99-aa90-4f52-bd40-50ec7a89d9d5",
+    "observed_at": 1795500916.7469888
+  },
+  "native_events": [
+    {
+      "action": "create",
+      "time": 1795500905
+    },
+    {
+      "action": "start",
+      "time": 1795500906
+    },
+    {
+      "action": "die",
+      "time": 1795500916
+    },
+    {
+      "action": "destroy",
+      "time": 1795500916
+    }
+  ],
+  "browser": {
+    "mode": "live-submission-and-logout",
+    "checks": [
+      "submit-标准注销：运行中会话 A",
+      "submit-标准注销：独立会话 B",
+      "real-logout-notice",
+      "old-source-observation-hidden",
+      "english-logout-notice",
+      "mobile-layout",
+      "peer-report-visible",
+      "no-page-errors"
+    ],
+    "errors": [],
+    "runs": {
+      "a": "a4bde1b5-a13a-4873-bc1e-00e5c6096807",
+      "b": "76a4d87c-ab6c-4988-83e0-82c4596c847c"
+    }
+  },
+  "history_before": 75,
+  "history_after": 77,
+  "active_runs": 0,
+  "date": "2026-11-24",
+  "environment": "Existing development browser SSO realm; SQLite; two independent native Docker workers on one WSL host",
+  "history_observation": {
+    "mode": "native-history-observation",
+    "checks": [
+      "real-logout-notice",
+      "old-source-observation-hidden",
+      "english-logout-notice",
+      "revoked-approval-is-history",
+      "mobile-layout",
+      "peer-report-visible",
+      "no-page-errors"
+    ],
+    "errors": [],
+    "runs": {
+      "a": "a4bde1b5-a13a-4873-bc1e-00e5c6096807",
+      "b": "76a4d87c-ab6c-4988-83e0-82c4596c847c"
+    }
+  },
+  "deployment": {
+    "api_health": "passed",
+    "browser_sso": "passed",
+    "invalid_callback_rejected_without_ledger_mutation": true,
+    "cli_event_read": "passed",
+    "identity_timer_restored": true,
+    "original_history_preserved": 67,
+    "current_history": 77,
+    "active_runs": 0
+  },
+  "configuration": {
+    "native_keycloak_callback_registered": true,
+    "issuer_and_signing_keys_preserved": true,
+    "temporary_admin_removed": true,
+    "exact_nginx_ingress": true,
+    "native_keycloak_proxy_mappings": "Internal callback host bypasses proxy; external catch-all routing retained"
+  },
+  "frontend": {
+    "build": "passed",
+    "changed_files_eslint": "passed",
+    "historical_approval_ui": "7 native browser checks passed"
+  },
+  "qualification_notes": [
+    "Earlier qualification failures and partial runs retained in history. The successful live run added two records, from 75 to 77.",
+    "Native IdP callback initially followed inherited Docker proxy settings. Native Keycloak proxy-mappings repaired internal routing; no custom proxy introduced."
+  ],
+  "limits": [
+    "Local development workers; physical multi-host and PostgreSQL qualification remain open",
+    "Three-level delegation, approver qualification changes and cross-service strict revocation ordering remain #35 acceptance",
+    "Repository-wide frontend lint has pre-existing failures recorded in the preceding evidence; changed files pass"
+  ]
+}

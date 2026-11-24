@@ -41,6 +41,12 @@ flowchart LR
 3. 在 IdP 对应 RP client 注册 `POST /api/os/runtime/identity/logout/{provider_id}`；浏览器入口参考 [精确 Nginx location](../../examples/runtime/browser-gateway/logout-location.conf.example)。只有此精确路径绕过浏览器登录，签名 Token 是其权限依据。
 4. 保留 [身份恢复对账](identity-reconciliation-35.md)，监测接收失败与来源观测过期。
 
+IdP 必须能够直接访问回调地址。需要独立内部入口时可使用[精确来源限制的 Nginx server 样例](../../examples/runtime/browser-gateway/backchannel-server.conf.example)，只开放指定回调；非开发网络配置 TLS。部署配置中的回调主机、端口与来源范围按实际网络填写。
+
+Keycloak 的 HTTP 客户端支持代理环境变量与原生 `proxy-mappings`。内部回调应命中明确的 `NO_PROXY` 规则，外部请求保留既有代理策略，见[配置样例](../../examples/runtime/keycloak-outgoing.conf.example)。小写代理环境变量优先；检查对象是实际 IdP 进程或容器。开发验证中，Docker 注入的代理变量曾使内部回调走外部代理，使用官方配置后原生投递恢复。[Keycloak HTTP 客户端配置](https://www.keycloak.org/server/outgoinghttp)
+
+需要恢复开发 IdP 管理权限时，采用官方离线 `bootstrap-admin service`，停止所有相关节点并保留同一数据库配置；完成回调登记后删除临时管理身份。该方式保留既有 realm、主体身份和签名密钥，数据库备份与导出按凭据材料管理。[Keycloak 管理恢复](https://www.keycloak.org/server/bootstrap-admin-recovery)
+
 回滚时先排空任务并保留事件账本。接收过注销事件的环境必须继续使用能读取撤销标记的授权控制点；恢复迁移前备份需先重放备份之后的撤销记录，再开放准入。直接降级到不识别该账本的代码会丢失后续准入约束。
 
 接收 form 的唯一字段为 `logout_token`。请求体上限 32 KiB、Token 上限 16 KiB、单 API 进程最多四个并行验证；JWKS 拉取有界超时和大小限制，拒绝重定向及未配置 URL。接受返回空 200；无效消息/冲突返回 400；过载、依赖不可用或未迁移返回 503，供 Provider 重试。网关日志不记录 body、查询参数或凭据。
@@ -51,8 +57,20 @@ flowchart LR
 python -m app.runtime.cli --scope enterprise identity-events --limit 20
 ```
 
+工作结束或授权不可用时，Console 将未完成审批显示为历史记录，保留原申请、参数与状态，关闭审批入口。
+
 ## 验证与剩余资格
 
 专项覆盖签名/算法/受众/时效、伪造 Token、重复及冲突事件、会话隔离、主体事件乱序、新登录与刷新差异、并发准入、重启和备份。原生 Keycloak 26.8.2 在隔离测试 realm 主动投递签名事件；测试关闭周期对账，验证对应 Work/Grant 撤销及其他会话继续有效。该原生协议测试使用真实 HTTP 和数据库，未启动执行进程。
 
-工程与部署结果见 [验证证据](evidence/backchannel-logout-20261124.json)。开发 API 接收端完成部署；既有浏览器 realm 的 IdP 回调注册与入口映射仍需按实际网络和管理凭据配置。#35 保留三层委派收窄、审批人资格变化、跨服务严格排序及物理多主机资格；当前 issue 继续开放。
+上述协议与回归结果见[初始验证证据](evidence/backchannel-logout-20261124.json)。既有开发浏览器 realm 已完成原生回调注册和精确入口配置，[真实执行证据](evidence/backchannel-logout-live-20261124.json)覆盖两个独立 Worker 的 PID、模型会话和 Docker 生命周期：A 注销后，事件落库、Work/Grant 撤销、进程退出并清理；B 保持原 Attempt/Session 与授权期限，经独立审批完成报告。事件验证期间关闭周期身份对账，完成后恢复定时器。
+
+执行链路 17 项、真实浏览器 8 项通过；历史审批提示更新另通过 7 项浏览器检查，包含中英文、移动布局和报告入口。原有 67 条历史完整保留，当前 77 条、无活跃任务；此前失败的资格运行同样保留。浏览器脚本支持从已完成证据读取历史，无需重新派发任务：
+
+```sh
+node scripts/probe_backchannel_logout.mjs /absolute/private-fixture.json /absolute/observation.json /absolute/completed-evidence.json
+```
+
+fixture 提供本地开发入口 `base`、`username` 和 `password`，完成证据提供 `runs.revoked`、`runs.peer`。凭据文件不进入版本库。省略第三参数会发起两个任务，需要外部资格驱动提供独立 Worker、审批及 `.logout` / `.event` 控制信号，仅用于隔离开发环境。
+
+#35 继续推进三层委派收窄、审批人资格变化和跨服务严格撤销排序；新账本的 PostgreSQL 与物理多主机资格仍待验证。

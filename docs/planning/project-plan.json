@@ -1286,31 +1286,30 @@
           "Three-level narrowing delegation and approver qualification changes",
           "Cross-service strict revocation ordering",
           "Enterprise IdP, physical multi-host and capacity qualification",
-          "Non-Docker executor and Worker-restart continuation qualification",
-          "Existing browser realm backchannel registration and end-to-end executor qualification"
+          "Non-Docker executor and Worker-restart continuation qualification"
         ],
-        "next": "#35 标准接收端已部署、隔离 Keycloak 已验证；完成既有浏览器 realm 注册并推进三层委派与审批人资格变化"
+        "next": "#35 三层委派收窄、审批人资格变化；跨服务严格撤销排序与物理多主机资格继续按计划推进"
       },
       "backchannel_logout": {
         "date": "2026-11-24",
-        "state": "receiver_deployed_native_isolated_idp_verified_existing_realm_registration_pending",
+        "state": "existing_sso_live_workers_verified",
         "design": "docs/design/backchannel-logout-35.md",
         "evidence": "docs/design/evidence/backchannel-logout-20261124.json",
         "delivered": [
           "coreos/go-oidc 专用验证适配器，固定可信 issuer/client/JWKS，受限 HTTP 接收",
           "持久事件、防重放、同事务撤销 Work/Grant 与后续准入栅栏",
           "可信 sid/auth_time 关联；会话隔离、主体注销乱序与刷新身份区分",
-          "Console/API/CLI 注销事件查询，增量迁移与备份恢复"
+          "Console/API/CLI 注销事件查询，增量迁移与备份恢复",
+          "既有浏览器 IdP 原生回调、精确入口与代理配置；运行中撤销退出、独立会话继续审批出报告；失效审批保留为历史"
         ],
-        "verification": "544 项全量回归 415 通过、129 条件跳过；最终 10 项专项含真实 Keycloak 推送全通过；Go 双算法验证、前端构建和改动文件 lint 通过，开发历史 67 条保留",
+        "verification": "既有浏览器 SSO 原生注销及真实 Worker 链路 17 项、浏览器 8 项通过；历史审批 UI 另 7 项通过；构建与改动文件 lint 通过。原 67 条历史保留，当前 77 条、无活跃任务。",
         "remaining": [
-          "Existing browser realm callback registration and exact ingress mapping pending; isolated Keycloak provides native protocol evidence",
-          "Native protocol test covers HTTP, verifier, SQLite, Work and Grant; no live executor process in this test",
-          "PostgreSQL and physical multi-host qualification pending for this new event ledger",
-          "Supported profile requires exp, RS256 or ES256, bounded event age; delayed messages retain RFC 7662 recovery path",
-          "Three-level delegation, approver qualification changes and cross-service strict revocation ordering remain #35 acceptance"
+          "Local development workers; physical multi-host and PostgreSQL qualification remain open",
+          "Three-level delegation, approver qualification changes and cross-service strict revocation ordering remain #35 acceptance",
+          "Repository-wide frontend lint has pre-existing failures recorded in the preceding evidence; changed files pass"
         ],
-        "next": "完成既有浏览器 realm 回调注册与入口资格；继续 #35 三层委派收窄和审批人资格变化"
+        "next": "#35 三层委派收窄、审批人资格变化；跨服务严格撤销排序与物理多主机资格继续按计划推进",
+        "live_evidence": "docs/design/evidence/backchannel-logout-live-20261124.json"
       }
     },
     {

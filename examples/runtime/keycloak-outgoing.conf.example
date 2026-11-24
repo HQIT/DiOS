@@ -1,0 +1,9 @@
+# Native Keycloak outgoing HTTP policy. Replace example hosts and proxy endpoint
+# with the deployment's approved values. Preserve external proxy routing.
+# Use exact internal host patterns; a Docker bridge gateway must be included if
+# the IdP reaches the callback through that address.
+spi-connections-http-client--default--proxy-mappings=localhost;NO_PROXY,127[.]0[.]0[.]1;NO_PROXY,callback[.]internal;NO_PROXY,.*;http://proxy.example:8080
+
+# Alternatively configure BOTH NO_PROXY and no_proxy consistently on the IdP.
+# Keycloak gives lowercase proxy environment variables precedence. These values
+# belong to the IdP process/container, not only to the administrator's terminal.

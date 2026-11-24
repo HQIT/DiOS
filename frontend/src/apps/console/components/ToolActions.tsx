@@ -74,13 +74,14 @@ export default function ToolActions({ runId, active, canApprove = true, operator
     <div className="tr-section-title"><h3>{translateUI("工具调用与审批")}</h3><button onClick={() => setRefresh(x => x + 1)} disabled={!!busy}>{translateUI("刷新")}</button></div>
     {message && <p className="tr-notice" role="status">{translateUI(message)}</p>}
     {failure && <p className="tr-error" role="alert">{translateUI(failure)}</p>}
+    {!active && pending && <p className="tr-notice" data-testid="inactive-approval">{translateUI("工作已结束或授权不可用，未完成的审批申请已保留。")}</p>}
     {!items.length && !message && <p className="tr-muted">{translateUI("本任务暂无工具调用申请。")}</p>}
     {canApprove && pending && active && <div className="tr-approval-credentials">
       <label>{translateUI("独立审批凭据")}<input type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} disabled={!!busy} /></label>
       <label>{translateUI("审批说明")}<textarea value={reason} onChange={e => setReason(e.target.value)} maxLength={2000} rows={2} disabled={!!busy} /></label>
     </div>}
     {items.map(item => <article key={item.id} className="tr-tool-item">
-      <div className="tr-section-title"><strong>{translateUI(item.tool_id)}</strong><span className="tr-badge">{translateUI(states[item.state] || item.state)}</span></div>
+      <div className="tr-section-title"><strong>{translateUI(item.tool_id)}</strong><span className="tr-badge">{translateUI(!active && item.state === "awaiting_approval" ? "未完成审批（历史）" : states[item.state] || item.state)}</span></div>
       <p>{translateUI(item.permission.action)} · {translateUI(item.permission.resource_id)} · {translateUI(item.permission.resource_version)}</p>
       <details><summary>{translateUI("查看调用参数")}</summary><pre className="tr-output">{JSON.stringify(item.arguments, null, 2)}</pre></details>
       <p className="tr-muted">{translateUI("有效至")}{translateUI(new Date(item.expires_at * 1000).toLocaleString(languageTag()))}{translateUI(item.expired ? " · 已过期" : "")}
