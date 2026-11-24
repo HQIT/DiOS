@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     diagent_service_url: str = "http://localhost:8001"  # fallback, runtime manager 会动态获取
     docker_network: str = ""
     max_concurrent_runs: int = 5
+    # All poll owners for one installation share this local filesystem directory.
+    connector_poll_enabled: bool = True
+    connector_poll_lock_dir: str = ""
 
     # Webhook 签名验证密钥，按平台名存储
     # 如 {"github": "xxx", "gitlab": "yyy", "gitea": "zzz"}

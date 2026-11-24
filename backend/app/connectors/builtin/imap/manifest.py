@@ -1,7 +1,4 @@
-"""imap Connector 声明。
-
-轮询实现目前仍在 app/services/imap_poller.py，本 manifest 只声明能力与事件。
-"""
+"""IMAP polling capability and event contract."""
 
 from __future__ import annotations
 
@@ -14,6 +11,8 @@ from app.connectors.contracts import (
     EventTypeDecl,
 )
 
+from .poll import ImapAdapter
+
 
 def _source_patterns(instance: Any) -> list[str]:
     return [f"imap/{getattr(instance, 'id', '')}", "imap/*"]
@@ -24,6 +23,7 @@ MANIFEST = ConnectorManifest(
     label="IMAP 邮箱",
     description="轮询邮箱并产出 email.received 事件",
     capabilities=(CAPABILITY_POLL,),
+    poll_adapter=ImapAdapter(),
     order=20,
     config_schema={
         "type": "object",
@@ -38,7 +38,9 @@ MANIFEST = ConnectorManifest(
         },
     },
     secret_fields=("password",),
-    event_sources=(EventSourceDecl(id="email", name="邮件", description="IMAP 收取邮件"),),
+    event_sources=(
+        EventSourceDecl(id="email", name="邮件", description="IMAP 收取邮件"),
+    ),
     event_types=(EventTypeDecl(type="email.received", description="邮件收取（IMAP）"),),
     accepted_source_patterns=("imap/*",),
     subscribable_categories=("email",),

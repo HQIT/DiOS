@@ -123,6 +123,10 @@ class ConnectorOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ConnectorPollOut(BaseModel):
+    interval_seconds: float
+
+
 class ConnectorTypeOut(BaseModel):
     type: str
     label: str
@@ -134,6 +138,7 @@ class ConnectorTypeOut(BaseModel):
     event_sources: list[dict]
     event_types: list[dict]
     accepted_source_patterns: list[str]
+    poll: ConnectorPollOut | None = None
 
 
 # ── McpServer ──

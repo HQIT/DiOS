@@ -56,7 +56,7 @@ Console 和 CLI 保留为 L1 运维入口。L2 提供员工工作台、主管视
 
 当前产品分支有 Agent CRUD、service/task 运行、Docker 隔离、模型/MCP/Skills 资源管理、事件接入与订阅、Console/Chat、Registry API/CLI 和部分 E2AG 授权审批实现。
 
-Connector manifest 已接入通用 API、事件目录与 Console 动态表单；通用轮询 Runtime 仍待建设，见 [ADR 0001](docs/adr/0001-connector-plugin-contract.md)。扩展类型边界沿用 [ADR 0002](docs/adr/0002-agent-extension-boundaries.md)。
+Connector manifest 已接入通用 API、事件目录与 Console 动态表单；通用轮询 Runtime 接入 Poll Adapter、实例所有权和 E2AG 事件账本，IMAP 由注册表驱动，见 [K01-3 设计与验收](docs/design/connector-poll-runtime-9.md)。跨主机采集接管随部署资格验证。扩展类型边界沿用 [ADR 0002](docs/adr/0002-agent-extension-boundaries.md)。
 
 以下事项进入新路线的交付与验收：不可变版本和部署、Runtime Adapter、持久队列与恢复、数据库迁移及备份、Secret 生命周期、统一策略与配额、贯穿多用户链路的授权与审计。E2AG 产品化增量按代码和回归证据逐项纳入。
 

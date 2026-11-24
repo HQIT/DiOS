@@ -10,7 +10,7 @@ from app.api.os import models, agents, events, subscriptions, connectors, mcp_se
 from app.api.apps import chat as chat_app
 from app.api.internal import e2ag_mcp
 from app.services.cron_scheduler import cron_scheduler
-from app.services.imap_poller import imap_poller
+from app.services.connector_poller import connector_poller
 from app.services.event_retry_worker import retry_worker
 from app.middleware.access_token import AccessTokenMiddleware
 from app.config import settings
@@ -20,13 +20,15 @@ from app.config import settings
 async def lifespan(app: FastAPI):
     await init_db()
     await cron_scheduler.start()
-    await imap_poller.start()
+    await connector_poller.start()
     retry_worker.start()
-    async with runtime_tasks.console_lifespan(app):
-        yield
-    retry_worker.stop()
-    await imap_poller.stop()
-    await cron_scheduler.stop()
+    try:
+        async with runtime_tasks.console_lifespan(app):
+            yield
+    finally:
+        retry_worker.stop()
+        await connector_poller.stop()
+        await cron_scheduler.stop()
 
 
 app = FastAPI(title="DiOS", description="DiFlow Intelligent Operation System", lifespan=lifespan)

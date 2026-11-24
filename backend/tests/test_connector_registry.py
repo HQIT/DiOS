@@ -3,11 +3,12 @@ from __future__ import annotations
 import json
 import unittest
 
-from fastapi import HTTPException
-from jsonschema.exceptions import SchemaError
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
-from app.api.os.connectors import create_connector, list_connector_types, update_connector
+import httpx
+from app.api.os.connectors import (
+    create_connector,
+    list_connector_types,
+    update_connector,
+)
 from app.api.os.events import _webhook_secrets, event_catalog
 from app.connectors import registry
 from app.connectors.contracts import (
@@ -19,6 +20,9 @@ from app.connectors.contracts import (
 from app.db.database import Base
 from app.models.schemas import ConnectorCreate, ConnectorUpdate
 from app.models.tables import Connector
+from fastapi import FastAPI, HTTPException
+from jsonschema.exceptions import SchemaError
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 
 class ConnectorRegistryTests(unittest.IsolatedAsyncioTestCase):
@@ -51,7 +55,9 @@ class ConnectorRegistryTests(unittest.IsolatedAsyncioTestCase):
             },
             secret_fields=("secret",),
             event_sources=(EventSourceDecl(id="calendar", name="Calendar"),),
-            event_types=(EventTypeDecl(type="calendar.changed", description="Changed"),),
+            event_types=(
+                EventTypeDecl(type="calendar.changed", description="Changed"),
+            ),
             accepted_source_patterns=("calendar/*",),
         )
 
@@ -61,8 +67,30 @@ class ConnectorRegistryTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual({"generic", "git_webhook", "imap"}, set(by_type))
         self.assertNotIn("internal", by_type)
-        self.assertTrue(by_type["git_webhook"]["config_schema"]["properties"]["secret"]["writeOnly"])
+        self.assertTrue(
+            by_type["git_webhook"]["config_schema"]["properties"]["secret"]["writeOnly"]
+        )
         json.dumps(descriptors)
+
+    async def test_http_response_preserves_poll_contract_without_executable_objects(
+        self,
+    ) -> None:
+        from app.api.os.connectors import router
+
+        app = FastAPI()
+        app.include_router(router)
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.get("/connectors/types")
+        self.assertEqual(200, response.status_code)
+        types = {item["type"]: item for item in response.json()}
+        self.assertEqual({"interval_seconds": 60}, types["imap"]["poll"])
+        self.assertIsNone(types["git_webhook"]["poll"])
+        self.assertNotIn("poll_adapter", types["imap"])
+        self.assertTrue(
+            types["imap"]["config_schema"]["properties"]["password"]["writeOnly"]
+        )
 
     async def test_new_manifest_uses_generic_api_without_router_changes(self) -> None:
         registry.all_manifests()
@@ -84,7 +112,9 @@ class ConnectorRegistryTests(unittest.IsolatedAsyncioTestCase):
 
             catalog = await event_catalog(db)
             self.assertTrue(catalog["connector_status"]["calendar"])
-            self.assertIn("calendar.changed", {item["type"] for item in catalog["event_types"]})
+            self.assertIn(
+                "calendar.changed", {item["type"] for item in catalog["event_types"]}
+            )
 
     async def test_invalid_type_and_config_are_rejected(self) -> None:
         async with self.sessions() as db:

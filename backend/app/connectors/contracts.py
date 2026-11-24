@@ -8,8 +8,9 @@ Connector 描述「一个外部系统如何把输入送进 DiOS」。每种类�
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 # 能力标识：不同 Connector 只实现自己需要的部分
 CAPABILITY_WEBHOOK = "webhook"  # 被动接收 HTTP 回调
@@ -17,6 +18,26 @@ CAPABILITY_POLL = "poll"  # 主动轮询外部系统
 CAPABILITY_DECLARE_ONLY = "declare_only"  # 只声明事件命名空间，由外部发布者写入
 
 CloudEvent = dict[str, Any]
+EventSink = Callable[[CloudEvent], Awaitable[None]]
+
+
+@dataclass(frozen=True)
+class PollInstance:
+    """Detached configuration; never share a database session with an adapter."""
+
+    id: str
+    config: dict[str, Any] = field(repr=False)
+
+
+@runtime_checkable
+class PollAdapter(Protocol):
+    async def poll(self, instance: PollInstance, emit: EventSink) -> None:
+        """One bounded batch. Acknowledge upstream only after emit returns.
+
+        Blocking I/O must leave the event loop. Errors propagate to the runtime;
+        adapters must drain their I/O before returning or raising cancellation.
+        """
+        ...
 
 
 @dataclass(frozen=True)
@@ -64,7 +85,9 @@ class WebhookAdapter(Protocol):
         """将原始 payload 转换为 CloudEvent。"""
         ...
 
-    def verify_signature(self, headers: dict[str, str], body: bytes, secret: str) -> bool:
+    def verify_signature(
+        self, headers: dict[str, str], body: bytes, secret: str
+    ) -> bool:
         """校验签名，无签名机制时返回 True。"""
         ...
 
@@ -78,7 +101,9 @@ class BaseWebhookAdapter(ABC):
     @abstractmethod
     def normalize(self, headers: dict[str, str], payload: dict) -> CloudEvent: ...
 
-    def verify_signature(self, headers: dict[str, str], body: bytes, secret: str) -> bool:
+    def verify_signature(
+        self, headers: dict[str, str], body: bytes, secret: str
+    ) -> bool:
         return True
 
 
@@ -123,6 +148,8 @@ class ConnectorManifest:
     source_patterns: Callable[[Any], list[str]] | None = None
     webhook_adapters: tuple[Any, ...] = ()
     webhook_secrets: Callable[[Any], dict[str, str]] | None = None
+    poll_adapter: PollAdapter | None = None
+    poll_interval_seconds: float = 60
 
     def has(self, capability: str) -> bool:
         return capability in self.capabilities

@@ -62,6 +62,7 @@ export interface ConnectorType {
   event_sources: EventCatalogSource[];
   event_types: Array<{ type: string; description: string }>;
   accepted_source_patterns: string[];
+  poll?: { interval_seconds: number } | null;
 }
 
 export interface ConnectorSourcePattern {

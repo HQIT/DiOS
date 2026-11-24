@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "36c8f04d3b7e65e96d7fa5790ab6fa0ef7ccec89",
+  "state": "engineering_verified_deployed_review_pending",
+  "tests": {
+    "backend": {
+      "total": 639,
+      "passed": 448,
+      "skipped": 191,
+      "log_sha256": "219c039195aaccb285d575fb267907f71fc01ed2956e39c4d67d13d0fda8fec0"
+    },
+    "final_connector_regression": {
+      "total": 25,
+      "passed": 25,
+      "skipped": 0,
+      "log_sha256": "8e788d03ada4d08292ebeb65a3ee3d94c64830b3abc855ccbc294c71de7e858d"
+    },
+    "typescript": "passed",
+    "changed_connector_python_lint": "passed"
+  },
+  "image": {
+    "image": "sha256:dd414f9619c7b38e93222fe289d3451ea06b727712125c54a8901323837d8be6",
+    "checks": [
+      "health",
+      "registry_poll_contract",
+      "secret_write_only",
+      "isolated_empty_connectors",
+      "graceful_exit"
+    ],
+    "exit_code": 0
+  },
+  "development": {
+    "checks": [
+      "development_api_healthy",
+      "deployed_poll_contract",
+      "runtime_history_preserved",
+      "events_history_preserved",
+      "worker-sales_process_alive",
+      "worker-construction_process_alive",
+      "knowledge_process_alive",
+      "dios-dev-identity-reconcile.timer_active",
+      "dios-dev-delegation-reconcile.timer_active",
+      "browser_sso_healthy"
+    ],
+    "history_count": 84,
+    "history_identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "event_count": 0,
+    "active_runs": 0,
+    "backup": "backup-before",
+    "schema_migration_required": false
+  },
+  "protocol_fixture": {
+    "transport": "real local TLS + native imaplib",
+    "database": "SQLite via SQLAlchemy",
+    "checks": [
+      "UID BODY.PEEK",
+      "durable E2AG receipt before Seen",
+      "UTF-8 body",
+      "redelivery reuses one event",
+      "clean logout"
+    ],
+    "customer_mailboxes_contacted": false
+  },
+  "ownership": {
+    "implementation": "filelock 4.3.1 native lock",
+    "license": "MIT",
+    "qualified_platform": "Linux/WSL",
+    "checks": [
+      "two runtimes share one instance",
+      "ownership retained through cooldown and drain",
+      "separate process killed then lock reacquired"
+    ]
+  },
+  "limitations": [
+    "Cross-host fenced ownership provider not implemented; designate one polling host",
+    "Windows native lock path not qualified",
+    "Existing time-window event deduplication is not permanent exactly-once delivery",
+    "Customer mailboxes and external Agent execution not exercised",
+    "G2 independent review and product acceptance pending"
+  ],
+  "project_status_update": {
+    "state": "blocked_by_existing_token_scope",
+    "required_scope": "read:project (write: project)",
+    "issue_and_repository_plan": "updated separately"
+  }
+}

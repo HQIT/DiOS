@@ -1,5 +1,7 @@
 # ADR 0001：Connector 插件契约与注册表
 
+后续实现：K01-3 的[通用轮询运行时](../design/connector-poll-runtime-9.md)接通本 ADR 中预留的 poll 能力，注册表驱动 IMAP 与其他轮询适配器；下文保留原决策时的范围与取舍。
+
 - 状态：已接受
 - 日期：2026-08-11
 - 相关：ROADMAP §7.1、Phase 0 退出门槛、首批 Issues #6 / #7

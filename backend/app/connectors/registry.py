@@ -10,8 +10,10 @@
 from __future__ import annotations
 
 import importlib
+import inspect
 import json
 import logging
+import math
 import os
 import pkgutil
 from copy import deepcopy
@@ -20,16 +22,20 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 
 from app.connectors.contracts import (
+    CAPABILITY_POLL,
     CAPABILITY_WEBHOOK,
     ConnectorManifest,
     EventNamespaceDecl,
     EventTypeDecl,
+    PollAdapter,
 )
 
 logger = logging.getLogger(__name__)
 
 _BUILTIN_PACKAGE = "app.connectors.builtin"
-_DEFAULT_NAMESPACES_FILE = Path(__file__).resolve().parents[2] / "config" / "event-namespaces.json"
+_DEFAULT_NAMESPACES_FILE = (
+    Path(__file__).resolve().parents[2] / "config" / "event-namespaces.json"
+)
 
 _manifests: list[ConnectorManifest] = []
 _declared_namespaces: list[EventNamespaceDecl] = []
@@ -40,8 +46,22 @@ def register(manifest: ConnectorManifest) -> None:
     """注册一种 Connector 类型，重复 type 以后者覆盖。"""
     global _manifests
     if not manifest.type or manifest.type.strip() != manifest.type:
-        raise ValueError("connector manifest type must be a non-empty canonical identifier")
+        raise ValueError(
+            "connector manifest type must be a non-empty canonical identifier"
+        )
     Draft202012Validator.check_schema(manifest.config_schema or {"type": "object"})
+    if manifest.has(CAPABILITY_POLL):
+        if not isinstance(
+            manifest.poll_adapter, PollAdapter
+        ) or not inspect.iscoroutinefunction(manifest.poll_adapter.poll):
+            raise ValueError("poll capability requires a PollAdapter")
+        if (
+            not math.isfinite(manifest.poll_interval_seconds)
+            or manifest.poll_interval_seconds <= 0
+        ):
+            raise ValueError("poll interval must be finite and positive")
+    elif manifest.poll_adapter is not None:
+        raise ValueError("PollAdapter requires poll capability")
     _manifests = [m for m in _manifests if m.type != manifest.type]
     _manifests.append(manifest)
     _manifests.sort(key=lambda m: (m.order, m.type))
@@ -145,6 +165,9 @@ def public_manifest(manifest: ConnectorManifest) -> dict:
             for event in manifest.event_types
         ],
         "accepted_source_patterns": list(manifest.accepted_source_patterns),
+        "poll": {"interval_seconds": manifest.poll_interval_seconds}
+        if manifest.has(CAPABILITY_POLL)
+        else None,
     }
 
 
@@ -204,7 +227,13 @@ def event_sources() -> tuple[dict, ...]:
             if source.id in seen:
                 continue
             seen.add(source.id)
-            out.append({"id": source.id, "name": source.name, "description": source.description})
+            out.append(
+                {
+                    "id": source.id,
+                    "name": source.name,
+                    "description": source.description,
+                }
+            )
     return tuple(out)
 
 
