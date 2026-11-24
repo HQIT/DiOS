@@ -1,0 +1,69 @@
+- id: tool-plugin-manager
+  disabled: true
+- id: tool-working-directory
+  disabled: true
+- id: tool-bash
+  disabled: true
+- id: tool-pwsh
+  disabled: true
+- id: tool-jobs
+  disabled: true
+- id: tool-fs
+  disabled: true
+- id: tool-fs-search
+  disabled: true
+- id: tool-skill
+  disabled: true
+- id: tool-agent-team
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent
+  disabled: true
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-workflow
+  disabled: true
+- id: tool-todo
+  disabled: true
+- id: tool-goal
+  disabled: true
+- id: tool-web
+  disabled: true
+- id: agent-instructions
+  disabled: true
+- id: session-log-deepseek
+  disabled: true
+- id: plugin-package-inventory-deepseek
+  disabled: true
+- id: session-telemetry-otel
+  disabled: true
+
+- id: llm-pi-ai
+  config:
+    providers:
+      gateway:
+        apiKeyEnv: MODEL_API_KEY
+        api: openai-completions
+        baseURL: https://gateway.example.invalid/v1
+        defaultContextWindow: 32768
+        defaultMaxTokens: 2048
+        compat:
+          supportsDeveloperRole: false
+          maxTokensField: max_tokens
+        retryPolicy:
+          mode: normal
+          maxRetries: 0
+        models:
+          - id: your-model
+            name: Configured Model
+            contextWindow: 32768
+            maxTokens: 2048
+- id: agent-default-model
+  config:
+    provider: gateway
+    model: your-model
+- id: acp
+  config:
+    provider: gateway
+    model: your-model

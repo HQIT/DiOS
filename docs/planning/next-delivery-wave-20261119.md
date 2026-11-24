@@ -12,7 +12,7 @@
 
 每项按已有依赖和验收标准测试、部署并记录证据。#37/#40 与客户应用不阻塞 DiOS 的通用能力交付。
 
-#56/#58 已补齐官方 ACP SDK、真实 Cursor 取消确认和 E2AG 撤权验证，见 [证据与契约](../design/acp-cancellation-56-58.md)。下一段以 DeepSeek Harness 验证 Harness 替换，再接 Codex Adapter，并补齐 A2A 互操作；跨主机故障与双来源治理资格按原任务验收。
+#56/#58 已通过 Cursor 与 DSH 两种 Harness 的受控执行。DSH + ECNU Max 完成真实审批、拒绝、取消、撤权和报告路径，见 [DSH 证据与契约](../design/dsh-acp-56-58.md)。下一段接 Codex Adapter 并补齐 A2A 互操作；活动会话恢复、跨主机故障与双来源完整治理资格按原任务验收。
 
 
 日期：2026-11-19。依据 GitHub Project #2、project-plan.json 与 #30 本批工程证据；本表说明优先次序，任务验收状态沿用原 Project。

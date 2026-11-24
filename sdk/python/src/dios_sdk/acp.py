@@ -58,6 +58,7 @@ class AcpClient:
         self.pending = set()
         self.prompt_task = None
         self.session_id = None
+        self.session_close_supported = False
         self.output = ""
         self.handlers = set()
         self.cancelling = False
@@ -366,6 +367,19 @@ class AcpClient:
                 diagnostic("ACP_CANCEL_UNCONFIRMED")
         return self.cancel_acknowledged
 
+    async def close_session(self, timeout=1):
+        if not self.session_id or not self.session_close_supported:
+            return
+        try:
+            await asyncio.wait_for(
+                self._request("session/close", {"sessionId": self.session_id}),
+                timeout,
+            )
+            diagnostic("ACP_SESSION_CLOSED")
+        except (RuntimeErrorCode, ConnectionError, OSError, TimeoutError):
+            # The process still has to exit before any result can be accepted.
+            diagnostic("ACP_SESSION_CLOSE_UNCONFIRMED")
+
     async def close(self):
         async def drain_after_reader():
             if self.reader:
@@ -378,6 +392,7 @@ class AcpClient:
         drain = asyncio.create_task(drain_after_reader())
         try:
             await self.cancel()
+            await self.close_session()
             self.process.stdin.close()
             await asyncio.wait_for(self.process.wait(), 1)
         except (OSError, ConnectionError, TimeoutError):
@@ -512,6 +527,12 @@ async def execute(
         )
         if initialized.get("protocolVersion") != 1:
             raise RuntimeErrorCode("ACP_VERSION_UNSUPPORTED")
+        capabilities = initialized.get("agentCapabilities", {}).get(
+            "sessionCapabilities", {}
+        )
+        peer.session_close_supported = isinstance(capabilities, dict) and isinstance(
+            capabilities.get("close"), dict
+        )
         method = config.get("authentication_method")
         if method:
             if not any(
