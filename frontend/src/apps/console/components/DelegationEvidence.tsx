@@ -10,6 +10,14 @@ export default function DelegationEvidence({ value, observedAt }: { value: WorkA
     <ol>{value.chain.map(link => <li key={link.id}>
       <p><strong>{link.depth === 0 ? t("根授权") : t("第 {0} 层委派", [link.depth])}</strong> · {t(link.state === "revoked" ? "已撤销" : link.expires_at <= observedAt ? "已过期" : "有效")}</p>
       <p>{t("受托方：")}{link.actor}</p>
+      {link.source_check && <p className="tr-muted" data-testid="delegation-source-check">
+        {t("签发身份巡检：")}{t(({ valid: "来源有效", revoked: "来源已失效", unavailable: "身份服务暂不可用", pending: "等待检查" })[link.source_check.outcome])}
+        {link.source_check.checked_at != null && <> · {t("最近检查：")}{new Date(link.source_check.checked_at * 1000).toLocaleString(languageTag())}</>}
+        {link.state === "active" && link.expires_at > observedAt && link.source_check.outcome !== "revoked" && <>
+          <br />{t("下次检查：")}{new Date(link.source_check.next_check_at * 1000).toLocaleString(languageTag())}
+          {link.source_check.stale && <> · {t("观测已过期")}</>}
+        </>}
+      </p>}
       <p className="tr-muted">{t("准入代次 {0} · 当前代次 {1}", [link.captured_epoch, link.authorization_epoch])}<br />{t("有效至")}{new Date(link.expires_at * 1000).toLocaleString(languageTag())}</p>
       <p className="tr-muted"><code>{link.id}</code></p>
     </li>)}</ol>

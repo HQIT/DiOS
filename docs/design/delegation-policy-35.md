@@ -36,4 +36,4 @@ flowchart LR
 
 [委派生命周期](delegation-lifecycle-35.md)已覆盖受信 CLI 创建、受限派生、撤销、不可变工作回执，以及工作准入、Grant 续期、工具与结果接收。OPA 采用官方 external-data Option 2，直接判定 Runtime 当前事务持有的授权快照；可变授权数据无需跨服务复制。
 
-开发环境通过三层委派真实任务、审批报告、祖先撤销与原生进程退出验证。[认证委派 API 与上游身份依赖](delegation-identity-35.md)已接入。独立委派的后台身份巡检、跨服务 audience 与严格撤销排序继续按[成熟方案矩阵](e2ag-mature-solutions-20261124.md)推进。#35 保持开放。
+开发环境通过三层委派真实任务、审批报告、祖先撤销与原生进程退出验证。[认证委派 API 与上游身份依赖](delegation-identity-35.md)、[后台签发身份巡检](delegation-reconciliation-35.md)已接入。跨服务 audience 与严格撤销排序继续按[成熟方案矩阵](e2ag-mature-solutions-20261124.md)推进。#35 保持开放。

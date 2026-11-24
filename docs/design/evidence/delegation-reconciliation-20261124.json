@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-24",
+  "state": "native_timer_standalone_and_worker_revocation_verified",
+  "tests": {
+    "backend": {
+      "total": 620,
+      "passed": 429,
+      "skipped": 191,
+      "log_sha256": "2a548865e78191e4193a2233f0c2cbe728cf21238c42697b0cda62c1897af868"
+    },
+    "reconciliation": {
+      "total": 8,
+      "passed": 8,
+      "skipped": 0,
+      "log_sha256": "ddac2c6083c32158d6c371fbd5a4cdc1899cd995d0f2712f552e58f8dfb45d39"
+    },
+    "native_opa_and_identity": {
+      "total": 26,
+      "passed": 26,
+      "skipped": 0,
+      "log_sha256": "47504e674f61da596a50fdbfd8eebb0d5912f9d129476aec2e0314939feef30a"
+    }
+  },
+  "frontend": {
+    "typescript": "passed",
+    "build": "passed",
+    "changed_file_lint": "passed",
+    "browser": {
+      "checks": [
+        "real-revoked-issuer-status",
+        "last-observed-time",
+        "revoked-source-does-not-show-pending-retry",
+        "english-issuer-status",
+        "mobile-layout",
+        "completed-report-preserved",
+        "no-page-errors"
+      ],
+      "errors": []
+    }
+  },
+  "migration": {
+    "backup_verified": true,
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "changed": true
+    },
+    "history_preserved": 82,
+    "active_runs": 0
+  },
+  "live": {
+    "checks": [
+      "native-sso-issued-child",
+      "standalone-native-timer-check",
+      "provider-outage-keeps-delegation",
+      "retry-deadline-recorded",
+      "automatic-recovery-resets-failures",
+      "complete-native-worker",
+      "same-attempt-report",
+      "logout-native-worker",
+      "standalone-authority-revoked-without-task",
+      "issuer-reconcile-fences-work-and-grant",
+      "issuer-link-durably-revoked",
+      "native-exit-confirmed",
+      "unapproved-tool-not-executed",
+      "report-preserved-after-issuer-logout",
+      "browser-completed",
+      "history-preserved",
+      "no-active-work"
+    ],
+    "completed": "917f6a43-2f51-4493-bcd6-48a507049169",
+    "revoked": "b599f901-c482-4657-94f9-203fcf7586c4",
+    "issuer_ref": "dl-05bf22104b2eb4c7bcff0d3468f7f3482219104f158ec2c67038ac04bff8",
+    "standalone_ref": "dl-c0c57a39d303b59ea0b702f5558d564b228146e5f18ba327665c57307008",
+    "outage": {
+      "outcome": "unavailable",
+      "failures": 1,
+      "checked_at": 1795506948.035015,
+      "next_check_at": 1795506950.035015
+    },
+    "recovered": {
+      "outcome": "valid",
+      "failures": 0,
+      "checked_at": 1795506951.317999,
+      "next_check_at": 1795506953.317999
+    },
+    "browser": {
+      "checks": [
+        "native-sso-issuer",
+        "authenticated-api-issuance",
+        "issuance-idempotency",
+        "issuer-audit",
+        "standalone-delegation-issued",
+        "native-issuer-signout"
+      ]
+    },
+    "history_before": 82,
+    "history_after": 84,
+    "native_exit": {
+      "handle": "73c32cfd-01d7-42de-aa32-0692d8a13cf3",
+      "state": "exited",
+      "alive": false,
+      "pid": null,
+      "process_instance": "7b0c0fa4a1851e8ce8bc4ac6105d877d0569f575022bb1634dc787a17d5f01f9:2026-11-24T07:56:06.893841683Z",
+      "exit_code": 2,
+      "health": "not_configured",
+      "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+      "adapter": "local-docker-v1",
+      "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe",
+      "observed_at": 1795506970.6719875
+    },
+    "active_runs": 0,
+    "configuration_restored": true
+  },
+  "revocation_audit": {
+    "version": 2,
+    "revoked_work_count": 1,
+    "reason": "AUTH_PRINCIPAL_REVOKED"
+  },
+  "development": {
+    "api": "healthy",
+    "browser_sso": "healthy",
+    "delegation_timer": "active_enabled",
+    "identity_timer": "active",
+    "history": 84,
+    "active_runs": 0
+  },
+  "remaining": [
+    "Cross-provider revocation ordering and cross-service audience transitions",
+    "PostgreSQL and physical multihost qualification",
+    "Authorization and reconciliation throughput and latency qualification"
+  ]
+}

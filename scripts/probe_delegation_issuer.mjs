@@ -2,7 +2,7 @@
 // parent, checks actual Worker execution and signals when to log out.
 import fs from 'node:fs/promises';
 import {chromium} from '../node_modules/playwright/index.mjs';
-const [fixturePath,output]=process.argv.slice(2);
+const [fixturePath,output,standalone]=process.argv.slice(2);
 const fixture=JSON.parse(await fs.readFile(fixturePath,'utf8'));
 const base=new URL(fixture.base);
 if(!['localhost','127.0.0.1'].includes(base.hostname))throw Error('Loopback fixture required');
@@ -31,6 +31,11 @@ try{
   const child=await api('/delegations',request);check('authenticated-api-issuance',child.status===201);
   const replay=await api('/delegations',request);check('issuance-idempotency',replay.status===201&&replay.value.id===child.value.id);
   const detail=await api('/delegations/'+child.value.id);check('issuer-audit',detail.status===200&&detail.value.events.some(e=>e.details?.authenticated_issuer?.id===identity.value.principal.id));
+  if(standalone==='standalone'){
+    const idle=await api('/delegations',{...request,idempotency_key:request.idempotency_key+'-idle'});
+    check('standalone-delegation-issued',idle.status===201);
+    await fs.writeFile(output+'.idle-issued',JSON.stringify(idle.value),{mode:0o600});
+  }
   await fs.writeFile(output+'.issued',JSON.stringify(child.value),{mode:0o600});
   await wait('.logout');await page.getByRole('button',{name:'退出登录',exact:true}).click();
   await page.getByRole('link',{name:'企业登录',exact:true}).waitFor();

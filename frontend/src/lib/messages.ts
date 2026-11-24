@@ -628,6 +628,7 @@ export const messages: Record<string, string> = {
   "等待检查": "Awaiting check",
   "检查中": "Checking",
   "身份服务暂不可用": "Identity service unavailable",
+  "签发身份巡检：": "Issuer identity check: ",
   "最近检查：": "Last check: ",
   "下次检查：": "Next check: ",
   "保留原任务与审批，等待自动复查。": "Original task and approval retained; automatic recheck pending.",

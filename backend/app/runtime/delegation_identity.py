@@ -13,9 +13,11 @@ async def validate_source(c, scope, source, permissions, expires_at):
     if binding["scope"] != scope:
         raise RuntimeErrorCode("AUTH_ACTION_DENIED")
     await require_source(c, scope, binding)
-    row = await asyncio.to_thread(
-        FilePrincipals(source["provider_path"]).current, binding
-    )
+    return await asyncio.to_thread(current_source, source, permissions, expires_at)
+
+
+def current_source(source, permissions, expires_at):
+    row = FilePrincipals(source["provider_path"]).current(source["principal"])
     grant = row["profiles"].get(source["profile_id"], {})
     if "delegation.issue" not in grant.get("actions", []) or any(
         p not in grant.get("permissions", []) for p in permissions
@@ -45,12 +47,14 @@ async def validate_chain(c, scope, chain):
     for source in records:
         link = by_id[source["delegation_ref"]]
         try:
-            await validate_source(c, scope, source, link["permissions"], link["expires_at"])
+            await validate_source(
+                c, scope, source, link["permissions"], link["expires_at"]
+            )
         except RuntimeErrorCode as exc:
-            if exc.code in {'AUTH_DELEGATION_DENIED', 'AUTH_DELEGATION_DEADLINE'}:
+            if exc.code in {"AUTH_DELEGATION_DENIED", "AUTH_DELEGATION_DEADLINE"}:
                 # Existing Work uses the same persistent revocation handling as
                 # a withdrawn submitter identity. Issuance retains specific errors.
-                raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED') from None
+                raise RuntimeErrorCode("AUTH_PRINCIPAL_REVOKED") from None
             raise
 
 

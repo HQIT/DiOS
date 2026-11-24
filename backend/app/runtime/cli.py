@@ -70,6 +70,10 @@ async def execute(args):
                 rows=(await c.execute(select(events.c.id,events.c.issuer,events.c.client_id,events.c.issued_at,events.c.received_at,events.c.revoked_work_count)
                     .where(events.c.scope==args.scope).order_by(events.c.received_at.desc(),events.c.id).limit(args.limit))).mappings().all()
                 return {'items':[dict(x) for x in rows]}
+        if args.command == 'delegation-reconcile':
+            from .delegation_reconciliation import DelegationReconciler
+            return await DelegationReconciler(store,interval=args.interval,
+                retry_base=args.retry_base,retry_max=args.retry_max).batch(limit=args.limit)
         if args.command == 'identity-reconcile':
             from .identity_reconciliation import IdentityReconciler
             from .work_policy import FileWorkPolicy
@@ -231,6 +235,11 @@ def main(argv=None):
     credential_revoke.add_argument('--revision',type=int,required=True)
     commands.add_parser('circuits',help='inspect persisted endpoint/account cooldown and single-probe ownership')
     identity=commands.add_parser('identity-reconcile',help='bounded source check; retains Work/approval on outage, revokes confirmed invalid identities')
+    delegation_check=commands.add_parser('delegation-reconcile',help='bounded issuer checks for delegations, including those without tasks')
+    delegation_check.add_argument('--limit',type=int,default=20)
+    delegation_check.add_argument('--interval',type=float,default=60)
+    delegation_check.add_argument('--retry-base',type=float,default=15)
+    delegation_check.add_argument('--retry-max',type=float,default=300)
     events=commands.add_parser('identity-events',help='read verified logout receipts in the selected scope')
     events.add_argument('--limit',type=int,default=20)
     identity.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))

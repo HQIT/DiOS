@@ -1338,12 +1338,11 @@
         "implementation": "examples/policies/opa-delegation",
         "verification": "真实 OPA/Runtime/MCP 委派组件 16 项通过，基础 OPA 路径另 8 项回归通过；根授权至三层委派真实工具调用和各类拒绝已验证",
         "remaining": [
-          "Background identity reconciliation for standalone delegation records",
           "Cross-provider revocation ordering and cross-service audience transitions",
           "PostgreSQL and physical multihost qualification",
-          "Authorization transaction throughput and latency qualification"
+          "Authorization and reconciliation throughput and latency qualification"
         ],
-        "next": "认证委派与注销级联已完成；继续独立委派巡检、跨 Provider 撤权排序及多主机资格"
+        "next": "委派签发、实时检查、注销与后台巡检已接通；跨服务撤权及多主机容量按整体部署计划验证"
       },
       "delegation_lifecycle": {
         "date": "2026-11-24",
@@ -1353,12 +1352,11 @@
         "implementation": "backend/app/runtime/delegations.py",
         "verification": "后端 586 项中 421 通过、165 跳过；原生 OPA 生命周期 18 项、策略回归 16 项、最终恢复 1 项通过；开发真实执行 15 项和浏览器 7 项通过，80 条历史保留",
         "remaining": [
-          "Background identity reconciliation for standalone delegation records",
           "Cross-provider revocation ordering and cross-service audience transitions",
           "PostgreSQL and physical multihost qualification",
-          "Authorization transaction throughput and latency qualification"
+          "Authorization and reconciliation throughput and latency qualification"
         ],
-        "next": "认证委派与注销级联已完成；继续独立委派巡检、跨 Provider 撤权排序及多主机资格"
+        "next": "委派签发、实时检查、注销与后台巡检已接通；跨服务撤权及多主机容量按整体部署计划验证"
       },
       "delegation_identity": {
         "date": "2026-11-24",
@@ -1367,12 +1365,24 @@
         "evidence": "docs/design/evidence/delegation-identity-20261124.json",
         "verification": "后端 612 项中 421 通过、191 跳过；原生 OPA/认证 API 26 项、注销 7 项、SDK 21 项通过；真实 OIDC 签发与 Worker/注销链路 12 项、浏览器 5 项通过；82 条历史保留",
         "remaining": [
-          "Background identity reconciliation for standalone delegation records",
           "Cross-provider revocation ordering and cross-service audience transitions",
           "PostgreSQL and physical multihost qualification",
-          "Authorization transaction throughput and latency qualification"
+          "Authorization and reconciliation throughput and latency qualification"
         ],
-        "next": "#35 独立委派的后台身份巡检；跨服务与物理多主机资格按整体部署计划推进"
+        "next": "委派签发、实时检查、注销与后台巡检已接通；跨服务撤权及多主机容量按整体部署计划验证"
+      },
+      "delegation_reconciliation": {
+        "date": "2026-11-24",
+        "state": "native_timer_and_console_verified",
+        "design": "docs/design/delegation-reconciliation-35.md",
+        "evidence": "docs/design/evidence/delegation-reconciliation-20261124.json",
+        "verification": "后端 620 项中 429 通过、191 跳过；巡检专项 8 项、原生 OPA/认证 26 项通过；原生定时服务真实链路 17 项、登录签发 6 项、Console 浏览器 7 项通过；84 条历史保留",
+        "remaining": [
+          "Cross-provider revocation ordering and cross-service audience transitions",
+          "PostgreSQL and physical multihost qualification",
+          "Authorization and reconciliation throughput and latency qualification"
+        ],
+        "next": "#35 跨服务 audience 与远程撤权保证；结合整体部署拓扑和容量计划验收"
       }
     },
     {

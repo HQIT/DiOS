@@ -48,6 +48,7 @@ async def evaluate(
     c, db, scope, reference, binding, chain, permission, config, evaluator=None
 ):
     from .delegation_identity import validate_chain
+
     await validate_chain(c, scope, chain)
     now = await db.now(c)
     if any(
@@ -103,6 +104,61 @@ async def evaluate(
     return result
 
 
+async def revoke_record(c, db, scope, row, *, reason=None):
+    """Same transaction fences a link and all dependent Work/Grant records."""
+    from .work_auth_schema import work, grants
+
+    ref = row["id"]
+    changed = dict(
+        row,
+        state="revoked",
+        version=row["version"] + 1,
+        authorization_epoch=row["authorization_epoch"] + 1,
+    )
+    await c.execute(
+        links.update()
+        .where(links.c.id == ref)
+        .values(
+            state="revoked",
+            version=changed["version"],
+            authorization_epoch=changed["authorization_epoch"],
+        )
+    )
+    affected = select(dependencies.c.authorization_ref).where(
+        dependencies.c.scope == scope,
+        dependencies.c.delegation_ref == ref,
+    )
+    result = await c.execute(
+        work.update()
+        .where(
+            work.c.scope == scope,
+            work.c.id.in_(affected),
+            work.c.state == "active",
+        )
+        .values(state="revoked", version=work.c.version + 1)
+    )
+    await c.execute(
+        grants.update()
+        .where(grants.c.authorization_id.in_(affected), grants.c.state == "active")
+        .values(state="revoked", version=grants.c.version + 1)
+    )
+    await c.execute(
+        events.insert().values(
+            id=str(uuid4()),
+            scope=scope,
+            delegation_ref=ref,
+            operation="identity_revoked" if reason else "revoked",
+            details={
+                "version": changed["version"],
+                "revoked_work_count": result.rowcount,
+                **({"reason": reason} if reason else {}),
+            },
+            created_at=await db.now(c),
+        )
+    )
+    return changed
+
+
 class Delegations:
     def __init__(self, store, *, evaluator=None):
         self.store = store
@@ -151,7 +207,7 @@ class Delegations:
             policy_evaluator=policy_evaluator,
         )
         if issuer_source is not None:
-            request['issuer_source'] = issuer_source
+            request["issuer_source"] = issuer_source
         bounded(request)
         ref = "dl-" + digest([self.store.scope, key])[:60]
         fingerprint = digest(request)
@@ -159,9 +215,15 @@ class Delegations:
             await require(c)
             if issuer_source is not None:
                 from .delegation_identity import validate_source
-                if not parent_ref or issuer_actor != issuer_source['principal']['actor']:
-                    raise RuntimeErrorCode('AUTH_ACTION_DENIED')
-                await validate_source(c, self.store.scope, issuer_source, permissions, expires_at)
+
+                if (
+                    not parent_ref
+                    or issuer_actor != issuer_source["principal"]["actor"]
+                ):
+                    raise RuntimeErrorCode("AUTH_ACTION_DENIED")
+                await validate_source(
+                    c, self.store.scope, issuer_source, permissions, expires_at
+                )
             now = await self.store.db.now(c)
             old = (
                 (
@@ -224,10 +286,13 @@ class Delegations:
                 self.evaluator,
             )
             if issuer_source is not None:
-                await validate_source(c, self.store.scope, issuer_source, permissions, expires_at)
+                await validate_source(
+                    c, self.store.scope, issuer_source, permissions, expires_at
+                )
             await c.execute(links.insert().values(**row))
             if issuer_source is not None:
                 from .delegation_identity import bind_issuer
+
                 await bind_issuer(c, self.store.scope, ref, issuer_source)
             await c.execute(
                 events.insert().values(
@@ -238,9 +303,23 @@ class Delegations:
                     details={
                         "parent_ref": parent_ref,
                         "issuer_actor": issuer_actor,
-                        **({'authenticated_issuer': {k: issuer_source['principal'][k]
-                            for k in ('issuer','id','scope','subject','actor','revision')}}
-                            if issuer_source is not None else {}),
+                        **(
+                            {
+                                "authenticated_issuer": {
+                                    k: issuer_source["principal"][k]
+                                    for k in (
+                                        "issuer",
+                                        "id",
+                                        "scope",
+                                        "subject",
+                                        "actor",
+                                        "revision",
+                                    )
+                                }
+                            }
+                            if issuer_source is not None
+                            else {}
+                        ),
                         "decision": decision,
                     },
                     created_at=await self.store.db.now(c),
@@ -249,8 +328,6 @@ class Delegations:
             return self.public(row)
 
     async def revoke(self, ref, version, *, access_guard=None):
-        from .work_auth_schema import work, grants
-
         async with self.store.db.transaction(self.store.scope) as c:
             await require(c)
             chain = await lineage(c, self.store.scope, ref)
@@ -261,55 +338,9 @@ class Delegations:
                 return self.public(row)
             if row["version"] != version:
                 raise RuntimeErrorCode("VERSION_CONFLICT")
-            changed = dict(
-                row,
-                state="revoked",
-                version=row["version"] + 1,
-                authorization_epoch=row["authorization_epoch"] + 1,
+            return self.public(
+                await revoke_record(c, self.store.db, self.store.scope, row)
             )
-            await c.execute(
-                links.update()
-                .where(links.c.id == ref)
-                .values(
-                    state="revoked",
-                    version=changed["version"],
-                    authorization_epoch=changed["authorization_epoch"],
-                )
-            )
-            affected = select(dependencies.c.authorization_ref).where(
-                dependencies.c.scope == self.store.scope,
-                dependencies.c.delegation_ref == ref,
-            )
-            result = await c.execute(
-                work.update()
-                .where(
-                    work.c.scope == self.store.scope,
-                    work.c.id.in_(affected),
-                    work.c.state == "active",
-                )
-                .values(state="revoked", version=work.c.version + 1)
-            )
-            await c.execute(
-                grants.update()
-                .where(
-                    grants.c.authorization_id.in_(affected), grants.c.state == "active"
-                )
-                .values(state="revoked", version=grants.c.version + 1)
-            )
-            await c.execute(
-                events.insert().values(
-                    id=str(uuid4()),
-                    scope=self.store.scope,
-                    delegation_ref=ref,
-                    operation="revoked",
-                    details={
-                        "version": changed["version"],
-                        "revoked_work_count": result.rowcount,
-                    },
-                    created_at=await self.store.db.now(c),
-                )
-            )
-            return self.public(changed)
 
     async def show(self, ref, *, access_guard=None):
         async with self.store.db.read(self.store.scope) as c:
@@ -332,7 +363,10 @@ class Delegations:
                 .mappings()
                 .all()
             )
+            from .delegation_reconciliation import observation
+
             return {
+                "source_check": await observation(c, self.store.scope, ref, now),
                 "chain": [self.public(x) for x in chain],
                 "effective": all(
                     x["state"] == "active" and x["expires_at"] > now for x in chain
@@ -458,6 +492,10 @@ async def describe_work(c, run):
     if saved is None:
         raise RuntimeErrorCode("DELEGATION_BINDING_MISMATCH")
     chain = await lineage(c, run["scope"], saved["leaf_ref"])
+    from .delegation_reconciliation import observation
+    from .database import Database
+
+    now = await Database.now(c)
     return {
         "reference": saved["leaf_ref"],
         "captured_at": saved["created_at"],
@@ -472,6 +510,7 @@ async def describe_work(c, run):
                 expires_at=x["expires_at"],
                 authorization_epoch=x["authorization_epoch"],
                 captured_epoch=saved["binding"]["epochs"][x["id"]],
+                source_check=await observation(c, run["scope"], x["id"], now),
             )
             for x in chain
         ],

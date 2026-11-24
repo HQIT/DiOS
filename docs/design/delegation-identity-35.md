@@ -38,4 +38,4 @@ Python SDK 的 `TaskClient` 提供 `issue_delegation(...)`、`delegation(referen
 
 [证据记录](evidence/delegation-identity-20261124.json)覆盖原生 OPA、认证 HTTP 路由、SDK、签发者权限变化、数据库备份恢复和真实 OIDC 会话下的 Worker 执行与注销撤权。
 
-工作执行会主动复核签发身份，标准注销事件可即时更新持久授权。独立委派记录的后台身份巡检、跨 Provider 的统一撤权排序、跨服务 audience 转换和物理多主机容量验证仍待推进。外部授权源查询与本地提交之间存在跨服务窗口，按现有 E2AG 成熟方案矩阵继续限定和验证。
+工作执行会主动复核签发身份，标准注销事件可即时更新持久授权。[独立委派后台巡检](delegation-reconciliation-35.md)覆盖未关联任务的授权，并支持退避、恢复及租约接续。跨 Provider 的统一撤权排序、跨服务 audience 转换和物理多主机容量验证仍待推进。外部授权源查询与本地提交之间存在跨服务窗口，按现有 E2AG 成熟方案矩阵继续限定和验证。

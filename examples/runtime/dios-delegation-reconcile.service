@@ -1,0 +1,14 @@
+[Unit]
+Description=DiOS delegation issuer reconciliation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/dios/backend
+EnvironmentFile=/etc/dios/runtime.env
+ExecStart=/opt/dios/backend/.venv/bin/python -m app.runtime.cli --scope enterprise delegation-reconcile --limit 20 --interval 60 --retry-base 15 --retry-max 300
+TimeoutStartSec=300
+UMask=0077
+# Uses the existing database and trusted issuer Provider references.
+# Back up and migrate explicitly before activation; run as the deployment account.

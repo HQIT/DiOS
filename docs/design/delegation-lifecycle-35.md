@@ -62,4 +62,4 @@ cd backend
 
 [验证记录](evidence/delegation-lifecycle-20261124.json)包含原生 OPA 生命周期测试、完整后端回归、真实 Worker 的审批报告与撤销退出、备份恢复，以及中英文和手机宽度浏览器检查。开发数据库原 78 条历史保留，新增 2 条验证任务；WSL 重启后授权链和报告仍可读取。
 
-认证委派 API、签发身份绑定和 OIDC 注销级联见[认证身份与委派签发](delegation-identity-35.md)。独立委派的后台身份巡检、跨服务 audience 转换、远程授权源排序、PostgreSQL 并发及物理多主机资格继续按 #35 和整体计划推进。PDP 查询在授权事务内执行，吞吐和延迟仍需容量实验。
+认证委派 API、签发身份绑定和 OIDC 注销级联见[认证身份与委派签发](delegation-identity-35.md)，后台状态维护见[委派签发身份巡检](delegation-reconciliation-35.md)。跨服务 audience 转换、远程授权源排序、PostgreSQL 并发及物理多主机资格继续按 #35 和整体计划推进。PDP 查询在授权事务内执行，吞吐和延迟仍需容量实验。
