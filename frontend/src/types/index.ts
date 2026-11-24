@@ -121,6 +121,12 @@ export interface Subscription {
   event_types: string[];
   filter_rules: Record<string, string>;
   cron_expression: string;
+  schedule?: {
+    enabled: boolean; timezone: string; overlap: string; next_due: string | null;
+    observed_at: string; error: string;
+    active: { state: string; event_id: string; error: string; next_retry_at: string | null } | null;
+    buffered: { trigger_count: number; first_due: string; last_due: string } | null;
+  } | null;
   enabled: boolean;
   created_at: string;
 }

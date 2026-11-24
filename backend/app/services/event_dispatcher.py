@@ -19,8 +19,8 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.models.tables import Agent, EventDedupClaim, EventLog
-from app.services.e2ag import Decision, append_audit_entry, evaluate_contract, evaluate_policy
+from app.models.tables import Agent, A2ATask, CronOccurrence, EventDedupClaim, EventLog
+from app.services.e2ag import Decision, append_audit_entry, evaluate_contract, evaluate_policy, verify_audit_chain
 from app.services.event_normalizer import CloudEvent, compute_dedup_hash
 from app.services.metrics import metrics
 from app.services import a2a_service
@@ -94,10 +94,12 @@ async def dispatch_event(
     db: AsyncSession,
     is_retry: bool = False,
     original_log_id: str | None = None,
+    *, scheduled_log_id: str | None = None,
 ) -> tuple[EventLog | None, str | None]:
     from app.services.managed_admission import gate
     async with gate(db):
-        return await _dispatch_event(event, agent_ids, db, is_retry, original_log_id)
+        return await _dispatch_event(event, agent_ids, db, is_retry, original_log_id,
+                                     scheduled_log_id=scheduled_log_id)
 
 
 async def _dispatch_event(
@@ -106,6 +108,7 @@ async def _dispatch_event(
     db: AsyncSession,
     is_retry: bool = False,
     original_log_id: str | None = None,
+    *, scheduled_log_id: str | None = None,
 ) -> tuple[EventLog | None, str | None]:
     """将事件投递给匹配的 Agent 列表，创建 EventLog 记录。
     
@@ -119,6 +122,42 @@ async def _dispatch_event(
     Returns:
         (EventLog, error_message) 或 (None, error) 如果是去重
     """
+    if scheduled_log_id:
+        occurrence = await db.scalar(select(CronOccurrence).where(
+            CronOccurrence.event_id == scheduled_log_id,
+            CronOccurrence.scope == settings.runtime_scope,
+        ))
+        if (not occurrence or occurrence.event != event
+                or agent_ids != [event.get("data", {}).get("agent_id")]):
+            raise ValueError("SCHEDULE_EVENT_MISMATCH")
+        existing = await db.get(EventLog, scheduled_log_id)
+        if existing:
+            if existing.cloud_event != event or existing.matched_agent_ids != agent_ids:
+                raise ValueError("SCHEDULE_EVENT_MISMATCH")
+            if not verify_audit_chain(existing.audit_chain or []):
+                raise ValueError("SCHEDULE_AUDIT_INVALID")
+            if existing.status == "approval_required":
+                from app.models.tables import E2AGApproval
+                from app.services.e2ag_approval import create_approval
+                approval = await db.scalar(select(E2AGApproval.id).where(
+                    E2AGApproval.event_log_id == existing.id,
+                ))
+                if not approval:
+                    await create_approval(db, existing)
+                return existing, existing.error_message or None
+            if existing.status == "approval_approved":
+                from app.models.tables import E2AGApproval
+                approved = await db.scalar(select(E2AGApproval.id).where(
+                    E2AGApproval.event_log_id == existing.id, E2AGApproval.status == "approved",
+                    E2AGApproval.trace_id == existing.trace_id,
+                ))
+                if not approved:
+                    raise ValueError("SCHEDULE_APPROVAL_MISSING")
+                await resume_approved_event(existing, db)
+                return existing, existing.error_message or None
+            if existing.status not in {"received", "dispatching"}:
+                return existing, existing.error_message or None
+            is_retry, original_log_id = True, existing.id
     start_time = time.time()
     event_type = event.get("type", "")
     event_source = event.get("source", "")
@@ -202,6 +241,7 @@ async def _dispatch_event(
             return None, "Original event log not found"
     else:
         event_log = EventLog(
+            **({"id": scheduled_log_id} if scheduled_log_id else {}),
             source=event.get("source", ""),
             event_type=event_type,
             subject=event.get("subject", ""),
@@ -228,6 +268,10 @@ async def _dispatch_event(
         await db.refresh(event_log)
 
     if effective_decision != "allow":
+        event_log.status = event_status
+        if is_retry:
+            event_log.contract_decision = {"mode": e2ag_mode, **contract.as_dict()}
+            event_log.policy_decision = {"mode": e2ag_mode, **policy.as_dict(), "effective_decision": effective_decision}
         reason_codes = contract.reason_codes if effective_decision == "deny" and not contract.permits_execution else policy.reason_codes
         error_detail = ",".join(reason_codes)
         event_log.error_message = error_detail
@@ -239,10 +283,14 @@ async def _dispatch_event(
             evidence={"reason_codes": list(reason_codes)},
         )
         event_log.next_retry_at = None
-        if effective_decision == "approval_required" and not is_retry:
+        if effective_decision == "approval_required" and (not is_retry or scheduled_log_id):
             from app.services.e2ag_approval import create_approval
-
-            await create_approval(db, event_log)
+            from app.models.tables import E2AGApproval
+            pending = await db.scalar(select(E2AGApproval.id).where(
+                E2AGApproval.event_log_id == event_log.id,
+            ))
+            if not pending:
+                await create_approval(db, event_log)
         await db.commit()
         await db.refresh(event_log)
         metrics.record_dispatch(time.time() - start_time, False, agent_ids)
@@ -276,7 +324,7 @@ async def _dispatch_event(
 
     for agent_id in agent_ids:
         try:
-            task = await a2a_service.send_message(
+            task = await _send_event_message(
                 db=db,
                 agent_id=agent_id,
                 message=a2a_message,
@@ -353,7 +401,7 @@ async def resume_approved_event(event_log: EventLog, db: AsyncSession) -> None:
     reasons: list[str] = []
     for agent_id in event_log.matched_agent_ids:
         try:
-            task = await a2a_service.send_message(
+            task = await _send_event_message(
                 db=db,
                 agent_id=agent_id,
                 message=message,
@@ -383,3 +431,25 @@ async def resume_approved_event(event_log: EventLog, db: AsyncSession) -> None:
         },
     )
     await db.commit()
+
+
+async def _send_event_message(db, agent_id, message, context_id, trace_id):
+    """A durable scheduled delivery never creates a second task after a crash."""
+    from app.services.managed_admission import gate
+    async with gate(db):
+        occurrence = await db.scalar(select(CronOccurrence.id).where(
+            CronOccurrence.event_id == context_id,
+            CronOccurrence.scope == settings.runtime_scope,
+        ))
+        if occurrence:
+            tasks = list((await db.scalars(select(A2ATask).where(
+                A2ATask.context_id == context_id, A2ATask.agent_id == agent_id,
+            ))).all())
+            if len(tasks) > 1:
+                raise ValueError("SCHEDULE_TASK_IDENTITY_CONFLICT")
+            if tasks:
+                return tasks[0]
+        return await a2a_service.send_message(
+            db=db, agent_id=agent_id, message=message,
+            context_id=context_id, trace_id=trace_id,
+        )

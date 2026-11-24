@@ -1,5 +1,12 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "定时规则：UTC · 运行中合并后续触发": "Schedule: UTC · buffer overlapping triggers",
+  "下次触发": "Next trigger",
+  "调度状态": "Schedule state",
+  "待补触发次数": "Buffered trigger count",
+  "观测时间": "Observed at",
+  "原任务处理中": "Original task active",
+  "死信待处理": "Dead letter",
   "当前主体：{0}": "Current principal: {0}",
   "使用自定义输入": "Use custom input",
   "自定义任务输入（JSON）": "Custom task input (JSON)",

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Boolean, String, Text, DateTime, JSON
+from sqlalchemy import Boolean, String, Text, DateTime, JSON, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.database import Base
@@ -112,6 +112,44 @@ class Subscription(Base):
 
 
 # ── Agent Runtime（OS 管理的 DiAgent 服务实例） ──
+
+
+class CronCursor(Base):
+    """Persistent timer watermark and one active / one buffered occurrence."""
+
+    __tablename__ = "cron_cursors"
+    subscription_id: Mapped[str] = mapped_column(String(12), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    revision: Mapped[str] = mapped_column(String(32), nullable=False)
+    configuration: Mapped[dict] = mapped_column(JSON, nullable=False)
+    next_due: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    active_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    buffered_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    error: Mapped[str] = mapped_column(String(128), default="")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class CronOccurrence(Base):
+    """Transactional timer outbox; dispatch never advances the timer watermark."""
+
+    __tablename__ = "cron_occurrences"
+    __table_args__ = (UniqueConstraint("scope", "subscription_id", "revision", "first_due",
+                                      name="uq_cron_occurrence_slot"),)
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    subscription_id: Mapped[str] = mapped_column(String(12), nullable=False, index=True)
+    revision: Mapped[str] = mapped_column(String(32), nullable=False)
+    first_due: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    last_due: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    trigger_count: Mapped[int | None] = mapped_column(nullable=True)
+    event_id: Mapped[str] = mapped_column(String(12), nullable=False, unique=True)
+    event: Mapped[dict] = mapped_column(JSON, default=dict)
+    state: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    attempts: Mapped[int] = mapped_column(default=0)
+    next_retry_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error: Mapped[str] = mapped_column(String(128), default="")
+    resolution: Mapped[dict] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
 class AgentRuntime(Base):

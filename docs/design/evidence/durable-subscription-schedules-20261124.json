@@ -1,0 +1,186 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "ad20da1c16afc26866fd79c3716736e315f0b611",
+  "state": "compatibility_subscription_timers_verified_deployed_issue_30_open",
+  "tests": {
+    "full_backend": {
+      "total": 762,
+      "passed": 561,
+      "skipped": 201,
+      "seconds": 348.301,
+      "log_sha256": "4358006b3ca5ff1a660bed3db4177386d11206c5b3a808a802a46068eafd4e0b"
+    },
+    "native_and_recovery": {
+      "total": 56,
+      "passed": 56,
+      "skipped": 0,
+      "seconds": 70.844,
+      "log_sha256": "99c5e84ecf0d495facf42eeded67a627d135d37394976e08c17e5fd25fb676ba"
+    },
+    "final_timer_and_governance": {
+      "total": 51,
+      "passed": 51,
+      "skipped": 0,
+      "seconds": 27.183,
+      "log_sha256": "fe878593dd0e0d4c5051c685efc13a119186b968e286e75fb59396b844ce6cf2"
+    },
+    "final_image": {
+      "total": 20,
+      "passed": 19,
+      "skipped": 1,
+      "seconds": 20.573,
+      "log_sha256": "3f82405711cbd18031467b18709746e0c9941629d7f604d01d1a62b94fdcfbce"
+    }
+  },
+  "verification_scope": "Full regression followed by final E2AG/timer/native tests and image qualification after recovery hardening; frontend built and live browser checked separately.",
+  "image": {
+    "image": "sha256:ee1aaaf619921b5bdd33e54cb935828fa811eb885cf05903b7c3cab1a51a5ee3",
+    "checks": [
+      "health",
+      "registry_poll_contract",
+      "secret_write_only",
+      "isolated_empty_connectors",
+      "graceful_exit",
+      "managed_runtime_imports",
+      "managed_recovery_api",
+      "managed_recovery_cli",
+      "upgrade_api_drain",
+      "upgrade_cli_persistent_state",
+      "upgrade_api_resume",
+      "history_archive_migration",
+      "history_archive_cli_pipeline",
+      "timer_image_regressions",
+      "adoption_operator_required",
+      "adoption_native_id_validation",
+      "adoption_missing_task_rejected",
+      "adoption_table_initialized",
+      "adoption_cli",
+      "timer_operator_required",
+      "timer_api_cli_consistency",
+      "timer_subscription_validation",
+      "timer_history_pagination"
+    ],
+    "exit_code": 0
+  },
+  "wall_clock": {
+    "checks": [
+      "actual_lifespan_background_clock_fires",
+      "actual_e2ag_denies_unconfigured_target",
+      "container_restart_preserves_original_occurrence",
+      "one_event_zero_agent_launches_after_restart"
+    ],
+    "first_fire_wall_seconds": 30.128,
+    "source": "real container lifespan clock; no injected time; denial fixture",
+    "counts": {
+      "tasks": 0,
+      "events": 1
+    }
+  },
+  "development": {
+    "checks": [
+      "development_api_healthy",
+      "deployed_poll_contract",
+      "a2a_discovery_healthy",
+      "managed_recovery_api",
+      "runtime_history_preserved",
+      "events_history_preserved",
+      "worker-sales_process_alive",
+      "worker-construction_process_alive",
+      "knowledge_process_alive",
+      "dios-dev-identity-reconcile.timer_active",
+      "dios-dev-delegation-reconcile.timer_active",
+      "browser_sso_healthy",
+      "managed_ledger_initialized_without_history_import",
+      "managed_recovery_cli",
+      "upgrade_combines_kernel_and_compatibility",
+      "upgrade_operator_required",
+      "upgrade_both_gates_draining",
+      "upgrade_api_cli_state_consistency",
+      "upgrade_stale_revision_rejected",
+      "upgrade_idle_settle",
+      "upgrade_both_gates_resumed",
+      "upgrade_status_not_cached",
+      "history_archive_schema_initialized_without_import",
+      "project_cli_history_commands",
+      "service_recovery_tables_initialized_without_import",
+      "coordinated_drain_before_deployment",
+      "adoption_table_initialized_without_production_adoption",
+      "adoption_operator_required",
+      "adoption_missing_task_rejected",
+      "project_cli_adoption_commands",
+      "durable_schedule_api",
+      "timer_schema_initialized_without_production_triggers",
+      "project_cli_timer_commands"
+    ],
+    "history_count": 84,
+    "history_identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "event_count": 0,
+    "active_runs": 0,
+    "backup": "backup-before",
+    "schema_migration_required": true,
+    "schema_change": "additive cron_cursors and cron_occurrences",
+    "migration_applied_by": "existing application init_db while drained",
+    "backups": [
+      "backup-before",
+      "backup-final"
+    ]
+  },
+  "browser": {
+    "browser_path": "Browser plugin not available; existing Playwright",
+    "url": "http://127.0.0.1:13082/dios/#console/agents",
+    "title": "DiOS",
+    "checks": [
+      "live-ui-create-persisted-cron-and-next-due",
+      "live-ui-disable-timer",
+      "live-ui-enable-refresh",
+      "english-mobile-layout",
+      "future-rule-does-not-start-agent"
+    ],
+    "errors": []
+  },
+  "frontend_build": "passed",
+  "new_modules_lint": "passed",
+  "reused_components": [
+    "croniter calendar calculation",
+    "transactional outbox pattern",
+    "SQLAlchemy transactions and unique slot constraint",
+    "existing native filelock ownership",
+    "existing E2AG admission/approval/audit",
+    "original A2ATask/runtime/service recovery"
+  ],
+  "coverage": [
+    "first trigger and persistent watermark",
+    "same-slot duplicate processes",
+    "one active and one buffered occurrence with range/count",
+    "crash before EventLog and before/after A2ATask creation",
+    "original native process identity and synthetic report retained",
+    "unknown task blocks replacement",
+    "drain retains pending without spending retries",
+    "bounded catchup and explicit expired interval",
+    "disabled/updated/deleted configuration preserves accepted tasks",
+    "policy rechecked on recovery",
+    "approval creation/approved-dispatch crash recovery",
+    "missing approval evidence does not revive dead letters",
+    "dead-letter retry restricted to proven pre-dispatch failure",
+    "operator resolution idempotency and audit-chain validation",
+    "chronological pagination with scope-bound cursor",
+    "actual UI saves/pauses/resumes future cron; English mobile layout; zero model invocation"
+  ],
+  "remaining": [
+    "Profile/Run durable schedule submission and renewable authorization source",
+    "multi-control-host scheduling ownership and fencing qualification",
+    "configurable timezone, overlap and catchup policies",
+    "global dead-letter operations and scheduled-history archive linkage",
+    "capacity and scheduling latency qualification; G2 and user acceptance"
+  ],
+  "limits": [
+    "qualified for one control host with shared native lock directory; no multi-control-host leader qualification",
+    "five-field UTC cron; fixed 24-hour catchup and buffer_one policy",
+    "actual native test uses synthetic task, not a provider model; production reviewer unchanged"
+  ],
+  "project_fields_updated": false,
+  "screenshots": {
+    "timer-live.png": "eedaa945d9e38c498e31ca4b5ad03c75764de3e67d698de8fec82d0aaa288064",
+    "timer-live.mobile.png": "322094040680aec62caed060a31f66fd0f92bd45ee4d02ec0b3c9fc86f4305e1"
+  }
+}

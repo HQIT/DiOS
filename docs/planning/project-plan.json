@@ -594,8 +594,8 @@
       "priority": "最高",
       "status": "In Progress",
       "progress": {
-        "date": "2026-11-19",
-        "summary": "分类故障、共享资源熔断和单路自动恢复已接通远程执行；原 Run 下新建 Attempt 并重新核验 E2AG。限流/额度开发演练验证 0→1→2 路恢复。",
+        "date": "2026-11-24",
+        "summary": "远程执行、分类恢复及兼容订阅持久定时接通；定时水位、触发合并、原任务恢复、死信和 E2AG 审批恢复已测试并部署。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
@@ -617,9 +617,11 @@
           "docs/design/managed-service-recovery-10-30.md",
           "docs/design/evidence/managed-service-recovery-20261124.json",
           "docs/design/managed-adoption-10-30-51.md",
-          "docs/design/evidence/managed-adoption-20261124.json"
+          "docs/design/evidence/managed-adoption-20261124.json",
+          "docs/design/durable-subscription-schedules-30.md",
+          "docs/design/evidence/durable-subscription-schedules-20261124.json"
         ],
-        "remaining": "持久定时、重叠触发合并与死信处置；供应商错误映射、双物理主机与实际 Agent 资格由 #56/#58 推进。",
+        "remaining": "Profile/Run 定时入口与长期工作授权、跨控制主机仲裁、可配置时区/补触发、全局死信运营及定时历史归档关联；真实供应商与多主机资格仍按 #56/#58 推进。",
         "development": {
           "date": "2026-11-13",
           "validation_status": "engineering_verified_product_acceptance_pending",
@@ -631,8 +633,8 @@
           "published_commit": "02c3d5a"
         },
         "next_step": {
-          "scope": "持久定时、重叠触发合并与死信处置；并按整体路线推进 #56/#58 真实智能体接入。",
-          "acceptance": "触发去重、调度所有权及排空升级保持原任务身份和 E2AG 边界。"
+          "scope": "将相同定时语义接入既有 Profile/Run 提交和 E2AG 工作授权，复用原 RuntimeStore 幂等回执；并继续 #56/#58 真实智能体资格。",
+          "acceptance": "每次触发核验当前授权，重启保持同一 Run，未知任务阻止重叠派发，API/CLI/Console 口径一致。"
         },
         "remote_control": {
           "date": "2026-11-19",
@@ -690,7 +692,7 @@
         "design": "docs/design/managed-task-recovery-10-30.md",
         "evidence": "docs/design/evidence/managed-recovery-20261124.json",
         "state": "native_api_restart_verified",
-        "next": "继续持久定时、重叠触发和死信；远端未知请求查询/取消及跨主机接管按 Provider 资格推进。本机既有兼容任务可经显式交接接入原对象恢复。"
+        "next": "兼容订阅持久定时与死信已交付；继续内核 Profile/Run 定时提交、远端未知请求和跨主机资格。"
       },
       "managed_upgrade": {
         "design": "docs/design/managed-upgrade-10-30.md",
@@ -717,6 +719,19 @@
         "state": "verified_deployed",
         "summary": "既有兼容任务通过只读预检、明确停写交接和原对象绑定接入恢复；原实例报告与取消通过真实容器和独立 CLI 验证。E2AG 撤权及审计与映射原子提交。",
         "remaining": "跨主机及其他 Provider 接管资格、源控制器停写的运维交接、完整部署回退与 G2 验收。"
+      },
+      "durable_subscription_schedules": {
+        "design": "docs/design/durable-subscription-schedules-30.md",
+        "evidence": "docs/design/evidence/durable-subscription-schedules-20261124.json",
+        "state": "compatibility_entry_verified_deployed",
+        "summary": "兼容订阅定时持久水位、事务发件箱、BUFFER_ONE、原任务恢复与死信处置接通；API/CLI/Console 同步，E2AG 准入和审批恢复经过验证。",
+        "remaining": [
+          "Profile/Run durable schedule submission and renewable authorization source",
+          "multi-control-host scheduling ownership and fencing qualification",
+          "configurable timezone, overlap and catchup policies",
+          "global dead-letter operations and scheduled-history archive linkage",
+          "capacity and scheduling latency qualification; G2 and user acceptance"
+        ]
       }
     },
     {
@@ -2082,6 +2097,19 @@
         "state": "engineering_evidence_available",
         "summary": "既有兼容任务通过只读预检、明确停写交接和原对象绑定接入恢复；原实例报告与取消通过真实容器和独立 CLI 验证。E2AG 撤权及审计与映射原子提交。",
         "remaining": "跨主机及其他 Provider 接管资格、源控制器停写的运维交接、完整部署回退与 G2 验收。"
+      },
+      "durable_subscription_schedules": {
+        "design": "docs/design/durable-subscription-schedules-30.md",
+        "evidence": "docs/design/evidence/durable-subscription-schedules-20261124.json",
+        "state": "engineering_evidence_available",
+        "summary": "兼容订阅定时持久水位、事务发件箱、BUFFER_ONE、原任务恢复与死信处置接通；API/CLI/Console 同步，E2AG 准入和审批恢复经过验证。",
+        "remaining": [
+          "Profile/Run durable schedule submission and renewable authorization source",
+          "multi-control-host scheduling ownership and fencing qualification",
+          "configurable timezone, overlap and catchup policies",
+          "global dead-letter operations and scheduled-history archive linkage",
+          "capacity and scheduling latency qualification; G2 and user acceptance"
+        ]
       }
     },
     {

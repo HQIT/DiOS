@@ -4,11 +4,11 @@ import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import async_session
-from app.models.tables import EventLog
+from app.models.tables import CronOccurrence, EventLog
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,7 @@ class EventRetryWorker:
                     EventLog.status == "failed",
                     EventLog.retry_count < EventLog.max_retries,
                     EventLog.next_retry_at <= now,
+                    ~exists(select(CronOccurrence.id).where(CronOccurrence.event_id == EventLog.id)),
                 ).limit(10)  # 每次最多处理 10 个，避免阻塞
             )
             

@@ -424,6 +424,9 @@ async def get_event(event_id: str, db: AsyncSession = Depends(get_db)):
 async def retry_event_manually(event_id: str, db: AsyncSession = Depends(get_db)):
     """手动重试失败的事件（运维操作）"""
     from datetime import datetime, timezone
+    from app.models.tables import CronOccurrence
+    if await db.scalar(select(CronOccurrence.id).where(CronOccurrence.event_id == event_id)):
+        raise HTTPException(409, "SCHEDULE_USE_DEAD_LETTER_RESOLUTION")
     
     event_log = await db.get(EventLog, event_id)
     if not event_log:

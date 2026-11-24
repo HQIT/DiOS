@@ -231,6 +231,7 @@ class SubscriptionOut(BaseModel):
     cron_expression: str
     enabled: bool
     created_at: datetime
+    schedule: Optional[dict] = None
 
     model_config = {"from_attributes": True}
 

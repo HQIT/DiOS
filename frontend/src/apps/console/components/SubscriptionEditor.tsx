@@ -14,6 +14,12 @@ const EMPTY: Omit<Subscription, "id" | "agent_id" | "created_at"> = {
   cron_expression: "",
   enabled: true,
 };
+const SCHEDULE_STATES: Record<string, string> = {
+  pending: "等待派发", running: "原任务处理中", dead_letter: "死信待处理",
+  approval_required: "等待审批", succeeded: "已完成", denied: "已拒绝",
+  discarded: "已忽略", cancelled: "已取消",
+};
+const formatScheduleTime = (value: string) => new Date(value).toLocaleString(undefined, { timeZoneName: "short" });
 
 export default function SubscriptionEditor({ agentId }: Props) {
   const [subs, setSubs] = useState<Subscription[]>([]);
@@ -21,6 +27,7 @@ export default function SubscriptionEditor({ agentId }: Props) {
   const [allEventTypes, setAllEventTypes] = useState<EventCatalogType[]>([]);
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState({ ...EMPTY });
+  const [error, setError] = useState("");
 
   const inNamespace = (sourcePattern: string, namespacePattern: string): boolean => {
     const ns = namespacePattern.replace(/\/\*$/, "");
@@ -44,7 +51,7 @@ export default function SubscriptionEditor({ agentId }: Props) {
         ...prev,
         source_pattern: prev.source_pattern || opts[0]?.source_pattern || "",
       }));
-    });
+    }).catch((err) => setError(err instanceof Error ? err.message : String(err)));
   useEffect(() => { load(); }, [agentId]);
 
   useEffect(() => {
@@ -69,30 +76,42 @@ export default function SubscriptionEditor({ agentId }: Props) {
 
   const handleAdd = async () => {
     if (draft.event_types.length === 0) return;
-    await api.createSubscription(agentId, draft);
+    try {
+      await api.createSubscription(agentId, draft);
+      setError("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      return;
+    }
     setAdding(false);
     setDraft({ ...EMPTY, source_pattern: sourceOptions[0]?.source_pattern || "" });
     load();
   };
 
   const handleToggle = async (sub: Subscription) => {
-    await api.updateSubscription(agentId, sub.id, { enabled: !sub.enabled });
-    load();
+    try {
+      await api.updateSubscription(agentId, sub.id, { enabled: !sub.enabled });
+      setError(""); load();
+    } catch (err) { setError(err instanceof Error ? err.message : String(err)); }
   };
 
   const handleDelete = async (subId: string) => {
-    await api.deleteSubscription(agentId, subId);
-    load();
+    try {
+      await api.deleteSubscription(agentId, subId);
+      setError(""); load();
+    } catch (err) { setError(err instanceof Error ? err.message : String(err)); }
   };
 
   return (
     <div className="sub-editor">
       <div className="sub-header">
         <span className="sub-title">{translateUI("事件订阅")}</span>
+        <button className="btn-sm btn-secondary" onClick={() => load()}>{translateUI("刷新")}</button>
         {!adding && (
           <button className="btn-sm" onClick={() => setAdding(true)}>{translateUI("+ 添加订阅")}</button>
         )}
       </div>
+      {error && <p role="alert">{error}</p>}
 
       {subs.length === 0 && !adding && (
         <p className="empty-hint">{translateUI("暂未配置事件订阅，该 Agent 不会被事件触发")}</p>
@@ -116,6 +135,15 @@ export default function SubscriptionEditor({ agentId }: Props) {
               <span key={t} className="event-type-badge">{translateUI(t)}</span>
             ))}
           </div>
+          {s.schedule && <div className="sub-schedule-status">
+            <p>{translateUI("定时规则：UTC · 运行中合并后续触发")}</p>
+            <p>{translateUI("下次触发")}: {s.schedule.next_due ? formatScheduleTime(s.schedule.next_due) : translateUI("已停用")}</p>
+            {s.schedule.active && <p>{translateUI("调度状态")}: {translateUI(SCHEDULE_STATES[s.schedule.active.state] || s.schedule.active.state)} · {s.schedule.active.event_id}</p>}
+            {s.schedule.buffered && <p>{translateUI("待补触发次数")}: {s.schedule.buffered.trigger_count}</p>}
+            {(s.schedule.error || s.schedule.active?.error) && <p role="status">{s.schedule.error || s.schedule.active?.error}</p>}
+            {s.schedule.active?.next_retry_at && <p>{translateUI("下次重试")}: {formatScheduleTime(s.schedule.active.next_retry_at)}</p>}
+            <p>{translateUI("观测时间")}: {formatScheduleTime(s.schedule.observed_at)}</p>
+          </div>}
         </div>
       ))}
 
