@@ -39,6 +39,8 @@ async def observe_identity_revocation(store,run,code):
 
 async def create(c,scope,run,descriptor,now):
     await require(c)
+    from .logout_events import require_source
+    await require_source(c,scope,run['input'].get('principal'))
     if (descriptor['profile_id']!=run['input'].get('runtime_profile')
             or descriptor['profile_digest']!=run['input'].get('profile_digest')
             or descriptor['secret_refs']!=run['input'].get('secret_refs',[])):
@@ -63,6 +65,8 @@ async def create(c,scope,run,descriptor,now):
 async def checked_work(c,run,attempt,now,action):
     reference=run['input'].get('work_authorization_ref')
     if not reference:return None
+    from .logout_events import require_source
+    await require_source(c,run['scope'],run['input'].get('principal'))
     await require(c)
     row=(await c.execute(select(work).where(work.c.id==reference,work.c.scope==run['scope'],work.c.run_id==run['id']))).mappings().first()
     if not row:raise RuntimeErrorCode('WORK_AUTHORIZATION_NOT_FOUND')
@@ -207,9 +211,11 @@ async def view(store,run_id):
             .order_by(decisions.c.created_at.desc(),decisions.c.id).limit(20))).mappings().all()
         from .identity_reconciliation import observation
         source_check=await observation(c,store.scope,run_id,now)
+        from .logout_events import observation as logout_observation
+        source_event=await logout_observation(c,store.scope,run['input'].get('principal'))
         return dict(mode='e2ag',reference=reference,subject=row['subject'],actor=row['actor'],policy_id=row['policy_id'],
             state='expired' if row['state']=='active' and row['expires_at']<=now else row['state'],
-            expires_at=row['expires_at'],authorization_epoch=row['authorization_epoch'],source_check=source_check,
+            expires_at=row['expires_at'],authorization_epoch=row['authorization_epoch'],source_check=source_check,source_event=source_event,
             secret_refs=[{'ref':x['ref'],'version':x['version']} for x in row['secret_refs']],
             grant=({k:grant[k] for k in ('attempt_id','session_id','lease_epoch','version','state','expires_at')} | {'state':'expired' if grant['state']=='active' and grant['expires_at']<=now else grant['state']} if grant else None),
             decisions=[dict(id=d['id'],action=d['action'],created_at=d['created_at'],

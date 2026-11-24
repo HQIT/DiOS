@@ -49,7 +49,9 @@ def validate_scopes(value):
 
 def validate_reference(value,provider):
     required={'ref','version','sha256','issuer','subject','audience','client_id','expires_at'}
-    if not isinstance(value,dict) or not required<=set(value) or set(value)-required-{'path','secret_ref','required_scopes'}:raise ValueError('source reference')
+    if not isinstance(value,dict) or not required<=set(value) or set(value)-required-{'path','secret_ref','required_scopes','session_id','session_started_at'}:raise ValueError('source reference')
+    if 'session_id' in value:identifier(value['session_id'])
+    if 'session_started_at' in value and (type(value['session_started_at']) not in (int,float) or not math.isfinite(value['session_started_at']) or value['session_started_at']<0):raise ValueError('session start')
     if 'required_scopes' in value:validate_scopes(value['required_scopes'])
     if ('path' in value)==('secret_ref' in value):raise ValueError('source selection')
     for key in ('ref','version','issuer','subject','audience','client_id'):identifier(value[key])
@@ -128,6 +130,8 @@ class OAuthSource:
         if (value['issuer']!=reference['issuer'] or value['subject']!=reference['subject'] or value['client_id']!=reference['client_id']
                 or value['expires_at']<reference['expires_at'] or not set(reference.get('required_scopes',[]))<=set(value['scopes'])):
             raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
+        if any(k in reference and reference[k]!=value.get(k) for k in ('session_id','session_started_at')):
+            raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
         return {k:(reference['expires_at'] if k=='expires_at' else value[k]) for k in ('issuer','subject','client_id','expires_at')}
 
     async def _introspect(self,token,secret):
@@ -162,4 +166,13 @@ class OAuthSource:
             scopes=scope.split(' ') if scope else []
             validate_scopes(scopes)
         except (ValueError,TypeError,RuntimeErrorCode):raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
-        return {'issuer':value['iss'],'subject':value['sub'],'client_id':value['client_id'],'expires_at':exp,'scopes':scopes}
+        session={}
+        if 'sid' in value:
+            try:identifier(value['sid'])
+            except RuntimeErrorCode:raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
+            session['session_id']=value['sid']
+        if 'auth_time' in value:
+            if type(value['auth_time']) not in (int,float) or not math.isfinite(value['auth_time']) or not 0<=value['auth_time']<=now:
+                raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE')
+            session['session_started_at']=value['auth_time']
+        return {'issuer':value['iss'],'subject':value['sub'],'client_id':value['client_id'],'expires_at':exp,'scopes':scopes,**session}

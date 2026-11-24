@@ -193,6 +193,7 @@ class SourceIntake:
                 "audience": self.provider["audience"],
                 "required_scopes": sorted(row["oauth_identity"]["required_scopes"]),
                 "secret_ref": self.secret(key),
+                **{k:claims[k] for k in ('session_id','session_started_at') if k in claims},
             }
             record = {
                 "format": 1,

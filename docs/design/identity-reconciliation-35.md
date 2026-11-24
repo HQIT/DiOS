@@ -15,7 +15,7 @@ DiOS 对有效的 Work 定期复查来源身份。来源确认失效时持久撤
 | Authlib / PyOIDC 登出消息处理 | 当前安装 Authlib 1.9.10 无对应接收模块；最新文档中的支持属于 1.10 预发布线。PyOIDC 提供 LogoutToken 校验，仍需接收服务、持久防重放及业务撤销接线资格。 |
 | RFC 7662 恢复对账 | 复用已验证 Provider，可立即覆盖暂时故障与遗漏事件后的来源复查，作为本次交付。 |
 
-[OIDC Back-Channel Logout](https://openid.net/specs/openid-connect-backchannel-1_0.html)规定签名注销消息和恢复错误重试建议；事件接收仍需可靠持久化、重放防护及恢复对账。标准事件接收保留在 #35 后续范围。
+[OIDC Back-Channel Logout](https://openid.net/specs/openid-connect-backchannel-1_0.html)规定签名注销消息和恢复错误重试建议；事件接收仍需可靠持久化、重放防护及恢复对账。[标准注销事件接收](backchannel-logout-35.md)已接通持久事件、Work/Grant 撤销和后续准入栅栏，并通过隔离 Keycloak 推送验证；既有浏览器 realm 回调注册继续单独验收。
 
 ## 职责与状态
 
@@ -61,6 +61,6 @@ python -m app.runtime.cli --database-url "$DIOS_RUNTIME_DATABASE_URL" \
 
 真实服务停机与恢复已覆盖排队任务的自动复查；单会话登出后，其排队 Work 被撤销且未启动进程，另一独立会话通过审批并完成报告。首次运行中故障实验暴露了 Worker 在身份复核不可用时直接结束 Attempt 的缺口，原失败记录保留。[原生 Docker 暂停续接](identity-pause-30.md)已补齐本地执行路径，重新核验 E2AG 后继续原进程与会话；其他执行器和 Worker 重启续接继续按 #30 验证。Worker 与对账并发撤销时，以 Work/Grant 账本为授权依据，保留各自最后观测时间。
 
-#35 继续推进标准签名登出事件接收、三层委派收窄、审批人资格变化、事件重复/乱序及跨服务严格撤销排序。撤销 Work 会阻止后续受控动作；已在途动作的终止、远端取消确认和副作用处理仍使用各自执行状态，界面保持区分。
+#35 继续推进既有浏览器 realm 的标准回调资格、三层委派收窄、审批人资格变化及跨服务严格撤销排序。撤销 Work 会阻止后续受控动作；已在途动作的终止、远端取消确认和副作用处理仍使用各自执行状态，界面保持区分。
 
 `scripts/probe_identity_reconciliation.mjs <private-fixture> <output>` 提供真实浏览器部分。fixture 沿用浏览器 SSO 的回环地址和测试账号；脚本提交两个独立会话任务并输出 `<output>.pending.json`。外部开发验证器负责控制测试 IdP、检查持久状态和独立审批，创建 `<output>.logout` 后脚本退出 A，会以 `<output>.logged-out` 确认，再等待 B 的报告。验证器应先确认只有测试任务活跃，并在异常退出时恢复 IdP 与暂停的测试 Worker。该脚本不会自动操作生产服务。

@@ -1,0 +1,13 @@
+# Add this exact location inside the browser gateway's server block after
+# registering the same URI for the enterprise RP client at the trusted IdP.
+# Render DIOS_API_* placeholders like nginx.conf.template. No auth_request:
+# authority is the signed logout_token verified by the dedicated receiver.
+location = /dios/api/os/runtime/identity/logout/enterprise {
+  if ($request_method != POST) { return 405; }
+  client_max_body_size 32k;
+  client_body_timeout 3s;
+  proxy_pass_request_headers off;
+  proxy_set_header Content-Type $http_content_type;
+  proxy_set_header Host ${DIOS_API_HOST};
+  proxy_pass ${DIOS_API_UPSTREAM}/api/os/runtime/identity/logout/enterprise;
+}

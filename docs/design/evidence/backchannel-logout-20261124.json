@@ -1,0 +1,90 @@
+{
+  "date": "2026-11-24",
+  "component": {
+    "name": "coreos/go-oidc",
+    "version": "v3.21.0",
+    "interface": "IDTokenVerifier.VerifyLogout",
+    "crypto_dependency": "go-jose/v4 v4.1.4",
+    "go_build_requirement": "1.25+"
+  },
+  "backend_regression": {
+    "total": 544,
+    "passed": 415,
+    "skipped": 129,
+    "timing": "full suite before final verifier error classification correction; final native and focused suite rerun passed"
+  },
+  "final_focused_suite": {
+    "total": 10,
+    "passed": 10,
+    "includes_native_keycloak": true
+  },
+  "go_tests": {
+    "passed": true,
+    "algorithms": [
+      "RS256",
+      "ES256"
+    ],
+    "invalid_cases_per_algorithm": 16
+  },
+  "frontend": {
+    "build": "passed",
+    "changed_files_eslint": {
+      "errors": 0,
+      "existing_warnings": 1
+    },
+    "whole_repo_eslint": {
+      "existing_errors": 5,
+      "warnings": 5,
+      "error_files_unchanged": [
+        "ChatPage.tsx",
+        "AgentList.tsx",
+        "EventLogList.tsx",
+        "SubscriptionEditor.tsx"
+      ]
+    }
+  },
+  "design_contract_checks": 681,
+  "authorization_contract_checks": 263,
+  "native_protocol": {
+    "native_delivery": true,
+    "invalid_token_no_event": true,
+    "polling_disabled": true,
+    "matching_work_and_grant_revoked": true,
+    "independent_session_preserved": true,
+    "source_event": {
+      "id": "9069c8d5354f98957dd687191ef40c03d511424737aa8474a7aa6ab525f07639",
+      "issued_at": 1795499313.0,
+      "received_at": 1795499313.9150069,
+      "revoked_work_count": 1
+    },
+    "live_process_test": false
+  },
+  "ui": {
+    "kind": "read-only UI fixture using native receipt",
+    "checks": [
+      "chinese-notice",
+      "english-notice",
+      "logout-overrides-prior-valid-observation",
+      "mobile-layout",
+      "no-browser-errors"
+    ]
+  },
+  "deployment": {
+    "api_health": "ok",
+    "browser_entry": "ok",
+    "unsigned_rejected": true,
+    "cli_receipts_readable": true,
+    "invalid_event_did_not_mutate_ledger": true,
+    "history_before": 67,
+    "history_after": 67,
+    "active_runs": 0,
+    "callback_registration": "pending-existing-realm"
+  },
+  "limits": [
+    "Existing browser realm callback registration and exact ingress mapping pending; isolated Keycloak provides native protocol evidence",
+    "Native protocol test covers HTTP, verifier, SQLite, Work and Grant; no live executor process in this test",
+    "PostgreSQL and physical multi-host qualification pending for this new event ledger",
+    "Supported profile requires exp, RS256 or ES256, bounded event age; delayed messages retain RFC 7662 recovery path",
+    "Three-level delegation, approver qualification changes and cross-service strict revocation ordering remain #35 acceptance"
+  ]
+}

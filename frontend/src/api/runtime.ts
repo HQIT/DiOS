@@ -24,6 +24,7 @@ export interface Attempt {
 export interface Artifact { id: string; attempt_id: string; kind: string; size: number; digest: string; created_at: number; }
 export interface WorkAuthorization {
   source_check?: { outcome: "pending" | "valid" | "unavailable" | "revoked"; reason: string | null; checked_at: number | null; last_success_at: number | null; next_check_at: number; failures: number; checking: boolean; stale: boolean } | null;
+  source_event?: { id: string; issued_at: number; received_at: number; revoked_work_count: number } | null;
   mode: string; reference?: string; subject?: string; actor?: string; policy_id?: string;
   state?: string; expires_at?: number; authorization_epoch?: number;
   secret_refs?: { ref: string; version: string }[];

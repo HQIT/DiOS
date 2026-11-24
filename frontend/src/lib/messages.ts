@@ -605,6 +605,8 @@ export const messages: Record<string, string> = {
   "生产治理操作 · 待身份与 E2AG 验收": "Production governance · Identity and E2AG acceptance pending",
   "请输入 Access Token": "Enter an Access Token",
   "身份对账：": "Identity reconciliation: ",
+  "身份来源已注销，相关工作授权已撤销。": "The identity session has logged out; related work authorization has been revoked.",
+  "事件接收：": "Event received: ",
   "已暂停 {0} 个进程": "{0} processes paused",
   "执行已暂停": "Execution paused",
   "执行已暂停，身份恢复并通过授权复核后继续。": "Execution paused; resumes after identity recovery and authorization revalidation.",

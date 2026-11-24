@@ -82,6 +82,38 @@ async def service(request:Request,_=Depends(operator)):
 
 router=APIRouter(prefix='/runtime',tags=['runtime-tasks'],route_class=RuntimeRoute)
 
+_logout_slots=asyncio.Semaphore(4)
+
+@router.post('/identity/logout/{provider_id}')
+async def backchannel_logout(provider_id:str,request:Request):
+    """Provider-signed endpoint; browser cookies and operator tokens grant no authority."""
+    import os
+    from urllib.parse import parse_qs
+    from app.runtime.logout_verifier import verify
+    from app.runtime.logout_events import receive
+    console=getattr(request.app.state,'runtime_console',None)
+    path=os.environ.get('DIOS_RUNTIME_LOGOUT_CONFIG');binary=os.environ.get('DIOS_RUNTIME_LOGOUT_VERIFIER')
+    if console is None or not path or not binary:raise HTTPException(503,detail='LOGOUT_NOT_CONFIGURED')
+    if _logout_slots.locked():raise HTTPException(503,detail='LOGOUT_BUSY')
+    if request.headers.get('content-type','').split(';')[0].strip().lower()!='application/x-www-form-urlencoded':raise HTTPException(415,detail='LOGOUT_FORM_REQUIRED')
+    async with _logout_slots:
+        try:
+            raw=b''
+            async with asyncio.timeout(3):
+                async for chunk in request.stream():
+                    raw+=chunk
+                    if len(raw)>32768:raise HTTPException(413,detail='LOGOUT_BODY_TOO_LARGE')
+            values=parse_qs(raw.decode('ascii'),strict_parsing=True,max_num_fields=1)
+            if set(values)!={'logout_token'} or len(values['logout_token'])!=1 or not 1<=len(values['logout_token'][0])<=16384:raise ValueError()
+        except (ValueError,UnicodeError,TimeoutError):raise HTTPException(400,detail='LOGOUT_TOKEN_INVALID') from None
+        try:
+            event,token_digest=await verify(path,binary,provider_id,values['logout_token'][0])
+            await receive(console.store,event,token_digest)
+        except RuntimeErrorCode as exc:
+            status=400 if exc.code in {'LOGOUT_TOKEN_INVALID','LOGOUT_EVENT_CONFLICT'} else 503
+            raise HTTPException(status,detail=exc.code) from None
+    return Response(status_code=200,headers={'Cache-Control':'no-store'})
+
 class Submit(BaseModel):
     model_config=ConfigDict(extra='forbid',str_strip_whitespace=True)
     profile_id: str=Field(min_length=1,max_length=160)

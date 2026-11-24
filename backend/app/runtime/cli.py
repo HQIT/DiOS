@@ -50,6 +50,14 @@ async def execute(args):
                 return await query.run(args.run_id, limit=args.limit,
                     attempt_cursor=args.attempt_cursor, artifact_cursor=args.artifact_cursor)
         store = RuntimeStore(db, args.scope)
+        if args.command == 'identity-events':
+            from .logout_schema import events, check
+            if not 1<=args.limit<=100:raise RuntimeErrorCode('INVALID_LIMIT')
+            async with db.read(args.scope) as c:
+                if not await check(c):raise RuntimeErrorCode('LOGOUT_MIGRATION_REQUIRED')
+                rows=(await c.execute(select(events.c.id,events.c.issuer,events.c.client_id,events.c.issued_at,events.c.received_at,events.c.revoked_work_count)
+                    .where(events.c.scope==args.scope).order_by(events.c.received_at.desc(),events.c.id).limit(args.limit))).mappings().all()
+                return {'items':[dict(x) for x in rows]}
         if args.command == 'identity-reconcile':
             from .identity_reconciliation import IdentityReconciler
             from .work_policy import FileWorkPolicy
@@ -206,6 +214,8 @@ def main(argv=None):
     credential_revoke.add_argument('--revision',type=int,required=True)
     commands.add_parser('circuits',help='inspect persisted endpoint/account cooldown and single-probe ownership')
     identity=commands.add_parser('identity-reconcile',help='bounded source check; retains Work/approval on outage, revokes confirmed invalid identities')
+    events=commands.add_parser('identity-events',help='read verified logout receipts in the selected scope')
+    events.add_argument('--limit',type=int,default=20)
     identity.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))
     identity.add_argument('--limit',type=int,default=20)
     identity.add_argument('--interval',type=float,default=60)
