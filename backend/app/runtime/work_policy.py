@@ -7,6 +7,12 @@ from .store import encoded, bounded, identifier
 from app.services.e2ag import evaluate_work_permission
 
 
+def policy_matches(current, captured_digest):
+    """Scoped grants, or legacy grants against an unchanged full policy file."""
+    return isinstance(captured_digest,str) and captured_digest in {
+        current['policy_digest'],current.get('legacy_policy_digest')}
+
+
 def permission(record,action):
     return dict(action='runtime.'+action,resource_kind='runtime_profile',resource_id=record['profile_id'],
         resource_version=record['profile_digest'],constraint_revision=record['policy_id'])
@@ -30,8 +36,12 @@ class FileWorkPolicy:
         if row.get('secret_refs',[])!=secret_refs:raise RuntimeErrorCode('SECRET_REFERENCE_CHANGED')
         ttl=row.get('work_ttl_seconds',86400)
         if type(ttl) is not int or not 60<=ttl<=86400:raise RuntimeErrorCode('WORK_DEADLINE_INVALID')
+        # Independent profile upgrades retain other profiles' in-flight grants.
+        scoped={key:config[key] for key in ('version','policy_id','subject','actor')}
+        scoped.update(profile_id=profile_id,profile=row)
         result=dict(subject=config['subject'],actor=config['actor'],policy_id=config['policy_id'],
-            policy_digest=hashlib.sha256(encoded(config)).hexdigest(),profile_id=profile_id,profile_digest=profile_digest,
+            policy_digest=hashlib.sha256(encoded(scoped)).hexdigest(),
+            legacy_policy_digest=hashlib.sha256(encoded(config)).hexdigest(),profile_id=profile_id,profile_digest=profile_digest,
             permissions=row.get('permissions',{}),secret_refs=secret_refs,work_ttl_seconds=ttl)
         bounded(result)
         for action in ('execute','accept_result'):

@@ -1,0 +1,199 @@
+{
+  "date": "2026-11-24",
+  "scope": "Public SDK and independent reference applications, dynamic inputs, result contracts and per-profile E2AG policy revisions",
+  "backend": {
+    "run": 430,
+    "passed": 310,
+    "skipped": 120,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 236.235,
+    "skip_reason": "PostgreSQL/Docker fixture prerequisites not enabled in this discovery; actual Docker validation recorded separately"
+  },
+  "initial_regression": {
+    "run": 429,
+    "passed": 308,
+    "skipped": 120,
+    "errors": 1,
+    "case": "test_recovery_audit_failure_rolls_back_and_keeps_receipt",
+    "code": "TOOL_AUTHORIZATION_EXPIRED",
+    "followup": "Receipt group 12/12 passed; final complete suite result above. No production expiry relaxation."
+  },
+  "sdk_installed_wheel_tests": {
+    "passed": 19,
+    "failed": 0,
+    "environment": "isolated venv; no backend/app or SQLAlchemy installed"
+  },
+  "frontend_build": true,
+  "design_checks": 681,
+  "authorization_checks": 263,
+  "distributions": {
+    "files": [
+      {
+        "name": "dios_sdk-0.1.0-py3-none-any.whl",
+        "sha256": "975e0a1bb2c46c951dccd4f7c8f5f48c0b37c447ee638046d9f9a605e362a0d5",
+        "size": 13420
+      },
+      {
+        "name": "dios_sdk-0.1.0.tar.gz",
+        "sha256": "406363c773d480592cf90271fa180aaed7a08d16c2f7c4f432c29765fdd5e5a6",
+        "size": 15210
+      },
+      {
+        "name": "knowledge-evidence-bundle.zip",
+        "sha256": "feed5326e6ed0ad3df79e3bdae907876de3394658021a6d122e36cac0548929b",
+        "size": 17493
+      },
+      {
+        "name": "knowledge-source-bundle.zip",
+        "sha256": "59afa7338bd61e0a9bd779de287465d7fae991a0a5f6b389510db430d6dd780d",
+        "size": 17266
+      },
+      {
+        "name": "knowledge_evidence-0.1.0-py3-none-any.whl",
+        "sha256": "c76cc6b8d961a82d3bb67f4a2e2e2d6e461cb704b5cff54c5be2d32600024147",
+        "size": 4043
+      },
+      {
+        "name": "knowledge_evidence-0.1.0.tar.gz",
+        "sha256": "c35d0bf01b4395db71f23b5e1f4102029a43f8ef38c57b9c65f46e46be48fdcc",
+        "size": 3758
+      },
+      {
+        "name": "knowledge_source-0.1.0-py3-none-any.whl",
+        "sha256": "6530145f94f81b76c7b0c98645d8fa48813008f25da144478f027ca941666ef5",
+        "size": 4346
+      },
+      {
+        "name": "knowledge_source-0.1.0.tar.gz",
+        "sha256": "75d30c0f7602b1033cbff1f080919d05e110277b6c173f581bbab6c783cac9d9",
+        "size": 3959
+      },
+      {
+        "name": "static-review-bundle.zip",
+        "sha256": "50e63fd4a2f0923d43e4af64702dc9a830655bcdc1ae1f48a23d7bf61c3e0ff6",
+        "size": 17789
+      },
+      {
+        "name": "static_review-0.1.0-py3-none-any.whl",
+        "sha256": "864d5f2700b51e16fe7ae22f68d750000ad98656c504b536473d6ea8aff19d65",
+        "size": 4424
+      },
+      {
+        "name": "static_review-0.1.0.tar.gz",
+        "sha256": "67374885953e49a348925240251f86e57c8bb29db332b46222004def439c92c6",
+        "size": 3999
+      }
+    ]
+  },
+  "images": {
+    "knowledge-evidence": {
+      "image": "sha256:414d6a2b7cc9401b3187addf98bb12f27e5cc076a487c29e6f39c5e63044eb35",
+      "core_package_absent": true,
+      "dependencies": "0.1.0"
+    },
+    "knowledge-source": {
+      "image": "sha256:cf745e10fc82d072efc013ca44d86aab335dd4bd054a3f28c087ff10fa65d324",
+      "core_package_absent": true,
+      "dependencies": "0.1.0"
+    },
+    "static-review": {
+      "image": "sha256:d0315f6f5a66ed1772210e42687267193270f1fed3c57533ea7a825db76627ba",
+      "core_package_absent": true,
+      "dependencies": "0.1.0"
+    }
+  },
+  "sdk_live": {
+    "run_id": "9855e75b-3023-42ff-ad4d-ce6212c1d872",
+    "idempotent": true,
+    "dynamic_input_frozen": true,
+    "e2ag": true,
+    "artifact_digest_verified": true,
+    "application_version": "0.1.0",
+    "input_id": "dynamic-63e1d41b-b017-415f-8e56-d89eeae54407"
+  },
+  "cli_live": {
+    "same_run_id": "9855e75b-3023-42ff-ad4d-ce6212c1d872",
+    "input_file": true,
+    "idempotency_shared_with_sdk": true
+  },
+  "browser": {
+    "evidence": [
+      {
+        "key": "sales",
+        "runId": "c0af57dc-9d46-47ac-a59b-522d2a733c66",
+        "approval": true,
+        "report": true,
+        "historyReload": true,
+        "url": "http://127.0.0.1:13082/dios/#console/tasks/c0af57dc-9d46-47ac-a59b-522d2a733c66"
+      },
+      {
+        "key": "construction",
+        "runId": "2e93f8bd-162c-48f0-a965-6dc57a4b9a6a",
+        "approval": true,
+        "report": true,
+        "historyReload": true,
+        "url": "http://127.0.0.1:13082/dios/#console/tasks/2e93f8bd-162c-48f0-a965-6dc57a4b9a6a"
+      }
+    ],
+    "mobileOverflow": false,
+    "legacySelection": true,
+    "pageErrors": []
+  },
+  "dynamic_browser": {
+    "runId": "c61b2feb-ef25-4109-b31d-cd02f886e5cc",
+    "checks": [
+      "invalid-json-stays-local",
+      "server-schema-rejects-extra-field",
+      "draft-preserved-by-profile-and-language",
+      "dynamic-worker-e2ag-report-completed",
+      "history-reload",
+      "mobile-layout"
+    ],
+    "pageErrors": []
+  },
+  "upgrade_rollback": {
+    "drained_old": {
+      "id": "818938af-d660-40b3-a374-f98b847d1ec8",
+      "version": "0.1.0",
+      "state": "succeeded"
+    },
+    "unrelated_inflight": {
+      "id": "142c7840-60de-40a9-848f-ba066803ec45",
+      "version": "0.1.0",
+      "state": "succeeded"
+    },
+    "upgraded": {
+      "id": "d84c8738-f732-48f2-b3dd-feddc321feb8",
+      "version": "0.1.1",
+      "state": "succeeded"
+    },
+    "rollback": {
+      "id": "b99f92d4-45e4-4acf-9698-1aafdeefad00",
+      "version": "0.1.0",
+      "state": "succeeded"
+    },
+    "api_process_unchanged": true,
+    "other_worker_unchanged": true,
+    "history_retained": true,
+    "local_upgrade_revision_only": true
+  },
+  "history": {
+    "before": 39,
+    "preserved": 39,
+    "after": 48
+  },
+  "limitations": [
+    "Trusted operator API; multi-principal and object-level ACL remain #33/#35/#38",
+    "SDK ACP tests use protocol fixtures; no new real vendor/model qualification",
+    "Registry installer, compatibility admission and second execution implementation qualification remain #44/#47/#58",
+    "0.1.1 is a local upgrade rehearsal artifact; deployed workload returned to 0.1.0",
+    "Final bundles rebuilt from source; development images retain their recorded exact build digests"
+  ],
+  "reproduction": [
+    "backend/.venv/bin/python -m unittest discover -s backend/tests -q",
+    "python -m unittest discover -s sdk/python/tests -q (installed wheel venv)",
+    "python scripts/build_application_packages.py --output /absolute/releases",
+    "node scripts/check_independent_application.mjs /private/config /private/output"
+  ]
+}

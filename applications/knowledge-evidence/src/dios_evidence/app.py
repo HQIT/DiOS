@@ -7,11 +7,13 @@ import asyncio
 import json
 import os
 import uuid
-from app.runtime.database import RuntimeErrorCode
-from app.runtime.store import digest
-from app.runtime.tool_channel_client import ToolChannelClient
-from app.runtime.acp_bridge import emit
-from app.services.knowledge import version
+from . import __version__
+from dios_sdk import WorkloadError as RuntimeErrorCode
+from dios_sdk import digest
+from dios_sdk import ToolChannelClient
+from dios_sdk import emit
+def version(row):
+    return digest({k:v for k,v in row.items() if k!='digest'})
 
 KIND='knowledge-evidence'
 
@@ -56,7 +58,7 @@ def evidence_result(value,response,goal):
                          '本成果为资料摘录；配方、业务结论和后续操作由上层应用与业务人员确认。'])
         result=dict(summary=f'已取得 {len(rows)} 份授权资料，待业务复核',citations=citations,
                     evidence=[r['id']+'@'+r['digest'] for r in rows],markdown='\n\n'.join(sections),
-                    review_status='pending_review',validation='source-versions-checked',retrieval=data['retrieval'],
+                    application_version=__version__,review_status='pending_review',validation='source-versions-checked',retrieval=data['retrieval'],
                     truncated=bool(data['truncated']),project_id=value['project_id'])
         if len(json.dumps(result,ensure_ascii=False).encode())>60000:raise ValueError()
         return result
@@ -84,8 +86,7 @@ def main():
         asyncio.run(execute(json.loads(raw),ToolChannelClient(os.environ['DIOS_TOOL_SOCKET'])))
         return 0
     except Exception as exc:
-        from app.runtime.faults import CATEGORIES
         code=getattr(exc,'code','EVIDENCE_INSUFFICIENT')
-        emit({'type':'error','code':code if code in CATEGORIES else 'EVIDENCE_INSUFFICIENT'});return 2
+        emit({'type':'error','code':code if code in {'TOOL_APPROVAL_DENIED','EVIDENCE_INSUFFICIENT'} else 'EVIDENCE_INSUFFICIENT'});return 2
 
 if __name__=='__main__':raise SystemExit(main())

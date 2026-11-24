@@ -3,6 +3,7 @@
 Grants are database-owned authorization records, not transferable bearer tokens.
 Remote machine authentication and sender-bound token issuance remain #33 work.
 """
+from .work_policy import policy_matches
 import asyncio
 from uuid import uuid4
 from sqlalchemy import select
@@ -103,7 +104,9 @@ class WorkAuthorizationVerifier:
         policy_error=None
         try:
             current=await asyncio.to_thread(self.policy.admission,captured['profile_id'],captured['profile_digest'],captured['secret_refs'])
-            if current['policy_digest']!=captured['policy_digest']:policy_error=RuntimeErrorCode('WORK_POLICY_CHANGED')
+            # Legacy grants remain valid only against the exact original whole-file digest.
+            if not policy_matches(current,captured['policy_digest']):
+                policy_error=RuntimeErrorCode('WORK_POLICY_CHANGED')
         except RuntimeErrorCode as exc:policy_error=exc
         except (OSError,ValueError):policy_error=RuntimeErrorCode('WORK_POLICY_UNAVAILABLE')
         failure=None

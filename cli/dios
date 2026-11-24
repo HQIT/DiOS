@@ -640,7 +640,17 @@ def cmd_task(args) -> int:
         suffix = "/runs?" + urllib.parse.urlencode({k:v for k,v in {"limit":args.limit,"cursor":args.cursor}.items() if v is not None})
     elif command == "submit":
         method, suffix = "POST", "/runs"
-        data = dict(profile_id=args.profile, sample_id=args.sample, goal=args.goal, idempotency_key=args.key)
+        data = dict(profile_id=args.profile, goal=args.goal, idempotency_key=args.key)
+        if args.input_file:
+            try:
+                with open(args.input_file, 'rb') as source: raw=source.read(12289)
+                if len(raw)>12288: raise ValueError()
+                payload=json.loads(raw.decode('utf-8'))
+                if not isinstance(payload,dict): raise ValueError()
+            except (OSError,ValueError,UnicodeError):
+                print(json.dumps({'error':'INVALID_WORK_INPUT'}));return 2
+            data['input_payload']=payload
+        else:data['sample_id']=args.sample
     elif command == "show": suffix = "/runs/" + quote(args.run_id)
     elif command in {"cancel","revoke"}:
         method, suffix = "POST", "/runs/" + quote(args.run_id) + "/" + command
@@ -701,7 +711,9 @@ def task_parser():
         c=commands.add_parser(name);c.add_argument("--base-url")
         if name=="list":c.add_argument("--limit",type=int,default=30);c.add_argument("--cursor")
         if name=="submit":
-            c.add_argument("--profile",required=True);c.add_argument("--sample",required=True)
+            c.add_argument("--profile",required=True)
+            source=c.add_mutually_exclusive_group(required=True)
+            source.add_argument("--sample");source.add_argument("--input-file",help="JSON input validated against the registered application schema")
             c.add_argument("--goal",required=True);c.add_argument("--key",required=True,help="reuse this key when retrying the same submission")
         if name in {"show","cancel","revoke","preview","download"}:c.add_argument("run_id")
         if name in {"cancel","revoke"}:c.add_argument("--revision",required=True,type=int)

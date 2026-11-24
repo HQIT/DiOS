@@ -1,4 +1,5 @@
 """Per-attempt Unix socket: no operator credential or caller-selected execution identity."""
+from .work_policy import policy_matches
 import asyncio
 from collections import Counter
 import json
@@ -60,14 +61,14 @@ class WorkerToolChannel:
             if self.session_id is not None and a['session_id']!=self.session_id:raise RuntimeErrorCode('SESSION_CHANGED')
         current=await asyncio.to_thread(self.gate.policy.admission,run['input']['runtime_profile'],
             run['input']['profile_digest'],run['input'].get('secret_refs',[]))
-        if current['policy_digest']!=run['input']['work_policy_digest']:raise RuntimeErrorCode('WORK_POLICY_CHANGED')
+        if not policy_matches(current,run['input']['work_policy_digest']):raise RuntimeErrorCode('WORK_POLICY_CHANGED')
         return run,a
 
     async def initialize(self):
         run,_=await self._owner()
         current=await asyncio.to_thread(self.gate.policy.admission,run['input']['runtime_profile'],
             run['input']['profile_digest'],run['input'].get('secret_refs',[]))
-        if current['policy_digest']!=run['input']['work_policy_digest']:raise RuntimeErrorCode('WORK_POLICY_CHANGED')
+        if not policy_matches(current,run['input']['work_policy_digest']):raise RuntimeErrorCode('WORK_POLICY_CHANGED')
         for alias,tool_id in self.policy['tools'].items():
             reg=await asyncio.to_thread(self.gate.catalog.registration,tool_id)
             decision=evaluate_work_permission(current['permissions'],reg['permission'])

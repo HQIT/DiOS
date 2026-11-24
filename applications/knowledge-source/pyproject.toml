@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knowledge-source"
+version = "0.1.0"
+description = "Read-only source ACL reference MCP service"
+requires-python = ">=3.11"
+dependencies = ["dios-sdk>=0.1.0,<0.2"]
+
+[project.scripts]
+dios-knowledge-source = "dios_knowledge_source.provider:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

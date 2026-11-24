@@ -5,7 +5,7 @@ import secrets
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse, Response
 from fastapi.routing import APIRoute
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy.exc import SQLAlchemyError
 from app.config import settings
 from app.runtime.database import Database, RuntimeErrorCode
@@ -77,9 +77,16 @@ router=APIRouter(prefix='/runtime',tags=['runtime-tasks'],route_class=RuntimeRou
 class Submit(BaseModel):
     model_config=ConfigDict(extra='forbid',str_strip_whitespace=True)
     profile_id: str=Field(min_length=1,max_length=160)
-    sample_id: str=Field(min_length=1,max_length=80)
+    sample_id: str|None=Field(default=None,min_length=1,max_length=160)
+    input_payload: dict|None=None
     goal: str=Field(min_length=1,max_length=2000)
     idempotency_key: str=Field(min_length=1,max_length=160)
+
+    @model_validator(mode='after')
+    def exactly_one_input(self):
+        if (self.sample_id is None)==(self.input_payload is None):
+            raise ValueError('Supply exactly one of sample_id or input_payload')
+        return self
 
 class Cancel(BaseModel):
     model_config=ConfigDict(extra='forbid')
@@ -103,7 +110,7 @@ async def listing(limit:int=Query(30,ge=1,le=100),cursor:str|None=Query(None,max
 
 @router.post('/runs',status_code=202)
 async def submit(body:Submit,s=Depends(service)):
-    return await s.submit(body.profile_id,body.sample_id,body.goal,body.idempotency_key)
+    return await s.submit(body.profile_id,body.sample_id,body.goal,body.idempotency_key,input_payload=body.input_payload)
 
 @router.get('/runs/{run_id}')
 async def detail(run_id:str,s=Depends(service)):

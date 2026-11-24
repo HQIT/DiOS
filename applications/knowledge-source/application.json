@@ -1,0 +1,22 @@
+{
+  "manifest_version": 1,
+  "id": "knowledge-source",
+  "version": "0.1.0",
+  "sdk": {
+    "name": "dios-sdk",
+    "range": ">=0.1.0,<0.2"
+  },
+  "interface": "mcp-streamable-http",
+  "entrypoint": [
+    "python",
+    "-m",
+    "dios_knowledge_source.provider"
+  ],
+  "ownership": "external-reference-application",
+  "capabilities": [
+    "source-acl",
+    "source-version-citations"
+  ],
+  "data_ownership": "application",
+  "deployment": "independent"
+}

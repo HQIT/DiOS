@@ -1,5 +1,11 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "使用自定义输入": "Use custom input",
+  "自定义任务输入（JSON）": "Custom task input (JSON)",
+  "输入要求": "Input requirements",
+  "任务输入必须是有效的 JSON 对象。": "Task input must be a valid JSON object.",
+  "任务输入不符合登记的输入要求，请检查字段、大小和内容摘要。": "Task input does not match the registered requirements. Check fields, size and digest.",
+  "此执行配置只接受已登记的输入。": "This execution profile accepts registered inputs only.",
   "任务输入": "Task input",
   "根据所选输入完成任务，返回可核验的结果与依据。": "Complete the task using the selected input and return verifiable results and evidence.",
   "按登记的输入与执行配置运行，保留任务状态和成果依据。": "Run with the registered input and execution profile; retain task status and result evidence.",

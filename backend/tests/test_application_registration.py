@@ -106,6 +106,54 @@ class RegistrationTests(unittest.IsolatedAsyncioTestCase):
         row=self.data['inputs'][0];row['project_id']='arbitrary';row['sha256']=digest({k:v for k,v in row.items() if k!='sha256'});self.save()
         self.assertEqual(registration(self.display)['inputs'][0]['project_id'],'arbitrary')
 
+class DynamicRegistrationTests(unittest.IsolatedAsyncioTestCase):
+    asyncSetUp=RegistrationTests.asyncSetUp
+    asyncTearDown=RegistrationTests.asyncTearDown
+    register=RegistrationTests.register
+    save=RegistrationTests.save
+    async def test_dynamic_input_is_schema_validated_frozen_and_idempotent(self):
+        self.register()
+        self.data['dynamic_inputs']=True;self.data['inputs']=[]
+        self.data['schema']={'type':'object','required':['id','name','payload','sha256'],
+            'properties':{'id':{'type':'string'},'name':{'type':'string'},'sha256':{'type':'string'},
+                          'payload':{'type':'object','required':['opaque_key']}},'additionalProperties':False}
+        self.save()
+        data={'profile_id':'external','input_payload':{'id':'dynamic','name':'动态输入','payload':{'opaque_key':'原文'}},
+              'goal':'goal','idempotency_key':'dynamic-1'}
+        response=await self.client.post('/api/os/runtime/runs',headers=self.headers,json=data)
+        self.assertEqual(response.status_code,202,response.text)
+        saved=response.json();self.assertIn('sha256',saved['sample'])
+        same=await self.client.post('/api/os/runtime/runs',headers=self.headers,json=data)
+        self.assertEqual(same.json()['id'],saved['id'])
+        data['input_payload']['payload']['opaque_key']='changed'
+        self.assertEqual((await self.client.post('/api/os/runtime/runs',headers=self.headers,json=data)).status_code,409)
+        data['idempotency_key']='dynamic-2';data['input_payload']['actor']='admin'
+        self.assertEqual((await self.client.post('/api/os/runtime/runs',headers=self.headers,json=data)).status_code,422)
+        self.assertEqual((await self.console.detail(saved['id']))['sample']['payload']['opaque_key'],'原文')
+        self.assertEqual(len((await self.console.list())['items']),1)
+
+    async def test_dynamic_requires_opt_in_and_exactly_one_input(self):
+        self.register()
+        body={'profile_id':'external','input_payload':{'id':'new','name':'new'},'goal':'goal','idempotency_key':'new'}
+        response=await self.client.post('/api/os/runtime/runs',headers=self.headers,json=body)
+        self.assertEqual(response.json()['detail'],'DYNAMIC_INPUT_NOT_ALLOWED')
+        body['sample_id']='external-input'
+        self.assertEqual((await self.client.post('/api/os/runtime/runs',headers=self.headers,json=body)).status_code,422)
+        del body['sample_id'];del body['input_payload']
+        self.assertEqual((await self.client.post('/api/os/runtime/runs',headers=self.headers,json=body)).status_code,422)
+        self.data['dynamic_inputs']=True;del self.data['schema'];self.save()
+        with self.assertRaisesRegex(RuntimeErrorCode,'INVALID_INPUT_CATALOG'):self.console.catalog()
+
+    async def test_dynamic_does_not_bypass_e2ag_or_digest(self):
+        self.register(governed=True);self.data['dynamic_inputs']=True;self.save()
+        row={'id':'new','name':'new','payload':{'opaque_key':'text'}}
+        with self.assertRaisesRegex(RuntimeErrorCode,'WORK_POLICY_REQUIRED'):
+            await self.console.submit('external',None,'goal','key',input_payload=row)
+        row['sha256']='0'*64
+        with self.assertRaisesRegex(RuntimeErrorCode,'INVALID_WORK_INPUT'):
+            await self.console.submit('external',None,'goal','key',input_payload=row)
+        self.assertEqual((await self.console.list())['items'],[])
+
 class BoundaryTests(unittest.TestCase):
     def test_control_plane_does_not_import_reference_applications(self):
         root=Path(__file__).resolve().parents[1]/'app'

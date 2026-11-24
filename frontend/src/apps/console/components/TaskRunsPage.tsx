@@ -17,6 +17,8 @@ const LABELS: Record<string, string> = {
 };
 const AUTH_STATES: Record<string, string> = { active: "有效", expired: "已过期", revoked: "已撤销", closed: "已结束" };
 const ERRORS: Record<string, string> = {
+  INVALID_WORK_INPUT: "任务输入不符合登记的输入要求，请检查字段、大小和内容摘要。",
+  DYNAMIC_INPUT_NOT_ALLOWED: "此执行配置只接受已登记的输入。",
   RUNTIME_CONSOLE_DISABLED: "任务入口尚未启用。管理员完成运行环境配置后即可使用。",
   RUNTIME_OPERATOR_TOKEN_REQUIRED: "任务入口需要配置操作员访问令牌。",
   RUNTIME_CONFIGURATION_REQUIRED: "运行数据库、执行配置或成果目录尚未配置。",
@@ -39,6 +41,11 @@ function errorText(error: unknown) {
   if (error instanceof RuntimeApiError) return ERRORS[error.code] || (error.status === 401 ? "访问令牌失效，请重新登录。" : translateUI("操作未完成：{0}", [error.code]));
   return "连接中断，已保留页面信息。请重试。";
 }
+function canonicalInput(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalInput);
+  if (value !== null && typeof value === "object") return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, canonicalInput(v)]));
+  return value;
+}
 const terminal = (state: string) => ["succeeded", "failed", "cancelled"].includes(state);
 const time = (stamp?: number | null) => stamp ? new Date(stamp * 1000).toLocaleString(languageTag(), { hour12: false }) : "暂无";
 function Badge({ state }: { state: string }) { return <span className={`tr-badge tr-${state}`}>{translateUI(LABELS[state] || state)}</span>; }
@@ -47,6 +54,8 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [samples, setSamples] = useState<Sample[]>([]);
   const [profile, setProfile] = useState(""); const [sample, setSample] = useState("");
+  const [customMode, setCustomMode] = useState(false);
+  const [customDrafts, setCustomDrafts] = useState<Record<string, string>>({});
   const [goal, setGoal] = useState(() => translateUI("根据所选输入完成任务，返回可核验的结果与依据。"));
   const [catalogError, setCatalogError] = useState(""); const [listError, setListError] = useState("");
   const [actionError, setActionError] = useState(""); const [detailError, setDetailError] = useState("");
@@ -116,7 +125,15 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   async function submit(event: FormEvent) {
     event.preventDefault(); if (busy) return;
     setBusy(true); setActionError("");
-    const input = { profile_id: profile, sample_id: sample, goal: goal.trim() };
+    let supplied: Record<string, unknown> | undefined;
+    if (customInput) {
+      try {
+        const value = JSON.parse(customDrafts[profile] || "{}");
+        if (value === null || Array.isArray(value) || typeof value !== "object") throw new Error();
+        supplied = canonicalInput(value) as Record<string, unknown>;
+      } catch { setActionError("任务输入必须是有效的 JSON 对象。"); setBusy(false); return; }
+    }
+    const input = { profile_id: profile, ...(customInput ? {input_payload: supplied} : {sample_id: sample}), goal: goal.trim() };
     const content = JSON.stringify(input);
     if (!keyRef.current) {
       try { keyRef.current = JSON.parse(sessionStorage.getItem("dios_pending_task") || "null"); } catch { /* storage unavailable */ }
@@ -160,6 +177,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   useEffect(() => {
     if (!availableSamples.some(s => s.id === sample)) setSample(availableSamples[0]?.id || "");
   }, [profile, samples, sample, profiles]);
+  const customInput = !!chosenProfile?.dynamic_inputs && (customMode || availableSamples.length === 0);
   const policyMissing = chosenProfile?.governance === "e2ag" && !chosenProfile.policy_configured;
   const source = samples.find(s => s.id === sample);
   const active = detail?.attempts.find(a => a.id === detail.attempt_id);
@@ -177,12 +195,18 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           {profiles.map(p => <option key={p.id} value={p.id} disabled={p.governance === "e2ag" && !p.policy_configured}>{p.name}{translateUI(p.synthetic ? " · 合成端点" : "")}{translateUI(p.governance === "e2ag" && !p.policy_configured ? " · 待配置授权" : "")}</option>)}
         </select></label>
         {profiles.find(p => p.id === profile)?.description && <p className="tr-muted">{profiles.find(p => p.id === profile)?.description}</p>}
-        <label>{translateUI("任务输入")}<select value={sample} onChange={e => setSample(e.target.value)} disabled={busy} required>
-          {availableSamples.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select></label>
-        {source && <pre className="tr-source"><code>{typeof source.source === "string" ? source.source : JSON.stringify(source, null, 2)}</code></pre>}
+        {chosenProfile?.dynamic_inputs && availableSamples.length > 0 && <label><input type="checkbox" checked={customMode} onChange={e => setCustomMode(e.target.checked)} disabled={busy}/>{translateUI("使用自定义输入")}</label>}
+        {customInput ? <>
+          <label>{translateUI("自定义任务输入（JSON）")}<textarea aria-label={translateUI("自定义任务输入（JSON）")} rows={8} maxLength={12288} value={customDrafts[profile] || ""} onChange={e => setCustomDrafts(current => ({...current, [profile]: e.target.value}))} disabled={busy} required /></label>
+          <details><summary>{translateUI("输入要求")}</summary><pre className="tr-source">{JSON.stringify(chosenProfile?.input_schema, null, 2)}</pre></details>
+        </> : <>
+          <label>{translateUI("任务输入")}<select value={sample} onChange={e => setSample(e.target.value)} disabled={busy} required>
+            {availableSamples.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select></label>
+          {source && <pre className="tr-source"><code>{typeof source.source === "string" ? source.source : JSON.stringify(source, null, 2)}</code></pre>}
+        </>}
         <label>{translateUI("工作目标")}<textarea aria-label={translateUI("工作目标")} value={goal} onChange={e => setGoal(e.target.value)} maxLength={2000} rows={4} required disabled={busy} /></label>
-        <button className="tr-primary" type="submit" disabled={busy || !profile || !sample || !goal.trim() || !!catalogError || policyMissing}>
+        <button className="tr-primary" type="submit" disabled={busy || !profile || (!customInput && !sample) || (customInput && !customDrafts[profile]?.trim()) || !goal.trim() || !!catalogError || policyMissing}>
           {translateUI(busy ? "提交中…" : "发起任务")}</button>
         <p className="tr-muted">{translateUI("按登记的输入与执行配置运行，保留任务状态和成果依据。")}</p>
       </form>

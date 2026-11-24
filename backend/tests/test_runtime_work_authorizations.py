@@ -128,6 +128,32 @@ class WorkAuthorizationTests(unittest.IsolatedAsyncioTestCase):
         info=await view(self.store,r['id'])
         self.assertIn('WORK_POLICY_CHANGED',[code for d in info['decisions'] for code in d['reason_codes']])
 
+    async def test_unrelated_profile_upgrade_keeps_inflight_authorization(self):
+        _,_,context=await self.claimed()
+        config=json.loads(self.policy.path.read_text())
+        config['profiles']['another-profile']={'profile_digest':'new-version'}
+        self.policy.path.write_text(json.dumps(config))
+        await self.verifier(context,'execute')
+        await self.verifier(context,'accept_result')
+
+    async def test_selected_profile_ttl_change_revokes_authorization(self):
+        _,_,context=await self.claimed()
+        config=json.loads(self.policy.path.read_text())
+        config['profiles']['test-profile']['work_ttl_seconds']=3600
+        self.policy.path.write_text(json.dumps(config))
+        with self.assertRaisesRegex(RuntimeErrorCode,'WORK_POLICY_CHANGED'):
+            await self.verifier(context,'execute')
+
+    async def test_legacy_authorization_requires_exact_whole_file(self):
+        self.descriptor['policy_digest']=self.descriptor['legacy_policy_digest']
+        _,_,context=await self.claimed()
+        await self.verifier(context,'execute')
+        config=json.loads(self.policy.path.read_text())
+        config['profiles']['another-profile']={'profile_digest':'new-version'}
+        self.policy.path.write_text(json.dumps(config))
+        with self.assertRaisesRegex(RuntimeErrorCode,'WORK_POLICY_CHANGED'):
+            await self.verifier(context,'execute')
+
     async def test_work_expiry_blocks_recovered_success(self):
         r,adapter=await self.interrupted()
         async with self.db.transaction(self.scope) as c:

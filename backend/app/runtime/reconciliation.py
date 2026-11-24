@@ -106,6 +106,8 @@ async def reconcile_run(store, adapter, provider, run_id, *, output_limit=1024*1
         data = await asyncio.to_thread(lambda: b''.join(provider.read(receipt['stdout'])))
         if len(data) > output_limit: raise RuntimeErrorCode('OUTPUT_LIMIT_EXCEEDED')
         bridge.feed(data, final=True)
+        from .result_contract import validate_result
+        validate_result(run['input'],bridge.result)
     except RuntimeErrorCode as exc:
         failure = failure or exc.code
     if not failure and obs['exit_code'] != 0 and not (bridge.result is not None and (run.get('recovery_policy') or {}).get('accept_complete_on_error')):

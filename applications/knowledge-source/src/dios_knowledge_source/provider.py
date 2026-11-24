@@ -10,8 +10,8 @@ import json
 import secrets
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from app.runtime.database import RuntimeErrorCode
-from app.runtime.store import digest
+from dios_sdk import WorkloadError as RuntimeErrorCode
+from dios_sdk import digest
 
 INPUT_SCHEMA = {"type":"object","properties":{"query":{"type":"string","minLength":1,"maxLength":500}},"required":["query"],"additionalProperties":False}
 
@@ -43,8 +43,9 @@ class FileKnowledgeProvider:
         return grant
 
     def search(self,token,arguments):
-        from jsonschema import Draft202012Validator
-        if not Draft202012Validator(INPUT_SCHEMA).is_valid(arguments):raise RuntimeErrorCode('INVALID_TOOL_ARGUMENTS')
+        if (not isinstance(arguments,dict) or set(arguments)!={'query'} or
+                not isinstance(arguments['query'],str) or not 1<=len(arguments['query'])<=500):
+            raise RuntimeErrorCode('INVALID_TOOL_ARGUMENTS')
         grant=self.identity(token)
         rows=document(self.catalog,4*1024*1024).get('documents',[])
         if not isinstance(rows,list):raise RuntimeErrorCode('KNOWLEDGE_CONFIGURATION_INVALID')

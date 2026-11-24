@@ -1,6 +1,6 @@
 """Fixed, synthetic inline inputs for the first operator task flow."""
 import hashlib
-from app.runtime.database import RuntimeErrorCode
+from dios_sdk import WorkloadError as RuntimeErrorCode
 
 SAMPLES = {
     'first-item': {'name':'空列表边界检查', 'filename':'sample.py',
@@ -63,7 +63,7 @@ def main(acp_execute=None):
     import asyncio
     import json
     import os
-    from app.runtime.acp_bridge import execute, diagnostic, emit
+    from dios_sdk.acp import execute, diagnostic, emit
     parser=argparse.ArgumentParser();parser.add_argument('--config',required=True)
     parser.add_argument('--required-tool',choices=['repository_search'])
     args=parser.parse_args()
@@ -79,7 +79,7 @@ def main(acp_execute=None):
             required_tools=([{'tool':args.required_tool,'arguments':{'query':value['sha256']}}] if args.required_tool else [])))
     except asyncio.CancelledError:diagnostic('ACP_CANCELLED');return 130
     except RuntimeErrorCode as exc:
-        from app.runtime.faults import CATEGORIES
+        from dios_sdk.protocol import TERMINAL_ERROR_CODES as CATEGORIES
         diagnostic(exc.code)
         emit({'type':'error','code':exc.code if exc.code in CATEGORIES else 'AGENT_EXECUTION_REJECTED'})
         return 2

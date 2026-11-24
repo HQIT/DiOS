@@ -213,6 +213,8 @@ class Worker:
                         if not code:
                             try:
                                 bridge.feed(logs.stdout,final=True)
+                                from .result_contract import validate_result
+                                validate_result(run['input'],bridge.result)
                             except RuntimeErrorCode as exc: code = exc.code
                         if code:
                             await self.store.finish_failed(binding,code)

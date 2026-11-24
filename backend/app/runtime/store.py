@@ -266,6 +266,10 @@ class RuntimeStore:
 
     async def complete(self, run_id, attempt_id, worker_id, instance, epoch, provider, key, validator):
         # Validation and object I/O stay outside the short database transaction.
+        async with self.db.read(self.scope) as c:
+            snapshot=await self._run(c,run_id)
+        declared=snapshot['input'].get('input_registration',{}).get('result_schema') is not None
+        result_bytes=bytearray()
         blob = provider.verify(key)
         observed = hashlib.sha256()
         count = 0
@@ -273,6 +277,9 @@ class RuntimeStore:
             nonlocal count
             for chunk in provider.read(key):
                 observed.update(chunk); count += len(chunk)
+                if declared:
+                    if count>65536:raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
+                    result_bytes.extend(chunk)
                 yield chunk
         stream = verified_chunks()
         valid = validator(stream)
@@ -281,6 +288,8 @@ class RuntimeStore:
             raise RuntimeErrorCode('ARTIFACT_DIGEST_MISMATCH')
         if valid is not True:
             raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
+        from .result_contract import validate_bytes
+        validate_bytes(snapshot['input'],result_bytes)
         async with self.db.transaction(self.scope) as c:
             run, a, now = await self._owned(c, run_id, attempt_id, worker_id, instance, epoch, authorize=True)
             if a['state'] != 'validating': raise RuntimeErrorCode('INVALID_TRANSITION')
@@ -474,6 +483,12 @@ class RuntimeStore:
             blobs['result'] = provider.verify(result_key)
             if JsonlBridge.validate(provider.read(result_key)) is not True:
                 raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
+            async with self.db.read(self.scope) as c:
+                snapshot=await self._run(c,expected_run['id'])
+            if snapshot['input'].get('input_registration',{}).get('result_schema') is not None:
+                if blobs['result'].size>65536:raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
+                from .result_contract import validate_bytes
+                validate_bytes(snapshot['input'],b''.join(provider.read(result_key)))
         obs = receipt['observation']
         if obs['alive'] or obs['state'] not in {'exited', 'dead'} or not obs['process_instance']:
             raise RuntimeErrorCode('PROCESS_EXIT_NOT_CONFIRMED')

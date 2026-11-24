@@ -12,7 +12,11 @@ from app.runtime.adapter import LaunchSpec
 from app.runtime.database import Database, RuntimeErrorCode
 from app.runtime.store import RuntimeStore
 from app.services.task_console import TaskConsole
-from app.apps.inline_review import sample, review_result
+import sys
+ROOT=Path(__file__).resolve().parents[2]
+for source in ['sdk/python/src','applications/static-review/src']:sys.path.insert(0,str(ROOT/source))
+from dios_review.app import sample, review_result
+from dios_sdk import WorkloadError
 from app.runtime.worker import Worker
 from test_runtime_worker import FakeAdapter
 
@@ -121,6 +125,6 @@ class TaskConsoleTests(unittest.IsolatedAsyncioTestCase):
 class ReviewEvidenceTests(unittest.TestCase):
     def test_invalid_location_and_invented_quote_rejected(self):
         for start,quote in [(99,'items[0]'),(2,'invented code')]:
-            with self.assertRaisesRegex(RuntimeErrorCode,'EVIDENCE_INSUFFICIENT'):
+            with self.assertRaisesRegex(WorkloadError,'EVIDENCE_INSUFFICIENT'):
                 review_result(sample('first-item'),{'summary':'issue','findings':[dict(title='issue',
                     line_start=start,line_end=start,condition='empty',evidence=quote,impact='exception')]})

@@ -1,4 +1,5 @@
 """Durable E2AG action gate. Only dispatch() may call the registered transport."""
+from .work_policy import policy_matches
 import asyncio
 import json
 from uuid import uuid4
@@ -50,7 +51,7 @@ class ToolInvocations:
         if not session_id or a['session_id']!=session_id:raise RuntimeErrorCode('SESSION_CHANGED')
         work=await checked_work(c,run,a,now,'execute')
         if work is None:raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
-        if current['policy_digest']!=work['policy_digest']:raise RuntimeErrorCode('WORK_POLICY_CHANGED')
+        if not policy_matches(current,work['policy_digest']):raise RuntimeErrorCode('WORK_POLICY_CHANGED')
         await require_current(c,run,a,now,session_id=session_id)
         decision=evaluate_work_permission(work['permissions'],registration['permission'])
         if not decision.permits_execution:raise RuntimeErrorCode(decision.reason_codes[0])

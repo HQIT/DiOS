@@ -1,0 +1,36 @@
+import fs from 'node:fs/promises';
+const {chromium}=await import(new URL('../node_modules/playwright/index.mjs',import.meta.url));
+const root=process.argv[2],out=process.argv[3];if(!root||!out)throw Error('Provide private config and output directories');
+const tokens=JSON.parse(await fs.readFile(root+'/tokens.json','utf8'));
+const row=JSON.parse(await fs.readFile(new URL('../examples/business/sales-inputs.json',import.meta.url),'utf8')).inputs[0];
+row.id='browser-dynamic-'+Date.now();row.name='动态任务输入';delete row.sha256;
+const browser=await chromium.launch({headless:true});const checks=[];
+try{
+ const page=await browser.newPage({locale:'zh-CN',viewport:{width:1440,height:1000}});const errors=[];let posts=0;
+ page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/runtime/runs'))posts++});
+ await page.addInitScript(t=>sessionStorage.setItem('dios_access_token',t),tokens.operator);
+ await page.goto('http://127.0.0.1:13082/dios/#console/tasks');await page.getByLabel('执行 Agent').selectOption('evidence-sales');
+ await page.getByLabel('使用自定义输入').check();await page.getByLabel('自定义任务输入（JSON）').fill('{invalid');
+ await page.getByRole('button',{name:'发起任务',exact:true}).click();await page.getByRole('alert').filter({hasText:'有效的 JSON 对象'}).waitFor();
+ if(posts!==0)throw Error('Invalid JSON submitted');checks.push('invalid-json-stays-local');
+ await page.getByLabel('自定义任务输入（JSON）').fill(JSON.stringify({...row,actor:'forged'}));
+ const rejected=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith('/runtime/runs'));
+ await page.getByRole('button',{name:'发起任务',exact:true}).click();if((await rejected).status()!==422)throw Error('Schema did not reject unknown field');
+ await page.getByRole('alert').filter({hasText:'不符合登记的输入要求'}).waitFor();checks.push('server-schema-rejects-extra-field');
+ const input=JSON.stringify(row,null,2);await page.getByLabel('自定义任务输入（JSON）').fill(input);
+ await page.getByLabel('语言',{exact:true}).selectOption('en');
+ if(await page.getByLabel('Custom task input (JSON)').inputValue()!==input)throw Error('Draft lost on locale change');
+ await page.getByLabel('Language',{exact:true}).selectOption('zh');
+ await page.getByLabel('执行 Agent').selectOption('evidence-construction');await page.getByLabel('执行 Agent').selectOption('evidence-sales');
+ if(await page.getByLabel('自定义任务输入（JSON）').inputValue()!==input)throw Error('Draft lost on profile change');checks.push('draft-preserved-by-profile-and-language');
+ await page.getByRole('button',{name:'发起任务',exact:true}).click();await page.waitForURL(/tasks\//);
+ const runId=page.url().split('/').at(-1);
+ await page.getByLabel('独立审批凭据').waitFor({timeout:60000});await page.getByLabel('独立审批凭据').fill(tokens.approver);
+ await page.getByRole('button',{name:'批准本次调用',exact:true}).click();await page.getByRole('button',{name:'下载 Markdown 报告',exact:true}).waitFor({timeout:60000});
+ const detail=await (await page.request.get('http://127.0.0.1:13081/api/os/runtime/runs/'+runId,{headers:{'X-DiOS-Access-Token':tokens.operator}})).json();
+ if(detail.sample.id!==row.id||detail.state!=='succeeded')throw Error('Dynamic input not preserved');checks.push('dynamic-worker-e2ag-report-completed');
+ await page.reload();await page.getByRole('button',{name:'下载 Markdown 报告',exact:true}).waitFor();checks.push('history-reload');
+ await page.setViewportSize({width:390,height:844});if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Mobile overflow');checks.push('mobile-layout');
+ if(errors.length)throw Error(errors.join('\n'));
+ await fs.writeFile(out+'/dynamic-browser.json',JSON.stringify({runId,checks,pageErrors:errors},null,2));console.log(JSON.stringify({runId,checks,pageErrors:errors}));
+}finally{await browser.close()}

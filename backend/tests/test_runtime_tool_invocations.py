@@ -76,6 +76,25 @@ class ToolInvocationTests(unittest.IsolatedAsyncioTestCase):
     async def approve(self,item):
         return await self.gate.decide(self.run['id'],item['id'],item['version'],'approved','fixture-approval')
 
+    async def test_legacy_policy_digest_reaches_tools_only_while_file_unchanged(self):
+        from app.runtime.schema import runs
+        from app.runtime.work_auth_schema import work
+        legacy=self.policy.admission('test-profile',self.spec.fingerprint(),[])['legacy_policy_digest']
+        async with self.db.transaction(self.scope) as c:
+            saved=await self.store._run(c,self.run['id'])
+            payload=dict(saved['input'],work_policy_digest=legacy)
+            await c.execute(runs.update().where(runs.c.id==self.run['id']).values(input=payload))
+            await c.execute(work.update().where(work.c.run_id==self.run['id']).values(policy_digest=legacy))
+        await self.verifier(replace(self.context,session_id='session-one'),'execute')
+        item=await self.approve(await self.request())
+        result=await self.gate.dispatch(self.run['id'],item['id'],item['version'])
+        self.assertEqual(result['state'],'succeeded')
+        config=json.loads(self.policy.path.read_text())
+        config['profiles']['other']={'profile_digest':'changed'}
+        self.policy.path.write_text(json.dumps(config))
+        with self.assertRaisesRegex(RuntimeErrorCode,'WORK_POLICY_CHANGED'):
+            await self.request('after-policy-change')
+
     async def test_pending_never_reaches_transport_and_self_approval_denied(self):
         item=await self.request()
         with self.assertRaisesRegex(RuntimeErrorCode,'TOOL_APPROVAL_REQUIRED'):

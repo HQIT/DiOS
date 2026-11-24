@@ -9,7 +9,7 @@ from app.runtime.artifacts import LocalArtifacts
 from app.runtime.database import RuntimeErrorCode
 from app.runtime.schema import runs, attempts, artifacts, events
 from app.runtime.store import RuntimeStore
-from app.services.task_inputs import (CONSOLE_ORIGIN, LEGACY_INPUT_KINDS, is_console_input, registration)
+from app.services.task_inputs import (CONSOLE_ORIGIN, LEGACY_INPUT_KINDS, is_console_input, registration, dynamic_input)
 from app.runtime.worker import read_profile
 from app.runtime.work_policy import security_profile
 
@@ -40,11 +40,12 @@ class TaskConsole:
                 raise RuntimeErrorCode('PROFILE_REQUIRES_READ_ONLY_MOUNTS')
             mode,refs=security_profile(path,raw=raw)
             profiles.append(dict(inputs=registered_inputs,refs=refs,registration_digest=registered['digest'],
-                requires_e2ag=registered['requires_e2ag'],view=dict(id=profile_id,name=str(display.get('name',profile_id))[:120],
+                requires_e2ag=registered['requires_e2ag'],contract=registered,view=dict(id=profile_id,name=str(display.get('name',profile_id))[:120],
                 description=str(display.get('description',''))[:500],
                 implementation=str(display.get('implementation','unknown'))[:120],
                 synthetic=display.get('synthetic') is True,profile_digest=spec.fingerprint(),
-                input_kind=display['input_kind'],input_ids=[x['id'] for x in registered_inputs],
+                input_schema=registered['schema'] if registered['dynamic_inputs'] else None,
+                dynamic_inputs=registered['dynamic_inputs'],input_kind=display['input_kind'],input_ids=[x['id'] for x in registered_inputs],
                 governance=mode,policy_configured=self.policy is not None if mode=='e2ag' else True)))
         return profiles
 
@@ -59,13 +60,17 @@ class TaskConsole:
                 rows[item['id']]=item
         return list(rows.values())
 
-    async def submit(self, profile_id, sample_id, goal, key):
+    async def submit(self, profile_id, sample_id, goal, key, *, input_payload=None):
         registered=next((x for x in await asyncio.to_thread(self._registrations)
                          if x['view']['id']==profile_id),None)
         if registered is None:raise RuntimeErrorCode('PROFILE_NOT_AVAILABLE')
         profile=registered['view']
-        value=next((x for x in registered['inputs'] if x['id']==sample_id),None)
-        if value is None:raise RuntimeErrorCode('SAMPLE_NOT_FOUND')
+        if (sample_id is None)==(input_payload is None):raise RuntimeErrorCode('INVALID_WORK_INPUT')
+        if input_payload is not None:
+            value=dynamic_input(registered['contract'],input_payload)
+        else:
+            value=next((x for x in registered['inputs'] if x['id']==sample_id),None)
+            if value is None:raise RuntimeErrorCode('SAMPLE_NOT_FOUND')
         if registered['requires_e2ag'] and profile['governance']!='e2ag':
             raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
         descriptor=None;refs=registered['refs']
@@ -73,7 +78,8 @@ class TaskConsole:
             if self.policy is None:raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
             descriptor=await asyncio.to_thread(self.policy.admission,profile_id,profile['profile_digest'],refs)
         run=await self.store.submit(key,dict(origin=CONSOLE_ORIGIN,
-            input_registration=dict(digest=registered['registration_digest']),
+            input_registration=dict(digest=registered['registration_digest'],
+                **({'result_schema':registered['contract']['result_schema']} if registered['contract']['result_schema'] is not None else {})),
             runtime_profile=profile_id,profile_digest=profile['profile_digest'],
             task_kind=profile['input_kind'],payload=dict(goal=goal,sample=value),
             secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor)

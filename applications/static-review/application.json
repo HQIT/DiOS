@@ -1,0 +1,22 @@
+{
+  "manifest_version": 1,
+  "id": "static-review",
+  "version": "0.1.0",
+  "sdk": {
+    "name": "dios-sdk",
+    "range": ">=0.1.0,<0.2"
+  },
+  "interface": "worker-jsonl-v1",
+  "entrypoint": [
+    "dios-review",
+    "--config",
+    "/opt/agent/acp.json"
+  ],
+  "ownership": "external-reference-application",
+  "capabilities": [
+    "acp-v1",
+    "governed-tool-channel-v1"
+  ],
+  "data_ownership": "application",
+  "deployment": "independent"
+}

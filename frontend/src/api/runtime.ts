@@ -7,7 +7,7 @@ export class RuntimeApiError extends Error {
   status: number;
   constructor(code: string, status: number) { super(code); this.code = code; this.status = status; }
 }
-export interface Profile { input_kind?: string; input_ids?: string[]; id: string; name: string; description: string; implementation: string; synthetic: boolean; governance: string; policy_configured: boolean; }
+export interface Profile { dynamic_inputs?: boolean; input_schema?: Record<string, unknown> | boolean | null; input_kind?: string; input_ids?: string[]; id: string; name: string; description: string; implementation: string; synthetic: boolean; governance: string; policy_configured: boolean; }
 export interface Sample { [key: string]: unknown; id: string; name: string; filename?: string; source?: string; sha256: string; }
 export interface RunSummary {
   id: string; state: string; version: number; attempt_id: string | null;
@@ -62,7 +62,7 @@ export const runtimeApi = {
   list: (cursor?: string, signal?: AbortSignal) => request<{ items: RunSummary[]; next_cursor: string | null; observed_at: number }>(
     `/runs?limit=30${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { signal }),
   detail: (id: string, signal?: AbortSignal) => request<RunDetail>(path(id), { signal }),
-  submit: (data: { profile_id: string; sample_id: string; goal: string; idempotency_key: string }) =>
+  submit: (data: { profile_id: string; sample_id?: string; input_payload?: Record<string, unknown>; goal: string; idempotency_key: string }) =>
     request<RunDetail>("/runs", { method: "POST", body: JSON.stringify(data) }),
   cancel: (id: string, version: number) => request<RunDetail>(`${path(id)}/cancel`, {
     method: "POST", body: JSON.stringify({ expected_version: version }),

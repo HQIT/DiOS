@@ -1,0 +1,21 @@
+{
+  "manifest_version": 1,
+  "id": "knowledge-evidence",
+  "version": "0.1.0",
+  "sdk": {
+    "name": "dios-sdk",
+    "range": ">=0.1.0,<0.2"
+  },
+  "interface": "worker-jsonl-v1",
+  "entrypoint": [
+    "python",
+    "-m",
+    "dios_evidence.app"
+  ],
+  "ownership": "external-reference-application",
+  "capabilities": [
+    "governed-tool-channel-v1"
+  ],
+  "data_ownership": "application",
+  "deployment": "independent"
+}
