@@ -63,4 +63,4 @@ backend/.venv/bin/python scripts/probe_oauth_sessions.py \
 
 真实探针要求既有、标记为 development-identity 的专用 Keycloak 测试实例，凭据从其私有 fixture 读取；新建并撤销本次浏览器来源，使用回环 MCP 19999 端口。生产 IdP 不用于此探针。
 
-本阶段完成多来源解析、绑定与执行控制。下一步接托管来源自动登记、幂等与失败清理，以及 Console 的可信网关入口和 CSRF；OAuth 刷新和会话存储继续采用已验证的原生组件。标准注销事件与跨服务严格撤销仍按 #35/#34 推进。
+本阶段完成多来源解析、绑定与执行控制。[托管来源自动登记](source-intake-33.md)已提供原子记录、幂等读回和原生到期策略；下一步接 Console 的可信网关入口和 CSRF；OAuth 刷新和会话存储继续采用已验证的原生组件。标准注销事件与跨服务严格撤销仍按 #35/#34 推进。

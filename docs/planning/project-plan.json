@@ -895,7 +895,7 @@
         "evidence": "docs/design/evidence/login-gateway-20261124.json",
         "selection": "OAuth2 Proxy 原生登录/刷新；Valkey Redis 协议会话存储；企业 IdP 可替换",
         "next": [
-          "托管来源自动登记、幂等与失败清理；多来源绑定已实现",
+          "托管自动登记已接入；接可信网关与 Console 登录入口和 CSRF",
           "可信网关准入、CSRF 与 Console 企业登录入口",
           "真实 IdP 注销事件、恢复对账与多主机资格"
         ],
@@ -918,11 +918,28 @@
           "旧目录转换保留已有绑定，历史任务和产物按当前主体权限读取"
         ],
         "remaining": [
-          "托管来源自动登记、幂等与失败清理",
           "可信网关与 Console 登录、CSRF、刷新后的提交回执恢复",
           "标准注销事件、长任务受控续期与跨服务撤销排序"
         ],
         "verification": "后端 502 项：375 通过、127 条件跳过；多来源专项 11 项、真实 IdP/MCP 8 项；两个来源的 Worker/CLI/SDK/浏览器通过，55 条历史全部保留"
+      },
+      "automatic_source_intake": {
+        "date": "2026-11-24",
+        "state": "development_verified_browser_entry_pending",
+        "design": "docs/design/source-intake-33.md",
+        "evidence": "docs/design/evidence/source-intake-20261124.json",
+        "implementation": "Authlib/RFC 7662 可信映射及 scope 准入；OpenBao KV v2 原生 CAS=0 保存凭据与元数据，固定版本读回；原生 Agent 托管写入角色",
+        "delivered": [
+          "并发/回执丢失/重试使用同一不可覆盖记录，主体目录保持只读",
+          "已登记来源独立使用只读身份，执行继续受 E2AG 来源和 scope 复核",
+          "原生定时删除使过期记录不可读，源记录恢复不复活已撤销 Work/Grant"
+        ],
+        "remaining": [
+          "Console 可信网关入口与 CSRF",
+          "来源刷新后的提交回执恢复与受控长任务续期",
+          "标准注销事件、企业留存物理销毁/审计策略和跨服务严格撤销"
+        ],
+        "verification": "后端 513 项：386 通过、127 条件跳过；原生 OpenBao/IdP 13 项、专项回归通过；两个自动来源完成 Worker、CLI/SDK、浏览器和服务重启验证，57 条历史保留"
       }
     },
     {
@@ -1087,11 +1104,28 @@
           "旧目录转换保留已有绑定，历史任务和产物按当前主体权限读取"
         ],
         "remaining": [
-          "托管来源自动登记、幂等与失败清理",
           "可信网关与 Console 登录、CSRF、刷新后的提交回执恢复",
           "标准注销事件、长任务受控续期与跨服务撤销排序"
         ],
         "verification": "后端 502 项：375 通过、127 条件跳过；多来源专项 11 项、真实 IdP/MCP 8 项；两个来源的 Worker/CLI/SDK/浏览器通过，55 条历史全部保留"
+      },
+      "automatic_source_intake": {
+        "date": "2026-11-24",
+        "state": "development_verified_browser_entry_pending",
+        "design": "docs/design/source-intake-33.md",
+        "evidence": "docs/design/evidence/source-intake-20261124.json",
+        "implementation": "Authlib/RFC 7662 可信映射及 scope 准入；OpenBao KV v2 原生 CAS=0 保存凭据与元数据，固定版本读回；原生 Agent 托管写入角色",
+        "delivered": [
+          "并发/回执丢失/重试使用同一不可覆盖记录，主体目录保持只读",
+          "已登记来源独立使用只读身份，执行继续受 E2AG 来源和 scope 复核",
+          "原生定时删除使过期记录不可读，源记录恢复不复活已撤销 Work/Grant"
+        ],
+        "remaining": [
+          "Console 可信网关入口与 CSRF",
+          "来源刷新后的提交回执恢复与受控长任务续期",
+          "标准注销事件、企业留存物理销毁/审计策略和跨服务严格撤销"
+        ],
+        "verification": "后端 513 项：386 通过、127 条件跳过；原生 OpenBao/IdP 13 项、专项回归通过；两个自动来源完成 Worker、CLI/SDK、浏览器和服务重启验证，57 条历史保留"
       }
     },
     {

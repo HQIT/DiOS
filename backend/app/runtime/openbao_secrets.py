@@ -1,13 +1,20 @@
-"""Read pinned KV v2 credentials through the OpenBao HTTP API.
+"""Read pinned KV v2 credentials and create immutable records through the OpenBao API.
 
 Authentication renewal belongs to the native Agent; this adapter only reads its
 private token sink. It never falls back to an unversioned/latest secret.
 """
-import asyncio,ipaddress,json,math,re,ssl
-from datetime import datetime,timezone
+import asyncio
+import ipaddress
+import json
+import math
+import re
+import ssl
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
+
 import httpx
+
 from .database import RuntimeErrorCode
 
 
@@ -38,6 +45,14 @@ class OpenBaoSecrets:
     def __init__(self,config,*,transport=None):self.config=config;self.transport=transport
     def read(self,reference):return asyncio.run(self.read_async(reference))
     async def read_async(self,reference):
+        try:
+            result=(await self.read_record_async(reference))[reference['field']]
+            if not isinstance(result,str) or not 1<=len(result)<=16384 or not result.isascii() or any(c.isspace() for c in result):raise ValueError('credential')
+            return result
+        except RuntimeErrorCode:raise
+        except (ValueError,TypeError,KeyError):raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
+
+    async def read_record_async(self,reference):
         from .oauth_source import private_value
         try:validate_config(self.config);validate_reference(reference)
         except (ValueError,TypeError,KeyError):raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
@@ -59,9 +74,33 @@ class OpenBaoSecrets:
             deleted_at=datetime.fromisoformat(meta['deletion_time'].replace('Z','+00:00')) if meta['deletion_time'] else None
             if deleted_at is not None and deleted_at.tzinfo is None:raise ValueError('deletion timezone')
             if meta['destroyed'] or (deleted_at is not None and deleted_at<=datetime.now(timezone.utc)):raise RuntimeErrorCode('SOURCE_SECRET_UNAVAILABLE')
-            result=value['data'][reference['field']]
-            if not isinstance(result,str) or not 1<=len(result)<=16384 or not result.isascii() or any(c.isspace() for c in result):raise ValueError('credential')
-            return result
+            if not isinstance(value['data'],dict):raise TypeError('record')
+            return value['data']
         except RuntimeErrorCode:raise
         except (TimeoutError,httpx.HTTPError,OSError,ValueError,TypeError,KeyError,RecursionError):
             raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
+
+
+    async def create_once_async(self,reference,record):
+        """Native KV CAS=0; retries read version 1 and never overwrite a tombstone."""
+        from .oauth_source import private_value
+        try:
+            validate_config(self.config);validate_reference(reference)
+            if reference['version']!=1 or not isinstance(record,dict) or len(json.dumps(record).encode())>32768:raise ValueError('record')
+        except (ValueError,TypeError,KeyError):raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
+        try:return await self.read_record_async(reference)
+        except RuntimeErrorCode as exc:
+            if exc.code!='SOURCE_SECRET_UNAVAILABLE':raise
+        token=private_value(self.config['token_file']);timeout=self.config.get('timeout_seconds',2)
+        try:
+            verify=ssl.create_default_context(cafile=self.config['ca_file']) if 'ca_file' in self.config else True
+            async with asyncio.timeout(timeout),httpx.AsyncClient(timeout=timeout,verify=verify,trust_env=False,follow_redirects=False,transport=self.transport) as client:
+                url=f"{self.config['address'].rstrip('/')}/v1/{reference['mount']}/data/{reference['path']}"
+                # No response body is trusted; an uncertain result is recovered by reading the pinned record.
+                async with client.stream('POST',url,json={'options':{'cas':0},'data':record},headers={'X-Vault-Token':token,'Accept':'application/json'}):
+                    # A failed write reply may still follow a committed write. Only readback admits it.
+                    pass
+        except (TimeoutError,httpx.HTTPError):pass
+        except (OSError,ValueError):raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
+        try:return await self.read_record_async(reference)
+        except RuntimeErrorCode:raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None

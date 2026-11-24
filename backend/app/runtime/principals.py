@@ -29,13 +29,16 @@ class FilePrincipals:
             with self.path.open('rb') as f:raw=f.read(262145)
             if len(raw)>262144:raise ValueError()
             value=json.loads(raw)
-            if set(value)-{'version','issuer','audience','principals','oauth2','oauth_sources'} or not {'version','issuer','audience','principals'}<=set(value) or value['version']!=1 or value['audience']!=self.audience:raise ValueError()
+            if set(value)-{'version','issuer','audience','principals','oauth2','oauth_sources','oauth_intake'} or not {'version','issuer','audience','principals'}<=set(value) or value['version']!=1 or value['audience']!=self.audience:raise ValueError()
             identifier(value['issuer']);rows=value['principals']
             if 'oauth2' in value:
                 from .oauth_source import validate_provider
                 validate_provider(value['oauth2'])
             if not isinstance(rows,dict) or len(rows)>256:raise ValueError()
-            hashes=set();versions=set();owners=set()
+            if 'oauth_intake' in value:
+                from .source_intake import validate_config as validate_intake
+                validate_intake(value['oauth_intake'],value['oauth2'])
+            hashes=set();versions=set();owners=set();mappings=set()
             sources=value.get('oauth_sources',{})
             if not isinstance(sources,dict) or len(sources)>1024:raise ValueError()
             def validate_source(source):
@@ -48,10 +51,17 @@ class FilePrincipals:
                 identifier(source_id);validate_source(source)
             for pid,row in rows.items():
                 identifier(pid)
-                if set(row)-{'subject','actor','scope','enabled','revision','expires_at','tokens','profiles','objects','upstream','source_refs'}:raise ValueError()
+                if set(row)-{'subject','actor','scope','enabled','revision','expires_at','tokens','profiles','objects','upstream','source_refs','oauth_identity'}:raise ValueError()
                 for k in ('subject','actor','scope'):identifier(row[k])
                 if type(row['enabled']) is not bool or type(row['revision']) is not int or row['revision']<1:raise ValueError()
                 if type(row['expires_at']) not in (int,float) or not math.isfinite(row['expires_at']):raise ValueError()
+                if 'oauth_identity' in row:
+                    from .source_intake import validate_identity
+                    if 'oauth_intake' not in value or 'source_refs' not in row:raise ValueError()
+                    validate_identity(row['oauth_identity'],value['oauth2'])
+                    mapping=tuple([row['scope']]+[row['oauth_identity'][k] for k in ('issuer','subject','client_id')])
+                    if mapping in mappings:raise ValueError()
+                    mappings.add(mapping)
                 if 'upstream' in row:validate_source(row['upstream'])
                 if 'source_refs' in row:
                     refs=row['source_refs']
@@ -62,6 +72,7 @@ class FilePrincipals:
                         if ref not in sources or ref in owners:raise ValueError()
                         owners.add(ref);source=sources[ref]
                         identity.add((source['issuer'],source['subject'],source['client_id']))
+                    if 'oauth_identity' in row:identity.add(tuple(row['oauth_identity'][k] for k in ('issuer','subject','client_id')))
                     if len(identity)>1:raise ValueError()
                 if not isinstance(row['tokens'],list) or not (0 if 'upstream' in row or 'source_refs' in row else 1)<=len(row['tokens'])<=8:raise ValueError()
                 for token in row['tokens']:
@@ -118,17 +129,25 @@ class FilePrincipals:
                             and credential['enabled'] and credential['not_before']<=now<credential['expires_at']):
                         binding=self.binding(doc,pid,row);self.current(binding);return binding
                     raise RuntimeErrorCode('AUTH_UNAUTHENTICATED')
+        if 'oauth_intake' in doc:
+            from .source_intake import SourceIntake
+            pid,source=SourceIntake(doc).authenticate(token,scope)
+            binding=self.binding(doc,pid,doc['principals'][pid],source);self.current(binding);return binding
         raise RuntimeErrorCode('AUTH_UNAUTHENTICATED')
 
     def current(self,binding):
         doc=self.document()
         try:
             row=doc['principals'][binding['id']]
+            if not row['enabled'] or row['expires_at']<=time.time():raise ValueError()
             source=None
             if 'upstream' in row or 'source_refs' in row:
                 from .oauth_source import source_binding
                 source=next((ref for ref in self.sources(doc,row)
                     if source_binding(ref,doc['oauth2'])==binding.get('upstream')),None)
+                if source is None and 'oauth_identity' in row and isinstance(binding.get('upstream'),dict):
+                    from .source_intake import SourceIntake
+                    source=SourceIntake(doc).resolve(binding['id'],row,binding['upstream'])
                 if source is None:raise ValueError()
             if binding!=self.binding(doc,binding['id'],row,source):raise ValueError()
             if not row['enabled'] or row['expires_at']<=time.time():raise ValueError()

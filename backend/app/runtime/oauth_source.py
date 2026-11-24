@@ -9,10 +9,12 @@ import stat
 import time
 from pathlib import Path
 from urllib.parse import urlsplit
+
 import httpx
 from authlib.integrations.httpx_client import AsyncOAuth2Client
+
 from .database import RuntimeErrorCode
-from .store import identifier,digest
+from .store import digest, identifier
 
 LIMIT=65536
 
@@ -29,7 +31,8 @@ def validate_provider(value):
         _=u.port
     if ('client_secret_file' in value)==('client_secret_ref' in value):raise ValueError('credential selection')
     if 'client_secret_file' in value and (not isinstance(value['client_secret_file'],str) or not Path(value['client_secret_file']).is_absolute()):raise ValueError('credential path')
-    from .openbao_secrets import validate_config,validate_reference as validate_secret
+    from .openbao_secrets import validate_config
+    from .openbao_secrets import validate_reference as validate_secret
     if 'secret_store' in value:validate_config(value['secret_store'])
     if 'client_secret_ref' in value:
         if 'secret_store' not in value:raise ValueError('secret store required')
@@ -37,9 +40,17 @@ def validate_provider(value):
     timeout=value.get('timeout_seconds',2)
     if type(timeout) not in (float,int) or not math.isfinite(timeout) or not .05<=timeout<=5:raise ValueError('timeout')
 
+def validate_scopes(value):
+    if not isinstance(value,list) or len(value)>64 or len(set(value))!=len(value):raise ValueError('scopes')
+    for scope in value:
+        identifier(scope)
+        if not scope.isascii() or any(not 0x21<=ord(c)<=0x7e or c in {'"',chr(92)} for c in scope):raise ValueError('scope')
+
+
 def validate_reference(value,provider):
     required={'ref','version','sha256','issuer','subject','audience','client_id','expires_at'}
-    if not isinstance(value,dict) or not required<=set(value) or set(value)-required-{'path','secret_ref'}:raise ValueError('source reference')
+    if not isinstance(value,dict) or not required<=set(value) or set(value)-required-{'path','secret_ref','required_scopes'}:raise ValueError('source reference')
+    if 'required_scopes' in value:validate_scopes(value['required_scopes'])
     if ('path' in value)==('secret_ref' in value):raise ValueError('source selection')
     for key in ('ref','version','issuer','subject','audience','client_id'):identifier(value[key])
     if value['issuer']!=provider['issuer'] or value['audience']!=provider['audience']:raise ValueError('source authority')
@@ -94,13 +105,32 @@ class OAuthSource:
                 if exc.code=='SOURCE_SECRET_UNAVAILABLE':raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED') from None
                 raise
             if hashlib.sha256(token.encode()).hexdigest()!=reference['sha256']:raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
-            try:
-                secret=(await OpenBaoSecrets(self.provider['secret_store'],transport=self.secret_transport).read_async(self.provider['client_secret_ref'])
-                    if 'client_secret_ref' in self.provider else private_value(self.provider['client_secret_file']))
-            except RuntimeErrorCode:raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
-            return await self._check(reference,token,secret)
+            return await self._check(reference,token,await self._client_secret())
+
+    async def _client_secret(self):
+        from .openbao_secrets import OpenBaoSecrets
+        try:
+            return (await OpenBaoSecrets(self.provider['secret_store'],transport=self.secret_transport).read_async(self.provider['client_secret_ref'])
+                if 'client_secret_ref' in self.provider else private_value(self.provider['client_secret_file']))
+        except RuntimeErrorCode:raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
+
+    async def inspect_async(self,token):
+        try:validate_provider(self.provider)
+        except (ValueError,TypeError,RuntimeErrorCode):raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
+        if not isinstance(token,str) or not 1<=len(token)<=16384 or not token.isascii() or any(c.isspace() for c in token):raise RuntimeErrorCode('AUTH_UNAUTHENTICATED')
+        try:
+            async with asyncio.timeout(self.provider.get('timeout_seconds',2)):
+                return await self._introspect(token,await self._client_secret())
+        except TimeoutError:raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
 
     async def _check(self,reference,token,secret):
+        value=await self._introspect(token,secret)
+        if (value['issuer']!=reference['issuer'] or value['subject']!=reference['subject'] or value['client_id']!=reference['client_id']
+                or value['expires_at']<reference['expires_at'] or not set(reference.get('required_scopes',[]))<=set(value['scopes'])):
+            raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
+        return {k:(reference['expires_at'] if k=='expires_at' else value[k]) for k in ('issuer','subject','client_id','expires_at')}
+
+    async def _introspect(self,token,secret):
         timeout=self.provider.get('timeout_seconds',2)
         try:
             async with asyncio.timeout(timeout),AsyncOAuth2Client(self.provider['client_id'],secret,
@@ -121,9 +151,15 @@ class OAuthSource:
         if not value['active']:raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
         now=time.time();exp=value.get('exp');nbf=value.get('nbf',0)
         audience=value.get('aud');audience=[audience] if isinstance(audience,str) else audience
-        if (value.get('iss')!=reference['issuer'] or value.get('sub')!=reference['subject']
-                or value.get('client_id')!=reference['client_id'] or not isinstance(audience,list)
-                or reference['audience'] not in audience or type(exp) not in (int,float) or not math.isfinite(exp)
-                or exp<reference['expires_at'] or exp<=now or type(nbf) not in (int,float) or not math.isfinite(nbf) or nbf>now):
+        if (value.get('iss')!=self.provider['issuer'] or not isinstance(audience,list)
+                or self.provider['audience'] not in audience or type(exp) not in (int,float) or not math.isfinite(exp)
+                or exp<=now or type(nbf) not in (int,float) or not math.isfinite(nbf) or nbf>now):
             raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
-        return {'issuer':value['iss'],'subject':value['sub'],'client_id':value['client_id'],'expires_at':reference['expires_at']}
+        try:
+            identifier(value.get('sub'));identifier(value.get('client_id'))
+            scope=value.get('scope','')
+            if not isinstance(scope,str):raise TypeError('scope')
+            scopes=scope.split(' ') if scope else []
+            validate_scopes(scopes)
+        except (ValueError,TypeError,RuntimeErrorCode):raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
+        return {'issuer':value['iss'],'subject':value['sub'],'client_id':value['client_id'],'expires_at':exp,'scopes':scopes}

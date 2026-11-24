@@ -41,9 +41,9 @@ async def operator(request: Request):
     if settings.access_token and secrets.compare_digest(token.encode(),settings.access_token.encode()):return None
     console=getattr(request.app.state,'runtime_console',None)
     if console:
-        async with console.db.read(console.scope):
-            provider=await asyncio.to_thread(console.identity_provider)
-            if provider is not None:return await asyncio.to_thread(provider.authenticate,token,console.scope)
+        async with console.db.read(console.scope):pass
+        provider=await asyncio.to_thread(console.identity_provider)
+        if provider is not None:return await asyncio.to_thread(provider.authenticate,token,console.scope)
     if not settings.access_token:raise HTTPException(503,detail='RUNTIME_OPERATOR_TOKEN_REQUIRED')
     raise HTTPException(401,detail='Invalid or missing access token')
 

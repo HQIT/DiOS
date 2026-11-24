@@ -1,0 +1,108 @@
+{
+  "date": "2026-11-24",
+  "implementation": "Opt-in Authlib/RFC 7662 identity mapping and native OpenBao KV v2 create-only source records",
+  "backend_suite": {
+    "total": 513,
+    "passed": 386,
+    "skipped": 127,
+    "failures": 0
+  },
+  "final_targeted_runs": [
+    27,
+    23
+  ],
+  "native": {
+    "checks": [
+      "six-native-concurrent-admissions-one-binding",
+      "native-CAS-one-version",
+      "trusted-catalog-remains-unchanged",
+      "reader-cannot-create",
+      "writer-cannot-overwrite-or-delete",
+      "committed-write-response-loss-recovered",
+      "auto-enrolled-source-admits-E2AG-work",
+      "registered-identity-survives-writer-token-revocation",
+      "native-record-deletion-revokes-work",
+      "deleted-source-cannot-be-reenrolled",
+      "undelete-does-not-revive-revoked-E2AG-work",
+      "raw-source-not-in-runtime-history",
+      "native-retention-makes-expired-record-unreadable"
+    ],
+    "checks_passed": 13,
+    "scope": "Actual OpenBao KV CAS/ACL/retention and IdP introspection; isolated Runtime API/E2AG fixture",
+    "recorded_at_utc": "2026-11-24T04:07:03Z"
+  },
+  "development": {
+    "runs": [
+      {
+        "source_version": "v1",
+        "source_ref": "enrolled/105bf280acc934dfd339af67c2830fb7b72a4f174d4819bd3b152a948b4ee72e",
+        "run_id": "c4c7a3ee-53c8-43ec-8ca9-3729b3abe831",
+        "state": "succeeded",
+        "artifact_sha256": "f79d835dbd390541b3fe2e6f904f0b965b14637e8028957b4773a2ad68135cbb",
+        "cli_matches_sdk": true
+      },
+      {
+        "source_version": "v1",
+        "source_ref": "enrolled/4a11d94abb01e8c20ef98a193cf56a39daa2ef58b875ed04ff4d6e1e55970c6e",
+        "run_id": "704b2a5c-f09a-4b40-a065-12f40b071ade",
+        "state": "succeeded",
+        "artifact_sha256": "f79d835dbd390541b3fe2e6f904f0b965b14637e8028957b4773a2ad68135cbb",
+        "cli_matches_sdk": true
+      }
+    ],
+    "history_before": 57,
+    "history_after": 59,
+    "old_history_preserved": true,
+    "automatic_registration_without_catalog_writes": true,
+    "credentials_absent_from_runs": true,
+    "active_runs": 0,
+    "service_restart_preserved_sources_and_history": true
+  },
+  "native_deployment": {
+    "source_KV_versions": [
+      1,
+      1
+    ],
+    "writer_agent": {
+      "initial_ttl_seconds": 60,
+      "current_token_age_seconds": 297,
+      "remaining_ttl_seconds": 37,
+      "native_renewal_observed": true
+    },
+    "read_and_create_roles_separate": true
+  },
+  "browser": {
+    "a": {
+      "run_id": "c4c7a3ee-53c8-43ec-8ca9-3729b3abe831",
+      "checks": [
+        "principal-login",
+        "profile-filter",
+        "global-worker-panel-hidden",
+        "owned-report",
+        "approval-controls-filtered",
+        "mobile-layout",
+        "cross-principal-denied"
+      ],
+      "pageErrors": []
+    },
+    "peer": {
+      "run_id": "704b2a5c-f09a-4b40-a065-12f40b071ade",
+      "checks": [
+        "principal-login",
+        "profile-filter",
+        "global-worker-panel-hidden",
+        "owned-report",
+        "approval-controls-filtered",
+        "mobile-layout",
+        "cross-principal-denied"
+      ],
+      "pageErrors": []
+    }
+  },
+  "remaining": [
+    "Trusted browser gateway entry, CSRF and Console SSO",
+    "Idempotent submission receipts across source refresh",
+    "Enterprise physical-destruction/audit policy, TLS and host isolation",
+    "Standard logout events, governed long-task renewal and strict revocation ordering"
+  ]
+}
