@@ -395,15 +395,18 @@ class RuntimeStore:
         bounded(record, 65536)
         hashed = digest(record)
         async with self.db.transaction(self.scope) as c:
-            where = and_(imports.c.scope==self.scope, imports.c.source==source, imports.c.kind==kind, imports.c.source_id==source_id)
-            old = (await c.execute(select(imports).where(where))).mappings().first()
-            if old:
-                if old['digest'] != hashed: raise RuntimeErrorCode('IMPORT_CONFLICT')
-                return dict(old)
-            value = dict(scope=self.scope,source=source,kind=kind,source_id=source_id,target_id=str(uuid4()),digest=hashed,
-                         record=record, acceptance='legacy_unverified')
-            await c.execute(imports.insert().values(**value))
-            return value
+            return await self._import_history(c, source, kind, source_id, record, hashed)
+
+    async def _import_history(self, c, source, kind, source_id, record, hashed):
+        where = and_(imports.c.scope==self.scope, imports.c.source==source, imports.c.kind==kind, imports.c.source_id==source_id)
+        old = (await c.execute(select(imports).where(where))).mappings().first()
+        if old:
+            if old['digest'] != hashed: raise RuntimeErrorCode('IMPORT_CONFLICT')
+            return dict(old)
+        value = dict(scope=self.scope,source=source,kind=kind,source_id=source_id,target_id=str(uuid4()),digest=hashed,
+                     record=record, acceptance='legacy_unverified')
+        await c.execute(imports.insert().values(**value))
+        return value
 
 
     async def cancel(self, run_id, expected_version, *, access_guard=None):

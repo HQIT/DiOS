@@ -13,6 +13,7 @@ from sqlalchemy.engine import make_url
 from .database import Database, RuntimeErrorCode, SCHEMA_CHECKSUM
 from .schema import metadata as base_metadata
 from .history_schema import metadata as history_metadata, CHECKSUM as HISTORY_CHECKSUM
+from .history_archive_schema import metadata as history_archive_metadata, CHECKSUM as HISTORY_ARCHIVE_CHECKSUM
 from .lifecycle_schema import metadata as lifecycle_metadata, CHECKSUM as LIFECYCLE_CHECKSUM
 from .work_auth_schema import metadata as work_auth_metadata, CHECKSUM as WORK_AUTH_CHECKSUM
 from .tool_schema import metadata as tool_metadata, CHECKSUM as TOOL_CHECKSUM
@@ -77,6 +78,7 @@ def _database_info(path):
         tables={r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         components=[('runtime_schema',base_metadata,SCHEMA_CHECKSUM),
             ('runtime_history_schema',history_metadata,HISTORY_CHECKSUM),
+            ('runtime_history_archive_schema',history_archive_metadata,HISTORY_ARCHIVE_CHECKSUM),
             ('runtime_lifecycle_schema',lifecycle_metadata,LIFECYCLE_CHECKSUM),
             ('runtime_work_auth_schema',work_auth_metadata,WORK_AUTH_CHECKSUM),
             ('runtime_tool_schema',tool_metadata,TOOL_CHECKSUM),
@@ -110,6 +112,13 @@ def _database_info(path):
             entry={'sha256':hashed,'size':size}
             if key in objects and objects[key]!=entry: raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
             objects[key]=entry
+        if 'runtime_history_archive_schema' in tables:
+            for provider,key,size in c.execute('SELECT provider,digest,size FROM runtime_history_archive_objects'):
+                if provider!=LocalArtifacts.name or not re.fullmatch('[0-9a-f]{64}',key) or size<0:
+                    raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
+                expected={'sha256':key,'size':size}
+                if key in objects and objects[key]!=expected:raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
+                objects[key]=expected
         if 'runtime_remote_schema' in tables:
             for key,size in c.execute('SELECT key,size FROM runtime_remote_chunks UNION SELECT key,size FROM runtime_remote_uploads WHERE complete=1'):
                 if not re.fullmatch('[0-9a-f]{64}',key) or size<0:raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')

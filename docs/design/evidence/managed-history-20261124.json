@@ -1,0 +1,165 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "ffb79cdea448681386772ab5a985cf49946c6456",
+  "state": "engineering_verified_deployed_issues_open",
+  "tests": {
+    "backend": {
+      "total": 713,
+      "passed": 514,
+      "skipped": 199,
+      "seconds": 743.405,
+      "log_sha256": "d73e6916180196bdebb4414f1e69113c9f7178a03c6aa3cf026bd64539de908b"
+    },
+    "history_and_recovery": {
+      "total": 52,
+      "passed": 38,
+      "skipped": 14,
+      "seconds": 90.187,
+      "log_sha256": "66e50d032f5cfbed1fde9e25e2b18ba97f05602b3c5534632224e044240f77f2"
+    },
+    "final_source_adapter": {
+      "total": 15,
+      "passed": 13,
+      "skipped": 2,
+      "seconds": 29.981,
+      "log_sha256": "8a58eda9d1988a960b7c051539a61fcb77d49252271df4d84399a81ef53d86cb"
+    },
+    "sqlite_and_postgresql_history": {
+      "total": 20,
+      "passed": 20,
+      "skipped": 0,
+      "seconds": 23.009,
+      "log_sha256": "eaf087cedca38db7931e2e4335d1a8a87f5311495e1445f4f447a9f40e596591"
+    },
+    "image_archive_regressions": {
+      "total": 2,
+      "passed": 2,
+      "skipped": 0,
+      "seconds": 5.444,
+      "log_sha256": "fd77780a59c120b4a76a62954b7ab17ad188a4f656434f85a0bb310bee182f92"
+    },
+    "new_modules_lint": "passed",
+    "design_contract_checks": 681
+  },
+  "image": {
+    "image": "sha256:86e1bf1c6fc5cfa5ab3b140b6d7bcf4c5a0f1039c1fe80128c6ad40a38b50ad1",
+    "checks": [
+      "health",
+      "registry_poll_contract",
+      "secret_write_only",
+      "isolated_empty_connectors",
+      "graceful_exit",
+      "managed_runtime_imports",
+      "managed_recovery_api",
+      "managed_recovery_cli",
+      "upgrade_api_drain",
+      "upgrade_cli_persistent_state",
+      "upgrade_api_resume",
+      "history_archive_migration",
+      "history_archive_cli_pipeline",
+      "history_archive_image_regressions"
+    ],
+    "exit_code": 0
+  },
+  "development": {
+    "checks": [
+      "development_api_healthy",
+      "deployed_poll_contract",
+      "a2a_discovery_healthy",
+      "managed_recovery_api",
+      "runtime_history_preserved",
+      "events_history_preserved",
+      "worker-sales_process_alive",
+      "worker-construction_process_alive",
+      "knowledge_process_alive",
+      "dios-dev-identity-reconcile.timer_active",
+      "dios-dev-delegation-reconcile.timer_active",
+      "browser_sso_healthy",
+      "managed_ledger_initialized_without_history_import",
+      "managed_recovery_cli",
+      "upgrade_combines_kernel_and_compatibility",
+      "upgrade_operator_required",
+      "upgrade_both_gates_draining",
+      "upgrade_api_cli_state_consistency",
+      "upgrade_stale_revision_rejected",
+      "upgrade_idle_settle",
+      "upgrade_both_gates_resumed",
+      "upgrade_status_not_cached",
+      "history_archive_schema_initialized_without_import",
+      "project_cli_history_commands",
+      "explicit_additive_migration",
+      "coordinated_drain_before_deployment"
+    ],
+    "history_count": 84,
+    "history_identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "event_count": 0,
+    "active_runs": 0,
+    "backup": "backup-before",
+    "schema_migration_required": true,
+    "schema_change": "additive runtime_history_archive_schema and runtime_history_archive_objects",
+    "migration_applied_by": "explicit runtime migrate while drained"
+  },
+  "migration": {
+    "version": 1,
+    "history_version": 1,
+    "history_archive_version": 1,
+    "lifecycle_version": 1,
+    "work_authorization_version": 1,
+    "tool_version": 1,
+    "credential_version": 1,
+    "remote_version": 1,
+    "fault_version": 1,
+    "identity_check_version": 1,
+    "logout_version": 1,
+    "delegation_version": 1,
+    "delegation_identity_version": 1,
+    "delegation_check_version": 1,
+    "changed": true
+  },
+  "coverage": [
+    "read-only SQLite Online Backup includes committed WAL",
+    "original task rows preserved in full",
+    "large Unicode reports stored as immutable binary blobs",
+    "source task identity and explicit runtime attempt relationships preserved",
+    "missing model sessions remain missing",
+    "shared content retains distinct artifact origins",
+    "active unknown and foreign-scope tasks counted without mutation",
+    "scope and complete coverage counts verified before import",
+    "whole task group rolls back on late identity conflict",
+    "same source identity rejects changed content",
+    "repeated import returns same mapping and never creates runnable work",
+    "manifest index and blob corruption rejected",
+    "private credential tables excluded from export",
+    "content references included in backup and isolated restore",
+    "missing content prevents complete backup publication",
+    "restored identities retain restore_hold",
+    "existing project CLI delegates export inspect import and history query"
+  ],
+  "reused_capabilities": [
+    "SQLite Online Backup API / Python sqlite3.backup",
+    "existing SQLAlchemy transactions and RuntimeStore history identity",
+    "HistoryQueries explicit relationship graph",
+    "LocalArtifacts SHA-256 immutable binary storage",
+    "existing durable_io cancellation handling",
+    "versioned component migration and SQLite recovery bundle",
+    "existing coordinated upgrade drain and revision resume"
+  ],
+  "limits": [
+    "source adapter supports DiOS compatibility SQLite tables; other business/source formats need their own adapters",
+    "only settled source tasks imported; active execution ownership is not transferred",
+    "imported acceptance always legacy_unverified; original success is not a new accepted result",
+    "model sessions and artifact-to-attempt ownership not inferred when absent",
+    "trusted local operator CLI; principal-authorized HTTP/UI and content downloads remain pending",
+    "one group is atomic; a multi-group batch can retain completed groups after interruption and is idempotently resumable",
+    "source-less legacy scopes require explicit operator assignment",
+    "synthetic source records for qualification; production reviewer untouched"
+  ],
+  "remaining": [
+    "active legacy execution identity validation and ownership transfer",
+    "source correction/version handling and principal-authorized historical content access",
+    "shared service request authorization and unknown result reconciliation",
+    "retention and enterprise topology/recovery qualification",
+    "G2 independent review and user acceptance"
+  ],
+  "project_status": "repository plan and Issue bodies updated; Project fields not updated"
+}

@@ -1,5 +1,7 @@
 # Runtime 备份、恢复与排空
 
+[历史归档](../design/managed-history-10-30-32.md)登记的内容对象随恢复包校验、复制和恢复。缺失归档内容阻止发布完整备份；使用该组件后保留支持 runtime_history_archive_schema 的备份工具。
+
 含兼容 A2A、聊天共享服务与 Worker 的安装，使用[统一升级排空](../design/managed-upgrade-10-30.md)关闭全部执行入口并核对两侧状态。本文的 Runtime 命令只控制运行内核。
 
 状态：开发分支基线，待 G2 联合评审。责任人：Codex；独立评审人：待认领。

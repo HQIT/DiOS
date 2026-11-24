@@ -526,11 +526,19 @@
           "docs/design/managed-task-recovery-10-30.md",
           "docs/design/evidence/managed-recovery-20261124.json",
           "docs/design/managed-upgrade-10-30.md",
-          "docs/design/evidence/managed-upgrade-20261124.json"
+          "docs/design/evidence/managed-upgrade-20261124.json",
+          "docs/design/managed-history-10-30-32.md",
+          "docs/design/evidence/managed-history-20261124.json"
         ],
         "project_sync": "Issue 正文与仓库计划同步；Project 字段受既有令牌 scope 限制"
       },
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "history_archive": {
+        "design": "docs/design/managed-history-10-30-32.md",
+        "evidence": "docs/design/evidence/managed-history-20261124.json",
+        "state": "settled_compatibility_history_verified_deployed",
+        "remaining": "活跃旧执行显式核验与持权接管、来源修订处置、按主体授权的历史与正文查询。"
+      }
     },
     {
       "id": "K01-2",
@@ -585,7 +593,9 @@
           "docs/design/worker-execution-10-30.md",
           "docs/design/evidence/worker-runtime-regression-20261112.json",
           "docs/design/worker-reconciliation-30.md",
-          "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+          "docs/design/evidence/worker-reconciliation-regression-20261113.json",
+          "docs/design/managed-history-10-30-32.md",
+          "docs/design/evidence/managed-history-20261124.json"
         ],
         "remaining": "持久定时、重叠触发合并与死信处置；供应商错误映射、双物理主机与实际 Agent 资格由 #56/#58 推进。",
         "development": {
@@ -658,13 +668,19 @@
         "design": "docs/design/managed-task-recovery-10-30.md",
         "evidence": "docs/design/evidence/managed-recovery-20261124.json",
         "state": "native_api_restart_verified",
-        "next": "显式核验接管旧记录与统一历史映射；共享服务未知请求按证据对账；持久定时/重叠触发/死信沿原计划推进。"
+        "next": "已结清兼容任务历史接入已交付；继续活跃旧执行显式核验与持权接管、未知共享服务请求对账，以及持久定时/重叠触发/死信。"
       },
       "managed_upgrade": {
         "design": "docs/design/managed-upgrade-10-30.md",
         "evidence": "docs/design/evidence/managed-upgrade-20261124.json",
         "state": "native_stream_restart_verified_deployed",
         "remaining": "共享服务逐请求授权及未知调用证明；生产升级/回退及跨主机资格。"
+      },
+      "history_archive": {
+        "design": "docs/design/managed-history-10-30-32.md",
+        "evidence": "docs/design/evidence/managed-history-20261124.json",
+        "state": "settled_compatibility_history_verified_deployed",
+        "remaining": "活跃旧执行显式核验与持权接管、来源修订处置、按主体授权的历史与正文查询。"
       }
     },
     {
@@ -758,8 +774,8 @@
       "priority": "最高",
       "status": "In Progress",
       "progress": {
-        "date": "2026-11-12",
-        "summary": "轻量存储、离线报告和历史关联已交付；新增持久作用域排空、SQLite/本地产物校验恢复包和恢复副本全局调度关闭。全后端回归 154 项通过、0 跳过，合成恢复演练通过。",
+        "date": "2026-11-24",
+        "summary": "轻量存储、报告补报、历史关联与恢复基线已接通。兼容 A2A 已结清任务经只读一致快照、完整内容归档和单任务组原子导入进入同一历史查询，支持幂等、冲突拒绝与备份恢复；原状态保持 legacy_unverified。",
         "evidence_paths": [
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
@@ -771,11 +787,21 @@
           "docs/design/evidence/history-query-regression-20261111.json",
           "docs/operations/runtime-recovery.md",
           "docs/design/evidence/recovery-drain-regression-20261111.json",
-          "docs/design/evidence/recovery-drill-20261111.json"
+          "docs/design/evidence/recovery-drill-20261111.json",
+          "docs/design/managed-history-10-30-32.md",
+          "docs/design/evidence/managed-history-20261124.json"
         ],
-        "remaining": "下一批沿 #30 最小观测查询接入只读 Console；并按 #33/#34 接通凭据、E2AG 工作授权与撤销/续期。#30 继续分类故障/半开恢复、持久定时合并及死信处置；#56/#58 验证真实 Harness。认证跨主机对账及业务接管按独立门槛验收。"
+        "remaining": "活跃旧执行身份核验与所有权切换、来源修订处置、历史正文的主体授权查询、保留回收及多节点存储/恢复资格。生产评审历史接入继续由 #60 独立安排。",
+        "verification": "后端 713 项中 514 通过、199 条件跳过；历史与恢复专项 38 通过、14 条件跳过；最终来源专项 13 通过、2 条件跳过；SQLite/PostgreSQL 历史 20 项通过；镜像内归档 2 项及 14 项运行检查、开发部署 26 项通过，84 条原历史身份不变。",
+        "validation_evidence": "docs/design/evidence/managed-history-20261124.json"
       },
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "history_archive": {
+        "design": "docs/design/managed-history-10-30-32.md",
+        "evidence": "docs/design/evidence/managed-history-20261124.json",
+        "state": "settled_compatibility_history_verified_deployed",
+        "remaining": "活跃旧执行显式核验与持权接管、来源修订处置、按主体授权的历史与正文查询。"
+      }
     },
     {
       "id": "K02-3",
@@ -805,13 +831,21 @@
         "evidence_paths": [
           "docs/operations/runtime-recovery.md",
           "docs/design/evidence/recovery-drain-regression-20261111.json",
-          "docs/design/evidence/recovery-drill-20261111.json"
+          "docs/design/evidence/recovery-drill-20261111.json",
+          "docs/design/managed-history-10-30-32.md",
+          "docs/design/evidence/managed-history-20261124.json"
         ],
         "date": "2026-11-12",
         "summary": "基于 #32 已交付存储子集，完成 SQLite/本地产物恢复基线及恢复调度关闭；新目录恢复保留身份、事件与历史关联。154 项后端回归和合成恢复演练通过。",
         "remaining": "完整交付仍依赖 #32/#30 联合验收；外置配置/workspace、Secret 服务与 Worker spool 的备份策略、远端重认证/对账后启用、Windows ACL、PostgreSQL 与多节点恢复待完成。"
       },
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "history_archive": {
+        "design": "docs/design/managed-history-10-30-32.md",
+        "evidence": "docs/design/evidence/managed-history-20261124.json",
+        "state": "settled_compatibility_history_verified_deployed",
+        "remaining": "活跃旧执行显式核验与持权接管、来源修订处置、按主体授权的历史与正文查询。"
+      }
     },
     {
       "id": "K03-1",

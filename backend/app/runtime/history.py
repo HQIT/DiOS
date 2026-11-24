@@ -98,12 +98,15 @@ class HistoryQueries:
         link_id = digest(values)
         async with self.db.transaction(self.scope) as c:
             await check_history(c)
-            origin = await self._record(c, source, kind, source_id)
-            old = (await c.execute(select(links).where(links.c.id == link_id, links.c.scope == self.scope))).mappings().first()
-            if old: return dict(old)
-            values.update(id=link_id, origin_digest=origin['digest'], created_at=await self.db.now(c))
-            await c.execute(links.insert().values(**values))
-            return values
+            return await self._link(c, values, link_id)
+
+    async def _link(self, c, values, link_id):
+        origin = await self._record(c, values['source'], values['kind'], values['source_id'])
+        old = (await c.execute(select(links).where(links.c.id == link_id, links.c.scope == self.scope))).mappings().first()
+        if old: return dict(old)
+        values.update(id=link_id, origin_digest=origin['digest'], created_at=await self.db.now(c))
+        await c.execute(links.insert().values(**values))
+        return values
 
     async def related(self, source, kind, source_id, *, direction='outgoing', limit=50, cursor=None):
         identity(source, kind, source_id)

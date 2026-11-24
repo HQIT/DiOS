@@ -527,6 +527,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_profile.set_defaults(func=cmd_profile)
 
     sub.add_parser("runtime", help="local durable runtime administration; runtime --help")
+    sub.add_parser("managed-history", help="export, verify and import compatibility history; managed-history --help")
 
     p_config = sub.add_parser("config", help="manage cli config (openclaw style)")
     sub_config = p_config.add_subparsers(dest="config_cmd", required=True)
@@ -734,7 +735,7 @@ def task_parser():
     return p
 
 
-def cmd_runtime(args) -> int:
+def cmd_runtime(args, module="app.runtime.cli") -> int:
     import subprocess
     backend = Path(__file__).resolve().parents[1] / "backend"
     python = backend / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
@@ -742,7 +743,7 @@ def cmd_runtime(args) -> int:
         print("Runtime CLI requires backend/.venv and backend/requirements.txt", file=sys.stderr)
         return 2
     env = dict(os.environ, PYTHONPATH=str(backend))
-    return subprocess.run([str(python), "-m", "app.runtime.cli", *args], env=env).returncode
+    return subprocess.run([str(python), "-m", module, *args], env=env).returncode
 
 
 def main() -> int:
@@ -750,6 +751,8 @@ def main() -> int:
         return cmd_task(task_parser().parse_args(sys.argv[2:]))
     if len(sys.argv) > 1 and sys.argv[1] == "runtime":
         return cmd_runtime(sys.argv[2:])
+    if len(sys.argv) > 1 and sys.argv[1] == "managed-history":
+        return cmd_runtime(sys.argv[2:], "app.services.managed_history")
     # 低层入口：仅保留给自动化/agent，不在 dios --help 暴露
     if len(sys.argv) > 1 and sys.argv[1] == "request":
         req_args = build_request_parser().parse_args(sys.argv[2:])

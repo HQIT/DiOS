@@ -128,6 +128,7 @@ class Database:
 
     async def migrate(self):
         from .history_schema import migrate as migrate_history
+        from .history_archive_schema import migrate as migrate_history_archive
         from .lifecycle_schema import migrate as migrate_lifecycle
         from .work_auth_schema import migrate as migrate_work_auth
         from .tool_schema import migrate as migrate_tools
@@ -151,6 +152,7 @@ class Database:
                     if not set(table.columns.keys()).issubset({col['name'] for col in columns}):
                         raise RuntimeErrorCode('SCHEMA_INCOMPLETE')
                 changed = await migrate_history(c)
+                archive_changed = await migrate_history_archive(c)
                 lifecycle_changed = await migrate_lifecycle(c)
                 auth_changed = await migrate_work_auth(c)
                 tools_changed = await migrate_tools(c)
@@ -162,13 +164,14 @@ class Database:
                 delegation_changed = await migrate_delegation(c)
                 delegation_identity_changed = await migrate_delegation_identity(c)
                 delegation_check_changed = await migrate_delegation_check(c)
-                return {'version': SCHEMA_VERSION, 'history_version': 1, 'lifecycle_version': 1,
-                        'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'delegation_identity_version': 1, 'delegation_check_version': 1, 'changed': delegation_check_changed or delegation_identity_changed or delegation_changed or logout_changed or identity_changed or fault_changed or changed or lifecycle_changed or auth_changed or tools_changed or credentials_changed or remote_changed}
+                return {'version': SCHEMA_VERSION, 'history_version': 1, 'history_archive_version': 1, 'lifecycle_version': 1,
+                        'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'delegation_identity_version': 1, 'delegation_check_version': 1, 'changed': archive_changed or delegation_check_changed or delegation_identity_changed or delegation_changed or logout_changed or identity_changed or fault_changed or changed or lifecycle_changed or auth_changed or tools_changed or credentials_changed or remote_changed}
             if any(n.startswith('runtime_') for n in existing):
                 raise RuntimeErrorCode('UNVERSIONED_RUNTIME_SCHEMA')
             await c.run_sync(metadata.create_all)
             await c.execute(versions.insert().values(version=SCHEMA_VERSION, checksum=SCHEMA_CHECKSUM))
             await migrate_history(c)
+            await migrate_history_archive(c)
             await migrate_lifecycle(c)
             await migrate_work_auth(c)
             await migrate_tools(c)
@@ -180,7 +183,7 @@ class Database:
             await migrate_delegation(c)
             await migrate_delegation_identity(c)
             await migrate_delegation_check(c)
-            return {'version': SCHEMA_VERSION, 'history_version': 1, 'lifecycle_version': 1, 'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'delegation_identity_version': 1, 'delegation_check_version': 1, 'changed': True}
+            return {'version': SCHEMA_VERSION, 'history_version': 1, 'history_archive_version': 1, 'lifecycle_version': 1, 'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'delegation_identity_version': 1, 'delegation_check_version': 1, 'changed': True}
 
     @staticmethod
     async def now(c):
