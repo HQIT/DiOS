@@ -56,7 +56,7 @@ class OpaIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.registration=dict(enabled=True,transport='mcp-http',url='http://127.0.0.1:'+str(self.mcp.server_port)+'/mcp',name='search',approval_required=True,
             input_schema={'type':'object','properties':{'query':{'type':'string'}},'required':['query'],'additionalProperties':False},
             result_schema={'type':'object','required':['content']},
-            policy_evaluator={'kind':'opa','url':self.url+'/v1/data/dios/tools/allow','bundles':{'/policy':'v1'},'timeout_seconds':1})
+            policy_evaluator={'kind':'opa','url':self.url+getattr(self,'decision_path','/v1/data/dios/tools/allow'),'bundles':{'/policy':'v1'},'timeout_seconds':1})
         self.permission=dict(action='repository.search',resource_kind='mcp_tool',resource_id='review/search',
             resource_version=digest({k:v for k,v in self.registration.items() if k!='enabled'}),constraint_revision='test-policy')
         self.registration['permission']=self.permission

@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-24",
+  "scope": "Native OPA delegation policy through Runtime request, independent approval, dispatch and MCP HTTP receipts in isolated temporary databases",
+  "opa": {
+    "image": "openpolicyagent/opa:1.17.0",
+    "id": "sha256:a87f4268abd4b733e3af5381adebd33e0f05039d6f9ef0d316b596c78a51d2ad",
+    "repo_digests": [
+      "openpolicyagent/opa@sha256:3c6e9e4d433b6e94df424c3385134312a95042aa991cdfc8e01944115675fb9d"
+    ]
+  },
+  "delegation_suite": {
+    "passed": 16,
+    "includes_existing_opa_gate_tests": 8,
+    "log_sha256": "bcede65984669b172eb0e93606c584abaa3f6031908b782e8edc36d84bd0ff0a"
+  },
+  "base_opa_regression": {
+    "passed": 8,
+    "log_sha256": "7b5e901931c5911b98950fd62137c52a7ddb7deab14860c3edb45cdc9018b0d7"
+  },
+  "verified": [
+    "Root and one to three delegation levels complete actual MCP calls with success receipts",
+    "Each ancestor revocation denies; unrelated record revocation preserves valid work",
+    "Every permission tuple field expansion and action/resource cross-product denied",
+    "Deadline extension and expired ordered chain denied",
+    "Cycles, missing links, fourth level, duplicate links and malformed permissions denied",
+    "Wrong subject, actor, audience, scope, Run or work binding denied",
+    "Changed upstream epoch remains denied after re-enabling the upstream record",
+    "MCP initialization followed by upstream revocation produces no tool call",
+    "Existing approval invalidation, bundle provenance, PDP failure and duplicate dispatch checks pass"
+  ],
+  "deployment": "Policy component qualified in isolated native OPA containers; existing development policy configuration unchanged",
+  "remaining": [
+    "Trusted delegation issuance and immutable work receipt lifecycle publisher",
+    "Monotonic authority versions, publication freshness and restart recovery",
+    "Work admission, execution grant renewal and result acceptance integration",
+    "Cross-provider strict revocation ordering and cross-service audience transitions",
+    "Enterprise IdP, physical multi-host and production qualification"
+  ],
+  "development_health": {
+    "api": "healthy",
+    "browser_sso": "healthy",
+    "history": 78,
+    "active_runs": 0
+  }
+}

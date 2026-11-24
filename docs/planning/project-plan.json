@@ -1329,6 +1329,22 @@
           "Three-level delegation and enterprise Provider qualification remain open"
         ],
         "next": "#35 三层委派权限和期限收窄；成熟 Provider 版本机制及严格撤销排序验收"
+      },
+      "delegation_policy": {
+        "date": "2026-11-24",
+        "state": "native_opa_tool_gate_component_verified",
+        "design": "docs/design/delegation-policy-35.md",
+        "evidence": "docs/design/evidence/delegation-policy-20261124.json",
+        "implementation": "examples/policies/opa-delegation",
+        "verification": "真实 OPA/Runtime/MCP 委派组件 16 项通过，基础 OPA 路径另 8 项回归通过；根授权至三层委派真实工具调用和各类拒绝已验证",
+        "remaining": [
+          "Trusted delegation issuance and immutable work receipt lifecycle publisher",
+          "Monotonic authority versions, publication freshness and restart recovery",
+          "Work admission, execution grant renewal and result acceptance integration",
+          "Cross-provider strict revocation ordering and cross-service audience transitions",
+          "Enterprise IdP, physical multi-host and production qualification"
+        ],
+        "next": "#35 接入受信委派创建、受限派生、撤销及不可变工作回执；覆盖工作准入、续期与结果接收"
       }
     },
     {
