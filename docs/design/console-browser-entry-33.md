@@ -56,3 +56,5 @@ node scripts/probe_browser_sso.mjs \
 私有 fixture 包含回环 `base`、测试 `username/password`、可选 `api_base`。默认验证登录、CSRF、刷新、退出与界面；`run_flow: true` 另行通过 UI 提交一项测试任务，并写 `<output>.pending.json`，供独立审批流程处理。fixture 和产物目录应受主机权限保护；仅对明确的开发实例启用任务流程。
 
 实测证据见 [机器记录](evidence/console-browser-entry-20261124.json)。浏览器从真实企业登录进入 DiOS，完成真实 Worker、独立审批、报告摘要与引用验证；来源刷新后六路重复提交返回同一任务和原期限。真实浏览器携 Cookie 的跨 Origin 表单被拒绝。单机开发资格与部署已覆盖；企业 IdP、TLS、物理多主机、HA、注销事件和受控续期仍需按既定计划验收。
+
+来源恢复对账已接入原生 timer、持久租约和现有 Provider，Console 展示独立来源观测，详见 [身份来源恢复对账](identity-reconciliation-35.md)。标准注销事件接收与运行中安全续接继续按 #35/#30 推进。

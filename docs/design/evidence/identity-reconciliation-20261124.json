@@ -1,0 +1,195 @@
+{
+  "date": "2026-11-24",
+  "backend_suite": {
+    "total": 528,
+    "passed": 401,
+    "skipped": 127,
+    "failures": 0
+  },
+  "targeted_tests": 11,
+  "design_contract_checks": 681,
+  "authorization_contract_checks": 263,
+  "frontend_build": "passed",
+  "frontend_eslint": {
+    "errors": 0,
+    "existing_warnings": 1
+  },
+  "native": {
+    "checks": [
+      "native-timer-confirmed-both-sources",
+      "independent-source-bindings",
+      "only-qualification-runs-active",
+      "development-idp-only",
+      "outage-preserves-work-and-grant",
+      "outage-preserves-queued-task",
+      "outage-has-persistent-retry",
+      "native-idp-recovery-without-resubmission",
+      "logout-revokes-only-own-work",
+      "independent-peer-approval",
+      "revoked-work-never-launches-process",
+      "peer-real-process-session-and-report",
+      "real-browser-source-status",
+      "all-history-preserved"
+    ],
+    "runs": {
+      "revoked": "0e6b6533-9933-4caa-af64-50bb05f9acd3",
+      "peer": "73a0f9f0-1206-48ab-af94-036bcd165cac"
+    },
+    "browser": {
+      "checks": [
+        "submitted-身份对账：独立会话 A",
+        "submitted-身份对账：独立会话 B",
+        "peer-source-check-visible",
+        "english-source-status",
+        "mobile-layout",
+        "no-page-errors"
+      ],
+      "errors": [],
+      "runs": {
+        "a": "0e6b6533-9933-4caa-af64-50bb05f9acd3",
+        "b": "73a0f9f0-1206-48ab-af94-036bcd165cac"
+      }
+    },
+    "history_before": 64,
+    "history_after": 66,
+    "outage": [
+      {
+        "run_id": "0e6b6533-9933-4caa-af64-50bb05f9acd3",
+        "outcome": "unavailable",
+        "failures": 1,
+        "checked_at": 1795496824.2319913,
+        "next_check_at": 1795496826.2319913
+      },
+      {
+        "run_id": "73a0f9f0-1206-48ab-af94-036bcd165cac",
+        "outcome": "unavailable",
+        "failures": 1,
+        "checked_at": 1795496824.1380067,
+        "next_check_at": 1795496826.1380067
+      }
+    ],
+    "recovered": [
+      {
+        "run_id": "0e6b6533-9933-4caa-af64-50bb05f9acd3",
+        "outcome": "valid",
+        "failures": 0,
+        "checked_at": 1795496833.434999
+      },
+      {
+        "run_id": "73a0f9f0-1206-48ab-af94-036bcd165cac",
+        "outcome": "valid",
+        "failures": 0,
+        "checked_at": 1795496833.2910047
+      }
+    ],
+    "revoked": {
+      "run_id": "0e6b6533-9933-4caa-af64-50bb05f9acd3",
+      "outcome": "revoked",
+      "reason": "AUTH_PRINCIPAL_REVOKED",
+      "checked_at": 1795496836.2569914
+    },
+    "active_runs": 0
+  },
+  "final_ui": {
+    "checks": [
+      "successful-source-visible",
+      "english-status",
+      "mobile-no-overflow",
+      "revoked-source-visible",
+      "terminal-outage-does-not-promise-auto-resume",
+      "no-page-errors"
+    ],
+    "errors": []
+  },
+  "history": {
+    "before": 60,
+    "after": 66,
+    "preserved": true,
+    "active_runs": 0
+  },
+  "deployment": {
+    "explicit_additive_migration": true,
+    "pre_migration_backup_verified": true,
+    "scheduler": "systemd user timer",
+    "interval_seconds": 60,
+    "retry_base_seconds": 15,
+    "retry_max_seconds": 300
+  },
+  "prior_experiments": [
+    {
+      "experiment": "native",
+      "session": "a",
+      "run_id": "9a7e6299-272c-49a9-8620-a0aacf5b8738",
+      "state": "failed",
+      "attempts": [
+        {
+          "state": "failed",
+          "error": {
+            "code": "EVIDENCE_INSUFFICIENT",
+            "category": "evidence"
+          }
+        }
+      ]
+    },
+    {
+      "experiment": "native",
+      "session": "b",
+      "run_id": "901cce63-1e1b-4508-927b-bfb006ccdcb6",
+      "state": "failed",
+      "attempts": [
+        {
+          "state": "failed",
+          "error": {
+            "code": "AUTH_PROVIDER_UNAVAILABLE"
+          }
+        }
+      ]
+    },
+    {
+      "experiment": "native-queued",
+      "session": "a",
+      "run_id": "5b6697c7-a318-468a-ab47-75a6d09114e2",
+      "state": "failed",
+      "attempts": [
+        {
+          "state": "failed",
+          "error": {
+            "code": "EVIDENCE_INSUFFICIENT",
+            "category": "evidence"
+          }
+        }
+      ]
+    },
+    {
+      "experiment": "native-queued",
+      "session": "b",
+      "run_id": "7e064b3c-32d8-402e-ab6d-bc994a8719f2",
+      "state": "succeeded",
+      "attempts": [
+        {
+          "state": "completed",
+          "error": null
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "issue": 30,
+      "finding": "Running Worker fails closed on identity Provider outage; current Attempt does not resume automatically after Provider recovery. Work/approval rows persist.",
+      "status": "open"
+    },
+    {
+      "issue": 35,
+      "finding": "Worker may persist identity revocation before periodic reconciliation; last successful source observation and current revoked Work are distinct records.",
+      "status": "verified_existing_behavior"
+    }
+  ],
+  "remaining": [
+    "Running Worker safe continuation after identity outage",
+    "Standard signed logout event receiver",
+    "Three-level narrowing delegation and approver qualification changes",
+    "Cross-service strict revocation ordering",
+    "Enterprise IdP, physical multi-host and capacity qualification"
+  ]
+}

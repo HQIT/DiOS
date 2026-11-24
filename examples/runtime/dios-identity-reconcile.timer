@@ -1,0 +1,12 @@
+[Unit]
+Description=Periodically reconcile DiOS source identities
+
+[Timer]
+OnBootSec=30s
+OnUnitInactiveSec=15s
+AccuracySec=1s
+RandomizedDelaySec=2s
+Unit=dios-identity-reconcile.service
+
+[Install]
+WantedBy=timers.target

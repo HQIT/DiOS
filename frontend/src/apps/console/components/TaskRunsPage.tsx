@@ -260,6 +260,14 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
               <div><span>{translateUI("策略")}</span><strong>{translateUI(detail.authorization.policy_id)}</strong></div><div><span>{translateUI("工作期限")}</span><strong>{translateUI(time(detail.authorization.expires_at))}</strong></div></div>
             {detail.authorization.grant && <p className="tr-muted">{translateUI("执行授权版本")}{translateUI(detail.authorization.grant.version)}{translateUI("· 到期")}{translateUI(time(detail.authorization.grant.expires_at))} · {translateUI(detail.authorization.grant.session_id ? "已绑定会话" : "等待会话绑定")}</p>}
             {detail.authorization.state === "revoked" && !terminal(detail.state) && <p className="tr-notice">{translateUI("工作授权已撤销，等待执行端退出确认。")}</p>}
+            {detail.authorization.source_check && <p className="tr-notice" data-testid="source-check">
+              {translateUI("身份对账：")}{translateUI(({pending:"等待检查",valid:"来源有效",unavailable:"身份服务暂不可用",revoked:"来源已失效"})[detail.authorization.source_check.outcome])}
+              {detail.authorization.source_check.checking && <> · {translateUI("检查中")}</>}
+              {detail.authorization.source_check.stale && !terminal(detail.state) && detail.authorization.state === "active" && <> · {translateUI("观测过期")}</>}
+              <> · {translateUI("最近检查：")}{translateUI(time(detail.authorization.source_check.checked_at))}</>
+              {!terminal(detail.state) && detail.authorization.state === "active" && <> · {translateUI("下次检查：")}{translateUI(time(detail.authorization.source_check.next_check_at))}</>}
+              {detail.authorization.source_check.outcome === "unavailable" && !terminal(detail.state) && detail.authorization.state === "active" && <> · {translateUI("保留原任务与审批，等待自动复查。")}</>}
+            </p>}
             {!!detail.authorization.secret_refs?.length && <p className="tr-muted">{translateUI("凭据引用：")}{translateUI(detail.authorization.secret_refs.map(s => `${s.ref} / ${s.version}`).join("、"))}</p>}
             <details className="tr-auth-decisions"><summary>{translateUI("授权记录")}</summary><ol className="tr-timeline">
               {detail.authorization.decisions?.map(d => <li key={d.id}><time>{translateUI(time(d.created_at))}</time><span>{translateUI(d.outcome === "allow" ? "允许" : "拒绝")}</span><code>{d.reason_codes.join("、")}</code></li>)}

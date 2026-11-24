@@ -618,7 +618,15 @@
           }
         }
       },
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "identity_outage_continuation": {
+        "date": "2026-11-24",
+        "state": "open",
+        "priority": "high",
+        "evidence": "docs/design/evidence/identity-reconciliation-20261124.json",
+        "finding": "运行中身份复核不可用会停止进程并使 Attempt 失败；来源恢复对账不会自动续接该 Attempt。",
+        "next": "先比较成熟运行时暂停/续接与有界重试机制，再按执行能力落实恢复策略；恢复须重新检查当前 E2AG 授权，保留原任务和尝试、审批、部分输出，不重放未知副作用。"
+      }
     },
     {
       "id": "K01-3",
@@ -1250,6 +1258,27 @@
           "三层委派收窄与跨服务撤销/派发排序",
           "真实企业身份服务及物理多主机资格"
         ]
+      },
+      "status": "In Progress",
+      "identity_reconciliation": {
+        "date": "2026-11-24",
+        "state": "development_verified_remaining_acceptance_open",
+        "design": "docs/design/identity-reconciliation-35.md",
+        "evidence": "docs/design/evidence/identity-reconciliation-20261124.json",
+        "delivered": [
+          "原生 systemd timer + 有界 CLI + 持久租约/代次，复用 RFC 7662 身份 Provider",
+          "来源失效撤销 Work/Grant，临时故障保留记录并退避复查，迟到结果不得复活授权",
+          "Console 中英文来源观测、最近/下次检查；新 schema 纳入备份恢复"
+        ],
+        "verification": "528 项后端回归：401 通过、127 条件跳过；真实 IdP 停机/恢复、排队来源对账、单会话撤销、独立审批与 Worker 报告通过；60 条原历史保留，共 66 条",
+        "remaining": [
+          "Running Worker safe continuation after identity outage",
+          "Standard signed logout event receiver",
+          "Three-level narrowing delegation and approver qualification changes",
+          "Cross-service strict revocation ordering",
+          "Enterprise IdP, physical multi-host and capacity qualification"
+        ],
+        "next": "先衔接 #30 运行中身份服务故障的安全续接，再推进标准登出事件和三层受控委派"
       }
     },
     {

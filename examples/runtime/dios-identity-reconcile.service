@@ -1,0 +1,15 @@
+[Unit]
+Description=DiOS identity source reconciliation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/dios/backend
+EnvironmentFile=/etc/dios/runtime.env
+ExecStart=/opt/dios/backend/.venv/bin/python -m app.runtime.cli --scope enterprise identity-reconcile --limit 20 --interval 60 --retry-base 15 --retry-max 300
+TimeoutStartSec=300
+UMask=0077
+# Set DIOS_RUNTIME_DATABASE_URL and DIOS_RUNTIME_POLICY_FILE in the protected
+# environment file. Migrate explicitly after backup; this service never migrates.
+# Run under the dedicated deployment account with its existing Secret access.

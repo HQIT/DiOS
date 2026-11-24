@@ -19,6 +19,7 @@ from .tool_schema import metadata as tool_metadata, CHECKSUM as TOOL_CHECKSUM
 from .credential_schema import metadata as credential_metadata, CHECKSUM as CREDENTIAL_CHECKSUM
 from .remote_schema import metadata as remote_metadata, CHECKSUM as REMOTE_CHECKSUM
 from .fault_schema import metadata as fault_metadata, CHECKSUM as FAULT_CHECKSUM
+from .identity_check_schema import metadata as identity_check_metadata, CHECKSUM as IDENTITY_CHECK_CHECKSUM
 from .lifecycle import Lifecycle
 from .artifacts import LocalArtifacts
 
@@ -77,7 +78,8 @@ def _database_info(path):
             ('runtime_tool_schema',tool_metadata,TOOL_CHECKSUM),
             ('runtime_credential_schema',credential_metadata,CREDENTIAL_CHECKSUM),
             ('runtime_remote_schema',remote_metadata,REMOTE_CHECKSUM),
-            ('runtime_fault_schema',fault_metadata,FAULT_CHECKSUM)]
+            ('runtime_fault_schema',fault_metadata,FAULT_CHECKSUM),
+            ('runtime_identity_check_schema',identity_check_metadata,IDENTITY_CHECK_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
             raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')

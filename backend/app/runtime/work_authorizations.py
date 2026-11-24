@@ -205,9 +205,11 @@ async def view(store,run_id):
         grant=(await c.execute(select(grants).where(grants.c.attempt_id==run['attempt_id']))).mappings().first()
         recent=(await c.execute(select(decisions).where(decisions.c.scope==store.scope,decisions.c.run_id==run_id)
             .order_by(decisions.c.created_at.desc(),decisions.c.id).limit(20))).mappings().all()
+        from .identity_reconciliation import observation
+        source_check=await observation(c,store.scope,run_id,now)
         return dict(mode='e2ag',reference=reference,subject=row['subject'],actor=row['actor'],policy_id=row['policy_id'],
             state='expired' if row['state']=='active' and row['expires_at']<=now else row['state'],
-            expires_at=row['expires_at'],authorization_epoch=row['authorization_epoch'],
+            expires_at=row['expires_at'],authorization_epoch=row['authorization_epoch'],source_check=source_check,
             secret_refs=[{'ref':x['ref'],'version':x['version']} for x in row['secret_refs']],
             grant=({k:grant[k] for k in ('attempt_id','session_id','lease_epoch','version','state','expires_at')} | {'state':'expired' if grant['state']=='active' and grant['expires_at']<=now else grant['state']} if grant else None),
             decisions=[dict(id=d['id'],action=d['action'],created_at=d['created_at'],

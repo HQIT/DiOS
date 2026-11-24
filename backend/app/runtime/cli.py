@@ -50,6 +50,12 @@ async def execute(args):
                 return await query.run(args.run_id, limit=args.limit,
                     attempt_cursor=args.attempt_cursor, artifact_cursor=args.artifact_cursor)
         store = RuntimeStore(db, args.scope)
+        if args.command == 'identity-reconcile':
+            from .identity_reconciliation import IdentityReconciler
+            from .work_policy import FileWorkPolicy
+            if not args.policy_file:raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
+            return await IdentityReconciler(store,FileWorkPolicy(args.policy_file),
+                interval=args.interval,retry_base=args.retry_base,retry_max=args.retry_max).batch(limit=args.limit)
         if args.command in {'enqueue', 'worker'}:
             from .worker import Worker, read_profile
             from .artifacts import LocalArtifacts
@@ -199,6 +205,12 @@ def main(argv=None):
     credential_revoke=credential_commands.add_parser('revoke');credential_revoke.add_argument('credential_id')
     credential_revoke.add_argument('--revision',type=int,required=True)
     commands.add_parser('circuits',help='inspect persisted endpoint/account cooldown and single-probe ownership')
+    identity=commands.add_parser('identity-reconcile',help='bounded source check; retains Work/approval on outage, revokes confirmed invalid identities')
+    identity.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))
+    identity.add_argument('--limit',type=int,default=20)
+    identity.add_argument('--interval',type=float,default=60)
+    identity.add_argument('--retry-base',type=float,default=15)
+    identity.add_argument('--retry-max',type=float,default=300)
     status=commands.add_parser('workers' ,help='persisted process/session evidence, freshness and actual concurrency')
     status.add_argument('--fresh-seconds',type=float,default=15)
     cancel=commands.add_parser('cancel');cancel.add_argument('run_id');cancel.add_argument('--revision',required=True,type=int)
