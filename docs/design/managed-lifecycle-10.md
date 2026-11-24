@@ -44,7 +44,7 @@ flowchart LR
 
 取消失败使用 [A2A JSON-RPC 的 `-32002`](https://a2a-protocol.org/v0.2.0/specification/#82-a2a-specific-errors)，data.reason 区分能力不支持、操作正在进行和停止未确认。Agent Card 的 `_dios.task_cancellation` 显示当前能力。已有终态查询语义保持不变。
 
-完整性检查覆盖运行退出与报告存在；报告业务结论和引用质量由上层应用验证。旧 A2A task 的后台观察尚未完全接入持久 Worker 重启恢复，后续沿 #30 接入现有持久执行链，不能据此宣称旧协议入口已具备全部恢复保证。
+完整性检查覆盖运行退出与报告存在；报告业务结论和引用质量由上层应用验证。[兼容任务持久恢复](managed-task-recovery-10-30.md)保存运行关联和取消意图，API 重启后对账原对象并继续归档与清理。既有无映射任务、统一升级准入与共享服务请求续接继续沿 #10/#30 推进；完整 Run/Attempt/Session 调度由持久 Worker 承担。
 
 ### 冻结后的终止与 E2AG
 

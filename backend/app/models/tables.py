@@ -208,6 +208,24 @@ class A2ATask(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class ManagedTaskExecution(Base):
+    """Durable association for the compatibility task lifecycle controller."""
+    __tablename__ = "managed_task_executions"
+
+    task_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(128), index=True)
+    runtime_handle: Mapped[str] = mapped_column(String(80), nullable=False)
+    workspace_path: Mapped[str] = mapped_column(Text, nullable=False)
+    run_id: Mapped[str] = mapped_column(String(32), nullable=False)
+    process_instance: Mapped[str | None] = mapped_column(Text, nullable=True)
+    cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False)
+    finished: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    observation: Mapped[dict] = mapped_column(JSON, default=dict)
+    observed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class E2AGToolGrant(Base):
     """Short-lived authorization for one task to call one remote MCP server."""
 

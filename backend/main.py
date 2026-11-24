@@ -12,6 +12,7 @@ from app.api.internal import e2ag_mcp
 from app.services.cron_scheduler import cron_scheduler
 from app.services.connector_poller import connector_poller
 from app.services.event_retry_worker import retry_worker
+from app.services.managed_recovery import controller as managed_recovery
 from app.middleware.access_token import AccessTokenMiddleware
 from app.config import settings
 
@@ -22,10 +23,13 @@ async def lifespan(app: FastAPI):
     await cron_scheduler.start()
     await connector_poller.start()
     retry_worker.start()
+    if settings.managed_recovery_enabled:
+        managed_recovery.start()
     try:
         async with runtime_tasks.console_lifespan(app):
             yield
     finally:
+        await managed_recovery.stop()
         retry_worker.stop()
         await connector_poller.stop()
         await cron_scheduler.stop()

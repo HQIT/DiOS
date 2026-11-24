@@ -299,9 +299,6 @@ def _extract_text_from_message(message: dict[str, Any]) -> str:
 
 async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> None:
     """task 模式 Proxy：把 message 作为 task 输入，启动一次性容器。"""
-    import asyncio
-
-
     if not agent.workspace_path:
         raise ValueError(f"Agent {agent.id} has no workspace_path")
 
@@ -348,60 +345,38 @@ async def _send_to_task_agent(db: AsyncSession, agent: Agent, task: A2ATask) -> 
     config_path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
     (workspace / "output" / "events" / run_id).mkdir(parents=True, exist_ok=True)
 
+    from app.services.managed_recovery import register, controller
+    runtime_handle = managed_runtime.handle("task", task.id)
+    execution = await register(db, task.id, runtime_handle, str(workspace), run_id)
     task.status = "working"
     task.updated_at = _now()
-    await db.commit()
-    runtime_handle = managed_runtime.handle("task", task.id)
+    await db.commit()  # Persist launch identity atomically with the working intent.
     try:
         await managed_runtime.start_task(task.id, run_id, workspace, agent.env or {})
+        from dataclasses import asdict
+        observed = await managed_runtime.managed_adapter().observe(runtime_handle)
+        execution.process_instance = observed.process_instance
+        execution.observation = asdict(observed)
+        execution.observed_at = _now()
+        await db.commit()
     finally:
-        # An observation failure does not establish that execution never started.
-        asyncio.create_task(_poll_task_container(task.id, run_id, runtime_handle, str(workspace)))
+        controller.wake()
 
 
 
 async def _poll_task_container(task_id: str, run_id: str, runtime_handle: str, workspace_path: str, *, poll_interval: float = 5) -> None:
+    """Compatibility helper; each pass uses the same durable reconciliation path."""
     import asyncio
     from app.db.database import async_session
-    adapter = managed_runtime.managed_adapter()
+    from app.services.managed_recovery import register, reconcile
+    async with async_session() as db:
+        await register(db, task_id, runtime_handle, workspace_path, run_id)
+        await db.commit()
     while True:
         await asyncio.sleep(poll_interval)
-        try:
-            observed = await adapter.observe(runtime_handle)
-        except Exception as exc:  # noqa: BLE001 - observation failure is not process death
-            logger.warning("Runtime observation unavailable for %s: %s", task_id, type(exc).__name__)
-            continue
-        if observed.state == "absent":
-            async with async_session() as db:
-                task = await db.get(A2ATask, task_id)
-                if task and task.status not in {"completed", "failed", "canceled"}:
-                    task.error = "RUNTIME_OBSERVATION_ABSENT"
-                    await db.commit()
+        state = await reconcile(task_id)
+        if state in {"finished", "absent"}:
             return
-        if observed.alive or observed.state not in {"exited", "dead"}:
-            continue
-        try:
-            async with managed_runtime.exclusive(runtime_handle):
-                async with async_session() as db:
-                    task = await db.get(A2ATask, task_id)
-                    if not task:
-                        return
-                    if task.status in {"completed", "failed", "canceled"}:
-                        await adapter.remove(runtime_handle)
-                        return
-                observed = await adapter.observe(runtime_handle)
-                if observed.alive or observed.state not in {"exited", "dead"}:
-                    continue
-                snapshot = await managed_runtime.retain_logs(runtime_handle, Path(workspace_path), observed.process_instance)
-                logs = (snapshot.stdout + b"\n" + snapshot.stderr).decode("utf-8", errors="replace")
-                await _finish_task_runtime(task_id, run_id, workspace_path, observed.exit_code, logs)
-                await adapter.remove(runtime_handle)
-                return
-        except RuntimeErrorCode as exc:
-            if str(exc) != "RUNTIME_OPERATION_IN_PROGRESS":
-                logger.warning("Runtime finalization pending for %s: %s", task_id, str(exc))
-        except Exception as exc:  # noqa: BLE001 - retain execution until evidence and cleanup are available
-            logger.warning("Runtime finalization pending for %s: %s", task_id, type(exc).__name__)
 
 
 async def _finish_task_runtime(task_id, run_id, workspace_path, exit_code, container_logs):
@@ -434,6 +409,7 @@ async def _finish_task_runtime(task_id, run_id, workspace_path, exit_code, conta
             return
         task.artifacts = artifacts
         task.status = "completed" if exit_code == 0 and artifacts else "failed"
+        task.error = ""
         if exit_code == 0 and not artifacts:
             task.error = "RUNTIME_RESULT_MISSING"
         if exit_code != 0:
@@ -584,39 +560,65 @@ def _remove_task_secret_config(workspace_path: str, run_id: str) -> None:
 
 
 async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
-    """Cancel only after owned execution is confirmed stopped."""
+    """Persist cancellation before external stop; replay only lifecycle control."""
     runtime_handle = managed_runtime.handle("task", task_id)
     async with managed_runtime.exclusive(runtime_handle):
-        task = await db.get(A2ATask, task_id)
-        if not task:
-            raise ValueError(f"Task {task_id} not found")
-        await db.refresh(task)
-        if task.status in {"completed", "failed", "canceled"}:
-            return task
-        agent = await db.get(Agent, task.agent_id)
-        if agent and agent.mode == "service":
-            # The current shared chat endpoint has no per-request cancellation API.
-            raise RuntimeErrorCode("TASK_CANCELLATION_UNSUPPORTED")
-        from app.services.e2ag_tool_gateway import revoke_task_grants
-        await revoke_task_grants(db, task.id)
-        await db.commit()
-        adapter = None
-        if task.status != "submitted":
-            adapter = managed_runtime.managed_adapter()
-            observed = await adapter.stop(runtime_handle, grace_seconds=10)
-            if observed.alive or observed.state not in {"exited", "dead"}:
-                raise RuntimeErrorCode("RUNTIME_STOP_UNCONFIRMED")
-            if agent and agent.workspace_path:
-                await managed_runtime.retain_logs(runtime_handle, Path(agent.workspace_path), observed.process_instance)
-        task.status = "canceled"
-        task.updated_at = _now()
-        await db.commit()
-        if adapter is not None:
-            await adapter.remove(runtime_handle)
-        if agent and agent.workspace_path:
-            _remove_task_secret_config(agent.workspace_path, task.id[:12])
-        await db.refresh(task)
+        return await _cancel_task_locked(db, task_id)
+
+
+async def _cancel_task_locked(db: AsyncSession, task_id: str) -> A2ATask:
+    from app.models.tables import ManagedTaskExecution
+    from app.services.managed_recovery import register
+    task = await db.get(A2ATask, task_id)
+    if not task:
+        raise ValueError(f"Task {task_id} not found")
+    await db.refresh(task)
+    if task.status in {"completed", "failed", "canceled"}:
         return task
+    agent = await db.get(Agent, task.agent_id)
+    execution = await db.get(ManagedTaskExecution, task_id)
+    if execution is None and agent and agent.mode == "service":
+        raise RuntimeErrorCode("TASK_CANCELLATION_UNSUPPORTED")
+    runtime_handle = managed_runtime.handle("task", task_id)
+    if execution is None and agent and agent.workspace_path:
+        execution = await register(db, task_id, runtime_handle, agent.workspace_path, task_id[:12])
+    if execution is None and task.status != "submitted":
+        raise RuntimeErrorCode("MANAGED_EXECUTION_MAPPING_REQUIRED")
+    if execution is not None:
+        if execution.scope != settings.runtime_scope or execution.runtime_handle != runtime_handle:
+            raise RuntimeErrorCode("RUNTIME_SCOPE_MISMATCH")
+        execution.cancel_requested = True
+    from app.services.e2ag_tool_gateway import revoke_task_grants
+    await revoke_task_grants(db, task.id)
+    await db.commit()
+    adapter = None
+    if task.status != "submitted":
+        adapter = managed_runtime.managed_adapter()
+        if execution and execution.process_instance:
+            current = await adapter.observe(runtime_handle)
+            if current.process_instance != execution.process_instance:
+                raise RuntimeErrorCode("PROCESS_CHANGED")
+        observed = await adapter.stop(runtime_handle, grace_seconds=10)
+        if observed.alive or observed.state not in {"exited", "dead"}:
+            raise RuntimeErrorCode("RUNTIME_STOP_UNCONFIRMED")
+        if execution:
+            from dataclasses import asdict
+            execution.process_instance = observed.process_instance
+            execution.observation = asdict(observed)
+            execution.observed_at = _now()
+            await managed_runtime.retain_logs(runtime_handle, Path(execution.workspace_path), observed.process_instance)
+    task.status = "canceled"
+    task.updated_at = _now()
+    await db.commit()
+    if adapter is not None:
+        await adapter.remove(runtime_handle)
+    if execution:
+        _remove_task_secret_config(execution.workspace_path, execution.run_id)
+        execution.finished = True
+        execution.error = ""
+        await db.commit()
+    await db.refresh(task)
+    return task
 
 
 # ── 工具：CloudEvent -> A2A Message ────────────────────────────────

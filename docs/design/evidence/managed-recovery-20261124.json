@@ -1,0 +1,122 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "1550a4b8844eac481f7392e247dbc44e0938f4cd",
+  "state": "engineering_verified_deployed_issue_open",
+  "tests": {
+    "backend": {
+      "total": 683,
+      "passed": 487,
+      "skipped": 196,
+      "seconds": 568.461,
+      "log_sha256": "58234dc496182594c13ebd6d751f4d21e7941df77208e3f8c775fb539a2c625f"
+    },
+    "final_targeted": {
+      "total": 34,
+      "passed": 34,
+      "skipped": 0,
+      "seconds": 35.891,
+      "log_sha256": "00e5f18fe45129fe614d7c90ce64851f6e5e7904e22443a5158193f9d658ec0f"
+    },
+    "native": {
+      "total": 4,
+      "passed": 4,
+      "skipped": 0,
+      "seconds": 30.018,
+      "log_sha256": "3087eb25b8367d1baf597b109bb019b364d860c56d4f9ce71a785b8f25c9c3ae"
+    },
+    "changed_python_lint": "passed"
+  },
+  "api_restart": [
+    {
+      "task_id": "2d33fdc1633b4bfc89a902b71734af7f",
+      "api_pid_before": 54581,
+      "api_pid_after": 54691,
+      "process_instance": "4c0abe6507f83c798c027b4eaaba62a7431ae3501b5897920d6892ffba34e869:2026-11-24T09:54:47.451114166Z",
+      "container_survived_api_loss": true,
+      "same_task_completed": true,
+      "container_removed_after_completion": true,
+      "retained_log_artifacts": 1
+    }
+  ],
+  "image": {
+    "image": "sha256:395a97742ff40b3ae368edd5079b44487fd62a838f6549accd569f6efed4eed2",
+    "checks": [
+      "health",
+      "registry_poll_contract",
+      "secret_write_only",
+      "isolated_empty_connectors",
+      "graceful_exit",
+      "managed_runtime_imports",
+      "managed_recovery_api",
+      "managed_recovery_cli"
+    ],
+    "exit_code": 0
+  },
+  "development": {
+    "checks": [
+      "development_api_healthy",
+      "deployed_poll_contract",
+      "a2a_discovery_healthy",
+      "managed_recovery_api",
+      "runtime_history_preserved",
+      "events_history_preserved",
+      "worker-sales_process_alive",
+      "worker-construction_process_alive",
+      "knowledge_process_alive",
+      "dios-dev-identity-reconcile.timer_active",
+      "dios-dev-delegation-reconcile.timer_active",
+      "browser_sso_healthy",
+      "managed_ledger_initialized_without_history_import",
+      "managed_recovery_cli"
+    ],
+    "history_count": 84,
+    "history_identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "event_count": 0,
+    "active_runs": 0,
+    "backup": "backup-before",
+    "schema_migration_required": true,
+    "schema_change": "additive managed_task_executions table",
+    "migration_applied_by": "application initialization"
+  },
+  "reused_capabilities": [
+    "SQLAlchemy durable application database",
+    "RuntimeAdapter identity and native observation",
+    "filelock native per-handle ownership",
+    "existing E2AG grant revocation",
+    "LocalArtifacts and task result finalization"
+  ],
+  "coverage": [
+    "restart resumes original task and process identity",
+    "persisted cancellation wins over returned report",
+    "terminal cleanup retry survives controller restart",
+    "observation error never relaunches model",
+    "changed process rejected",
+    "workspace snapshot survives Agent configuration edits",
+    "overlapping controllers finalize once",
+    "bounded cursor does not starve later records",
+    "graceful controller shutdown drains current call without stopping Agent",
+    "untracked and orphaned active tasks reported",
+    "CLI/API expose bounded status without workspace paths",
+    "late successful completion clears stale errors and observations use UTC"
+  ],
+  "migration": {
+    "added_table": "managed_task_executions",
+    "existing_tables_rewritten": false,
+    "historical_runs_imported": false,
+    "application_and_runtime_backed_up": true
+  },
+  "remaining": [
+    "explicit mapping/drain of pre-ledger running tasks and association with unified Run/Attempt/Session history",
+    "admission closure plus service drain and kernel Lifecycle combined cutover",
+    "shared service request continuation and per-request governance",
+    "remote frozen termination provider qualification",
+    "G2 independent review and user acceptance"
+  ],
+  "limits": [
+    "compatibility controller is qualified on one control host; API processes share the lock directory",
+    "synthetic protocol task and fixture report; no new vendor/model qualification",
+    "full Run/Attempt/Session execution remains the existing durable Worker responsibility",
+    "last observation and latest error are stored; complete kernel execution/audit mapping remains part of compatibility migration"
+  ],
+  "project_status_update": "Issue/repository plan updated; Project fields remain blocked by existing token scope"
+}

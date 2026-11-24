@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     managed_runtime_user: str = "1000:1000"
     managed_runtime_memory_bytes: int = 512 * 1024 * 1024
     managed_runtime_lock_dir: str = ""
+    managed_recovery_enabled: bool = True
 
     # Webhook 签名验证密钥，按平台名存储
     # 如 {"github": "xxx", "gitlab": "yyy", "gitea": "zzz"}

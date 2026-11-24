@@ -29,6 +29,19 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/a2a", tags=["a2a"])
 
 
+@router.get("/runtime/recovery")
+async def managed_recovery_status():
+    from app.services.managed_recovery import status
+    return await status()
+
+
+@router.post("/runtime/reconcile")
+async def managed_recovery_tick(limit: int = Query(default=32, ge=1, le=100)):
+    from app.services.managed_recovery import ManagedRecovery, status
+    results = await ManagedRecovery(batch_size=limit).tick()
+    return {"results": results, "status": await status()}
+
+
 def _base_url(request: Request) -> str:
     scheme = request.url.scheme
     netloc = request.url.netloc
