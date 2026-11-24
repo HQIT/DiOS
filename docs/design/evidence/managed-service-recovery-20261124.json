@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "2826e35d95c8099fab9681d6863fd7b2be789d74",
+  "state": "engineering_verified_deployed_issues_open",
+  "tests": {
+    "backend": {
+      "total": 731,
+      "passed": 532,
+      "skipped": 199,
+      "seconds": 352.602,
+      "log_sha256": "f69016ece5f37cf2b321ea51c367802cd334e8080750a8e4c2c2a948989769fd"
+    },
+    "final_targeted": {
+      "total": 47,
+      "passed": 47,
+      "skipped": 0,
+      "seconds": 60.426,
+      "log_sha256": "9ab5ea5f8de71e45ae6836bb4eb7dd685868f8a5edb093c3782241032bd22e74"
+    },
+    "native_http_and_header_disconnect": {
+      "total": 2,
+      "passed": 2,
+      "skipped": 0,
+      "seconds": 5.327,
+      "log_sha256": "1ceabd10a23eb28ac580ba9b324ad5165407eb24e35d6fb30aa060188e2699fa"
+    },
+    "final_observation_lifetime": {
+      "total": 1,
+      "passed": 1,
+      "skipped": 0,
+      "seconds": 0.696,
+      "log_sha256": "39b631de9a34b24dfc226a5ef7a3503837f45b7b95d9359c630d154202492836"
+    },
+    "final_image_service_recovery": {
+      "total": 19,
+      "passed": 19,
+      "skipped": 0,
+      "seconds": 19.229,
+      "log_sha256": "35c1a0691ec14ae8f99f102970b768393f10385d0c48e825042f95f28d3e5029"
+    }
+  },
+  "verification_scope": "Full regression followed by targeted and final-image qualification of subsequent stream/observation refinements.",
+  "image": {
+    "image": "sha256:987bdc6ef6f5b104147e0c616ef1fe030860fcbd6722e5f3deff5b9f1eaa21b4",
+    "checks": [
+      "health",
+      "registry_poll_contract",
+      "secret_write_only",
+      "isolated_empty_connectors",
+      "graceful_exit",
+      "managed_runtime_imports",
+      "managed_recovery_api",
+      "managed_recovery_cli",
+      "upgrade_api_drain",
+      "upgrade_cli_persistent_state",
+      "upgrade_api_resume",
+      "history_archive_migration",
+      "history_archive_cli_pipeline",
+      "service_recovery_image_regressions"
+    ],
+    "exit_code": 0
+  },
+  "development": {
+    "checks": [
+      "development_api_healthy",
+      "deployed_poll_contract",
+      "a2a_discovery_healthy",
+      "managed_recovery_api",
+      "runtime_history_preserved",
+      "events_history_preserved",
+      "worker-sales_process_alive",
+      "worker-construction_process_alive",
+      "knowledge_process_alive",
+      "dios-dev-identity-reconcile.timer_active",
+      "dios-dev-delegation-reconcile.timer_active",
+      "browser_sso_healthy",
+      "managed_ledger_initialized_without_history_import",
+      "managed_recovery_cli",
+      "upgrade_combines_kernel_and_compatibility",
+      "upgrade_operator_required",
+      "upgrade_both_gates_draining",
+      "upgrade_api_cli_state_consistency",
+      "upgrade_stale_revision_rejected",
+      "upgrade_idle_settle",
+      "upgrade_both_gates_resumed",
+      "upgrade_status_not_cached",
+      "history_archive_schema_initialized_without_import",
+      "project_cli_history_commands",
+      "service_recovery_tables_initialized_without_import",
+      "coordinated_drain_before_deployment"
+    ],
+    "history_count": 84,
+    "history_identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "event_count": 0,
+    "active_runs": 0,
+    "backup": "backup-before",
+    "schema_migration_required": true,
+    "schema_change": "additive managed_service_owners and managed_service_results",
+    "migration_applied_by": "existing application init_db while drained"
+  },
+  "design_contract_checks": 681,
+  "new_service_modules_lint": "passed",
+  "coverage": [
+    "native caller lock remains exclusive across processes",
+    "native caller SIGKILL before dispatch, after dispatch and after receipt",
+    "real HTTP response retained before original caller kill; new CLI projects once; upstream requests=1",
+    "projection rollback preserves original receipt and does not mark completion",
+    "complete receipts recover without model invocation",
+    "partial, empty, truncated and corrupt results never accepted as success",
+    "source call identity and duplicate task dispatch protection",
+    "legacy unowned calls and foreign scopes not adopted",
+    "late receipt does not overwrite canceled target",
+    "SSE last emitted delta retained on disconnect",
+    "SSE usage-only events and optional data whitespace accepted",
+    "response-header failure closes undispatched owner",
+    "E2AG grants revoked on interrupted call; no new grant minted",
+    "timeout leaves original observation alive to release database resources",
+    "upgrade progress selects receipt metadata without report bodies",
+    "application tables created additively after coordinated development drain"
+  ],
+  "reused_components": [
+    "filelock native OS locks",
+    "SQLAlchemy transactions",
+    "existing ManagedRecovery cursor batches",
+    "existing E2AG grant revocation",
+    "asyncio.shield and AnyIO cancellation scopes",
+    "existing upgrade admission"
+  ],
+  "limits": [
+    "compatibility owner locks require one control host and shared lock directory",
+    "lost remote outcome without persisted receipt remains unknown; no model retry or remote cancellation inferred",
+    "pre-ledger legacy objects require explicit identity/ownership mapping",
+    "stream content not yet persisted at process kill can be lost; unknown remains unresolved",
+    "receipt maximum is 16 MiB; oversized results do not become successful",
+    "receipts live in application DB; complete deployment backup includes this DB as well as runtime backup",
+    "native protocol qualification uses synthetic replies; production reviewer is untouched"
+  ],
+  "remaining": [
+    "active legacy execution adoption",
+    "remote service request query/cancel qualification",
+    "durable schedules, overlap handling and dead letters",
+    "enterprise topology qualification",
+    "G2 and user acceptance"
+  ],
+  "project_fields_updated": false
+}

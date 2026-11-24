@@ -221,6 +221,7 @@ class ManagedRecovery:
             raise ValueError("Invalid recovery limits")
         self.interval, self.batch_size = interval, batch_size
         self.cursor = ""
+        self.service_cursor = ""
         self.task = None
         self._wake = asyncio.Event()
         self._stopping = False
@@ -250,6 +251,9 @@ class ManagedRecovery:
         results = {}
         for task_id in ids:
             results[task_id] = await reconcile(task_id)
+        from app.services.managed_service_recovery import batch
+        services, self.service_cursor = await batch(self.service_cursor, self.batch_size)
+        results.update(services)
         return results
 
     def wake(self):

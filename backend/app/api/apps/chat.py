@@ -20,6 +20,23 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
 
 
+class _OwnedStreamingResponse(StreamingResponse):
+    def __init__(self, *args, owner, **kwargs):
+        self.owner = owner
+        super().__init__(*args, **kwargs)
+
+    async def __call__(self, scope, receive, send):
+        import anyio
+        try:
+            await super().__call__(scope, receive, send)
+        finally:
+            with anyio.CancelScope(shield=True):
+                try:
+                    await self.body_iterator.aclose()
+                finally:
+                    await self.owner.close("SERVICE_STREAM_INTERRUPTED")
+
+
 def _extract_hil_pending(result_text: str) -> dict | None:
     """从工具输出文本中提取 pending_hil 结构化信息。"""
     if not result_text or "pending_hil" not in result_text:
@@ -66,7 +83,7 @@ def _extract_hil_pending(result_text: str) -> dict | None:
 
 @router.post("/completions")
 async def chat_completions(request: Request, db: AsyncSession = Depends(get_db)):
-    from app.services import managed_admission
+    from app.services.managed_service_recovery import CallOwner
     from app.runtime.database import RuntimeErrorCode
     body = await request.json()
     agent_id = body.get("agent_id")
@@ -74,14 +91,15 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
         raise HTTPException(400, "agent_id is required")
     if not await db.get(Agent, agent_id):
         raise HTTPException(404, "Agent not found")
+    owner = CallOwner()
     try:
-        call_id = await managed_admission.begin_call(db, agent_id)
+        call_id = await owner.begin(db, agent_id)
     except RuntimeErrorCode as exc:
         raise HTTPException(503, detail=exc.code) from None
     try:
         response = await _chat_completions(request, db, call_id=call_id)
     except BaseException as exc:
-        await managed_admission.finish(call_id, error=type(exc).__name__)
+        await owner.close(exc.code if isinstance(exc, RuntimeErrorCode) else type(exc).__name__)
         raise
     if isinstance(response, StreamingResponse):
         original = response.body_iterator
@@ -93,10 +111,14 @@ async def chat_completions(request: Request, db: AsyncSession = Depends(get_db))
                 try:
                     await original.aclose()
                 finally:
-                    await managed_admission.finish(call_id, error="SERVICE_STREAM_INCOMPLETE")
-        response.body_iterator = tracked()
+                    await owner.close("SERVICE_STREAM_INCOMPLETE")
+        response = _OwnedStreamingResponse(
+            tracked(), owner=owner, status_code=response.status_code,
+            headers=dict(response.headers), media_type=response.media_type,
+            background=response.background,
+        )
     else:
-        await managed_admission.finish(call_id, complete=True)
+        await owner.close()
     return response
 
 
@@ -129,6 +151,8 @@ async def _chat_completions(request: Request, db: AsyncSession, *, call_id):
         await db.commit()
     else:
         session = await db.get(ChatSession, session_id)
+        if session and session.agent_id != agent_id:
+            raise HTTPException(409, "CHAT_SESSION_AGENT_MISMATCH")
         if not session:
             session = ChatSession(id=session_id, agent_id=agent_id, title=user_content[:60])
             db.add(session)
@@ -194,6 +218,7 @@ async def _chat_completions(request: Request, db: AsyncSession, *, call_id):
             from app.services import managed_admission
             upstream_done = False
             collected: list[str] = []
+            invalid_result = False
             current_event: str | None = None
             try:
                 await managed_admission.dispatch(call_id)
@@ -206,30 +231,34 @@ async def _chat_completions(request: Request, db: AsyncSession, *, call_id):
                             yield "data: [DONE]\n\n"
                             return
                         async for line in resp.aiter_lines():
+                            hil_pending = None
                             if line.startswith("data:") and line[5:].strip() == "[DONE]":
                                 upstream_done = True
-                            # 保持 SSE 行格式，确保前端解析器不会等待悬空分隔符
-                            yield line + "\n"
                             if line.startswith("event: "):
                                 current_event = line[len("event: "):].strip()
-                            if line.startswith("data: ") and not line.startswith("data: [DONE]"):
+                            if line.startswith("data:") and line[5:].strip() != "[DONE]":
                                 try:
-                                    p = json.loads(line[6:])
-                                    delta = p.get("choices", [{}])[0].get("delta", {}).get("content")
-                                    if delta:
+                                    p = json.loads(line[5:].lstrip())
+                                    choice = (p.get("choices") or [{}])[0]
+                                    if "error" in p or choice.get("finish_reason") not in {None, "stop"}:
+                                        invalid_result = True
+                                    delta = choice.get("delta", {}).get("content")
+                                    if isinstance(delta, str):
                                         collected.append(delta)
                                 except Exception:
-                                    pass
+                                    invalid_result = True
                                 if current_event == "tool_call":
                                     try:
-                                        tool_evt = json.loads(line[6:])
+                                        tool_evt = json.loads(line[5:].lstrip())
                                         if tool_evt.get("type") == "tool_call_end":
-                                            pending = _extract_hil_pending(str(tool_evt.get("result") or ""))
-                                            if pending:
-                                                yield "event: hil\n"
-                                                yield f"data: {json.dumps(pending, ensure_ascii=False)}\n\n"
+                                            hil_pending = _extract_hil_pending(str(tool_evt.get("result") or ""))
                                     except Exception:
                                         pass
+                            # Persisted partial content includes the last emitted delta.
+                            yield line + "\n"
+                            if hil_pending:
+                                yield "\nevent: hil\n"
+                                yield f"data: {json.dumps(hil_pending, ensure_ascii=False)}\n\n"
             except (httpx.RemoteProtocolError, httpx.ReadError, httpx.ReadTimeout) as e:
                 logger.warning("chat stream interrupted: %s", e)
                 yield f"data: {json.dumps({'error': f'stream interrupted: {type(e).__name__}'}, ensure_ascii=False)}\n\n"
@@ -239,14 +268,17 @@ async def _chat_completions(request: Request, db: AsyncSession, *, call_id):
                 yield f"data: {json.dumps({'error': f'internal stream error: {type(e).__name__}'}, ensure_ascii=False)}\n\n"
                 yield "data: [DONE]\n\n"
             finally:
-                if collected:
-                    async with get_db_session() as save_db:
-                        save_db.add(ChatMessage(
-                            session_id=session_id, role="assistant", content="".join(collected)
-                        ))
-                        await save_db.commit()
-                if upstream_done:
-                    await managed_admission.finish(call_id, complete=True)
+                import anyio
+                with anyio.CancelScope(shield=True):
+                    from app.services import managed_service_results
+                    content = "".join(collected)
+                    await managed_service_results.retain(
+                        call_id, "chat", session_id, content,
+                        complete=upstream_done and not invalid_result and bool(content.strip()),
+                        evidence={"transport": "sse", "upstream_done": upstream_done,
+                                  "invalid_result": invalid_result},
+                    )
+                    await managed_service_results.apply(call_id)
 
         return StreamingResponse(
             _stream(),
@@ -264,10 +296,19 @@ async def _chat_completions(request: Request, db: AsyncSession, *, call_id):
             raise HTTPException(resp.status_code, resp.text)
         result = resp.json()
 
-    assistant_content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
-    if assistant_content:
-        db.add(ChatMessage(session_id=session_id, role="assistant", content=assistant_content))
-        await db.commit()
+    from app.services.managed_service_recovery import reply_content
+    from app.runtime.database import RuntimeErrorCode
+    from app.services import managed_service_results
+    try:
+        assistant_content = reply_content(result)
+        complete = True
+    except RuntimeErrorCode:
+        assistant_content, complete = json.dumps(result, ensure_ascii=False), False
+    await managed_service_results.retain(call_id, "chat", session_id, assistant_content,
+                                        complete=complete, evidence={"transport": "http-json", "response": result})
+    await managed_service_results.apply(call_id)
+    if not complete:
+        raise HTTPException(502, "SERVICE_RESULT_INCOMPLETE")
 
     return result
 

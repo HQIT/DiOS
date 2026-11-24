@@ -247,6 +247,25 @@ class ManagedServiceCall(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class ManagedServiceOwner(Base):
+    """Calls whose local caller lifetime is protected by a native OS lock."""
+    __tablename__ = "managed_service_owners"
+    call_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(128), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class ManagedServiceResult(Base):
+    """Durable result receipt, projected atomically into task/chat history."""
+    __tablename__ = "managed_service_results"
+    call_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(128), index=True)
+    record: Mapped[dict] = mapped_column(JSON, nullable=False)
+    digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    applied: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class E2AGToolGrant(Base):
     """Short-lived authorization for one task to call one remote MCP server."""
 

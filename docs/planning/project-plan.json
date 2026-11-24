@@ -528,7 +528,9 @@
           "docs/design/managed-upgrade-10-30.md",
           "docs/design/evidence/managed-upgrade-20261124.json",
           "docs/design/managed-history-10-30-32.md",
-          "docs/design/evidence/managed-history-20261124.json"
+          "docs/design/evidence/managed-history-20261124.json",
+          "docs/design/managed-service-recovery-10-30.md",
+          "docs/design/evidence/managed-service-recovery-20261124.json"
         ],
         "project_sync": "Issue 正文与仓库计划同步；Project 字段受既有令牌 scope 限制"
       },
@@ -538,6 +540,13 @@
         "evidence": "docs/design/evidence/managed-history-20261124.json",
         "state": "settled_compatibility_history_verified_deployed",
         "remaining": "活跃旧执行显式核验与持权接管、来源修订处置、按主体授权的历史与正文查询。"
+      },
+      "shared_service_recovery": {
+        "state": "verified_deployed",
+        "design": "docs/design/managed-service-recovery-10-30.md",
+        "evidence": "docs/design/evidence/managed-service-recovery-20261124.json",
+        "summary": "共享请求原生所有权、持久结果回执、报告原子收尾及中断后对账已接通；原 HTTP 请求进程强杀后通过独立 CLI 恢复报告，上游请求保持一次。",
+        "remaining": "旧无所有权记录执行的显式接管、远端未知请求查询/取消、多主机资格。"
       }
     },
     {
@@ -595,7 +604,9 @@
           "docs/design/worker-reconciliation-30.md",
           "docs/design/evidence/worker-reconciliation-regression-20261113.json",
           "docs/design/managed-history-10-30-32.md",
-          "docs/design/evidence/managed-history-20261124.json"
+          "docs/design/evidence/managed-history-20261124.json",
+          "docs/design/managed-service-recovery-10-30.md",
+          "docs/design/evidence/managed-service-recovery-20261124.json"
         ],
         "remaining": "持久定时、重叠触发合并与死信处置；供应商错误映射、双物理主机与实际 Agent 资格由 #56/#58 推进。",
         "development": {
@@ -668,7 +679,7 @@
         "design": "docs/design/managed-task-recovery-10-30.md",
         "evidence": "docs/design/evidence/managed-recovery-20261124.json",
         "state": "native_api_restart_verified",
-        "next": "已结清兼容任务历史接入已交付；继续活跃旧执行显式核验与持权接管、未知共享服务请求对账，以及持久定时/重叠触发/死信。"
+        "next": "继续活跃旧执行显式核验与持权接管、缺少回执的远端未知请求查询/取消，以及持久定时、重叠触发和死信。共享请求已有持久回执时可自动恢复报告，不重放模型。"
       },
       "managed_upgrade": {
         "design": "docs/design/managed-upgrade-10-30.md",
@@ -681,6 +692,13 @@
         "evidence": "docs/design/evidence/managed-history-20261124.json",
         "state": "settled_compatibility_history_verified_deployed",
         "remaining": "活跃旧执行显式核验与持权接管、来源修订处置、按主体授权的历史与正文查询。"
+      },
+      "shared_service_recovery": {
+        "state": "verified_deployed",
+        "design": "docs/design/managed-service-recovery-10-30.md",
+        "evidence": "docs/design/evidence/managed-service-recovery-20261124.json",
+        "summary": "共享请求原生所有权、持久结果回执、报告原子收尾及中断后对账已接通；原 HTTP 请求进程强杀后通过独立 CLI 恢复报告，上游请求保持一次。",
+        "remaining": "旧无所有权记录执行的显式接管、远端未知请求查询/取消、多主机资格。"
       }
     },
     {
@@ -789,7 +807,9 @@
           "docs/design/evidence/recovery-drain-regression-20261111.json",
           "docs/design/evidence/recovery-drill-20261111.json",
           "docs/design/managed-history-10-30-32.md",
-          "docs/design/evidence/managed-history-20261124.json"
+          "docs/design/evidence/managed-history-20261124.json",
+          "docs/design/managed-service-recovery-10-30.md",
+          "docs/design/evidence/managed-service-recovery-20261124.json"
         ],
         "remaining": "活跃旧执行身份核验与所有权切换、来源修订处置、历史正文的主体授权查询、保留回收及多节点存储/恢复资格。生产评审历史接入继续由 #60 独立安排。",
         "verification": "后端 713 项中 514 通过、199 条件跳过；历史与恢复专项 38 通过、14 条件跳过；最终来源专项 13 通过、2 条件跳过；SQLite/PostgreSQL 历史 20 项通过；镜像内归档 2 项及 14 项运行检查、开发部署 26 项通过，84 条原历史身份不变。",
@@ -801,6 +821,13 @@
         "evidence": "docs/design/evidence/managed-history-20261124.json",
         "state": "settled_compatibility_history_verified_deployed",
         "remaining": "活跃旧执行显式核验与持权接管、来源修订处置、按主体授权的历史与正文查询。"
+      },
+      "shared_service_recovery": {
+        "state": "verified_deployed",
+        "design": "docs/design/managed-service-recovery-10-30.md",
+        "evidence": "docs/design/evidence/managed-service-recovery-20261124.json",
+        "summary": "共享请求原生所有权、持久结果回执、报告原子收尾及中断后对账已接通；原 HTTP 请求进程强杀后通过独立 CLI 恢复报告，上游请求保持一次。",
+        "remaining": "旧无所有权记录执行的显式接管、远端未知请求查询/取消、多主机资格。"
       }
     },
     {

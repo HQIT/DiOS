@@ -16,10 +16,19 @@ from app.models.tables import (
     AgentRuntime,
     ManagedRuntimeControl,
     ManagedServiceCall,
+    ManagedServiceResult,
 )
 from app.runtime.database import Database, RuntimeErrorCode
 from app.runtime.lifecycle import Lifecycle
 from app.services import managed_recovery, managed_runtime
+
+_observations = set()
+
+
+def _observation_finished(task):
+    _observations.discard(task)
+    if not task.cancelled():
+        task.exception()
 
 
 class Upgrade:
@@ -87,6 +96,31 @@ class Upgrade:
                 }
                 for c in pending_calls
             ]
+            if pending_calls:
+                receipts = {
+                    r.call_id: r
+                    for r in (
+                        await db.execute(
+                            select(
+                                ManagedServiceResult.call_id,
+                                ManagedServiceResult.applied,
+                                ManagedServiceResult.record["complete"]
+                                .as_boolean()
+                                .label("complete"),
+                            ).where(
+                                ManagedServiceResult.scope == settings.runtime_scope,
+                                ManagedServiceResult.call_id.in_(
+                                    [c.id for c in pending_calls]
+                                ),
+                            )
+                        )
+                    ).all()
+                }
+                for item in call_items:
+                    receipt = receipts.get(item["id"])
+                    item["result_retained"] = receipt is not None
+                    item["result_applied"] = receipt.applied if receipt else False
+                    item["result_complete"] = receipt.complete if receipt else None
             active = (
                 await db.execute(
                     select(func.count())
@@ -214,9 +248,14 @@ class Upgrade:
             raise RuntimeErrorCode("INVALID_DRAIN_LIMIT")
         deadline = time.monotonic() + timeout
         while True:
+            observation = asyncio.create_task(self.status())
+            _observations.add(observation)
+            # A caller's observation budget must not cancel an in-flight DB read
+            # during cursor/connection cleanup. Let it finish without repeating it.
+            observation.add_done_callback(_observation_finished)
             try:
                 snapshot = await asyncio.wait_for(
-                    self.status(), max(0.01, deadline - time.monotonic())
+                    asyncio.shield(observation), max(0.01, deadline - time.monotonic())
                 )
             except TimeoutError:
                 raise RuntimeErrorCode("DRAIN_OBSERVATION_TIMEOUT") from None

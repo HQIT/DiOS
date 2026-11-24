@@ -220,13 +220,15 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
     from app.db.database import async_session
     from app.services.agent_runtime import ensure_running
     from app.services import managed_admission
-    call_id = None
+    from app.services.managed_service_recovery import CallOwner, reply_content
+    owner = CallOwner()
+    error = "SERVICE_CALL_INTERRUPTED"
     try:
         async with async_session() as db:
             task = await db.get(A2ATask, task_id)
             if not task:
                 return
-            call_id = await managed_admission.begin_call(db, agent_id, task_id=task_id)
+            call_id = await owner.begin(db, agent_id, task_id=task_id)
             url = await ensure_running(agent_id, db, call_id=call_id)
 
             agent = await db.get(Agent, agent_id)
@@ -252,36 +254,32 @@ async def _run_service_call(task_id: str, agent_id: str) -> None:
                 resp = await client.post(f"{url}/v1/chat/completions", json=openai_req)
                 resp.raise_for_status()
                 data = resp.json()
-            await managed_admission.finish(call_id, complete=True)
-
-            content = ""
+            from app.services import managed_service_results
             try:
-                content = data["choices"][0]["message"]["content"] or ""
-            except Exception:
-                content = json.dumps(data, ensure_ascii=False)
-
-            task = await db.get(A2ATask, task_id)
-            if not task:
-                return
-            task.artifacts = [{
-                "artifactId": f"{task_id}-reply",
-                "name": "reply",
-                "parts": [{"kind": "text", "text": content}],
-            }]
-            task.status = "completed"
-            task.updated_at = _now()
-            await db.commit()
+                content = reply_content(data)
+                complete = True
+            except RuntimeErrorCode:
+                content, complete = json.dumps(data, ensure_ascii=False), False
+            await managed_service_results.retain(
+                call_id, "task", task_id, content, complete=complete,
+                evidence={"transport": "http-json", "response": data},
+            )
+            await managed_service_results.apply(call_id)
     except Exception as e:
-        if call_id:
-            await managed_admission.finish(call_id, error=type(e).__name__)
+        error = e.code if isinstance(e, RuntimeErrorCode) else type(e).__name__
         logger.exception("service A2A call failed: task=%s", task_id)
-        async with async_session() as db:
-            task = await db.get(A2ATask, task_id)
-            if task:
-                task.status = "failed"
-                task.error = f"{type(e).__name__}: {e}"
-                task.updated_at = _now()
-                await db.commit()
+        if not owner.started and error != "SERVICE_CALL_ALREADY_EXISTS":
+            async with async_session() as db:
+                task = await db.get(A2ATask, task_id)
+                if task and task.status in {"working", "submitted"}:
+                    task.status = "failed"
+                    task.error = error
+                    task.updated_at = _now()
+                    from app.services.e2ag_tool_gateway import revoke_task_grants
+                    await revoke_task_grants(db, task_id)
+                    await db.commit()
+    finally:
+        await owner.close(error)
 
 
 def _extract_text_from_message(message: dict[str, Any]) -> str:
