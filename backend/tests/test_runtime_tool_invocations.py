@@ -7,17 +7,15 @@ import json
 import os
 import unittest
 from unittest.mock import patch
-from sqlalchemy import select
 import test_runtime_worker as fixtures
 from work_auth_fixtures import policy_fixture
 from app.runtime.database import RuntimeErrorCode
 from app.runtime.authorization import WorkAuthorizationContext
 from app.runtime.work_authorizations import WorkAuthorizationVerifier
-from app.runtime.work_auth_schema import grants
 from app.runtime.store import digest
 from app.runtime.tool_catalog import FileToolCatalog, FileApprovers
 from app.runtime.tool_invocations import ToolInvocations, require_settled
-from app.runtime.tool_schema import invocations, evidence
+from app.runtime.tool_schema import invocations
 from app.runtime.recovery import backup_sqlite, verify_backup
 
 
@@ -172,6 +170,41 @@ class ToolInvocationTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(RuntimeErrorCode,'APPROVER_FORBIDDEN'):
             await self.gate.dispatch(self.run['id'],item['id'],item['version'])
         self.assertEqual(self.transport.calls,[])
+        saved=await self.gate.get(self.run['id'],item['id'])
+        self.assertEqual(saved['approval_state'],'invalidated')
+        config['approvers'][0]['enabled']=True;self.approver_file.write_text(json.dumps(config))
+        with self.assertRaisesRegex(RuntimeErrorCode,'TOOL_APPROVAL_INVALIDATED'):
+            await self.gate.dispatch(self.run['id'],item['id'],saved['version'])
+        self.assertEqual(self.transport.opened,0)
+
+    async def test_approver_scope_removed_during_initialization_is_persistently_invalid(self):
+        item=await self.approve(await self.request())
+        config=json.loads(self.approver_file.read_text())
+        async def revoke():
+            config['approvers'][0]['scopes']=['unrelated'];self.approver_file.write_text(json.dumps(config))
+        self.transport.hook=revoke
+        with self.assertRaisesRegex(RuntimeErrorCode,'APPROVER_FORBIDDEN'):
+            await self.gate.dispatch(self.run['id'],item['id'],item['version'])
+        saved=await self.gate.get(self.run['id'],item['id'])
+        self.assertEqual((saved['state'],saved['approval_state']),('denied','invalidated'))
+        self.assertTrue(any(e['decision']['reason_codes']==['TOOL_APPROVAL_INVALIDATED'] for e in saved['evidence']))
+        self.assertEqual(self.transport.calls,[])
+
+    async def test_unrelated_approver_change_keeps_valid_approval(self):
+        item=await self.approve(await self.request())
+        config=json.loads(self.approver_file.read_text());config['approvers'][1]['enabled']=False
+        self.approver_file.write_text(json.dumps(config))
+        self.assertEqual((await self.gate.dispatch(self.run['id'],item['id'],item['version']))['state'],'succeeded')
+        self.assertEqual(len(self.transport.calls),1)
+
+    async def test_unavailable_approver_provider_does_not_revoke_approval(self):
+        item=await self.approve(await self.request())
+        with patch.object(self.gate.approvers,'eligible',side_effect=RuntimeErrorCode('TOOL_CONFIGURATION_INVALID')):
+            with self.assertRaisesRegex(RuntimeErrorCode,'TOOL_CONFIGURATION_INVALID'):
+                await self.gate.dispatch(self.run['id'],item['id'],item['version'])
+        saved=await self.gate.get(self.run['id'],item['id'])
+        self.assertEqual(saved['approval_state'],'approved');self.assertEqual(self.transport.calls,[])
+        self.assertEqual((await self.gate.dispatch(self.run['id'],item['id'],item['version']))['state'],'succeeded')
 
     async def test_process_loss_marks_overdue_unknown_without_recall(self):
         item=await self.approve(await self.request())

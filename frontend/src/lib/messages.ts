@@ -609,6 +609,8 @@ export const messages: Record<string, string> = {
   "事件接收：": "Event received: ",
   "工作已结束或授权不可用，未完成的审批申请已保留。": "Work has ended or authorization is unavailable. Unfinished approval requests are retained.",
   "未完成审批（历史）": "Unfinished approval (history)",
+  "审批已失效": "Approval invalidated",
+  "审批资格已撤销，请重新申请并审批本次调用。": "Approver eligibility was revoked. Submit a new call request for approval.",
   "已暂停 {0} 个进程": "{0} processes paused",
   "执行已暂停": "Execution paused",
   "执行已暂停，身份恢复并通过授权复核后继续。": "Execution paused; resumes after identity recovery and authorization revalidation.",

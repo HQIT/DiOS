@@ -1,0 +1,73 @@
+{
+  "checks": [
+    "real-native-worker-session",
+    "independent-approval-recorded",
+    "approval-persistently-invalidated",
+    "revocation-evidence-preserved",
+    "no-dispatch-intent-or-tool-result",
+    "restored-account-cannot-resurrect-approval",
+    "same-attempt-session-ended",
+    "native-exit-confirmed",
+    "history-preserved",
+    "no-active-tasks"
+  ],
+  "run_id": "58e4fb5b-5012-4f12-83e0-522d21d5289f",
+  "attempt_id": "6b63989a-0e15-4874-9a87-b450ee9e40bb",
+  "session_id": "evidence-652f4e06-d2bc-4b97-866e-3f379e50d1cc",
+  "process_id": 133359,
+  "native_exit": {
+    "handle": "6b63989a-0e15-4874-9a87-b450ee9e40bb",
+    "state": "exited",
+    "alive": false,
+    "pid": null,
+    "process_instance": "c26da83715dc8f837b321f30232e58665fffc2daddf5ffdadf57256b78a62914:2026-11-24T06:30:15.731621944Z",
+    "exit_code": 2,
+    "health": "not_configured",
+    "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+    "adapter": "local-docker-v1",
+    "worker_boot_id": "3253fb99-aa90-4f52-bd40-50ec7a89d9d5",
+    "observed_at": 1795501870.2879846
+  },
+  "invocation_id": "8b2b7493-74fc-4d0d-bf96-d405e2c60c8f",
+  "approval_state": "invalidated",
+  "browser": {
+    "run_id": "58e4fb5b-5012-4f12-83e0-522d21d5289f",
+    "checks": [
+      "chinese-invalidated-label",
+      "actionable-reason",
+      "no-dispatch-or-approval",
+      "english-invalidated-label",
+      "mobile-layout",
+      "no-page-errors"
+    ],
+    "errors": []
+  },
+  "history_before": 77,
+  "history_after": 78,
+  "active_runs": 0,
+  "date": "2026-11-24",
+  "design": "docs/design/approval-qualification-35.md",
+  "backend_regression": {
+    "total": 552,
+    "passed": 421,
+    "skipped": 131
+  },
+  "native_opa_mcp_tests": {
+    "passed": 8,
+    "red_before_fix": 2
+  },
+  "tool_tests": {
+    "passed": 15
+  },
+  "frontend": {
+    "typescript": "passed",
+    "vite_build": "passed",
+    "changed_files_eslint": "passed",
+    "browser": "6 checks passed"
+  },
+  "limits": [
+    "File Provider updates and Runtime commits remain separate authority domains; strict cross-service revocation ordering is open",
+    "Revocation restored before any control point observes it cannot be inferred from a file snapshot",
+    "Three-level delegation and enterprise Provider qualification remain open"
+  ]
+}

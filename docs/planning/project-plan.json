@@ -1310,6 +1310,25 @@
         ],
         "next": "#35 三层委派收窄、审批人资格变化；跨服务严格撤销排序与物理多主机资格继续按计划推进",
         "live_evidence": "docs/design/evidence/backchannel-logout-live-20261124.json"
+      },
+      "approval_qualification": {
+        "date": "2026-11-24",
+        "state": "observed_revocation_and_wait_window_verified",
+        "design": "docs/design/approval-qualification-35.md",
+        "evidence": "docs/design/evidence/approval-qualification-20261124.json",
+        "delivered": [
+          "OPA 等待后重新认证审批人和对象权限",
+          "派发前确认撤权，事务持久化审批失效；旧审批不可复活",
+          "故障保留审批并恢复后重查；无关主体变化保留合法审批",
+          "Worker/API/Console 共用失效记录及中英文原因"
+        ],
+        "verification": "552 项后端 421 通过、131 条件跳过；真实 OPA/MCP 8 项、工具 15 项、开发真实 Worker 10 项和浏览器 6 项通过；前端构建与改动文件 lint 通过",
+        "remaining": [
+          "File Provider updates and Runtime commits remain separate authority domains; strict cross-service revocation ordering is open",
+          "Revocation restored before any control point observes it cannot be inferred from a file snapshot",
+          "Three-level delegation and enterprise Provider qualification remain open"
+        ],
+        "next": "#35 三层委派权限和期限收窄；成熟 Provider 版本机制及严格撤销排序验收"
       }
     },
     {

@@ -22,6 +22,7 @@ const errors: Record<string, string> = {
   TOOL_RECEIPT_CONFLICT: "回执与已记录结果冲突，需人工核对。",
   TOOL_DISPATCH_EVIDENCE_REQUIRED: "原调用派发证据不完整，暂不能恢复结果。",
   TOOL_REGISTRATION_CHANGED: "工具配置已变化，需要重新申请授权。",
+  TOOL_APPROVAL_INVALIDATED: "审批资格已撤销，请重新申请并审批本次调用。",
 };
 
 export default function ToolActions({ runId, active, canApprove = true, operator = true }: { runId: string; active: boolean; canApprove?: boolean; operator?: boolean }) {
@@ -81,13 +82,13 @@ export default function ToolActions({ runId, active, canApprove = true, operator
       <label>{translateUI("审批说明")}<textarea value={reason} onChange={e => setReason(e.target.value)} maxLength={2000} rows={2} disabled={!!busy} /></label>
     </div>}
     {items.map(item => <article key={item.id} className="tr-tool-item">
-      <div className="tr-section-title"><strong>{translateUI(item.tool_id)}</strong><span className="tr-badge">{translateUI(!active && item.state === "awaiting_approval" ? "未完成审批（历史）" : states[item.state] || item.state)}</span></div>
+      <div className="tr-section-title"><strong>{translateUI(item.tool_id)}</strong><span className="tr-badge">{translateUI(item.approval_state === "invalidated" ? "审批已失效" : !active && item.state === "awaiting_approval" ? "未完成审批（历史）" : states[item.state] || item.state)}</span></div>
       <p>{translateUI(item.permission.action)} · {translateUI(item.permission.resource_id)} · {translateUI(item.permission.resource_version)}</p>
       <details><summary>{translateUI("查看调用参数")}</summary><pre className="tr-output">{JSON.stringify(item.arguments, null, 2)}</pre></details>
       <p className="tr-muted">{translateUI("有效至")}{translateUI(new Date(item.expires_at * 1000).toLocaleString(languageTag()))}{translateUI(item.expired ? " · 已过期" : "")}
         {translateUI(item.approver ? translateUI(" · 审批人 {0}", [item.approver]) : "")}</p>
       {item.approval_reason && <p>{translateUI(item.approval_reason)}</p>}
-      {item.reason && <p className="tr-muted">{translateUI(item.reason)}</p>}
+      {item.reason && <p className="tr-muted">{translateUI(errors[item.reason] || item.reason)}</p>}
       {item.receipt_available && ["dispatched", "result_unknown"].includes(item.state) && <p className="tr-muted">{translateUI("已保留本地回执，可校验并恢复原调用结果。")}</p>}
       {(item.state === "result_unknown" || item.dispatch_overdue) && <p className="tr-notice">{translateUI("原调用结果待确认，请保留原调用记录并核对上游结果。")}</p>}
       <div className="tr-actions">

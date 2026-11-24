@@ -74,3 +74,5 @@ node scripts/probe_backchannel_logout.mjs /absolute/private-fixture.json /absolu
 fixture 提供本地开发入口 `base`、`username` 和 `password`，完成证据提供 `runs.revoked`、`runs.peer`。凭据文件不进入版本库。省略第三参数会发起两个任务，需要外部资格驱动提供独立 Worker、审批及 `.logout` / `.event` 控制信号，仅用于隔离开发环境。
 
 #35 继续推进三层委派收窄、审批人资格变化和跨服务严格撤销排序；新账本的 PostgreSQL 与物理多主机资格仍待验证。
+
+审批资格变化的执行复核及不可复活验证见[审批资格治理](approval-qualification-35.md)。

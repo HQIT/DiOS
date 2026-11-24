@@ -4,7 +4,6 @@ from dataclasses import replace
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 import json
 import os
-from pathlib import Path
 import subprocess
 import threading
 import socket
@@ -138,3 +137,44 @@ class OpaIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.gate.policy_evaluator=OpaEvaluator(transport=httpx.MockTransport(slow))
         with self.assertRaisesRegex(RuntimeErrorCode,'POLICY_EVALUATOR_TIMEOUT'):await self.gate.dispatch(self.run['id'],item['id'],item['version'])
         self.assertEqual(self.calls,[]);self.assertEqual((await self.gate.get(self.run['id'],item['id']))['approval_state'],'approved')
+
+    def change_approver(self, **changes):
+        config=json.loads(self.approver_file.read_text())
+        config['approvers'][0].update(changes)
+        self.approver_file.write_text(json.dumps(config))
+
+    def after_policy(self, callback, at=1):
+        original=self.gate.policy_evaluator;count=0
+        class Evaluator:
+            async def evaluate(inner,*args):
+                nonlocal count
+                result=await original.evaluate(*args);count+=1
+                if count==at:callback()
+                return result
+        self.gate.policy_evaluator=Evaluator()
+
+    async def test_approver_revoked_during_policy_wait_cannot_approve(self):
+        item=await self.request()
+        self.after_policy(lambda:self.change_approver(enabled=False))
+        with self.assertRaisesRegex(RuntimeErrorCode,'APPROVER_FORBIDDEN'):
+            await self.approve(item)
+        saved=await self.gate.get(self.run['id'],item['id'])
+        self.assertEqual(saved['approval_state'],'pending');self.assertEqual(self.calls,[])
+
+    async def test_approver_revoked_during_final_policy_wait_cannot_dispatch_or_resurrect(self):
+        item=await self.approve(await self.request())
+        # First query is preflight; second runs after real MCP initialization.
+        self.after_policy(lambda:self.change_approver(enabled=False),at=2)
+        with self.assertRaisesRegex(RuntimeErrorCode,'APPROVER_FORBIDDEN'):
+            await self.gate.dispatch(self.run['id'],item['id'],item['version'])
+        self.assertEqual(self.calls,[])
+        saved=await self.gate.get(self.run['id'],item['id'])
+        self.assertEqual((saved['state'],saved['approval_state']),('denied','invalidated'))
+        self.assertEqual(saved['version'],item['version']+1)
+        self.change_approver(enabled=True)
+        with self.assertRaisesRegex(RuntimeErrorCode,'TOOL_APPROVAL_INVALIDATED'):
+            await self.gate.dispatch(self.run['id'],item['id'],saved['version'])
+        self.assertEqual(self.calls,[])
+        fresh=await self.approve(await self.request('fresh-approval'))
+        self.assertEqual((await self.gate.dispatch(self.run['id'],fresh['id'],fresh['version']))['state'],'succeeded')
+        self.assertEqual(len(self.calls),1)

@@ -138,6 +138,9 @@ class ToolInvocations:
                 if self.approvers.authenticate(token,self.store.scope,item['tool_id'])!=actor:raise RuntimeErrorCode('APPROVER_FORBIDDEN')
                 if actor in {item['binding']['subject'],item['binding']['actor']}:raise RuntimeErrorCode('APPROVER_MUST_BE_INDEPENDENT')
                 await self._recheck(c,item,current,reg,now)
+                # External policy evaluation can wait while operator eligibility changes.
+                if access_guard:await asyncio.to_thread(access_guard,await self.store._run(c,run_id))
+                if self.approvers.authenticate(token,self.store.scope,item['tool_id'])!=actor:raise RuntimeErrorCode('APPROVER_FORBIDDEN')
                 await c.execute(calls.update().where(calls.c.id==call_id).values(state='prepared' if decision=='approved' else 'denied',
                     approval_state=decision,approver=actor,approval_reason=reason,version=version+1,updated_at=now))
                 await audit(c,self.store.scope,call_id,'approval','allow' if decision=='approved' else 'deny',
@@ -147,10 +150,25 @@ class ToolInvocations:
         if failure:raise failure
         return await self.get(run_id,call_id)
 
-    async def _recheck(self,c,item,current,reg,now):
+    async def _approval_eligible(self,c,item,reg,now):
+        if reg['approval_required'] and item['approval_state']=='approved' and not item['approver']:
+            raise RuntimeErrorCode('TOOL_APPROVAL_REQUIRED')
         if reg['approval_required'] and item['approver']:
             if self.approvers is None:raise RuntimeErrorCode('APPROVER_PROVIDER_REQUIRED')
-            self.approvers.eligible(item['approver'],self.store.scope,item['tool_id'])
+            try:self.approvers.eligible(item['approver'],self.store.scope,item['tool_id'])
+            except RuntimeErrorCode as exc:
+                # Definitive revocation invalidates the old approval permanently.
+                # Unavailable/malformed providers retain the approval for revalidation.
+                if exc.code=='APPROVER_FORBIDDEN' and item['state']=='prepared' and item['approval_state']=='approved':
+                    await c.execute(calls.update().where(calls.c.id==item['id'],calls.c.version==item['version'])
+                        .values(state='denied',approval_state='invalidated',reason='TOOL_APPROVAL_INVALIDATED',
+                            version=item['version']+1,updated_at=now))
+                    await audit(c,self.store.scope,item['id'],'approval','deny','TOOL_APPROVAL_INVALIDATED',now,
+                        {'approver':item['approver'],'cause':exc.code})
+                raise
+
+    async def _recheck(self,c,item,current,reg,now):
+        await self._approval_eligible(c,item,reg,now)
         if item['expires_at']<=now:raise RuntimeErrorCode('TOOL_AUTHORIZATION_EXPIRED')
         if reg['digest']!=item['registration_digest']:raise RuntimeErrorCode('TOOL_REGISTRATION_CHANGED')
         binding,_=await self._binding(c,item['run_id'],item['attempt_id'],item['binding']['session_id'],current,reg,now)
@@ -161,9 +179,11 @@ class ToolInvocations:
             now=await self.store.db.now(c)
             if item['expires_at']<=now:raise RuntimeErrorCode('TOOL_AUTHORIZATION_EXPIRED')
             await self._binding(c,item['run_id'],item['attempt_id'],item['binding']['session_id'],current,reg,now)
+            await self._approval_eligible(c,item,reg,await self.store.db.now(c))
 
     async def dispatch(self,run_id,call_id,version):
         row=await self.get(run_id,call_id)
+        if row['approval_state']=='invalidated':raise RuntimeErrorCode('TOOL_APPROVAL_INVALIDATED')
         if row['state'] in {'dispatched','result_unknown','succeeded','failed'}:return row
         current,reg=await self._configuration(run_id,row['tool_id'])
         failure=None
@@ -192,9 +212,6 @@ class ToolInvocations:
             # Re-read policies after initialization, before the transaction that commits dispatch.
             current,fresh=await self._configuration(run_id,row['tool_id'])
             if fresh['digest']!=reg['digest']:raise RuntimeErrorCode('TOOL_REGISTRATION_CHANGED')
-            if reg['approval_required']:
-                if self.approvers is None or not row['approver']:raise RuntimeErrorCode('TOOL_APPROVAL_REQUIRED')
-                await asyncio.to_thread(self.approvers.eligible,row['approver'],self.store.scope,row['tool_id'])
             failure=None;claimed=False
             async with self.store.db.transaction(self.store.scope) as c:
                 item=await self._row(c,run_id,call_id);now=await self.store.db.now(c)
