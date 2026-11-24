@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-24",
+  "state": "development_lifecycle_verified",
+  "strategy": "OPA external-data Option 2 using a Runtime transaction-owned snapshot; SQLAlchemy authority records and immutable receipts",
+  "authority_boundary": "Trusted host administration CLI; authenticated public issuance API remains pending",
+  "tests": {
+    "backend": {
+      "total": 586,
+      "passed": 421,
+      "skipped": 165,
+      "log_sha256": "1e94e24fc46605af7de10311dbda0b63145cc6ea5b8eef66cf8ca6e2230b135b"
+    },
+    "native_lifecycle": {
+      "total": 18,
+      "passed": 18,
+      "skipped": 0,
+      "log_sha256": "feacb5082ce65d057fe7c15cd63529ea4c3b4549f70b326fe67fbb49afd8f5ee"
+    },
+    "native_policy_regression": {
+      "total": 16,
+      "passed": 16,
+      "skipped": 0,
+      "log_sha256": "202f952859df71b104ae07d6400b41b19f134f128fc59d59c0efde83ea88c4af"
+    },
+    "final_backup_restore": {
+      "total": 1,
+      "passed": 1,
+      "skipped": 0,
+      "log_sha256": "48f0d82016cbfd23733235169bfee74711d4be3e5a5938063dce29cc9bbf0b75"
+    }
+  },
+  "frontend": {
+    "typescript_and_build": "passed",
+    "lint_errors": 0,
+    "existing_hook_warnings": 1,
+    "browser": {
+      "checks": [
+        "four-real-authority-records",
+        "captured-and-current-epochs",
+        "revocation-explained",
+        "english-chain",
+        "mobile-layout",
+        "completed-report-preserved",
+        "no-page-errors"
+      ],
+      "errors": []
+    }
+  },
+  "migration": {
+    "backup_verified": true,
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "changed": true
+    },
+    "history_preserved": 78,
+    "active_runs": 0
+  },
+  "live_execution": {
+    "checks": [
+      "cli-three-level-chain",
+      "complete-real-native-process",
+      "complete-api-chain-binding",
+      "complete-deadline-narrowed",
+      "same-attempt-session-and-report",
+      "revoke-real-native-process",
+      "revoke-api-chain-binding",
+      "revoke-deadline-narrowed",
+      "root-revoke-fences-work-and-grant",
+      "revoked-tool-never-dispatched",
+      "native-exit-confirmed",
+      "receipt-epoch-retained",
+      "new-admission-denied",
+      "history-preserved",
+      "no-active-tasks"
+    ],
+    "completed": {
+      "run_id": "92792641-1c5b-4b8d-9e86-a8e1941cb1f7",
+      "attempt_id": "e4a53d6b-6913-4b75-8707-0d7f5050aec5",
+      "session_id": "evidence-42c81917-7518-4893-a632-4a80a7cd7333"
+    },
+    "revoked": {
+      "run_id": "6cd8b75b-fbc2-450a-b223-f8ed677a1a3a",
+      "attempt_id": "f47695b6-003b-41c7-b1f5-92260420d1df",
+      "native_exit": {
+        "handle": "f47695b6-003b-41c7-b1f5-92260420d1df",
+        "state": "exited",
+        "alive": false,
+        "pid": null,
+        "process_instance": "23f47ac99f6e7fe9468ce5280df21d20458fb8a9b981e1bc929f5e3400478536:2026-11-24T07:00:57.860182921Z",
+        "exit_code": 2,
+        "health": "not_configured",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "adapter": "local-docker-v1",
+        "worker_boot_id": "3253fb99-aa90-4f52-bd40-50ec7a89d9d5",
+        "observed_at": 1795503659.7189949
+      }
+    },
+    "chain": [
+      "dl-75d8b93f0fc96b488630e795f8d1120b402a5951248c45b37b6051d3c723",
+      "dl-5c0520262d77449423f14a056b3e0f62aae8de2291dc45589417fcce4e6b",
+      "dl-d3cc7e3d51b024910726b3534f6c5c10e3e7688e3c71bd0391a1aae7ea30",
+      "dl-99e347c99ae3e047c8737d0ffd53ffb844c35561e1d2cc66e7f6c70c0c1a"
+    ],
+    "history_before": 78,
+    "history_after": 80,
+    "active_runs": 0,
+    "profile_restored": true
+  },
+  "post_wsl_restart": {
+    "api": "healthy",
+    "browser_sso_mode": "healthy",
+    "browser_proxy_ping": "healthy",
+    "opa": "healthy",
+    "openbao": "unsealed_healthy",
+    "identity_timer": "active",
+    "history": 80,
+    "active_runs": 0,
+    "chain_and_report_read": "passed",
+    "previous_profile_policy_restored": true
+  },
+  "remaining": [
+    "Authenticated delegation management API and binding issuer to authenticated identity",
+    "Upstream identity revocation dependencies",
+    "Cross-service audience transitions and strict remote authority ordering",
+    "PostgreSQL and physical multihost qualification",
+    "PDP transaction latency and throughput qualification"
+  ]
+}

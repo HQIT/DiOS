@@ -10,7 +10,7 @@ DiOS 的委派约束以受信授权记录为依据：根授权后最多三层，
 
 [Keycloak 标准交换](https://www.keycloak.org/securing-apps/token-exchange)提供稳定的 Token Exchange；委派特性仍属 Preview，访问 Token 的交换也不建立自动撤销链。现有身份与 Token Exchange 接入继续使用，三层治理通过 Runtime 授权记录与成熟策略引擎组织。
 
-[OPA 数据与策略模型](https://www.openpolicyagent.org/docs/philosophy)支持在原生 Rego 中检查上下文和受信数据。采用现有 OPA 适配器、Data API、Bundle 版本约束和工具 PEP；增加声明式规则，不增加策略解释器或授权数据库后端。[策略组件及数据契约](../../examples/policies/opa-delegation/README.md)
+[OPA 数据与策略模型](https://www.openpolicyagent.org/docs/philosophy)支持在原生 Rego 中检查上下文和受信数据。采用现有 OPA 适配器、Bundle 版本约束和工具 PEP；授权链由 Runtime 在当前事务内通过 input 提供。[策略组件及数据契约](../../examples/policies/opa-delegation/README.md)
 
 ## 执行逻辑
 
@@ -26,7 +26,7 @@ flowchart LR
 
 原生策略从当前 `authorization_ref` 定位回执，核对 Run、scope、subject 和 actor，然后检查根授权到叶节点。每级 ID、parent、depth、scope、subject、audience、状态和授权代次必须一致；完整权限元组逐级包含，期限逐级缩短且当前有效。循环、缺链、第四级、错 actor、越权字段组合和未知格式均拒绝。
 
-工作回执固定准入时的各级授权代次。上游撤销并递增代次后，即使重新启用，旧回执仍不匹配。无关链路更新不参与本工作的决策。工具策略以逻辑交集组合，登记独立的 `dios/delegated_tools/allow` 入口；不会通过另一个宽泛 allow 分支绕过委派检查。
+工作回执固定准入时的各级授权代次。上游撤销并递增代次后，旧回执失效；生命周期管理仅允许用新 key 签发新授权。无关链路更新不参与本工作的决策。工具策略组件以逻辑交集组合，登记独立的 `dios/delegated_tools/allow` 入口。Runtime 生命周期接入通过 `dios/delegation/allow` 独立检查当前链，与既有工具权限及审批检查共同约束执行。
 
 ## 已有验证
 
@@ -34,6 +34,6 @@ flowchart LR
 
 ## 生命周期接入与剩余工作
 
-策略组件已通过现有 Runtime 实际控制点验证，默认开发策略保持原配置。下一步接入受信委派的创建、受限派生、撤销及固定工作回执发布，把同一检查覆盖到工作准入、执行 Grant 续期、工具与结果接收。发布端需验证每次委派的发起者权限，绑定固定父级和代次，并限制管理凭据。
+[委派生命周期](delegation-lifecycle-35.md)已覆盖受信 CLI 创建、受限派生、撤销、不可变工作回执，以及工作准入、Grant 续期、工具与结果接收。OPA 采用官方 external-data Option 2，直接判定 Runtime 当前事务持有的授权快照；可变授权数据无需跨服务复制。
 
-OPA 当前数据判定与 Runtime 提交分属两个服务。单调版本、数据新鲜度、发布中断恢复及跨服务严格撤销排序继续按[成熟方案矩阵](e2ag-mature-solutions-20261124.md)验收。此次测试未证明企业身份源级联撤销、物理多主机保证、生产发布或完整 #35 完成；Issue 保持开放。
+开发环境通过三层委派真实任务、审批报告、祖先撤销与原生进程退出验证。认证服务管理 API、上游身份依赖、跨服务 audience 与严格撤销排序继续按[成熟方案矩阵](e2ag-mature-solutions-20261124.md)推进。#35 保持开放。

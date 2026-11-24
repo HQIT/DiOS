@@ -93,8 +93,12 @@ class RuntimeStore:
             value=dict(value,submission_digest=submission_digest)
         if authorization is not None:
             bounded(authorization)
+            if authorization.get('delegation_ref'):
+                value=dict(value,delegation_ref=authorization['delegation_ref'])
+            elif 'delegation_ref' in value:raise RuntimeErrorCode('DELEGATION_BINDING_MISMATCH')
             value=dict(value,work_authorization_ref='wa-'+digest([self.scope,key,authorization['policy_digest']])[:60],
                 work_policy_digest=authorization['policy_digest'])
+        elif 'delegation_ref' in value:raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
         bounded(value)
         hashed = digest(value)
         async with self.db.transaction(self.scope) as c:
@@ -187,6 +191,8 @@ class RuntimeStore:
         if authorize:
             from .work_authorizations import require_current
             await require_current(c,run,a,now)
+            now=await self.db.now(c)
+            if a['lease_until']<=now:raise RuntimeErrorCode('STALE_OWNER')
         return run, dict(a), now
 
     async def heartbeat(self, run_id, attempt_id, worker_id, instance, epoch):

@@ -39,7 +39,7 @@ class FileWorkPolicy:
         if not isinstance(profiles,dict):raise RuntimeErrorCode('WORK_POLICY_INVALID')
         row=profiles.get(profile_id)
         if not isinstance(row,dict):raise RuntimeErrorCode('WORK_PROFILE_NOT_GRANTED')
-        if set(row)-{'profile_digest','secret_refs','permissions','work_ttl_seconds'}:raise RuntimeErrorCode('WORK_POLICY_UNSUPPORTED_FIELDS')
+        if set(row)-{'profile_digest','secret_refs','permissions','work_ttl_seconds','delegation_ref'}:raise RuntimeErrorCode('WORK_POLICY_UNSUPPORTED_FIELDS')
         if row.get('profile_digest')!=profile_digest:raise RuntimeErrorCode('WORK_PROFILE_CHANGED')
         if row.get('secret_refs',[])!=secret_refs:raise RuntimeErrorCode('SECRET_REFERENCE_CHANGED')
         ttl=row.get('work_ttl_seconds',86400)
@@ -51,6 +51,8 @@ class FileWorkPolicy:
             policy_digest=hashlib.sha256(encoded(scoped)).hexdigest(),
             legacy_policy_digest=hashlib.sha256(encoded(config)).hexdigest(),profile_id=profile_id,profile_digest=profile_digest,
             permissions=row.get('permissions',{}),secret_refs=secret_refs,work_ttl_seconds=ttl)
+        if 'delegation_ref' in row:
+            identifier(row['delegation_ref']);result['delegation_ref']=row['delegation_ref']
         if principal is not None:
             import time
             from .principals import FilePrincipals

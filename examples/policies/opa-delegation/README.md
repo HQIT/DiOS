@@ -2,7 +2,7 @@
 
 本目录是 #35 的可执行策略组件。`delegation.rego` 检查受信委派记录，`tools.rego` 将它与既有 `data.dios.tools.allow` 取交集。委派工具的登记地址为 `/v1/data/dios/delegated_tools/allow`。部署 Bundle 时包含既有工具规则、本目录两份规则，并将该入口加入 OPA 查询白名单。
 
-数据位于 `data.dios_delegation`，由可信授权记录发布端维护。模型参数和调用请求均不提供这些数据：
+Runtime 生命周期接入使用 `/v1/data/dios/delegation/allow`，与既有工具控制点共同约束执行。授权数据由 Runtime 从当前事务生成 `input.context.delegation`；模型参数和调用请求不能提供这些数据。隔离策略测试保留 `data.dios_delegation` 回退数据源；存在 input 快照时只使用该快照：
 
 | 字段 | 约束 |
 | --- | --- |
@@ -12,17 +12,18 @@
 | `links[id]` | `id`、`parent_ref`、`subject_ref`、`actor_ref`、`audience`、`permissions`、`expires_at`、`depth`、`authorization_epoch`，以及 `scope`、`state` |
 | `permissions` | 完整五字段权限元组；每级集合必须是父级子集 |
 | `expires_at` | RFC 3339；子级不晚于父级；每级当前有效 |
-| `state` / `authorization_epoch` | 仅 active 允许；撤销或改变授权需要递增代次；重新启用不恢复旧回执 |
+| `state` / `authorization_epoch` | 仅 active 允许；撤销递增代次；生命周期管理需用新 key 重新签发 |
 
 `input.context.binding` 与 `input.context.permission` 由现有 Runtime 生成。回执必须匹配当前授权 ID、Run、scope、subject 和 actor；叶节点 actor 必须是当前执行 actor。当前限定 audience 为 `dios-runtime`，跨服务 audience 转换保留在后续 Provider 接入。
 
-Bundle 规则版本与授权数据版本分别管理。授权数据不能由普通查询凭据写入；OPA 数据更新需要可信发布身份和受限管理路径。生产发布端还需保证单调代次、不可变回执、完整快照、新鲜度和恢复，本轮未启用开发服务的委派策略。现有默认 OPA 管理接口继续拒绝写入。
+Bundle 规则版本与授权数据版本分别管理。Runtime 在事务中维护授权记录与固定回执，调用 OPA 后复核数据库时间；撤销与依赖 Work/Grant 失效同事务提交。开发服务已部署并完成真实任务验证，既有 profile 按需配置 `delegation_ref`。OPA 管理接口拒绝普通查询方写入。创建、派生、撤销、迁移及信任边界见[委派生命周期](../../../docs/design/delegation-lifecycle-35.md)。
 
 真实 OPA/Runtime/MCP 验证：
 
 ```sh
 cd backend
 DIOS_TEST_OPA=1 .venv/bin/python -m unittest discover -s tests -p 'test_runtime_delegation_opa.py' -v
+DIOS_TEST_OPA=1 .venv/bin/python -m unittest discover -s tests -p 'test_runtime_delegation_lifecycle.py' -v
 ```
 
-测试使用固定摘要的官方 OPA 容器和独立临时数据库，经原有工具请求、独立审批、派发及回执路径执行。测试数据使用 OPA 原生 Data API 发布；该测试写入方式不构成生产发布接口。
+测试使用固定摘要的官方 OPA 容器和独立临时数据库，经原有工具请求、独立审批、派发及回执路径执行。策略组件测试使用 OPA 原生 Data API；生命周期测试使用当前 Runtime 事务 input，并覆盖持久回执、祖先撤销、PDP 等待期间期限变化和备份恢复。

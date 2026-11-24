@@ -50,6 +50,18 @@ async def execute(args):
                 return await query.run(args.run_id, limit=args.limit,
                     attempt_cursor=args.attempt_cursor, artifact_cursor=args.artifact_cursor)
         store = RuntimeStore(db, args.scope)
+        if args.command=='delegation':
+            from .delegations import Delegations
+            manager=Delegations(store)
+            if args.delegation_command=='show':return await manager.show(args.reference)
+            if args.delegation_command=='revoke':return await manager.revoke(args.reference,args.version)
+            with Path(args.file).open('rb') as source:raw=source.read(32769)
+            if len(raw)>32768:raise RuntimeErrorCode('METADATA_TOO_LARGE')
+            value=json.loads(raw)
+            if not isinstance(value,dict) or set(value)-{'key','subject','actor','permissions','expires_at','policy_evaluator','parent_ref','issuer_actor'}:
+                raise RuntimeErrorCode('INVALID_DELEGATION_REQUEST')
+            if not {'key','subject','actor','permissions','expires_at'}<=set(value):raise RuntimeErrorCode('INVALID_DELEGATION_REQUEST')
+            return await manager.issue(**value)
         if args.command == 'identity-events':
             from .logout_schema import events, check
             if not 1<=args.limit<=100:raise RuntimeErrorCode('INVALID_LIMIT')
@@ -187,6 +199,11 @@ def main(argv=None):
     submit = commands.add_parser('submit',help='queue metadata only; does not launch an Agent')
     submit.add_argument('--key',required=True);submit.add_argument('--file',required=True)
     show = commands.add_parser('show');show.add_argument('run_id')
+    delegation=commands.add_parser('delegation',help='trusted local administration of immutable delegation records')
+    delegation_commands=delegation.add_subparsers(dest='delegation_command',required=True)
+    issue=delegation_commands.add_parser('issue');issue.add_argument('--file',required=True)
+    inspect_delegation=delegation_commands.add_parser('show');inspect_delegation.add_argument('reference')
+    revoke_delegation=delegation_commands.add_parser('revoke');revoke_delegation.add_argument('reference');revoke_delegation.add_argument('--version',type=int,required=True)
     enqueue=commands.add_parser('enqueue',help='queue a pinned trusted profile and optional JSON input')
     enqueue.add_argument('--profile',required=True);enqueue.add_argument('--key',required=True);enqueue.add_argument('--file')
     worker=commands.add_parser('worker',help='run an independent one-slot Worker using an explicit trusted profile')

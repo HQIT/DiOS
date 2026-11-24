@@ -8,6 +8,7 @@ import type { Profile, Sample, RunSummary, RunDetail, Preview } from "../../../a
 import "./task-runs.css";
 import WorkerStatusPanel from "./WorkerStatusPanel";
 import ToolActions from "./ToolActions";
+import DelegationEvidence from "./DelegationEvidence";
 
 const LABELS: Record<string, string> = {
   queued: "排队中", executing: "执行中", claimed: "已领取", preparing: "准备中", creating_session: "创建会话",
@@ -37,6 +38,9 @@ const ERRORS: Record<string, string> = {
   WORK_PROFILE_CHANGED: "执行配置与获准版本不一致，请更新策略后重试。",
   WORK_PERMISSION_DENIED: "当前授权范围不包含这项工作。",
   WORK_POLICY_CHANGED: "授权策略已变化，需要重新确认任务授权。",
+  DELEGATION_REVOKED: "委派授权已撤销，请重新获取授权。",
+  DELEGATION_EXPIRED: "委派授权已过期，请重新获取授权。",
+  DELEGATION_DENIED: "当前委派范围不包含这项操作。",
   WORK_AUTH_MIGRATION_REQUIRED: "工作授权数据结构尚未初始化，请联系管理员。",
   RUNTIME_DRAINING: "运行环境正在排空，恢复服务后可发起新任务。",
 };
@@ -275,6 +279,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
               {detail.authorization.source_check.outcome === "unavailable" && !terminal(detail.state) && detail.authorization.state === "active" && <> · {translateUI("保留原任务与审批，等待自动复查。")}</>}
             </p>}
             {!!detail.authorization.secret_refs?.length && <p className="tr-muted">{translateUI("凭据引用：")}{translateUI(detail.authorization.secret_refs.map(s => `${s.ref} / ${s.version}`).join("、"))}</p>}
+            <DelegationEvidence value={detail.authorization.delegation} observedAt={detail.observed_at} />
             <details className="tr-auth-decisions"><summary>{translateUI("授权记录")}</summary><ol className="tr-timeline">
               {detail.authorization.decisions?.map(d => <li key={d.id}><time>{translateUI(time(d.created_at))}</time><span>{translateUI(d.outcome === "allow" ? "允许" : "拒绝")}</span><code>{d.reason_codes.join("、")}</code></li>)}
             </ol></details>

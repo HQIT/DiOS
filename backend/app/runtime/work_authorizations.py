@@ -9,7 +9,7 @@ import asyncio
 import math
 from uuid import uuid4
 from sqlalchemy import select
-from .database import RuntimeErrorCode
+from .database import Database, RuntimeErrorCode
 from .schema import attempts, runs
 from .work_auth_schema import work, grants, decisions, require
 from .work_policy import permission
@@ -55,6 +55,8 @@ async def create(c,scope,run,descriptor,now):
         deadline=descriptor['work_expires_at']
         if type(deadline) not in (int,float) or not math.isfinite(deadline) or deadline<=now:raise RuntimeErrorCode('WORK_DEADLINE_INVALID')
         expires_at=min(expires_at,deadline)
+    from .delegations import bind
+    expires_at=await bind(c,Database,scope,run,descriptor,expires_at)
     await c.execute(work.insert().values(id=run['input']['work_authorization_ref'],scope=scope,run_id=run['id'],
         **{key:descriptor[key] for key in ('subject','actor','policy_id','policy_digest','profile_id','profile_digest','permissions','secret_refs')},
         state='active',version=1,authorization_epoch=run['authorization_epoch'],created_at=now,
@@ -79,12 +81,16 @@ async def checked_work(c,run,attempt,now,action):
             or row['secret_refs']!=run['input'].get('secret_refs',[])):raise RuntimeErrorCode('WORK_AUTHORIZATION_BINDING_MISMATCH')
     decision=evaluate_work_permission(row['permissions'],permission(row,action))
     if not decision.permits_execution:raise RuntimeErrorCode(decision.reason_codes[0])
+    from .delegations import check_work
+    await check_work(c,Database,run,row,permission(row,action))
+    if row['expires_at']<=await Database.now(c):raise RuntimeErrorCode('WORK_AUTHORIZATION_EXPIRED')
     return dict(row)
 
 
 async def require_current(c,run,attempt,now,action='execute',*,session_id=None):
     row=await checked_work(c,run,attempt,now,action)
     if row is None:return
+    now=await Database.now(c)
     grant=(await c.execute(select(grants).where(grants.c.attempt_id==attempt['id']))).mappings().first()
     if not grant or grant['state']!='active':raise RuntimeErrorCode('EXECUTION_GRANT_REQUIRED')
     if action=='execute' and grant['expires_at']<=now:raise RuntimeErrorCode('EXECUTION_GRANT_EXPIRED')
@@ -155,6 +161,7 @@ class WorkAuthorizationVerifier:
                 if a['session_id'] and a['session_id']!=context.session_id:raise RuntimeErrorCode('SESSION_CHANGED')
                 if action=='execute':
                     await self.store._owned(c,run['id'],a['id'],a['worker_id'],a['worker_instance'],a['epoch'])
+                    now=await self.store.db.now(c)
                     grant=(await c.execute(select(grants).where(grants.c.attempt_id==a['id']))).mappings().first()
                     binding=dict(authorization_id=row['id'],run_id=run['id'],worker_id=a['worker_id'],
                         worker_instance=a['worker_instance'],lease_epoch=a['epoch'],authorization_epoch=a['authorization_epoch'])
@@ -213,9 +220,11 @@ async def view(store,run_id):
         source_check=await observation(c,store.scope,run_id,now)
         from .logout_events import observation as logout_observation
         source_event=await logout_observation(c,store.scope,run['input'].get('principal'))
+        from .delegations import describe_work
+        delegation=await describe_work(c,run)
         return dict(mode='e2ag',reference=reference,subject=row['subject'],actor=row['actor'],policy_id=row['policy_id'],
             state='expired' if row['state']=='active' and row['expires_at']<=now else row['state'],
-            expires_at=row['expires_at'],authorization_epoch=row['authorization_epoch'],source_check=source_check,source_event=source_event,
+            expires_at=row['expires_at'],authorization_epoch=row['authorization_epoch'],source_check=source_check,source_event=source_event,delegation=delegation,
             secret_refs=[{'ref':x['ref'],'version':x['version']} for x in row['secret_refs']],
             grant=({k:grant[k] for k in ('attempt_id','session_id','lease_epoch','version','state','expires_at')} | {'state':'expired' if grant['state']=='active' and grant['expires_at']<=now else grant['state']} if grant else None),
             decisions=[dict(id=d['id'],action=d['action'],created_at=d['created_at'],

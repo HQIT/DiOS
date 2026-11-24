@@ -63,6 +63,8 @@ class ToolInvocations:
         await require_current(c,run,a,now,session_id=session_id)
         decision=evaluate_work_permission(work['permissions'],registration['permission'])
         if not decision.permits_execution:raise RuntimeErrorCode(decision.reason_codes[0])
+        from .delegations import check_work
+        await check_work(c,self.store.db,run,work,registration['permission'])
         credential=registration.get('credential_ref')
         if credential is not None and credential not in work['secret_refs']:raise RuntimeErrorCode('SECRET_ACCESS_DENIED')
         grant=(await c.execute(select(grants).where(grants.c.attempt_id==attempt_id))).mappings().one()
@@ -180,6 +182,10 @@ class ToolInvocations:
             if item['expires_at']<=now:raise RuntimeErrorCode('TOOL_AUTHORIZATION_EXPIRED')
             await self._binding(c,item['run_id'],item['attempt_id'],item['binding']['session_id'],current,reg,now)
             await self._approval_eligible(c,item,reg,await self.store.db.now(c))
+        # Work binding itself may now await the delegation PDP.
+        now=await self.store.db.now(c)
+        if item['expires_at']<=now:raise RuntimeErrorCode('TOOL_AUTHORIZATION_EXPIRED')
+        await self._approval_eligible(c,item,reg,now)
 
     async def dispatch(self,run_id,call_id,version):
         row=await self.get(run_id,call_id)

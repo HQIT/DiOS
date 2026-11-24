@@ -23,6 +23,9 @@ const errors: Record<string, string> = {
   TOOL_DISPATCH_EVIDENCE_REQUIRED: "原调用派发证据不完整，暂不能恢复结果。",
   TOOL_REGISTRATION_CHANGED: "工具配置已变化，需要重新申请授权。",
   TOOL_APPROVAL_INVALIDATED: "审批资格已撤销，请重新申请并审批本次调用。",
+  DELEGATION_REVOKED: "委派授权已撤销，请重新获取授权。",
+  DELEGATION_EXPIRED: "委派授权已过期，请重新获取授权。",
+  DELEGATION_DENIED: "当前委派范围不包含这项操作。",
 };
 
 export default function ToolActions({ runId, active, canApprove = true, operator = true }: { runId: string; active: boolean; canApprove?: boolean; operator?: boolean }) {

@@ -1338,13 +1338,29 @@
         "implementation": "examples/policies/opa-delegation",
         "verification": "真实 OPA/Runtime/MCP 委派组件 16 项通过，基础 OPA 路径另 8 项回归通过；根授权至三层委派真实工具调用和各类拒绝已验证",
         "remaining": [
-          "Trusted delegation issuance and immutable work receipt lifecycle publisher",
-          "Monotonic authority versions, publication freshness and restart recovery",
-          "Work admission, execution grant renewal and result acceptance integration",
-          "Cross-provider strict revocation ordering and cross-service audience transitions",
-          "Enterprise IdP, physical multi-host and production qualification"
+          "Authenticated delegation management API and binding issuer to authenticated identity",
+          "Upstream identity revocation dependencies",
+          "Cross-service audience transitions and strict remote authority ordering",
+          "PostgreSQL and physical multihost qualification",
+          "PDP transaction latency and throughput qualification"
         ],
-        "next": "#35 接入受信委派创建、受限派生、撤销及不可变工作回执；覆盖工作准入、续期与结果接收"
+        "next": "委派生命周期已接入；继续认证服务签发身份绑定、上游撤权依赖与跨服务资格验证"
+      },
+      "delegation_lifecycle": {
+        "date": "2026-11-24",
+        "state": "trusted_cli_runtime_and_console_verified",
+        "design": "docs/design/delegation-lifecycle-35.md",
+        "evidence": "docs/design/evidence/delegation-lifecycle-20261124.json",
+        "implementation": "backend/app/runtime/delegations.py",
+        "verification": "后端 586 项中 421 通过、165 跳过；原生 OPA 生命周期 18 项、策略回归 16 项、最终恢复 1 项通过；开发真实执行 15 项和浏览器 7 项通过，80 条历史保留",
+        "remaining": [
+          "Authenticated delegation management API and binding issuer to authenticated identity",
+          "Upstream identity revocation dependencies",
+          "Cross-service audience transitions and strict remote authority ordering",
+          "PostgreSQL and physical multihost qualification",
+          "PDP transaction latency and throughput qualification"
+        ],
+        "next": "#35 认证服务委派管理 API：绑定实际发起身份并贯通上游撤权"
       }
     },
     {

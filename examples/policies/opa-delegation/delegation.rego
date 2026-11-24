@@ -6,6 +6,11 @@ import rego.v1
 # Chain index 0 is the root authority, followed by at most three delegations.
 default allow := false
 
+# Runtime supplies this snapshot from its current authorization transaction.
+# The Data API variant remains available for isolated Provider qualification.
+authority := input.context.delegation if { "delegation" in object.keys(input.context) }
+authority := data.dios_delegation if { not "delegation" in object.keys(input.context) }
+
 valid_permission(p) if {
     object.keys(p) == {"action", "resource_kind", "resource_id", "resource_version", "constraint_revision"}
     every _, v in p { is_string(v); count(v) > 0 }
@@ -19,14 +24,14 @@ valid_parent(link, chain, i) if {
 valid_parent(link, chain, i) if {
     i > 0
     link.parent_ref == chain[i - 1]
-    parent := data.dios_delegation.links[chain[i - 1]]
+    parent := authority.links[chain[i - 1]]
     time.parse_rfc3339_ns(link.expires_at) <= time.parse_rfc3339_ns(parent.expires_at)
     every p in link.permissions { p in parent.permissions }
 }
 
 allow if {
     binding := input.context.binding
-    receipt := data.dios_delegation.work_bindings[binding.authorization_ref]
+    receipt := authority.work_bindings[binding.authorization_ref]
     receipt.scope == input.context.scope
     receipt.subject_ref == binding.subject
     receipt.actor_ref == binding.actor
@@ -37,12 +42,12 @@ allow if {
     count(chain) <= 4
     count({id | id := chain[_]}) == count(chain)
     object.keys(receipt.epochs) == {id | id := chain[_]}
-    leaf := data.dios_delegation.links[chain[count(chain) - 1]]
+    leaf := authority.links[chain[count(chain) - 1]]
     leaf.actor_ref == binding.actor
     input.context.permission in leaf.permissions
     now := time.now_ns()
     every i, id in chain {
-        link := data.dios_delegation.links[id]
+        link := authority.links[id]
         link.id == id
         link.depth == i
         link.state == "active"

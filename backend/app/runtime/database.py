@@ -136,6 +136,7 @@ class Database:
         from .fault_schema import migrate as migrate_faults
         from .identity_check_schema import migrate as migrate_identity_checks
         from .logout_schema import migrate as migrate_logout
+        from .delegation_schema import migrate as migrate_delegation
         async with self.transaction('__runtime_migration__', check=False) as c:
             existing = await c.run_sync(lambda s: inspect(s).get_table_names())
             if 'runtime_schema' in existing:
@@ -156,8 +157,9 @@ class Database:
                 fault_changed = await migrate_faults(c)
                 identity_changed = await migrate_identity_checks(c)
                 logout_changed = await migrate_logout(c)
+                delegation_changed = await migrate_delegation(c)
                 return {'version': SCHEMA_VERSION, 'history_version': 1, 'lifecycle_version': 1,
-                        'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'changed': logout_changed or identity_changed or fault_changed or changed or lifecycle_changed or auth_changed or tools_changed or credentials_changed or remote_changed}
+                        'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'changed': delegation_changed or logout_changed or identity_changed or fault_changed or changed or lifecycle_changed or auth_changed or tools_changed or credentials_changed or remote_changed}
             if any(n.startswith('runtime_') for n in existing):
                 raise RuntimeErrorCode('UNVERSIONED_RUNTIME_SCHEMA')
             await c.run_sync(metadata.create_all)
@@ -171,9 +173,11 @@ class Database:
             await migrate_faults(c)
             await migrate_identity_checks(c)
             await migrate_logout(c)
-            return {'version': SCHEMA_VERSION, 'history_version': 1, 'lifecycle_version': 1, 'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'changed': True}
+            await migrate_delegation(c)
+            return {'version': SCHEMA_VERSION, 'history_version': 1, 'lifecycle_version': 1, 'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'changed': True}
 
-    async def now(self, c):
+    @staticmethod
+    async def now(c):
         query = "SELECT (julianday('now') - 2440587.5) * 86400.0" if c.dialect.name == 'sqlite' else 'SELECT EXTRACT(EPOCH FROM clock_timestamp())'
         return float((await c.execute(text(query))).scalar_one())
 
