@@ -452,6 +452,25 @@ async def qualify(args):
             if x.startswith(b"{")
         ]
         evidence["result_frames"] = sum(x.get("type") == "result" for x in frames)
+        usage_frames = [x for x in frames if x.get("type") == "usage"]
+        model_usage = final["model_usage"]
+        assert model_usage["evidence_level"] == "agent_reported"
+        assert model_usage["settlement"] == "unreconciled"
+        latest_usage = {x["kind"]: x for x in usage_frames}
+        assert len(model_usage["items"]) == len(latest_usage)
+        for item in model_usage["items"]:
+            source_usage = latest_usage[item["kind"]]
+            assert item["attempt_id"] == attempt["id"]
+            assert item["session_id"] == attempt["session_id"]
+            for key in ("sequence", "quality", "values"):
+                assert item[key] == source_usage[key]
+            assert item["evidence"].get("artifact_key")
+        evidence["usage"] = {
+            "frame_count": len(usage_frames),
+            "availability": "reported" if usage_frames else "not_reported",
+            "model_usage": model_usage,
+        }
+        evidence["checks"].append("usage-matches-retained-output-or-remains-unknown")
         evidence["exit_receipt_sha256"] = hashlib.sha256(
             receipts.path(attempt["id"]).read_bytes()
         ).hexdigest()

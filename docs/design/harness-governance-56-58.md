@@ -57,4 +57,6 @@ backend/.venv/bin/python scripts/qualify_harness_governance.py \
 
 `--case` 支持 `renew`、`ancestor-revoke`、`stale-epoch`。执行配置需要固定镜像 ID、E2AG、`repository_search` 工具别名和已有模型凭据引用；OPA 配置使用既有委派策略端点。输出目录必须新建。该命令会调用真实模型，期限故障仅注入新建的隔离数据库。
 
+资格结果同时包含 `usage`：核对最新观测与原始 stdout 的 Session、序号、报告值及产物引用；没有用量帧时要求账本为空。SDK 0.1.11 的[三个真实 Harness 验证](evidence/usage-harnesses-20261125.json)分别记录报告能力，缺失字段保留未知。
+
 后续重点为两种以上 Harness 的额外原生执行、源码写入和外发路径资格，以及 Agent 自主子任务的认证委派入口。活动请求续接、跨物理主机、G2 独立权限评审与用户验收继续沿既定门槛推进。

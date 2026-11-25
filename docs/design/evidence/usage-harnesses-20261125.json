@@ -1,0 +1,223 @@
+{
+  "scope": "Real model executions with synthetic source, three immutable SDK 0.1.11 development images, isolated SQLite/OPA on one WSL Docker host",
+  "versions": {
+    "cursor_cli": "2026.11.05-86047df",
+    "dsh": "0.2.2-rc.5",
+    "codex_acp": "2.11.0",
+    "codex_cli": "0.172.0",
+    "dios_sdk": "0.1.11",
+    "static_review": "0.1.4",
+    "opa": "1.17.0"
+  },
+  "images": {
+    "dsh": "sha256:ce85e5112a0bb6fd1546fa715efb38825cbbaf1f022a7cffe3cc3eb181d1a853",
+    "cursor": "sha256:b461e1f42bc8c8ece7b735752a0877c4e62868728944cf8c1e02d3be04c21464",
+    "codex": "sha256:23047ae8a365acde6db1ae853ea808e41b2e66cb3bd924dce8c9df40139e6f4f"
+  },
+  "cases": [
+    {
+      "run_id": "8aaa6d42-87a4-405b-a4b8-8e6acf1d1605",
+      "attempt_id": "fb69c50b-eaf2-4a7a-99b7-2e7604b13d27",
+      "session_id": "16fd691a-d000-4c6e-85aa-0a3816484901",
+      "process_id": 345762,
+      "image": "sha256:b461e1f42bc8c8ece7b735752a0877c4e62868728944cf8c1e02d3be04c21464",
+      "state": "succeeded",
+      "tool_calls": 1,
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "worker-heartbeat-renews-current-grant-within-delegated-deadline",
+        "usage-matches-retained-output-or-remains-unknown",
+        "completed-dispatch-replay-does-not-call-tool-again",
+        "original-run-attempt-session-retained"
+      ],
+      "usage": {
+        "frame_count": 0,
+        "availability": "not_reported",
+        "model_usage": {
+          "evidence_level": "agent_reported",
+          "settlement": "unreconciled",
+          "at_limit": false,
+          "items": []
+        }
+      },
+      "exit_receipt_sha256": "2e3309e7b7c5f33f56cc07432d662cebc9143f8c5b962c7ee3120142eda4c616",
+      "harness": "cursor",
+      "raw_evidence_sha256": "bb1b65928de70a95d63a8855d6be2dba38ab5f362abb6564a157e188fd8082d7"
+    },
+    {
+      "run_id": "98ed3df9-7c7c-44a2-b97a-f93a0f5dd83b",
+      "attempt_id": "68787fd3-4806-47c1-a7cd-f127fdbd62b1",
+      "session_id": "42ec756e-e545-45cb-bbb1-1d712d517e08",
+      "process_id": 346174,
+      "image": "sha256:ce85e5112a0bb6fd1546fa715efb38825cbbaf1f022a7cffe3cc3eb181d1a853",
+      "state": "succeeded",
+      "tool_calls": 1,
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "worker-heartbeat-renews-current-grant-within-delegated-deadline",
+        "usage-matches-retained-output-or-remains-unknown",
+        "completed-dispatch-replay-does-not-call-tool-again",
+        "original-run-attempt-session-retained"
+      ],
+      "usage": {
+        "frame_count": 2,
+        "availability": "reported",
+        "model_usage": {
+          "evidence_level": "agent_reported",
+          "settlement": "unreconciled",
+          "at_limit": false,
+          "items": [
+            {
+              "attempt_id": "68787fd3-4806-47c1-a7cd-f127fdbd62b1",
+              "session_id": "42ec756e-e545-45cb-bbb1-1d712d517e08",
+              "sequence": 2,
+              "kind": "acp_session",
+              "quality": "reported",
+              "values": {
+                "size": 32768,
+                "used": 1473
+              },
+              "recorded_at": 1795591427.3600175,
+              "evidence": {
+                "artifact_key": "19bde83b52abb46514370f9793356960c65728ef3aae332bf480fee46861602f",
+                "report_sequence": 7
+              },
+              "aggregation": "session_snapshot"
+            }
+          ]
+        }
+      },
+      "exit_receipt_sha256": "eb924d1f898cc1c393a4f2944728d0856294b23cc331968146a66e32c849ac27",
+      "harness": "dsh",
+      "raw_evidence_sha256": "9d69f68d2b5635f96cf24c2937ae061d08abab793e63a5093456626176be00c9"
+    },
+    {
+      "run_id": "a07b6e63-b3c4-47d1-9a05-e80b0c985b01",
+      "attempt_id": "f56cca0b-24e2-4de6-b0a0-e82d0a90b67e",
+      "session_id": "01a21197-bcd9-78b2-9719-2fa786ffb639",
+      "process_id": 346464,
+      "image": "sha256:23047ae8a365acde6db1ae853ea808e41b2e66cb3bd924dce8c9df40139e6f4f",
+      "state": "succeeded",
+      "tool_calls": 1,
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "worker-heartbeat-renews-current-grant-within-delegated-deadline",
+        "usage-matches-retained-output-or-remains-unknown",
+        "completed-dispatch-replay-does-not-call-tool-again",
+        "original-run-attempt-session-retained"
+      ],
+      "usage": {
+        "frame_count": 3,
+        "availability": "reported",
+        "model_usage": {
+          "evidence_level": "agent_reported",
+          "settlement": "unreconciled",
+          "at_limit": false,
+          "items": [
+            {
+              "attempt_id": "f56cca0b-24e2-4de6-b0a0-e82d0a90b67e",
+              "session_id": "01a21197-bcd9-78b2-9719-2fa786ffb639",
+              "sequence": 3,
+              "kind": "acp_prompt",
+              "quality": "reported",
+              "values": {
+                "cachedReadTokens": 18048,
+                "cachedWriteTokens": 0,
+                "inputTokens": 2854,
+                "outputTokens": 227,
+                "thoughtTokens": 0,
+                "totalTokens": 21129
+              },
+              "recorded_at": 1795591506.5449834,
+              "evidence": {
+                "artifact_key": "c515c9b35b300c32b951af4a1afcf44250e13c4200f49a61754c4232ede1eaea",
+                "report_sequence": 21
+              },
+              "aggregation": "unspecified_acp_scope"
+            },
+            {
+              "attempt_id": "f56cca0b-24e2-4de6-b0a0-e82d0a90b67e",
+              "session_id": "01a21197-bcd9-78b2-9719-2fa786ffb639",
+              "sequence": 2,
+              "kind": "acp_session",
+              "quality": "reported",
+              "values": {
+                "size": 258400,
+                "used": 10670
+              },
+              "recorded_at": 1795591506.5449834,
+              "evidence": {
+                "artifact_key": "c515c9b35b300c32b951af4a1afcf44250e13c4200f49a61754c4232ede1eaea",
+                "report_sequence": 21
+              },
+              "aggregation": "session_snapshot"
+            }
+          ]
+        }
+      },
+      "exit_receipt_sha256": "2d5c00de138d70074091806706b1900582bcfdb67528fb9c0abaf9ae88e6fbec",
+      "harness": "codex",
+      "raw_evidence_sha256": "a590d4bdac610e144615c3bab7c8fce128701b3dde07cfebdcf1e2866127b319"
+    }
+  ],
+  "tests": {
+    "installed_sdk_per_image": {
+      "dsh": {
+        "passed": 66,
+        "log_sha256": "9db4843bc9e52d11b70040433926d92d6148f15effc5388c7b0af01a76f6ab35"
+      },
+      "cursor": {
+        "passed": 66,
+        "log_sha256": "489cc60c0e294b7d9df0ff8fc6cc652254472da0e6d0d8eb0e94299d4020621a"
+      },
+      "codex": {
+        "passed": 66,
+        "log_sha256": "242f37294c0c3a59b62226dfe2b4b3df98b815a36177bd878ae3b9ffb1e76f0c"
+      }
+    },
+    "runtime_usage": {
+      "passed": 9,
+      "skipped": 5,
+      "skip_reason": "PostgreSQL fixture not enabled; runtime implementation unchanged from 04bc495"
+    }
+  },
+  "development": {
+    "sdk_images_installed": true,
+    "control_plane_health": "ok",
+    "control_plane_restarted": false,
+    "runtime_history": {
+      "count": 84,
+      "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+      "preserved": true,
+      "active": 0
+    },
+    "profile_scope": "Isolated qualification profiles. Existing application Workers and their profile configuration unchanged."
+  },
+  "remaining": [
+    "Provider-native request identity and usage; reservation and invoice reconciliation",
+    "Trace and E2AG latency, alerting and bounded diagnostics",
+    "Physical multi-host qualification"
+  ],
+  "installed_packages": {
+    "dsh": {
+      "dios-sdk": "0.1.11",
+      "static-review": "0.1.4"
+    },
+    "cursor": {
+      "dios-sdk": "0.1.11",
+      "static-review": "0.1.4"
+    },
+    "codex": {
+      "dios-sdk": "0.1.11",
+      "static-review": "0.1.4"
+    }
+  },
+  "failed_launch": {
+    "harness": "codex",
+    "run_directory": "codex-renew",
+    "error": "CODEX_AUTH_REFERENCE_MISSING",
+    "state": "failed",
+    "correction": "Use existing /run/secrets/codex-auth projection expected by the pinned image; retain original failed attempt and run a new isolated qualification.",
+    "raw_log_sha256": "e66102c1b427640b6f384700b296713e009b62876ca0670a07eb55ee2d776604"
+  }
+}
