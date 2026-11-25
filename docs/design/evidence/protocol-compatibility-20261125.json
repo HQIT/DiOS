@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-25",
+  "work_item": "K01-4.02",
+  "source_head": "3130c7d462075e1754801cd6efe044cf7b19c025",
+  "matrix": "docs/design/protocol-compatibility-56.md",
+  "primary_harness": "Cursor ACP",
+  "scope": "Pinned protocol contracts, SDK evidence reuse and independently identified legacy routes; Linux/WSL",
+  "versions": {
+    "dios_sdk": "0.1.11",
+    "agent_client_protocol": "1.0.0",
+    "a2a_protocol": "0.3.0",
+    "a2a_sdk": "0.3.26",
+    "cursor_cli": "2026.11.05-86047df"
+  },
+  "qualification": {
+    "total": 9,
+    "passed": true,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 49.571,
+    "selection": [
+      "test_runtime_a2a.RuntimeA2ATests.test_official_client_card_submit_get_cancel",
+      "test_runtime_a2a.RuntimeA2ATests.test_auth_owner_share_cancel_and_profile_boundaries",
+      "test_runtime_a2a.RuntimeA2ATests.test_historical_queries_survive_profile_removal_and_shared_reader",
+      "test_runtime_a2a.RuntimeA2ATests.test_e2ag_revoked_work_never_launches",
+      "test_runtime_a2a.RuntimeA2ATests.test_result_artifact_permissions_and_terminal_cancel",
+      "test_runtime_a2a.RuntimeA2ATests.test_malformed_json_and_utf8_preserve_null_error_identity",
+      "test_runtime_a2a_outbound.OutboundTests.test_invalid_result_is_retained_and_fails_schema",
+      "test_runtime_a2a_outbound.OutboundTests.test_card_redirect_and_cross_origin_artifact_never_receive_credentials",
+      "test_runtime_a2a_outbound.OutboundTests.test_transport_rejects_redirect_oversize_and_wrong_rpc_id"
+    ],
+    "log_sha256": "538ca5601e4fe1a743a6809aa270935449bc18770b68d0631c389d970ff51303"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/design/evidence/protocol-recovery-closure-20261125.json",
+      "sha256": "7244eef563b67b5f7177330ca9d2f4b764f1db22b3ed0ecc6c52af53b07b1881"
+    },
+    {
+      "path": "docs/design/evidence/usage-harnesses-20261125.json",
+      "sha256": "49b7cdadc1619009e653c5ee84110f2f39d4170be27b4952a038cfac8b4f0a44"
+    },
+    {
+      "path": "docs/design/evidence/acp-cancellation-20261124.json",
+      "sha256": "a5966c1a70432f9048c420cfb1208377a157ab79315da8a46cf51386786d2edc"
+    },
+    {
+      "path": "docs/design/evidence/a2a-runtime-20261125.json",
+      "sha256": "e3705ed0bafbb4745e1814e84dd7b894eaf29f38f52b1a6ab69230e790236cdd"
+    },
+    {
+      "path": "docs/design/evidence/a2a-outbound-20261125.json",
+      "sha256": "b6759d3c798b6785ab10fe940b91f51619a66039d31f71897958e28bbee491ba"
+    }
+  ],
+  "reuse_basis": "SDK source tree byte-identical to 0b35dcd, whose fixed images each passed 66 installed SDK tests and real governed execution. Earlier cancellation probes retain their original SDK/image versions. Current shared Runtime contracts are covered by this report and protocol-recovery-closure.",
+  "source_sha256": {
+    "backend/app/api/os/runtime_a2a.py": "1d9be3293f273f1ebf9efe4a2f1842c1a6c44b093787e5dc8aede491e815ac68",
+    "backend/app/services/runtime_a2a.py": "1fc5653603156edea5c42f11b13affd1782d089fa544a00674f92a76329e21ad",
+    "backend/app/runtime/a2a_worker.py": "b9e04293c2780b2a224682184b63d802d75469d5db18f93b6e199de7817d42a2",
+    "backend/app/runtime/a2a_transport.py": "05c78ad7db31e6355a9715a3d81d65f3da66363335e74065a39d2bae46734ac7",
+    "backend/app/runtime/worker.py": "2b2915f52df5a0e35dc7aa5943134ef5f5f1555924e321b784b70bfa32533251",
+    "backend/app/runtime/store.py": "ea0d3ddb6b4dd021b0813caa432ab7d89e83222c9448d9f481c5885156f37f5a",
+    "backend/app/runtime/cursor_acp.py": "1970aab1b86da9fb2c94b7a485e0b011496767c01f4f3aee3dacb44272d5a74e",
+    "sdk/python/src/dios_sdk/acp.py": "3c3a7a9795d3652329092aa753ecfe56920901a0f2a3fa427e1ef682b46586d1",
+    "sdk/python/src/dios_sdk/acp_transport.py": "b26711bacf19795f8bded1735598e6932705e68cf1e64c5632f26660f45f7baa",
+    "sdk/python/src/dios_sdk/cursor.py": "4f5465e9aa1d013b5840ca6dd539f1d43e26d204b6d031da7f631c94afab0b85",
+    "sdk/python/src/dios_sdk/dsh.py": "058286d947339fc8cd419e906520809b8612d832741b59982253a774322ea627",
+    "sdk/python/src/dios_sdk/codex.py": "6d97bdfbc37e9713f5e06d1edfa528237c515a398634c87e3ed3f260e0802481"
+  },
+  "implementation_boundary": {
+    "generic_core": "Worker/store/E2AG use registered profile, identity and authorization objects; no harness-brand policy branches.",
+    "sdk_adapters": [
+      "dios_sdk.cursor",
+      "dios_sdk.dsh",
+      "dios_sdk.codex"
+    ],
+    "legacy": [
+      "/api/os/a2a",
+      "backend/app/runtime/acp_bridge.py",
+      "backend/app/runtime/cursor_acp.py"
+    ],
+    "legacy_inherits_standard_qualification": false
+  },
+  "acceptance": {
+    "K01-4-A01": "Official A2A client contracts and pinned third-party ACP samples; joint execution qualification remains K01-5.",
+    "K01-4-A02": "Current identity, artifact and schema contracts; prior same-source duplicate, response-loss and cancellation checks; installed SDK permission/cancel contracts.",
+    "K01-4-A03": "Explicit unsupported capability errors and original-task reconciliation; no implicit authority expansion.",
+    "K01-4-A04": "Version matrix, endpoint credential destination checks and generic-core boundary recorded; actual native tool enforcement remains K01-4.03.",
+    "K01-4-A05": "DSH resume differences linked from recovery matrix; standard and legacy are separate rows."
+  },
+  "limitations": [
+    "Native Shell/file/network side-effect qualification remains K03-2.01 and K01-4.03, first with Cursor.",
+    "No new DSH or Codex model runs; multi-harness expansion follows primary delivery.",
+    "Optional A2A methods are not declared supported."
+  ],
+  "production_code_changed": false,
+  "deployment_required": false
+}

@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K01-4.02",
-    "next_delivery": "K03-2.01",
+    "next_work_item": "K03-2.01",
+    "next_delivery": "K01-4.03",
     "next_delivery_order": [
-      "K03-2.01",
       "K01-4.03",
       "K02-3.02",
       "K02-3.03",
@@ -29,7 +28,9 @@
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
-    "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。"
+    "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
+    "primary_harness": "Cursor ACP",
+    "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。"
   },
   "waves": [
     {
@@ -1914,7 +1915,7 @@
       "issue": 34,
       "title": "原生工具控制完整资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "in_progress",
       "requirements": [
         "K03-2-A01",
         "K03-2-A02",
@@ -1924,9 +1925,9 @@
         "K03-2-A06",
         "K03-2-A07"
       ],
-      "deliverable": "MCP/Shell/文件/网络逐路径允许及拒绝证据",
-      "done_when": "两来源真实 Harness 验证参数变更、审批重放/过期、源码写入、构建和外发；副作用与拒绝记录一致",
-      "verification": "两来源真实 Harness 验证参数变更、审批重放/过期、源码写入、构建和外发；副作用与拒绝记录一致",
+      "deliverable": "Cursor ACP 的 MCP/Shell/文件/网络逐路径允许及拒绝证据，以及可复用的控制契约",
+      "done_when": "首轮以 Cursor ACP 真实 Harness 验证参数变更、审批重放/过期、源码写入、构建和外发；副作用与拒绝记录一致。第二来源复用本项契约，由 K01-5.01 承接。",
+      "verification": "首轮以 Cursor ACP 真实 Harness 验证参数变更、审批重放/过期、源码写入、构建和外发；副作用与拒绝记录一致。第二来源复用本项契约，由 K01-5.01 承接。",
       "dependencies": [],
       "owner": "Codex 工程",
       "completion_evidence": [],
@@ -2035,7 +2036,7 @@
       "issue": 56,
       "title": "协议兼容矩阵收口",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K01-4-A01",
         "K01-4-A02",
@@ -2050,7 +2051,9 @@
         "K01-4.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
+      "completion_evidence": [
+        "docs/design/evidence/protocol-compatibility-20261125.json"
+      ],
       "basis": "已有 A2A 0.3、ACP 及 Cursor/DSH/Codex；活动恢复和能力差异需收口。",
       "existing_evidence": [
         "docs/design/evidence/a2a-runtime-20261125.json",
@@ -2058,7 +2061,8 @@
         "docs/design/evidence/a2a-recovery-20261125.json",
         "docs/design/evidence/acp-sessions-20261125.json"
       ],
-      "wave": "W1"
+      "wave": "W1",
+      "design_reference": "docs/design/protocol-compatibility-56.md"
     },
     {
       "id": "K01-4.03",
@@ -2071,9 +2075,9 @@
         "K01-4-A04",
         "K01-4-A06"
       ],
-      "deliverable": "各 Harness 协商声明到工具网关/沙箱的映射",
-      "done_when": "实际文件/网络/工具动作符合声明；未覆盖动作限制准入，与 K03-2 共用拒绝样例",
-      "verification": "实际文件/网络/工具动作符合声明；未覆盖动作限制准入，与 K03-2 共用拒绝样例",
+      "deliverable": "Cursor ACP 协商声明到工具网关/沙箱的映射及其他适配的准入限制",
+      "done_when": "首轮 Cursor ACP 的实际文件/网络/工具动作符合声明；未验证适配不准入相应风险动作，与 K03-2 共用拒绝样例。",
+      "verification": "首轮 Cursor ACP 的实际文件/网络/工具动作符合声明；未验证适配不准入相应风险动作，与 K03-2 共用拒绝样例。",
       "dependencies": [
         "K01-4.02",
         "K03-2.01"
@@ -2965,7 +2969,8 @@
         "docs/design/evidence/recipient-harnesses-20261125.json",
         "docs/design/evidence/acp-cancellation-20261124.json"
       ],
-      "wave": "W1"
+      "wave": "W3",
+      "delivery_stage": "compatibility-expansion-after-primary"
     },
     {
       "id": "K01-5.02",
@@ -3028,7 +3033,8 @@
         "docs/design/evidence/recipient-harnesses-20261125.json",
         "docs/design/evidence/acp-cancellation-20261124.json"
       ],
-      "wave": "W1"
+      "wave": "W3",
+      "delivery_stage": "compatibility-expansion-after-primary"
     },
     {
       "id": "S02-1.01",
