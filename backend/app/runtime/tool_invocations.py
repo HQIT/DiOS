@@ -227,11 +227,14 @@ class ToolInvocations:
                     if item['state']!='prepared':raise RuntimeErrorCode('TOOL_APPROVAL_REQUIRED')
                     await self._recheck(c,item,current,reg,now)
                     if reg['approval_required'] and item['approval_state']!='approved':raise RuntimeErrorCode('TOOL_APPROVAL_REQUIRED')
+                    from .tool_budgets import require_dispatch
+                    budget=await require_dispatch(c,self.store.scope,await self.store._run(c,run_id))
+                    now=await self.store.db.now(c)
                     await c.execute(calls.update().where(calls.c.id==call_id).values(state='dispatched',
                         approval_state='consumed' if reg['approval_required'] else 'not_required',version=version+1,
                         updated_at=now,dispatch_deadline=now+60))
                     await audit(c,self.store.scope,call_id,'dispatch','allow','TOOL_DISPATCH_COMMITTED',now,
-                        {'binding':item['binding'],'arguments_digest':item['arguments_digest'],'dispatch_version':version+1,'sender':self.sender_evidence})
+                        {'binding':item['binding'],'arguments_digest':item['arguments_digest'],'dispatch_version':version+1,'sender':self.sender_evidence,'budget':budget})
                     item=dict(item,state='dispatched',version=version+1,approval_state='consumed' if reg['approval_required'] else 'not_required')
                     claimed=True
                 except RuntimeErrorCode as exc:

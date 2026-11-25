@@ -16,6 +16,7 @@ export default function CapacityPanel() {
   const [maximum, setMaximum] = useState("2");
   const [enabled, setEnabled] = useState(true);
   const [revision, setRevision] = useState(0);
+  const [toolCalls, setToolCalls] = useState("");
   const [runtime, setRuntime] = useState("");
   const [dispatches, setDispatches] = useState("");
   const [windowSeconds, setWindowSeconds] = useState("");
@@ -44,6 +45,7 @@ export default function CapacityPanel() {
     setTarget(row?.selector.kind === "subject" ? row.selector.subject : row?.selector.kind === "profiles" ? row.selector.profiles.join(", ") : "");
     setMaximum(String(row?.max_concurrent ?? 2)); setEnabled(row?.enabled ?? true);
     setRevision(row?.revision || 0); setError(""); setEditing(true);
+    setToolCalls(String(row?.budget?.max_tool_calls ?? ""));
     setRuntime(String(row?.budget?.max_runtime_seconds ?? ""));
     setDispatches(String(row?.budget?.max_dispatches ?? ""));
     setWindowSeconds(String(row?.budget?.dispatch_window_seconds ?? ""));
@@ -55,7 +57,7 @@ export default function CapacityPanel() {
     setBusy(true); setError("");
     try {
       await capacityApi.save({id: id.trim(), selector, max_concurrent: Number(maximum), enabled, expected_revision: revision,
-        budget: {max_runtime_seconds: runtime === "" ? null : Number(runtime), max_dispatches: dispatches === "" ? null : Number(dispatches), dispatch_window_seconds: windowSeconds === "" ? null : Number(windowSeconds)}});
+        budget: {max_tool_calls: toolCalls === "" ? null : Number(toolCalls), max_runtime_seconds: runtime === "" ? null : Number(runtime), max_dispatches: dispatches === "" ? null : Number(dispatches), dispatch_window_seconds: windowSeconds === "" ? null : Number(windowSeconds)}});
       setEditing(false); setRefresh(v => v + 1);
     } catch (err) {
       setError(err instanceof RuntimeApiError && err.code === "VERSION_CONFLICT"
@@ -77,6 +79,7 @@ export default function CapacityPanel() {
       <div><strong>{row.id}</strong><small>{t(row.selector.kind === "scope" ? "整个控制域" : row.selector.kind === "subject" ? "指定主体" : "运行配置组")}{row.selector.kind === "subject" ? ` · ${row.selector.subject}` : row.selector.kind === "profiles" ? ` · ${row.selector.profiles.join(", ")}` : ""}</small></div>
       <span>{t(row.enabled ? "已启用" : "已停用")} · {t("并发上限")}: {row.max_concurrent}</span>
       <span>{t("占位")}: {row.reserved_attempts} · {t("待确认")}: {row.unresolved_attempts} · {t("排队")}: {row.queued_runs}</span>
+      {row.budget?.max_tool_calls != null && <span>{t("单任务工具派发上限")}: {row.budget.max_tool_calls}</span>}
       {row.budget?.max_runtime_seconds != null && <span>{t("执行时长上限（秒）")}: {row.budget.max_runtime_seconds}</span>}
       {row.dispatch_rate && <span>{t("窗口内已领取")}: {row.dispatch_rate.used}/{row.dispatch_rate.maximum} · {t("窗口长度（秒）")}: {row.dispatch_rate.window_seconds}{row.enabled && row.dispatch_rate.available_at && <> · {t("最早可再次领取")}: {new Date(row.dispatch_rate.available_at * 1000).toLocaleTimeString(languageTag())}</>}</span>}
       <button type="button" disabled={busy || stale} onClick={() => edit(row)}>{t("修改额度")}</button>
@@ -90,6 +93,8 @@ export default function CapacityPanel() {
         </select></label>
         {kind !== "scope" && <label>{t(kind === "subject" ? "主体标识" : "配置标识（逗号分隔）")}<input required value={target} onChange={e => setTarget(e.target.value)} /></label>}
         <label>{t("并发上限")}<input type="number" required min={0} max={100000} step={1} value={maximum} onChange={e => setMaximum(e.target.value)} /></label>
+        <label>{t("单任务工具派发上限")}<input type="number" min={0} max={100000} step={1} value={toolCalls} onChange={e => setToolCalls(e.target.value)} /></label>
+        <p>{t("工具上限在首次领取时固定，跨重试累计；0 禁止工具派发，留空不限制。结果未知的调用仍计入用量。")}</p>
         <label>{t("执行时长上限（秒）")}<input type="number" min={1} max={604800} step={1} value={runtime} onChange={e => setRuntime(e.target.value)} /></label>
         <label>{t("窗口内最多领取次数")}<input type="number" required={windowSeconds !== ""} min={1} max={100000} step={1} value={dispatches} onChange={e => setDispatches(e.target.value)} /></label>
         <label>{t("窗口长度（秒）")}<input type="number" required={dispatches !== ""} min={1} max={86400} step={1} value={windowSeconds} onChange={e => setWindowSeconds(e.target.value)} /></label>

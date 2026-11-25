@@ -780,18 +780,21 @@
           "本地可信 CLI 版本校验与修改审计；本地 Worker、远程 Worker、A2A 共用入口；E2AG 持续校验",
           "新增独立 schema、备份恢复和安全切换；占位数与实际进程/会话并发分开",
           "Console 中英文额度新增/修改/停用、版本冲突与观测过期控制；任务等待原因按当前额度刷新，应用身份不暴露共享明细",
-          "持久 Run 执行截止时间与滚动 Attempt 领取频率；E2AG 执行/续租/工具门禁与本地/远程 Worker 停止控制；重试、重启和配置放宽保留截止时间，A2A 取消未确认保留占位；CLI/API/中英文 Console 同步"
+          "持久 Run 执行截止时间与滚动 Attempt 领取频率；E2AG 执行/续租/工具门禁与本地/远程 Worker 停止控制；重试、重启和配置放宽保留截止时间，A2A 取消未确认保留占位；CLI/API/中英文 Console 同步",
+          "受控工具单Run派发预算与持久用量：E2AG最终门禁原子校验，审批/撤权拒绝不计数，未知结果保留用量，重试及回执恢复不重复扣减；CLI/API/中英文Console同步"
         ],
         "verification": "相关回归174项通过/5项条件跳过，最终额度及适配入口24项通过；SQLite/PG 各三个独立 Worker、共享额度2、两路真实容器会话、降额、E2AG拒绝及恢复通过",
         "remaining": [
-          "受控工具/模型请求预算、Token/金额预留及可靠用量核销",
+          "模型请求预算、Token/金额预留及可靠核销，父子任务树共享工具预算",
           "父子任务等待的容量规划与诊断",
           "网络/凭据/工作区策略的组合验证、物理跨主机及企业容量验收"
         ],
         "console_evidence": "docs/design/evidence/execution-capacity-ui-20261125.json",
         "console_verification": "发布镜像34项通过/10项PG条件跳过；真实隔离API中英文1440px、英文390px及应用身份权限验证通过；已部署并保留84条历史任务",
         "budget_evidence": "docs/design/evidence/execution-budgets-20261125.json",
-        "budget_verification": "SQLite/PostgreSQL契约170项通过/5项跳过；发布镜像60项通过/36项条件跳过；两种数据库各4个真实Worker进程先后运行验证超时及重启后频率恢复；中英文桌面/移动端通过；已迁移开发库，84条历史任务身份保留"
+        "budget_verification": "SQLite/PostgreSQL契约170项通过/5项跳过；发布镜像60项通过/36项条件跳过；两种数据库各4个真实Worker进程先后运行验证超时及重启后频率恢复；中英文桌面/移动端通过；已迁移开发库，84条历史任务身份保留",
+        "tool_budget_evidence": "docs/design/evidence/tool-dispatch-budgets-20261125.json",
+        "tool_budget_verification": "SQLite/PostgreSQL 118项通过；发布镜像65项通过/15项PG跳过；真实MCP HTTP与Worker Unix通道门禁通过；中英文桌面/移动端通过；开发迁移保留84条历史任务"
       }
     },
     {
@@ -2146,18 +2149,21 @@
           "本地可信 CLI 版本校验与修改审计；本地 Worker、远程 Worker、A2A 共用入口；E2AG 持续校验",
           "新增独立 schema、备份恢复和安全切换；占位数与实际进程/会话并发分开",
           "Console 中英文额度新增/修改/停用、版本冲突与观测过期控制；任务等待原因按当前额度刷新，应用身份不暴露共享明细",
-          "持久 Run 执行截止时间与滚动 Attempt 领取频率；E2AG 执行/续租/工具门禁与本地/远程 Worker 停止控制；重试、重启和配置放宽保留截止时间，A2A 取消未确认保留占位；CLI/API/中英文 Console 同步"
+          "持久 Run 执行截止时间与滚动 Attempt 领取频率；E2AG 执行/续租/工具门禁与本地/远程 Worker 停止控制；重试、重启和配置放宽保留截止时间，A2A 取消未确认保留占位；CLI/API/中英文 Console 同步",
+          "受控工具单Run派发预算与持久用量：E2AG最终门禁原子校验，审批/撤权拒绝不计数，未知结果保留用量，重试及回执恢复不重复扣减；CLI/API/中英文Console同步"
         ],
         "verification": "相关回归174项通过/5项条件跳过，最终额度及适配入口24项通过；SQLite/PG 各三个独立 Worker、共享额度2、两路真实容器会话、降额、E2AG拒绝及恢复通过",
         "remaining": [
-          "受控工具/模型请求预算、Token/金额预留及可靠用量核销",
+          "模型请求预算、Token/金额预留及可靠核销，父子任务树共享工具预算",
           "父子任务等待的容量规划与诊断",
           "网络/凭据/工作区策略的组合验证、物理跨主机及企业容量验收"
         ],
         "console_evidence": "docs/design/evidence/execution-capacity-ui-20261125.json",
         "console_verification": "发布镜像34项通过/10项PG条件跳过；真实隔离API中英文1440px、英文390px及应用身份权限验证通过；已部署并保留84条历史任务",
         "budget_evidence": "docs/design/evidence/execution-budgets-20261125.json",
-        "budget_verification": "SQLite/PostgreSQL契约170项通过/5项跳过；发布镜像60项通过/36项条件跳过；两种数据库各4个真实Worker进程先后运行验证超时及重启后频率恢复；中英文桌面/移动端通过；已迁移开发库，84条历史任务身份保留"
+        "budget_verification": "SQLite/PostgreSQL契约170项通过/5项跳过；发布镜像60项通过/36项条件跳过；两种数据库各4个真实Worker进程先后运行验证超时及重启后频率恢复；中英文桌面/移动端通过；已迁移开发库，84条历史任务身份保留",
+        "tool_budget_evidence": "docs/design/evidence/tool-dispatch-budgets-20261125.json",
+        "tool_budget_verification": "SQLite/PostgreSQL 118项通过；发布镜像65项通过/15项PG跳过；真实MCP HTTP与Worker Unix通道门禁通过；中英文桌面/移动端通过；开发迁移保留84条历史任务"
       }
     },
     {

@@ -386,6 +386,8 @@ class RuntimeStore:
             run['observed_at'] = await self.db.now(c)
             from .execution_budgets import view as budget_view
             run['execution_budget']=await budget_view(c,self.scope,run_id,run['observed_at'])
+            from .tool_budgets import view as tool_budget_view
+            run['tool_budget']=await tool_budget_view(c,self.scope,run_id)
             from .child_authorizations import view as family_view
             run['family']=await family_view(c,self.scope,run_id)
             return run

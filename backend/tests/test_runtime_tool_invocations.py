@@ -36,7 +36,7 @@ class ToolInvocationTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         await fixtures.WorkerTests.asyncSetUp(self)
         self.policy,_=policy_fixture(self.root,'test-profile',self.spec)
-        self.registration=dict(enabled=True,transport='mcp-http',url='http://127.0.0.1:19999/mcp',name='search',
+        self.registration=dict(enabled=True,transport='mcp-http',url=getattr(self,'tool_url','http://127.0.0.1:19999/mcp'),name='search',
             approval_required=True,input_schema={'type':'object','properties':{'query':{'type':'string'}},'required':['query'],'additionalProperties':False},
             result_schema={'type':'object','required':['content'],'properties':{'content':{'type':'array'}}})
         version=digest({k:v for k,v in self.registration.items() if k!='enabled'})
@@ -53,10 +53,11 @@ class ToolInvocationTests(unittest.IsolatedAsyncioTestCase):
             dict(enabled=True,subject='operator:test',token_sha256=hashlib.sha256(b'fixture-self').hexdigest(),scopes=[self.scope],tools=['search'])]}))
         descriptor=self.policy.admission('test-profile',self.spec.fingerprint(),[])
         self.run=await self.store.submit('run',dict(runtime_profile='test-profile',profile_digest=self.spec.fingerprint(),secret_refs=[]),authorization=descriptor)
-        await self.store.register_worker('worker','instance','host',os.getpid())
-        self.attempt=await self.store.claim('worker','instance')
-        self.binding=(self.run['id'],self.attempt['id'],'worker','instance',self.attempt['epoch'])
-        self.context=WorkAuthorizationContext(self.scope,*self.binding[:2],'worker','instance',self.attempt['epoch'],
+        worker_id='worker-'+self.scope if getattr(self,'postgres',False) else 'worker'
+        await self.store.register_worker(worker_id,'instance','host',os.getpid())
+        self.attempt=await self.store.claim(worker_id,'instance')
+        self.binding=(self.run['id'],self.attempt['id'],worker_id,'instance',self.attempt['epoch'])
+        self.context=WorkAuthorizationContext(self.scope,*self.binding[:2],worker_id,'instance',self.attempt['epoch'],
             self.attempt['authorization_epoch'],None,self.run['input']['work_authorization_ref'])
         self.verifier=WorkAuthorizationVerifier(self.store,self.policy)
         await self.verifier(self.context,'execute')

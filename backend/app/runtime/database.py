@@ -150,6 +150,7 @@ class Database:
         from .child_handoff_schema import migrate as migrate_handoffs
         from .capacity_schema import migrate as migrate_capacity
         from .execution_budget_schema import migrate as migrate_execution_budgets
+        from .tool_budget_schema import migrate as migrate_tool_budgets
         async with self.transaction('__runtime_migration__', check=False) as c:
             existing = await c.run_sync(lambda s: inspect(s).get_table_names())
             if 'runtime_schema' in existing:
@@ -179,8 +180,9 @@ class Database:
                 handoffs_changed = await migrate_handoffs(c)
                 capacity_changed = await migrate_capacity(c)
                 budget_changed = await migrate_execution_budgets(c)
+                tool_budget_changed = await migrate_tool_budgets(c)
                 return {'version': SCHEMA_VERSION, 'history_version': 1, 'history_archive_version': 1, 'lifecycle_version': 1,
-                        'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'delegation_identity_version': 1, 'delegation_check_version': 1, 'schedule_version': 1, 'child_version': 1, 'child_handoff_version': 1, 'capacity_version': 1, 'execution_budget_version': 1, 'changed': budget_changed or capacity_changed or handoffs_changed or children_changed or schedules_changed or archive_changed or delegation_check_changed or delegation_identity_changed or delegation_changed or logout_changed or identity_changed or fault_changed or changed or lifecycle_changed or auth_changed or tools_changed or credentials_changed or remote_changed}
+                        'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'delegation_identity_version': 1, 'delegation_check_version': 1, 'schedule_version': 1, 'child_version': 1, 'child_handoff_version': 1, 'capacity_version': 1, 'execution_budget_version': 1, 'tool_budget_version': 1, 'changed': tool_budget_changed or budget_changed or capacity_changed or handoffs_changed or children_changed or schedules_changed or archive_changed or delegation_check_changed or delegation_identity_changed or delegation_changed or logout_changed or identity_changed or fault_changed or changed or lifecycle_changed or auth_changed or tools_changed or credentials_changed or remote_changed}
             if any(n.startswith('runtime_') for n in existing):
                 raise RuntimeErrorCode('UNVERSIONED_RUNTIME_SCHEMA')
             await c.run_sync(metadata.create_all)
@@ -203,7 +205,8 @@ class Database:
             await migrate_handoffs(c)
             await migrate_capacity(c)
             await migrate_execution_budgets(c)
-            return {'version': SCHEMA_VERSION, 'history_version': 1, 'history_archive_version': 1, 'lifecycle_version': 1, 'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'delegation_identity_version': 1, 'delegation_check_version': 1, 'schedule_version': 1, 'child_version': 1, 'child_handoff_version': 1, 'capacity_version': 1, 'execution_budget_version': 1, 'changed': True}
+            await migrate_tool_budgets(c)
+            return {'version': SCHEMA_VERSION, 'history_version': 1, 'history_archive_version': 1, 'lifecycle_version': 1, 'work_authorization_version': 1, 'tool_version': 1, 'credential_version': 1, 'remote_version': 1, 'fault_version': 1, 'identity_check_version': 1, 'logout_version': 1, 'delegation_version': 1, 'delegation_identity_version': 1, 'delegation_check_version': 1, 'schedule_version': 1, 'child_version': 1, 'child_handoff_version': 1, 'capacity_version': 1, 'execution_budget_version': 1, 'tool_budget_version': 1, 'changed': True}
 
     @staticmethod
     async def now(c):

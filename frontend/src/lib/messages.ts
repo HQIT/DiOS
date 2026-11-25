@@ -1,5 +1,12 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "不限": "Unlimited",
+  "成功": "Succeeded",
+  "失败": "Failed",
+  "单任务工具派发上限": "Tool dispatch limit per task",
+  "工具派发用量": "Tool dispatch usage",
+  "工具预算已耗尽": "Tool budget exhausted",
+  "工具上限在首次领取时固定，跨重试累计；0 禁止工具派发，留空不限制。结果未知的调用仍计入用量。": "The tool limit is fixed at first claim and accumulates across retries. Zero blocks dispatch; blank means unlimited. Uncertain outcomes still count.",
   "执行时长上限（秒）": "Execution duration limit (seconds)",
   "窗口内已领取": "Claims in window",
   "窗口长度（秒）": "Window length (seconds)",

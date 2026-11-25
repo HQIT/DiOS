@@ -6,7 +6,12 @@ from .database import RuntimeErrorCode
 from .execution_budget_schema import bindings, policies, require
 from .schema import attempts, runs
 
-FIELDS = {"max_runtime_seconds", "max_dispatches", "dispatch_window_seconds"}
+FIELDS = {
+    "max_runtime_seconds",
+    "max_dispatches",
+    "dispatch_window_seconds",
+    "max_tool_calls",
+}
 
 
 def validate(value):
@@ -17,9 +22,13 @@ def validate(value):
         ("max_runtime_seconds", 604800),
         ("max_dispatches", 100000),
         ("dispatch_window_seconds", 86400),
+        ("max_tool_calls", 100000),
     ):
         val = result[key]
-        if val is not None and (type(val) is not int or not 1 <= val <= maximum):
+        if val is not None and (
+            type(val) is not int
+            or not (0 if key == "max_tool_calls" else 1) <= val <= maximum
+        ):
             raise RuntimeErrorCode("INVALID_EXECUTION_BUDGET")
     if (result["max_dispatches"] is None) != (
         result["dispatch_window_seconds"] is None
@@ -41,11 +50,19 @@ async def policy(c, scope, limit_id):
         .mappings()
         .first()
     )
-    return {key: row[key] if row else None for key in FIELDS}
+    from .tool_budgets import policy as tool_policy
+
+    result = {key: row[key] if row else None for key in FIELDS - {"max_tool_calls"}}
+    result["max_tool_calls"] = await tool_policy(c, scope, limit_id)
+    return result
 
 
 async def put_policy(c, scope, limit_id, value):
     value = validate(value)
+    maximum = value.pop("max_tool_calls")
+    from .tool_budgets import put_policy as put_tool_policy
+
+    await put_tool_policy(c, scope, limit_id, maximum)
     old = (
         await c.execute(
             select(policies.c.limit_id).where(
@@ -63,7 +80,7 @@ async def put_policy(c, scope, limit_id, value):
         await c.execute(
             policies.insert().values(scope=scope, limit_id=limit_id, **value)
         )
-    return value
+    return dict(value, max_tool_calls=maximum)
 
 
 async def rate_status(c, scope, selector, budget, now):
@@ -168,6 +185,9 @@ async def admit_query(c, scope, query, now):
 
 async def bind(c, scope, run, now):
     await require(c)
+    from .tool_budgets import bind as bind_tools
+
+    await bind_tools(c, scope, run)
     if (
         await c.execute(
             select(bindings.c.run_id).where(

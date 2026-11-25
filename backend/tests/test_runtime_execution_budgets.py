@@ -185,6 +185,7 @@ class BudgetScenarios:
                 "max_dispatches": None,
                 "max_runtime_seconds": None,
                 "dispatch_window_seconds": None,
+                "max_tool_calls": None,
             },
         )
 
