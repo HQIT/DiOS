@@ -35,11 +35,13 @@ async def bind(c, store, run, descriptor, binding):
     reference = parent['input'].get('work_authorization_ref')
     if not reference: raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
     authority = (await c.execute(select(work).where(work.c.id == reference, work.c.scope == store.scope))).mappings().one()
-    if any(authority[k] != descriptor[k] for k in ('subject', 'actor')):
+    if authority['subject'] != descriptor['subject']:
         raise RuntimeErrorCode('CHILD_IDENTITY_MISMATCH')
-    # A parent cannot erase the authenticated source binding on the child.
-    if parent['input'].get('principal') != run['input'].get('principal'):
-        raise RuntimeErrorCode('CHILD_IDENTITY_MISMATCH')
+    # Identity changes require an independently authenticated recipient and an
+    # immediate delegation signed by this exact parent source. No caller actor claim.
+    if (authority['actor'] != descriptor['actor'] or
+            parent['input'].get('principal') != run['input'].get('principal')):
+        await recipient(c, store.scope, parent, run, descriptor)
     spawn = permission(descriptor, 'spawn')
     if not evaluate_work_permission(authority['permissions'], spawn).permits_execution:
         raise RuntimeErrorCode('CHILD_SPAWN_DENIED')
@@ -73,6 +75,52 @@ async def bind(c, store, run, descriptor, binding):
         root_run_id=root, depth=depth, root_limit=root_limit, depth_limit=depth_limit,
         request_key=run['idempotency_key'], created_at=now))
     return dict(descriptor, work_expires_at=min(authority['expires_at'], descriptor.get('work_expires_at', authority['expires_at'])))
+
+
+async def recipient(c, scope, parent, run, descriptor):
+    from .delegations import lineage
+    from .delegation_identity_schema import issuers
+    source = parent['input'].get('principal')
+    target = run['input'].get('principal')
+    parent_ref = parent['input'].get('delegation_ref')
+    reference = descriptor.get('delegation_ref')
+    if not source or not target or not parent_ref or not reference:
+        raise RuntimeErrorCode('CHILD_IDENTITY_MISMATCH')
+    from .child_handoffs import required
+    proof=await required(c,scope,reference)
+    expected=run['input']['parent_execution']
+    if (proof['parent_execution']['owner']!=expected['owner']
+            or proof['parent_execution']['session_id']!=expected['session_id']
+            or proof['parent_authorization_epoch']!=parent['authorization_epoch']
+            or proof['profile_id']!=descriptor['profile_id']
+            or proof['profile_digest']!=descriptor['profile_digest']):
+        raise RuntimeErrorCode('CHILD_RECIPIENT_BINDING_MISMATCH')
+    chain = await lineage(c, scope, reference)
+    leaf = chain[-1]
+    issuer = (await c.execute(select(issuers).where(
+        issuers.c.scope == scope, issuers.c.delegation_ref == reference
+    ))).mappings().first()
+    if (leaf['parent_ref'] != parent_ref or leaf['subject_ref'] != descriptor['subject']
+            or leaf['actor_ref'] != descriptor['actor'] or issuer is None
+            or issuer['principal'] != source or issuer['profile_id'] != descriptor['profile_id']
+            or target['subject'] != descriptor['subject'] or target['actor'] != descriptor['actor']):
+        raise RuntimeErrorCode('CHILD_RECIPIENT_BINDING_MISMATCH')
+
+
+async def authorize_result(c, store, parent, child):
+    if parent['input'].get('principal') == child['input'].get('principal'):
+        return
+    rows = (await c.execute(select(work).where(work.c.scope == store.scope,
+        work.c.id.in_([parent['input']['work_authorization_ref'], child['input']['work_authorization_ref']])
+    ))).mappings().all()
+    by_id = {r['id']: r for r in rows}
+    authority = by_id[parent['input']['work_authorization_ref']]
+    target = by_id[child['input']['work_authorization_ref']]
+    requested = permission(target, 'read_result')
+    if not evaluate_work_permission(authority['permissions'], requested).permits_execution:
+        raise RuntimeErrorCode('CHILD_RESULT_NOT_GRANTED')
+    from .delegations import check_work
+    await check_work(c, store.db, parent, authority, requested)
 
 
 async def validate_parent(c, run, now):

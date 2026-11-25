@@ -61,3 +61,10 @@ successful result. Use this to resolve trusted child-task evidence rather than
 accepting a model's completion claim. The capability-only
 [coordinator example](../../examples/runtime/acp_child_coordinator.py) runs with
 Cursor, Codex or DSH and binds its report to the child's verified artifact digest.
+
+SDK 0.1.9 adds `parent_run_id` to `issue_delegation`, `submit` and `submit_input`.
+The issuer binds a delegation to its live parent execution; the recipient submits
+with its own authenticated client, that delegation and the same parent Run ID.
+Persist separate issuance and submission idempotency keys. Cross-identity result
+return requires explicit `runtime.read_result` permission on the live parent's
+governed channel. [Recipient contract](../../docs/design/child-recipients-35.md).

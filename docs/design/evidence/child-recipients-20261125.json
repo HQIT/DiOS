@@ -1,0 +1,262 @@
+{
+  "scope": "Authenticated HTTP and native OPA; synthetic identities and input; native Docker child execution",
+  "tests": {
+    "regression": {
+      "passed": 40,
+      "seconds": 61.208,
+      "sha256": "dc87453029be02064bf5a585fc9847f0b3136633710493092596c10544162e13"
+    },
+    "image-contracts": {
+      "passed": 32,
+      "seconds": 37.033,
+      "sha256": "67cc814d65f1e09e4eb95c8316f2c489ff8eda156de6cf648664dea7e552d32f"
+    },
+    "sdk-installed": {
+      "passed": 62,
+      "seconds": 5.426,
+      "sha256": "721cd0659623e5b75f0a8446c26adeaf7f72b786adf673fe3fbf1850585b07a6"
+    },
+    "backup-qualified": {
+      "passed": 1,
+      "seconds": 4.176,
+      "sha256": "4832230df9308fd4955105a0ec13dd1c657343efca8185249131a423499198c4"
+    },
+    "qualification": {
+      "total": 13,
+      "passed_in_full_run": 12,
+      "fixture_errors": 1,
+      "error": "Backup test passed the OPA HTTP endpoint instead of the SQLite URL; corrected fixture and verified separately",
+      "corrected_case": "test_backup_keeps_immutable_handoff_and_its_runtime_tree",
+      "corrected_result": "backup-qualified",
+      "sha256": "77bb991a8da40852f2d4b67a0c05e4f782a99bbb2cba9183d08345b5d1ae8fab"
+    }
+  },
+  "native_child": {
+    "parent_execution": "Runtime owner/session fixture; no parent Harness process",
+    "child_execution": "native Docker process",
+    "image": "sha256:78976a69c067520ef8be34cde307ef9f6fea6dcefa50edb57039773d241ca0db",
+    "parent_run_id": "e9a92622-e7bf-4ac0-8810-0fefa0f06526",
+    "subject": "operator:test",
+    "parent_actor": "delegate:0",
+    "child_actor": "actor:peer",
+    "handoff": {
+      "parent_execution": {
+        "owner": [
+          "e9a92622-e7bf-4ac0-8810-0fefa0f06526",
+          "e219914c-a06b-423d-9fa0-84dc0cb7ffff",
+          "a1de0b8e-9f46-4d71-919f-1460f3948646",
+          "instance",
+          1
+        ],
+        "session_id": "parent-session",
+        "max_children": 2,
+        "max_depth": 2
+      },
+      "profile_id": "test-profile",
+      "profile_digest": "f6a91eccd816c18d2dfaaa766262eb870cea1d5df51e9fe205bab69b2cc11d3d",
+      "parent_authorization_epoch": 1
+    },
+    "completed": {
+      "id": "7d607008-ac16-49b3-98cf-e7fea303e40f",
+      "state": "succeeded",
+      "attempt_id": "426d58cf-625d-49f4-b9d5-12ff998ef35a",
+      "attempts": [
+        {
+          "id": "426d58cf-625d-49f4-b9d5-12ff998ef35a",
+          "run_id": "7d607008-ac16-49b3-98cf-e7fea303e40f",
+          "worker_id": "114d9d46-e17f-4d8b-8847-5e353bd6fdde",
+          "worker_instance": "47a6c629-1257-4c06-80ed-0af1b06b12a1",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795582608.0319977,
+          "state": "completed",
+          "session_id": "fixture-session",
+          "process_id": 280654,
+          "process_instance": "ef91883742dea5191741c96d54cac209965e1d9d905b06acfed807c08509756d:2026-11-25T04:55:48.153830434Z",
+          "last_sequence": 5,
+          "report_digest": "6290f30596ae94a5bd0ef7ebc5e196617d957adf4e7518b4b4761e73a16b80fb",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "426d58cf-625d-49f4-b9d5-12ff998ef35a",
+              "profile_digest": "f6a91eccd816c18d2dfaaa766262eb870cea1d5df51e9fe205bab69b2cc11d3d",
+              "profile_id": "test-profile",
+              "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe"
+            },
+            "runtime": {
+              "handle": "426d58cf-625d-49f4-b9d5-12ff998ef35a",
+              "state": "exited",
+              "alive": false,
+              "pid": null,
+              "process_instance": "ef91883742dea5191741c96d54cac209965e1d9d905b06acfed807c08509756d:2026-11-25T04:55:48.153830434Z",
+              "exit_code": 0,
+              "health": "not_configured",
+              "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe",
+              "observed_at": 1795582553.3350065
+            },
+            "progress": {
+              "text": "中文🙂"
+            }
+          },
+          "error": null,
+          "last_output_at": 1795582548.7451458,
+          "started_at": 1795582547.4060104,
+          "finished_at": 1795582554.0979877
+        }
+      ]
+    },
+    "revoked": {
+      "id": "326644ac-b6f4-4596-aa23-a6ea5dfb6897",
+      "state": "cancelled",
+      "attempt_id": "34208006-12f3-418f-82dd-d9b5d4e5eb64",
+      "attempts": [
+        {
+          "id": "34208006-12f3-418f-82dd-d9b5d4e5eb64",
+          "run_id": "326644ac-b6f4-4596-aa23-a6ea5dfb6897",
+          "worker_id": "114d9d46-e17f-4d8b-8847-5e353bd6fdde",
+          "worker_instance": "47a6c629-1257-4c06-80ed-0af1b06b12a1",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795582615.4340096,
+          "state": "cancelled",
+          "session_id": "fixture-session",
+          "process_id": 280739,
+          "process_instance": "427eaff03582f220d12fc12de8d6d664f1166fd997c2f1aeabaab992cf35ae7c:2026-11-25T04:55:55.555889911Z",
+          "last_sequence": 4,
+          "report_digest": "98aa3c55c9615b7ec0d62724c051f5a82c4e27a16fa9f51bf6fa79f8483ff8f5",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "34208006-12f3-418f-82dd-d9b5d4e5eb64",
+              "profile_digest": "f6a91eccd816c18d2dfaaa766262eb870cea1d5df51e9fe205bab69b2cc11d3d",
+              "profile_id": "test-profile",
+              "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe"
+            },
+            "runtime": {
+              "handle": "34208006-12f3-418f-82dd-d9b5d4e5eb64",
+              "state": "exited",
+              "alive": false,
+              "pid": null,
+              "process_instance": "427eaff03582f220d12fc12de8d6d664f1166fd997c2f1aeabaab992cf35ae7c:2026-11-25T04:55:55.555889911Z",
+              "exit_code": 143,
+              "health": "not_configured",
+              "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe",
+              "observed_at": 1795582556.8529918
+            },
+            "progress": {
+              "text": "中文🙂"
+            }
+          },
+          "error": null,
+          "last_output_at": 1795582556.216955,
+          "started_at": 1795582554.7279983,
+          "finished_at": 1795582556.9689841
+        }
+      ]
+    }
+  },
+  "native_record_sha256": "9cc18df0293093e633cece53b09ea571cc3b4d71a642bc75e2252e3e4d34ca7d",
+  "sdk_version": "0.1.9",
+  "wheel_sha256": "d9b9ce94f44140022332a471ba52afb978e66834e6c15a20ce8f198a0cb98c55",
+  "image": {
+    "image": "sha256:6f562e17166ebbd09d9e20c2251140495ee4d1cb1315d957320590e8f7ce84e4",
+    "base": "sha256:cc9e42d52330bc6b2ff3079dbc9baab3f26f3ae105a26a8d1067258c32a60490",
+    "tag": "dios-backend:child-recipients-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "cli": {
+    "passed": true,
+    "transport": "native CLI to HTTP server",
+    "parent_and_delegation_preserved": true,
+    "identity_in_body": false
+  },
+  "deployment": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "changed": true
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_contract": {
+    "api_schema_parent_binding": true,
+    "delegation_schema_parent_binding": true,
+    "historical_detail_readable": true,
+    "visible_runs": 54,
+    "frontend_status": 200
+  },
+  "contracts": {
+    "scope": "design contract consistency and reference semantics; no runtime/concurrency certification",
+    "schemas": 68,
+    "operations": 31,
+    "schema_examples": 12,
+    "state_scenarios": 13,
+    "checks_passed": 681,
+    "errors": []
+  },
+  "frontend_build": {
+    "passed": true,
+    "sha256": "be6899bc3591a401c005600f7ce8ad6eb3f8e9638d86cdeece11cb059945c1a9"
+  },
+  "source_sha256": {
+    "backend/app/runtime/child_handoff_schema.py": "2dfa6ae54d25e3c2b6734180dbaadbc129fecf275c16d500f4b8ffac9e1a7cdc",
+    "backend/app/runtime/child_handoffs.py": "7a15b428429d7228a19bc273f6217c269e3d8d6772c88f5f5d28340a3282ce53",
+    "backend/app/runtime/child_authorizations.py": "f6da4bea0b875f7f3afdd5560dacbeb84cecdbe9fa5daf7417ef24e0c0f55294",
+    "backend/app/runtime/delegations.py": "b1443c93c5fd49a6ad99572230726d31c892de78a5c4738da101371a2db11855",
+    "backend/app/runtime/store.py": "5217774966a4135272bd4a879b0573b446b7233699a5300eedfeb930ec459732",
+    "backend/app/services/child_tasks.py": "a6dace1e3f45807aa790b315b518364cb6bb7537768b9f1eebc74e2ba6c90a7a",
+    "backend/app/services/child_recipients.py": "609536cb3ea66936491f4c2797a5deec9409075c3c53bbe65be6af263aa6afa7",
+    "backend/app/services/delegation_access.py": "d02bd9027061ae6708bfa0aff3c07b637104e5cd3bc5bcbf007d3bcb07b96a78",
+    "backend/app/services/task_console.py": "33b625e0f34e79460ca711e0a6e19f3579a525f5439368a4787d75fdbfd669bf",
+    "backend/app/api/os/runtime_tasks.py": "a0e31aa245d7082ef604f0fc817335a3d8f5c0d8ac63353659fea3d29e418429",
+    "backend/app/runtime/database.py": "f7e51a2649e09801bde9f943d8d81e9c34d1bc0cfebc0648b4350cb77fed9fbc",
+    "backend/app/runtime/recovery.py": "a77339573c3a11095aa1791b3bbe2a3c77da145fae92bdc8f46141185f9c6626",
+    "sdk/python/src/dios_sdk/tasks.py": "8b9da04a5d00f1cc7b2f2b54f23aa42f01ea27832d386df1e577a8be74fc193c",
+    "cli/dios": "e0659f55e58473a7370f06b08f6a2592876e59c43be6c0e26097f7cb21e2fcd1",
+    "backend/tests/test_runtime_child_recipients.py": "c7ed6fab425dc97218e309f47227fd758d844ee47eb9502cba2cc42d3608e372"
+  },
+  "remaining": [
+    "Application handoff automation and native parent/child Harness qualification with distinct actors",
+    "External Provider actor-token exchange qualification",
+    "Physical cross-host qualification",
+    "Strict cross-Provider revocation ordering",
+    "Active-session reattachment",
+    "Monetary/token budgets",
+    "Independent G2 and user acceptance"
+  ]
+}

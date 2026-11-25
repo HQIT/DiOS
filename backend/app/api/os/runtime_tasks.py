@@ -135,6 +135,7 @@ class TaskInput(BaseModel):
 
 class Submit(TaskInput):
     delegation_ref: str|None=Field(default=None,min_length=1,max_length=160)
+    parent_run_id: str|None=Field(default=None,min_length=1,max_length=160)
 
 class Cancel(BaseModel):
     model_config=ConfigDict(extra='forbid')
@@ -154,6 +155,7 @@ class DelegationIssue(BaseModel):
     parent_ref: str=Field(min_length=1,max_length=80)
     profile_id: str=Field(min_length=1,max_length=160)
     actor: str=Field(min_length=1,max_length=160)
+    parent_run_id: str|None=Field(default=None,min_length=1,max_length=160)
     expires_at: float=Field(gt=0,allow_inf_nan=False)
     permissions: list[DelegationPermission]=Field(min_length=1,max_length=64)
 
@@ -199,7 +201,7 @@ async def listing(limit:int=Query(30,ge=1,le=100),cursor:str|None=Query(None,max
 @router.post('/runs',status_code=202)
 async def submit(body:Submit,s=Depends(service)):
     return await s.submit(body.profile_id,body.sample_id,body.goal,body.idempotency_key,
-        input_payload=body.input_payload,delegation_ref=body.delegation_ref)
+        input_payload=body.input_payload,delegation_ref=body.delegation_ref,parent_run_id=body.parent_run_id)
 
 @router.get('/runs/{run_id}')
 async def detail(run_id:str,s=Depends(service)):

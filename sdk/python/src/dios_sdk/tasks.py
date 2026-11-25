@@ -72,29 +72,32 @@ class TaskClient:
             raise WorkloadError('TASK_RESPONSE_INVALID') from None
 
     def identity(self): return self._request('/identity')
-    def issue_delegation(self, parent_ref, profile_id, actor, permissions, expires_at, *, idempotency_key):
+    def issue_delegation(self, parent_ref, profile_id, actor, permissions, expires_at, *, idempotency_key, parent_run_id=None):
         if not isinstance(idempotency_key,str) or not idempotency_key:
             raise ValueError('Supply a stable idempotency key for delegation issuance')
         return self._request('/delegations',method='POST',body=dict(parent_ref=parent_ref,
-            profile_id=profile_id,actor=actor,permissions=permissions,expires_at=expires_at,idempotency_key=idempotency_key))
+            profile_id=profile_id,actor=actor,permissions=permissions,expires_at=expires_at,idempotency_key=idempotency_key,
+            **({'parent_run_id':parent_run_id} if parent_run_id is not None else {})))
     def delegation(self, reference):
         return self._request('/delegations/'+quote(reference,safe=''))
     def revoke_delegation(self, reference, *, expected_version):
         return self._request('/delegations/'+quote(reference,safe='')+'/revoke',method='POST',body={'expected_version':expected_version})
     def profiles(self): return self._request('/profiles')['items']
     def inputs(self): return self._request('/samples')['items']
-    def submit(self, profile_id, input_id, goal, *, idempotency_key, delegation_ref=None):
+    def submit(self, profile_id, input_id, goal, *, idempotency_key, delegation_ref=None, parent_run_id=None):
         if not isinstance(idempotency_key, str) or not idempotency_key:
             raise ValueError('Supply a stable idempotency key for the logical task')
         return self._request('/runs', method='POST', body=dict(profile_id=profile_id,
             sample_id=input_id, goal=goal, idempotency_key=idempotency_key,
-            **({'delegation_ref':delegation_ref} if delegation_ref is not None else {})))
-    def submit_input(self, profile_id, input_payload, goal, *, idempotency_key, delegation_ref=None):
+            **({'delegation_ref':delegation_ref} if delegation_ref is not None else {}),
+            **({'parent_run_id':parent_run_id} if parent_run_id is not None else {})))
+    def submit_input(self, profile_id, input_payload, goal, *, idempotency_key, delegation_ref=None, parent_run_id=None):
         if not isinstance(idempotency_key,str) or not idempotency_key:
             raise ValueError('Supply a stable idempotency key for the logical task')
         return self._request('/runs',method='POST',body=dict(profile_id=profile_id,
             input_payload=input_payload,goal=goal,idempotency_key=idempotency_key,
-            **({'delegation_ref':delegation_ref} if delegation_ref is not None else {})))
+            **({'delegation_ref':delegation_ref} if delegation_ref is not None else {}),
+            **({'parent_run_id':parent_run_id} if parent_run_id is not None else {})))
     def get(self, run_id, *, timeout=None):
         return self._request('/runs/'+quote(run_id,safe=''), timeout=timeout)
     def list(self, *, limit=30, cursor=None):

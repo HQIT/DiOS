@@ -137,6 +137,10 @@ class RuntimeStore:
             if authorization is not None:
                 from .work_authorizations import create
                 await create(c,self.scope,record,authorization,now)
+            if parent_binding is not None:
+                from .child_authorizations import validate_parent
+                await validate_parent(c,record,await self.db.now(c))
+                if admission_guard is not None:await admission_guard(c)
             await self._event(c, record, 'run.accepted', {}, now)
             return await self._run(c, record['id'])
 

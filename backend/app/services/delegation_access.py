@@ -54,6 +54,15 @@ class AuthorizedDelegations:
             principal=principal,
             profile_id=body["profile_id"],
         )
+        handoff=None;guard=None
+        if body.get('parent_run_id') is not None:
+            from .child_recipients import prepare
+            config=await asyncio.to_thread(self.console.policy.configuration)
+            target=config['profiles'].get(body['profile_id'])
+            if target is None:raise RuntimeErrorCode('AUTH_PROFILE_DENIED')
+            binding,guard=await prepare(self.console,body['parent_run_id'],body['profile_id'],
+                target['profile_digest'],body['parent_ref'])
+            handoff=dict(parent_execution=binding,profile_id=body['profile_id'],profile_digest=target['profile_digest'])
         # Identity and request namespaces are independent of caller-selected keys.
         key = (
             "api-"
@@ -70,6 +79,7 @@ class AuthorizedDelegations:
             parent_ref=parent["id"],
             issuer_actor=principal["actor"],
             issuer_source=source,
+            handoff=handoff,issuance_guard=guard,
         )
 
     async def guard(self, c, chain, action):

@@ -13,6 +13,7 @@ from sqlalchemy.engine import make_url
 from .database import Database, RuntimeErrorCode, SCHEMA_CHECKSUM
 from .schema import metadata as base_metadata
 from .child_schema import metadata as child_metadata, CHECKSUM as CHILD_CHECKSUM
+from .child_handoff_schema import metadata as handoff_metadata, CHECKSUM as HANDOFF_CHECKSUM
 from .history_schema import metadata as history_metadata, CHECKSUM as HISTORY_CHECKSUM
 from .history_archive_schema import metadata as history_archive_metadata, CHECKSUM as HISTORY_ARCHIVE_CHECKSUM
 from .lifecycle_schema import metadata as lifecycle_metadata, CHECKSUM as LIFECYCLE_CHECKSUM
@@ -93,7 +94,8 @@ def _database_info(path):
             ('runtime_delegation_identity_schema',delegation_identity_metadata,DELEGATION_IDENTITY_CHECKSUM),
             ('runtime_delegation_check_schema',delegation_check_metadata,DELEGATION_CHECKSUM_CHECK),
             ('runtime_schedule_schema',schedule_metadata,SCHEDULE_CHECKSUM),
-            ('runtime_child_schema',child_metadata,CHILD_CHECKSUM)]
+            ('runtime_child_schema',child_metadata,CHILD_CHECKSUM),
+            ('runtime_child_handoff_schema',handoff_metadata,HANDOFF_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
             raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')

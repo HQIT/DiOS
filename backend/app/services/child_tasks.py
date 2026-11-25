@@ -41,7 +41,9 @@ def configuration(value):
     if not isinstance(profiles,dict) or not 1<=len(profiles)<=8:raise RuntimeErrorCode('CHILD_CHANNEL_PROFILE_INVALID')
     for alias,entry in profiles.items():
         identifier(alias)
-        if not isinstance(entry,dict) or set(entry)!={'path','profile_id','profile_digest'}:raise RuntimeErrorCode('CHILD_CHANNEL_PROFILE_INVALID')
+        if (not isinstance(entry,dict) or not {'path','profile_id','profile_digest'}<=set(entry)
+                or set(entry)-{'path','profile_id','profile_digest','authenticated_recipient'}):raise RuntimeErrorCode('CHILD_CHANNEL_PROFILE_INVALID')
+        if 'authenticated_recipient' in entry and type(entry['authenticated_recipient']) is not bool:raise RuntimeErrorCode('CHILD_CHANNEL_PROFILE_INVALID')
         if not isinstance(entry['path'],str) or not Path(entry['path']).is_absolute():raise RuntimeErrorCode('CHILD_CHANNEL_PROFILE_INVALID')
         identifier(entry['profile_id'])
         if not isinstance(entry['profile_digest'],str) or len(entry['profile_digest'])!=64 or any(c not in '0123456789abcdef' for c in entry['profile_digest']):
@@ -97,7 +99,7 @@ class ChildTasks:
     def summary(result):
         return {k:result[k] for k in ('id','state','version','cancel_requested','attempt_id','family')}
 
-    async def own(self,c,run_id):
+    async def own(self,c,run_id,*,read_result=False):
         await require(c)
         relation=await row(c,self.store.scope,run_id)
         if (relation is None or relation['parent_run_id']!=self.channel.binding[0]
@@ -106,19 +108,27 @@ class ChildTasks:
                 or relation['parent_session_id']!=self.channel.session_id):
             raise RuntimeErrorCode('NOT_FOUND')
         if self.gate.identity_guard:await self.gate.identity_guard(c)
-        await self.store._owned(c,*self.channel.binding,authorize=True)
-        return await self.store._run(c,run_id)
+        parent,_,_=await self.store._owned(c,*self.channel.binding,authorize=True)
+        result=await self.store._run(c,run_id)
+        if read_result:
+            from app.runtime.child_authorizations import authorize_result
+            await authorize_result(c,self.store,parent,result)
+        return result
 
     async def get(self,run_id,parent,wait_seconds=0):
         identifier(run_id)
         if type(wait_seconds) is not int or not 0<=wait_seconds<=30:raise RuntimeErrorCode('CHILD_WAIT_INVALID')
         deadline=time.monotonic()+wait_seconds
         while True:
-            async with self.store.db.read(self.store.scope) as c:run=await self.own(c,run_id)
+            async with self.store.db.read(self.store.scope) as c:run=await self.own(c,run_id,read_result=True)
             if run['state'] in {'succeeded','failed','cancelled'} or time.monotonic()>=deadline:break
             await asyncio.sleep(min(.5,max(0,deadline-time.monotonic())))
         alias=next((key for key,value in self.config['profiles'].items() if value['profile_id']==run['input']['runtime_profile']),None)
         console,_=await self.console(alias,parent)
+        if run['input'].get('principal')!=parent['input'].get('principal'):
+            # The live parent relation and explicit read_result permission were
+            # checked above. This capability grants no general recipient access.
+            console.principal=None;console.access_enforced=False
         result=await console.detail(run_id)
         value=self.summary(result)
         active=next((a for a in result['attempts'] if a['id']==result['attempt_id']),None)
@@ -132,6 +142,6 @@ class ChildTasks:
                 value['result']=await asyncio.to_thread(lambda:json.loads(b''.join(self.gate.provider.read(blob['storage_key']))))
         # Access and owner may change while object I/O or identity lookups wait.
         await self.channel._owner(wait=True)
-        async with self.store.db.read(self.store.scope) as c:await self.own(c,run_id)
+        async with self.store.db.read(self.store.scope) as c:await self.own(c,run_id,read_result=True)
         await self.audit(GET,{'run_id':run_id,'wait_seconds':wait_seconds},run_id)
         return value

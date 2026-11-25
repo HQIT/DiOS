@@ -176,6 +176,8 @@ class Delegations:
         parent_ref=None,
         issuer_actor=None,
         issuer_source=None,
+        handoff=None,
+        issuance_guard=None,
     ):
         for value in (key, subject, actor):
             identifier(value)
@@ -208,6 +210,7 @@ class Delegations:
         )
         if issuer_source is not None:
             request["issuer_source"] = issuer_source
+        if handoff is not None:request['handoff']=handoff
         bounded(request)
         ref = "dl-" + digest([self.store.scope, key])[:60]
         fingerprint = digest(request)
@@ -289,11 +292,17 @@ class Delegations:
                 await validate_source(
                     c, self.store.scope, issuer_source, permissions, expires_at
                 )
+            if issuance_guard is not None:await issuance_guard(c)
             await c.execute(links.insert().values(**row))
             if issuer_source is not None:
                 from .delegation_identity import bind_issuer
 
                 await bind_issuer(c, self.store.scope, ref, issuer_source)
+            if handoff is not None:
+                from .child_handoffs import bind as bind_handoff
+                await bind_handoff(c,self.store,ref,handoff,issuer_source,parent_ref,permissions)
+                await validate_source(c,self.store.scope,issuer_source,permissions,expires_at)
+                if issuance_guard is not None:await issuance_guard(c)
             await c.execute(
                 events.insert().values(
                     id=str(uuid4()),
@@ -397,6 +406,8 @@ async def bind(c, db, scope, run, descriptor, expires_at):
         return expires_at
     await require(c)
     chain = await lineage(c, scope, ref)
+    from .child_handoffs import validate_tree
+    await validate_tree(c,run,chain)
     binding = receipt(
         chain, run["id"], descriptor["subject"], descriptor["actor"], scope
     )
