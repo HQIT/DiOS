@@ -13,7 +13,17 @@ INITIAL_AGENT_MODE=read-only
 
 `CODEX_HOME` must exist and be writable. `/tmp` is private to the workload and may retain `noexec`. Run as a non-root user with a read-only root filesystem, bounded tmpfs, CPU/memory/process limits, and operator-configured model egress.
 
-Use DiOS's versioned Secret provider for an authorized account. The qualified profile mounts the existing Codex authentication file read-only at `/tmp/auth.json`; it mounts no other local Codex state. The host secret parent directory is restricted to the Worker account, while the mounted file is readable by the workload UID. Register its reference/version/digest and profile in E2AG. Credential refresh/rotation remains an operator/provider responsibility.
+Use DiOS's versioned Secret provider for an authorized account. Mount the existing Codex authentication file read-only at `/run/secrets/codex-auth`. The host secret parent directory is restricted to the Worker account, while the mounted file is readable by the workload UID. Register its reference/version/digest and profile in E2AG.
+
+Codex reads file credentials from `auth.json` under `CODEX_HOME`, as described in its [authentication documentation](https://developers.openai.com/codex/auth). Include [secret-entrypoint.py](secret-entrypoint.py) in the application image and use:
+
+```dockerfile
+COPY secret-entrypoint.py /opt/dios/secret-entrypoint.py
+ENTRYPOINT ["python", "/opt/dios/secret-entrypoint.py"]
+USER 65534:65534
+```
+
+Supply the registered workload command as the container command. The entrypoint creates `/tmp/auth.json` as a symlink to the registered read-only secret and executes the workload. It accepts an existing matching link and rejects conflicting state. `CODEX_HOME=/tmp` retains writable session state while credentials remain read-only. Credential refresh/rotation is an operator/provider responsibility; long-running token-refresh behavior requires separate qualification. SDK 0.1.8 and this projection passed the heterogeneous parent/child qualification through the normal task admission API. Direct `/tmp/auth.json` secret mounts fail that API's secret-target validation.
 
 For an API-key provider, configure the official Codex `model_providers` and its `env_key`, and use `credential_env_files` to load that environment value from a registered secret file. The endpoint needs the complete request dialect used by the pinned Codex version. ECNU Max returned valid text and flat function calls in this qualification, but its Responses namespace tool request returned HTTP 500; that combination is not qualified for Codex governed tools. DSH + ECNU Max is qualified separately.
 

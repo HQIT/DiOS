@@ -7,6 +7,7 @@ an explicit #34 qualification gate; client operations use the Worker tool gate.
 
 import asyncio
 import hashlib
+import inspect
 import json
 import os
 from pathlib import Path
@@ -468,7 +469,7 @@ async def execute(
     output_decoder=None,
     permission_decoder=None,
 ):
-    """Run one ACP turn and map its result through an application-owned validator."""
+    """Map one ACP turn through a sync or async application-owned result validator."""
     config, command, cwd, env = configuration(path)
     timeout = config.get("prompt_timeout", 240)
     if type(timeout) not in (int, float) or not 1 <= timeout <= 600:
@@ -605,6 +606,8 @@ async def execute(
         except ValueError:
             raise RuntimeErrorCode("RESULT_FORMAT_INVALID") from None
         result = decode_result(parsed)
+        if inspect.isawaitable(result):
+            result = await result
         if len(encoded(result)) > 60000:
             raise RuntimeErrorCode("OUTPUT_LIMIT_EXCEEDED")
     except asyncio.CancelledError:

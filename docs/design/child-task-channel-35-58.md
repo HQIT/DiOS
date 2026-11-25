@@ -82,4 +82,4 @@ sequenceDiagram
 
 升级新增 `runtime_child_schema` / `runtime_child_runs`，使用既有 migration 和备份校验机制。开发部署先排空、备份、停止旧控制进程，再迁移并启动新版本；保留原 Run 身份。回滚应恢复成套代码与升级前数据库备份，已产生的新任务和产物须先归档，不能直接覆盖。
 
-物理跨主机联合验收、异构 Harness 的父子组合、活动会话恢复绑定、金额/Token 预算及严格跨 Provider 撤销排序继续由既定任务承接。当前同一身份可选择不同受信 Harness 配置；切换为另一 actor 的子任务需要独立授权交换与来源映射。
+Cursor → DSH、DSH → Codex、Codex → Cursor 的真实完成、父撤权和 Worker 失联对账已通过，见[异构 Harness 验证](mixed-harness-children-35-58.md)。物理跨主机联合验收、活动会话恢复绑定、金额/Token 预算及严格跨 Provider 撤销排序继续由既定任务承接。当前同一身份可选择不同受信 Harness 配置；切换为另一 actor 的子任务需要独立授权交换与来源映射。

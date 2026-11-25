@@ -53,3 +53,11 @@ MCP advertises `dios_task_submit` and `dios_task_get` only for an enabled child
 profile allowlist. Profile paths, parent identity and E2AG authority stay server-owned.
 Parent closure requests cancellation of unfinished children. Await needed child
 results before completing the parent. [Child task contract](../../docs/design/child-task-channel-35-58.md).
+
+SDK 0.1.8 accepts either a synchronous result decoder or an asynchronous validator
+in `dios_sdk.acp.execute` and its Harness wrappers. The validator completes before
+the final result frame is emitted. A validation error or cancellation produces no
+successful result. Use this to resolve trusted child-task evidence rather than
+accepting a model's completion claim. The capability-only
+[coordinator example](../../examples/runtime/acp_child_coordinator.py) runs with
+Cursor, Codex or DSH and binds its report to the child's verified artifact digest.

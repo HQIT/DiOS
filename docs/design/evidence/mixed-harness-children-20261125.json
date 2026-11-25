@@ -1,0 +1,1319 @@
+{
+  "scope": "WSL Docker; synthetic source; native OPA; real Cursor, Codex and DSH/ECNU Max",
+  "matrix": [
+    {
+      "passed": true,
+      "parent": "cursor",
+      "child": "dsh",
+      "scenario": "success",
+      "parent_image": "sha256:8d240d621cdb29501df9163bf5e0894c6c005198b884c315aee8487f27dd0962",
+      "child_image": "sha256:336e3e6b1e66104b478875816e2006d54017ff232eb5bf4a0bf0a12c926ac5d1",
+      "worker_processes": [
+        252712,
+        253019
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "one-child-one-tool",
+        "native-activity-linked",
+        "verified-child-result-in-parent-report"
+      ],
+      "task_channel_calls": 3,
+      "tool_calls": 1,
+      "source_record_sha256": "c8b77a3a8edb50c22a35a2bf71d9c62fa85a62ef83a691015f2fb2d089038d01",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "b71bc49b-0523-406b-ae12-92f01a6ac52d",
+        "state": "succeeded",
+        "attempt_id": "f553c5d8-ed59-45ee-929a-a371829f2174",
+        "profile_id": "cursor-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "ecb1308c-c948-4357-a85d-b32f05c4faac",
+              "parent_attempt_id": "f553c5d8-ed59-45ee-929a-a371829f2174",
+              "state": "succeeded",
+              "cancel_requested": false
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "83525e11-8a9b-4b6d-b69b-aaedca6aa30f",
+            "attempt_id": "f553c5d8-ed59-45ee-929a-a371829f2174",
+            "digest": "817c9e562075a5569caa61f7cb0bf85c52d9f8956b34f154796ad34fedcbf425",
+            "size": 2632,
+            "created_at": 1795580688.601005,
+            "kind": "result"
+          },
+          {
+            "id": "95a12849-d5a9-4ebe-8d25-60f8f2413359",
+            "attempt_id": "f553c5d8-ed59-45ee-929a-a371829f2174",
+            "digest": "b63f419e518417b713932fde9bf15cf338dde6b4f1a40f2a6c1d236d1f47a1df",
+            "size": 139,
+            "created_at": 1795580688.3229942,
+            "kind": "stderr"
+          },
+          {
+            "id": "a6c85707-487e-474b-91e5-5f65637331d5",
+            "attempt_id": "f553c5d8-ed59-45ee-929a-a371829f2174",
+            "digest": "c5e55b30f24c7db0cc6834a22b2807d211673174f964e12e439870f85ac1bb26",
+            "size": 7500,
+            "created_at": 1795580688.2900028,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "f553c5d8-ed59-45ee-929a-a371829f2174",
+            "epoch": 1,
+            "state": "completed",
+            "session_id": "02482cbc-8b1a-4fb8-b605-e4a96332cee4",
+            "worker_id": "03ce57f0-2682-4615-97c3-488acd428cc0",
+            "process_id": 252760,
+            "error": null
+          }
+        ]
+      },
+      "child_run": {
+        "id": "ecb1308c-c948-4357-a85d-b32f05c4faac",
+        "state": "succeeded",
+        "attempt_id": "669fc722-6c36-4bce-b490-7f7bf611b624",
+        "profile_id": "dsh-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "b71bc49b-0523-406b-ae12-92f01a6ac52d",
+            "parent_attempt_id": "f553c5d8-ed59-45ee-929a-a371829f2174",
+            "parent_session_id": "02482cbc-8b1a-4fb8-b605-e4a96332cee4",
+            "parent_epoch": 1,
+            "root_run_id": "b71bc49b-0523-406b-ae12-92f01a6ac52d",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "84dfcce0-b96c-4f8e-98c4-4cc1fb9e4413",
+            "attempt_id": "669fc722-6c36-4bce-b490-7f7bf611b624",
+            "digest": "9aefbc8b51eeb3b477fb76fc5b10efe32119583b01a6b4f0c0bdd1452a19c961",
+            "size": 2217,
+            "created_at": 1795580683.246015,
+            "kind": "result"
+          },
+          {
+            "id": "b2381bec-0238-4b29-a3d1-9f1b8e598e47",
+            "attempt_id": "669fc722-6c36-4bce-b490-7f7bf611b624",
+            "digest": "8046f89eabf524b616639029777746745bf89d0160fc47cfa971916ca8c0b44c",
+            "size": 135,
+            "created_at": 1795580682.752998,
+            "kind": "stderr"
+          },
+          {
+            "id": "55dae71f-5474-4f26-aa49-b0d4cca8cfb0",
+            "attempt_id": "669fc722-6c36-4bce-b490-7f7bf611b624",
+            "digest": "5a0b7833736f0e8b9ef2080e92bc00ef2c93e72755dda0a2c8792f1006061aad",
+            "size": 3390,
+            "created_at": 1795580682.7140121,
+            "kind": "stdout"
+          },
+          {
+            "id": "aa7c98fe-6f19-4f10-9b03-7ef201c10a0b",
+            "attempt_id": "669fc722-6c36-4bce-b490-7f7bf611b624",
+            "digest": "49d5e2cf2759ce10037ed3281246a6fc68e93d59a164124b82c4d0af3d3b2ed1",
+            "size": 2186,
+            "created_at": 1795580679.8890023,
+            "kind": "raw"
+          },
+          {
+            "id": "cb9b3a16-c9e5-4ecf-96c0-78ac4869bd55",
+            "attempt_id": "669fc722-6c36-4bce-b490-7f7bf611b624",
+            "digest": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+            "size": 226,
+            "created_at": 1795580679.8890023,
+            "kind": "raw"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "669fc722-6c36-4bce-b490-7f7bf611b624",
+            "epoch": 1,
+            "state": "completed",
+            "session_id": "dd58a18b-5cbe-454a-9fca-d0b98de4d191",
+            "worker_id": "8dd539a0-d165-4948-9ed4-8f0a0862b7a3",
+            "process_id": 253069,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "passed": true,
+      "parent": "cursor",
+      "child": "dsh",
+      "scenario": "parent-revoke",
+      "parent_image": "sha256:4148fc500a1e1dc377004e6a2f20e086efa5175f511ba356fb5ebd592ab90a9b",
+      "child_image": "sha256:a245600040e371b95b754b708bbc2f1f541db3a68008deaf839e5ff10c7278f9",
+      "worker_processes": [
+        249525,
+        249689
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "parent-revocation-cancels-child",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "task_channel_calls": 1,
+      "tool_calls": 0,
+      "source_record_sha256": "c43fe9ea9dbeff158152c59727188ebb43d7e25986d2bd6d1dce86cef32e64e1",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "7a4e406d-57be-4ce2-b122-ce4a56f64bb9",
+        "state": "failed",
+        "attempt_id": "658fbc67-bebd-46d2-bebb-7aa068212b16",
+        "profile_id": "cursor-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "6a7fd0a2-d317-4025-ba5f-d91fa05fe498",
+              "parent_attempt_id": "658fbc67-bebd-46d2-bebb-7aa068212b16",
+              "state": "cancelled",
+              "cancel_requested": true
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "ec2e640d-c359-4537-a2f3-7f057556044c",
+            "attempt_id": "658fbc67-bebd-46d2-bebb-7aa068212b16",
+            "digest": "2162f5f2ec6df03d2b3311134a4f982024d19f6a8c80529b445677806cdafc71",
+            "size": 277,
+            "created_at": 1795580503.5079837,
+            "kind": "stderr"
+          },
+          {
+            "id": "ece56bfa-94e8-4d48-8398-6f33642275bd",
+            "attempt_id": "658fbc67-bebd-46d2-bebb-7aa068212b16",
+            "digest": "4dc483468de2dadca2747a42f31205d34fcf0becb50a39129477b551135ae5e2",
+            "size": 1949,
+            "created_at": 1795580503.4840047,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "658fbc67-bebd-46d2-bebb-7aa068212b16",
+            "epoch": 1,
+            "state": "failed",
+            "session_id": "ba3cecbf-ac31-47ff-94a9-3e097058104f",
+            "worker_id": "f352bcee-664d-4a50-891e-342c87a610ab",
+            "process_id": 249574,
+            "error": {
+              "code": "AUTH_REVOKED",
+              "category": "authorization",
+              "retry_at": null,
+              "retry_blocked": "NON_RETRYABLE"
+            }
+          }
+        ]
+      },
+      "child_run": {
+        "id": "6a7fd0a2-d317-4025-ba5f-d91fa05fe498",
+        "state": "cancelled",
+        "attempt_id": "fc0b8d39-2655-4254-8601-b68033d2a49f",
+        "profile_id": "dsh-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "7a4e406d-57be-4ce2-b122-ce4a56f64bb9",
+            "parent_attempt_id": "658fbc67-bebd-46d2-bebb-7aa068212b16",
+            "parent_session_id": "ba3cecbf-ac31-47ff-94a9-3e097058104f",
+            "parent_epoch": 1,
+            "root_run_id": "7a4e406d-57be-4ce2-b122-ce4a56f64bb9",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "26da3f9e-9c6b-429b-a568-04930b86cf3c",
+            "attempt_id": "fc0b8d39-2655-4254-8601-b68033d2a49f",
+            "digest": "5e3a74395818e843d72b5bfcea7917c065edf75a73141761d80ecd5d4a6b3dff",
+            "size": 412,
+            "created_at": 1795580502.8599887,
+            "kind": "stderr"
+          },
+          {
+            "id": "440e0f11-a331-4a85-b5eb-e15753501571",
+            "attempt_id": "fc0b8d39-2655-4254-8601-b68033d2a49f",
+            "digest": "811acc0fd04d38e21109dc5eb6cd1c5951d06395826ade103330a703a4cfcf8c",
+            "size": 71,
+            "created_at": 1795580502.835004,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "fc0b8d39-2655-4254-8601-b68033d2a49f",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "5722c0ff-4811-4ad4-84f0-5de9659e82dc",
+            "worker_id": "1d2ecdca-0325-49a9-a9e9-bc194904e16a",
+            "process_id": 249739,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "passed": true,
+      "parent": "cursor",
+      "child": "dsh",
+      "scenario": "parent-worker-loss",
+      "parent_image": "sha256:8d240d621cdb29501df9163bf5e0894c6c005198b884c315aee8487f27dd0962",
+      "child_image": "sha256:336e3e6b1e66104b478875816e2006d54017ff232eb5bf4a0bf0a12c926ac5d1",
+      "worker_processes": [
+        251006,
+        251210
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "killed-parent-Worker-live-workload-observed",
+        "expired-owner-cancels-child",
+        "unknown-result-not-redispatched",
+        "operator-confirmed-exit-reconciled-with-original-attempt",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "task_channel_calls": 1,
+      "tool_calls": 0,
+      "source_record_sha256": "79291efe0c01f23f5af2c07a0bdeca22a21aad8478d03ec69825b65e6baf07af",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "4624993b-8648-44a0-944a-68830664c469",
+        "state": "cancelled",
+        "attempt_id": "a545da5d-272d-4070-8680-7c1bac3db924",
+        "profile_id": "cursor-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "a69f4012-1357-4238-9307-a30488015073",
+              "parent_attempt_id": "a545da5d-272d-4070-8680-7c1bac3db924",
+              "state": "cancelled",
+              "cancel_requested": true
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "5e685fbe-0b39-4171-8843-3bea946ae5b4",
+            "attempt_id": "a545da5d-272d-4070-8680-7c1bac3db924",
+            "digest": "9932b578c936fe57281e2eba9cf64e6297e20369c22e723592a69705d40354f7",
+            "size": 1410,
+            "created_at": 1795580613.4370193,
+            "kind": "stdout"
+          },
+          {
+            "id": "c8aebd34-839a-4019-bb33-c1925f22bb22",
+            "attempt_id": "a545da5d-272d-4070-8680-7c1bac3db924",
+            "digest": "df475d107fecb01b41f569e63038514a1f2f3e05237120852ddf29ecabccede1",
+            "size": 277,
+            "created_at": 1795580613.4370193,
+            "kind": "stderr"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "a545da5d-272d-4070-8680-7c1bac3db924",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "c2051a69-b015-4142-a942-be765c9032f0",
+            "worker_id": "ce8777e9-4dbe-4fa1-9d29-43fc811f1db9",
+            "process_id": 251054,
+            "error": {
+              "code": "RESULT_INCOMPLETE"
+            }
+          }
+        ]
+      },
+      "child_run": {
+        "id": "a69f4012-1357-4238-9307-a30488015073",
+        "state": "cancelled",
+        "attempt_id": "8555acd2-91d6-43a8-94ec-b4a112282b96",
+        "profile_id": "dsh-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "4624993b-8648-44a0-944a-68830664c469",
+            "parent_attempt_id": "a545da5d-272d-4070-8680-7c1bac3db924",
+            "parent_session_id": "c2051a69-b015-4142-a942-be765c9032f0",
+            "parent_epoch": 1,
+            "root_run_id": "4624993b-8648-44a0-944a-68830664c469",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "24ee4907-2e66-40c3-a6d4-8314e3da28ae",
+            "attempt_id": "8555acd2-91d6-43a8-94ec-b4a112282b96",
+            "digest": "52f6fe94b5d7e5dda0cf63ab9008da05365393997a2fb5e024a41c39d0134b6f",
+            "size": 412,
+            "created_at": 1795580611.8099914,
+            "kind": "stderr"
+          },
+          {
+            "id": "e6a9b620-8a2f-4330-a0df-9d4d99e6f082",
+            "attempt_id": "8555acd2-91d6-43a8-94ec-b4a112282b96",
+            "digest": "cf1ad3adfc5609d6cd194920ac4798c5fd4e4ea63525f2d9e9063d7b21c99d46",
+            "size": 149,
+            "created_at": 1795580611.7430031,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "8555acd2-91d6-43a8-94ec-b4a112282b96",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "a08f427e-cef8-4459-bbc2-edd50271cb2d",
+            "worker_id": "cfa6047a-bd74-463c-90f5-0053df1292dd",
+            "process_id": 251265,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "passed": true,
+      "parent": "dsh",
+      "child": "codex",
+      "scenario": "success",
+      "parent_image": "sha256:336e3e6b1e66104b478875816e2006d54017ff232eb5bf4a0bf0a12c926ac5d1",
+      "child_image": "sha256:0b4b3558d4e3a4ec0cd20f892568268f535422cdff0001af3c6ae71e2decfe04",
+      "worker_processes": [
+        253307,
+        253424
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "one-child-one-tool",
+        "native-activity-linked",
+        "verified-child-result-in-parent-report"
+      ],
+      "task_channel_calls": 3,
+      "tool_calls": 1,
+      "source_record_sha256": "426a7876c70009759b9c175f2d341452d5ca0c6a5c52de092533ff145979561a",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "3223f4c4-3463-4d63-bc02-42ed94634d0b",
+        "state": "succeeded",
+        "attempt_id": "92af1df9-cd9d-4baf-812c-1333cb54dac6",
+        "profile_id": "dsh-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "a65bde71-9d28-41a9-9a5a-c8d2d564f713",
+              "parent_attempt_id": "92af1df9-cd9d-4baf-812c-1333cb54dac6",
+              "state": "succeeded",
+              "cancel_requested": false
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "fd5a7d58-9192-4bcc-bff9-e12e6ab95b3f",
+            "attempt_id": "92af1df9-cd9d-4baf-812c-1333cb54dac6",
+            "digest": "aa8d82f0bd9940b2cf89347b6c7478239d00bfc579dd8382d2c9dd6da21b27cd",
+            "size": 2019,
+            "created_at": 1795580716.6719854,
+            "kind": "result"
+          },
+          {
+            "id": "a496b97e-4471-4475-b0cf-57e6df16edeb",
+            "attempt_id": "92af1df9-cd9d-4baf-812c-1333cb54dac6",
+            "digest": "d507f70e6731b08fd970204599c483cc5d6d6ae05b9f417165dd86d1b6968573",
+            "size": 135,
+            "created_at": 1795580716.4509847,
+            "kind": "stderr"
+          },
+          {
+            "id": "dffc7366-0952-428d-8007-5c2e44fe4544",
+            "attempt_id": "92af1df9-cd9d-4baf-812c-1333cb54dac6",
+            "digest": "d247fc7df05cfdea5ee238a150559309a96acd122c31538b70346794f3e13b27",
+            "size": 2734,
+            "created_at": 1795580716.4200053,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "92af1df9-cd9d-4baf-812c-1333cb54dac6",
+            "epoch": 1,
+            "state": "completed",
+            "session_id": "ee9d43be-4ed2-41a5-b40f-e4f7753e3074",
+            "worker_id": "c4186c40-ea1b-4872-aeae-37399f5d6ee7",
+            "process_id": 253355,
+            "error": null
+          }
+        ]
+      },
+      "child_run": {
+        "id": "a65bde71-9d28-41a9-9a5a-c8d2d564f713",
+        "state": "succeeded",
+        "attempt_id": "0d3b78e8-cb3f-45da-8bf8-5d87c6e6e925",
+        "profile_id": "codex-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "3223f4c4-3463-4d63-bc02-42ed94634d0b",
+            "parent_attempt_id": "92af1df9-cd9d-4baf-812c-1333cb54dac6",
+            "parent_session_id": "ee9d43be-4ed2-41a5-b40f-e4f7753e3074",
+            "parent_epoch": 1,
+            "root_run_id": "3223f4c4-3463-4d63-bc02-42ed94634d0b",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "3fd51c1b-8206-40c9-bf98-5d6d64a7288f",
+            "attempt_id": "0d3b78e8-cb3f-45da-8bf8-5d87c6e6e925",
+            "digest": "06593aa05265dac719d0ab7d14c3385f1be75467e05663ed46b07bfe59d8a7e3",
+            "size": 1343,
+            "created_at": 1795580714.074011,
+            "kind": "result"
+          },
+          {
+            "id": "2e6cee8b-dfe5-4ba8-bb4b-5894244bf9dd",
+            "attempt_id": "0d3b78e8-cb3f-45da-8bf8-5d87c6e6e925",
+            "digest": "1b05e49b39c7d4351f803853b060510fdca6a388c476e1bb4e56c27f73d9d9f2",
+            "size": 274,
+            "created_at": 1795580713.6429935,
+            "kind": "stderr"
+          },
+          {
+            "id": "99404f32-45fc-46ca-a1df-16b9ebdc6846",
+            "attempt_id": "0d3b78e8-cb3f-45da-8bf8-5d87c6e6e925",
+            "digest": "1d9f6b1582a64288ff887267317606b1f86dfbb492ce8e4f81079eb4fa52a067",
+            "size": 5293,
+            "created_at": 1795580713.615997,
+            "kind": "stdout"
+          },
+          {
+            "id": "583bd925-f2de-4503-871c-581e3a681482",
+            "attempt_id": "0d3b78e8-cb3f-45da-8bf8-5d87c6e6e925",
+            "digest": "e0b15bdf75fa2e900f04cbeff51b414be95e222e97c603ac952e19d08f184cc8",
+            "size": 2186,
+            "created_at": 1795580707.2629838,
+            "kind": "raw"
+          },
+          {
+            "id": "edf14a9b-a702-4fcc-9e07-55a4c5843108",
+            "attempt_id": "0d3b78e8-cb3f-45da-8bf8-5d87c6e6e925",
+            "digest": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+            "size": 226,
+            "created_at": 1795580707.2629838,
+            "kind": "raw"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "0d3b78e8-cb3f-45da-8bf8-5d87c6e6e925",
+            "epoch": 1,
+            "state": "completed",
+            "session_id": "01a210f3-20b5-77e2-8b29-2acccd8b0647",
+            "worker_id": "8fbcc5fd-aea6-42b9-830e-bcb793d1c882",
+            "process_id": 253476,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "passed": true,
+      "parent": "dsh",
+      "child": "codex",
+      "scenario": "parent-revoke",
+      "parent_image": "sha256:a245600040e371b95b754b708bbc2f1f541db3a68008deaf839e5ff10c7278f9",
+      "child_image": "sha256:93d59e2ca6df4e8c2b59c2de42bafcb691e8d704c84db4ac1824ff2e71c030d4",
+      "worker_processes": [
+        249928,
+        250046
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "parent-revocation-cancels-child",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "task_channel_calls": 1,
+      "tool_calls": 0,
+      "source_record_sha256": "bd26bc73baeeec3b109a74ac99e4e14a95362b20c8a9fd183ec09c0b79be3a6e",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "d61a0d69-d12a-4748-8809-4bd976f356df",
+        "state": "failed",
+        "attempt_id": "8cd971cd-9230-4cca-bed3-535503165c1c",
+        "profile_id": "dsh-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "6ff24faa-94bc-45a2-9f9c-211a246339cf",
+              "parent_attempt_id": "8cd971cd-9230-4cca-bed3-535503165c1c",
+              "state": "cancelled",
+              "cancel_requested": true
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "7488b885-16b6-49ed-805b-3ffcedca87e8",
+            "attempt_id": "8cd971cd-9230-4cca-bed3-535503165c1c",
+            "digest": "81cf5f64106f2b0cfab897a385192201211893abb2c942ee2d6ca7c398326db0",
+            "size": 412,
+            "created_at": 1795580520.7500145,
+            "kind": "stderr"
+          },
+          {
+            "id": "42fb145e-e26e-4fb2-935b-f30aff17f705",
+            "attempt_id": "8cd971cd-9230-4cca-bed3-535503165c1c",
+            "digest": "8bc4c0215daa271cdf70e327148f384d3f7cae15cf19bf541899601a382c2987",
+            "size": 231,
+            "created_at": 1795580520.7220123,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "8cd971cd-9230-4cca-bed3-535503165c1c",
+            "epoch": 1,
+            "state": "failed",
+            "session_id": "a3e46b5f-3346-484e-b26f-6ecca46dd643",
+            "worker_id": "583ecf0f-ab7c-49a2-a62b-caa50224f430",
+            "process_id": 249979,
+            "error": {
+              "code": "AUTH_REVOKED",
+              "category": "authorization",
+              "retry_at": null,
+              "retry_blocked": "NON_RETRYABLE"
+            }
+          }
+        ]
+      },
+      "child_run": {
+        "id": "6ff24faa-94bc-45a2-9f9c-211a246339cf",
+        "state": "cancelled",
+        "attempt_id": "d7daccb8-7837-4b8a-92fa-94e653935d3c",
+        "profile_id": "codex-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "d61a0d69-d12a-4748-8809-4bd976f356df",
+            "parent_attempt_id": "8cd971cd-9230-4cca-bed3-535503165c1c",
+            "parent_session_id": "a3e46b5f-3346-484e-b26f-6ecca46dd643",
+            "parent_epoch": 1,
+            "root_run_id": "d61a0d69-d12a-4748-8809-4bd976f356df",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "92fe831c-e6f6-479a-8b56-f994510f1fd1",
+            "attempt_id": "d7daccb8-7837-4b8a-92fa-94e653935d3c",
+            "digest": "bca8ad75f8763e5f2551160e0adb5c6228869583517ff812ce037c37d47330c6",
+            "size": 412,
+            "created_at": 1795580521.2660046,
+            "kind": "stderr"
+          },
+          {
+            "id": "9fb6ed48-b23d-4290-8523-8b47395373a8",
+            "attempt_id": "d7daccb8-7837-4b8a-92fa-94e653935d3c",
+            "digest": "b593d51be6d0d8a0ee9d3ace611da7b1ec21a14409a1b84ececf27c66647be48",
+            "size": 727,
+            "created_at": 1795580521.2369964,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "d7daccb8-7837-4b8a-92fa-94e653935d3c",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "01a210f0-48be-7d21-a2f4-6b86162ae101",
+            "worker_id": "875f02a6-73ab-48b8-a0f3-d52697e6c518",
+            "process_id": 250092,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "passed": true,
+      "parent": "dsh",
+      "child": "codex",
+      "scenario": "parent-worker-loss",
+      "parent_image": "sha256:336e3e6b1e66104b478875816e2006d54017ff232eb5bf4a0bf0a12c926ac5d1",
+      "child_image": "sha256:0b4b3558d4e3a4ec0cd20f892568268f535422cdff0001af3c6ae71e2decfe04",
+      "worker_processes": [
+        251509,
+        251634
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "killed-parent-Worker-live-workload-observed",
+        "expired-owner-cancels-child",
+        "unknown-result-not-redispatched",
+        "operator-confirmed-exit-reconciled-with-original-attempt",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "task_channel_calls": 1,
+      "tool_calls": 0,
+      "source_record_sha256": "17d36d2b171047030faed96beab4cdd61db112183ab6b4ad53b062973e5eff2b",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "33b1456e-4f96-4dcc-98eb-f097f0073b26",
+        "state": "cancelled",
+        "attempt_id": "d556bb92-c9c7-43b6-b490-7e82bb04e2a4",
+        "profile_id": "dsh-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "fed26c6d-9239-41f1-9c7d-d54cce26c09a",
+              "parent_attempt_id": "d556bb92-c9c7-43b6-b490-7e82bb04e2a4",
+              "state": "cancelled",
+              "cancel_requested": true
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "af06f77c-a483-48ad-a0ec-701cf09995f1",
+            "attempt_id": "d556bb92-c9c7-43b6-b490-7e82bb04e2a4",
+            "digest": "84db3806e7a3ada9cfa45d1c44ba6449c46be9c2d2f58fe1a6410fa6c881b14b",
+            "size": 412,
+            "created_at": 1795580633.3640084,
+            "kind": "stderr"
+          },
+          {
+            "id": "be6bca2a-19cf-4441-a2b1-3885016fc4d1",
+            "attempt_id": "d556bb92-c9c7-43b6-b490-7e82bb04e2a4",
+            "digest": "bc6c8bf9164066ea5956ec00fb25ab4c2a873b2b258d3444fb9fa95119c92463",
+            "size": 71,
+            "created_at": 1795580633.3640084,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "d556bb92-c9c7-43b6-b490-7e82bb04e2a4",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "f53652d9-fdd5-4c09-9bba-d8f2d71b4143",
+            "worker_id": "3ec4aa07-4be5-4a3b-bca6-a93480b85b7e",
+            "process_id": 251563,
+            "error": {
+              "code": "RESULT_INCOMPLETE"
+            }
+          }
+        ]
+      },
+      "child_run": {
+        "id": "fed26c6d-9239-41f1-9c7d-d54cce26c09a",
+        "state": "cancelled",
+        "attempt_id": "c717c525-6c75-44cc-a02f-094573b443eb",
+        "profile_id": "codex-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "33b1456e-4f96-4dcc-98eb-f097f0073b26",
+            "parent_attempt_id": "d556bb92-c9c7-43b6-b490-7e82bb04e2a4",
+            "parent_session_id": "f53652d9-fdd5-4c09-9bba-d8f2d71b4143",
+            "parent_epoch": 1,
+            "root_run_id": "33b1456e-4f96-4dcc-98eb-f097f0073b26",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "59fae95d-04f0-42de-a989-df8723d181bb",
+            "attempt_id": "c717c525-6c75-44cc-a02f-094573b443eb",
+            "digest": "f719edee8f937f3d51e40b545308c089c6f4ddf9acd13910d6ddc7c80d2647f1",
+            "size": 412,
+            "created_at": 1795580632.907,
+            "kind": "stderr"
+          },
+          {
+            "id": "36d5a670-c1ba-4430-a1ed-6b92fc91cf0e",
+            "attempt_id": "c717c525-6c75-44cc-a02f-094573b443eb",
+            "digest": "e14a7aa24efd1f55f28c3dffd35193ce26e28e79068e0dcfe98b4e4f21762ef0",
+            "size": 755,
+            "created_at": 1795580632.8820155,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "c717c525-6c75-44cc-a02f-094573b443eb",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "01a210f1-fa3b-7fd2-ae6c-45529fc17119",
+            "worker_id": "7c97e538-9e4c-4139-81a0-abc40b3a6b1e",
+            "process_id": 251686,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "passed": true,
+      "parent": "codex",
+      "child": "cursor",
+      "scenario": "success",
+      "parent_image": "sha256:0b4b3558d4e3a4ec0cd20f892568268f535422cdff0001af3c6ae71e2decfe04",
+      "child_image": "sha256:8d240d621cdb29501df9163bf5e0894c6c005198b884c315aee8487f27dd0962",
+      "worker_processes": [
+        253846,
+        254031
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "one-child-one-tool",
+        "native-activity-linked",
+        "verified-child-result-in-parent-report"
+      ],
+      "task_channel_calls": 4,
+      "tool_calls": 1,
+      "source_record_sha256": "b3f266ae3dd1b6a97e212339713de9adb9e8fc345bfca6b430c7963c05a1aca1",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "215b0996-21e7-4f63-b95b-22d29a319b47",
+        "state": "succeeded",
+        "attempt_id": "7f8f6061-8a67-447f-b198-f816e8325694",
+        "profile_id": "codex-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "e3ebe86c-ca9a-4426-987e-be9f79826c1e",
+              "parent_attempt_id": "7f8f6061-8a67-447f-b198-f816e8325694",
+              "state": "succeeded",
+              "cancel_requested": false
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "be9d2c3f-b1a8-4e48-b31a-d51f6da1eff0",
+            "attempt_id": "7f8f6061-8a67-447f-b198-f816e8325694",
+            "digest": "58f8699ffb5726509cb50606b5901986e743fe5a6d16462e353252f8c42ffbe7",
+            "size": 1666,
+            "created_at": 1795580767.6830144,
+            "kind": "result"
+          },
+          {
+            "id": "f9a4f0f8-afcb-4414-afe7-7dbfebe58442",
+            "attempt_id": "7f8f6061-8a67-447f-b198-f816e8325694",
+            "digest": "cfae20a3d42874d1773df96707604f8bab26d6d7238f03efb829363b775ba92b",
+            "size": 274,
+            "created_at": 1795580767.444995,
+            "kind": "stderr"
+          },
+          {
+            "id": "6f132b53-5e99-4774-8ce6-7e8848c76740",
+            "attempt_id": "7f8f6061-8a67-447f-b198-f816e8325694",
+            "digest": "8bb0497532729706d515a13753a49df4368e01cf1bbc8f99473905fd76289171",
+            "size": 4747,
+            "created_at": 1795580767.4179986,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "7f8f6061-8a67-447f-b198-f816e8325694",
+            "epoch": 1,
+            "state": "completed",
+            "session_id": "01a210f3-7982-7ef1-8a18-3f7996bb36c2",
+            "worker_id": "23880c26-22ec-416c-a730-aafa678c3902",
+            "process_id": 253900,
+            "error": null
+          }
+        ]
+      },
+      "child_run": {
+        "id": "e3ebe86c-ca9a-4426-987e-be9f79826c1e",
+        "state": "succeeded",
+        "attempt_id": "1e9961a2-93c9-412f-be6e-e915a9081e48",
+        "profile_id": "cursor-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "215b0996-21e7-4f63-b95b-22d29a319b47",
+            "parent_attempt_id": "7f8f6061-8a67-447f-b198-f816e8325694",
+            "parent_session_id": "01a210f3-7982-7ef1-8a18-3f7996bb36c2",
+            "parent_epoch": 1,
+            "root_run_id": "215b0996-21e7-4f63-b95b-22d29a319b47",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "25febd5a-00d8-42fa-a04a-06255a0f6dcd",
+            "attempt_id": "1e9961a2-93c9-412f-be6e-e915a9081e48",
+            "digest": "2b61b49d76d257c0a04c9bb24532598b96d64201d6fb547959e66a3f6692503b",
+            "size": 1265,
+            "created_at": 1795580761.6910129,
+            "kind": "result"
+          },
+          {
+            "id": "6aa5a993-1c3e-4756-8821-65a4923ec47d",
+            "attempt_id": "1e9961a2-93c9-412f-be6e-e915a9081e48",
+            "digest": "8dd01af9abe6a67c6de46b8fb83f5cfa9ff86390ae8c111a82361b76e0823f38",
+            "size": 139,
+            "created_at": 1795580761.300993,
+            "kind": "stderr"
+          },
+          {
+            "id": "86a99cbc-c2d8-4168-92e1-6177a220d307",
+            "attempt_id": "1e9961a2-93c9-412f-be6e-e915a9081e48",
+            "digest": "320767abed58d7848fd1bbdd6b1640223b26216ab0eeaf34d85b8a195ec1c858",
+            "size": 4781,
+            "created_at": 1795580761.2560124,
+            "kind": "stdout"
+          },
+          {
+            "id": "a7b4f496-221f-4797-84a0-61c0b59f677a",
+            "attempt_id": "1e9961a2-93c9-412f-be6e-e915a9081e48",
+            "digest": "1c1fe6bd0256f181f83d461654792e172aa73cfbbc5fe3b5431d3a534c84a4f0",
+            "size": 2186,
+            "created_at": 1795580754.124005,
+            "kind": "raw"
+          },
+          {
+            "id": "bd245c9f-6225-46f9-be98-62bcaa83a31e",
+            "attempt_id": "1e9961a2-93c9-412f-be6e-e915a9081e48",
+            "digest": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+            "size": 226,
+            "created_at": 1795580754.124005,
+            "kind": "raw"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "1e9961a2-93c9-412f-be6e-e915a9081e48",
+            "epoch": 1,
+            "state": "completed",
+            "session_id": "579a9b29-457d-40b3-82ac-50c3e056dc60",
+            "worker_id": "daa92fe0-7c2b-4f4b-8bc2-1ffc3cfaa9ff",
+            "process_id": 254079,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "passed": true,
+      "parent": "codex",
+      "child": "cursor",
+      "scenario": "parent-revoke",
+      "parent_image": "sha256:93d59e2ca6df4e8c2b59c2de42bafcb691e8d704c84db4ac1824ff2e71c030d4",
+      "child_image": "sha256:4148fc500a1e1dc377004e6a2f20e086efa5175f511ba356fb5ebd592ab90a9b",
+      "worker_processes": [
+        250321,
+        250610
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "parent-revocation-cancels-child",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "task_channel_calls": 1,
+      "tool_calls": 0,
+      "source_record_sha256": "8ecf47517b6bb4aaaefc1c9d526f00c31ee717419aa1271757824109c356120f",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "fe07bf65-5ea5-43b7-97c0-b24c86a0df49",
+        "state": "failed",
+        "attempt_id": "4aad9fe1-8b4e-4f43-8ebc-80fb6d2a0201",
+        "profile_id": "codex-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "8e4997e6-388c-4259-b34d-fe1584571d33",
+              "parent_attempt_id": "4aad9fe1-8b4e-4f43-8ebc-80fb6d2a0201",
+              "state": "cancelled",
+              "cancel_requested": true
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "0ad38a04-087c-41c9-9551-8fb70dc28599",
+            "attempt_id": "4aad9fe1-8b4e-4f43-8ebc-80fb6d2a0201",
+            "digest": "747977a06e5994c46f891a870fa4c1d9e8fa8c51ad91097810bbf2dc0f8dbfd6",
+            "size": 412,
+            "created_at": 1795580557.4940114,
+            "kind": "stderr"
+          },
+          {
+            "id": "ef917f29-3e5d-45b2-ba99-09a214d0a811",
+            "attempt_id": "4aad9fe1-8b4e-4f43-8ebc-80fb6d2a0201",
+            "digest": "11b56aefd8af56abf53e275eb63a6ab42ef068773e0992f5265cd7801582741c",
+            "size": 692,
+            "created_at": 1795580557.4609802,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "4aad9fe1-8b4e-4f43-8ebc-80fb6d2a0201",
+            "epoch": 1,
+            "state": "failed",
+            "session_id": "01a210f0-7be1-7c13-81ef-30c77be29637",
+            "worker_id": "8ef1197f-6661-4811-9f5a-a81754d73258",
+            "process_id": 250370,
+            "error": {
+              "code": "AUTH_REVOKED",
+              "category": "authorization",
+              "retry_at": null,
+              "retry_blocked": "NON_RETRYABLE"
+            }
+          }
+        ]
+      },
+      "child_run": {
+        "id": "8e4997e6-388c-4259-b34d-fe1584571d33",
+        "state": "cancelled",
+        "attempt_id": "3912bba5-6e78-495c-aa54-e85efe88f71c",
+        "profile_id": "cursor-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "fe07bf65-5ea5-43b7-97c0-b24c86a0df49",
+            "parent_attempt_id": "4aad9fe1-8b4e-4f43-8ebc-80fb6d2a0201",
+            "parent_session_id": "01a210f0-7be1-7c13-81ef-30c77be29637",
+            "parent_epoch": 1,
+            "root_run_id": "fe07bf65-5ea5-43b7-97c0-b24c86a0df49",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "578e489f-ed10-4dec-9848-caca7225acdf",
+            "attempt_id": "3912bba5-6e78-495c-aa54-e85efe88f71c",
+            "digest": "c36667d705edd83885b26554988dbe961e93446417eea8fe4058a7c99544d7ff",
+            "size": 277,
+            "created_at": 1795580557.3980153,
+            "kind": "stderr"
+          },
+          {
+            "id": "fecded2b-e8cf-48ba-839c-7df6a1ba1987",
+            "attempt_id": "3912bba5-6e78-495c-aa54-e85efe88f71c",
+            "digest": "e42588bbc690db0319decd9995f239026a331c501186f5879af058dca1c46192",
+            "size": 834,
+            "created_at": 1795580557.3469996,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "3912bba5-6e78-495c-aa54-e85efe88f71c",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "fce1b869-844b-4b29-99bd-b1f59910f2d0",
+            "worker_id": "beb94fea-919d-40d1-aa01-580957fb62c5",
+            "process_id": 250659,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "passed": true,
+      "parent": "codex",
+      "child": "cursor",
+      "scenario": "parent-worker-loss",
+      "parent_image": "sha256:0b4b3558d4e3a4ec0cd20f892568268f535422cdff0001af3c6ae71e2decfe04",
+      "child_image": "sha256:8d240d621cdb29501df9163bf5e0894c6c005198b884c315aee8487f27dd0962",
+      "worker_processes": [
+        252282,
+        252500
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "killed-parent-Worker-live-workload-observed",
+        "expired-owner-cancels-child",
+        "unknown-result-not-redispatched",
+        "operator-confirmed-exit-reconciled-with-original-attempt",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "task_channel_calls": 1,
+      "tool_calls": 0,
+      "source_record_sha256": "d5e0d4a766a306963c2a9f0fb0d658984690e15f73cede36bf56b46c428e991d",
+      "cleanup_verified": true,
+      "parent_run": {
+        "id": "444b802b-6b43-47a8-983c-e684ae8402b6",
+        "state": "cancelled",
+        "attempt_id": "e2f99dc9-b739-4ae6-ad0f-371aac058adc",
+        "profile_id": "codex-parent",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "7bf63868-5191-41b0-ae97-2a78f1854774",
+              "parent_attempt_id": "e2f99dc9-b739-4ae6-ad0f-371aac058adc",
+              "state": "cancelled",
+              "cancel_requested": true
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "8cc8a7fa-3bdb-43f0-a8f7-711605c9a2e3",
+            "attempt_id": "e2f99dc9-b739-4ae6-ad0f-371aac058adc",
+            "digest": "ab194adb7fa1caa7181a08e904a03ee3d42aab741bff0bd17c8c9226a888de03",
+            "size": 412,
+            "created_at": 1795580668.220991,
+            "kind": "stderr"
+          },
+          {
+            "id": "e1a4065c-f587-4c80-891e-5f8a512b795a",
+            "attempt_id": "e2f99dc9-b739-4ae6-ad0f-371aac058adc",
+            "digest": "9d4b7241a19734375a87a33beaacefefb193c9eefcc0584207b23f7f5c87207a",
+            "size": 695,
+            "created_at": 1795580668.220991,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "e2f99dc9-b739-4ae6-ad0f-371aac058adc",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "01a210f2-3272-73e2-9eb2-caa930e0d965",
+            "worker_id": "4bbe7fd9-0aa0-4854-b0d6-dbd68ae48ba5",
+            "process_id": 252335,
+            "error": {
+              "code": "RESULT_INCOMPLETE"
+            }
+          }
+        ]
+      },
+      "child_run": {
+        "id": "7bf63868-5191-41b0-ae97-2a78f1854774",
+        "state": "cancelled",
+        "attempt_id": "ac1301bd-9239-4c2b-9332-218eab425115",
+        "profile_id": "cursor-real",
+        "family": {
+          "parent": {
+            "parent_run_id": "444b802b-6b43-47a8-983c-e684ae8402b6",
+            "parent_attempt_id": "e2f99dc9-b739-4ae6-ad0f-371aac058adc",
+            "parent_session_id": "01a210f2-3272-73e2-9eb2-caa930e0d965",
+            "parent_epoch": 1,
+            "root_run_id": "444b802b-6b43-47a8-983c-e684ae8402b6",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        },
+        "artifacts": [
+          {
+            "id": "0ea1a34f-74f8-4ac2-9951-1a62ae11b0c4",
+            "attempt_id": "ac1301bd-9239-4c2b-9332-218eab425115",
+            "digest": "2437ff466f2968802de9429b3fe75a5f27f281fd0670256439b6ff67b6ec2fcc",
+            "size": 277,
+            "created_at": 1795580666.681993,
+            "kind": "stderr"
+          },
+          {
+            "id": "d5ac32e6-c79a-474c-9b02-c0340bc4944a",
+            "attempt_id": "ac1301bd-9239-4c2b-9332-218eab425115",
+            "digest": "22e179cbf07e10309fd56c01b6f81b016087df9a00e24953eecedf32cf864a16",
+            "size": 773,
+            "created_at": 1795580666.647996,
+            "kind": "stdout"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "ac1301bd-9239-4c2b-9332-218eab425115",
+            "epoch": 1,
+            "state": "cancelled",
+            "session_id": "4d4ce52b-4ac5-49ae-8396-e38652c72e9f",
+            "worker_id": "cc6bf745-7cd5-4cc2-ae0e-9bebe1169595",
+            "process_id": 252551,
+            "error": null
+          }
+        ]
+      }
+    }
+  ],
+  "sdk_version": "0.1.8",
+  "final_images": {
+    "dsh": "sha256:336e3e6b1e66104b478875816e2006d54017ff232eb5bf4a0bf0a12c926ac5d1",
+    "cursor": "sha256:8d240d621cdb29501df9163bf5e0894c6c005198b884c315aee8487f27dd0962",
+    "codex": "sha256:0b4b3558d4e3a4ec0cd20f892568268f535422cdff0001af3c6ae71e2decfe04"
+  },
+  "initial_admission_failure": {
+    "code": "SECRET_TARGET_INVALID",
+    "tasks_created": 0,
+    "cause": "Legacy Codex secret target /tmp/auth.json rejected by task admission",
+    "resolution": "Read-only /run/secrets/codex-auth with image entrypoint symlink to CODEX_HOME/auth.json",
+    "log_sha256": "ad907032964cf8d9536e3f82e4ba7f9f93cef8b04fb97876aa9dc4400b8d6d94"
+  },
+  "tests": {
+    "runtime_and_sdk": {
+      "passed": 107,
+      "failed": 0,
+      "log_sha256": "080b09fd585c9f4d917a7b1378ac5f86cf7bdccaa29cd28d5b983442cc7cb3c5"
+    },
+    "sdk_offline_install": {
+      "passed": 62,
+      "failed": 0,
+      "log_sha256": "611122f122a18e7bd4f52a4f30c9f3101e8c7a63084ce39e1068e620eb2394f1"
+    },
+    "design": {
+      "scope": "design contract consistency and reference semantics; no runtime/concurrency certification",
+      "schemas": 68,
+      "operations": 31,
+      "schema_examples": 12,
+      "state_scenarios": 13,
+      "checks_passed": 681,
+      "errors": []
+    }
+  },
+  "image_tests": {
+    "dsh": {
+      "image": "sha256:336e3e6b1e66104b478875816e2006d54017ff232eb5bf4a0bf0a12c926ac5d1",
+      "tests": 62,
+      "passed": true,
+      "log_sha256": "4eae80181628bd5f98fb4842d187e9d835e2a51513508dce3bd9fbda7aa2085c"
+    },
+    "cursor": {
+      "image": "sha256:8d240d621cdb29501df9163bf5e0894c6c005198b884c315aee8487f27dd0962",
+      "tests": 62,
+      "passed": true,
+      "log_sha256": "8af110e24d0a834363221fb1a0eaed4b61af765d48ba89d1093bc496ce5ec378"
+    },
+    "codex": {
+      "image": "sha256:0b4b3558d4e3a4ec0cd20f892568268f535422cdff0001af3c6ae71e2decfe04",
+      "tests": 62,
+      "passed": true,
+      "log_sha256": "021fba121168cced7efae59bf69a61dc694cbd7740447b08c87306533914e5a8"
+    }
+  },
+  "development_health": {
+    "api_status": 200,
+    "frontend_status": 200,
+    "historical_runs": 84,
+    "visible_runs_in_current_scope": 54,
+    "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+    "history_preserved": true,
+    "family_contract_present": true,
+    "service_restarted": false,
+    "database_migrated": false
+  },
+  "fault_injection": {
+    "worker_process": "actually killed",
+    "workload": "confirmed alive before recovery",
+    "lease_expiry": "set to zero in isolated qualification database",
+    "recovery": "explicit operator cancellation and confirmed process stop, then recovery using original attempt",
+    "active_session_reattachment": false
+  },
+  "remaining": [
+    "Other directed Harness combinations and native tool paths",
+    "Physical cross-host qualification",
+    "Actor-changing authenticated delegation exchange",
+    "Active-session reattachment",
+    "Monetary/token budgets",
+    "Strict cross-Provider revocation ordering",
+    "Independent G2 and user acceptance"
+  ],
+  "wheel": {
+    "name": "dios_sdk-0.1.8-py3-none-any.whl",
+    "sha256": "fbd81eb9018750f8c7dcd33bc6610367cbe10316aaa08f031f072feaaa284a02"
+  },
+  "source_sha256": {
+    "sdk/python/src/dios_sdk/acp.py": "364b5479e591965dd999524b0b64d8244b91f3114b5eca350fd5e8f8f42f6e12",
+    "examples/runtime/acp_child_coordinator.py": "5a59132069e7dbe8ea07a108f70b51276ea3562b466d2a9c2386630fceb58ce5",
+    "applications/static-review/examples/codex/secret-entrypoint.py": "00ff666d68b0e9ce7765241db2ec24ce8a7aec4c312044fa59216c4c4d3831e5",
+    "scripts/qualify_child_harnesses.py": "eb4466b48717f37939877649137a945f766fcaed33b037c76fbb43e82dd2d930",
+    "sdk/python/tests/test_async_result.py": "abb7402e4011efe73eafd96e36ebd2ce62b22d63b78dd89f614564628f8c5076",
+    "sdk/python/tests/test_codex_secret_entrypoint.py": "8bcdb9dff0da2318e2180bf323694f8bab3e01146469b8ea8477e7c4f111cc05"
+  }
+}
