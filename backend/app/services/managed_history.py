@@ -416,6 +416,8 @@ async def apply_bundle(bundle, expected_digest, database, scope, artifact_root):
     identifier(expected_digest)
     bundle, manifest, hashed = open_bundle(bundle, expected_digest=expected_digest)
     destination = LocalArtifacts(artifact_root)
+    from app.runtime.storage_lease import bind_storage
+    bind_storage(destination,database)
     count = 0
     with tempfile.TemporaryFile() as index:
         archive = await durable_io(verified_index, bundle, manifest, index)

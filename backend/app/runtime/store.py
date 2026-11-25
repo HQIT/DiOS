@@ -379,6 +379,8 @@ class RuntimeStore:
             await self._event(c, run, 'run.retry_queued', {}, await self.db.now(c), state='queued')
 
     async def complete(self, run_id, attempt_id, worker_id, instance, epoch, provider, key, validator):
+        from .storage_lease import bind_storage
+        bind_storage(provider,self.db)
         # Validation and object I/O stay outside the short database transaction.
         async with self.db.read(self.scope) as c:
             snapshot=await self._run(c,run_id)
@@ -544,6 +546,8 @@ class RuntimeStore:
             await self._event(c,run,'attempt.preflight_failed',{'attempt_id':a['id'],**error},now,state=state)
 
     async def retain_output(self, binding, provider, key, kind):
+        from .storage_lease import bind_storage
+        bind_storage(provider,self.db)
         """Retain raw stdout/stderr even for failed/cancelled results; no success claim."""
         if kind not in {'stdout', 'stderr'}: raise RuntimeErrorCode('INVALID_OUTPUT_KIND')
         blob = provider.verify(key)
@@ -614,6 +618,8 @@ class RuntimeStore:
                 'workers':worker_rows,'attempts':observations,'circuits':circuit_rows}
 
     async def resolve_exit(self, expected_run, expected_attempt, receipt, provider, *, session_id, result_key, failure, restore=False):
+        from .storage_lease import bind_storage
+        bind_storage(provider,self.db)
         """Trusted reconciler commits evidence under CAS; it never restores the old lease."""
         from .bridge import JsonlBridge
         blobs = {kind: provider.verify(receipt[kind]) for kind in ('stdout', 'stderr')}

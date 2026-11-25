@@ -106,7 +106,7 @@ See [object access and revocation](../../docs/design/object-access-38.md).
 
 SDK 0.1.14 adds operator-only `object_lifecycle`, `retain_object` and
 `delete_object`. Retention and deletion use optimistic revisions and stable
-idempotency keys. Deletion blocks reads and preserves a tombstone; physical
-content collection is still pending. Explicit derivations become unavailable
+idempotency keys. Deletion blocks reads and preserves a tombstone; the offline
+`object-collect` administration CLI performs local physical collection. Explicit derivations become unavailable
 when their pinned source expires or is deleted. See
 [object lifecycle](../../docs/design/object-lifetime-38.md).

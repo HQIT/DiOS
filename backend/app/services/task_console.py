@@ -44,6 +44,8 @@ class TaskConsole:
         self.store = RuntimeStore(db,scope)
         self.profiles_dir = Path(profiles_dir)
         self.provider = LocalArtifacts(Path(artifacts_root))
+        from app.runtime.storage_lease import bind_storage
+        bind_storage(self.provider,db)
 
     def identity_provider(self):
         return self.policy.identity_provider() if self.policy and hasattr(self.policy,'identity_provider') else None

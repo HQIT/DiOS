@@ -42,6 +42,7 @@ from .artifacts import LocalArtifacts
 from .object_schema import metadata as object_metadata, CHECKSUM as OBJECT_CHECKSUM
 from .object_access_schema import metadata as object_access_metadata, CHECKSUM as OBJECT_ACCESS_CHECKSUM
 from .object_lifetime_schema import metadata as object_lifetime_metadata, CHECKSUM as OBJECT_LIFETIME_CHECKSUM
+from .object_collection_schema import metadata as object_collection_metadata, CHECKSUM as OBJECT_COLLECTION_CHECKSUM
 
 
 def sqlite_path(url):
@@ -119,6 +120,7 @@ def _database_info(path):
             ('runtime_object_schema',object_metadata,OBJECT_CHECKSUM),
             ('runtime_object_access_schema',object_access_metadata,OBJECT_ACCESS_CHECKSUM),
             ('runtime_object_lifetime_schema',object_lifetime_metadata,OBJECT_LIFETIME_CHECKSUM),
+            ('runtime_object_collection_schema',object_collection_metadata,OBJECT_COLLECTION_CHECKSUM),
             ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
@@ -139,7 +141,11 @@ def _database_info(path):
             guards={row[0] for row in c.execute("SELECT name FROM sqlite_master WHERE type='trigger'")}
             if not set(REVISION_GUARDS).issubset(guards):
                 raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
-        for provider,key,hashed,size in c.execute('SELECT provider,storage_key,digest,size FROM runtime_artifacts'):
+        released=set()
+        if 'runtime_object_collection_schema' in tables:
+            released={tuple(row) for row in c.execute("SELECT scope,kind,object_id,object_version FROM runtime_object_collections WHERE state IN ('pending','collected')")}
+        for scope,oid,provider,key,hashed,size in c.execute('SELECT r.scope,a.id,a.provider,a.storage_key,a.digest,a.size FROM runtime_artifacts a JOIN runtime_runs r ON a.run_id=r.id'):
+            if (scope,'artifact',oid,1) in released:continue
             if provider!=LocalArtifacts.name: raise RuntimeErrorCode('BACKUP_ARTIFACT_PROVIDER_UNSUPPORTED')
             if not re.fullmatch('[0-9a-f]{64}',key) or key!=hashed or size<0:
                 raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
@@ -147,7 +153,8 @@ def _database_info(path):
             if key in objects and objects[key]!=entry: raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
             objects[key]=entry
         if 'runtime_object_schema' in tables:
-            for provider,key,hashed,size in c.execute('SELECT provider,storage_key,digest,size FROM runtime_object_versions'):
+            for scope,oid,version,provider,key,hashed,size in c.execute('SELECT scope,object_id,version,provider,storage_key,digest,size FROM runtime_object_versions'):
+                if (scope,'file',oid,version) in released:continue
                 if provider!=LocalArtifacts.name or not re.fullmatch('[0-9a-f]{64}',key) or key!=hashed or size<0:
                     raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
                 expected={'sha256':key,'size':size}
@@ -172,6 +179,13 @@ def _database_info(path):
 
 
 def backup_sqlite(url, artifact_root, destination, *, timeout=60, config_files=()):
+    from .storage_lease import StorageLease,database_lock,artifacts_lock
+    if not Path(artifact_root).is_dir():raise RuntimeErrorCode('BACKUP_ARTIFACT_ROOT_REQUIRED')
+    with StorageLease(database_lock(sqlite_path(url))),StorageLease(artifacts_lock(artifact_root)):
+        return _backup_sqlite(url,artifact_root,destination,timeout=timeout,config_files=config_files)
+
+
+def _backup_sqlite(url, artifact_root, destination, *, timeout=60, config_files=()):
     """Online SQLite snapshot. Call from a worker thread, never an async event loop."""
     started=time.monotonic()
     if not math.isfinite(timeout) or timeout<=0: raise RuntimeErrorCode('INVALID_BACKUP_LIMIT')

@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "S02-1.03",
-    "next_delivery": "S02-1.03",
+    "next_work_item": "S02-1.04",
+    "next_delivery": "S02-1.04",
     "next_delivery_order": [
-      "S02-1.03",
+      "S02-1.04",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -32,7 +32,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "W1 恢复/升级链等待源端隔离决策；继续既定 W2 对象留存、删除与引用完整性。"
+    "next_selection_reason": "对象实现三项已完成，按既定 W2 依赖推进完整生命周期资格，复用未变化的工程证据；W1 恢复启用仍等待源端隔离决策。"
   },
   "waves": [
     {
@@ -3110,7 +3110,7 @@
       "issue": 38,
       "title": "留存删除与引用完整性",
       "kind": "I",
-      "state": "in_progress",
+      "state": "done",
       "requirements": [
         "S02-1-A02",
         "S02-1-A03"
@@ -3122,21 +3122,16 @@
         "S02-1.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "版本留存、删除标记、到期和显式派生失效已部署；继续完成底层内容物理回收、写入隔离和回收恢复一致性。",
+      "completion_evidence": [
+        "docs/design/evidence/object-lifetime-20261126.json",
+        "docs/design/evidence/object-collection-20261126.json"
+      ],
+      "basis": "版本留存、删除标记、派生失效和 Linux 本地安装离线物理回收已部署；写入隔离、共享引用、清扫中断及备份恢复通过。",
       "existing_evidence": [
         "docs/design/evidence/capability-boundary-20261124.json",
         "docs/design/evidence/business-evidence-20261123.json"
       ],
-      "wave": "W2",
-      "progress_evidence": [
-        "docs/design/evidence/object-lifetime-20261126.json"
-      ],
-      "remaining_work": [
-        "物理回收与所有写入方隔离",
-        "全来源引用标记与共享内容保护",
-        "回收中断重试、同摘要重新发布及备份恢复验证"
-      ]
+      "wave": "W2"
     },
     {
       "id": "S02-1.04",

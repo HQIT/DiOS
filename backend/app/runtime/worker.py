@@ -57,6 +57,8 @@ def boot_identity():
 class Worker:
     def __init__(self, store: RuntimeStore, adapter: RuntimeAdapter, profile_id, spec: LaunchSpec,
                  artifacts: LocalArtifacts, *, poll_interval=.25, timeout=300, output_limit=1024*1024, authorization_verifier=None, secret_resolver=None, secret_requests=(), tool_gate=None, remote_tools=None, revision_ref=None):
+        from .storage_lease import bind_storage
+        bind_storage(artifacts,getattr(store,'db',None))
         if not 0 < poll_interval <= 5 or not 0 < timeout <= 86400 or not 1 <= output_limit <= 4*1024*1024:
             raise RuntimeErrorCode('INVALID_WORKER_LIMIT')
         spec.validate()

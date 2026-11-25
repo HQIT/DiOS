@@ -38,6 +38,9 @@ async def execute(args):
         return await serve_remote(args)
     if not args.database_url:
         raise RuntimeErrorCode('RUNTIME_DATABASE_URL_REQUIRED')
+    if args.command=='object-collect':
+        from .object_collection import collect
+        return await asyncio.to_thread(collect,args.database_url,args.artifacts,key=args.key,actor=args.actor,apply=args.apply,limit=args.max_items)
     if args.command == 'backup':
         return await asyncio.to_thread(backup_sqlite,args.database_url,args.artifacts,args.destination,timeout=args.timeout,config_files=args.config_file)
     db = Database(args.database_url)
@@ -312,6 +315,9 @@ def main(argv=None):
     p.add_argument('--scope',default='local')
     commands = p.add_subparsers(dest='command',required=True)
     commands.add_parser('migrate',help='explicit additive migration; backup existing database first')
+    collection=commands.add_parser('object-collect',help='offline local collection; dry run unless --apply')
+    collection.add_argument('--artifacts',required=True);collection.add_argument('--key');collection.add_argument('--actor',required=True)
+    collection.add_argument('--apply',action='store_true');collection.add_argument('--max-items',type=int,default=100000)
     objects = commands.add_parser('object',help='versioned files, sessions, artifacts and provenance')
     object_commands=objects.add_subparsers(dest='object_command',required=True)
     op=object_commands.add_parser('publish')

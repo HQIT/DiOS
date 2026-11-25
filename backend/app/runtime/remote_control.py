@@ -30,6 +30,8 @@ class TransactionView:
 
 class RemoteControl:
     def __init__(self,store,identities,profiles,policy,provider):
+        from .storage_lease import bind_storage
+        bind_storage(provider,store.db)
         self.store,self.identities,self.profiles,self.policy,self.provider=store,identities,profiles,policy,provider
 
     async def handle(self,certificate,expiry,e):

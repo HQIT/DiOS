@@ -92,6 +92,8 @@ def copy_blobs(group, archive, destination):
 
 async def import_group(database, scope, source, group, archive, destination):
     """Verify/copy blobs, then atomically register one bounded group and its links."""
+    from .storage_lease import bind_storage
+    bind_storage(destination,database)
     validate_group(source, group)
     store, query = RuntimeStore(database, scope), HistoryQueries(database, scope)
     await durable_io(copy_blobs, group, archive, destination)

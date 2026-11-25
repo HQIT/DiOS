@@ -98,6 +98,10 @@ class ObjectLifetime:
             await require(c)
             value = await Objects(self.db, self.scope)._get(c, ref)
             row = await self.row(c, ref)
+            from .object_collection_schema import releases,require as require_collection
+            await require_collection(c)
+            collection=(await c.execute(select(releases.c.state).where(releases.c.scope==self.scope,
+                releases.c.kind==ref['kind'],releases.c.object_id==ref['id'],releases.c.object_version==ref['version']))).scalar_one_or_none()
             return {
                 "ref": ref,
                 "revision": row["revision"] if row else 0,
@@ -108,7 +112,7 @@ class ObjectLifetime:
                 "descriptor": value["descriptor"],
                 "binding": value["binding"],
                 **await self.effective(c, ref),
-                "content_collection": "retained",
+                "content_collection": collection or "retained",
             }
 
     async def change(

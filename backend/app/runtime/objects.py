@@ -65,6 +65,8 @@ class Objects:
             return await self._get(c,ref)
 
     async def publish(self,provider,chunks,key,actor,*,object_id=None,expected_version=0,media_type='application/octet-stream'):
+        from .storage_lease import bind_storage
+        bind_storage(provider,self.db)
         identifier(key);identifier(actor)
         if type(expected_version) is not int or expected_version<0:
             raise RuntimeErrorCode('INVALID_EXPECTED_VERSION')

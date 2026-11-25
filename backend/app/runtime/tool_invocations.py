@@ -25,6 +25,8 @@ async def audit(c,scope,call_id,stage,outcome,reason,now,details=None):
 
 class ToolInvocations:
     def __init__(self,store,policy,catalog,provider,transport,approvers=None,secrets=None,identity_guard=None,policy_evaluator=None):
+        from .storage_lease import bind_storage
+        bind_storage(provider,store.db)
         self.store,self.policy,self.catalog,self.provider=store,policy,catalog,provider
         self.transport,self.approvers,self.secrets=transport,approvers,secrets
         from .policy_evaluator import OpaEvaluator

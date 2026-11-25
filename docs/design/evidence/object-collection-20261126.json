@@ -1,0 +1,197 @@
+{
+  "work_item": "S02-1.03",
+  "status": "engineering_verified",
+  "source_head": "36a2f962e7792c654257fb7eb8804cf28ed2cab1",
+  "foundation_evidence": "docs/design/evidence/object-lifetime-20261126.json",
+  "delivered": [
+    "Linux local SQLite installation offline mark/sweep with database and artifact process leases",
+    "Automatic storage/database binding; mismatched, multi-database and remote staging roots rejected",
+    "Whole-installation reference marking across file versions, native artifacts, history archives, remote uploads/chunks, tools and durable recovery receipts",
+    "Retention and explicit derivation invalidation respected; unknown orphan files retained",
+    "Durable per-version collection intent and receipts, crash retry and current-reference recheck",
+    "Tombstones, original identities and collection records retained across backup/restore; deleted bytes excluded",
+    "CLI dry-run/apply/idempotency verified, original Cursor report remains intact after development deployment"
+  ],
+  "tests": {
+    "contracts": {
+      "modules": [
+        "test_runtime_object_collection",
+        "test_runtime_worker",
+        "test_runtime_remote_control",
+        "test_runtime_tool_receipts",
+        "test_managed_history",
+        "test_runtime_object_lifetime",
+        "test_runtime_child_channel",
+        "test_runtime_object_access",
+        "test_object_client",
+        "test_runtime_objects",
+        "test_runtime_task_console",
+        "test_runtime_principals",
+        "test_runtime_recovery",
+        "test_installation_backup",
+        "test_installation_restore"
+      ],
+      "exit_code": 0,
+      "summary": "----------------------------------------------------------------------\nRan 194 tests in 225.029s\n\nOK (skipped=20)",
+      "total": 194,
+      "passed": 174,
+      "skipped": 20,
+      "seconds": 225.029,
+      "log_sha256": "1673b49b06d5b1e3461415e0bf9567d73e5ffead4d7c10b9488c7f53e024a51d"
+    },
+    "supplemental_boundary_cases": {
+      "passed": 3,
+      "cases": [
+        "native artifact deletion plus retained derived version and restore",
+        "symlink target refusal",
+        "CLI dry-run and apply"
+      ],
+      "seconds": [
+        2.712,
+        0.984
+      ]
+    },
+    "pending_restore": {
+      "passed": 1,
+      "seconds": 0.779,
+      "log_sha256": "28fc48345becb27a8f6f20e5747acb8c82df9d802f7d67d096b5916752d199ec"
+    },
+    "real_remote_worker": {
+      "passed": 1,
+      "seconds": 4.097,
+      "test": "RemoteControlTests.test_actual_tls_docker_worker_with_isolated_storage",
+      "log_sha256": "16ab17eec85e1884d7bcaa36d095b586c6a48c2de539aa35d87f773ed5bd22cb"
+    },
+    "release_image": {
+      "image": "sha256:b8af51e17aa861ef0d80365fdc614d6e19ad78ff6a1ab401433a7036a1681bf6",
+      "base": "sha256:9f1f4966ae23735860e241be3b864866d40623ad4134e8e3a7da7a8c5085084d",
+      "network": "none",
+      "user": "65534:65534",
+      "summary": "Ran 11 tests in 7.207s\n\nOK",
+      "total": 11,
+      "passed": 11,
+      "skipped": 0,
+      "seconds": 7.207
+    },
+    "lint": "New collection/lease modules and tests Ruff F checks and git diff --check passed"
+  },
+  "development": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": true
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_read_and_maintenance_guard": {
+    "running_development_refuses_collection": "STORAGE_MAINTENANCE_BUSY",
+    "original_cursor_run": "c1d03cff-e5cb-4bdb-af8d-55988805f2d9",
+    "original_cursor_artifact": "aa4aa52a-d5b7-469a-bf9f-5225c5e6827d",
+    "artifact_integrity": "passed",
+    "development_content_not_collected": true
+  },
+  "real_cli": {
+    "isolated_installation": true,
+    "cli_dry_run": {
+      "dry_run": true,
+      "objects": 1,
+      "blobs": 1,
+      "bytes": 15,
+      "shared_blobs_retained": 0
+    },
+    "cli_applied": {
+      "dry_run": false,
+      "operation_key": "qualified-collection",
+      "collected_blobs": 1,
+      "collected_bytes": 15,
+      "retained_on_resume": 0,
+      "released_objects": 1,
+      "shared_blobs_retained": 0
+    },
+    "idempotency": true,
+    "physical_file_absent": true,
+    "backup_restore_passed": true,
+    "object_ref": {
+      "kind": "file",
+      "id": "edba31a5-6b2b-4455-89dd-0860beb41916",
+      "version": 1
+    },
+    "production_review_untouched": true
+  },
+  "source_sha256": {
+    "backend/app/runtime/artifacts.py": "e350152d58138914c793c0f989659f03fa2c5c4eddfd3307281255980d864f9f",
+    "backend/app/runtime/cli.py": "3362586220b4dfd48a064b54847bb0486b0292f5491bd32c93797ba39ba35c6f",
+    "backend/app/runtime/database.py": "931c27b112d86b122b8e459ac73ed594cf9aa7893437c98e010d7278bbba291a",
+    "backend/app/runtime/history_archive.py": "cec32a3b8aae2e737921d0cdf8b460f7eca2d0aabb2d448150c0698226f97a10",
+    "backend/app/runtime/object_collection.py": "509af17aafd6044f557996aa94fe073d326d5d626779ec3a4393871fb683f161",
+    "backend/app/runtime/object_collection_schema.py": "dc52cc66ab1c79f403ad5d046d91cbf3ffc1a5360ec8761e03153070c058583d",
+    "backend/app/runtime/object_lifetime.py": "f6b8b2d723346c1de9c471da1b344c578dd80c2c6f77067308cb2c9acce06568",
+    "backend/app/runtime/objects.py": "8ce9ec4ec4877c4bd918d5613d132f2c2ac4541dd0a07fdd4ccb33a66ccea664",
+    "backend/app/runtime/recovery.py": "589fa8236aa438d5697c109ad44238a9e0cffe8de735929f31833f03295fdbeb",
+    "backend/app/runtime/remote_control.py": "23313c247db0f53d2878d8f441145c0cf288cc53a1cccfe8e6f7359d34bb5806",
+    "backend/app/runtime/storage_lease.py": "63117c0075c2688ec7ec72761e125566b0d4fffec9e675b84937f77f1540ee5e",
+    "backend/app/runtime/store.py": "1370f1a48b00b469d78c01c07102dab6bc5fd6265b121fa32d70c7532fc50887",
+    "backend/app/runtime/tool_invocations.py": "665bd79e72465f3e11fe15a9e582b9539f4a2598f6f6b75c3f79989e282bdf9b",
+    "backend/app/runtime/worker.py": "ee8b7aaabf2b11925c5b25c8c4ce87e2ac91434977a04bd38889b21769751ba6",
+    "backend/app/services/managed_history.py": "db052fd69afb61ba36f8e171bd8323582b1ae2b2b4e4e28d817988b4afb22b6e",
+    "backend/app/services/task_console.py": "d50bc11cc0f2edf90e99fd0f4a0fdebaeb9f8e8b46ecc36b8379a273fef6b1ae",
+    "backend/tests/test_runtime_object_collection.py": "25df792a9f686d51b0bc743a84f4ce42c966bbbe9f70145cf05204df0b5ae0cc"
+  },
+  "design": "docs/design/object-lifetime-38.md",
+  "sources": [
+    "https://distribution.github.io/distribution/about/garbage-collection/",
+    "https://man7.org/linux/man-pages/man2/flock.2.html"
+  ],
+  "limits": [
+    "Physical collection qualified for Linux local SQLite plus LocalArtifacts; PostgreSQL/shared/distributed storage needs Provider-specific fencing under W4.",
+    "All processes must use the current maintenance protocol; old binaries and filesystem writes outside the provider must be stopped by operations.",
+    "Recovery/tool receipts and unknown orphan files remain retained while referenced; vendor-internal Harness session stores are outside the object v1 content provider.",
+    "Maintenance idempotency keys bind the installation address; restored targets use a new maintenance key while retaining task and object identities."
+  ]
+}

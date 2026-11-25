@@ -26,8 +26,16 @@ class LocalArtifacts:
         self.root = Path(root).resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.max_bytes = max_bytes
+        from .storage_lease import StorageLease,artifacts_lock
+        self._lease=StorageLease(artifacts_lock(self.root))
+        self._closed=False
+
+    def close(self):
+        self._closed=True
+        self._lease.close()
 
     def path(self, key):
+        if self._closed:raise RuntimeErrorCode('ARTIFACT_PROVIDER_CLOSED')
         if not re.fullmatch('[0-9a-f]{64}', key):
             raise RuntimeErrorCode('INVALID_ARTIFACT_KEY')
         target = self.root / key
