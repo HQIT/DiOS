@@ -152,10 +152,14 @@ class TaskConsole:
             **{key:descriptor[key] for key in ('subject','actor','policy_id','policy_digest')})
 
     async def submit(self, profile_id, sample_id, goal, key, *, input_payload=None,
-                     expected_schedule_binding=None, admission_guard=None):
+                     expected_schedule_binding=None, admission_guard=None, transport_binding=None):
         prepared=await self.prepare_submission(profile_id,sample_id,goal,input_payload=input_payload)
         registered,profile,value=(prepared[k] for k in ('registered','profile','value'))
         submission_digest=prepared['submission_digest']
+        # Trusted protocol adapters bind correlation to the same durable receipt.
+        # Transport identity never supplies execution authority or business input.
+        if transport_binding is not None:
+            submission_digest=digest([submission_digest,transport_binding])
         if self.principal is not None:key='principal-'+digest([self.principal['issuer'],self.principal['id'],key])
         receipt=await self.store.submission_receipt(key,submission_digest)
         if receipt is not None:return await self.detail(receipt['id'])
@@ -167,6 +171,7 @@ class TaskConsole:
             if self.principal is not None or self.schedule_binding(prepared,descriptor)!=expected_schedule_binding:
                 raise RuntimeErrorCode('SCHEDULE_BINDING_CHANGED')
         run=await self.store.submit(key,dict(origin=CONSOLE_ORIGIN,
+            **({'transport_binding':transport_binding} if transport_binding is not None else {}),
             **({'principal':self.principal} if self.principal is not None else {}),
             input_registration=dict(digest=registered['registration_digest'],
                 **({'result_schema':registered['contract']['result_schema']} if registered['contract']['result_schema'] is not None else {})),

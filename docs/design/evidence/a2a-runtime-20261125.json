@@ -1,0 +1,126 @@
+{
+  "protocol": "A2A 0.3.0 JSON-RPC",
+  "sdk": "a2a-sdk 0.3.26",
+  "transport": "loopback HTTP",
+  "image_id": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+  "cases": [
+    {
+      "case": "quick",
+      "run_id": "4b9fde2b-e9ed-42b8-b436-b5448858a6b7",
+      "context_id": "qualification-context",
+      "state": "succeeded",
+      "a2a_state": "completed",
+      "attempt_id": "34661ee2-3e8e-4f18-a467-60ca2e1bf3eb",
+      "session_id": "50921958-ac04-49c3-8401-6b8ad9f24d76",
+      "process_id": 153426,
+      "exit": {
+        "handle": "34661ee2-3e8e-4f18-a467-60ca2e1bf3eb",
+        "state": "exited",
+        "alive": false,
+        "pid": null,
+        "process_instance": "16f252a8a93aa06dab7199739aa2711515d8e6415a6b93451f2eeac3dbbb78ab:2026-11-25T00:50:30.10516855Z",
+        "exit_code": 0,
+        "health": "not_configured",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "adapter": "local-docker-v1",
+        "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe",
+        "observed_at": 1795567830.8470085
+      },
+      "e2ag": true,
+      "duplicate_same_task": true,
+      "artifact_sha256": "efaceced9e2330840c391f133cf2b744a98312232eee77463a23cb13cecb952c"
+    },
+    {
+      "case": "slow",
+      "run_id": "3059a54d-c92f-4ec0-8040-c0f631d5b395",
+      "context_id": "qualification-context",
+      "state": "cancelled",
+      "a2a_state": "canceled",
+      "attempt_id": "0e5664fc-290c-41b9-8933-b1d6ae181503",
+      "session_id": "62aa4628-26f2-4477-aa42-0b4fa46fa9bf",
+      "process_id": 153574,
+      "exit": {
+        "handle": "0e5664fc-290c-41b9-8933-b1d6ae181503",
+        "state": "exited",
+        "alive": false,
+        "pid": null,
+        "process_instance": "05f101d1fef22ffcba8c7094334dc033950822a00328f1fe814e8742841d30f8:2026-11-25T00:50:31.842961291Z",
+        "exit_code": 143,
+        "health": "not_configured",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "adapter": "local-docker-v1",
+        "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe",
+        "observed_at": 1795567832.3170066
+      },
+      "e2ag": true,
+      "duplicate_same_task": true
+    }
+  ],
+  "limits": [
+    "Synthetic workload; no model call",
+    "One physical host; no TLS qualification",
+    "Outbound remote task ownership and recovery remain pending"
+  ],
+  "date": "2026-11-25",
+  "component": "runtime-a2a-ingress",
+  "image": {
+    "image": "sha256:0c8e328a240d68524b1abe915900f5bccaab686164b4aa345052bf27075fc8f5",
+    "tag": "dios-backend:a2a-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "deployment": {
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "tests": {
+    "contracts": {
+      "run": 13,
+      "skipped": 0,
+      "failures": 0,
+      "log_sha256": "6966179ccd7e66b48b5a543978a66a79243e6d2760451aed93ce75829dddb9f3"
+    },
+    "release_image": {
+      "run": 13,
+      "skipped": 0,
+      "failures": 0,
+      "log_sha256": "ef1b6ff8f8430db3626265b53b0f1020773a109126d700dcaa8c83a2cdf34103"
+    },
+    "regression": {
+      "run": 173,
+      "skipped": 43,
+      "failures": 0,
+      "log_sha256": "0106b0a59982acd760bb318e43a15f033fd8dd2de5d7fb63b05adff15286b227"
+    }
+  },
+  "design": {
+    "scope": "design contract consistency and reference semantics; no runtime/concurrency certification",
+    "schemas": 68,
+    "operations": 31,
+    "schema_examples": 12,
+    "state_scenarios": 13,
+    "checks_passed": 681,
+    "errors": []
+  },
+  "source_sha256": {
+    "backend/app/api/os/runtime_a2a.py": "4b5976ee2842824d2a02c63e8275b4c4e4888010940a7fceb634e140b893cf32",
+    "backend/app/services/runtime_a2a.py": "1fc5653603156edea5c42f11b13affd1782d089fa544a00674f92a76329e21ad",
+    "backend/app/services/task_console.py": "a4194dfb5ad0ce147a9c533bfa19bea1bb1f3d1f3a4229ba640ca42fab4a957f",
+    "backend/tests/test_runtime_a2a.py": "b20980de1b21d4b10ae92bdbafd855fb53abbcf0e5f3e65a05acf7300770ca48",
+    "scripts/check_runtime_a2a.py": "b0a607cacc83362f86c4cb68c047d74f2042793e9036391c8416d8288e3a5df5"
+  }
+}
