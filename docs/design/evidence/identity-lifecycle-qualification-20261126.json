@@ -1,0 +1,205 @@
+{
+  "work_item": "K03-1.01",
+  "status": "engineering_verified",
+  "source_head": "d950e016dc48fbd92fc5312c6c4df7f01a25ba15",
+  "real_lifetime": {
+    "passed": false,
+    "mode": "controlled task; real mTLS and wall-clock; no model",
+    "checks": [
+      "default-credential-lifetime-900s",
+      "initial-execution-grant-900s",
+      "natural-900s-grant-renewal",
+      "automatic-credential-renewal-over-mtls",
+      "original-work-deadline-preserved",
+      "concurrent-version-conflict",
+      "STALE_OWNER"
+    ],
+    "run_id": "9bb176f2-e837-49d9-9cf4-591b0efa8a10",
+    "attempt_id": "f9dbe892-5426-42aa-b1e3-82f97df0d36a",
+    "process_id": 547071,
+    "original_work_deadline": 1795719702.928014,
+    "initial_grant_deadline": 1795634203.0279934,
+    "initial_credential_deadline": 1795634203.692001,
+    "initial_credential_version": 1,
+    "observation": {
+      "elapsed_seconds": 601.53,
+      "grant_version": 3,
+      "credential_version": 2,
+      "owner_live": true,
+      "renewal_loop_live": true
+    },
+    "renewed_grant_deadline": 1795634805.0159976,
+    "renewed_credential_deadline": 1795634837.0830133,
+    "renewed_grant_version": 3,
+    "renewed_credential_version": 2
+  },
+  "mtls_rejection_matrix": {
+    "passed": true,
+    "mode": "controlled task; real mTLS and wall-clock; no model",
+    "edges_only": true,
+    "checks": [
+      "default-credential-lifetime-900s",
+      "initial-execution-grant-900s",
+      "concurrent-version-conflict",
+      "STALE_OWNER",
+      "WORK_POLICY_CHANGED",
+      "AUTH_REVOKED",
+      "tokens-absent-from-task-audit-and-status"
+    ],
+    "run_id": "5048c151-d7a2-430d-8593-1e30d2f00ec9",
+    "attempt_id": "ee076eb7-d1d8-4d9f-85ca-c22480e60990",
+    "process_id": 551434,
+    "original_work_deadline": 1795720373.1799812,
+    "initial_grant_deadline": 1795634873.2789948,
+    "initial_credential_deadline": 1795634874.3279934,
+    "initial_credential_version": 1,
+    "elapsed_seconds": 1.415,
+    "new_model_calls": 0
+  },
+  "native_identity_rotation": {
+    "passed": true,
+    "image": "quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3",
+    "checks": [
+      "native-source-active",
+      "client-secret-rotated",
+      "old-client-secret-is-unavailable-not-user-revoked",
+      "credential-outage-retains-work",
+      "new-secret-resumes-original-work",
+      "original-key-native-logout-verified",
+      "native-new-signing-key-used",
+      "key-overlap-preserves-original-work",
+      "passive-old-key-valid-during-overlap",
+      "native-logout-uses-new-signing-key",
+      "new-key-logout-revokes-source-work",
+      "revoked-work-cannot-renew",
+      "disabled-old-key-rejected",
+      "new-key-remains-valid-after-old-disabled",
+      "secrets-absent-from-runtime-record"
+    ],
+    "new_model_calls": 0,
+    "run_id": "8792ca85-c4e0-42bd-b74b-d9c384a8b6e5",
+    "source_session": "yLO2oEn116tWHxcSanNoIn5z",
+    "old_kid": "v7qjAzq0JEF5jc3jeWvnh2fBzT4rSw3cyYtrbQUh9Dg",
+    "new_kid": "vTKfcEC71XUcDZ-EH7b-BidQCmnYBbJn4ciqO6gKuJ0",
+    "event_id": "852d7df4671025545bef5d78af7d5efecd427760442d1557a6b5777a4448728d",
+    "original_work_deadline": 1795634445.4399905,
+    "verifier_sha256": "b254bfa18a8be38e16564b99cdf9fef7775752faff774c02d63b352eb1307ff8",
+    "limits": [
+      "Isolated local Keycloak with synthetic user; direct password grant only bootstraps this fixture.",
+      "Enterprise IdP configuration, TLS and physical multihost qualification remain separately tracked."
+    ]
+  },
+  "targeted_tests": {
+    "total": 23,
+    "exit_code": 0,
+    "seconds": 21.711,
+    "selections": [
+      "test_runtime_worker_credentials.WorkerCredentialTests",
+      "test_runtime_work_authorizations.WorkAuthorizationTests.test_renewal_is_serialized_and_never_exceeds_work_deadline",
+      "test_runtime_work_authorizations.WorkAuthorizationTests.test_renewal_at_work_deadline_does_not_repeat_writes",
+      "test_runtime_work_authorizations.WorkAuthorizationTests.test_expired_grant_cannot_be_reactivated",
+      "test_runtime_remote_tools.RemoteToolTests.test_certificate_token_audience_and_scope_all_required",
+      "test_runtime_oauth_source.OAuthSourceTests"
+    ]
+  },
+  "qualification_resolution": {
+    "natural_renewal": "Verified at 601.53 monotonic seconds; retained without repeating the ten-minute wait",
+    "initial_matrix_failure": "Test removed the entire caller layer and expected WORK_POLICY_CHANGED; actual safe rejection was WORK_PERMISSION_LAYER_MISSING.",
+    "corrected_matrix": "Removed only repository.search while retaining valid runtime permissions; real mTLS matrix passed including WORK_POLICY_CHANGED, owner change and cancellation.",
+    "original_lifetime_report_sha256": "2f4bb00ebfae5b4121f7a6b8f23e59c575d9183fcc3c2628028b7e78ef106ac3",
+    "original_lifetime_script_sha256": "7eb0b7d983b5182dbbb83abf159296e1b11b2b6d7e1227b0d2170805baaec1e0"
+  },
+  "added_terminal_test": {
+    "name": "WorkerCredentialTests.test_completed_work_cannot_renew_or_reissue_credential",
+    "passed": true,
+    "seconds": 1.117
+  },
+  "targeted_passed": 24,
+  "targeted_skipped": 0,
+  "log_sha256": {
+    "edges.log": "7744e1824070fcb1dd28a0ecbcf27900aede290144b4912663332e08a76e4d17"
+  },
+  "coverage": {
+    "K03-1-A01": [
+      "Existing source-sessions and runtime-oauth-source real two-principal evidence; Worker mTLS tuple checks"
+    ],
+    "K03-1-A02": [
+      "23 targeted tests: forged/expired/source-mismatch identities, expiry, machine revocation, changed keys, certificate/audience/scope rejection"
+    ],
+    "K03-1-A03": [
+      "Actual issued token absent from task/audit/status; native OAuth client/access/logout secrets absent from task record"
+    ],
+    "K03-1-A04": [
+      "Native Keycloak introspection-client rotation; active/passive/disabled signing keys; new-key original-session logout and E2AG revocation"
+    ],
+    "K03-1-A06": [
+      "Real mTLS owner/policy/cancel rejection; terminal succeeded Work closes Grant and rejects renew/reissue"
+    ],
+    "K03-1-A07": [
+      "Default 900s Grant natural renewal without clock or expiry mutation; automatic sender-bound credential renewal; concurrent nonce/version conflict; original Work deadline retained; real IdP logout revokes Work"
+    ]
+  },
+  "reused_evidence": [
+    "docs/design/evidence/runtime-oauth-source-20261124.json",
+    "docs/design/evidence/source-sessions-20261124.json",
+    "docs/design/evidence/backchannel-logout-live-20261124.json",
+    "docs/design/evidence/managed-secrets-20261124.json",
+    "docs/design/evidence/cursor-recovery-upgrade-20261126.json"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/worker_credentials.py": "01e1fdcb0e1e8e62d04c345395ca0a065c54fc851b1354d4f42d97ab6a9ecfdb",
+    "backend/app/runtime/work_authorizations.py": "9a2a99531d670ee6453af63bdd24f29af5cc45625f01edba76d3bf8796042e3a",
+    "backend/app/runtime/remote_tool_channel.py": "9836b6f0bb3c14be0dd799fc77ed54bcc94aef98f521708f5592f21b05a8ea78",
+    "backend/app/runtime/worker_identity.py": "4ebc060645d597d840cdd2af92be6b4b97dd53a09674f4df3d85f2cff06e4bda",
+    "backend/app/runtime/oauth_source.py": "11e5abf17c24cf27565528e382eb69b4ad143f2fe983b47f80c24305c96b01e9",
+    "backend/app/runtime/logout_verifier.py": "ddde13c09a2468d7b0a14e0a9ba3c5ce1c469f043fb73ec701f9213497c82467",
+    "backend/app/runtime/logout_events.py": "f07ac2486cf5f637e89e22b002ce782c52b0eb2b19a0cde617ec536cd070189f",
+    "scripts/qualify_credential_lifetime.py": "34a2b626d83c16aa30a76dcd83017ec335bce8f0e94b3b1b633e2c5832b20e06",
+    "scripts/qualify_identity_rotation.py": "0fb190407c4c169ebf4e85157f69da3b995b7a79ff255e82a4123c719727ea4a",
+    "backend/tests/test_runtime_worker_credentials.py": "0e4641a829cb6f414cc5d6e65638a4676f4eb1b0e1e747cf678f28244623e117"
+  },
+  "development": {
+    "api_health": "passed",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    },
+    "active_runtime_code_unchanged": true
+  },
+  "deployment": {
+    "runtime_changes": false,
+    "restart_required": false,
+    "reason": "Qualification scripts, one terminal-state regression and engineering documentation only; deployed execution code unchanged"
+  },
+  "remaining": {
+    "K03-1.02": "Linux service Secret references, injection and operational rotation delivery",
+    "K03-1.03": "Enterprise TLS, real two-host identities/object ACL and credential revocation",
+    "K03-1.04": "Independent security review by assigned reviewer"
+  },
+  "limits": [
+    "Controlled task/session fixture with real mTLS and wall clock; no new Cursor or other model call.",
+    "Native Keycloak qualification uses a separate synthetic realm, loopback HTTP and direct password grant solely to bootstrap test sessions.",
+    "Worker certificate/issuer-root operational rollover, general Secret service deployment and physical multihost claims remain in their assigned work items.",
+    "No change to enterprise identity settings, existing development IdP keys, original task history or Codeup production."
+  ],
+  "standards": [
+    "https://www.keycloak.org/docs/latest/server_admin/index.html#rotating-keys",
+    "https://www.keycloak.org/docs-api/latest/rest-api/index.html",
+    "https://www.rfc-editor.org/rfc/rfc7662.html",
+    "https://www.rfc-editor.org/rfc/rfc8705.html",
+    "https://openid.net/specs/openid-connect-backchannel-1_0.html"
+  ]
+}

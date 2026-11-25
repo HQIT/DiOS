@@ -11,7 +11,6 @@ from app.runtime.worker_credentials import WorkerCredentials,token_hash
 from app.runtime.credential_schema import credentials as rows
 from app.runtime.database import RuntimeErrorCode,Database
 from app.runtime.store import RuntimeStore
-from app.runtime.worker_identity import WorkerIdentities
 from app.runtime.recovery import backup_sqlite,verify_backup
 
 
@@ -86,6 +85,25 @@ class WorkerCredentialTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(OSError):await self.exchange(envelope)
         value=await self.exchange(envelope);self.assertEqual(value['version'],1)
 
+    async def test_completed_work_cannot_renew_or_reissue_credential(self):
+        from dataclasses import replace
+        from app.runtime.work_authorizations import view
+        _, first = await self.issue()
+        await self.f.store.report(*self.f.binding, 4, 'validating')
+        await self.f.verifier(replace(self.f.context, session_id='session-one'), 'accept_result')
+        blob = self.f.provider.put([json.dumps({'summary': 'complete', 'evidence': ['fixture:source']}).encode()])
+        def valid(chunks):
+            return json.loads(b''.join(chunks))['evidence'] == ['fixture:source']
+        await self.f.store.complete(*self.f.binding, self.f.provider, blob.key, valid)
+        self.assertEqual((await self.f.store.get(self.f.run['id']))['state'], 'succeeded')
+        authorization = await view(self.f.store, self.f.run['id'])
+        self.assertEqual((authorization['state'], authorization['grant']['state']), ('closed', 'closed'))
+        with self.assertRaisesRegex(RuntimeErrorCode, 'STALE_OWNER'):
+            await self.exchange(self.envelope('credentials.renew', {
+                'nonce': secrets.token_urlsafe(32), 'expected_version': first['version']}, first['access_token']))
+        with self.assertRaisesRegex(RuntimeErrorCode, 'STALE_OWNER'):
+            await self.issue()
+
     async def test_expiry_reacquires_only_while_original_work_is_valid(self):
         _,first=await self.issue()
         async with self.f.db.transaction(self.f.scope) as c:
@@ -115,7 +133,6 @@ class WorkerCredentialTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_client_recovers_lost_renewal_response_without_tool_replay(self):
         from app.runtime.remote_tool_channel import RemoteToolProvider
-        from types import SimpleNamespace
         client=object.__new__(RemoteToolProvider);client.credentials={};client.automatic=True
         count=0;lose=False
         async def wire(binding,message,token):

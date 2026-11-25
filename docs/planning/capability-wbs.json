@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K03-1.01",
-    "next_delivery": "K03-1.01",
+    "next_work_item": "K03-1.02",
+    "next_delivery": "K03-1.02",
     "next_delivery_order": [
-      "K03-1.01",
       "K03-1.02",
       "K02-3.02",
       "K02-3.03",
@@ -33,7 +32,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "S02-2 三项工程工作已完成；按 W2 身份与权限顺序推进凭据轮换和身份源资格，复用已有 Cursor 路径。W1 源端隔离决策仍待定，不阻塞其他已就绪工作。"
+    "next_selection_reason": "K03-1.01 已补齐默认期限和原生轮换资格；按 W2 身份能力顺序补齐 Linux Secret 服务交付。W1 源端隔离决策仍待定，继续已就绪能力工作。"
   },
   "waves": [
     {
@@ -1798,7 +1797,7 @@
       "issue": 33,
       "title": "凭据轮换与身份源资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K03-1-A01",
         "K03-1-A02",
@@ -1812,8 +1811,10 @@
       "verification": "900 秒 Grant 续期不超原期限；版本冲突、收窄、换所有者、终态、上游撤销均按预期拒绝",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有 OIDC、Keycloak、OpenBao、续期及注销；企业环境/轮换/跨主机完整资格待闭环。",
+      "completion_evidence": [
+        "docs/design/evidence/identity-lifecycle-qualification-20261126.json"
+      ],
+      "basis": "默认 900 秒 Grant 与 Worker 凭据在真实时间/mTLS 下自然续期；原期限、版本冲突、权限收窄、所有者与终态拒绝通过。原生 Keycloak 客户端/签名密钥轮换和新密钥注销撤权通过。",
       "existing_evidence": [
         "docs/design/evidence/worker-credential-renewal-20261113.json",
         "docs/design/evidence/identity-provider-20261124.json",
