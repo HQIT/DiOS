@@ -50,6 +50,14 @@ export interface RunDetail extends RunSummary {
   attempts_has_more: boolean; artifacts_at_limit: boolean;
   events: { id: string; version: number; type: string; state: string; created_at: number }[];
 }
+export interface RuntimeOverview {
+  observed_at: number; period: "hour" | "day"; timezone: string; profile_id: string | null;
+  series: Array<{start: number; end: number; succeeded: number; failed: number; cancelled: number}>;
+  history_totals: {succeeded: number; failed: number; cancelled: number};
+  window_totals: {succeeded: number; failed: number; cancelled: number}; states: Record<string, number>;
+  coverage: {complete: boolean; missing_terminal_outcomes: number};
+  active: {at_limit: boolean; confirmed_sessions: number; actual_concurrency: number | null; items: Array<{id: string; profile_id: string; state: string; phase: string | null; diagnosis: string; last_output_at: number | null; retry_at: number | null}>};
+}
 export interface RunDiagnostics {
   time_basis: string; observed_at: number; last_event_at: number; last_output_at: number | null;
   freshness: string; attempts_has_more: boolean; governance_has_more: boolean;
@@ -114,8 +122,10 @@ export const runtimeApi = {
   workers: (signal?: AbortSignal) => request<WorkerStatus>("/workers", { signal }),
   profiles: (signal?: AbortSignal) => request<{ items: Profile[] }>("/profiles", { signal }),
   samples: (signal?: AbortSignal) => request<{ items: Sample[] }>("/samples", { signal }),
-  list: (cursor?: string, signal?: AbortSignal) => request<{ items: RunSummary[]; next_cursor: string | null; observed_at: number }>(
-    `/runs?limit=30${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { signal }),
+  list: (cursor?: string, signal?: AbortSignal, profileId?: string) => request<{ items: RunSummary[]; next_cursor: string | null; observed_at: number }>(
+    `/runs?limit=30${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}${profileId ? `&profile_id=${encodeURIComponent(profileId)}` : ""}`, { signal }),
+  overview: (period: "hour" | "day", profileId?: string, signal?: AbortSignal) => request<RuntimeOverview>(
+    `/overview?period=${period}&buckets=${period === "hour" ? 24 : 30}${profileId ? `&profile_id=${encodeURIComponent(profileId)}` : ""}`, { signal }),
   detail: (id: string, signal?: AbortSignal) => request<RunDetail>(path(id), { signal }),
   submit: (data: { profile_id: string; sample_id?: string; input_payload?: Record<string, unknown>; goal: string; idempotency_key: string; delegation_ref?: string; parent_run_id?: string }) =>
     request<RunDetail>("/runs", { method: "POST", body: JSON.stringify(data) }),

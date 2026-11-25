@@ -2241,8 +2241,25 @@
           "OTLP export and trace context propagation",
           "Agent-internal preparation, retrieval, first-token and generation timing",
           "Forwarding, audit persistence and commit timing",
-          "Durable hourly/daily throughput, freshness diagnostics, alerts and diagnostic export",
+          "Scheduler liveness, sustained anomaly detection, alerts and diagnostic export",
           "Large per-run history query cost qualification; physical multi-host acceptance"
+        ]
+      },
+      "runtime_overview": {
+        "status": "in_progress",
+        "design": "docs/design/runtime-overview-46.md",
+        "evidence": "docs/design/evidence/runtime-overview-20261125.json",
+        "delivered": [
+          "首次终态与 Run/事件同事务持久化；历史回填保留原事件时间、身份和摘要",
+          "小时/日完成量、历史总量和任务列表共用执行配置及对象权限筛选",
+          "实际并发依据心跳、租约、进程与会话证据；观测过期、无有效输出、等待恢复分别展示",
+          "CLI/API/中英文桌面及手机 Console；看板断连保留同范围旧数据并标记待刷新"
+        ],
+        "remaining": [
+          "Scheduler liveness evidence and further fault attribution",
+          "Sustained anomaly detection, alerting and bounded diagnostic export",
+          "Large-history permission-filtered aggregation cost qualification",
+          "OTLP export and physical multi-host qualification"
         ]
       }
     },

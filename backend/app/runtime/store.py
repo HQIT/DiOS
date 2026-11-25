@@ -74,8 +74,14 @@ class RuntimeStore:
         payload = {'run_id': run['id'], 'version': version, 'state': state, 'detail': detail}
         bounded(payload)
         await c.execute(runs.update().where(runs.c.id == run['id']).values(version=version, updated_at=now, **changes))
-        await c.execute(events.insert().values(id=str(uuid4()), run_id=run['id'], version=version,
+        event_id=str(uuid4())
+        await c.execute(events.insert().values(id=event_id, run_id=run['id'], version=version,
             type=kind, payload=payload, digest=digest(payload), created_at=now))
+        if state in TERMINAL and run['state'] not in TERMINAL:
+            from .outcome_schema import outcomes, require
+            await require(c)
+            await c.execute(outcomes.insert().values(scope=self.scope,run_id=run['id'],state=state,
+                finished_at=now,event_id=event_id,event_version=version,event_digest=digest(payload)))
 
     async def submission_receipt(self, key, submission_digest):
         """Read an immutable accepted request without creating or renewing Work."""

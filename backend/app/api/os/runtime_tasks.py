@@ -195,8 +195,13 @@ async def workers(s=Depends(service)):
     return await s.store.runtime_status()
 
 @router.get('/runs')
-async def listing(limit:int=Query(30,ge=1,le=100),cursor:str|None=Query(None,max_length=512),s=Depends(service)):
-    return await s.list(limit=limit,cursor=cursor)
+async def listing(limit:int=Query(30,ge=1,le=100),cursor:str|None=Query(None,max_length=512),profile_id:str|None=Query(None,min_length=1,max_length=160),s=Depends(service)):
+    return await s.list(limit=limit,cursor=cursor,profile_id=profile_id)
+
+@router.get('/overview')
+async def overview(period:str=Query('hour',pattern='^(hour|day)$'),buckets:int=Query(24,ge=1,le=168),
+                   profile_id:str|None=Query(None,min_length=1,max_length=160),s=Depends(service)):
+    return await s.overview(period=period,buckets=buckets,profile_id=profile_id)
 
 
 class CapacityUpdate(BaseModel):

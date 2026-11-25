@@ -24,6 +24,16 @@ from app.services.task_inputs import (
 )
 
 
+def console_filter(scope,profile_id=None):
+    query=and_(runs.c.scope==scope,or_(runs.c.input['origin'].as_string()==CONSOLE_ORIGIN,
+        and_(runs.c.input['origin'].as_string().is_(None),runs.c.input['task_kind'].as_string().in_(LEGACY_INPUT_KINDS))))
+    if profile_id is not None:
+        from app.runtime.store import identifier
+        identifier(profile_id)
+        query=and_(query,runs.c.input['runtime_profile'].as_string()==profile_id)
+    return query
+
+
 class TaskConsole:
     def __init__(self, db, scope, profiles_dir, artifacts_root, *, policy=None):
         self.db, self.scope = db, scope
@@ -218,12 +228,18 @@ class TaskConsole:
             'goal':payload.get('goal',''), 'sample_id':payload.get('sample',{}).get('id'),
             'task_kind':value.get('task_kind'),'profile_id':value.get('runtime_profile'), 'display':value.get('display',{})}
 
-    async def list(self, *, limit=30, cursor=None):
+    async def overview(self, *, period='hour',buckets=24,profile_id=None):
+        from app.runtime.overview import view
+        condition=console_filter(self.scope,profile_id)
+        access=await asyncio.to_thread(self.access_filter)
+        if access is not None:condition=and_(condition,access)
+        value=await view(self.db,self.scope,condition,period=period,buckets=buckets)
+        value['profile_id']=profile_id
+        return value
+
+    async def list(self, *, limit=30, cursor=None, profile_id=None):
         if not 1<=limit<=100:raise RuntimeErrorCode('INVALID_LIMIT')
-        query=select(runs).where(runs.c.scope==self.scope,or_(
-            runs.c.input['origin'].as_string()==CONSOLE_ORIGIN,
-            and_(runs.c.input['origin'].as_string().is_(None),
-                 runs.c.input['task_kind'].as_string().in_(LEGACY_INPUT_KINDS))))
+        query=select(runs).where(console_filter(self.scope,profile_id))
         if cursor:
             try:
                 stamp,rid=json.loads(base64.urlsafe_b64decode(cursor.encode()).decode())

@@ -9,6 +9,7 @@ import "./task-runs.css";
 import WorkerStatusPanel from "./WorkerStatusPanel";
 import CapacityPanel from "./CapacityPanel";
 import RunDiagnostics from "./RunDiagnostics";
+import RuntimeOverviewPanel from "./RuntimeOverviewPanel";
 import ToolActions from "./ToolActions";
 import DelegationEvidence from "./DelegationEvidence";
 import RunSchedulesPanel from "./RunSchedulesPanel";
@@ -81,6 +82,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   const [catalogError, setCatalogError] = useState(""); const [listError, setListError] = useState("");
   const [actionError, setActionError] = useState(""); const [detailError, setDetailError] = useState("");
   const [items, setItems] = useState<RunSummary[]>([]); const [cursor, setCursor] = useState<string>();
+  const [filterProfile,setFilterProfile]=useState("");
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [detail, setDetail] = useState<RunDetail>(); const [busy, setBusy] = useState(false);
   const [operatorMode, setOperatorMode] = useState(false);
@@ -109,7 +111,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
     const controller = new AbortController(); let timer: ReturnType<typeof setTimeout>;
     async function poll() {
       try {
-        const value = await runtimeApi.list(cursor, controller.signal);
+        const value = await runtimeApi.list(cursor, controller.signal,filterProfile);
         if (controller.signal.aborted) return;
         setItems(current => value.items.map(item => {
           const prior = current.find(x => x.id === item.id);
@@ -119,7 +121,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
       if (!controller.signal.aborted) timer = setTimeout(poll, 4000);
     }
     void poll(); return () => { controller.abort(); clearTimeout(timer); };
-  }, [cursor, refresh]);
+  }, [cursor, refresh,filterProfile]);
 
   useEffect(() => {
     const controller = new AbortController(); let timer: ReturnType<typeof setTimeout>;
@@ -218,6 +220,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
       <button onClick={() => setRefresh(x => x + 1)}>{translateUI("刷新")}</button></header>
     {catalogError && <p className="tr-notice" role="status">{translateUI(catalogError)}</p>}
     {actionError && <p className="tr-error" role="alert">{translateUI(actionError)}</p>}
+    <RuntimeOverviewPanel profiles={profiles} profileId={filterProfile} onProfileChange={value=>{setFilterProfile(value);setCursor(undefined);setItems([]);}} />
     <div className="tr-layout"><aside className="tr-sidebar">
       <form className="tr-card" onSubmit={submit}><h3>{translateUI("发起任务")}</h3>
         <label>{translateUI("执行 Agent")}<select value={profile} onChange={e => setProfile(e.target.value)} disabled={busy || !profiles.length} required>

@@ -162,6 +162,12 @@ async def execute(args):
             async with db.read(args.scope) as c:
                 return [dict(x) for x in (await c.execute(select(circuits).where(circuits.c.scope==args.scope))).mappings()]
         if args.command == 'workers': return await store.runtime_status(fresh_seconds=args.fresh_seconds)
+        if args.command == 'overview':
+            from .overview import view
+            from app.services.task_console import console_filter
+            result=await view(db,args.scope,console_filter(args.scope,args.profile_id),period=args.period,buckets=args.buckets)
+            result['profile_id']=args.profile_id
+            return result
         if args.command == 'cancel': return await store.cancel(args.run_id,args.revision)
         if args.command == 'revoke':
             await store.revoke(args.run_id,args.revision)
@@ -275,6 +281,10 @@ def main(argv=None):
     identity.add_argument('--retry-max',type=float,default=300)
     status=commands.add_parser('workers' ,help='persisted process/session evidence, freshness and actual concurrency')
     status.add_argument('--fresh-seconds',type=float,default=15)
+    overview=commands.add_parser('overview',help='durable console-task throughput and active-work observations in the trusted local scope')
+    overview.add_argument('--period',choices=['hour','day'],default='hour')
+    overview.add_argument('--buckets',type=int,default=24)
+    overview.add_argument('--profile-id')
     cancel=commands.add_parser('cancel');cancel.add_argument('run_id');cancel.add_argument('--revision',required=True,type=int)
     revoke=commands.add_parser('revoke');revoke.add_argument('run_id');revoke.add_argument('--revision',required=True,type=int)
     commands.add_parser('expire',help='fence expired leases for reconciliation; does not requeue')

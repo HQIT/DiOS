@@ -1,0 +1,186 @@
+{
+  "capability": "Durable logical task throughput and evidence-based runtime observations",
+  "tests": {
+    "sqlite_postgresql_and_regression": {
+      "passed": 109,
+      "skipped": 2,
+      "log_sha256": "1ae1be192657957b7f13c4253d46eddaed98880380a270fadc5a0c58f3740484",
+      "skip_reasons": [
+        "SQLite backup provider"
+      ]
+    },
+    "release_image": {
+      "passed": 54,
+      "skipped": 32,
+      "log_sha256": "a08d2f4989a0c321b992192ecb12a925692dcf41fba4f860aaf603d9e874ca77",
+      "skip_reasons": [
+        "PostgreSQL fixture disabled",
+        "isolated PostgreSQL not enabled",
+        "isolated PostgreSQL test URL not set"
+      ]
+    }
+  },
+  "semantics": {
+    "identity": "first terminal transition per Run; retries and later events do not add outcomes",
+    "clock": "original terminal event database timestamp; UTC buckets",
+    "scope": "Console tasks filtered by profile and current object access; trusted local CLI omits HTTP principal filtering",
+    "missing_history": "explicit incomplete coverage; imported history excluded",
+    "concurrency": "fresh heartbeat, lease, live process identity and session evidence; unresolved or truncated observations return null",
+    "query_limits": {
+      "hour_buckets": 168,
+      "day_buckets": 90,
+      "active_items": 200
+    },
+    "silence_threshold_seconds": 900
+  },
+  "browser": {
+    "browser": "Playwright; Browser plugin not available",
+    "api": "real isolated HTTP API; synthetic governed Worker and stale observation",
+    "principalPrivacy": true,
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "hourBuckets": 24,
+        "dayBuckets": 30,
+        "profileFilterMatchesList": true,
+        "stalePreservesData": true,
+        "actualConcurrencyUnknown": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "hourBuckets": 24,
+        "dayBuckets": 30,
+        "profileFilterMatchesList": true,
+        "stalePreservesData": true,
+        "actualConcurrencyUnknown": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "hourBuckets": 24,
+        "dayBuckets": 30,
+        "profileFilterMatchesList": true,
+        "stalePreservesData": true,
+        "actualConcurrencyUnknown": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      }
+    ]
+  },
+  "cli": {
+    "cli_overview": true,
+    "day_buckets": 30,
+    "profile_filter": true,
+    "coverage_complete": true
+  },
+  "image": {
+    "image": "sha256:38d7e63f84833175eb90240b83edcdd3933388ec2690fbe2d67fee2bca0bf806",
+    "base": "sha256:c609096a6271055e77aeb78f5672ee35031f766b805d7a40d518e6668b66eeb3",
+    "tag": "dios-backend:runtime-overview-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "deployment": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "changed": true
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_contract": {
+    "api_health": "ok",
+    "visible_runs": 54,
+    "native_outcomes": 84,
+    "history_totals": {
+      "succeeded": 38,
+      "failed": 11,
+      "cancelled": 5
+    },
+    "coverage_complete": true,
+    "backfill_matches_original_events": true,
+    "original_times_and_digests_preserved": true,
+    "profile_filter": true,
+    "unauthenticated_status": 401,
+    "actual_concurrency": 0,
+    "historical_detail_readable": true,
+    "frontend_status": 200,
+    "outcome_sha256": "80d9a6f68a52f469346f79cf91cf49b9c931473eef05953457cd63e56654e44e"
+  },
+  "deployed_ui": {
+    "liveDevelopmentApi": true,
+    "hourBuckets": 24,
+    "dayBuckets": 30,
+    "metricsMatchApi": true,
+    "accessibleDataTable": true,
+    "pageErrors": []
+  },
+  "frontend_build": {
+    "passed": true,
+    "node": "25.1.0",
+    "existing_warning": "bundle greater than 500 kB"
+  },
+  "source_sha256": {
+    "backend/app/api/os/runtime_tasks.py": "117a26d84c68bec9ce92d0c1b6415932b639b677b2f1a22c25304b006bfe8be8",
+    "backend/app/runtime/cli.py": "094ea019bd3c109c5ec7630f3acc4926729018ccc407c8c42bc320d86f801f88",
+    "backend/app/runtime/database.py": "c1af349f17b06283064a911e311afc7250e35f42e9f1a06a8a291ded56956c91",
+    "backend/app/runtime/recovery.py": "d53d2101caa01a3b3cabeb719bc78b1ebff05e9118e6cc55be0a23e0d75861bf",
+    "backend/app/runtime/store.py": "23f7d633e4b522a3eaf822583a94886adec0d90f6add986f7a1b838a5cd7cb95",
+    "backend/app/services/task_console.py": "c4fde197d4704b8047ab29b40ccccc2603c4addf8f2b86d587e30e6e39f9db14",
+    "frontend/src/api/runtime.ts": "b4810a72dbd67f39ffeceb74859d915f70ea93c40bc2a2aaa901278326c68ec6",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "9e0dfa8c843d20594b53fb40bd369f20f1c0efbcb8603b827ae2128bf4f4ce11",
+    "frontend/src/apps/console/components/task-runs.css": "56b1e50b0cd216ce9908c6a411987bba87891624991fb52402997e7b799c715f",
+    "frontend/src/lib/messages.ts": "5206874851cf4601c567f61794bce44ae4d7e32a623881c151e03b55511cf07d",
+    "backend/app/runtime/outcome_schema.py": "6ed31b900cf91c5c3e43614791d00c19a8652f7f663fc9ea2e8bc742cdc5442a",
+    "backend/app/runtime/overview.py": "6520901b636752521a921e7efbcf855112fbed4193e5d17bfc99fa4bcfc5ec65",
+    "backend/tests/test_runtime_overview.py": "1b6872a9ba39ae6a4bbce4e4d0c302c06372eda6fe8672ff416c03950eb3b907",
+    "frontend/src/apps/console/components/RuntimeOverviewPanel.tsx": "f0353467d05b525bb4a6be35bedce0055bebed7bf5b7b15c7a6a6660c71999ce"
+  },
+  "remaining": [
+    "Scheduler liveness evidence and further fault attribution",
+    "Sustained anomaly detection, alerting and bounded diagnostic export",
+    "Large-history permission-filtered aggregation cost qualification",
+    "OTLP export and physical multi-host qualification"
+  ]
+}
