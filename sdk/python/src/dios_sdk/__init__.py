@@ -2,6 +2,6 @@
 from .protocol import WorkloadError, encoded, digest, emit, work_input
 from .tools import ToolChannelClient
 from .tasks import TaskClient, ApiError, TransportError, ObservationTimeout
-__version__ = '0.1.11'
+__version__ = '0.1.12'
 __all__ = ['WorkloadError', 'encoded', 'digest', 'emit', 'work_input', 'ToolChannelClient',
            'TaskClient', 'ApiError', 'TransportError', 'ObservationTimeout']

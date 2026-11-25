@@ -15,7 +15,9 @@ export interface RunSummary {
   goal: string; profile_id: string; created_at: number; updated_at: number; cancel_requested: boolean;
   display: { name?: string; implementation?: string; synthetic?: boolean };
 }
+export interface ObjectReference { kind: "file" | "session" | "artifact"; id: string; version: number; }
 export interface Attempt {
+  object_ref?: ObjectReference | null;
   id: string; epoch: number; state: string; session_id: string | null; worker_id: string;
   process_id: number | null; started_at: number; finished_at: number | null; last_output_at: number | null;
   error: { code: string } | null; freshness: "fresh" | "stale" | "final";
@@ -25,7 +27,7 @@ export interface Attempt {
     context_id: string | null; observed_state: string | null; observed_at: number | null;
     cancel_requested_at: number | null; freshness: "fresh" | "stale" | "final" };
 }
-export interface Artifact { id: string; attempt_id: string; kind: string; size: number; digest: string; created_at: number; }
+export interface Artifact { id: string; attempt_id: string; kind: string; size: number; digest: string; created_at: number; object_ref?: ObjectReference; }
 export interface WorkAuthorization {
   delegation?: { reference: string; captured_at: number; chain: { id: string; parent_ref: string | null; subject: string; actor: string; depth: number; state: string; expires_at: number; authorization_epoch: number; captured_epoch: number; source_check?: WorkAuthorization["source_check"] }[] } | null;
   source_check?: { outcome: "pending" | "valid" | "unavailable" | "revoked"; reason: string | null; checked_at: number | null; last_success_at: number | null; next_check_at: number; failures: number; checking: boolean; stale: boolean } | null;

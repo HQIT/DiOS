@@ -46,6 +46,28 @@ async def execute(args):
             from .gateway_admin import serve_gateway
             return await serve_gateway(args,db)
         if args.command == 'migrate': return await db.migrate()
+        if args.command == 'object':
+            from .objects import Objects, reference, public
+            from .artifacts import LocalArtifacts
+            manager=Objects(db,args.scope)
+            if args.object_command=='publish':
+                provider=LocalArtifacts(Path(args.artifacts))
+                def chunks():
+                    with Path(args.file).open('rb') as source:
+                        while chunk:=source.read(65536):yield chunk
+                return public(await manager.publish(provider,chunks(),args.key,args.actor,
+                    object_id=args.object_id,expected_version=args.expected_version,media_type=args.media_type))
+            if args.object_command=='link':
+                with Path(args.file).open('rb') as source:raw=source.read(8193)
+                if len(raw)>8192:raise RuntimeErrorCode('METADATA_TOO_LARGE')
+                value=json.loads(raw)
+                return await manager.link(value['source'],value['relation'],value['target'],args.actor)
+            ref=reference(args.kind,args.object_id,args.version)
+            if args.object_command=='show':return public(await manager.get(ref))
+            if args.object_command=='relations':return await manager.relations(ref,after=args.after,limit=args.limit)
+            result=await manager.versions(args.kind,args.object_id,after=args.after,limit=args.limit)
+            result['items']=[public(item) for item in result['items']]
+            return result
         if args.command == 'revision':
             from .revisions import Revisions, MAX_MANIFEST_BYTES
             manager = Revisions(db, args.scope)
@@ -279,6 +301,17 @@ def main(argv=None):
     p.add_argument('--scope',default='local')
     commands = p.add_subparsers(dest='command',required=True)
     commands.add_parser('migrate',help='explicit additive migration; backup existing database first')
+    objects = commands.add_parser('object',help='versioned files, sessions, artifacts and provenance')
+    object_commands=objects.add_subparsers(dest='object_command',required=True)
+    op=object_commands.add_parser('publish')
+    for name in ('file','artifacts','key','actor'):op.add_argument('--'+name,required=True)
+    op.add_argument('--object-id');op.add_argument('--expected-version',type=int,default=0)
+    op.add_argument('--media-type',default='application/octet-stream')
+    op=object_commands.add_parser('link');op.add_argument('--file',required=True);op.add_argument('--actor',required=True)
+    for name in ('show','versions','relations'):
+        op=object_commands.add_parser(name);op.add_argument('kind',choices=['file','session','artifact']);op.add_argument('object_id')
+        op.add_argument('--version',type=int,default=1)
+        if name!='show':op.add_argument('--limit',type=int,default=50);op.add_argument('--after',type=int if name=='versions' else str,default=0 if name=='versions' else '')
     revision = commands.add_parser('revision', help='immutable configuration snapshots; does not launch or authorize tasks')
     revision_commands = revision.add_subparsers(dest='revision_command', required=True)
     revision_create = revision_commands.add_parser('create')

@@ -39,6 +39,7 @@ from .delegation_check_schema import metadata as delegation_check_metadata, CHEC
 from .schedule_schema import metadata as schedule_metadata, CHECKSUM as SCHEDULE_CHECKSUM
 from .lifecycle import Lifecycle
 from .artifacts import LocalArtifacts
+from .object_schema import metadata as object_metadata, CHECKSUM as OBJECT_CHECKSUM
 
 
 def sqlite_path(url):
@@ -113,6 +114,7 @@ def _database_info(path):
             ('runtime_revision_schema',revision_metadata,REVISION_CHECKSUM),
             ('runtime_deployment_schema',deployment_metadata,DEPLOYMENT_CHECKSUM),
             ('runtime_compatibility_schema',compatibility_metadata,COMPATIBILITY_CHECKSUM),
+            ('runtime_object_schema',object_metadata,OBJECT_CHECKSUM),
             ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
@@ -140,6 +142,13 @@ def _database_info(path):
             entry={'sha256':hashed,'size':size}
             if key in objects and objects[key]!=entry: raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
             objects[key]=entry
+        if 'runtime_object_schema' in tables:
+            for provider,key,hashed,size in c.execute('SELECT provider,storage_key,digest,size FROM runtime_object_versions'):
+                if provider!=LocalArtifacts.name or not re.fullmatch('[0-9a-f]{64}',key) or key!=hashed or size<0:
+                    raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
+                expected={'sha256':key,'size':size}
+                if key in objects and objects[key]!=expected:raise RuntimeErrorCode('BACKUP_ARTIFACT_INVALID')
+                objects[key]=expected
         if 'runtime_history_archive_schema' in tables:
             for provider,key,size in c.execute('SELECT provider,digest,size FROM runtime_history_archive_objects'):
                 if provider!=LocalArtifacts.name or not re.fullmatch('[0-9a-f]{64}',key) or size<0:

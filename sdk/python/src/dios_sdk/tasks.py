@@ -43,6 +43,24 @@ class TaskClient:
         self._token, self.timeout, self.max_bytes = token, timeout, max_bytes
         self._opener = build_opener(ProxyHandler({}) if local else ProxyHandler(), _NoRedirect())
 
+    def object_version(self, kind, object_id, version=1):
+        return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version))
+
+    def object_versions(self, kind, object_id, *, after=0, limit=50):
+        return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions?'+urlencode({'after':after,'limit':limit}))
+
+    def publish_file(self, data, *, idempotency_key, object_id=None, expected_version=0, media_type='application/octet-stream'):
+        import base64
+        if not isinstance(data,bytes) or len(data)>1024*1024:raise ValueError('File must be at most 1 MiB of bytes')
+        return self._request('/objects/files',method='POST',body={'content_base64':base64.b64encode(data).decode('ascii'),
+            'idempotency_key':idempotency_key,'object_id':object_id,'expected_version':expected_version,'media_type':media_type})
+
+    def link_objects(self, source, relation, target):
+        return self._request('/objects/relations',method='POST',body={'source':source,'relation':relation,'target':target})
+
+    def object_relations(self, kind, object_id, version=1, *, after='', limit=50):
+        return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/relations?'+urlencode({'after':after,'limit':limit}))
+
     def _request(self, suffix, *, method='GET', body=None, raw=False, timeout=None):
         headers = {'Authorization': 'Bearer ' + self._token, 'Accept': 'application/json'}
         data = encoded(body) if body is not None else None

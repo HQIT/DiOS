@@ -411,3 +411,7 @@ async def tool_reconcile(run_id:str,invocation_id:str,body:Cancel,s=Depends(tool
 @router.post('/runs/{run_id}/tools/{invocation_id}/receipt-recover')
 async def tool_receipt_recover(run_id:str,invocation_id:str,body:Cancel,s=Depends(tool_service)):
     return await s.recover_receipt(run_id,invocation_id,body.expected_version)
+
+
+from .runtime_objects import register as register_objects
+register_objects(router, service)

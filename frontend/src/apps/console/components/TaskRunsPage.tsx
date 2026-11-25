@@ -362,7 +362,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         <section className="tr-card"><div className="tr-section-title"><h3>{translateUI("成果与附件")}</h3>{detail.state === "succeeded" && <span className="tr-badge">{translateUI("待人工复核")}</span>}</div>
           {!detail.artifacts.length && <p className="tr-empty-small">{translateUI("执行结束后，报告和原始输出将在这里归档。")}</p>}
           <div className="tr-artifacts">{detail.artifacts.map(a => <button key={a.id} className={artifact === a.id ? "selected" : ""} disabled={!can("artifact.read")} onClick={() => setArtifact(a.id)}>
-            {translateUI(a.kind === "result" ? "任务成果" : a.kind === "stdout" ? "原始输出" : a.kind === "stderr" ? "诊断记录" : "附件")}<small>{translateUI((a.size / 1024).toFixed(1))} KB</small></button>)}</div>
+            {translateUI(a.kind === "result" ? "任务成果" : a.kind === "stdout" ? "原始输出" : a.kind === "stderr" ? "诊断记录" : "附件")}<small>{translateUI((a.size / 1024).toFixed(1))} KB{a.object_ref ? ` · v${a.object_ref.version}` : ""}</small></button>)}</div>
           {previewError && <p className="tr-error" role="alert">{translateUI(previewError)}</p>}
           {artifact && <div className="tr-actions"><button disabled={downloading} onClick={() => void download(false)}>{translateUI("下载原文件")}</button>
             {preview?.markdown && <button disabled={downloading} onClick={() => void download(true)}>{translateUI("下载 Markdown 报告")}</button>}</div>}

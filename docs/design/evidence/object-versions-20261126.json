@@ -1,0 +1,162 @@
+{
+  "work_item": "S02-1.01",
+  "status": "engineering_verified",
+  "source_head": "3bdcc584b83a7b1a95ec4f22acd62924bb8224ce",
+  "delivered": [
+    "Runtime-neutral file/session/artifact references with original native identities",
+    "Immutable file versions, optimistic concurrency and durable idempotency receipts",
+    "Version-pinned provenance and opaque external references with bounded queries",
+    "Native Run access checks retained; standalone file/relationship operations restricted to operator",
+    "Additive SQLite/PostgreSQL schema and file-version content included in backup/restore",
+    "API, CLI, installed Python SDK 0.1.12 and Console artifact version display"
+  ],
+  "tests": {
+    "sqlite_postgresql": {
+      "modules": [
+        "test_runtime_objects",
+        "test_runtime_task_console",
+        "test_runtime_principals",
+        "test_runtime_recovery",
+        "test_installation_backup",
+        "test_installation_restore"
+      ],
+      "exit_code": 0,
+      "summary": "----------------------------------------------------------------------\nRan 65 tests in 66.795s\n\nOK (skipped=1)",
+      "total": 65,
+      "passed": 64,
+      "skipped": 1,
+      "seconds": 66.795,
+      "log_sha256": "1c6ddf1d64e33a0ad2552384bca5f063a8bb813716b6587abcb97b2ceab305f2"
+    },
+    "release_image": {
+      "image": "sha256:77a9495ab7fd5acfd28b644561fdfdc16e48a4c5535a9d84de1536b5dcafa8b7",
+      "base": "sha256:37c744e7cc12349a06abbbe3766be841600b0a86672dc32340a34fea2bbbe589",
+      "network": "none",
+      "user": "65534:65534",
+      "summary": "Ran 8 tests in 3.943s\n\nOK (skipped=3)",
+      "total": 8,
+      "passed": 5,
+      "skipped": 3,
+      "seconds": 3.943
+    },
+    "frontend_build": "tsc -b and Vite passed; existing Node 18 engine and chunk-size warnings",
+    "lint": "new modules/tests Ruff passed; git diff --check passed"
+  },
+  "development": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": true
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "live_api_cli_sdk": {
+    "sdk": "0.1.12",
+    "installed_wheel": true,
+    "file_versions": [
+      {
+        "kind": "file",
+        "id": "9167e5a5-2edb-4c09-8d45-b3286d3d89d6",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "9167e5a5-2edb-4c09-8d45-b3286d3d89d6",
+        "version": 2
+      }
+    ],
+    "run_id": "c1d03cff-e5cb-4bdb-af8d-55988805f2d9",
+    "artifact": {
+      "kind": "artifact",
+      "id": "aa4aa52a-d5b7-469a-bf9f-5225c5e6827d",
+      "version": 1
+    },
+    "session": {
+      "kind": "session",
+      "id": "c94defc3-abca-4976-aa0e-d4e410c4e17f",
+      "version": 1
+    },
+    "links": 2,
+    "api_cli_same_identity": true,
+    "idempotency": true,
+    "unauthenticated": 401
+  },
+  "console": {
+    "run_id": "c1d03cff-e5cb-4bdb-af8d-55988805f2d9",
+    "version_visible": true,
+    "page_errors": [],
+    "url": "http://127.0.0.1:13082/dios/#console/tasks/c1d03cff-e5cb-4bdb-af8d-55988805f2d9"
+  },
+  "sdk_wheel_sha256": "203deafc83bfa514077244fbdf3000ebec98e436fda244e7126dc9b275dc8eb4",
+  "source_sha256": {
+    "backend/app/api/os/runtime_objects.py": "75ed5e21fcf4679b6ae5bfba1ba77d2d93db02d1b6e100c906ff8bdb92baf9b1",
+    "backend/app/api/os/runtime_tasks.py": "b3f41567bf62d00f1729b96bdf7088a146f79ddd8c8956c6a6be8764a419b2a2",
+    "backend/app/runtime/cli.py": "e422a0e08df1ab8935f269a068ad4de967ec8ef730583a9443e4f5153b6994c2",
+    "backend/app/runtime/database.py": "67d3268e05ab892c2ed16b3bc6bb4310eb30d9453f7a063e25493c63864ee88e",
+    "backend/app/runtime/object_schema.py": "1e1426f5dc9bc2cb1fbfc2248661778d23ace06e3a79afde950529f125547049",
+    "backend/app/runtime/objects.py": "4998b72ec7715a4749657ed61602d09a4600ac33d2cffd880877b4d3f1b1bf7c",
+    "backend/app/runtime/recovery.py": "27b208f37d4f4ee7028b90e123855d7f05b0f9b75be481405381ef1e5593ea05",
+    "backend/app/services/task_console.py": "5aea0dc439addaf6349cac26b20cd02c220914d46b4992f7950d8e745c54e5f1",
+    "backend/tests/test_runtime_objects.py": "11d2e203450a70f9e5f98a6eb0cbf89553add33b21218f513fb5ffecab450657",
+    "frontend/src/api/runtime.ts": "6d8611e58a16da19aca1bf844799390de13eb8f0aaf380bde1f9dbbe273198cf",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "1f1f620450b5ccadcd94fec77b56c073bcffeaf08f5327f5d186829851904ef7",
+    "sdk/python/pyproject.toml": "ceff8b6ec149d2ea9d7b932f700aa3507fa09d220855d6d0d79d7299f9707c2b",
+    "sdk/python/src/dios_sdk/__init__.py": "c5faa14e16008f4b636baacd1a5d865b8c64a80968721488a006c91e2f05754a",
+    "sdk/python/src/dios_sdk/tasks.py": "a1b587e596376256b1ce7b97a5fdac6c0be6af66f53cd64b67d03a483addc077"
+  },
+  "design": "docs/design/object-versions-38.md",
+  "sources": [
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.html",
+    "https://specs.opencontainers.org/image-spec/descriptor/",
+    "https://www.w3.org/TR/prov-o/"
+  ],
+  "limits": [
+    "Session v1 identifies the original Attempt/vendor Session; does not export vendor-internal session storage.",
+    "Standalone file access/download/revocation and relationship visibility for application principals remain S02-1.02.",
+    "Retention/deletion/tombstone propagation remain S02-1.03; full lifecycle qualification remains S02-1.04.",
+    "Existing Harness workload images retain their qualified SDK version; 0.1.12 adds client methods only."
+  ]
+}

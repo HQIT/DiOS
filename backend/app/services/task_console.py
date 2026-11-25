@@ -336,6 +336,7 @@ class TaskConsole:
             elif kind=='attempt.output_retained':kinds[detail['artifact_id']]=detail['kind']
             else:
                 for name,aid in detail.get('artifacts',{}).items():kinds[aid]=name
+        from app.runtime.objects import reference
         views=[]
         for a in rows:
             obs=a['remote'].get('runtime',{})
@@ -343,6 +344,7 @@ class TaskConsole:
             fresh=terminal or (a['state']!='result_unknown' and a['lease_until']>now and obs.get('observed_at',0)>=now-15)
             views.append({**{k:a[k] for k in ('id','epoch','state','session_id','worker_id','process_id',
                 'started_at','finished_at','last_output_at','error')},
+                'object_ref':reference('session',a['id']) if a['session_id'] else None,
                 'freshness':'final' if terminal else ('fresh' if fresh else 'stale'),
                 'runtime_state':obs.get('state'),
                 'confirmed_running':bool(fresh and not terminal and obs.get('state')!='paused' and obs.get('alive') and obs.get('pid') and obs.get('process_instance')),
@@ -361,7 +363,7 @@ class TaskConsole:
                 if exc.code!='NOT_FOUND':raise
         return dict(self.summary(run),access=access,observed_at=now,attempts=views,authorization=authorization,recovery=recovery,family=family,capacity=capacity,execution_budget=execution_budget,tool_budget=tool_budget,model_usage=model_usage,diagnostics=diagnostics,
             sample=run['input']['payload']['sample'],
-            artifacts=[{**{k:b[k] for k in ('id','attempt_id','digest','size','created_at')},'kind':kinds.get(b['id'],'raw')}
+            artifacts=[{**{k:b[k] for k in ('id','attempt_id','digest','size','created_at')},'kind':kinds.get(b['id'],'raw'),'object_ref':reference('artifact',b['id'])}
                 for b in blobs],
             events=[dict(id=e['id'],version=e['version'],type=e['type'],state=e['payload']['state'],created_at=e['created_at']) for e in recent],
             attempts_has_more=bool(rows and rows[-1]['epoch']>1),artifacts_at_limit=len(blobs)==100)

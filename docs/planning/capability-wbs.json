@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "S02-1.01",
-    "next_delivery": "S02-1.01",
+    "next_work_item": "S02-1.02",
+    "next_delivery": "S02-1.02",
     "next_delivery_order": [
-      "S02-1.01",
+      "S02-1.02",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -32,7 +32,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "W1 剩余恢复/升级链依赖 K02-3.02 的源端隔离决策；先推进既定 W2 无前置依赖的 S02-1.01 统一对象版本与引用。"
+    "next_selection_reason": "W1 恢复/升级链仍等待源端隔离决策；继续既定 W2 对象能力，基于统一版本引用接入读取下载与撤销一致性。"
   },
   "waves": [
     {
@@ -3056,7 +3056,7 @@
       "issue": 38,
       "title": "统一对象版本与引用",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "S02-1-A02",
         "S02-1-A03"
@@ -3066,8 +3066,10 @@
       "verification": "Runtime 替换和版本变化不丢引用；业务项目/部门实体不进入内核",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有文件/产物关联及读取授权切片；统一对象版本、留存、删除与撤销一致性待补。",
+      "completion_evidence": [
+        "docs/design/evidence/object-versions-20261126.json"
+      ],
+      "basis": "统一对象引用、文件版本及不透明外部关联已部署；原 Run/Attempt/Artifact 标识保留。",
       "existing_evidence": [
         "docs/design/evidence/capability-boundary-20261124.json",
         "docs/design/evidence/business-evidence-20261123.json"
