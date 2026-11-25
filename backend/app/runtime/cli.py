@@ -31,6 +31,22 @@ async def execute(args):
             from .gateway_admin import serve_gateway
             return await serve_gateway(args,db)
         if args.command == 'migrate': return await db.migrate()
+        if args.command == 'revision':
+            from .revisions import Revisions, MAX_MANIFEST_BYTES
+            manager = Revisions(db, args.scope)
+            if args.revision_command == 'show':
+                return await manager.show(args.revision_id, include_manifest=args.manifest)
+            if args.revision_command == 'list':
+                return await manager.list(args.definition_id, after=args.after, limit=args.limit)
+            with Path(args.file).open('rb') as source:
+                raw = source.read(MAX_MANIFEST_BYTES + 1)
+            if len(raw) > MAX_MANIFEST_BYTES:
+                raise RuntimeErrorCode('REVISION_MANIFEST_TOO_LARGE')
+            try:
+                value = json.loads(raw)
+            except (ValueError, UnicodeError, RecursionError):
+                raise RuntimeErrorCode('REVISION_MANIFEST_INVALID') from None
+            return await manager.create(args.key, value, actor=args.actor)
         if args.command == 'upgrade':
             lifecycle=Lifecycle(db,args.scope)
             if args.upgrade_command=='drain':return await lifecycle.begin_drain()
@@ -211,6 +227,19 @@ def main(argv=None):
     p.add_argument('--scope',default='local')
     commands = p.add_subparsers(dest='command',required=True)
     commands.add_parser('migrate',help='explicit additive migration; backup existing database first')
+    revision = commands.add_parser('revision', help='immutable configuration snapshots; does not launch or authorize tasks')
+    revision_commands = revision.add_subparsers(dest='revision_command', required=True)
+    revision_create = revision_commands.add_parser('create')
+    revision_create.add_argument('--file', required=True)
+    revision_create.add_argument('--key', required=True)
+    revision_create.add_argument('--actor', required=True, help='audit label of the trusted local publisher')
+    revision_show = revision_commands.add_parser('show')
+    revision_show.add_argument('revision_id')
+    revision_show.add_argument('--manifest', action='store_true')
+    revision_list = revision_commands.add_parser('list')
+    revision_list.add_argument('definition_id')
+    revision_list.add_argument('--after', type=int, default=0)
+    revision_list.add_argument('--limit', type=int, default=50)
     backup=commands.add_parser('backup',help='snapshot SQLite and referenced local artifacts to a new directory')
     backup.add_argument('--artifacts',required=True);backup.add_argument('--destination',required=True)
     backup.add_argument('--timeout',type=float,default=60)

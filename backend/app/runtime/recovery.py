@@ -20,6 +20,7 @@ from .tool_budget_schema import metadata as tool_budget_metadata, CHECKSUM as TO
 from .usage_schema import metadata as usage_metadata, CHECKSUM as USAGE_CHECKSUM
 from .outcome_schema import metadata as outcome_metadata, CHECKSUM as OUTCOME_CHECKSUM
 from .monitor_schema import metadata as monitor_metadata, CHECKSUM as MONITOR_CHECKSUM
+from .revision_schema import metadata as revision_metadata, CHECKSUM as REVISION_CHECKSUM, GUARDS as REVISION_GUARDS
 from .history_schema import metadata as history_metadata, CHECKSUM as HISTORY_CHECKSUM
 from .history_archive_schema import metadata as history_archive_metadata, CHECKSUM as HISTORY_ARCHIVE_CHECKSUM
 from .lifecycle_schema import metadata as lifecycle_metadata, CHECKSUM as LIFECYCLE_CHECKSUM
@@ -107,6 +108,7 @@ def _database_info(path):
             ('runtime_tool_budget_schema',tool_budget_metadata,TOOL_BUDGET_CHECKSUM),
             ('runtime_usage_schema',usage_metadata,USAGE_CHECKSUM),
             ('runtime_monitor_schema',monitor_metadata,MONITOR_CHECKSUM),
+            ('runtime_revision_schema',revision_metadata,REVISION_CHECKSUM),
             ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
@@ -123,6 +125,10 @@ def _database_info(path):
                 if not set(table.columns.keys()).issubset(actual): raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
             schemas[version_table]={'version':1,'checksum':checksum}
         objects={}
+        if 'runtime_revision_schema' in tables:
+            guards={row[0] for row in c.execute("SELECT name FROM sqlite_master WHERE type='trigger'")}
+            if not set(REVISION_GUARDS).issubset(guards):
+                raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
         for provider,key,hashed,size in c.execute('SELECT provider,storage_key,digest,size FROM runtime_artifacts'):
             if provider!=LocalArtifacts.name: raise RuntimeErrorCode('BACKUP_ARTIFACT_PROVIDER_UNSUPPORTED')
             if not re.fullmatch('[0-9a-f]{64}',key) or key!=hashed or size<0:

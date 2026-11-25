@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dios:revision-manifest:1",
+  "title": "Immutable Revision Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "definition_id",
+    "implementation_version",
+    "configuration",
+    "dependencies",
+    "secret_refs",
+    "artifact_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "definition_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$"
+    },
+    "implementation_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "configuration": {
+      "type": "object",
+      "description": "Trusted public configuration. Credential-bearing keys/URLs and private keys are rejected by intake; secrets are supplied only by secret_refs."
+    },
+    "dependencies": {
+      "type": "object",
+      "required": [
+        "prompt",
+        "model",
+        "skill",
+        "tool",
+        "policy",
+        "image",
+        "adapter",
+        "harness"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "prompt": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/dependency"
+              },
+              {
+                "properties": {
+                  "visibility": {
+                    "const": "pinned"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "model": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "$ref": "#/$defs/dependency"
+          }
+        },
+        "skill": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/dependency"
+              },
+              {
+                "properties": {
+                  "visibility": {
+                    "const": "pinned"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "tool": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/dependency"
+              },
+              {
+                "properties": {
+                  "visibility": {
+                    "const": "pinned"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "policy": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/dependency"
+              },
+              {
+                "properties": {
+                  "visibility": {
+                    "const": "pinned"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "image": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/dependency"
+              },
+              {
+                "properties": {
+                  "visibility": {
+                    "const": "pinned"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "adapter": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/dependency"
+              },
+              {
+                "properties": {
+                  "visibility": {
+                    "const": "pinned"
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 1
+        },
+        "harness": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "$ref": "#/$defs/dependency"
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "image": {
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "properties": {
+            "harness": {
+              "minItems": 1
+            }
+          }
+        }
+      ]
+    },
+    "secret_refs": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$"
+      }
+    },
+    "artifact_refs": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$"
+      }
+    }
+  },
+  "$defs": {
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "reference",
+        "version",
+        "digest",
+        "visibility"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "visibility": {
+          "enum": [
+            "pinned",
+            "declared",
+            "opaque"
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "visibility": {
+              "const": "pinned"
+            },
+            "digest": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "visibility": {
+              "const": "declared"
+            },
+            "version": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "visibility": {
+              "const": "opaque"
+            },
+            "version": {
+              "type": "null"
+            },
+            "digest": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "$comment": "Runtime intake also enforces a 256 KiB canonical JSON bound, 32-level configuration depth, finite numbers, unique dependency names within each kind, and credential rejection."
+}

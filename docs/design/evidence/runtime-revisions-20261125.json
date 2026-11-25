@@ -1,0 +1,118 @@
+{
+  "work_item": "K02-1.01",
+  "engineering_status": "verified",
+  "acceptance_status": "G2 review pending",
+  "base_commit": "ecaf53f433a4c3e0fa1287559f9c4edd65a39b8f",
+  "delivered": [
+    "Immutable Revision and publication receipt storage",
+    "Explicit additive migration for SQLite and PostgreSQL",
+    "Scoped idempotent creation and ordered pagination",
+    "Configuration and dependency digests with declared/opaque provenance",
+    "SQL update/delete/upsert rejection and SQLite REPLACE guard",
+    "Secret reference intake and bounded manifest contract",
+    "Trusted local revision CLI, no task launches",
+    "Backup and clean read-back with old Run identity preservation"
+  ],
+  "tests": {
+    "sqlite_postgresql_and_regression": {
+      "total": 116,
+      "passed": 115,
+      "skipped": 1,
+      "seconds": 80.853,
+      "suite_log": "contracts.log"
+    },
+    "release_image": {
+      "total": 116,
+      "passed": 77,
+      "skipped": 39,
+      "seconds": 55.585,
+      "suite_log": "image-contracts.log"
+    }
+  },
+  "image": {
+    "image": "sha256:7991b23733b89c1cb7784e3ccad394e600c03d7272405c01102cb6aaef6ea3bf",
+    "base": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "tag": "dios-backend:runtime-revisions-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "development": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "changed": false
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_cli": {
+    "scoped_cli": "passed",
+    "idempotency": "same_revision",
+    "changed_configuration": "new_revision",
+    "original_snapshot": "preserved",
+    "published_revisions": 2,
+    "task_launches": 0,
+    "history_preserved": 84,
+    "revision_ids": [
+      "rev-f3ed56c77f425f97a4b27cf0bb0c58fcea4955a05f4d3ffb2278c38c452a71b4",
+      "rev-2d7904f217947c64086991ea26d788afd41a70d79a34e9505f005de4f45e8fcd"
+    ]
+  },
+  "next_work_item": "K02-1.02",
+  "not_yet_delivered": [
+    "Run/Worker binding to Revision",
+    "Deployment activation and rollback",
+    "External capability change gate",
+    "Public API and Console version workflow"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/revision_schema.py": "5c60e70f365c1a66ae6422a7fef73a6a5d28856831f270c2cf2ac33e83a328c6",
+    "backend/app/runtime/revisions.py": "78b2610bc1f19a3affed82187fd6767457b4b17abeaba8c6b001120af96e46df",
+    "backend/app/runtime/database.py": "cbee6daaaf491e339131e9cab1377b4869122231018c9364dd81b6be6e3cad08",
+    "backend/app/runtime/cli.py": "53f023469a2e91509ea0c2a18a382e1c1c5b2920b37bbffb8dd87ccfaf482c98",
+    "backend/app/runtime/recovery.py": "c98490c52dab4c25d7ca098b20ff27b10c8bfc834d21e622864e9d148f012e61",
+    "backend/tests/test_runtime_revisions.py": "f5dfa91c329407b00c92b315b94344b510dbc07c0652c41342ce5689c66fb1d0",
+    "contracts/v1/revision-manifest.schema.json": "abddc7b0adab2b6fb2b4470f879da05ca1bc247f1477f1f46caac592a5333744"
+  },
+  "references": [
+    "https://kubernetes.io/docs/reference/kubernetes-api/apps/controller-revision-v1/",
+    "https://specs.opencontainers.org/image-spec/descriptor/",
+    "https://www.sqlite.org/lang_conflict.html"
+  ]
+}
