@@ -23,7 +23,7 @@ class ChildChannelTests(unittest.IsolatedAsyncioTestCase):
         self.path=profiles/'child.json'
         self.path.write_text(json.dumps(dict(id='test-profile',bridge='jsonl-v1',governance={'mode':'e2ag'},
             launch={'image':'test-image','command':['test-command']},console=dict(enabled=True,input_kind='generic',input_catalog=str(catalog)))))
-        self.policy={'tools':{},'acp_names':{'mcp__dios__dios_task_submit':'dios_task_submit','mcp__dios__dios_task_get':'dios_task_get'},'children':dict(max_children=3,max_depth=3,
+        self.policy={'tools':{},'acp_names':{'mcp__dios__dios_task_list':'dios_task_list','mcp__dios__dios_task_submit':'dios_task_submit','mcp__dios__dios_task_get':'dios_task_get'},'children':dict(max_children=3,max_depth=3,
             profiles={'review':dict(path=str(self.path),profile_id='test-profile',profile_digest=f.spec.fingerprint())})}
         self.gate=SimpleNamespace(store=f.store,policy=f.policy,provider=f.provider,identity_guard=None)
         self.channel=WorkerToolChannel(self.gate,f.binding,self.policy,os.getuid())
@@ -107,7 +107,7 @@ class ChildChannelTests(unittest.IsolatedAsyncioTestCase):
         await bridge.handle({'jsonrpc':'2.0','id':1,'method':'initialize','params':{'protocolVersion':'2025-06-18'}})
         await bridge.handle({'jsonrpc':'2.0','method':'notifications/initialized','params':{}})
         listed=await bridge.handle({'jsonrpc':'2.0','id':2,'method':'tools/list','params':{}})
-        self.assertEqual({x['name'] for x in listed['tools']},{'dios_task_submit','dios_task_get'})
+        self.assertEqual({x['name'] for x in listed['tools']},{'dios_task_submit','dios_task_get','dios_task_list'})
         self.assertNotIn(str(self.path),json.dumps(listed))
         arguments=dict(profile='review',goal='child',sample_id='one')
         self.assertTrue((await self.channel.handle({'method':'permit_proxy','params':{
@@ -123,3 +123,35 @@ class ChildChannelTests(unittest.IsolatedAsyncioTestCase):
         activity[0]['arguments']['goal']='invented'
         with self.assertRaisesRegex(RuntimeErrorCode,'ACP_TOOL_ACTIVITY_UNVERIFIED'):
             await self.channel.verify_activity(activity)
+
+    async def test_discovery_waits_for_admission_and_links_actual_mcp_activity(self):
+        self.assertEqual((await self.client.children())['items'],[])
+        pending=asyncio.create_task(self.client.children(wait_seconds=3))
+        await asyncio.sleep(.05)
+        child=await self.submit()
+        found=await pending
+        self.assertEqual([x['id'] for x in found['items']],[child['id']])
+        self.assertNotIn('input',found['items'][0])
+        activity=[{'name':'mcp__dios__dios_task_list','arguments':{'wait_seconds':3}}]
+        self.assertTrue((await self.channel.verify_activity(activity))['verified'])
+        with self.assertRaisesRegex(RuntimeErrorCode,'ACP_TOOL_ACTIVITY_UNVERIFIED'):
+            await self.channel.verify_activity(activity*2)
+
+    async def test_empty_discovery_checks_live_owner_and_remote_identity(self):
+        pending=asyncio.create_task(self.client.children(wait_seconds=30))
+        await asyncio.sleep(.05)
+        self.gate.identity_guard=AsyncMock(side_effect=RuntimeErrorCode('WORKER_CERTIFICATE_EXPIRED'))
+        with self.assertRaisesRegex(RuntimeErrorCode,'WORKER_CERTIFICATE_EXPIRED'):
+            await asyncio.wait_for(pending,3)
+        self.gate.identity_guard=None
+        parent=await self.f.store.get(self.f.parent['id'])
+        await self.f.store.cancel(parent['id'],parent['version'])
+        with self.assertRaisesRegex(RuntimeErrorCode,'AUTH_REVOKED'):await self.client.children()
+
+    async def test_discovery_is_bounded_and_bound_to_current_session(self):
+        for value in [-1,31,True,'1']:
+            with self.assertRaisesRegex(RuntimeErrorCode,'CHILD_WAIT_INVALID'):await self.client.children(wait_seconds=value)
+        self.assertTrue((await self.client.children(wait_seconds=1))['wait_exhausted'])
+        await self.submit()
+        self.channel.session_id='foreign'
+        with self.assertRaisesRegex(RuntimeErrorCode,'SESSION_CHANGED'):await self.client.children()

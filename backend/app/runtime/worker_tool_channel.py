@@ -37,7 +37,7 @@ def profile_policy(value):
     if not isinstance(names,dict) or len(names)>32:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     for name,alias in names.items():
         identifier(name)
-        if alias not in tools and not ('children' in value and alias in {'dios_task_submit','dios_task_get'}):raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
+        if alias not in tools and not ('children' in value and alias in {'dios_task_submit','dios_task_get','dios_task_list'}):raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     if value.get('client_read_tool') is not None and value['client_read_tool'] not in tools:
         raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     refs=value.get('worker_secret_refs',[])
@@ -47,7 +47,7 @@ def profile_policy(value):
     if 'children' in value:
         from app.services.child_tasks import configuration
         configuration(value['children'])
-        if {'dios_task_submit','dios_task_get'} & set(tools):raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
+        if {'dios_task_submit','dios_task_get','dios_task_list'} & set(tools):raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     bounded(value)
     return value
 
@@ -156,7 +156,7 @@ class WorkerToolChannel:
         method=message.get('method');params=message.get('params',{})
         allowed={'describe':set(),'ready':{'session_id'},'request':{'tool','arguments','key'},
             'advance':{'invocation_id'},'verify_activity':{'activity'},'verify_required':{'requirements'},'permit_proxy':{'name','arguments'},'deny_native':{'method'},
-            'child.submit':{'profile','sample_id','input_payload','goal','key'},'child.get':{'run_id','wait_seconds'}}
+            'child.submit':{'profile','sample_id','input_payload','goal','key'},'child.get':{'run_id','wait_seconds'},'child.list':{'wait_seconds'}}
         if set(message)!={'method','params'} or method not in allowed or not isinstance(params,dict) or set(params)!=allowed[method]:
             raise RuntimeErrorCode('TOOL_CHANNEL_METHOD_DENIED')
         run,a=await self._owner(wait=True)
@@ -171,6 +171,7 @@ class WorkerToolChannel:
             if 'children' not in self.policy:raise RuntimeErrorCode('CHILD_TASKS_NOT_GRANTED')
             from app.services.child_tasks import ChildTasks
             children=ChildTasks(self)
+            if method=='child.list':return await children.list(params['wait_seconds'])
             return await children.submit(params,run) if method=='child.submit' else await children.get(params['run_id'],run,params['wait_seconds'])
         if method=='ready':
             if params['session_id']!=self.session_id:raise RuntimeErrorCode('SESSION_CHANGED')
@@ -178,7 +179,7 @@ class WorkerToolChannel:
         if method=='permit_proxy':
             from jsonschema import Draft202012Validator
             alias=self.policy.get('acp_names',{}).get(params['name']) if isinstance(params['name'],str) else None
-            if alias in {'dios_task_submit','dios_task_get'} and 'children' in self.policy:
+            if alias in {'dios_task_submit','dios_task_get','dios_task_list'} and 'children' in self.policy:
                 from app.services.child_tasks import tool_schemas
                 tool=next(x for x in tool_schemas(list(self.policy['children']['profiles'])) if x['name']==alias)
                 reg={'id':alias,'input_schema':tool['inputSchema']}
@@ -290,7 +291,7 @@ class WorkerToolChannel:
         for event in activity:
             if not isinstance(event,dict) or set(event)!={'name','arguments'}:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')
             alias=self.policy.get('acp_names',{}).get(event['name'])
-            if alias in {'dios_task_submit','dios_task_get'} and 'children' in self.policy:
+            if alias in {'dios_task_submit','dios_task_get','dios_task_list'} and 'children' in self.policy:
                 from app.services.child_tasks import activity_arguments,tool_schemas
                 from jsonschema import Draft202012Validator
                 tool=next(x for x in tool_schemas(list(self.policy['children']['profiles'])) if x['name']==alias)

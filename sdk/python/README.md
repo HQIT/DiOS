@@ -49,7 +49,7 @@ status = await channel.child(child['id'], wait_seconds=20)
 Reuse the key after an ambiguous response. Observe the returned Run ID until
 terminal; `wait_exhausted` leaves the task running. The SDK defaults to an immediate
 read; MCP `dios_task_get` defaults to a 20-second wait, with a 30-second maximum.
-MCP advertises `dios_task_submit` and `dios_task_get` only for an enabled child
+MCP advertises `dios_task_submit`, `dios_task_get` and `dios_task_list` only for an enabled child
 profile allowlist. Profile paths, parent identity and E2AG authority stay server-owned.
 Parent closure requests cancellation of unfinished children. Await needed child
 results before completing the parent. [Child task contract](../../docs/design/child-task-channel-35-58.md).
@@ -68,3 +68,14 @@ with its own authenticated client, that delegation and the same parent Run ID.
 Persist separate issuance and submission idempotency keys. Cross-identity result
 return requires explicit `runtime.read_result` permission on the live parent's
 governed channel. [Recipient contract](../../docs/design/child-recipients-35.md).
+
+SDK 0.1.10 provides `await ToolChannelClient.children(wait_seconds=20)` and MCP
+`dios_task_list`. Discovery returns at most 32 direct children of the current
+parent Attempt/Session/epoch, with lightweight status and no artifact payload.
+The SDK defaults to immediate observation; MCP defaults to a 20-second wait,
+bounded to 30 seconds. Cross-identity discovery requires `runtime.read_result`;
+an inaccessible child fails the whole query without returning a partial list.
+Empty waits still check the live parent and Worker identity. Use the same run ID
+with `child()` to read the verified result. The coordinator's `--receive-child`
+mode discovers externally admitted children; the application holds separate
+issuer/recipient clients and credentials. [Native handoff](../../docs/design/recipient-harnesses-35-58.md).

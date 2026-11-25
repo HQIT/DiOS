@@ -65,4 +65,4 @@ backend/.venv/bin/python scripts/qualify_child_harnesses.py qualify \
 
 交付包含 SDK wheel、应用入口与协调器、验证脚本和证据。底座 API/数据库协议未变更，无需迁移或重启现有任务。镜像摘要作为应用 Revision 的输入，由部署方登记；现有应用配置不自动切换镜像。
 
-后续按 #35/#58 推进切换 actor 的认证委派、活动会话恢复绑定、更多原生工具路径、物理跨主机及独立 G2 验收。金额/Token 预算按既定资源治理任务实现。
+[跨身份交接](recipient-harnesses-35-58.md)覆盖独立 actor 的认证签发、接收和三组真实 Harness 联合执行。后续按 #35/#58 推进外部 Provider actor-token 交换、活动会话恢复绑定、更多原生工具路径、物理跨主机及独立 G2 验收。金额/Token 预算按既定资源治理任务实现。

@@ -37,6 +37,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
     parser.add_argument("--harness", choices=["cursor", "codex", "dsh"], required=True)
+    parser.add_argument("--receive-child", action="store_true")
     args = parser.parse_args()
     from dios_sdk.codex import codex_execute
     from dios_sdk.cursor import cursor_execute
@@ -64,6 +65,16 @@ def main():
             ensure_ascii=False,
         )
     )
+    if args.receive_child:
+        prompt = (
+            "The application is assigning exactly one independently authenticated child to this parent. "
+            "Use dios_task_list with wait_seconds=20 until it returns a child. Then repeatedly call "
+            "dios_task_get on that same run ID with wait_seconds=20 until succeeded. "
+            "Do not submit a child yourself. Empty waits are normal. Human tool approval may take time. "
+            "If the child fails, report failure. Use only these DiOS MCP tools, no filesystem, shell or web. "
+            "After success, return ONLY JSON with summary (Chinese summary of the returned child result) "
+            "and child_run_id. Goal: " + payload["goal"]
+        )
     try:
         channel = ToolChannelClient(os.environ["DIOS_TOOL_SOCKET"])
         return asyncio.run(

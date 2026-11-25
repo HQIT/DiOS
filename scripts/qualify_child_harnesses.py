@@ -144,6 +144,14 @@ async def qualify(args):
             "max_depth": 2,
         },
     }
+    if args.authenticated_recipient:
+        parent["launch"]["command"].append("--receive-child")
+        parent["tool_channel"]["acp_names"]["mcp__dios__dios_task_list"] = (
+            "dios_task_list"
+        )
+        parent["tool_channel"]["children"]["profiles"]["delegate"][
+            "authenticated_recipient"
+        ] = True
     value = {
         "id": "coordinate",
         "name": "Mixed Harness sample",
@@ -193,6 +201,7 @@ async def qualify(args):
         permission(pd, "execute"),
         permission(pd, "accept_result"),
         permission(cd, "spawn"),
+        permission(cd, "read_result"),
         *cperms,
     ]
     root = await Delegations(store).issue(
@@ -231,6 +240,11 @@ async def qualify(args):
             else:
                 registry["secrets"][key] = record
     save(d / "secrets.json", registry)
+    application = None
+    if args.authenticated_recipient:
+        from qualification_recipient_api import RecipientApplication
+
+        application = RecipientApplication(d, scope, config, pid, cid, pperms, cperms)
     save(d / "policy.json", config)
     token = secrets.token_urlsafe(32)
     save(
@@ -286,12 +300,16 @@ async def qualify(args):
 
     adapter = DockerRuntimeAdapter(scope)
     try:
-        run = await console.submit(
-            pid,
-            "coordinate",
-            "静态检查空列表边界，返回有代码证据的成果。",
-            "mixed-parent",
-        )
+        if application:
+            await application.start(console)
+            run = await application.submit_parent(root["id"])
+        else:
+            run = await console.submit(
+                pid,
+                "coordinate",
+                "静态检查空列表边界，返回有代码证据的成果。",
+                "mixed-parent",
+            )
         pw = await launch(pp)
 
         async def child_created():
@@ -306,7 +324,29 @@ async def qualify(args):
                 else None
             )
 
-        child_id = (await wait_for(child_created, seconds=180))["run_id"]
+        leaf = None
+        if application:
+
+            async def parent_session():
+                current = await store.get(run["id"])
+                if current["state"] in TERMINAL:
+                    raise RuntimeError(
+                        "Parent ended before recipient handoff: " + current["state"]
+                    )
+                return next(
+                    (
+                        a
+                        for a in current["attempts"]
+                        if a["session_id"] and a["process_id"]
+                    ),
+                    None,
+                )
+
+            await wait_for(parent_session, seconds=180)
+            received, leaf = await application.handoff(run, root["id"], source["id"])
+            child_id = received["id"]
+        else:
+            child_id = (await wait_for(child_created, seconds=180))["run_id"]
         cw = await launch(cp)
 
         async def approval():
@@ -343,6 +383,16 @@ async def qualify(args):
             "approval-before-tool",
             "OPA-parent-child-intersection",
         ]
+        if application:
+            assert (await store.get(run["id"]))["input"]["principal"]["actor"] != (
+                await store.get(child_id)
+            )["input"]["principal"]["actor"]
+            checks += [
+                "separate-authenticated-actors",
+                "HTTP-SDK-bound-handoff",
+                "recipient-idempotent-replay",
+                "general-API-cross-identity-denied",
+            ]
         if args.scenario == "success":
             await gate.decide(child_id, call["id"], call["version"], "approved", token)
             final_child = await wait_for(lambda: terminal(child_id), seconds=180)
@@ -454,7 +504,22 @@ async def qualify(args):
             "child_run": child_detail,
             "task_channel_calls": len(audit_rows),
             "tool_calls": mcp.calls,
+            "authenticated_recipient": bool(application),
+            "handoff_ref": leaf["id"] if leaf else None,
         }
+        if application and args.scenario == "success":
+            assert any(
+                x["decision"]["evidence"]["alias"] == "dios_task_list"
+                for x in audit_rows
+            )
+            assert not any(
+                x["decision"]["evidence"]["alias"] == "dios_task_submit"
+                for x in audit_rows
+            )
+            checks += [
+                "parent-model-discovers-recipient-child",
+                "no-model-side-credentials-or-child-submission",
+            ]
         save(d / "result.json", evidence)
         print(
             json.dumps(
@@ -490,6 +555,8 @@ async def qualify(args):
             await recover.recover()
         for _, log in processes:
             log.close()
+        if application:
+            await application.close()
         await db.close()
         await asyncio.to_thread(mcp.close)
 
@@ -510,6 +577,7 @@ def main():
         )
         q.add_argument("--" + side + "-image", required=True)
     q.add_argument("--policy-evaluator", type=Path, required=True)
+    q.add_argument("--authenticated-recipient", action="store_true")
     q.add_argument(
         "--scenario",
         choices=["success", "parent-revoke", "parent-worker-loss"],

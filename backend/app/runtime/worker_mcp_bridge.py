@@ -32,7 +32,7 @@ class WorkerMcpBridge:
             key='mcp:'+digest([self.instance,message.get('id')])
             try:
                 name=params.get('name');args=params.get('arguments',{})
-                if name in {'dios_task_submit','dios_task_get'}:
+                if name in {'dios_task_submit','dios_task_get','dios_task_list'}:
                     if not isinstance(args,dict):raise RuntimeErrorCode('MCP_FRAME_INVALID')
                     if name=='dios_task_submit':
                         if (set(args)-{'profile','goal','sample_id','input_payload'} or
@@ -41,6 +41,9 @@ class WorkerMcpBridge:
                             raise RuntimeErrorCode('MCP_FRAME_INVALID')
                         value=await self.client.submit_child(args['profile'],args['goal'],key=key,
                             sample_id=args.get('sample_id'),input_payload=args.get('input_payload'))
+                    elif name=='dios_task_list':
+                        if set(args)-{'wait_seconds'}:raise RuntimeErrorCode('MCP_FRAME_INVALID')
+                        value=await self.client.children(wait_seconds=args.get('wait_seconds',20))
                     else:
                         if set(args)-{'run_id','wait_seconds'} or 'run_id' not in args:raise RuntimeErrorCode('MCP_FRAME_INVALID')
                         value=await self.client.child(args['run_id'],wait_seconds=args.get('wait_seconds',20))

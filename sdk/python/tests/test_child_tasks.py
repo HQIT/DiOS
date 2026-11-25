@@ -14,6 +14,21 @@ class ChildTaskTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(request.call_args.args,('child.submit',dict(profile='delegate',goal='中文目标',key='stable',sample_id=None,input_payload={'id':'one','name':'输入'})))
             await client.child('run-one')
             request.assert_awaited_with('child.get',{'run_id':'run-one','wait_seconds':0})
+            await client.children()
+            request.assert_awaited_with('child.list',{'wait_seconds':0})
+
+    async def test_discovery_mcp_defaults_and_rejects_identity_selection(self):
+        client=AsyncMock()
+        client.children.return_value={'items':[],'wait_exhausted':True}
+        bridge=WorkerMcpBridge(client,'session')
+        await bridge.handle({'jsonrpc':'2.0','id':0,'method':'initialize','params':{'protocolVersion':'2025-06-18'}})
+        await bridge.handle({'jsonrpc':'2.0','method':'notifications/initialized'})
+        msg={'jsonrpc':'2.0','id':1,'method':'tools/call','params':{'name':'dios_task_list','arguments':{}}}
+        self.assertFalse((await bridge.handle(msg))['isError'])
+        client.children.assert_awaited_once_with(wait_seconds=20)
+        msg['params']['arguments']={'parent_run_id':'another'}
+        self.assertTrue((await bridge.handle(msg))['isError'])
+        self.assertEqual(client.children.await_count,1)
 
     async def test_mcp_replay_identity_and_denial(self):
         client = AsyncMock()

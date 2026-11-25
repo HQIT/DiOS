@@ -1,0 +1,1053 @@
+{
+  "scope": "Native mixed Harnesses with independently authenticated actors; isolated loopback HTTP API, native OPA, synthetic input",
+  "sdk_version": "0.1.10",
+  "wheel_sha256": "edfaf77c428811f15a1433fb2150c817765f8bf62b24a2b9ec1c3c7fa5dc20a3",
+  "cases": [
+    {
+      "parent": "cursor",
+      "child": "dsh",
+      "scenario": "success",
+      "scope": "mixed-child-ab4286dfe59b4e71",
+      "parent_image": "sha256:8dcd59be48c5909b5eb54e40545c11a479db5cf96468bd9f08597459594c6458",
+      "child_image": "sha256:9b52f333358d6083a913d1d748b91d4c31a7bf571ebce776af041a1ce173711a",
+      "worker_processes": [
+        287375,
+        289403
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "one-child-one-tool",
+        "native-activity-linked",
+        "verified-child-result-in-parent-report",
+        "parent-model-discovers-recipient-child",
+        "no-model-side-credentials-or-child-submission"
+      ],
+      "tool_calls": 1,
+      "task_channel_calls": 3,
+      "handoff_ref": "dl-3663a0c7434f5fc1f17d6c3de82b6fde90d667712b438c6bedce19bcbbc8",
+      "raw_record_sha256": "3c1bdb81d3c2692f315690096a96a59ac12bc498bc380e4971f0fe58a96c641d",
+      "parent_run": {
+        "id": "33098fb9-352a-4790-a7a2-2788e4a2100b",
+        "state": "succeeded",
+        "profile_id": "cursor-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-e04300d28da3a92ecc3ff0ddb3e3135ff71ffa5b344d6394539415ccdea2",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "cfafd134-43e2-43dd-b38f-5051b761590c",
+          "epoch": 1,
+          "worker_id": "ec383f56-8b5a-4bbc-8c61-e6f880e0e62d",
+          "process_id": 287425,
+          "session_id": "24155ea3-4a39-4801-afba-9f7e8ce63b8d",
+          "state": "completed"
+        },
+        "artifacts": [
+          {
+            "id": "555cc463-42d6-4c18-87a7-e71faea6071f",
+            "kind": "result",
+            "digest": "6187c752c4083bc2b94ce062ab161d391c1fe73b7451963769c8a6f66d49619c",
+            "size": 2931
+          },
+          {
+            "id": "de5ba638-85a8-46eb-8b8d-b21341ed7d90",
+            "kind": "stderr",
+            "digest": "1a491c227c12c3fe8839dda633985b7c9fce93df6457c5d3f9b78b8a350124be",
+            "size": 139
+          },
+          {
+            "id": "462a2284-e1ce-4d2e-b76e-de8bfa78791b",
+            "kind": "stdout",
+            "digest": "ba2824b6815af65ad953841f3cb2c24d6a2d4d75a2551887e7a0a9e5426fe864",
+            "size": 8670
+          }
+        ]
+      },
+      "child_run": {
+        "id": "b2a2fd2f-e911-41f9-84a5-ba769f1ea6ee",
+        "state": "succeeded",
+        "profile_id": "dsh-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-7871cadf49637c977c9f2f1771adfea3a0218328a7be872e262c6b6119e4",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "cf899440-289d-4ab2-98b9-57f8e15b86cd",
+          "epoch": 1,
+          "worker_id": "c9a173eb-a693-4c07-a354-73de7d3a99f7",
+          "process_id": 289642,
+          "session_id": "f8f5e41f-4bb3-4e90-9ebf-ced5840d2a6f",
+          "state": "completed"
+        },
+        "artifacts": [
+          {
+            "id": "f806d0d4-5ee4-4038-afda-e704cf1555c0",
+            "kind": "result",
+            "digest": "5e73c01d4344fba0acd957af65d4207d601c89aacdead5270daf991b34aa53e1",
+            "size": 2413
+          },
+          {
+            "id": "02df30aa-917e-4d14-9a4e-3a09b1d322a9",
+            "kind": "stderr",
+            "digest": "29598f158fdb10caa48c6cd84c35d14f94c76704e32c13dac52190b229c73646",
+            "size": 135
+          },
+          {
+            "id": "ce2b96c7-ed98-4554-a579-fc9e8ce2c272",
+            "kind": "stdout",
+            "digest": "da904e5ebf2999416aa888acf0ab3d27eeacde9ae579519709ec230ab3b230a2",
+            "size": 3646
+          },
+          {
+            "id": "3f80adcd-157a-42b5-8a56-d63f44f9f720",
+            "kind": "raw",
+            "digest": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+            "size": 226
+          },
+          {
+            "id": "a2e89aab-f889-4042-b03e-21f26f89e9d7",
+            "kind": "raw",
+            "digest": "0be4a6f1598e6d1e110a65f115b802748c7e24b025b464674d8d22f7ca1dab31",
+            "size": 2200
+          }
+        ]
+      }
+    },
+    {
+      "parent": "cursor",
+      "child": "dsh",
+      "scenario": "parent-revoke",
+      "scope": "mixed-child-252d5431f8ee486c",
+      "parent_image": "sha256:8dcd59be48c5909b5eb54e40545c11a479db5cf96468bd9f08597459594c6458",
+      "child_image": "sha256:9b52f333358d6083a913d1d748b91d4c31a7bf571ebce776af041a1ce173711a",
+      "worker_processes": [
+        298193,
+        299870
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "parent-revocation-cancels-child",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "tool_calls": 0,
+      "task_channel_calls": 1,
+      "handoff_ref": "dl-9562a8ebab80b0372befe32b5956cf705b130714b00f03d443e2e68d35cc",
+      "raw_record_sha256": "534804a44dd624d298bcf0ac436ef2b809dcda986420d23c7c364285a4b10938",
+      "parent_run": {
+        "id": "fb7c7526-5e92-474e-ac8b-f2a50657d67d",
+        "state": "failed",
+        "profile_id": "cursor-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-2f37e4ec31d2f8378a3dddcd58f2d3f84b4c840342e6c2ffac1ff1ad03a2",
+          "state": "revoked"
+        },
+        "attempt": {
+          "id": "9d946a5b-8eca-435d-90ed-87961200fe64",
+          "epoch": 1,
+          "worker_id": "e8405bc8-6273-4a44-a065-edb6aefc1a1b",
+          "process_id": 298423,
+          "session_id": "d05f29df-e71c-4593-9e63-e47b80e71184",
+          "state": "failed"
+        },
+        "artifacts": [
+          {
+            "id": "8b158567-382c-43fb-9d08-d185df965da2",
+            "kind": "stderr",
+            "digest": "a61b395b24f5b9609f4583cbe6042d5e460449d6f8965ab0848de5fab89b441f",
+            "size": 277
+          },
+          {
+            "id": "92f2bcbd-3259-44ce-a7a4-206881bd4f2c",
+            "kind": "stdout",
+            "digest": "f26c805efedea5f0d0fa5725ab79d2ccce5b86fd3f672425b930baca463c6e15",
+            "size": 1249
+          }
+        ]
+      },
+      "child_run": {
+        "id": "ce09e198-7693-4ebf-89b4-52e78d76e28a",
+        "state": "cancelled",
+        "profile_id": "dsh-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-d0d87a5d4dc3b2a6c62ba32040ffd2e27e5bc45089d05e6dda8063d0dcf2",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "f4e5ff9e-e1bd-4b09-9c62-8ada7082f05b",
+          "epoch": 1,
+          "worker_id": "e4611eca-32e6-4b2f-b32e-ae45a41d4660",
+          "process_id": 300130,
+          "session_id": "c4a5c695-f6df-43dd-8393-7dd008b48991",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "7bbd5693-33b5-4bdd-b036-7d7294453383",
+            "kind": "stderr",
+            "digest": "f3207ca7aa85a53851c7d233b9bdc2a4f3321fb6a6901933c95dd3da52ea0fb0",
+            "size": 412
+          },
+          {
+            "id": "5778e5ec-a4ed-4d41-b64d-cfc867c527be",
+            "kind": "stdout",
+            "digest": "02c98f384d7f7f07131db3820fb38e34291b3d1d7e0e68d4d08aab2f99440333",
+            "size": 157
+          }
+        ]
+      }
+    },
+    {
+      "parent": "cursor",
+      "child": "dsh",
+      "scenario": "parent-worker-loss",
+      "scope": "mixed-child-a0db2d1452684a56",
+      "parent_image": "sha256:8dcd59be48c5909b5eb54e40545c11a479db5cf96468bd9f08597459594c6458",
+      "child_image": "sha256:9b52f333358d6083a913d1d748b91d4c31a7bf571ebce776af041a1ce173711a",
+      "worker_processes": [
+        303971,
+        305958
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "killed-parent-Worker-live-workload-observed",
+        "expired-owner-cancels-child",
+        "unknown-result-not-redispatched",
+        "operator-confirmed-exit-reconciled-with-original-attempt",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "tool_calls": 0,
+      "task_channel_calls": 1,
+      "handoff_ref": "dl-dadb809074b36973bcff3e9ee17b7206b48ff982e55f43a6693c59c9797c",
+      "raw_record_sha256": "fd355cc4e1a8de7cf4be2be96db3f13773d26eaf2cd55656b8894b3a9c5d981f",
+      "parent_run": {
+        "id": "6dfdc98f-f300-4bee-92eb-d518b39dc347",
+        "state": "cancelled",
+        "profile_id": "cursor-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-604dc06dcb4a0a70254d8f9db8fafb3fcde31f1c086cc647b7c4afd1b440",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "ae710707-e982-47b7-93f3-2cf5ee079280",
+          "epoch": 1,
+          "worker_id": "9ca76455-35d5-4fd0-afbf-ba01594a1079",
+          "process_id": 304148,
+          "session_id": "382459f7-8831-423f-adf7-81e4087dcd89",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "28857b11-2f47-4e7d-8e41-83ad50637307",
+            "kind": "stderr",
+            "digest": "2115652f34931f8f8cba72661f582d16d33bda7029312e635d3b73056d46619e",
+            "size": 277
+          },
+          {
+            "id": "519e00ab-bc14-4dc4-abfa-ea7c8a5fa267",
+            "kind": "stdout",
+            "digest": "c1d51674c93ebc21f41e04171512043cd1c13ee7eec25205b864eff4b1187521",
+            "size": 1361
+          }
+        ]
+      },
+      "child_run": {
+        "id": "d5a08a9b-4a74-43a2-98ac-744ce5dc3d3c",
+        "state": "cancelled",
+        "profile_id": "dsh-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-ec1aa6ae876c22c352b2facc27cf19d6701227e6a09dcbef466b47396996",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "132244d2-081c-4635-acfc-c0b89e71a39a",
+          "epoch": 1,
+          "worker_id": "5d2c2218-9622-41d6-bad0-40dd7e01dc57",
+          "process_id": 306009,
+          "session_id": "76985cdb-7c93-4a8a-8014-be89440ef0ef",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "9c99b1c3-e8e8-469f-9979-a95b8781ec84",
+            "kind": "stderr",
+            "digest": "bc6b0e2277410c896ce3fcf31d9247b77ccee9386f4a76e06322490e5981c838",
+            "size": 412
+          },
+          {
+            "id": "c36ed399-7f3b-46be-95d6-7caa06597d42",
+            "kind": "stdout",
+            "digest": "adb375afed2e9f521bf82fdaf54ea3056c1a14bfb61a39454242cb641489de73",
+            "size": 153
+          }
+        ]
+      }
+    },
+    {
+      "parent": "dsh",
+      "child": "codex",
+      "scenario": "success",
+      "scope": "mixed-child-f4a1ff1fca4e4fde",
+      "parent_image": "sha256:9b52f333358d6083a913d1d748b91d4c31a7bf571ebce776af041a1ce173711a",
+      "child_image": "sha256:94baf4de6dd0467a027ab4459263cb2e7d562328bf2b24e8361fed8fd16558c1",
+      "worker_processes": [
+        291873,
+        291992
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "one-child-one-tool",
+        "native-activity-linked",
+        "verified-child-result-in-parent-report",
+        "parent-model-discovers-recipient-child",
+        "no-model-side-credentials-or-child-submission"
+      ],
+      "tool_calls": 1,
+      "task_channel_calls": 3,
+      "handoff_ref": "dl-fe77064a30c80d3fd52d65c45591a3c773927b93c1fa1d7bf1b41bdf602b",
+      "raw_record_sha256": "438febcae791686fb4cf411d30c990742d53d95d53a35ba5c790bb70a37cdafc",
+      "parent_run": {
+        "id": "37c70743-da6e-4837-ae75-dff5a4629237",
+        "state": "succeeded",
+        "profile_id": "dsh-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-06f0b0371c467bceb5275c6017023c703fbc9773bd3f8a96fd6504dfda47",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "e6d18a92-0ab8-4cb4-b0a5-b1198f8146c5",
+          "epoch": 1,
+          "worker_id": "f244a162-7827-4beb-a48b-596d8354c002",
+          "process_id": 291923,
+          "session_id": "9ec1e565-fbed-4551-98f2-b49d47728383",
+          "state": "completed"
+        },
+        "artifacts": [
+          {
+            "id": "5c62457f-8df0-488c-94d4-1d1b3ecf32d0",
+            "kind": "result",
+            "digest": "fd10095220cb59b2254260d43057442bd3f34b663f0c8b2a14b8bf4cd53aecf8",
+            "size": 1957
+          },
+          {
+            "id": "8334b90a-df60-45c4-8267-55386db34267",
+            "kind": "stderr",
+            "digest": "a62d311cc71c05460e1b8a109b9fb029553ed280bb4bd958baecda74db200c85",
+            "size": 135
+          },
+          {
+            "id": "041cbf7e-e5a9-44fa-a8b2-1699366df116",
+            "kind": "stdout",
+            "digest": "a5994f78a7f10708d77701b3d47810f58d08292a0d3e5b40c30c49c8d8e914d4",
+            "size": 2857
+          }
+        ]
+      },
+      "child_run": {
+        "id": "a90c21c2-71e8-497d-8755-0b40d29a6cd6",
+        "state": "succeeded",
+        "profile_id": "codex-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-bf52d963d4d42f03eb15129aa1da90f670fb67e966230215622ff10b6318",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "78301a03-c2ad-4f17-a479-63e1fce4a0cb",
+          "epoch": 1,
+          "worker_id": "b99f2761-e27b-490f-9381-f6f745c0a3f7",
+          "process_id": 292041,
+          "session_id": "01a21121-1464-7622-8023-d2cde9eb684f",
+          "state": "completed"
+        },
+        "artifacts": [
+          {
+            "id": "0513d48a-b6f1-4a65-997a-e3ad0a45e1eb",
+            "kind": "result",
+            "digest": "8da6ba650e6ddcc8c00307bd4e32882fcc2cdcbd4a12b4552aeb8115de2c5de4",
+            "size": 1277
+          },
+          {
+            "id": "5b65ead5-5570-49ca-b8d0-e79ebcae34f8",
+            "kind": "stderr",
+            "digest": "8929311fc79d33d638dd131b212240ede94b750fe1db4fd3ebe4556a38008c20",
+            "size": 274
+          },
+          {
+            "id": "faf55b0c-28e0-49da-a993-3612ada03ded",
+            "kind": "stdout",
+            "digest": "054d350ed2209232ebae546ebb675d2179dbf4e0e908300d0e940f288119e871",
+            "size": 4982
+          },
+          {
+            "id": "874a9bab-7c53-4d58-a4c7-88fbbca9114f",
+            "kind": "raw",
+            "digest": "0c1bfc180c8e5b1afe80d923397b7525033d052713681851ebc480d76893de09",
+            "size": 2200
+          },
+          {
+            "id": "b3283172-1aa3-41eb-bbf7-b2cf4ff56520",
+            "kind": "raw",
+            "digest": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+            "size": 226
+          }
+        ]
+      }
+    },
+    {
+      "parent": "dsh",
+      "child": "codex",
+      "scenario": "parent-revoke",
+      "scope": "mixed-child-414d00ae81024a91",
+      "parent_image": "sha256:9b52f333358d6083a913d1d748b91d4c31a7bf571ebce776af041a1ce173711a",
+      "child_image": "sha256:94baf4de6dd0467a027ab4459263cb2e7d562328bf2b24e8361fed8fd16558c1",
+      "worker_processes": [
+        301641,
+        302485
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "parent-revocation-cancels-child",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "tool_calls": 0,
+      "task_channel_calls": 1,
+      "handoff_ref": "dl-0806f0ebc610b840ca5b7fbae31ad13b7821a532cb1b15108ce43f11cf9c",
+      "raw_record_sha256": "316377422b8d3481c1ad755fa5c25de003dc0c6f4e467f415fb2e5fa287c4fe6",
+      "parent_run": {
+        "id": "d3869347-37c3-4c9b-b7f8-780eb88f299d",
+        "state": "failed",
+        "profile_id": "dsh-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-69208778a21176649ff9b112c6129c3fe683b914c8a7492b56eef574ff56",
+          "state": "revoked"
+        },
+        "attempt": {
+          "id": "4f5cbc5a-bf30-4508-96a1-a3c5ddda98be",
+          "epoch": 1,
+          "worker_id": "3b0abb43-8201-48c6-a5c3-7cac4d06bc7d",
+          "process_id": 301849,
+          "session_id": "962ce71c-725d-4eb8-a0cf-83ec47ddd5ef",
+          "state": "failed"
+        },
+        "artifacts": [
+          {
+            "id": "d4e66cb7-e710-486a-9434-bbcc7c868e60",
+            "kind": "stderr",
+            "digest": "67c69bbfc87f2a567e50b571d221972d0fcc39fbd0b36ab2b57afb8ed3c7047f",
+            "size": 412
+          },
+          {
+            "id": "56ab766e-852d-4445-a2df-d7380ddac708",
+            "kind": "stdout",
+            "digest": "f9f7921e0968bd1d13964b3b010c275696eb23227afb4c8c0f8f54a860e673e3",
+            "size": 243
+          }
+        ]
+      },
+      "child_run": {
+        "id": "d9bc68c7-dcbb-4aea-8bac-cbdbb9e36834",
+        "state": "cancelled",
+        "profile_id": "codex-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-420dcb90934346d7fa82764a354ffbf1ee28605faea9b033ec31d45f53c3",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "5f7f6b50-7b80-4b11-bb09-829f43f72033",
+          "epoch": 1,
+          "worker_id": "86aca9fb-1c22-4d8b-b792-09899bae665b",
+          "process_id": 302673,
+          "session_id": "01a21122-fbba-7822-9d49-9882b9c29c1f",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "b12bb6d0-5e73-4ba3-bdff-cec7b9ee057d",
+            "kind": "stderr",
+            "digest": "fd770085601b1df21eddc931fe73494dd31e74616a09e178996da0188989c821",
+            "size": 412
+          },
+          {
+            "id": "cff19ffc-8d2b-4fb6-972b-83dc8de87c16",
+            "kind": "stdout",
+            "digest": "eec6df5923779c54d3cee7ebfd0109b4bc89bec358186200c2f769bf23165749",
+            "size": 890
+          }
+        ]
+      }
+    },
+    {
+      "parent": "dsh",
+      "child": "codex",
+      "scenario": "parent-worker-loss",
+      "scope": "mixed-child-3a6b6d7f44424556",
+      "parent_image": "sha256:9b52f333358d6083a913d1d748b91d4c31a7bf571ebce776af041a1ce173711a",
+      "child_image": "sha256:94baf4de6dd0467a027ab4459263cb2e7d562328bf2b24e8361fed8fd16558c1",
+      "worker_processes": [
+        306651,
+        307035
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "killed-parent-Worker-live-workload-observed",
+        "expired-owner-cancels-child",
+        "unknown-result-not-redispatched",
+        "operator-confirmed-exit-reconciled-with-original-attempt",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "tool_calls": 0,
+      "task_channel_calls": 1,
+      "handoff_ref": "dl-bf5d262a9d3676276654a2340ec1ab743df379227f5806c69d4383a89b6b",
+      "raw_record_sha256": "9e44491a237155472c3c7c51dd6bc7441bc37107220f5071cad4216bfc94865d",
+      "parent_run": {
+        "id": "6e5f2b27-da26-4441-8ec0-f844bb35ec1d",
+        "state": "cancelled",
+        "profile_id": "dsh-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-a4d82780183fee56083740fdebf146a75994cd96e63862a22543e428ab45",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "6f6fb796-d141-463f-b8b6-b53734e6852a",
+          "epoch": 1,
+          "worker_id": "50b8accc-d309-402b-918b-fbcd86ce5fbc",
+          "process_id": 306762,
+          "session_id": "3d2851af-12d3-4e91-ac2d-47a1d65739ac",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "0ed744b9-2a91-4f68-b711-e2cd848171b0",
+            "kind": "stdout",
+            "digest": "b300bfea3a1855ff51fc3f14201f67d75c98ef254017aa8b321449f4bed847b9",
+            "size": 367
+          },
+          {
+            "id": "6050d741-f3f9-4343-9954-fea321f49538",
+            "kind": "stderr",
+            "digest": "9b9e542aa81379dd9a70763ec80965fca609d118990a48ef80905638e4836c4d",
+            "size": 412
+          }
+        ]
+      },
+      "child_run": {
+        "id": "5d5b2f82-768f-4899-8caa-34de651f4d95",
+        "state": "cancelled",
+        "profile_id": "codex-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-187e8232651ee408b5d3f8c4d599061b03cd5e4d2a4ed36c7762cde7806b",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "a95b3c53-ff48-4040-927b-5a63c834b6ed",
+          "epoch": 1,
+          "worker_id": "2ea97f8b-7512-4f01-b408-a71b05e21037",
+          "process_id": 307176,
+          "session_id": "01a21123-cfe2-79e0-a630-b95210beb3b4",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "4e49e7cf-8742-458c-a29d-3d8d4ed186c7",
+            "kind": "stderr",
+            "digest": "8b16e8f1f709aa3a06ff5ae764eb11b7f9f2047bcb237ec96481b57f3f10f750",
+            "size": 412
+          },
+          {
+            "id": "65f1b7a4-f178-4657-a361-34255f8c0dae",
+            "kind": "stdout",
+            "digest": "d6d795811c8c0f4796e99d62f6196d4d2eaf778dcbb4e5683e80e98333459529",
+            "size": 757
+          }
+        ]
+      }
+    },
+    {
+      "parent": "codex",
+      "child": "cursor",
+      "scenario": "success",
+      "scope": "mixed-child-5f7fe951cf7647bb",
+      "parent_image": "sha256:94baf4de6dd0467a027ab4459263cb2e7d562328bf2b24e8361fed8fd16558c1",
+      "child_image": "sha256:8dcd59be48c5909b5eb54e40545c11a479db5cf96468bd9f08597459594c6458",
+      "worker_processes": [
+        293669,
+        294550
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "one-child-one-tool",
+        "native-activity-linked",
+        "verified-child-result-in-parent-report",
+        "parent-model-discovers-recipient-child",
+        "no-model-side-credentials-or-child-submission"
+      ],
+      "tool_calls": 1,
+      "task_channel_calls": 4,
+      "handoff_ref": "dl-74f8867c5e78d0e3cda73ebedff4ac1835a9aa304b89da9fe8b2d28bc4c8",
+      "raw_record_sha256": "0964a52cecb63e119b30edba8a23b6cb8d152ede7e9c1e00a7d5d700127dc2ca",
+      "parent_run": {
+        "id": "3f1bb721-12de-4335-bb80-7cc7136ce1f7",
+        "state": "succeeded",
+        "profile_id": "codex-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-6374f4b1dcf43cb0d6c9e3d9934f699b047eaecb30634188f2ea26c68df5",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "413799dd-75bf-446b-b0f3-4e0ef63b1f7f",
+          "epoch": 1,
+          "worker_id": "9920040d-0cee-408e-be57-acf03148c8c2",
+          "process_id": 293860,
+          "session_id": "01a21121-d95e-72a3-8936-52544e5e1c91",
+          "state": "completed"
+        },
+        "artifacts": [
+          {
+            "id": "785886f3-b037-465a-89e8-19ec13c2b432",
+            "kind": "result",
+            "digest": "9be2691056ea1a1914d3173d42fc21d2e3718f23715fdb797fc5f5dc8dfe420f",
+            "size": 1708
+          },
+          {
+            "id": "ed9ae59e-cf5a-40e1-b22d-7ccea568e50c",
+            "kind": "stderr",
+            "digest": "778c05bbd7a16a370ab21d61bae85cbdee82322d93d9932f8e758d70194c02c0",
+            "size": 274
+          },
+          {
+            "id": "c588c5e9-ab8d-4f50-a687-002445fdfb7f",
+            "kind": "stdout",
+            "digest": "9b09f07c9b47667cbb95bf5d2a36ce4a379117c79b505631eb43577bb8155301",
+            "size": 5050
+          }
+        ]
+      },
+      "child_run": {
+        "id": "54710bfd-af13-4202-a35c-0d09bb09b857",
+        "state": "succeeded",
+        "profile_id": "cursor-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-a70ff79f92de7a4e25cd2bb58030aa7f904d5456ddbe8bf3389e3614a7b5",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "14bbcfef-7e26-43df-904b-39a4c37de750",
+          "epoch": 1,
+          "worker_id": "73c18cc0-ddf1-49df-a038-802d1e04a417",
+          "process_id": 294800,
+          "session_id": "31d361c2-89c5-4c53-a64e-7fd075573b11",
+          "state": "completed"
+        },
+        "artifacts": [
+          {
+            "id": "68780078-4b1e-46e5-9c3c-e108f8d483bf",
+            "kind": "result",
+            "digest": "e00260a1a16390d69463448025721925c80d90e6c0345723893b0aa0caaf72c4",
+            "size": 1297
+          },
+          {
+            "id": "08bc5a95-9076-468d-ae94-a332d96cb1cd",
+            "kind": "stderr",
+            "digest": "d0b631a430b540f102d1c64a9f9bad9ef2138ed64e8e3b5f109e72cc43013e0e",
+            "size": 139
+          },
+          {
+            "id": "99abefe4-383c-45da-965f-83e2260c82d0",
+            "kind": "stdout",
+            "digest": "b8bce81b72d958f8df853df1e45f9e76d47a54bb8c5ef4aba4f2cad12a5c5389",
+            "size": 5364
+          },
+          {
+            "id": "1be11799-9166-4966-9ff4-1421273da776",
+            "kind": "raw",
+            "digest": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+            "size": 226
+          },
+          {
+            "id": "b74ca3df-098e-4667-951c-1f59938b490e",
+            "kind": "raw",
+            "digest": "87a480e4dc401374093b483554ef9d69a3b0d413862243883dee7302434a90bf",
+            "size": 2200
+          }
+        ]
+      }
+    },
+    {
+      "parent": "codex",
+      "child": "cursor",
+      "scenario": "parent-revoke",
+      "scope": "mixed-child-496dd65299244377",
+      "parent_image": "sha256:94baf4de6dd0467a027ab4459263cb2e7d562328bf2b24e8361fed8fd16558c1",
+      "child_image": "sha256:8dcd59be48c5909b5eb54e40545c11a479db5cf96468bd9f08597459594c6458",
+      "worker_processes": [
+        303546,
+        304272
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "parent-revocation-cancels-child",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "tool_calls": 0,
+      "task_channel_calls": 1,
+      "handoff_ref": "dl-cf625f7f4bca45c73103c454ff4964301ad2d78e46d4abf99519bfa41e98",
+      "raw_record_sha256": "7dcebd1ce4789bae264343c68ba69a5e5cb321e5c56c76c096e4f15f82e9fe69",
+      "parent_run": {
+        "id": "ef1f9002-b55b-4149-9620-2ee4829c4e93",
+        "state": "failed",
+        "profile_id": "codex-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-888517f970caa851b745ca1519a2f40e3cdaba8b7a3d0966e43b3f1b93e6",
+          "state": "revoked"
+        },
+        "attempt": {
+          "id": "9ae6e5ad-3a5c-49b7-81cc-9a25ea442b95",
+          "epoch": 1,
+          "worker_id": "64b076e9-513e-42be-95d6-868f8c8b92ff",
+          "process_id": 303689,
+          "session_id": "01a21123-33a7-7712-9d93-d53f1f64ecd6",
+          "state": "failed"
+        },
+        "artifacts": [
+          {
+            "id": "8940a821-2ede-4ba7-9bf7-cf8730713463",
+            "kind": "stderr",
+            "digest": "0ba068f4e840a27abac6b62e431b5fe85647719b311719c7e0291649bba449c8",
+            "size": 412
+          },
+          {
+            "id": "cd0b7635-2db4-4d50-9d72-595a8f055386",
+            "kind": "stdout",
+            "digest": "9865132a6b3fdc214d5731ddabfa1b7d58177dcb4a8671c960d8acfc59074a96",
+            "size": 751
+          }
+        ]
+      },
+      "child_run": {
+        "id": "f77bb34d-7b31-4519-9f2d-08ad67a4c2cd",
+        "state": "cancelled",
+        "profile_id": "cursor-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-f51c39495fa8e11bc532248657b3ef5b0cd517f78070c6dd800233cdaa97",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "d8b16381-c9d3-4456-b69d-5b5f5a985a95",
+          "epoch": 1,
+          "worker_id": "e1253f4e-a627-44dd-847b-a7b001032586",
+          "process_id": 304505,
+          "session_id": "9db2d7b8-213b-4e39-97dc-d2b7f523cd6f",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "43c5d43b-1cae-4250-bb3c-c231d7a9dcd9",
+            "kind": "stderr",
+            "digest": "381dc03c72b138e61b56c75dd9e61df27913f395216542c98f6fe850a293e76f",
+            "size": 277
+          },
+          {
+            "id": "0d7781e4-0947-441e-8de4-bbbe882b2d29",
+            "kind": "stdout",
+            "digest": "61990143f483ced8caba197db7d2b3a495babce49f1bcd031af2195f0764e335",
+            "size": 844
+          }
+        ]
+      }
+    },
+    {
+      "parent": "codex",
+      "child": "cursor",
+      "scenario": "parent-worker-loss",
+      "scope": "mixed-child-0c858130841b4901",
+      "parent_image": "sha256:94baf4de6dd0467a027ab4459263cb2e7d562328bf2b24e8361fed8fd16558c1",
+      "child_image": "sha256:8dcd59be48c5909b5eb54e40545c11a479db5cf96468bd9f08597459594c6458",
+      "worker_processes": [
+        307826,
+        308004
+      ],
+      "checks": [
+        "separate-Worker-processes",
+        "separate-Harness-processes-and-sessions",
+        "approval-before-tool",
+        "OPA-parent-child-intersection",
+        "separate-authenticated-actors",
+        "HTTP-SDK-bound-handoff",
+        "recipient-idempotent-replay",
+        "general-API-cross-identity-denied",
+        "killed-parent-Worker-live-workload-observed",
+        "expired-owner-cancels-child",
+        "unknown-result-not-redispatched",
+        "operator-confirmed-exit-reconciled-with-original-attempt",
+        "stale-approval-denied",
+        "zero-tool-side-effects",
+        "partial-output-retained"
+      ],
+      "tool_calls": 0,
+      "task_channel_calls": 0,
+      "handoff_ref": "dl-0d8b80f714dca4ce061af3b645758b135f1240eb2097ab33a70fcb1bc338",
+      "raw_record_sha256": "5874a72918727b5e173b42377d89c9922bf9cab859865f4f0216754f2c62d6e1",
+      "parent_run": {
+        "id": "860250c2-70d7-4293-ac8f-043bedbd0452",
+        "state": "cancelled",
+        "profile_id": "codex-parent",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "reference": "wa-fe8827feb85adaf9c0eafcdebf67325b950ed57a912c2576b0e6513fe954",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "5af15b1e-f3d1-43c2-a7b1-a3e3148fd2a3",
+          "epoch": 1,
+          "worker_id": "583b9428-ae15-4f7c-ae76-53e0fe81d167",
+          "process_id": 307877,
+          "session_id": "01a21124-0a49-7852-ba18-abfc1889f264",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "bfd36ea1-a645-4364-b384-7a2b75afd51c",
+            "kind": "stdout",
+            "digest": "8f6a553e4dc741a069e203c3fd8af8e264017556d719e7a407067b12811987f8",
+            "size": 71
+          },
+          {
+            "id": "f1d157db-ec8f-4288-ad8c-74990ea8af97",
+            "kind": "stderr",
+            "digest": "63402b87c5e534f07ad88ebcc8365d6f86656fc6e7fa39791309e82879839510",
+            "size": 412
+          }
+        ]
+      },
+      "child_run": {
+        "id": "3f56a53b-74c7-4622-8858-03a14646a65b",
+        "state": "cancelled",
+        "profile_id": "cursor-real",
+        "authorization": {
+          "subject": "operator:qualification",
+          "actor": "service:independent-recipient",
+          "reference": "wa-6779f66dc7d0fc294acd1bc94b95a9f0771ea9c11191ef1ee5de811c883e",
+          "state": "closed"
+        },
+        "attempt": {
+          "id": "e6490ca5-2394-47f2-8f43-965bd1cf1b59",
+          "epoch": 1,
+          "worker_id": "ac04ade2-4991-46b0-a125-8e125069272b",
+          "process_id": 308054,
+          "session_id": "63a700ae-7db5-47f5-8b88-db7c5d079ba1",
+          "state": "cancelled"
+        },
+        "artifacts": [
+          {
+            "id": "06059185-cf24-43bc-a6f2-3cccdc841626",
+            "kind": "stderr",
+            "digest": "b41a41baea24ef038c87e7e6c3c92986e3571779e868a7cbd91ac9a63dc59076",
+            "size": 277
+          },
+          {
+            "id": "5549f933-95af-4cd0-b67f-3896e314afaf",
+            "kind": "stdout",
+            "digest": "471c7101277e7660d61a6bcc659bcad55d7466ef015a8383fe589961939b84bb",
+            "size": 655
+          }
+        ]
+      }
+    }
+  ],
+  "tests": {
+    "recipient_contracts": {
+      "passed": 13,
+      "seconds": 89.466
+    },
+    "related_regression": {
+      "passed": 43,
+      "execution": "35 regular tests plus 8 native OPA tests in a separate run"
+    },
+    "design_contracts": {
+      "checks_passed": 681,
+      "scope": "design consistency only"
+    },
+    "sdk-installed": {
+      "passed": 63,
+      "log_sha256": "9f3f7b347a7d9c013b8d98d5ef0becc77b559eb910409861ac8b25065bc0291f"
+    },
+    "image-contracts": {
+      "passed": 35,
+      "log_sha256": "a7a085f8bb3dbd09c149a3f6dc7d3a112d8fb35e42bb0b8e6a3b42d2c0571e5e"
+    }
+  },
+  "image": {
+    "image": "sha256:359150adfb25988a52d63e947c922a6ec54c8bc75afcf5721144eaf1a7c1b0c0",
+    "base": "sha256:6f562e17166ebbd09d9e20c2251140495ee4d1cb1315d957320590e8f7ce84e4",
+    "tag": "dios-backend:recipient-harnesses-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "deployment": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "changed": false
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_contract": {
+    "api_schema_parent_binding": true,
+    "delegation_schema_parent_binding": true,
+    "historical_detail_readable": true,
+    "visible_runs": 54,
+    "frontend_status": 200
+  },
+  "remaining": [
+    "External Provider actor-token exchange qualification",
+    "Physical cross-host qualification",
+    "Strict cross-Provider revocation ordering",
+    "Active-session reattachment",
+    "Monetary/token budgets",
+    "Independent G2 and user acceptance"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/tool_channel_client.py": "10ea9543f8ce21e95a4fa94a6afc34fd032a1efef5cd7d131274a006ce696688",
+    "backend/app/runtime/worker_mcp_bridge.py": "3395935bc0b60a070f5eb18e8201d08a998b2d30420f819d09fb7078fdd273f1",
+    "backend/app/runtime/worker_tool_channel.py": "a48b3127b72810c2baec8d8b9c60e57fcd9fd577fed5379990e7b699edb28c4b",
+    "backend/app/services/child_tasks.py": "9571e308e3878a8e8f95f73b35ef00c3bb7904ddd2a4b7f903f4009925563e22",
+    "backend/tests/test_runtime_child_channel.py": "784baea7b72bb8de83c367390172828a832fecc39a122be7dc8f43cc07720252",
+    "backend/tests/test_runtime_child_recipients.py": "8012b238116c6d9c6569a38bb188e2b9d647ea047a669637e75cbe108c60a3aa",
+    "examples/runtime/acp_child_coordinator.py": "f5ee566bb6a8f1d6f2671c9cabcedb0faaf30cd2588590e55e6061cebae9c2ec",
+    "scripts/qualify_child_harnesses.py": "0a3d006bf472fb768a24f0713bddd306c6065ad2af1d1a8452990e2cc84c234e",
+    "sdk/python/pyproject.toml": "f7e122eabc3ff2df99d2e80c6a2bf0cba5128f49ffb1bc766c68fcff4b29e54d",
+    "sdk/python/src/dios_sdk/__init__.py": "07a744ff3e66748e869dce8fe61064ce0817e888b56a076f302483cb4f80eded",
+    "sdk/python/src/dios_sdk/mcp.py": "7549a8efb840fbc18d36b130827e99973152cfe6e3b44b052cf53e464f2d1b9b",
+    "sdk/python/src/dios_sdk/tools.py": "a320bcb6a5a97e4543bf7f6e1c3410c1ab35a543249931a1ee149162f82fb5cb",
+    "sdk/python/tests/test_child_tasks.py": "b6dcea009506eac719d7178da0d9123652252c583449d8db912ed493114e9fb3",
+    "scripts/qualification_recipient_api.py": "e4a689ba993a798e53aa52daafcb6e177417c23df6bd27d832924e0cf7f74846"
+  }
+}

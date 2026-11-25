@@ -12,6 +12,7 @@ from .task_console import TaskConsole
 
 SUBMIT='dios_task_submit'
 GET='dios_task_get'
+LIST='dios_task_list'
 
 
 def tool_schemas(aliases):
@@ -21,12 +22,15 @@ def tool_schemas(aliases):
             required=['profile','goal'],additionalProperties=False,oneOf=[{'required':['sample_id']},{'required':['input_payload']}])),
         dict(name=GET,description='Wait up to 20 seconds (default) for a child to finish, then return its state and verified result. If still active, call again with the same run ID. A wait timeout is not task failure and does not resubmit it.',
             inputSchema=dict(type='object',properties={'run_id':{'type':'string','minLength':1,'maxLength':160},
-                'wait_seconds':{'type':'integer','minimum':0,'maximum':30,'default':20}},required=['run_id'],additionalProperties=False))]
+                'wait_seconds':{'type':'integer','minimum':0,'maximum':30,'default':20}},required=['run_id'],additionalProperties=False)),
+        dict(name=LIST,description='Discover children attached to this live parent execution. Wait for the first child up to 20 seconds by default. Observe a returned run ID with dios_task_get; an empty wait does not authorize resubmission.',
+            inputSchema=dict(type='object',properties={'wait_seconds':{'type':'integer','minimum':0,'maximum':30,'default':20}},additionalProperties=False))]
 
 
 def activity_arguments(alias,params):
     if alias==SUBMIT:
         return {key:params[key] for key in ('profile','goal','sample_id','input_payload') if params.get(key) is not None}
+    if alias==LIST:return {'wait_seconds':params.get('wait_seconds',20)}
     return {'run_id':params.get('run_id'),'wait_seconds':params.get('wait_seconds',20)}
 
 
@@ -145,3 +149,33 @@ class ChildTasks:
         async with self.store.db.read(self.store.scope) as c:await self.own(c,run_id,read_result=True)
         await self.audit(GET,{'run_id':run_id,'wait_seconds':wait_seconds},run_id)
         return value
+
+    async def list(self,wait_seconds=0):
+        from sqlalchemy import select
+        from app.runtime.child_schema import children
+        from app.runtime.work_authorizations import audit
+        from app.services.e2ag import Decision
+        if type(wait_seconds) is not int or not 0<=wait_seconds<=30:raise RuntimeErrorCode('CHILD_WAIT_INVALID')
+        deadline=time.monotonic()+wait_seconds
+        while True:
+            await self.channel._owner(wait=True)
+            async with self.store.db.transaction(self.store.scope) as c:
+                await require(c)
+                if self.gate.identity_guard:await self.gate.identity_guard(c)
+                await self.store._owned(c,*self.channel.binding,authorize=True)
+                ids=(await c.execute(select(children.c.run_id).where(
+                    children.c.scope==self.store.scope,children.c.parent_run_id==self.channel.binding[0],
+                    children.c.parent_attempt_id==self.channel.binding[1],children.c.parent_epoch==self.channel.binding[4],
+                    children.c.parent_session_id==self.channel.session_id).order_by(children.c.created_at,children.c.run_id).limit(33))).scalars().all()
+                if len(ids)>32:raise RuntimeErrorCode('CHILD_LIMIT_INVALID')
+                values=[]
+                for run_id in ids:
+                    run=await self.own(c,run_id,read_result=True)
+                    values.append({key:run[key] for key in ('id','state','version','cancel_requested','attempt_id')})
+                if values or time.monotonic()>=deadline:
+                    await audit(c,self.store.scope,self.channel.binding[0],self.channel.binding[1],'child-channel',
+                        Decision('child-task','allow',('CHILD_TASKS_DISCOVERED',),evidence=dict(alias=LIST,
+                            arguments_digest=digest(activity_arguments(LIST,{'wait_seconds':wait_seconds})),
+                            child_run_ids=list(ids),session_id=self.channel.session_id)),await self.store.db.now(c))
+                    return {'items':values,'wait_exhausted':bool(wait_seconds and not values)}
+            await asyncio.sleep(min(.5,max(0,deadline-time.monotonic())))

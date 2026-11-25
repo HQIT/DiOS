@@ -44,6 +44,9 @@ class ToolChannelClient:
     async def child(self,run_id,*,wait_seconds=0):
         return await self.request('child.get',{'run_id':run_id,'wait_seconds':wait_seconds})
 
+    async def children(self,*,wait_seconds=0):
+        return await self.request('child.list',{'wait_seconds':wait_seconds})
+
     async def call(self,tool,arguments,key,timeout=600):
         # A transport error never creates a new key or a second logical invocation.
         async with asyncio.timeout(timeout):

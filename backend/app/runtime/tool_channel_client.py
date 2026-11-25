@@ -12,7 +12,8 @@ class ToolChannelClient:
     async def request(self,method,params):
         raw=encoded({'method':method,'params':params})+b'\n'
         if len(raw)>65536:raise RuntimeErrorCode('TOOL_CHANNEL_FRAME_INVALID')
-        reader,writer=await asyncio.open_unix_connection(self.path,limit=2*1024*1024+1)
+        async with asyncio.timeout(15):
+            reader,writer=await asyncio.open_unix_connection(self.path,limit=2*1024*1024+1)
         try:
             async with asyncio.timeout(95):
                 writer.write(raw);await writer.drain();raw=await reader.readline()
@@ -34,13 +35,17 @@ class ToolChannelClient:
                 await asyncio.sleep(.2)
 
     async def submit_child(self,profile,goal,*,key,sample_id=None,input_payload=None):
-        if (sample_id is None)==(input_payload is None):raise ValueError('Supply exactly one child task input')
+        if (sample_id is None)==(input_payload is None):
+            raise ValueError('Supply exactly one child task input')
         if not isinstance(key,str) or not key:raise ValueError('Supply a stable child task key')
         return await self.request('child.submit',dict(profile=profile,goal=goal,key=key,
             sample_id=sample_id,input_payload=input_payload))
 
     async def child(self,run_id,*,wait_seconds=0):
         return await self.request('child.get',{'run_id':run_id,'wait_seconds':wait_seconds})
+
+    async def children(self,*,wait_seconds=0):
+        return await self.request('child.list',{'wait_seconds':wait_seconds})
 
     async def call(self,tool,arguments,key,timeout=600):
         # A transport error never creates a new key or a second logical invocation.

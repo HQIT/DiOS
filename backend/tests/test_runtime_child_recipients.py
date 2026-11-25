@@ -350,6 +350,7 @@ class ChildRecipientTests(DelegatedSubmissionTests):
             client = ToolChannelClient(str(channel.directory / "channel.sock"))
             observed = await client.child(cid)
             self.assertEqual(observed["result"]["summary"], "合成结果")
+            self.assertEqual([r['id'] for r in (await client.children())['items']], [cid])
             async with self.db.transaction(self.scope) as c:
                 authority = (
                     (
@@ -371,6 +372,8 @@ class ChildRecipientTests(DelegatedSubmissionTests):
                 )
             with self.assertRaisesRegex(RuntimeErrorCode, "CHILD_RESULT_NOT_GRANTED"):
                 await client.child(cid)
+            with self.assertRaisesRegex(RuntimeErrorCode, "CHILD_RESULT_NOT_GRANTED"):
+                await client.children()
             parent = await self.store.get(self.parent["id"])
             await self.store.cancel(parent["id"], parent["version"])
             with self.assertRaisesRegex(RuntimeErrorCode, "AUTH_REVOKED"):

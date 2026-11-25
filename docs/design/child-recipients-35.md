@@ -84,4 +84,4 @@ cli/dios task submit --profile child-service --sample registered-input \
 
 [验证证据](evidence/child-recipients-20261125.json)覆盖认证 HTTP、原生 OPA、父执行冒用、跨执行树使用、角色权限撤回、并发幂等、数量限制、成果读取及备份。真实 Docker 子任务验证完成报告和父撤权后的原尝试退出；该场景的父执行采用 Runtime 所有权/会话夹具，没有父模型进程。
 
-既有[异构 Harness 验证](mixed-harness-children-35-58.md)已覆盖同一身份下的三组真实父子模型。跨身份的应用交接自动化、真实父子 Harness 联合验收，以及外部 Provider 的 actor-token 交换资格继续推进。物理跨主机和严格跨 Provider 撤销排序仍按整体计划独立验收。
+既有[异构 Harness 验证](mixed-harness-children-35-58.md)覆盖同一身份下的三组真实父子模型。[跨身份 Harness 交接](recipient-harnesses-35-58.md)进一步覆盖应用独立认证接收、父模型发现子任务、成果回传、撤权和 Worker 失联。外部 Provider actor-token 交换资格、物理跨主机和严格跨 Provider 撤销排序仍按整体计划独立验收。
