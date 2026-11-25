@@ -1,0 +1,54 @@
+x-backend: &backend
+  image: ${DIOS_BACKEND_IMAGE:?Run install.py init first}
+  pull_policy: never
+  user: ${DIOS_UID}:${DIOS_GID}
+  group_add: ["${DIOS_DOCKER_GID}"]
+  env_file: [service.env]
+  environment:
+    PATH: /usr/local/bin:/usr/bin:/bin
+    PYTHONDONTWRITEBYTECODE: "1"
+  working_dir: /app
+  volumes:
+    - ${DIOS_ROOT}/data:${DIOS_ROOT}/data
+    - ${DIOS_ROOT}/workspace:${DIOS_ROOT}/workspace
+    - ${DIOS_ROOT}/config:${DIOS_ROOT}/config:ro
+    - ${DIOS_ROOT}/cli:${DIOS_ROOT}/cli:ro
+    - /var/run/docker.sock:/var/run/docker.sock
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: [no-new-privileges:true]
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+
+services:
+  migrate:
+    <<: *backend
+    profiles: [bootstrap]
+    entrypoint: [/usr/local/bin/python, -m, app.runtime.cli]
+    command: [migrate]
+    restart: "no"
+
+  backend:
+    <<: *backend
+    init: true
+    restart: unless-stopped
+    entrypoint: [/usr/local/bin/python, -m, uvicorn]
+    command: [main:app, --host, 0.0.0.0, --port, "8000"]
+    ports: ["127.0.0.1:${DIOS_API_PORT}:8000"]
+    healthcheck:
+      test: [CMD, /usr/local/bin/python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=3).read()"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+
+  frontend:
+    image: ${DIOS_FRONTEND_IMAGE:?Run install.py init first}
+    pull_policy: never
+    restart: unless-stopped
+    ports: ["127.0.0.1:${DIOS_WEB_PORT}:80"]
+    depends_on:
+      backend: {condition: service_healthy}
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}

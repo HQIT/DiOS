@@ -1,0 +1,135 @@
+{
+  "work_item": "D01-1.01",
+  "status": "engineering_verified",
+  "platform": "Linux/WSL Ubuntu 24.04; Docker 29.1.3; Compose 2.37.1",
+  "backend_image": "sha256:37c744e7cc12349a06abbbe3766be841600b0a86672dc32340a34fea2bbbe589",
+  "frontend_image": "sha256:823bc7d5dc742a22f018dfa3c7bb700866bbcf565430129321071347f29699f0",
+  "clean_data_directory": true,
+  "runtime_migration": "current schema components initialized by explicit bootstrap command",
+  "doctor_minimal_environment": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "docker_path",
+        "ok": true,
+        "detail": "/usr/bin/docker"
+      },
+      {
+        "name": "installation_root",
+        "ok": true,
+        "detail": "/home/xu/workspace/NANA-OS/workspace/qualification-linux-install-20261126"
+      },
+      {
+        "name": "private:.env",
+        "ok": true,
+        "detail": "requires owner-only permissions"
+      },
+      {
+        "name": "private:service.env",
+        "ok": true,
+        "detail": "requires owner-only permissions"
+      },
+      {
+        "name": "private:config/work-policy.json",
+        "ok": true,
+        "detail": "requires owner-only permissions"
+      },
+      {
+        "name": "compose_environment",
+        "ok": true,
+        "detail": {
+          "conflicting_variable_names": []
+        }
+      },
+      {
+        "name": "access_token",
+        "ok": true,
+        "detail": "presence and minimum length only"
+      },
+      {
+        "name": "e2ag",
+        "ok": true,
+        "detail": "enforce required"
+      },
+      {
+        "name": "runtime_console",
+        "ok": true,
+        "detail": "explicitly enabled"
+      },
+      {
+        "name": "docker_endpoint",
+        "ok": true,
+        "detail": "local /var/run/docker.sock; remote context requires a separate deployment profile"
+      },
+      {
+        "name": "daemon",
+        "ok": true,
+        "detail": "29.1.3"
+      },
+      {
+        "name": "compose",
+        "ok": true,
+        "detail": "2.37.1+ds1-0ubuntu2~24.04.1"
+      },
+      {
+        "name": "DIOS_BACKEND_IMAGE",
+        "ok": true,
+        "detail": "immutable local image"
+      },
+      {
+        "name": "DIOS_FRONTEND_IMAGE",
+        "ok": true,
+        "detail": "immutable local image"
+      },
+      {
+        "name": "proxy_configuration",
+        "ok": true,
+        "detail": {
+          "host_present": [],
+          "service_present": [],
+          "note": "Host environment is not inherited by services; Docker daemon proxy is configured separately."
+        }
+      },
+      {
+        "name": "health",
+        "ok": true,
+        "detail": "API response checked"
+      },
+      {
+        "name": "runtime_profiles",
+        "ok": true,
+        "detail": "API response checked"
+      }
+    ]
+  },
+  "authentication_required": true,
+  "frontend_asset_loaded": true,
+  "service_restart": {
+    "healthy": true,
+    "database_inode_preserved": true,
+    "workspace_marker_preserved": true,
+    "runtime_runs_before": 0,
+    "runtime_runs_after": 0
+  },
+  "worker_systemd_unit": "generated with actual paths and validated; not activated",
+  "background_environment": {
+    "PATH": "/usr/local/bin:/usr/bin:/bin",
+    "restart_policy": "unless-stopped",
+    "root_read_only": true
+  },
+  "tests": {
+    "installer_guards": 6,
+    "passed": 6
+  },
+  "limits": [
+    "Fresh installation uses an existing Linux Docker host with preloaded images, not a new physical host or OS provisioning.",
+    "Backend copied current source onto the retained qualified dependency image; frontend reused the unchanged built assets.",
+    "Clean-install controlled workload, upgrade rollback and recovery remain D01-1.02; real Cursor evidence is retained separately.",
+    "Systemd Worker configuration validated statically; services were not enabled on the shared development host."
+  ],
+  "source_sha256": {
+    "deploy/linux/install.py": "a00a37ec4d805c0966f755b7a993e973fdda92f7684f49680ec3de8acdb60d7c",
+    "deploy/linux/compose.yaml": "3d2a08d15baf6e011d2216701a83848a9dd71dd8f947f52b50a2542d3600706f",
+    "deploy/linux/dios-worker@.service": "5a1024b86f965b0be0895058f328dd4a707aae31fec232a804472a86f14c87e1"
+  }
+}

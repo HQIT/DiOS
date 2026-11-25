@@ -1,0 +1,75 @@
+# Linux 安装与后台运行
+
+DiOS 控制面使用 Docker Compose，默认存储为 SQLite 与本地对象目录。Worker 独立运行，通过已登记配置接入 Cursor 等 Harness；客户应用独立部署。
+
+## 环境
+
+- Linux 主机，或已经运行的 WSL Linux；Python 3.10+、Docker Engine、Compose v2。安装账户可访问 `/var/run/docker.sock`。
+- 准备固定版本的后端和前端镜像。离线交付可用 `docker load -i images.tar`；从源码构建可用仓库 `backend/Dockerfile` 与 `frontend/Dockerfile`。镜像需要与本分支版本匹配。
+- 使用独立、尚不存在的安装目录；路径只接受字母、数字、`_`、`-`、`.` 和 `/`。安装账户拥有目录，凭据文件权限为 `0600`。
+
+Docker Socket 赋予控制面和 Worker 主机容器管理权限，两个组件属于可信执行管理端。Agent 工作负载继续使用独立非 root 沙箱；模型凭据与应用配置按 profile 单独登记。
+
+## 首次安装
+
+在仓库根目录执行，替换两项镜像名称和安装位置：
+
+```sh
+export DIOS_INSTALL=/opt/dios-instance
+python3 deploy/linux/install.py init --root "$DIOS_INSTALL" \
+  --backend-image dios-backend:candidate --frontend-image dios-frontend:candidate
+python3 deploy/linux/install.py doctor --root "$DIOS_INSTALL"
+docker --host unix:///var/run/docker.sock compose --project-directory "$DIOS_INSTALL" run --rm migrate
+docker --host unix:///var/run/docker.sock compose --project-directory "$DIOS_INSTALL" up -d --wait backend frontend
+python3 deploy/linux/install.py doctor --root "$DIOS_INSTALL" --running
+```
+
+`init` 将已有镜像解析为不可变 image ID，不会覆盖已有安装。`migrate` 只用于首次初始化；已有实例的升级先执行排空、备份与对应版本的升级流程。启动服务不会自动运行该迁移命令。
+
+Console 位于 `http://localhost:3000/dios/`，API 位于 `http://localhost:8000`，均只监听主机回环地址。Access Token 保存在安装目录的 `service.env` 中，由管理员通过本机受控方式取用。远程访问通过现有身份代理/TLS 入口接入，不直接开放管理端口。
+
+目录中的 `.env` 保存镜像、账户、端口和绝对路径；`service.env` 保存服务设置与 Access Token；`config` 保存 profiles 与 E2AG 策略；`data` 保存数据库和产物；`workspace` 保存工作目录。配置与 CLI 以只读方式挂载，数据库和对象目录独立持久化。
+
+初始 E2AG 为 `enforce`，工作权限为空，Runtime Console 与持久调度已启用。登记执行配置、精确版本权限、工具与审批身份后再开放任务。模型服务没有安装级默认依赖。
+
+## 后台与诊断
+
+API/Console 使用 Compose `restart: unless-stopped`，前端等待后端健康后启动。Docker 守护进程需随 Linux 启动。WSL 的发行版启动由宿主运维负责。
+
+```sh
+docker --host unix:///var/run/docker.sock compose --project-directory "$DIOS_INSTALL" ps
+docker --host unix:///var/run/docker.sock compose --project-directory "$DIOS_INSTALL" logs --tail 100 backend
+python3 deploy/linux/install.py doctor --root "$DIOS_INSTALL" --running
+```
+
+`doctor` 检查 Docker 的实际 PATH、守护进程和 Compose、固定镜像、凭据权限、配置覆盖及 API/Runtime 可达性；只输出代理变量是否存在，不输出 Token 或代理地址。宿主 Shell 中的代理不会自动进入服务。镜像拉取代理配置在 Docker daemon；控制面访问外部服务的代理显式写入 `service.env`，`NO_PROXY` 包含实际内网端点；模型代理按 Harness profile 配置。
+
+若后台与交互终端表现不同，在后台账户下用精简环境运行同一检查：
+
+```sh
+env -i HOME="$HOME" PATH=/usr/local/bin:/usr/bin:/bin /usr/bin/python3 \
+  deploy/linux/install.py doctor --root "$DIOS_INSTALL" --running
+```
+
+诊断中 `compose_environment` 失败时，按列出的变量名核对当前 Shell 与 `.env`。不要将 `docker compose config` 的完整结果写入公开日志，其中可能包含服务凭据。
+
+## 独立 Worker
+
+在固定源码版本的 `backend` 中建立 `.venv`，按 `requirements.txt` 安装依赖。Docker 调用由 Python SDK 完成，Git、模型 CLI 等任务依赖放在对应工作负载镜像中。配置文件中的宿主路径须为绝对路径。
+
+```sh
+python3 deploy/linux/install.py worker-unit --root "$DIOS_INSTALL" --backend /opt/dios-source/backend
+systemd-analyze verify "$DIOS_INSTALL/dios-worker@.service"
+sudo install -m 0644 "$DIOS_INSTALL/dios-worker@.service" /etc/systemd/system/
+sudo systemctl daemon-reload
+```
+
+生成器固定安装账户、Docker 组、Python 路径、PATH、工作目录和环境文件，不自动启动 Worker。登记 `config/profiles/cursor.json` 以及 E2AG 工作权限、工具目录、审批者、Secret 引用后，用 `sudo systemctl enable --now dios-worker@cursor` 启用。需要的 `DIOS_RUNTIME_TOOLS_FILE`、`DIOS_RUNTIME_APPROVERS_FILE`、`DIOS_RUNTIME_SECRETS_FILE` 加入受保护的 `service.env`；使用只读的安装配置目录存放文件。
+
+采用 [Cursor 原生控制配置](../../docs/design/cursor-native-controls.md)和已验证镜像。每个服务实例运行一个 Worker，实际并发以 Runtime 进程、Attempt 与 Session 观测为准。计划升级或停止前先用 Runtime `upgrade drain`、`upgrade wait` 排空；systemd 配置不以超时强杀代替排空。
+
+## 交付验证
+
+首轮已验证全新数据目录、固定镜像启动、精简环境诊断、访问认证、Console 资源和独立重启后的数据挂载。Worker unit 通过 systemd 静态校验，真实 Cursor 执行复用既有开发环境证据。清洁安装中的任务、升级回退和恢复组合资格由 D01-1.02 承接。
+
+机制依据：[Compose 启动依赖](https://docs.docker.com/compose/how-tos/startup-order/)、[Docker 自动重启](https://docs.docker.com/engine/containers/start-containers-automatically/)、[Compose 环境变量优先级](https://docs.docker.com/compose/how-tos/environment-variables/envvars/)。

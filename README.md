@@ -30,15 +30,17 @@ DiOS 管理 Agent，Agent 完成工作。当前执行实现使用 [DiAgent](http
 
 ## 快速启动
 
-需要 Docker 和 Docker Compose：
+Linux/WSL 需要 Python 3、Docker 和 Docker Compose。按 [Linux 安装指南](deploy/linux/README.md)准备对应版本的后端、前端镜像，再初始化独立实例：
 
 ```bash
-git clone --recurse-submodules https://github.com/HQIT/DiOS.git
-cd DiOS
-docker compose up -d
+python3 deploy/linux/install.py init --root "$PWD/workspace/dios-local" \
+  --backend-image dios-backend:candidate --frontend-image dios-frontend:candidate
+python3 deploy/linux/install.py doctor --root "$PWD/workspace/dios-local"
+docker --host unix:///var/run/docker.sock compose --project-directory "$PWD/workspace/dios-local" run --rm migrate
+docker --host unix:///var/run/docker.sock compose --project-directory "$PWD/workspace/dios-local" up -d --wait backend frontend
 ```
 
-打开 `http://localhost:3000`。API 默认位于 `http://localhost:8000`。
+打开 `http://localhost:3000/dios/`。API 默认位于 `http://localhost:8000`，Access Token 位于实例的受保护配置文件。执行配置与 E2AG 权限显式登记；Worker 后台配置与诊断见安装指南。
 
 CLI 与 Console 使用同一组控制面 API：
 

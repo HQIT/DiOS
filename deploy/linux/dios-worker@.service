@@ -1,0 +1,27 @@
+[Unit]
+Description=DiOS registered Worker %i
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@USER@
+Group=@GROUP@
+SupplementaryGroups=@DOCKER_GROUP@
+WorkingDirectory=@BACKEND@
+Environment=PATH=@BACKEND@/.venv/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=@ROOT@/service.env
+ExecStart=@BACKEND@/.venv/bin/python -m app.runtime.cli worker --profile @ROOT@/config/profiles/%i.json --artifacts @ROOT@/data/objects
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+# Drain and wait with the Runtime upgrade CLI before planned stop/upgrade.
+# No service-manager deadline may kill an active task during a planned drain.
+TimeoutStopSec=infinity
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
