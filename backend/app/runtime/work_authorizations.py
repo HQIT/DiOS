@@ -132,9 +132,10 @@ async def close(c,run):
 
 
 class WorkAuthorizationVerifier:
-    def __init__(self,store,policy):self.store,self.policy=store,policy
+    def __init__(self,store,policy,*,restore=False):self.store,self.policy,self.restore=store,policy,restore
 
     async def __call__(self,context,action):
+        if self.restore and action!='accept_result':raise RuntimeErrorCode('RESTORE_EXECUTION_DENIED')
         started=perf_counter()
         if context.scope!=self.store.scope:raise RuntimeErrorCode('WORKER_MISMATCH')
         if not context.authorization_ref:raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
@@ -203,8 +204,9 @@ class WorkAuthorizationVerifier:
                             code='EXECUTION_GRANT_RENEWED' if 'expires_at' in changes else 'EXECUTION_SESSION_BOUND'
                     if code:await audit(c,self.store.scope,run['id'],a['id'],action,Decision('work-grant','allow',(code,)),now,timing())
                 elif action=='accept_result':
-                    from .lifecycle import admission
-                    await admission(c,self.store.scope,ownership=True)
+                    from .lifecycle import admission,require_restore_hold
+                    if self.restore:await require_restore_hold(c)
+                    else:await admission(c,self.store.scope,ownership=True)
                     await require_current(c,run,a,now,'accept_result',session_id=context.session_id)
                     if a['state']=='result_unknown':
                         if run['state']!='reconciliation_required' or run['epoch']!=a['epoch']+1:raise RuntimeErrorCode('STALE_OWNER')

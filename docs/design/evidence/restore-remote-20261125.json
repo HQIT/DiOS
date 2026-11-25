@@ -1,0 +1,65 @@
+{
+  "work_item": "K02-3.02",
+  "status": "in_progress",
+  "base_commit": "7ccd8f8620443780886f778aa31e6e1956520b7a",
+  "delivered": [
+    "Explicit restore-only mTLS result channel with current machine/profile authorization and E2AG accept_result checks",
+    "Original Attempt fencing under CAS, authenticated chunked upload and original process/session result reconciliation without execution",
+    "Durable prepare/result receipts survive response loss, new client processes and certificate rotation; no second Attempt or Adapter start",
+    "CLI restore-reconcile accepts retained original exit evidence while keeping all execution held"
+  ],
+  "tests": {
+    "new_restore_cases": {
+      "total": 6,
+      "passed": 6,
+      "skipped": 0,
+      "seconds": 19.901,
+      "source": "unittest test_restore_remote; successful exec session 46524",
+      "cases": [
+        "current policy change rolls back prepare and persists denial",
+        "incomplete result and wrong binding remain unresolved",
+        "lost response and restarted client return original receipt",
+        "old certificate, wrong machine and execution requests rejected",
+        "real mTLS and two independent CLI processes reuse one original result",
+        "rotated identity accepts original result while restore hold remains"
+      ]
+    },
+    "affected_regressions": {
+      "total": 95,
+      "passed": 47,
+      "skipped": 48,
+      "seconds": 88.245,
+      "modules": [
+        "test_runtime_remote_control",
+        "test_runtime_reconciliation",
+        "test_runtime_work_authorizations"
+      ]
+    },
+    "reuse": "Unchanged installation capture/hold, compatibility gates and artifact recovery reuse prior evidence; no duplicate full regression or model calls"
+  },
+  "reused_evidence": [
+    "docs/design/evidence/installation-restore-hold-20261125.json",
+    "docs/design/evidence/installation-backup-20261125.json"
+  ],
+  "remaining": [
+    "Verify source-controller isolation, checkpoint message/effect completeness and a guarded scheduling release before closing K02-3.02"
+  ],
+  "delivery": "Commit tested changes; consolidated image/development deployment follows safe activation closure of K02-3.02",
+  "limits": [
+    "Actual mTLS and independent CLI processes; synthetic executor adapter and retained result fixture",
+    "48 optional/inherited tests skipped in affected module discovery; no PostgreSQL/Docker/OPA qualification claim for this run",
+    "Machine identifiers must remain stable and not be reassigned to unrelated Workers",
+    "Receiver-side current certificate checks do not establish isolation of a separate live source controller",
+    "No automatic restore-hold release in this slice"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/cli.py": "8c0088cf088f5ec97ee40c0bb8ceecd5b7b706d0cf0ccfaf6453eec53af0fca0",
+    "backend/app/runtime/lifecycle.py": "1263ea10a9873cbf6544c990edfda1a4bc7bdceb900447d08f09a6ca3d186062",
+    "backend/app/runtime/remote_control.py": "b4ec3ee1592f981926d5916e81934167668aa6d72274881c4b9b44061caf789b",
+    "backend/app/runtime/restore_client.py": "92b5929bbe67b8b85563d5d28fdaf56daa810acdff13f7346dbadeac02e1efef",
+    "backend/app/runtime/restore_remote.py": "568e7a90284aee5a0c30342fed346b29396bf9baf763ec282d507511608600f9",
+    "backend/app/runtime/store.py": "ea0d3ddb6b4dd021b0813caa432ab7d89e83222c9448d9f481c5885156f37f5a",
+    "backend/app/runtime/work_authorizations.py": "9a2a99531d670ee6453af63bdd24f29af5cc45625f01edba76d3bf8796042e3a",
+    "backend/tests/test_restore_remote.py": "d32802fdb73be27da5be42f0b2209fd0e4bffe7fb034c4a37950ac57890afed3"
+  }
+}

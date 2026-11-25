@@ -48,6 +48,9 @@ class RemoteControl:
         from .remote_profiles import resolve
         profile=e['profile']
         await resolve(self.store.db,self.store.scope,entry,profile,e['profile_digest'],e.get('revision_ref'))
+        if method.startswith('restore.'):
+            from .restore_remote import request
+            return await request(self,certificate,expiry,e,method[8:],p)
         async with self.store.db.transaction(self.store.scope) as c:
             await require(c);now=await self.store.db.now(c)
             if expiry<=max(now,time.time()):raise RuntimeErrorCode('WORKER_CERTIFICATE_EXPIRED')

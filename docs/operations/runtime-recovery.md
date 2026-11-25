@@ -61,7 +61,23 @@ backend/.venv/bin/python cli/dios runtime restore /path/to/new-backup /path/to/n
 
 恢复副本允许读取、核验原身份及事件，拒绝所有 scope 的新任务认领和新提交，也拒绝旧 Worker 的心跳、报告和结果提交。返回的 `restore.json` 记录恢复耗时、来源与恢复后数据库摘要及核验要求。原 scope 的 resume 无法解除全局 `restore_hold`。
 
-恢复副本启用前必须隔离源控制面、重新认证外部引用，并核对恢复点之后已发生的任务与副作用。当前没有自动解除恢复保留状态的入口；该流程随真实 Worker 对账和授权接入交付。即使备份中某任务仍显示 queued，也可能已在原实例执行，需先对账才能再次调度。
+恢复副本启用前必须隔离源控制面、重新认证外部引用，并核对恢复点之后已发生的任务与副作用。即使备份中某任务仍显示 queued，也可能已在原实例执行，需先对账才能再次调度。全局冻结保留到源端隔离与未决事项核对完成。
+
+### 重新认证与原结果对账
+
+恢复实例开启既有 mTLS gateway 后，显式允许的机器可通过 `runtime.restore.*` 对账。当前机器证书、scope/profile 和原 Attempt 的 machine ID 必须一致；证书轮换使用当前身份配置。通道仅在 `restore_hold` 下接受证据，E2AG 按当前策略校验 `accept_result`，不续租或启动工作。
+
+```sh
+backend/.venv/bin/python cli/dios runtime --scope local restore-reconcile \
+  --control-file /srv/worker/recovery-control.json \
+  --profile-file /srv/worker/profile.json \
+  --receipt-file /srv/worker/original-exit-receipt.json \
+  --artifacts /srv/worker/objects --expected-version 12
+```
+
+`expected-version` 来自恢复实例中的 Run。版本绑定的任务同时指定 `--revision-ref`。输入为原 Worker 保存的退出回执和内容对象；CLI 校验完整结果后分块上传，按原 Run/Attempt/进程/会话关联提交。丢失响应后使用相同参数重试，可读取原回执。截断输出、未确认退出或含失败标记的结果保持待核对；普通 Worker 循环不能借该通道重新执行。
+
+对账成功保留全局冻结。后续启用须另外证明源控制面已隔离及未决外部动作已处理；旧副本本地的 hold、撤销记录和 epoch 不代替源端隔离证据。详见[研究依据与通道约束](../design/recovery-research-11.md)。
 
 ## 验收记录
 

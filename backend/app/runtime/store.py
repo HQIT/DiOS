@@ -613,7 +613,7 @@ class RuntimeStore:
                 'actual_concurrency':None if unknown else sessions,'unknown_attempts':unknown,
                 'workers':worker_rows,'attempts':observations,'circuits':circuit_rows}
 
-    async def resolve_exit(self, expected_run, expected_attempt, receipt, provider, *, session_id, result_key, failure):
+    async def resolve_exit(self, expected_run, expected_attempt, receipt, provider, *, session_id, result_key, failure, restore=False):
         """Trusted reconciler commits evidence under CAS; it never restores the old lease."""
         from .bridge import JsonlBridge
         blobs = {kind: provider.verify(receipt[kind]) for kind in ('stdout', 'stderr')}
@@ -633,7 +633,10 @@ class RuntimeStore:
         if obs['alive'] or obs['state'] not in {'exited', 'dead'} or not obs['process_instance']:
             raise RuntimeErrorCode('PROCESS_EXIT_NOT_CONFIRMED')
         async with self.db.transaction(self.scope) as c:
-            await admission(c, self.scope, ownership=True)
+            if restore:
+                from .lifecycle import require_restore_hold
+                await require_restore_hold(c)
+            else:await admission(c, self.scope, ownership=True)
             run = await self._run(c, expected_run['id'])
             if run['version'] != expected_run['version']: raise RuntimeErrorCode('VERSION_CONFLICT')
             a = (await c.execute(select(attempts).where(attempts.c.id == run['attempt_id']))).mappings().first()

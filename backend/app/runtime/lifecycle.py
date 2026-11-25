@@ -23,6 +23,12 @@ async def admission(c, scope, *, ownership=False):
     return ownership or all(row['mode'] == 'running' for row in rows)
 
 
+async def require_restore_hold(c):
+    if not await check(c): raise RuntimeErrorCode('LIFECYCLE_MIGRATION_REQUIRED')
+    mode=(await c.execute(select(control.c.mode).where(control.c.key=='global'))).scalar_one_or_none()
+    if mode!='restore_hold':raise RuntimeErrorCode('RESTORE_HOLD_REQUIRED')
+
+
 class Lifecycle:
     def __init__(self, database, scope):
         from .store import identifier
