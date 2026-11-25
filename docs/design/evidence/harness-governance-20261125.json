@@ -1,0 +1,1549 @@
+{
+  "date": "2026-11-25",
+  "scope": "isolated synthetic-source real Harness/OPA execution on one WSL Docker host",
+  "versions": {
+    "cursor_cli": "2026.11.05-86047df",
+    "dsh": "0.2.2-rc.5",
+    "codex_acp": "2.11.0",
+    "codex_cli": "0.172.0",
+    "dios_sdk": "0.1.5",
+    "static_review": "0.1.4",
+    "opa": "1.17.0"
+  },
+  "cases": [
+    {
+      "case": "renew",
+      "scope": "harness-88c3b1fceb2f479a",
+      "run_id": "604e734b-d116-4b75-a061-864c139d3cbf",
+      "attempt_id": "aeddff8e-133f-479e-a5f0-d6a91b1426e7",
+      "session_id": "8534ecfb-fcf2-4f5f-b331-af0c07eed0aa",
+      "process_id": 180701,
+      "image": "sha256:61629d589ead98ed9bd17f07bf1507d37a83fcc6e7b9440639ce86d2656b7a9a",
+      "state": "succeeded",
+      "attempt_error": null,
+      "tool_calls": 1,
+      "result_frames": 1,
+      "exit": {
+        "alive": false,
+        "exit_code": 2,
+        "handle": "aeddff8e-133f-479e-a5f0-d6a91b1426e7",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "14d8e332325117dbe01cf26f74dd02666db0147a10435987fc0df78020542f47:2026-11-25T02:45:10.597380434Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "cdf12cf553f15583e8134a718b9530233f73b533259b81c7b7e859e2bffccec4",
+      "faults": [
+        {
+          "kind": "isolated-grant-deadline-shortened",
+          "expires_at": 1795574829.208988
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "worker-heartbeat-renews-current-grant-within-delegated-deadline",
+        "completed-dispatch-replay-does-not-call-tool-again",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "cursor",
+      "delegation_ids": [
+        "dl-99a964e939f462db023ff74a0ada0b5eaecf8751415acfdc15a7119281db",
+        "dl-b9e12797230adc72f35c2fd0896a472dff9533dc4f341398b27356ac8648",
+        "dl-6f7f3ee6fc82a7f65fa2164e6759b07098654d09df6f57079025bdef3e03",
+        "dl-4c95f855f2163bd83905f6160ed9088ef3824d7541dfbbfaf1a2cc75ecf8"
+      ],
+      "grant_before": {
+        "attempt_id": "aeddff8e-133f-479e-a5f0-d6a91b1426e7",
+        "session_id": "8534ecfb-fcf2-4f5f-b331-af0c07eed0aa",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575609.9559844
+      },
+      "grant_after": {
+        "attempt_id": "aeddff8e-133f-479e-a5f0-d6a91b1426e7",
+        "session_id": "8534ecfb-fcf2-4f5f-b331-af0c07eed0aa",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "active",
+        "expires_at": 1795575631.4949944
+      },
+      "work_expires_at": 1795578219.3369677,
+      "gate_evidence": [
+        {
+          "stage": "receipt",
+          "created_at": 1795574732.374008,
+          "decision": {
+            "stage": "tool-receipt",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_RESULT_VALIDATED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "receipt_key": "a24e6f72e0d3e3e0a616ee48feb27af6881972af0f1eb3e9deb3f509bd0d25f9",
+              "result_key": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+              "binding": {
+                "run_id": "604e734b-d116-4b75-a061-864c139d3cbf",
+                "attempt_id": "aeddff8e-133f-479e-a5f0-d6a91b1426e7",
+                "session_id": "8534ecfb-fcf2-4f5f-b331-af0c07eed0aa",
+                "worker_id": "c5b276dc-deec-4c40-aa7f-1e65b1d60bd5",
+                "worker_instance": "919bc89f-e51c-4c28-a868-26da25630b58",
+                "lease_epoch": 1,
+                "authorization_epoch": 1,
+                "authorization_ref": "wa-f316c21895245a8f79bb68d9fc77394d93e2e84f2fefe780d07c7927c7a1",
+                "policy_digest": "10cf776ff6376f826a23275128d6a96a51ff7bb8a3b15c4e495e56eb911bb475",
+                "permissions_digest": "30e8a061d22764950527375e344263e92a1e615a5ff13b8fd6b85f66cd245075",
+                "subject": "operator:qualification",
+                "actor": "service:harness"
+              },
+              "execution_grant_renewed": false
+            }
+          }
+        },
+        {
+          "stage": "dispatch",
+          "created_at": 1795574732.1859984,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_DISPATCH_COMMITTED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "binding": {
+                "run_id": "604e734b-d116-4b75-a061-864c139d3cbf",
+                "attempt_id": "aeddff8e-133f-479e-a5f0-d6a91b1426e7",
+                "session_id": "8534ecfb-fcf2-4f5f-b331-af0c07eed0aa",
+                "worker_id": "c5b276dc-deec-4c40-aa7f-1e65b1d60bd5",
+                "worker_instance": "919bc89f-e51c-4c28-a868-26da25630b58",
+                "lease_epoch": 1,
+                "authorization_epoch": 1,
+                "authorization_ref": "wa-f316c21895245a8f79bb68d9fc77394d93e2e84f2fefe780d07c7927c7a1",
+                "policy_digest": "10cf776ff6376f826a23275128d6a96a51ff7bb8a3b15c4e495e56eb911bb475",
+                "permissions_digest": "30e8a061d22764950527375e344263e92a1e615a5ff13b8fd6b85f66cd245075",
+                "subject": "operator:qualification",
+                "actor": "service:harness"
+              },
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd",
+              "dispatch_version": 3,
+              "sender": null
+            }
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574731.6119924,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574728.9450183,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "604e734b-d116-4b75-a061-864c139d3cbf",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "a9ca28e5df09194138f04a25bdaf5c5aeaa21a312f795f15131d363d1a8d7257"
+    },
+    {
+      "case": "ancestor-revoke",
+      "scope": "harness-e8662f5369e54141",
+      "run_id": "03121acb-8245-4204-80e3-bea1a1afd004",
+      "attempt_id": "c23fca52-b580-415e-ad00-1a3eebc74729",
+      "session_id": "4b6b7dfc-4a82-4e59-a6f0-6d59663a63ce",
+      "process_id": 184178,
+      "image": "sha256:61629d589ead98ed9bd17f07bf1507d37a83fcc6e7b9440639ce86d2656b7a9a",
+      "state": "failed",
+      "attempt_error": {
+        "code": "AUTH_REVOKED",
+        "category": "authorization",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "tool_calls": 0,
+      "result_frames": 0,
+      "exit": {
+        "alive": false,
+        "exit_code": 130,
+        "handle": "c23fca52-b580-415e-ad00-1a3eebc74729",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "5c33efe53072ed03136d5c7abbe98f2d594c4d7e4372b64b2a32a1657b9c9d6d:2026-11-25T02:46:07.880618801Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "68e753bd31b313ad835a0e1db4fb39b4eb0239965547b9226797541d3d182785",
+      "faults": [
+        {
+          "kind": "root-delegation-revoked",
+          "reference": "dl-c0d9934447b0d2d8d27e38acfb4df0e0848d3d2afe58c4cfdfdd47fb7b2c"
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "approved-tool-blocked-after-authority-change",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "cursor",
+      "delegation_ids": [
+        "dl-c0d9934447b0d2d8d27e38acfb4df0e0848d3d2afe58c4cfdfdd47fb7b2c",
+        "dl-759417a8105aa213ef78918604348dc3ab2f7feaf108d599a16472b7e712",
+        "dl-8baf5ca2aed99eba5747b8ca127db44a365281c8b766bd579f20cf1022a7",
+        "dl-93875c253d89609fd7417a0cdff5651dd52a7f04619dae46032be055dee8"
+      ],
+      "grant_before": {
+        "attempt_id": "c23fca52-b580-415e-ad00-1a3eebc74729",
+        "session_id": "4b6b7dfc-4a82-4e59-a6f0-6d59663a63ce",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575667.235014
+      },
+      "grant_after": {
+        "attempt_id": "c23fca52-b580-415e-ad00-1a3eebc74729",
+        "session_id": "4b6b7dfc-4a82-4e59-a6f0-6d59663a63ce",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "revoked",
+        "expires_at": 1795575667.235014
+      },
+      "work_expires_at": 1795578276.698224,
+      "gate_evidence": [
+        {
+          "stage": "dispatch",
+          "created_at": 1795574787.7749949,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "deny",
+            "reason_codes": [
+              "AUTH_REVOKED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {}
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574787.0870085,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574786.8460119,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "03121acb-8245-4204-80e3-bea1a1afd004",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "e4dd0d7ec42b8cef74baa5ea7ffe9a352c894690b7882c570ca317feb77f3e6a",
+      "old_owner_error": "AUTH_REVOKED"
+    },
+    {
+      "case": "stale-epoch",
+      "scope": "harness-915025b163294e5a",
+      "run_id": "78433775-d6b9-4b66-b090-f21d17134a1e",
+      "attempt_id": "61ea92bd-ff91-4ece-99f9-08b748d6526f",
+      "session_id": "4ca6d5d3-69c8-49d3-8e98-3589be53a726",
+      "process_id": 184249,
+      "image": "sha256:61629d589ead98ed9bd17f07bf1507d37a83fcc6e7b9440639ce86d2656b7a9a",
+      "state": "failed",
+      "attempt_error": {
+        "code": "RESULT_INCOMPLETE",
+        "category": "format",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "tool_calls": 0,
+      "result_frames": 0,
+      "exit": {
+        "alive": false,
+        "exit_code": 130,
+        "handle": "61ea92bd-ff91-4ece-99f9-08b748d6526f",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "4338544404c20d190aa1d64bd17446002e3efdeeec79b05f126b9be90fb6e9ff:2026-11-25T02:46:07.961571792Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "ed56b9bb976c8c3a33c23dd62f9c10199ec7961017502e30a2aa80aa14759d08",
+      "faults": [
+        {
+          "kind": "isolated-lease-expired",
+          "new_epoch": 2
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "approved-tool-blocked-after-authority-change",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "cursor",
+      "delegation_ids": [
+        "dl-5263f687cfc6843496e12816333bf4743af604eca198b6548f2467369d82",
+        "dl-e3443f027bcc4125b325f2f75920457b8c641d5d2fa4d486f6b30ec8b756",
+        "dl-ae61d593ea4e220b000c433800997ea7428f66040c29d706520bd844dbd4",
+        "dl-485f7040e11b0c50208c83a8d1a88f1b045162bbf4ee9b84ce47f246c42a"
+      ],
+      "grant_before": {
+        "attempt_id": "61ea92bd-ff91-4ece-99f9-08b748d6526f",
+        "session_id": "4ca6d5d3-69c8-49d3-8e98-3589be53a726",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575667.286995
+      },
+      "grant_after": {
+        "attempt_id": "61ea92bd-ff91-4ece-99f9-08b748d6526f",
+        "session_id": "4ca6d5d3-69c8-49d3-8e98-3589be53a726",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "closed",
+        "expires_at": 1795575667.286995
+      },
+      "work_expires_at": 1795578276.7252996,
+      "gate_evidence": [
+        {
+          "stage": "dispatch",
+          "created_at": 1795574787.3910098,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "deny",
+            "reason_codes": [
+              "STALE_OWNER"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {}
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574786.635995,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574786.3949986,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "78433775-d6b9-4b66-b090-f21d17134a1e",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "174fa3135658c7a15d83ab05aa9a5bccdb8267cc9d641fe09882ee137c21e60c",
+      "old_owner_error": "STALE_OWNER"
+    },
+    {
+      "case": "renew",
+      "scope": "harness-1b0fab6583df4d3e",
+      "run_id": "d0cc1269-6458-4a25-8e4f-25d18002f7c9",
+      "attempt_id": "2b7f2a23-8470-417f-ba57-4853eafd2e9a",
+      "session_id": "3dcd65fd-af8c-4f34-8978-d1d709a95cfc",
+      "process_id": 176751,
+      "image": "sha256:bed625d81a847e2ae019ceac53c52665ea4c920ff0e3ed75687a8101c84e5ecb",
+      "state": "succeeded",
+      "attempt_error": null,
+      "tool_calls": 1,
+      "result_frames": 1,
+      "exit": {
+        "alive": false,
+        "exit_code": 0,
+        "handle": "2b7f2a23-8470-417f-ba57-4853eafd2e9a",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "55128c074997a21796a30cfe1afa9a8dfdf464a77b5e007058a6be81c3bfa00c:2026-11-25T02:43:08.145035205Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "691ea52c956bd552c00f488693fd3a1c235a4abe85e2cb5f05a0d324dfe5ff2f",
+      "faults": [
+        {
+          "kind": "isolated-grant-deadline-shortened",
+          "expires_at": 1795574694.5819974
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "worker-heartbeat-renews-current-grant-within-delegated-deadline",
+        "completed-dispatch-replay-does-not-call-tool-again",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "dsh",
+      "delegation_ids": [
+        "dl-6e24830a7778c62d58df14f556abb6a06c929de02aa27d4c052d88f7fa46",
+        "dl-4b3f9b5f50de87ecec60088ec9c4748a970c5f32efaa2b0f9e79bec9b4db",
+        "dl-bf204c43e232206eb58312325c498499e2d2f163d3d4dbcd00719b5688eb",
+        "dl-1cfca9a0fa3f5d783a29f9f52b07e47f8bac76c33d85cce2c0a5009ca9d8"
+      ],
+      "grant_before": {
+        "attempt_id": "2b7f2a23-8470-417f-ba57-4853eafd2e9a",
+        "session_id": "3dcd65fd-af8c-4f34-8978-d1d709a95cfc",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575487.6800032
+      },
+      "grant_after": {
+        "attempt_id": "2b7f2a23-8470-417f-ba57-4853eafd2e9a",
+        "session_id": "3dcd65fd-af8c-4f34-8978-d1d709a95cfc",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "active",
+        "expires_at": 1795575498.8170176
+      },
+      "work_expires_at": 1795578097.0834544,
+      "gate_evidence": [
+        {
+          "stage": "receipt",
+          "created_at": 1795574599.8980017,
+          "decision": {
+            "stage": "tool-receipt",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_RESULT_VALIDATED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "receipt_key": "7b66c094841e2eb4dc53b1acee89a6dd01c24ea2871bfd2291823a60e3b4a705",
+              "result_key": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+              "binding": {
+                "run_id": "d0cc1269-6458-4a25-8e4f-25d18002f7c9",
+                "attempt_id": "2b7f2a23-8470-417f-ba57-4853eafd2e9a",
+                "session_id": "3dcd65fd-af8c-4f34-8978-d1d709a95cfc",
+                "worker_id": "2f1740a3-0f32-419c-8116-8154ec7dc961",
+                "worker_instance": "4c478cdf-e94b-40cd-bd06-011d7873ff7e",
+                "lease_epoch": 1,
+                "authorization_epoch": 1,
+                "authorization_ref": "wa-fbaa1449c4deb210f9ed6868ecf586a4b4187908f70e4abaa2f4a995755b",
+                "policy_digest": "485e1a1506df12c4b3113d92d9cba74c59db8502b96907a8705a24d5fe26b172",
+                "permissions_digest": "8db70279de063ce1ca59d147a24490669be740280ff38cb39feac414eda403ff",
+                "subject": "operator:qualification",
+                "actor": "service:harness"
+              },
+              "execution_grant_renewed": false
+            }
+          }
+        },
+        {
+          "stage": "dispatch",
+          "created_at": 1795574599.6660173,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_DISPATCH_COMMITTED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "binding": {
+                "run_id": "d0cc1269-6458-4a25-8e4f-25d18002f7c9",
+                "attempt_id": "2b7f2a23-8470-417f-ba57-4853eafd2e9a",
+                "session_id": "3dcd65fd-af8c-4f34-8978-d1d709a95cfc",
+                "worker_id": "2f1740a3-0f32-419c-8116-8154ec7dc961",
+                "worker_instance": "4c478cdf-e94b-40cd-bd06-011d7873ff7e",
+                "lease_epoch": 1,
+                "authorization_epoch": 1,
+                "authorization_ref": "wa-fbaa1449c4deb210f9ed6868ecf586a4b4187908f70e4abaa2f4a995755b",
+                "policy_digest": "485e1a1506df12c4b3113d92d9cba74c59db8502b96907a8705a24d5fe26b172",
+                "permissions_digest": "8db70279de063ce1ca59d147a24490669be740280ff38cb39feac414eda403ff",
+                "subject": "operator:qualification",
+                "actor": "service:harness"
+              },
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd",
+              "dispatch_version": 3,
+              "sender": null
+            }
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574598.9489822,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574594.3039865,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "d0cc1269-6458-4a25-8e4f-25d18002f7c9",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "88b7db063edc5ba86e0a1fb6687cc0ebb058201a89f57466577544e8700458a9"
+    },
+    {
+      "case": "ancestor-revoke",
+      "scope": "harness-65de4c2b9adc4a26",
+      "run_id": "52cf8071-5d79-4e6a-8075-4f8aa94313c4",
+      "attempt_id": "5d2ee93b-798d-49f9-a2e9-ab60f6280cd1",
+      "session_id": "51cc63ce-8a49-4789-8aed-9c13f6850cb5",
+      "process_id": 177192,
+      "image": "sha256:bed625d81a847e2ae019ceac53c52665ea4c920ff0e3ed75687a8101c84e5ecb",
+      "state": "failed",
+      "attempt_error": {
+        "code": "AUTH_REVOKED",
+        "category": "authorization",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "tool_calls": 0,
+      "result_frames": 0,
+      "exit": {
+        "alive": false,
+        "exit_code": 130,
+        "handle": "5d2ee93b-798d-49f9-a2e9-ab60f6280cd1",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "1efe6c4f2fea0cc8dc43e5583b34ee647dd975bb2fdf41c4ee01bf8956a77909:2026-11-25T02:43:50.473302579Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "4bc53991c84a8f9fa26a2382937d189ffc298375bb52f4a46c764d2e3f4d07f5",
+      "faults": [
+        {
+          "kind": "root-delegation-revoked",
+          "reference": "dl-5768ecf9cf31d2c588a41dd8b8f801dbbffc57f530bbd2faf469b5f9abe9"
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "approved-tool-blocked-after-authority-change",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "dsh",
+      "delegation_ids": [
+        "dl-5768ecf9cf31d2c588a41dd8b8f801dbbffc57f530bbd2faf469b5f9abe9",
+        "dl-fd9abf2229809c7ad26291b4756d6653559e6f12ada4a42471005b7bf7be",
+        "dl-490457b23d9d7123279a02474a4f67eeffb2802cf38980fa24e985654192",
+        "dl-43b0fd7fa30e80714e6121e679e2a611d14ae9fc764514e490fe75bedc1f"
+      ],
+      "grant_before": {
+        "attempt_id": "5d2ee93b-798d-49f9-a2e9-ab60f6280cd1",
+        "session_id": "51cc63ce-8a49-4789-8aed-9c13f6850cb5",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575527.084014
+      },
+      "grant_after": {
+        "attempt_id": "5d2ee93b-798d-49f9-a2e9-ab60f6280cd1",
+        "session_id": "51cc63ce-8a49-4789-8aed-9c13f6850cb5",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "revoked",
+        "expires_at": 1795575527.084014
+      },
+      "work_expires_at": 1795578136.3705835,
+      "gate_evidence": [
+        {
+          "stage": "dispatch",
+          "created_at": 1795574646.5259924,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "deny",
+            "reason_codes": [
+              "AUTH_REVOKED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {}
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574645.8580017,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574645.592986,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "52cf8071-5d79-4e6a-8075-4f8aa94313c4",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "c8238694c4817e7fb7f614c7b9f6d74e1f5e519e7c8eda735aaaba87530ca850",
+      "old_owner_error": "AUTH_REVOKED"
+    },
+    {
+      "case": "stale-epoch",
+      "scope": "harness-7dac5427f82641ca",
+      "run_id": "4eec0a48-15b3-4449-897a-4d048b74808f",
+      "attempt_id": "4ca15aed-e638-47b7-b090-bf6f066b7fd5",
+      "session_id": "bfc06d84-07db-4b40-97a1-75c4f4f9dd91",
+      "process_id": 180719,
+      "image": "sha256:bed625d81a847e2ae019ceac53c52665ea4c920ff0e3ed75687a8101c84e5ecb",
+      "state": "failed",
+      "attempt_error": {
+        "code": "RESULT_INCOMPLETE",
+        "category": "format",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "tool_calls": 0,
+      "result_frames": 0,
+      "exit": {
+        "alive": false,
+        "exit_code": 130,
+        "handle": "4ca15aed-e638-47b7-b090-bf6f066b7fd5",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "9f9fab4bf7591b28c0a7851a8a0de4d51bcccae574af3ebe249ea46790036f55:2026-11-25T02:45:10.624219911Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "dfb2f99d85b2b2617a90a9f2f2779103480e866d7719855fb62a51ee4d74a377",
+      "faults": [
+        {
+          "kind": "isolated-lease-expired",
+          "new_epoch": 2
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "approved-tool-blocked-after-authority-change",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "dsh",
+      "delegation_ids": [
+        "dl-2b8e075d3eb7d8cacd4618dd4871fc193f4033d1bb4ea456131fc8f3773b",
+        "dl-e62671b0fdb04368645d8ea5680167699e5ce844f3b03f999587382ae54a",
+        "dl-ce4c0827fb96e6ca0e32265283a57fa807ae6e303e404e9f3d1e19558a2e",
+        "dl-528d5e4e013d6f4f93364d330f47b9b5f1262f7c4feb74665f4ce16d7cbb"
+      ],
+      "grant_before": {
+        "attempt_id": "4ca15aed-e638-47b7-b090-bf6f066b7fd5",
+        "session_id": "bfc06d84-07db-4b40-97a1-75c4f4f9dd91",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575610.005994
+      },
+      "grant_after": {
+        "attempt_id": "4ca15aed-e638-47b7-b090-bf6f066b7fd5",
+        "session_id": "bfc06d84-07db-4b40-97a1-75c4f4f9dd91",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "closed",
+        "expires_at": 1795575610.005994
+      },
+      "work_expires_at": 1795578219.403293,
+      "gate_evidence": [
+        {
+          "stage": "dispatch",
+          "created_at": 1795574718.9950018,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "deny",
+            "reason_codes": [
+              "STALE_OWNER"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {}
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574718.1839824,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574717.9330082,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "4eec0a48-15b3-4449-897a-4d048b74808f",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "865fe79495b6b373cc781a7085ff94df4a79fe5fb851ce6be596c17331a68f59",
+      "old_owner_error": "STALE_OWNER"
+    },
+    {
+      "case": "renew",
+      "scope": "harness-22299b8c2eda4b93",
+      "run_id": "04833381-2abc-4875-b1bb-8af4fd172263",
+      "attempt_id": "14cfc640-fa4f-48e7-8282-c869bd03ba5a",
+      "session_id": "01a21096-aa4e-7cd3-b32e-87e5952bcace",
+      "process_id": 177285,
+      "image": "sha256:87d073af961f50462cedf6eeb947a87c0263d2aa158205d5202faa494af6f4fb",
+      "state": "succeeded",
+      "attempt_error": null,
+      "tool_calls": 1,
+      "result_frames": 1,
+      "exit": {
+        "alive": false,
+        "exit_code": 2,
+        "handle": "14cfc640-fa4f-48e7-8282-c869bd03ba5a",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "0a5984ca7bf7e7f863957f567898d7432ab5b42f3f51617c96a183b10d2792aa:2026-11-25T02:43:51.916391834Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "5bb3e57949f9f10b5666fed475d4baa7d3ad6ec32e66451a5cba6f056fcc1a8c",
+      "faults": [
+        {
+          "kind": "isolated-grant-deadline-shortened",
+          "expires_at": 1795574746.153997
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "worker-heartbeat-renews-current-grant-within-delegated-deadline",
+        "completed-dispatch-replay-does-not-call-tool-again",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "codex",
+      "delegation_ids": [
+        "dl-c7433818741d69465964e4281402dab1feefecc8ad0d75330ec28bb6cbc1",
+        "dl-992c0b98923276e4ea59b2a9077c4313f6f940ef49bdcd8dcd3be7486f97",
+        "dl-268827a1438d4e0514dd06572700d6dd61697087019504baef6b3d1ca402",
+        "dl-b1f1a740d76dc0663cdb912adca5470bdf7988df62f51d57c98f73d430e2"
+      ],
+      "grant_before": {
+        "attempt_id": "14cfc640-fa4f-48e7-8282-c869bd03ba5a",
+        "session_id": "01a21096-aa4e-7cd3-b32e-87e5952bcace",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575528.6329894
+      },
+      "grant_after": {
+        "attempt_id": "14cfc640-fa4f-48e7-8282-c869bd03ba5a",
+        "session_id": "01a21096-aa4e-7cd3-b32e-87e5952bcace",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "active",
+        "expires_at": 1795575548.670982
+      },
+      "work_expires_at": 1795578136.6447685,
+      "gate_evidence": [
+        {
+          "stage": "receipt",
+          "created_at": 1795574649.4020178,
+          "decision": {
+            "stage": "tool-receipt",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_RESULT_VALIDATED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "receipt_key": "a58e4bfa74b62df741890cb2a6504974e639e8ada6dac480b5910f81d2cb6d63",
+              "result_key": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+              "binding": {
+                "run_id": "04833381-2abc-4875-b1bb-8af4fd172263",
+                "attempt_id": "14cfc640-fa4f-48e7-8282-c869bd03ba5a",
+                "session_id": "01a21096-aa4e-7cd3-b32e-87e5952bcace",
+                "worker_id": "c16ceda6-feae-4a24-bead-f3a1d9951775",
+                "worker_instance": "36812de5-8950-4f9b-b812-a29ad8721ea9",
+                "lease_epoch": 1,
+                "authorization_epoch": 1,
+                "authorization_ref": "wa-548c968296d63c6a4273aca7051e309a4cb0a4067c9772315a6feb2484cd",
+                "policy_digest": "d4d5813b98d410c9e0f2b336def613d6a608bad2379ad15d3221e7e4ecd3d8c9",
+                "permissions_digest": "8663760f81d1351b73d83faf53bd4ee349755a6e47d51ca24559d7d90b5def86",
+                "subject": "operator:qualification",
+                "actor": "service:harness"
+              },
+              "execution_grant_renewed": false
+            }
+          }
+        },
+        {
+          "stage": "dispatch",
+          "created_at": 1795574649.2140083,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_DISPATCH_COMMITTED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "binding": {
+                "run_id": "04833381-2abc-4875-b1bb-8af4fd172263",
+                "attempt_id": "14cfc640-fa4f-48e7-8282-c869bd03ba5a",
+                "session_id": "01a21096-aa4e-7cd3-b32e-87e5952bcace",
+                "worker_id": "c16ceda6-feae-4a24-bead-f3a1d9951775",
+                "worker_instance": "36812de5-8950-4f9b-b812-a29ad8721ea9",
+                "lease_epoch": 1,
+                "authorization_epoch": 1,
+                "authorization_ref": "wa-548c968296d63c6a4273aca7051e309a4cb0a4067c9772315a6feb2484cd",
+                "policy_digest": "d4d5813b98d410c9e0f2b336def613d6a608bad2379ad15d3221e7e4ecd3d8c9",
+                "permissions_digest": "8663760f81d1351b73d83faf53bd4ee349755a6e47d51ca24559d7d90b5def86",
+                "subject": "operator:qualification",
+                "actor": "service:harness"
+              },
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd",
+              "dispatch_version": 3,
+              "sender": null
+            }
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574648.8000095,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574645.9020166,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "04833381-2abc-4875-b1bb-8af4fd172263",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "04cc29183427db4397f0550b40dd6e16d9d204806f1466ac6834184348aec88c"
+    },
+    {
+      "case": "ancestor-revoke",
+      "scope": "harness-f21e27c4f99044fc",
+      "run_id": "5b29607d-6673-47eb-8c39-7d1a8d283332",
+      "attempt_id": "92f78fc4-d05a-4650-91df-41a6c621c1e7",
+      "session_id": "01a21097-cfea-7832-b5aa-78d72ae518c3",
+      "process_id": 180765,
+      "image": "sha256:87d073af961f50462cedf6eeb947a87c0263d2aa158205d5202faa494af6f4fb",
+      "state": "failed",
+      "attempt_error": {
+        "code": "AUTH_REVOKED",
+        "category": "authorization",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "tool_calls": 0,
+      "result_frames": 0,
+      "exit": {
+        "alive": false,
+        "exit_code": 130,
+        "handle": "92f78fc4-d05a-4650-91df-41a6c621c1e7",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "7b1bcd47a15a5a8c85e1b7c285b6da4ae53ddb603aeac7137ad6b72dbd708136:2026-11-25T02:45:10.677420244Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "9c0b44bec9504fa1c3ba4c8ba75cdb96774f8d14cc7adef0075b505a600f0894",
+      "faults": [
+        {
+          "kind": "root-delegation-revoked",
+          "reference": "dl-16db3bfff383cdf3896a1f58b1b028839bc824494a538defa9661cb5bb23"
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "approved-tool-blocked-after-authority-change",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "codex",
+      "delegation_ids": [
+        "dl-16db3bfff383cdf3896a1f58b1b028839bc824494a538defa9661cb5bb23",
+        "dl-5506f300679ba340ae5bf7643203e6bcbd11c9fba8885f7a35a7069df2c6",
+        "dl-9651dd2e6bedf3eff3899548d99fc5ba12878c54989491721140965982ae",
+        "dl-0f888ae3effa670f7de52efa84947e38124e9b355b1015fb598f165db995"
+      ],
+      "grant_before": {
+        "attempt_id": "92f78fc4-d05a-4650-91df-41a6c621c1e7",
+        "session_id": "01a21097-cfea-7832-b5aa-78d72ae518c3",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575610.0539923
+      },
+      "grant_after": {
+        "attempt_id": "92f78fc4-d05a-4650-91df-41a6c621c1e7",
+        "session_id": "01a21097-cfea-7832-b5aa-78d72ae518c3",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "revoked",
+        "expires_at": 1795575610.0539923
+      },
+      "work_expires_at": 1795578219.4082384,
+      "gate_evidence": [
+        {
+          "stage": "dispatch",
+          "created_at": 1795574722.8319957,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "deny",
+            "reason_codes": [
+              "AUTH_REVOKED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {}
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574722.0810041,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574721.8439908,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "5b29607d-6673-47eb-8c39-7d1a8d283332",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "b5b4b23ff5d86889b2adb4561da68e5685e2720eb7eaf19d9973c1fb50380ded",
+      "old_owner_error": "AUTH_REVOKED"
+    },
+    {
+      "case": "stale-epoch",
+      "scope": "harness-93accc66bdd64689",
+      "run_id": "8ea2ba64-be2e-4960-a8bc-da9b8f46533b",
+      "attempt_id": "effed7e0-d57d-4ec6-ad46-59357fb4ea56",
+      "session_id": "01a21098-ac92-7243-936c-77fa0b1eafd8",
+      "process_id": 184135,
+      "image": "sha256:87d073af961f50462cedf6eeb947a87c0263d2aa158205d5202faa494af6f4fb",
+      "state": "failed",
+      "attempt_error": {
+        "code": "STALE_OWNER",
+        "category": "unknown",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "tool_calls": 0,
+      "result_frames": 0,
+      "exit": {
+        "alive": false,
+        "exit_code": 130,
+        "handle": "effed7e0-d57d-4ec6-ad46-59357fb4ea56",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "5986cbcbc8cf5a3f1362ee9e712e8086c7fce5ecb9447100b15b60f65f0c2f0b:2026-11-25T02:46:07.827584562Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "exit_receipt_sha256": "025d5312326388a86c46e7d5268f4985f3076544fbd7a2883710aecf2f215398",
+      "faults": [
+        {
+          "kind": "isolated-lease-expired",
+          "new_epoch": 2
+        }
+      ],
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "approved-tool-blocked-after-authority-change",
+        "original-run-attempt-session-retained"
+      ],
+      "harness": "codex",
+      "delegation_ids": [
+        "dl-4f15926f0d8caa2cea1e54931a7f993d24293a396708d57d6717e942f7bb",
+        "dl-f3c24f9db2adce2af91227501ffde90452aec89c42e9d970ae26f386bffe",
+        "dl-5f61d1b014e17647661fb4151ccb0f9be903ffb5a5d4f90b20fdfa1c1469",
+        "dl-284a56f868da8bafe12b6fe6a2ea1b6ff5a1a5bdd098ec910f9b23044b68"
+      ],
+      "grant_before": {
+        "attempt_id": "effed7e0-d57d-4ec6-ad46-59357fb4ea56",
+        "session_id": "01a21098-ac92-7243-936c-77fa0b1eafd8",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795575667.2210126
+      },
+      "grant_after": {
+        "attempt_id": "effed7e0-d57d-4ec6-ad46-59357fb4ea56",
+        "session_id": "01a21098-ac92-7243-936c-77fa0b1eafd8",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "closed",
+        "expires_at": 1795575667.2210126
+      },
+      "work_expires_at": 1795578276.6930575,
+      "gate_evidence": [
+        {
+          "stage": "dispatch",
+          "created_at": 1795574778.8730116,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "deny",
+            "reason_codes": [
+              "STALE_OWNER"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {}
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795574776.8819942,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795574776.4140024,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "8ea2ba64-be2e-4960-a8bc-da9b8f46533b",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ],
+      "source_sha256": "08d10fbb76755d2b83f361c7cade10ba7bbe946bbbe2f5faf89ef328cff3981c",
+      "old_owner_error": "STALE_OWNER"
+    }
+  ],
+  "tests": {
+    "final-regression": {
+      "total": 204,
+      "passed": 144,
+      "skipped": 60,
+      "sha256": "b1d12be2384bf210d9f7a3e1d53c98b2839ebb721a96be70be2aea6641bef1dd"
+    },
+    "image-contracts": {
+      "total": 33,
+      "passed": 33,
+      "skipped": 0,
+      "sha256": "4384c76a113e91196d5b60443a57bb3fbe4be42ffa1d42a2371813f973fa5a92"
+    },
+    "design_contracts": {
+      "scope": "design contract consistency and reference semantics; no runtime/concurrency certification",
+      "schemas": 68,
+      "operations": 31,
+      "schema_examples": 12,
+      "state_scenarios": 13,
+      "checks_passed": 681,
+      "errors": []
+    }
+  },
+  "historical_repair": [
+    {
+      "harness": "dsh",
+      "case": "renew",
+      "run_id": "d0cc1269-6458-4a25-8e4f-25d18002f7c9",
+      "before": "succeeded",
+      "after": "succeeded",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 4
+    },
+    {
+      "harness": "dsh",
+      "case": "ancestor-revoke",
+      "run_id": "52cf8071-5d79-4e6a-8075-4f8aa94313c4",
+      "before": "prepared",
+      "after": "failed",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 3
+    },
+    {
+      "harness": "dsh",
+      "case": "stale-epoch",
+      "run_id": "4eec0a48-15b3-4449-897a-4d048b74808f",
+      "before": "prepared",
+      "after": "failed",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 3
+    },
+    {
+      "harness": "cursor",
+      "case": "renew",
+      "run_id": "604e734b-d116-4b75-a061-864c139d3cbf",
+      "before": "succeeded",
+      "after": "succeeded",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 4
+    },
+    {
+      "harness": "cursor",
+      "case": "ancestor-revoke",
+      "run_id": "03121acb-8245-4204-80e3-bea1a1afd004",
+      "before": "prepared",
+      "after": "failed",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 3
+    },
+    {
+      "harness": "cursor",
+      "case": "stale-epoch",
+      "run_id": "78433775-d6b9-4b66-b090-f21d17134a1e",
+      "before": "prepared",
+      "after": "failed",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 3
+    },
+    {
+      "harness": "codex",
+      "case": "renew",
+      "run_id": "04833381-2abc-4875-b1bb-8af4fd172263",
+      "before": "succeeded",
+      "after": "succeeded",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 4
+    },
+    {
+      "harness": "codex",
+      "case": "ancestor-revoke",
+      "run_id": "5b29607d-6673-47eb-8c39-7d1a8d283332",
+      "before": "prepared",
+      "after": "failed",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 3
+    },
+    {
+      "harness": "codex",
+      "case": "stale-epoch",
+      "run_id": "8ea2ba64-be2e-4960-a8bc-da9b8f46533b",
+      "before": "prepared",
+      "after": "failed",
+      "original_approval_preserved": true,
+      "run_and_attempt_unchanged": true,
+      "idempotent": true,
+      "after_version": 3
+    }
+  ],
+  "deployment": {
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "backend_image": {
+    "image": "sha256:5484f45f45534ad8ee05961d1538a0471d505634ccd6d0e1f248dc5de40ebf30",
+    "tag": "dios-backend:harness-governance-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "atomic_closure_live": {
+    "run_id": "31fc50fe-1a80-4a37-a945-ee073e70bbee",
+    "attempt_id": "4a7d4202-97e0-4caa-bb47-6d08bb621f65",
+    "session_id": "5039bb33-80cf-4462-aedc-f32665b6a0a1",
+    "state": "failed",
+    "tool_calls": 0,
+    "result_frames": 0,
+    "exit": {
+      "alive": false,
+      "exit_code": 130,
+      "handle": "4a7d4202-97e0-4caa-bb47-6d08bb621f65",
+      "health": "not_configured",
+      "pid": null,
+      "process_instance": "c895cf40138240544db71f38b47429ce5ad836e9d043ed19cf095d18ecb6bb28:2026-11-25T02:55:50.372645215Z",
+      "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+      "state": "exited"
+    },
+    "checks": [
+      "real-process-session-and-three-level-delegation",
+      "approved-tool-blocked-after-authority-change",
+      "unstarted-tool-closed-with-original-approval-retained",
+      "original-run-attempt-session-retained"
+    ],
+    "invocation": {
+      "id": "f8a0ced6-11e3-4fec-a090-ecc76ef6302d",
+      "state": "failed",
+      "reason": "TOOL_NOT_DISPATCHED_RUN_TERMINAL",
+      "approval_state": "approved",
+      "approver": "operator:independent-reviewer",
+      "evidence": [
+        {
+          "stage": "lifecycle",
+          "created_at": 1795575356.095992,
+          "decision": {
+            "stage": "tool-lifecycle",
+            "decision": "deny",
+            "reason_codes": [
+              "TOOL_NOT_DISPATCHED_RUN_TERMINAL"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_state": "failed",
+              "previous_state": "prepared",
+              "approval_state": "approved"
+            }
+          }
+        },
+        {
+          "stage": "dispatch",
+          "created_at": 1795575355.2510157,
+          "decision": {
+            "stage": "tool-dispatch",
+            "decision": "deny",
+            "reason_codes": [
+              "AUTH_REVOKED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {}
+          }
+        },
+        {
+          "stage": "approval",
+          "created_at": 1795575354.5559883,
+          "decision": {
+            "stage": "tool-approval",
+            "decision": "allow",
+            "reason_codes": [
+              "TOOL_APPROVED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "approver": "operator:independent-reviewer"
+            }
+          }
+        },
+        {
+          "stage": "request",
+          "created_at": 1795575354.358001,
+          "decision": {
+            "stage": "tool-request",
+            "decision": "approval_required",
+            "reason_codes": [
+              "TOOL_APPROVAL_REQUIRED"
+            ],
+            "policy_version": "e2ag-2026-08-12.1",
+            "contract_type": "",
+            "latency_us": 0,
+            "evidence": {
+              "run_id": "31fc50fe-1a80-4a37-a945-ee073e70bbee",
+              "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "ui": {
+    "browser": "Playwright Chromium",
+    "reason": "Browser plugin not available",
+    "source": "actual isolated Runtime HTTP API and real DSH revocation result",
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "url": "http://127.0.0.1:13082/dios/#console/tasks/31fc50fe-1a80-4a37-a945-ee073e70bbee",
+        "title": "DiOS",
+        "closedBadge": true,
+        "approvalPreserved": true,
+        "dispatchAbsent": true,
+        "refreshAndArguments": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "url": "http://127.0.0.1:13082/dios/#console/tasks/31fc50fe-1a80-4a37-a945-ee073e70bbee",
+        "title": "DiOS",
+        "closedBadge": true,
+        "approvalPreserved": true,
+        "dispatchAbsent": true,
+        "refreshAndArguments": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "url": "http://127.0.0.1:13082/dios/#console/tasks/31fc50fe-1a80-4a37-a945-ee073e70bbee",
+        "title": "DiOS",
+        "closedBadge": true,
+        "approvalPreserved": true,
+        "dispatchAbsent": true,
+        "refreshAndArguments": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      }
+    ],
+    "screenshots": [
+      {
+        "name": "zh-1440.png",
+        "sha256": "87812d9f3a49e45927be389f89bc4e5e94865f291d4d15f9c07bb54dc18bc8d4"
+      },
+      {
+        "name": "en-1440.png",
+        "sha256": "5334aba0a8f32722e98c8d8d830e8ace260cb237326c2bdd99a9f48f9ba2f8fb"
+      },
+      {
+        "name": "en-390.png",
+        "sha256": "9696de1047498a2e37ee2f4fd43b9278b007a8522a5092c9ef59cb22186c06e8"
+      }
+    ]
+  },
+  "frontend_build": {
+    "passed": true,
+    "sha256": "41987360e83a247bd0afeeb34e73c3b2f30baee6f5e1fcdce657c73ddcad82c4"
+  },
+  "source_sha256": {
+    "backend/app/runtime/store.py": "72d225f884c6bae6ef347ccd52ebcb23a0046d8d799fb1457a8f5ce052d8fec6",
+    "backend/app/runtime/tool_invocations.py": "dcb1c9913fb31e65596031cd5a050b750843c9779cfe3e7b1fb330fdca527065",
+    "backend/tests/test_runtime_tool_lifecycle.py": "d416989b4b2de85962321765dbf3bf522a0f70b4dcaab3c4221ecb5b0518274e",
+    "scripts/qualify_harness_governance.py": "e69c55694a6d716205f4974991b03132c95e65533290e33a2f8f6545e19166bd",
+    "frontend/src/apps/console/components/ToolActions.tsx": "dd1ef322e8a2417bfc1100532ee936141eaa3b0f3dab426b4db67a5b37566d66",
+    "frontend/src/lib/messages.ts": "9ca9ea3bb1455191e5a4a969a79bf4cb821868d2a3a851529297a599d8c86327"
+  },
+  "excluded_run": {
+    "harness": "cursor",
+    "run_id": "f988a407-3065-45fa-80ab-669182ad88e3",
+    "reason": "initial fixture omitted writable HOME; corrected fixture passed; not counted in the nine accepted cases"
+  },
+  "remaining": [
+    "Agent-initiated authenticated child task workflow",
+    "additional native tool/write/egress paths",
+    "original active prompt reattachment",
+    "physical cross-host failure",
+    "independent G2 review and user acceptance"
+  ],
+  "development_health": {
+    "status": "ok"
+  }
+}

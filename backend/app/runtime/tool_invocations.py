@@ -359,6 +359,18 @@ class ToolInvocations:
 
     async def recover_pending(self,profile_id,limit=50):
         if type(limit) is not int or not 1<=limit<=100:raise RuntimeErrorCode('INVALID_LIMIT')
+        # Repair historical terminal tasks as well as atomically closed new tasks.
+        # Calls already dispatched retain their original receipt/reconciliation path.
+        async with self.store.db.transaction(self.store.scope) as c:
+            if not await check(c):return []
+            terminal=(await c.execute(select(runs.c.id,runs.c.state).join(calls,calls.c.run_id==runs.c.id)
+                .where(runs.c.scope==self.store.scope,calls.c.scope==self.store.scope,
+                    runs.c.input['runtime_profile'].as_string()==profile_id,
+                    runs.c.state.in_(['succeeded','failed','cancelled']),
+                    calls.c.state.in_(['awaiting_approval','prepared']))
+                .distinct().order_by(runs.c.id).limit(limit))).mappings().all()
+            now=await self.store.db.now(c)
+            for run in terminal:await close_unstarted(c,self.store.scope,run['id'],run['state'],now)
         async with self.store.db.read(self.store.scope) as c:
             if not await check(c):return []
             query=select(calls).join(runs,runs.c.id==calls.c.run_id).where(calls.c.scope==self.store.scope,
@@ -422,6 +434,20 @@ class ToolInvocations:
                 version=version+1,updated_at=now))
             await audit(c,self.store.scope,call_id,'reconcile','deny','TOOL_DISPATCH_OBSERVATION_EXPIRED',now)
         return await self.get(run_id,call_id)
+
+
+async def close_unstarted(c,scope,run_id,run_state,now):
+    """Close only calls with durable evidence that dispatch was never committed."""
+    if run_state not in {'succeeded','failed','cancelled'} or not await check(c):return
+    rows=(await c.execute(select(calls).where(calls.c.scope==scope,calls.c.run_id==run_id,
+        calls.c.state.in_(['awaiting_approval','prepared'])))).mappings().all()
+    for row in rows:
+        reason='TOOL_NOT_DISPATCHED_RUN_TERMINAL'
+        await c.execute(calls.update().where(calls.c.id==row['id'],calls.c.version==row['version'])
+            .values(state='failed',reason=reason,version=row['version']+1,updated_at=now))
+        # Original approval, approver and reason remain historical evidence.
+        await audit(c,scope,row['id'],'lifecycle','deny',reason,now,
+            {'run_state':run_state,'previous_state':row['state'],'approval_state':row['approval_state']})
 
 
 async def require_settled(c,scope,run_id):

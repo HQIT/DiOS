@@ -671,6 +671,8 @@ export const messages: Record<string, string> = {
   "工作已结束或授权不可用，未完成的审批申请已保留。": "Work has ended or authorization is unavailable. Unfinished approval requests are retained.",
   "未完成审批（历史）": "Unfinished approval (history)",
   "审批已失效": "Approval invalidated",
+  "任务已结束，未派发": "Task ended, not dispatched",
+  "任务已结束，本次工具调用未派发。原审批记录已保留。": "The task ended before this tool call was dispatched. The original approval record is retained.",
   "授权委派链": "Delegation chain",
   "当前委派链已失效，历史执行记录保留。": "This delegation chain is no longer valid. Execution history is retained.",
   "根授权": "Root authorization",

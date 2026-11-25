@@ -40,4 +40,4 @@ SDK 在 peer 声明 `sessionCapabilities.close` 后，于取消处理和进程�
 
 ## 后续验收
 
-#56/#58 保持进行中。Cursor、DSH、Codex 与标准 A2A 均已有实际接入证据；三种 ACP Harness 的跨进程检查见 [会话恢复契约](acp-session-recovery-56-58.md)。下一段补齐跨来源续期、委派与旧 epoch 联合验证。活动请求续接、跨物理主机、原生工具额外路径、企业网络与凭据、G2 独立评审及用户验收继续沿用既定门槛。
+#56/#58 保持进行中。Cursor、DSH、Codex 与标准 A2A 均已有实际接入证据；三种 ACP Harness 的跨进程检查见 [会话恢复契约](acp-session-recovery-56-58.md)。三种 Harness 的续期、三层委派与旧 epoch 联合验证已通过，见[授权与工具收尾](harness-governance-56-58.md)。下一段推进额外原生工具路径与 Agent 自主子任务的认证委派入口。活动请求续接、跨物理主机、原生工具额外路径、企业网络与凭据、G2 独立评审及用户验收继续沿用既定门槛。

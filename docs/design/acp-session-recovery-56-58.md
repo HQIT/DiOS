@@ -48,6 +48,6 @@ SDK 0.1.5 的独立应用镜像已在资格环境运行：DSH 批准前工具调
 
 后续恢复实现必须先取得 Harness 提供的稳定请求身份与查询/续接语义，再接入所有权转移、当前授权和工具绑定。重新发送 prompt 会创建新一轮执行，需要独立的重试依据和授权，不能由 load/resume 成功推导。
 
-#56/#58 下一段优先补齐三种 Harness 的续期、委派与旧 epoch 联合验证。ACP 活动请求续接跟随标准和固定 Adapter 的实际能力推进；跨主机、企业出口、独立权限评审与用户验收沿用既定门槛。
+#56/#58 已完成三种 Harness 的续期、三层委派与旧 epoch 联合验证，见[授权与工具收尾](harness-governance-56-58.md)。下一段推进额外原生工具路径与 Agent 自主子任务的认证委派入口。ACP 活动请求续接跟随标准和固定 Adapter 的实际能力推进；跨主机、企业出口、独立权限评审与用户验收沿用既定门槛。
 
 协议依据：[ACP v1 Session Setup](https://agentclientprotocol.com/protocol/v1/session-setup)规定 load 的历史重放与 resume 的无历史恢复；[ACP v2 迁移说明](https://github.com/agentclientprotocol/agent-client-protocol/blob/main/docs/protocol/v2/migration.mdx)将 prompt 生命周期和请求响应分离。当前固定 v1 Adapter 不据此声明 v2 能力。

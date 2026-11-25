@@ -64,6 +64,9 @@ class RuntimeStore:
         if state in TERMINAL and run['input'].get('work_authorization_ref'):
             from .work_authorizations import close
             await close(c,run)
+        if state in TERMINAL:
+            from .tool_invocations import close_unstarted
+            await close_unstarted(c, self.scope, run['id'], state, now)
         payload = {'run_id': run['id'], 'version': version, 'state': state, 'detail': detail}
         bounded(payload)
         await c.execute(runs.update().where(runs.c.id == run['id']).values(version=version, updated_at=now, **changes))
