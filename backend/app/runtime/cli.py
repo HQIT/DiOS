@@ -50,6 +50,18 @@ async def execute(args):
                 return await query.run(args.run_id, limit=args.limit,
                     attempt_cursor=args.attempt_cursor, artifact_cursor=args.artifact_cursor)
         store = RuntimeStore(db, args.scope)
+        if args.command == 'capacity':
+            from .capacity import Capacity
+            manager = Capacity(store)
+            if args.capacity_command == 'status':return await manager.status()
+            with Path(args.file).open('rb') as source:raw=source.read(16385)
+            if len(raw)>16384:raise RuntimeErrorCode('METADATA_TOO_LARGE')
+            value=json.loads(raw)
+            if (not isinstance(value,dict) or set(value)-{'id','selector','max_concurrent','enabled'}
+                    or not {'id','selector','max_concurrent'}<=set(value)):
+                raise RuntimeErrorCode('INVALID_CAPACITY_LIMIT')
+            return await manager.put(value['id'],value['selector'],value['max_concurrent'],
+                args.revision,enabled=value.get('enabled',True))
         if args.command=='delegation':
             from .delegations import Delegations
             manager=Delegations(store)
@@ -242,6 +254,12 @@ def main(argv=None):
     credential_revoke=credential_commands.add_parser('revoke');credential_revoke.add_argument('credential_id')
     credential_revoke.add_argument('--revision',type=int,required=True)
     commands.add_parser('circuits',help='inspect persisted endpoint/account cooldown and single-probe ownership')
+    capacity=commands.add_parser('capacity',help='trusted local shared execution concurrency administration')
+    capacity_commands=capacity.add_subparsers(dest='capacity_command',required=True)
+    capacity_commands.add_parser('status',help='reserved Attempts and unresolved work; not observed running processes')
+    capacity_set=capacity_commands.add_parser('set',help='create at revision 0; replace using the current revision')
+    capacity_set.add_argument('--file',required=True)
+    capacity_set.add_argument('--revision',type=int,required=True)
     identity=commands.add_parser('identity-reconcile',help='bounded source check; retains Work/approval on outage, revokes confirmed invalid identities')
     delegation_check=commands.add_parser('delegation-reconcile',help='bounded issuer checks for delegations, including those without tasks')
     delegation_check.add_argument('--limit',type=int,default=20)

@@ -61,6 +61,17 @@ class RemoteControlTests(unittest.IsolatedAsyncioTestCase):
         await self.remote.register_worker(self.worker.worker_id,self.worker.instance,'host',os.getpid())
         a=await self.remote.claim(self.worker.worker_id,self.worker.instance,profile_id='test-profile')
         return a,self.remote.bindings[a['run_id']]
+    async def test_shared_capacity_blocks_remote_claim_before_launch(self):
+        from app.runtime.capacity import Capacity
+        capacity=Capacity(self.f.store)
+        await capacity.put('shared',{'kind':'scope'},0,0)
+        self.assertEqual((await self.worker.once())['state'],'idle')
+        self.assertEqual(self.adapter.started,0)
+        self.assertEqual((await self.f.store.get(self.run['id']))['attempts'],[])
+        await capacity.put('shared',{'kind':'scope'},1,1)
+        self.assertEqual((await self.worker.once())['state'],'succeeded')
+        self.assertEqual((await capacity.status())['items'][0]['reserved_attempts'],0)
+
     async def test_worker_completes_with_separate_artifacts_and_no_database(self):
         result=await self.worker.once()
         self.assertEqual(result['state'],'succeeded');self.assertFalse(hasattr(self.remote,'db'))

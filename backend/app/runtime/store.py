@@ -185,6 +185,8 @@ class RuntimeStore:
             if profile_id is not None:
                 identifier(profile_id)
                 query = query.where(runs.c.input['runtime_profile'].as_string() == profile_id)
+            from .capacity import admit_query
+            query = await admit_query(c, self.scope, query)
             row = (await c.execute(query.order_by(runs.c.created_at, runs.c.id).limit(1))).mappings().first()
             if not row: return None
             run = dict(row)

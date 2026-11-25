@@ -154,6 +154,20 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
             **kwargs,
         )
 
+    async def test_shared_capacity_blocks_a2a_before_any_remote_request(self):
+        from app.runtime.capacity import Capacity
+
+        capacity = Capacity(self.console.store)
+        await capacity.put("shared", {"kind": "scope"}, 0, 0)
+        run = await self.submit()
+        self.assertEqual((await self.worker().once())["state"], "idle")
+        self.assertEqual(self.calls, [])
+        self.assertEqual((await self.console.store.get(run["id"]))["attempts"], [])
+        await capacity.put("shared", {"kind": "scope"}, 1, 1)
+        self.assertEqual((await self.worker().once())["state"], "succeeded")
+        self.assertEqual(self.submit_count, 1)
+        self.assertEqual((await capacity.status())["items"][0]["reserved_attempts"], 0)
+
     async def submit(self, key="one"):
         return await self.console.submit("review", "input", "remote task", key)
 
