@@ -70,6 +70,8 @@ async def checked_work(c,run,attempt,now,action):
     from .logout_events import require_source
     await require_source(c,run['scope'],run['input'].get('principal'))
     await require(c)
+    from .child_authorizations import validate_parent
+    await validate_parent(c,run,now)
     row=(await c.execute(select(work).where(work.c.id==reference,work.c.scope==run['scope'],work.c.run_id==run['id']))).mappings().first()
     if not row:raise RuntimeErrorCode('WORK_AUTHORIZATION_NOT_FOUND')
     if (row['state']!='active' or run['revoked'] or run['cancel_requested']

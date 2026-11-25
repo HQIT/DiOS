@@ -1,5 +1,10 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "任务协作": "Task collaboration",
+  "父任务": "Parent task",
+  "子任务": "Child tasks",
+  "· 当前层级 {0} / {1}": " · Depth {0} / {1}",
+  "父任务结束或失去授权后，未完成的子任务将收到取消请求；进程退出后确认结束。": "When the parent finishes or loses authorization, unfinished children receive a cancellation request. Completion is confirmed after the process exits.",
   "委派授权引用（可选）": "Delegation reference (optional)",
   "使用签发给当前身份的委派；留空沿用执行配置的授权。": "Use a delegation issued to your identity; leave blank to use the profile authorization.",
   "所选委派必须保留执行配置要求的上级授权。": "The selected delegation must retain the ancestor required by the execution profile.",

@@ -124,7 +124,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           ? { ...item, state: value.state, version: value.version, updated_at: value.updated_at,
               attempt_id: value.attempt_id, cancel_requested: value.cancel_requested } : item));
         setArtifact(current => value.access && !value.access.includes("artifact.read") ? "" : current || value.artifacts.find(a => a.kind === "result")?.id || "");
-        if (terminal(value.state)) return;
+        if (terminal(value.state) && !value.family?.children.some(child => !terminal(child.state))) return;
       } catch (error) { if (!controller.signal.aborted) setDetailError(errorText(error)); }
       if (!controller.signal.aborted) timer = setTimeout(poll, 2000);
     }
@@ -257,6 +257,16 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
       {detailError && <p className="tr-error" role="alert">{translateUI(detailError)}{translateUI("当前保留的是上次取得的信息。")}</p>}
       {selectedId && !detail && !detailError && <p className="tr-empty-small" role="status">{translateUI("正在读取任务…")}</p>}
       {detail && <>
+        {detail.family && <section className="tr-card" data-testid="task-family"><h3>{translateUI("任务协作")}</h3>
+          {detail.family.parent && <p>{translateUI("父任务")}{" · "}<a href={`#console/tasks/${encodeURIComponent(detail.family.parent.parent_run_id)}`}>{detail.family.parent.parent_run_id}</a>
+            <span className="tr-muted">{translateUI(" · 当前层级 {0} / {1}", [detail.family.parent.depth, detail.family.parent.depth_limit])}</span></p>}
+          {detail.family.children.length > 0 && <><p>{translateUI("子任务")}{" · "}{detail.family.children.length}</p>
+            <ul className="tr-family-list">{detail.family.children.map(child => <li key={child.run_id}>
+              <a href={`#console/tasks/${encodeURIComponent(child.run_id)}`}>{child.run_id}</a>
+              {child.cancel_requested && !terminal(child.state) ? <span className="tr-badge">{translateUI("取消待确认")}</span> : <Badge state={child.state} />}
+            </li>)}</ul></>}
+          <p className="tr-muted">{translateUI("父任务结束或失去授权后，未完成的子任务将收到取消请求；进程退出后确认结束。")}</p>
+        </section>}
         <section className="tr-card"><div className="tr-section-title"><h3>{detail.goal}</h3><Badge state={detail.state} /></div>
           <p className="tr-muted">{detail.display.name || detail.profile_id} · {translateUI(detail.display.synthetic ? "合成端点" : detail.display.implementation)}</p>
           <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : active?.runtime_state === "paused" && !terminal(detail.state) ? "执行已暂停" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>

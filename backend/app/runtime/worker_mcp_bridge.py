@@ -30,7 +30,22 @@ class WorkerMcpBridge:
         if method=='tools/call':
             if set(params)-{'name','arguments','_meta'}:raise RuntimeErrorCode('MCP_FRAME_INVALID')
             key='mcp:'+digest([self.instance,message.get('id')])
-            try:return await self.client.call(params.get('name'),params.get('arguments',{}),key)
+            try:
+                name=params.get('name');args=params.get('arguments',{})
+                if name in {'dios_task_submit','dios_task_get'}:
+                    if not isinstance(args,dict):raise RuntimeErrorCode('MCP_FRAME_INVALID')
+                    if name=='dios_task_submit':
+                        if (set(args)-{'profile','goal','sample_id','input_payload'} or
+                                not {'profile','goal'}<=set(args) or
+                                (args.get('sample_id') is None)==(args.get('input_payload') is None)):
+                            raise RuntimeErrorCode('MCP_FRAME_INVALID')
+                        value=await self.client.submit_child(args['profile'],args['goal'],key=key,
+                            sample_id=args.get('sample_id'),input_payload=args.get('input_payload'))
+                    else:
+                        if set(args)-{'run_id','wait_seconds'} or 'run_id' not in args:raise RuntimeErrorCode('MCP_FRAME_INVALID')
+                        value=await self.client.child(args['run_id'],wait_seconds=args.get('wait_seconds',20))
+                    return {'content':[{'type':'text','text':json.dumps(value,ensure_ascii=False)}],'isError':False}
+                return await self.client.call(name,args,key)
             except RuntimeErrorCode as exc:return {'isError':True,'content':[{'type':'text','text':exc.code}]}
         raise RuntimeErrorCode('MCP_METHOD_NOT_ALLOWED')
 

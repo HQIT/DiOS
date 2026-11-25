@@ -60,4 +60,4 @@ CLI 从既有 `DIOS_ACCESS_TOKEN` 读取认证凭据。Console 在已认证身�
 
 [执行证据](evidence/delegated-submission-20261125.json)记录原生 OPA/HTTP 准入、DSH + ECNU Max 的真实任务、独立审批、一次工具调用和成功报告；签发者通过 API 撤权后，另一条排队任务在创建进程前被拒绝。CLI 重复提交保留同一 Run，中英文桌面与手机页面完成引用提交、错误反馈及授权链查看。
 
-此接口完成认证客户端的委派消费。下一步接入运行中 Agent 的自动子任务通道，绑定父 Run、Attempt、Session、epoch 和预算；父任务结束后子任务的继续、取消与结果归属需要明确契约。生命周期可参考 [Temporal Child Workflows / Parent Close Policy](https://docs.temporal.io/child-workflows)，独立授权检查继续由 DiOS 控制点承担。跨物理主机、严格跨 Provider 撤销排序和 G2 验收仍按整体计划推进。
+此接口完成认证客户端的委派消费。[运行中 Agent 子任务通道](child-task-channel-35-58.md)进一步绑定父 Run、Attempt、Session、epoch、数量和深度限制，采用父结束请求取消策略。跨物理主机、严格跨 Provider 撤销排序和 G2 验收仍按整体计划推进。

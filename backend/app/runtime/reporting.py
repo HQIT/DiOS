@@ -3,6 +3,7 @@ import asyncio
 from hashlib import sha256
 from sqlalchemy.exc import OperationalError, InterfaceError
 from .spool import ReportSpool, accept_report, flush_reports
+from .database import RuntimeErrorCode
 
 
 def report_spool(provider, scope):
@@ -22,3 +23,15 @@ async def enqueue_report(store, spool, binding, sequence, phase, **details):
     receipt = await asyncio.to_thread(spool.enqueue, store.scope, *binding, sequence, phase, **details)
     await relay_reports(store, spool)
     return receipt
+
+
+async def confirm_report(store, spool, receipt, *, timeout=15):
+    """Await the exact durable ACK, including delivery owned by another relay."""
+    try:
+        async with asyncio.timeout(timeout):
+            while await asyncio.to_thread(spool.contains, receipt):
+                await relay_reports(store, spool)
+                if await asyncio.to_thread(spool.contains, receipt):
+                    await asyncio.sleep(.05)
+    except TimeoutError:
+        raise RuntimeErrorCode('REPORT_DELIVERY_PENDING') from None

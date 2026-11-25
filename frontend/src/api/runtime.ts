@@ -36,6 +36,8 @@ export interface WorkAuthorization {
   decisions?: { id: string; action: string; created_at: number; outcome: string; reason_codes: string[] }[];
 }
 export interface RunDetail extends RunSummary {
+  family?: { parent: { parent_run_id: string; parent_attempt_id: string; parent_session_id: string; parent_epoch: number; root_run_id: string; depth: number; root_limit: number; depth_limit: number } | null;
+    children: { run_id: string; parent_attempt_id: string; state: string; cancel_requested: boolean }[]; parent_close_policy: "request_cancel" } | null;
   access?: string[];
   recovery?: { category: string; code: string; state: string; retry_at: number | null; reason: string | null; circuit: Circuit | null } | null;
   authorization: WorkAuthorization;

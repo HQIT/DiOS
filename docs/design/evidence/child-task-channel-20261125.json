@@ -1,0 +1,421 @@
+{
+  "scope": "WSL Docker / synthetic input / native OPA / ECNU Max",
+  "live": {
+    "passed": true,
+    "image": "sha256:de222c5a23de2c3f53474959e7b8a7d0d41a68c2d471bbc0c5af21227385f12e",
+    "parent_run": "bf394188-f86c-456a-98b9-fa165958fa9a",
+    "child_run": "95267d61-0274-4044-aae0-535b2fb80d27",
+    "scope": "children-e0b2e784822e4be1",
+    "worker_processes": [
+      244540,
+      244700
+    ],
+    "parent_attempts": [
+      {
+        "id": "54eefede-7c01-406b-b908-40e4e144ebc9",
+        "epoch": 1,
+        "state": "completed",
+        "session_id": "15abd49e-a630-4770-885c-9f85bf4f09f0",
+        "worker_id": "6bdd3762-19ad-47a7-a176-a079bd22047e",
+        "process_id": 244597,
+        "started_at": 1795579435.313013,
+        "finished_at": 1795579458.887981,
+        "last_output_at": 1795579457.7537816,
+        "error": null,
+        "freshness": "final",
+        "runtime_state": "exited",
+        "confirmed_running": false,
+        "output_excerpt": "{\"summary\": \"子任务已成功完成（review / first-item）。该子任务针对 sample.py 做静态评审：函数 first(items) 直接返回 items[0]，未先判断列表是否为空，因此传入空列表时会抛出 IndexError，可能导致调用方崩溃或产生未处理错误，建议增加边界校验。证据为第 1–2 行代码 `return items[0]`，来源文件 SHA256 为 c9f28bea…7c632，已完成源码引用校验，评审状态为 pending_review（待人工复核）。\", \"child_run_id\": \"95267d61-0274-4044-aae0-535b2fb80d27\"}"
+      }
+    ],
+    "child_attempts": [
+      {
+        "id": "4fa0b943-ce62-456a-9146-7c70e6ffb61e",
+        "epoch": 1,
+        "state": "completed",
+        "session_id": "53d8b230-c12b-421f-8323-27b6a27192fb",
+        "worker_id": "a7df5275-401f-4943-a265-94c6a2666900",
+        "process_id": 244774,
+        "started_at": 1795579442.69,
+        "finished_at": 1795579455.7889833,
+        "last_output_at": 1795579454.1103418,
+        "error": null,
+        "freshness": "final",
+        "runtime_state": "exited",
+        "confirmed_running": false,
+        "output_excerpt": "{\"summary\": \"repository_search 已批准并返回了与样本 SHA256 一致的源码，证据充分。静态审查 sample.py：first(items) 直接访问 items[0] 而没有先检查列表是否为空，空列表输入会抛出 IndexError，应增加边界校验。\", \"findings\": [{\"title\": \"空列表未做边界检查，首元素访问会抛出 IndexError\", \"line_start\": 1, \"line_end\": 2, \"condition\": \"调用 first(items) 时传入空列表（items == []）\", \"evidence\": \"    return items[0]\", \"impact\": \"函数对空列表输入没有返回兜底值或明确错误，直接抛出 IndexError 异常，可能导致调用方崩溃或产生未处理错误。\"}]}"
+      }
+    ],
+    "parent_family": {
+      "parent": null,
+      "children": [
+        {
+          "run_id": "95267d61-0274-4044-aae0-535b2fb80d27",
+          "parent_attempt_id": "54eefede-7c01-406b-b908-40e4e144ebc9",
+          "state": "succeeded",
+          "cancel_requested": false
+        }
+      ],
+      "parent_close_policy": "request_cancel"
+    },
+    "child_family": {
+      "parent": {
+        "parent_run_id": "bf394188-f86c-456a-98b9-fa165958fa9a",
+        "parent_attempt_id": "54eefede-7c01-406b-b908-40e4e144ebc9",
+        "parent_session_id": "15abd49e-a630-4770-885c-9f85bf4f09f0",
+        "parent_epoch": 1,
+        "root_run_id": "bf394188-f86c-456a-98b9-fa165958fa9a",
+        "depth": 1,
+        "root_limit": 2,
+        "depth_limit": 2
+      },
+      "children": [],
+      "parent_close_policy": "request_cancel"
+    },
+    "parent_artifacts": [
+      {
+        "id": "02bafb2d-2c73-42af-b4da-2df9e704761b",
+        "attempt_id": "54eefede-7c01-406b-b908-40e4e144ebc9",
+        "digest": "90c5e93ebfe00a02d48179406baa0a86392541e08955a642ad5bbff8c2efee05",
+        "size": 609,
+        "created_at": 1795579458.887981,
+        "kind": "result"
+      },
+      {
+        "id": "775184ff-41c0-4291-9526-c4202feb630f",
+        "attempt_id": "54eefede-7c01-406b-b908-40e4e144ebc9",
+        "digest": "b37e068ac2f92a618c43241940e17475445c49de4b08251250df69b095942b06",
+        "size": 135,
+        "created_at": 1795579458.464004,
+        "kind": "stderr"
+      },
+      {
+        "id": "31c71153-2b9d-4fc1-a5c4-273a0d274c87",
+        "attempt_id": "54eefede-7c01-406b-b908-40e4e144ebc9",
+        "digest": "07dbf98446148f7d2da60c7ec5871cb7aafb6f554031e1819ccc9086c3115934",
+        "size": 1347,
+        "created_at": 1795579458.4180176,
+        "kind": "stdout"
+      }
+    ],
+    "child_artifacts": [
+      {
+        "id": "e06941c4-3565-4bbe-9c33-47863faaf2ac",
+        "attempt_id": "4fa0b943-ce62-456a-9146-7c70e6ffb61e",
+        "digest": "96d97afd737da85172340d1ce37699c7506397477b1952221c653fded78bbdab",
+        "size": 1879,
+        "created_at": 1795579455.7889833,
+        "kind": "result"
+      },
+      {
+        "id": "bf10486a-5ba6-43ba-b6d4-cd297990fa17",
+        "attempt_id": "4fa0b943-ce62-456a-9146-7c70e6ffb61e",
+        "digest": "57d45ec7995f27a9c0c3404ced73274df512e36fd20d045e0bfb975609677d70",
+        "size": 135,
+        "created_at": 1795579455.144006,
+        "kind": "stderr"
+      },
+      {
+        "id": "3509a573-2d68-4597-842f-2f495816e984",
+        "attempt_id": "4fa0b943-ce62-456a-9146-7c70e6ffb61e",
+        "digest": "bf8a2540633381014b274dd4b0c4ad9fe69050a6b7ef134d4043ce8ba8ca49ab",
+        "size": 2746,
+        "created_at": 1795579455.045998,
+        "kind": "stdout"
+      },
+      {
+        "id": "5d2b7934-3409-47f5-9690-dc93203867b1",
+        "attempt_id": "4fa0b943-ce62-456a-9146-7c70e6ffb61e",
+        "digest": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+        "size": 226,
+        "created_at": 1795579452.7249887,
+        "kind": "raw"
+      },
+      {
+        "id": "889b684a-f70e-4b59-ba34-7324da393c38",
+        "attempt_id": "4fa0b943-ce62-456a-9146-7c70e6ffb61e",
+        "digest": "1382cb96281971f918e34692ef1b419be3315354dc51a874878f44e8bf99f691",
+        "size": 2183,
+        "created_at": 1795579452.7249887,
+        "kind": "raw"
+      }
+    ],
+    "tool_calls": 1,
+    "task_channel_calls": 2,
+    "checks": [
+      "real-DSH-parent-MCP-submission",
+      "real-DSH-child-ECNU-Max",
+      "two-independent-processes-and-sessions",
+      "separate-worker-supervisor-processes",
+      "OPA-root-inherited",
+      "approval-before-tool",
+      "one-child-no-duplicate",
+      "verified-child-result-read",
+      "native-tool-activity-matched",
+      "parent-report-links-child"
+    ]
+  },
+  "live_record_sha256": "183c2b07247a6361378c4ec42e11709f62ec3441bbb98fad961728b051fd9696",
+  "parent_failure_case": {
+    "cause": "Harness stopped after immediate repetitive queries; incomplete parent result rejected",
+    "runs": [
+      {
+        "id": "72e3b401-069f-41ad-acee-d04c6cac0d15",
+        "state": "failed",
+        "cancel_requested": false
+      },
+      {
+        "id": "58b47379-9086-4136-85a5-c776de78d699",
+        "state": "cancelled",
+        "cancel_requested": true
+      }
+    ]
+  },
+  "ui": {
+    "browser": "Playwright Chromium",
+    "source": "live isolated Runtime API",
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "parentChildNavigation": true,
+        "depthVisible": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "parentChildNavigation": true,
+        "depthVisible": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      },
+      {
+        "locale": "zh",
+        "width": 390,
+        "parentChildNavigation": true,
+        "depthVisible": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "parentChildNavigation": true,
+        "depthVisible": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      }
+    ],
+    "screenshots": [
+      {
+        "name": "en-1440.png",
+        "sha256": "313c915af2a0bd749da9cb90d9fc1e50e467aa8944f745db227486cae022e49d"
+      },
+      {
+        "name": "en-390.png",
+        "sha256": "94e981d3f3289785ed938efe4ee26f4021c850baed229c65cae97ed5a2ee432e"
+      },
+      {
+        "name": "zh-1440.png",
+        "sha256": "7dd37860b1029ffa8121cfcaa88a479be81c3d070a3e02bd8f59108ba6b5f2a3"
+      },
+      {
+        "name": "zh-390.png",
+        "sha256": "f125a9e676c76d6a0a654784ec471caf8ec765427d0e2b0c28683ce72c6989c1"
+      }
+    ]
+  },
+  "cli": {
+    "passed": true,
+    "results": [
+      {
+        "run": "919aade6-aff5-4f38-a79e-af216dd894e5",
+        "state": "succeeded",
+        "family": {
+          "parent": null,
+          "children": [
+            {
+              "run_id": "ecd117e6-2262-4d9a-8b8e-175656015246",
+              "parent_attempt_id": "dbf7e5f6-1f8c-41f9-9395-b21ec9e25abd",
+              "state": "succeeded",
+              "cancel_requested": false
+            }
+          ],
+          "parent_close_policy": "request_cancel"
+        }
+      },
+      {
+        "run": "ecd117e6-2262-4d9a-8b8e-175656015246",
+        "state": "succeeded",
+        "family": {
+          "parent": {
+            "parent_run_id": "919aade6-aff5-4f38-a79e-af216dd894e5",
+            "parent_attempt_id": "dbf7e5f6-1f8c-41f9-9395-b21ec9e25abd",
+            "parent_session_id": "77e1eb60-7620-42f8-bd84-431c1a5ac14d",
+            "parent_epoch": 1,
+            "root_run_id": "919aade6-aff5-4f38-a79e-af216dd894e5",
+            "depth": 1,
+            "root_limit": 2,
+            "depth_limit": 2
+          },
+          "children": [],
+          "parent_close_policy": "request_cancel"
+        }
+      }
+    ]
+  },
+  "tests": {
+    "verified-regression": {
+      "total": 244,
+      "passed": 208,
+      "failed": 1,
+      "skipped": 35,
+      "seconds": 452.264,
+      "sha256": "678992dcf2ecc5e8899c1e08a42884d48aff4e5a415597a3f916e75500344c20"
+    },
+    "final-worker-regression": {
+      "total": 129,
+      "passed": 99,
+      "failed": 0,
+      "skipped": 30,
+      "seconds": 118.91,
+      "sha256": "eea1d6e7993edd5a5e404955e9b2816b55a7b621cbe944b79d624763d90bc2e8"
+    },
+    "additional-regression": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 1.694,
+      "sha256": "7f06caca0bb872002a46eb24e8127daea90ce94a9669893b5c3aa593b3a589fa"
+    },
+    "sdk": {
+      "total": 55,
+      "passed": 55,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 5.339,
+      "sha256": "5d1d98f9ba80e793fb962081ea25c28638d7c45fb64c1ec08b0b1f19c6e955d0"
+    },
+    "sdk-installed": {
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 4.654,
+      "sha256": "eee59b25b547c69621063b79d6ad4ae2c61a155aad02c08a67669df8c76874e7"
+    },
+    "image-contracts": {
+      "total": 99,
+      "passed": 85,
+      "failed": 0,
+      "skipped": 14,
+      "seconds": 86.119,
+      "sha256": "414554ada9a37d597e29bf14b731ca6e764e48372592b6afe795de14b910e548"
+    },
+    "resolved_regression": {
+      "original": "three independent Worker startup receipt race",
+      "cause": "another relay owned the delivery while the Worker tested pending once",
+      "fix": "bounded wait for matching durable receipt at launch and result barriers",
+      "verified_by": [
+        "test_another_relay_can_ack_launch_without_false_worker_exit",
+        "test_unconfirmed_report_deadline_keeps_original_receipt",
+        "test_docker_three_independent_workers_sessions_and_natural_drain"
+      ],
+      "final_suite": "final-worker-regression",
+      "state": "passed"
+    },
+    "design": {
+      "scope": "design contract consistency and reference semantics; no runtime/concurrency certification",
+      "schemas": 68,
+      "operations": 31,
+      "schema_examples": 12,
+      "state_scenarios": 13,
+      "checks_passed": 681,
+      "errors": []
+    }
+  },
+  "deployment": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "changed": true
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_contract": {
+    "health": "ok",
+    "history_detail_readable": true,
+    "family_contract_present": true,
+    "existing_standalone_family": null,
+    "frontend_status": 200
+  },
+  "image": {
+    "image": "sha256:cc9e42d52330bc6b2ff3079dbc9baab3f26f3ae105a26a8d1067258c32a60490",
+    "tag": "dios-backend:child-tasks-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "sdk_package": {
+    "version": "0.1.7",
+    "wheel": "dios_sdk-0.1.7-py3-none-any.whl",
+    "sha256": "42c596c9977f7a0e2cb48cda460de7b07c995bda97f535fd80c949d9a46520d8",
+    "offline_install_verified": true
+  },
+  "frontend_build": {
+    "passed": true,
+    "sha256": "5ff0655a831e5ca3bdad60550e5fdd38451a417a4e93e7750fbc7a5ed71ff49e"
+  },
+  "source_sha256": {
+    "backend/app/runtime/child_schema.py": "89348792cb09f266e9e1e2bcbb08ac8401124c69705a5eef78663412b0cbcfc0",
+    "backend/app/runtime/child_authorizations.py": "bbabe9275a642e05ce3dd3079f6eda467198fe27102c144c9ca2ac2884a727c1",
+    "backend/app/runtime/reporting.py": "55bad5424b2b290a74e13c5df4f2645f002fb6288a449aca87d1b88cdb8f6e86",
+    "backend/app/runtime/worker.py": "cfad3d6ec10fd3a1bff7dcc5c3ed3eabd12e5d91bf17210b338b661076b0d1eb",
+    "backend/app/runtime/store.py": "c84fdec300c0241a81185ce92ca11d6e63719799f0afc6f598fb3f1c951c110d",
+    "backend/app/runtime/worker_tool_channel.py": "460b5ba4047e61f30ae8f3ea6c436429d7c6305987f2ea57e6280568a97bd739",
+    "backend/app/services/child_tasks.py": "e2db56d6b064fe2c14d6153d5e32a3e416811fa248b34e61ed5107a3ecb8e0df",
+    "backend/app/services/task_console.py": "45f85814a2844e80d60d27334cafec9e32036328fe8c8911c6cce24665809503",
+    "sdk/python/src/dios_sdk/mcp.py": "fa1b8fc5a66e496f64b1940ec14f5ad1d43ef4a13a4cd76228d304bbcd834ae3",
+    "sdk/python/src/dios_sdk/tools.py": "c97c7f239dfdd51687ce775b8b13d6714db3f2fe22c95f9b6820bfa75ceea6a2",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "5c7910939939c94dbe47ab801cfe7cc486d7e58cfef3703b101432362969e1e7"
+  },
+  "remaining": [
+    "Different-Harness parent/child pairs",
+    "Physical cross-host qualification",
+    "Actor-changing authenticated exchange",
+    "Monetary/token budgets",
+    "Active-session reattachment and strict cross-Provider revocation ordering",
+    "Independent G2 and user acceptance"
+  ]
+}

@@ -33,3 +33,23 @@ Use the recipient's authenticated client and retain both the reference and the
 idempotency key on retries. The server checks subject, actor, the configured
 ancestor and the live authorization chain in the admission transaction.
 See [delegated task admission](../../docs/design/delegated-task-admission-35.md).
+
+SDK 0.1.7 adds the running-Agent child task channel:
+
+```python
+import os
+from dios_sdk.tools import ToolChannelClient
+
+channel = ToolChannelClient(os.environ['DIOS_TOOL_SOCKET'])
+child = await channel.submit_child('review', 'Check the registered input',
+                                   sample_id='one', key='stable-logical-step')
+status = await channel.child(child['id'], wait_seconds=20)
+```
+
+Reuse the key after an ambiguous response. Observe the returned Run ID until
+terminal; `wait_exhausted` leaves the task running. The SDK defaults to an immediate
+read; MCP `dios_task_get` defaults to a 20-second wait, with a 30-second maximum.
+MCP advertises `dios_task_submit` and `dios_task_get` only for an enabled child
+profile allowlist. Profile paths, parent identity and E2AG authority stay server-owned.
+Parent closure requests cancellation of unfinished children. Await needed child
+results before completing the parent. [Child task contract](../../docs/design/child-task-channel-35-58.md).

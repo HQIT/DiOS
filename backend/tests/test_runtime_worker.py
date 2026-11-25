@@ -93,6 +93,51 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
             rows=(await c.execute(select(artifacts).where(artifacts.c.run_id==r['id']))).mappings().all()
         self.assertEqual(len(rows),3)
         self.assertTrue(all(self.provider.verify(x['storage_key']) for x in rows))
+
+    async def test_another_relay_can_ack_launch_without_false_worker_exit(self):
+        from unittest.mock import patch
+        from app.runtime import reporting
+        from app.runtime.spool import accept_report
+        await self.submit();adapter=FakeAdapter();worker=self.worker(adapter)
+        reserved=asyncio.Event();release=asyncio.Event();other=[]
+        original=reporting.relay_reports
+        async def relay(store,spool):
+            if not reserved.is_set():
+                delivery=await asyncio.to_thread(spool.claim)
+                self.assertIsNotNone(delivery)
+                async def send():
+                    await release.wait()
+                    receipt=await accept_report(store,delivery)
+                    await asyncio.to_thread(spool.acknowledge,delivery,receipt)
+                other.append(asyncio.create_task(send()));reserved.set()
+                return {'acknowledged':0,'deferred':0,'blocked':0}
+            return await original(store,spool)
+        with patch.object(reporting,'relay_reports',side_effect=relay):
+            task=asyncio.create_task(worker.once())
+            try:
+                await asyncio.wait_for(reserved.wait(),3);await asyncio.sleep(.1)
+                self.assertEqual(adapter.started,0)
+                self.assertFalse(task.done())
+                release.set()
+                result=await asyncio.wait_for(task,5)
+                self.assertEqual(result['state'],'succeeded');self.assertEqual(adapter.started,1)
+            finally:
+                release.set();await asyncio.gather(*other,return_exceptions=True)
+                if not task.done():task.cancel()
+                await asyncio.gather(task,return_exceptions=True)
+
+    async def test_unconfirmed_report_deadline_keeps_original_receipt(self):
+        from app.runtime.reporting import confirm_report
+        await self.submit();worker=self.worker(FakeAdapter())
+        await self.store.register_worker(worker.worker_id,worker.instance,'host',os.getpid())
+        a=await self.store.claim(worker.worker_id,worker.instance)
+        binding=(a['run_id'],a['id'],worker.worker_id,worker.instance,a['epoch'])
+        receipt=worker.spool.enqueue(self.scope,*binding,1,'preparing')
+        delivery=worker.spool.claim()
+        with self.assertRaisesRegex(RuntimeErrorCode,'REPORT_DELIVERY_PENDING'):
+            await confirm_report(self.store,worker.spool,receipt,timeout=.1)
+        self.assertTrue(worker.spool.contains(receipt))
+        self.assertEqual(delivery.event_id,receipt.event_id)
     async def test_incomplete_and_insufficient_never_succeed_and_keep_raw_output(self):
         for n,data in enumerate([protocol(complete=False),protocol(evidence=False)]):
             await self.submit(str(n));a=FakeAdapter(data);r=await self.worker(a).once()

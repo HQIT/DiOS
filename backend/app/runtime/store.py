@@ -67,6 +67,10 @@ class RuntimeStore:
         if state in TERMINAL:
             from .tool_invocations import close_unstarted
             await close_unstarted(c, self.scope, run['id'], state, now)
+        if (state in TERMINAL or changes.get('cancel_requested') or changes.get('revoked')
+                or changes.get('epoch',run['epoch']) != run['epoch']):
+            from .child_authorizations import cancel_children
+            await cancel_children(c,self,run['id'],now)
         payload = {'run_id': run['id'], 'version': version, 'state': state, 'detail': detail}
         bounded(payload)
         await c.execute(runs.update().where(runs.c.id == run['id']).values(version=version, updated_at=now, **changes))
@@ -86,9 +90,14 @@ class RuntimeStore:
                 raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
             return dict(existing)
 
-    async def submit(self, key, value, *, authorization=None, submission_digest=None, admission_guard=None):
+    async def submit(self, key, value, *, authorization=None, submission_digest=None, admission_guard=None, parent_binding=None):
         identifier(key)
         if not isinstance(value, dict): raise RuntimeErrorCode("INVALID_ARGUMENT")
+        if 'parent_execution' in value:raise RuntimeErrorCode('CHILD_BINDING_INVALID')
+        if parent_binding is not None:
+            from .child_authorizations import validate_binding
+            validate_binding(parent_binding)
+            value=dict(value,parent_execution=parent_binding)
         if submission_digest is not None:
             if (not isinstance(submission_digest,str) or len(submission_digest)!=64
                     or any(x not in '0123456789abcdef' for x in submission_digest)):
@@ -122,6 +131,9 @@ class RuntimeStore:
                 input=value, state='queued', version=0, epoch=0, attempt_id=None, authorization_epoch=1,
                 revoked=False, cancel_requested=False, created_at=now, updated_at=now)
             await c.execute(runs.insert().values(**record))
+            if parent_binding is not None:
+                from .child_authorizations import bind
+                authorization=await bind(c,self,record,authorization,parent_binding)
             if authorization is not None:
                 from .work_authorizations import create
                 await create(c,self.scope,record,authorization,now)
@@ -359,6 +371,8 @@ class RuntimeStore:
             run['recovery']=await view(c,self.scope,run_id)
             run['recovery_policy']=await bound_policy(c,self.scope,run['attempt_id'])
             run['observed_at'] = await self.db.now(c)
+            from .child_authorizations import view as family_view
+            run['family']=await family_view(c,self.scope,run_id)
             return run
 
     async def pending_events(self, consumer, limit=100):

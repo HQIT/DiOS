@@ -157,7 +157,7 @@ class TaskConsole:
 
     async def submit(self, profile_id, sample_id, goal, key, *, input_payload=None,
                      expected_schedule_binding=None, admission_guard=None, transport_binding=None,
-                     delegation_ref=None):
+                     delegation_ref=None, parent_binding=None):
         if delegation_ref is not None:
             from app.runtime.store import identifier
             identifier(delegation_ref)
@@ -167,6 +167,8 @@ class TaskConsole:
         submission_digest=prepared['submission_digest']
         if delegation_ref is not None:
             submission_digest=digest([submission_digest,dict(delegation_ref=delegation_ref)])
+        if parent_binding is not None:
+            submission_digest=digest([submission_digest,dict(parent_execution=parent_binding)])
         # Trusted protocol adapters bind correlation to the same durable receipt.
         # Transport identity never supplies execution authority or business input.
         if transport_binding is not None:
@@ -192,7 +194,7 @@ class TaskConsole:
                 **({'result_schema':registered['contract']['result_schema']} if registered['contract']['result_schema'] is not None else {})),
             runtime_profile=profile_id,profile_digest=profile['profile_digest'],
             task_kind=profile['input_kind'],payload=dict(goal=goal,sample=value),
-            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest,admission_guard=admission_guard)
+            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest,admission_guard=admission_guard,parent_binding=parent_binding)
         return await self.detail(run['id'])
 
     @staticmethod
@@ -241,6 +243,8 @@ class TaskConsole:
                 events.c.type.in_(['run.completed','attempt.output_retained','attempt.exit_reconciled'])))).all()
             from app.runtime.faults import view as recovery_view
             recovery=await recovery_view(c,self.scope,run_id)
+            from app.runtime.child_authorizations import view as family_view
+            family=await family_view(c,self.scope,run_id,await asyncio.to_thread(self.access_filter))
         kinds={}
         for payload,kind in kind_events:
             detail=payload['detail']
@@ -271,7 +275,7 @@ class TaskConsole:
             try:await asyncio.to_thread(self.check_access,run,action);access.append(action)
             except RuntimeErrorCode as exc:
                 if exc.code!='NOT_FOUND':raise
-        return dict(self.summary(run),access=access,observed_at=now,attempts=views,authorization=authorization,recovery=recovery,
+        return dict(self.summary(run),access=access,observed_at=now,attempts=views,authorization=authorization,recovery=recovery,family=family,
             sample=run['input']['payload']['sample'],
             artifacts=[{**{k:b[k] for k in ('id','attempt_id','digest','size','created_at')},'kind':kinds.get(b['id'],'raw')}
                 for b in blobs],

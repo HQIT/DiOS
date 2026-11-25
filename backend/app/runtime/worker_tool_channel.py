@@ -27,9 +27,9 @@ FRAME_LIMIT=65536
 
 
 def profile_policy(value):
-    if not isinstance(value,dict) or set(value)-{'tools','acp_names','client_read_tool','worker_secret_refs'}:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
+    if not isinstance(value,dict) or set(value)-{'tools','acp_names','client_read_tool','worker_secret_refs','children'}:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     tools=value.get('tools')
-    if not isinstance(tools,dict) or not 1<=len(tools)<=16:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
+    if not isinstance(tools,dict) or not (0 if 'children' in value else 1)<=len(tools)<=16:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     for name,tool_id in tools.items():
         if not isinstance(name,str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,80}',name):raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
         identifier(tool_id)
@@ -37,13 +37,17 @@ def profile_policy(value):
     if not isinstance(names,dict) or len(names)>32:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     for name,alias in names.items():
         identifier(name)
-        if alias not in tools:raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
+        if alias not in tools and not ('children' in value and alias in {'dios_task_submit','dios_task_get'}):raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     if value.get('client_read_tool') is not None and value['client_read_tool'] not in tools:
         raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     refs=value.get('worker_secret_refs',[])
     if not isinstance(refs,list) or len(refs)>32 or any(not isinstance(x,str) for x in refs) or len(set(refs))!=len(refs):
         raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     for ref in refs:identifier(ref)
+    if 'children' in value:
+        from app.services.child_tasks import configuration
+        configuration(value['children'])
+        if {'dios_task_submit','dios_task_get'} & set(tools):raise RuntimeErrorCode('TOOL_CHANNEL_PROFILE_INVALID')
     bounded(value)
     return value
 
@@ -151,22 +155,35 @@ class WorkerToolChannel:
         if not isinstance(message,dict):raise RuntimeErrorCode('TOOL_CHANNEL_FRAME_INVALID')
         method=message.get('method');params=message.get('params',{})
         allowed={'describe':set(),'ready':{'session_id'},'request':{'tool','arguments','key'},
-            'advance':{'invocation_id'},'verify_activity':{'activity'},'verify_required':{'requirements'},'permit_proxy':{'name','arguments'},'deny_native':{'method'}}
+            'advance':{'invocation_id'},'verify_activity':{'activity'},'verify_required':{'requirements'},'permit_proxy':{'name','arguments'},'deny_native':{'method'},
+            'child.submit':{'profile','sample_id','input_payload','goal','key'},'child.get':{'run_id','wait_seconds'}}
         if set(message)!={'method','params'} or method not in allowed or not isinstance(params,dict) or set(params)!=allowed[method]:
             raise RuntimeErrorCode('TOOL_CHANNEL_METHOD_DENIED')
         run,a=await self._owner(wait=True)
         if method=='describe':
+            from app.services.child_tasks import tool_schemas
+            child_aliases=list(self.policy.get('children',{}).get('profiles',{}))
             return {'tools':[{'name':alias,'description':'E2AG governed tool: '+alias,'inputSchema':reg['input_schema']}
-                for alias,reg in self.registered.items()], 'client_read_tool':self.policy.get('client_read_tool')}
+                for alias,reg in self.registered.items()]+(tool_schemas(child_aliases) if child_aliases else []), 'client_read_tool':self.policy.get('client_read_tool'),
+                'child_tasks':child_aliases}
         if self.session_id is None:raise RuntimeErrorCode('TOOL_SESSION_NOT_READY')
+        if method.startswith('child.'):
+            if 'children' not in self.policy:raise RuntimeErrorCode('CHILD_TASKS_NOT_GRANTED')
+            from app.services.child_tasks import ChildTasks
+            children=ChildTasks(self)
+            return await children.submit(params,run) if method=='child.submit' else await children.get(params['run_id'],run,params['wait_seconds'])
         if method=='ready':
             if params['session_id']!=self.session_id:raise RuntimeErrorCode('SESSION_CHANGED')
             return {'session_id':self.session_id}
         if method=='permit_proxy':
             from jsonschema import Draft202012Validator
             alias=self.policy.get('acp_names',{}).get(params['name']) if isinstance(params['name'],str) else None
-            if alias not in self.registered:raise RuntimeErrorCode('TOOL_NOT_GRANTED')
-            reg=self.registered[alias]
+            if alias in {'dios_task_submit','dios_task_get'} and 'children' in self.policy:
+                from app.services.child_tasks import tool_schemas
+                tool=next(x for x in tool_schemas(list(self.policy['children']['profiles'])) if x['name']==alias)
+                reg={'id':alias,'input_schema':tool['inputSchema']}
+            elif alias in self.registered:reg=self.registered[alias]
+            else:raise RuntimeErrorCode('TOOL_NOT_GRANTED')
             if not isinstance(params['arguments'],dict) or not Draft202012Validator(reg['input_schema']).is_valid(params['arguments']):
                 raise RuntimeErrorCode('INVALID_TOOL_ARGUMENTS')
             # Permission to enter our MCP proxy only. Actual action still passes
@@ -260,9 +277,28 @@ class WorkerToolChannel:
         if len(rows)>128:raise RuntimeErrorCode('TOOL_CALL_LIMIT_EXCEEDED')
         actual=Counter((row['tool_id'],row['arguments_digest']) for row in rows
             if row['binding']['session_id']==self.session_id and row['state'] in {'succeeded','failed'})
+        child_actual=Counter()
+        if 'children' in self.policy:
+            from .work_auth_schema import decisions
+            async with self.store.db.read(self.store.scope) as c:
+                records=(await c.execute(select(decisions.c.decision).where(decisions.c.scope==self.store.scope,
+                    decisions.c.run_id==self.binding[0],decisions.c.attempt_id==self.binding[1],
+                    decisions.c.action=='child-channel').limit(257))).scalars().all()
+            if len(records)>256:raise RuntimeErrorCode('TOOL_CALL_LIMIT_EXCEEDED')
+            child_actual=Counter((x['evidence']['alias'],x['evidence']['arguments_digest']) for x in records
+                if x['decision']=='allow' and x['evidence']['session_id']==self.session_id)
         for event in activity:
             if not isinstance(event,dict) or set(event)!={'name','arguments'}:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')
             alias=self.policy.get('acp_names',{}).get(event['name'])
+            if alias in {'dios_task_submit','dios_task_get'} and 'children' in self.policy:
+                from app.services.child_tasks import activity_arguments,tool_schemas
+                from jsonschema import Draft202012Validator
+                tool=next(x for x in tool_schemas(list(self.policy['children']['profiles'])) if x['name']==alias)
+                if not Draft202012Validator(tool['inputSchema']).is_valid(event['arguments']):raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')
+                key=(alias,digest(activity_arguments(alias,event['arguments'])))
+                if child_actual[key]<1:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')
+                child_actual[key]-=1
+                continue
             if alias not in self.registered:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')
             key=(self.registered[alias]['id'],digest(event['arguments']))
             if actual[key]<1:raise RuntimeErrorCode('ACP_TOOL_ACTIVITY_UNVERIFIED')

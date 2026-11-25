@@ -14,7 +14,7 @@ from .bridge import JsonlBridge
 from .database import RuntimeErrorCode
 from .store import RuntimeStore, encoded, identifier
 from .authorization import authorize_work
-from .reporting import report_spool, enqueue_report, relay_reports
+from .reporting import report_spool, enqueue_report, relay_reports, confirm_report
 from .reconciliation import ExitReceipts, reconcile_run
 from sqlalchemy import select
 from sqlalchemy.exc import OperationalError, InterfaceError
@@ -191,8 +191,7 @@ class Worker:
                           'profile_digest':self.spec.fingerprint(),'worker_boot_id':self.boot_id}})
             phase = 'preparing'
             await report('creating_session')
-            if await asyncio.to_thread(self.spool.contains, last_receipt):
-                raise RuntimeErrorCode('REPORT_DELIVERY_PENDING')
+            await confirm_report(self.store,self.spool,last_receipt)
             # Check current ownership/authorization after the asynchronous verifier.
             await self.store.heartbeat(*binding)
             observation = await self.adapter.start(handle,spec)
@@ -264,8 +263,7 @@ class Worker:
                                     await authorized('execute',bridge.session_id)
                                 await report('waiting_model')
                             await report('validating')
-                            if await asyncio.to_thread(self.spool.contains, last_receipt):
-                                raise RuntimeErrorCode('REPORT_DELIVERY_PENDING')
+                            await confirm_report(self.store,self.spool,last_receipt)
                             await authorized('accept_result',bridge.session_id)
                             blob = await asyncio.to_thread(self.artifacts.put,[encoded(bridge.result)])
                             await self.store.complete(*binding,self.artifacts,blob.key,JsonlBridge.validate)

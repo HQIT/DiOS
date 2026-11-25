@@ -749,6 +749,11 @@
           "global dead-letter operations and schedule archive linkage",
           "capacity, provider and G2/user acceptance"
         ]
+      },
+      "shared_report_confirmation": {
+        "state": "development_verified",
+        "evidence": "docs/design/evidence/child-task-channel-20261125.json",
+        "delivered": "共享 outbox 的其他投递者持有回执时，有界等待原回执确认；三独立 Worker 并发和排空通过"
       }
     },
     {
@@ -1325,7 +1330,7 @@
         "design": "docs/design/harness-governance-56-58.md",
         "evidence": "docs/design/evidence/harness-governance-20261125.json",
         "delivered": "Cursor/DSH/Codex 续期、三层委派、祖先撤权、旧 epoch；终态未派发调用原子收尾，保留审批",
-        "remaining": "运行中 Agent 子任务入口、额外原生工具路径、物理跨主机、G2 与用户验收"
+        "remaining": "异构 Harness 父子组合、额外原生工具路径、物理跨主机、G2 与用户验收"
       }
     },
     {
@@ -1371,7 +1376,7 @@
         "design": "docs/design/harness-governance-56-58.md",
         "evidence": "docs/design/evidence/harness-governance-20261125.json",
         "delivered": "Cursor/DSH/Codex 续期、三层委派、祖先撤权、旧 epoch；终态未派发调用原子收尾，保留审批",
-        "remaining": "运行中 Agent 子任务入口、额外原生工具路径、物理跨主机、G2 与用户验收"
+        "remaining": "异构 Harness 父子组合、额外原生工具路径、物理跨主机、G2 与用户验收"
       }
     },
     {
@@ -1551,7 +1556,7 @@
       },
       "delegated_task_admission": {
         "date": "2026-11-25",
-        "state": "development_verified_parent_task_channel_pending",
+        "state": "development_verified_child_channel_available",
         "design": "docs/design/delegated-task-admission-35.md",
         "evidence": "docs/design/evidence/delegated-submission-20261125.json",
         "delivered": [
@@ -1561,9 +1566,32 @@
         ],
         "verification": "78 项相关回归通过、14 项条件跳过；SDK 53 项、离线安装 10 项通过；镜像 44 项通过、14 项条件跳过；开发历史 84 条保留",
         "remaining": [
-          "Running-Agent child-task tool channel and authenticated parent Run/Attempt/Session/epoch binding",
-          "Parent-close and budget propagation semantics",
-          "Physical cross-host, strict cross-Provider revocation ordering and independent G2 acceptance"
+          "Different-Harness parent/child pairs",
+          "Physical cross-host qualification",
+          "Actor-changing authenticated exchange",
+          "Monetary/token budgets",
+          "Active-session reattachment and strict cross-Provider revocation ordering",
+          "Independent G2 and user acceptance"
+        ]
+      },
+      "child_task_channel": {
+        "state": "development_verified",
+        "design": "docs/design/child-task-channel-35-58.md",
+        "evidence": "docs/design/evidence/child-task-channel-20261125.json",
+        "delivered": [
+          "父 Run/Attempt/Session/epoch 绑定；同事务准入和数量占用",
+          "权限交集、委派祖先保留、父结束请求取消、重启与备份关系",
+          "SDK 0.1.7 / MCP / CLI / 中英文 Console",
+          "两个独立 Worker 控制进程和 DSH 模型会话，审批、工具、子成果回读和父报告"
+        ],
+        "verification": "修复后 Worker/子任务等回归 99 项通过、30 项 PostgreSQL 条件跳过；SDK 55 项、离线安装 12 项通过；真实模型及中英文界面通过；部署保留 84 条历史",
+        "remaining": [
+          "Different-Harness parent/child pairs",
+          "Physical cross-host qualification",
+          "Actor-changing authenticated exchange",
+          "Monetary/token budgets",
+          "Active-session reattachment and strict cross-Provider revocation ordering",
+          "Independent G2 and user acceptance"
         ]
       }
     },
@@ -2356,7 +2384,27 @@
         "design": "docs/design/harness-governance-56-58.md",
         "evidence": "docs/design/evidence/harness-governance-20261125.json",
         "delivered": "Cursor/DSH/Codex 续期、三层委派、祖先撤权、旧 epoch；终态未派发调用原子收尾，保留审批",
-        "remaining": "运行中 Agent 子任务入口、额外原生工具路径、物理跨主机、G2 与用户验收"
+        "remaining": "异构 Harness 父子组合、额外原生工具路径、物理跨主机、G2 与用户验收"
+      },
+      "child_task_channel": {
+        "state": "development_verified",
+        "design": "docs/design/child-task-channel-35-58.md",
+        "evidence": "docs/design/evidence/child-task-channel-20261125.json",
+        "delivered": [
+          "父 Run/Attempt/Session/epoch 绑定；同事务准入和数量占用",
+          "权限交集、委派祖先保留、父结束请求取消、重启与备份关系",
+          "SDK 0.1.7 / MCP / CLI / 中英文 Console",
+          "两个独立 Worker 控制进程和 DSH 模型会话，审批、工具、子成果回读和父报告"
+        ],
+        "verification": "修复后 Worker/子任务等回归 99 项通过、30 项 PostgreSQL 条件跳过；SDK 55 项、离线安装 12 项通过；真实模型及中英文界面通过；部署保留 84 条历史",
+        "remaining": [
+          "Different-Harness parent/child pairs",
+          "Physical cross-host qualification",
+          "Actor-changing authenticated exchange",
+          "Monetary/token budgets",
+          "Active-session reattachment and strict cross-Provider revocation ordering",
+          "Independent G2 and user acceptance"
+        ]
       }
     },
     {
