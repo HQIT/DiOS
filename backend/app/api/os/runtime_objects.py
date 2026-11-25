@@ -1,73 +1,143 @@
 """Object metadata endpoints; native references retain original Run permissions."""
+
 import base64
 
 from fastapi import Depends
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.runtime.database import RuntimeErrorCode
 from app.runtime.objects import Objects, public, reference
+from app.runtime.object_access import ObjectPolicies
+from app.services.object_access import ObjectReader
 
 
 class FileVersion(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
     content_base64: str = Field(max_length=1398104)
-    idempotency_key: str = Field(min_length=1,max_length=160)
+    idempotency_key: str = Field(min_length=1, max_length=160)
     object_id: str | None = None
-    expected_version: int = Field(default=0,ge=0)
-    media_type: str = 'application/octet-stream'
+    expected_version: int = Field(default=0, ge=0)
+    media_type: str = "application/octet-stream"
 
 
 class ObjectLink(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
     source: dict
     relation: str
     target: dict
 
 
+class ObjectGrant(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    principal_id: str = Field(min_length=1, max_length=160)
+    actions: list[str] = Field(min_length=1, max_length=2)
+    expires_at: float = Field(allow_inf_nan=False)
+
+
+class ObjectPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    grants: list[ObjectGrant] = Field(max_length=128)
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=160)
+
+
 def operator_only(service):
     if service.principal is not None:
-        raise RuntimeErrorCode('AUTH_OPERATOR_REQUIRED')
+        raise RuntimeErrorCode("AUTH_OPERATOR_REQUIRED")
 
 
-async def authorized(service,kind,object_id,version):
-    if kind=='file':operator_only(service)
-    value=await Objects(service.db,service.scope).get(reference(kind,object_id,version))
-    if value['binding']:
-        await service.authorize(value['binding']['run_id'],'artifact.read' if kind=='artifact' else 'run.read')
-    return value
+async def authorized(service, kind, object_id, version):
+    return await ObjectReader(service).get(reference(kind, object_id, version))
 
 
-def register(router,service):
-    dependency=Depends(service)
-    @router.post('/objects/files')
-    async def publish_file(body:FileVersion,s=dependency):
+def register(router, service):
+    dependency = Depends(service)
+
+    @router.post("/objects/files")
+    async def publish_file(body: FileVersion, s=dependency):
         operator_only(s)
-        try:data=base64.b64decode(body.content_base64,validate=True)
-        except ValueError:raise RuntimeErrorCode('INVALID_FILE_ENCODING') from None
-        if len(data)>1024*1024:raise RuntimeErrorCode('INVALID_FILE_SIZE')
-        value=await Objects(s.db,s.scope).publish(s.provider,[data],body.idempotency_key,'operator:runtime-api',
-            object_id=body.object_id,expected_version=body.expected_version,media_type=body.media_type)
+        try:
+            data = base64.b64decode(body.content_base64, validate=True)
+        except ValueError:
+            raise RuntimeErrorCode("INVALID_FILE_ENCODING") from None
+        if len(data) > 1024 * 1024:
+            raise RuntimeErrorCode("INVALID_FILE_SIZE")
+        value = await Objects(s.db, s.scope).publish(
+            s.provider,
+            [data],
+            body.idempotency_key,
+            "operator:runtime-api",
+            object_id=body.object_id,
+            expected_version=body.expected_version,
+            media_type=body.media_type,
+        )
         return public(value)
 
-    @router.get('/objects/{kind}/{object_id}/versions')
-    async def object_versions(kind:str,object_id:str,after:int=0,limit:int=50,s=dependency):
-        await authorized(s,kind,object_id,1)
-        result=await Objects(s.db,s.scope).versions(kind,object_id,after=after,limit=limit)
-        result['items']=[public(item) for item in result['items']]
-        return result
+    @router.get("/objects/{kind}/{object_id}/versions")
+    async def object_versions(
+        kind: str, object_id: str, after: int = 0, limit: int = 50, s=dependency
+    ):
+        return await ObjectReader(s).versions(kind, object_id, after=after, limit=limit)
 
-    @router.get('/objects/{kind}/{object_id}/versions/{version}')
-    async def object_version(kind:str,object_id:str,version:int,s=dependency):
-        return public(await authorized(s,kind,object_id,version))
+    @router.get("/objects/{kind}/{object_id}/versions/{version}")
+    async def object_version(kind: str, object_id: str, version: int, s=dependency):
+        return public(await authorized(s, kind, object_id, version))
 
-    @router.get('/objects/{kind}/{object_id}/versions/{version}/relations')
-    async def object_relations(kind:str,object_id:str,version:int,after:str='',limit:int=50,s=dependency):
-        # Links can contain independently protected targets. Standalone sharing follows S02-1.02.
+    @router.get("/objects/{kind}/{object_id}/versions/{version}/relations")
+    async def object_relations(
+        kind: str,
+        object_id: str,
+        version: int,
+        after: str = "",
+        limit: int = 50,
+        s=dependency,
+    ):
+        return await ObjectReader(s).relations(
+            reference(kind, object_id, version), after=after, limit=limit
+        )
+
+    @router.get("/objects/{kind}/{object_id}/versions/{version}/download")
+    async def object_download(kind: str, object_id: str, version: int, s=dependency):
+        reader = ObjectReader(s)
+        value = await reader.prepare(reference(kind, object_id, version))
+        return StreamingResponse(
+            reader.stream(value),
+            media_type="application/octet-stream",
+            headers={
+                "Content-Length": str(value["descriptor"]["size"]),
+                "Content-Disposition": 'attachment; filename="object.bin"',
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+            },
+        )
+
+    @router.get("/objects/{kind}/{object_id}/versions/{version}/policy")
+    async def object_policy(kind: str, object_id: str, version: int, s=dependency):
         operator_only(s)
-        await authorized(s,kind,object_id,version)
-        return await Objects(s.db,s.scope).relations(reference(kind,object_id,version),after=after,limit=limit)
+        return await ObjectPolicies(s.db, s.scope).show(
+            reference(kind, object_id, version)
+        )
 
-    @router.post('/objects/relations')
-    async def object_link(body:ObjectLink,s=dependency):
+    @router.put("/objects/{kind}/{object_id}/versions/{version}/policy")
+    async def object_policy_change(
+        kind: str, object_id: str, version: int, body: ObjectPolicy, s=dependency
+    ):
         operator_only(s)
-        return await Objects(s.db,s.scope).link(body.source,body.relation,body.target,'operator:runtime-api')
+        grants = (
+            await ObjectReader(s).resolve_grants(body.grants) if body.grants else []
+        )
+        return await ObjectPolicies(s.db, s.scope).change(
+            reference(kind, object_id, version),
+            grants,
+            body.expected_revision,
+            body.idempotency_key,
+            "operator:runtime-api",
+        )
+
+    @router.post("/objects/relations")
+    async def object_link(body: ObjectLink, s=dependency):
+        operator_only(s)
+        return await Objects(s.db, s.scope).link(
+            body.source, body.relation, body.target, "operator:runtime-api"
+        )

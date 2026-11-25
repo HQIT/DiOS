@@ -28,7 +28,7 @@ class RuntimeRoute(APIRoute):
                 if exc.code=='AUTH_UNAUTHENTICATED':status=401
                 if exc.code=='AUTH_PROVIDER_UNAVAILABLE':status=503
                 if exc.code in {'PREVIEW_TOO_LARGE','PREVIEW_NOT_TEXT'}:status=413
-                raise HTTPException(status,detail=exc.code) from None
+                raise HTTPException(status,detail=exc.code,headers={'Cache-Control':'no-store'}) from None
             except (SQLAlchemyError,OSError,ValueError):
                 raise HTTPException(503,detail='RUNTIME_UNAVAILABLE') from None
         return handler
@@ -86,7 +86,12 @@ async def console_lifespan(app):
 async def service(request:Request,_=Depends(operator)):
     value=getattr(request.app.state,'runtime_console',None)
     if value is None:raise HTTPException(503,detail='RUNTIME_CONFIGURATION_REQUIRED')
-    return value.for_principal(_)
+    bound=value.for_principal(_)
+    async def recheck():
+        current=await operator(request)
+        if current!=_:raise RuntimeErrorCode('AUTH_PRINCIPAL_REVOKED')
+    bound.credential_recheck=recheck
+    return bound
 
 
 router=APIRouter(prefix='/runtime',tags=['runtime-tasks'],route_class=RuntimeRoute)

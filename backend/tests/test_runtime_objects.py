@@ -129,6 +129,6 @@ class ObjectApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(first.status_code,200,first.text);ref=first.json()['ref']
         self.assertEqual((await self.client.post(path,headers=self.headers,json=body)).json(),first.json())
         detail=f"objects/file/{ref['id']}/versions/1"
-        self.assertEqual((await self.get('a',detail)).status_code,403)
+        self.assertEqual((await self.get('a',detail)).status_code,404)
         response=await self.client.get('/api/os/runtime/'+detail,headers=self.headers)
         self.assertEqual(response.json(),first.json());self.assertNotIn('storage',response.json())

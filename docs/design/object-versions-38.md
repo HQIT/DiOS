@@ -6,7 +6,7 @@ DiOS 用 `{kind, id, version}` 表达文件、会话和产物引用。引用由�
 
 | 对象 | 稳定标识 | 版本与内容 | 权限入口 |
 | --- | --- | --- | --- |
-| 文件 `file` | 服务端生成的 UUID | 每次成功发布形成新版本；旧版本及其内容摘要保持不变 | 当前由管理者发布和查询；对象级主体授权由 S02-1.02 接入 |
+| 文件 `file` | 服务端生成的 UUID | 每次成功发布形成新版本；旧版本及其内容摘要保持不变 | 管理者发布，读取与下载采用具体版本的主体授权 |
 | 会话 `session` | 原 Attempt ID | v1 固定指向原 Run、Attempt、供应商 Session；`descriptor` 为空 | 沿用原 Run 的 `run.read` |
 | 产物 `artifact` | 原 Artifact ID | v1 固定指向原内容摘要、大小及 Run/Attempt | 沿用原 Run 的 `artifact.read` |
 
@@ -20,7 +20,7 @@ DiOS 用 `{kind, id, version}` 表达文件、会话和产物引用。引用由�
 
 `derived_from`、`part_of`、`associated_with` 将一个明确版本连接到另一个明确版本，或连接到 `{namespace, key, version}` 外部引用。关系保留创建者和时间，同关系重复提交返回原记录。关系不会跟随文件最新版本漂移，也不授予目标对象读取权限。
 
-外部引用只保存调用方提供的来源标识，不抓取地址、不解释客户或项目含义。当前关系写入和查询由管理者使用；S02-1.02 承接独立对象授权，S02-1.03 承接留存、删除与墓碑。
+外部引用只保存调用方提供的来源标识，不抓取地址、不解释客户或项目含义。关系由管理者写入，主体查询按对象权限过滤；[S02-1.02 对象授权](object-access-38.md)已接入，S02-1.03 承接留存、删除与墓碑。
 
 ## API、CLI 与 SDK
 
@@ -42,7 +42,7 @@ python -m app.runtime.cli --scope local object publish \
 
 后续版本增加 `--object-id <原ID> --expected-version <当前版本>` 并使用新的幂等键。`object show`、`object versions`、`object link`、`object relations` 提供对应查询和关联操作。
 
-Python SDK 0.1.12 增加 `publish_file`、`object_version`、`object_versions`、`link_objects`、`object_relations`。原任务详情的 `artifacts[].object_ref` 与 `attempts[].object_ref` 提供统一引用。Console 在产物条目显示版本号，下载仍使用原已授权的产物路径。独立文件读取下载及缓存撤销一致性属于 S02-1.02。
+Python SDK 提供 `publish_file`、`object_version`、`object_versions`、`link_objects`、`object_relations`。原任务详情的 `artifacts[].object_ref` 与 `attempts[].object_ref` 提供统一引用。Console 在产物条目显示版本号，原产物与统一对象下载均接入[对象级授权和撤销](object-access-38.md)。SDK 0.1.13 同步提供策略管理和下载接口。
 
 ## 依据与验证
 

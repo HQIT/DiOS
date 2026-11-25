@@ -49,6 +49,22 @@ class TaskClient:
     def object_versions(self, kind, object_id, *, after=0, limit=50):
         return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions?'+urlencode({'after':after,'limit':limit}))
 
+    def object_policy(self, kind, object_id, version=1):
+        return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/policy')
+
+    def set_object_policy(self, kind, object_id, grants, *, version=1, expected_revision, idempotency_key):
+        return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/policy',
+            method='PUT',body={'grants':grants,'expected_revision':expected_revision,'idempotency_key':idempotency_key})
+
+    def download_object(self, kind, object_id, version=1):
+        descriptor=self.object_version(kind,object_id,version)['descriptor']
+        if descriptor is None:raise WorkloadError('OBJECT_CONTENT_UNAVAILABLE')
+        if descriptor['size']>self.max_bytes:raise WorkloadError('TASK_RESPONSE_TOO_LARGE')
+        value=self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/download',raw=True)
+        if len(value)!=descriptor['size'] or 'sha256:'+hashlib.sha256(value).hexdigest()!=descriptor['digest']:
+            raise WorkloadError('ARTIFACT_DIGEST_MISMATCH')
+        return value
+
     def publish_file(self, data, *, idempotency_key, object_id=None, expected_version=0, media_type='application/octet-stream'):
         import base64
         if not isinstance(data,bytes) or len(data)>1024*1024:raise ValueError('File must be at most 1 MiB of bytes')

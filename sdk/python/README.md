@@ -91,3 +91,15 @@ Upgrade the DiOS controller and Worker before updating Harness images to this
 SDK: earlier JSONL bridges reject the new frame type. Existing Harness images
 continue to run and show unknown usage when they provide no reports.
 See [usage semantics and recovery](../../docs/design/model-usage-46.md).
+
+## Versioned objects and sharing
+
+`TaskClient.publish_file`, `object_version`, `object_versions`, `link_objects`
+and `object_relations` expose immutable file versions and native session/artifact
+references. SDK 0.1.13 adds `object_policy`, `set_object_policy` and
+`download_object`. Policy changes require operator credentials, an expected
+revision and a persistent idempotency key; an empty grant list revokes access.
+Downloads verify the complete byte count and SHA-256 digest before returning.
+Authorization is exact-version; original task access still applies to artifacts.
+Follow `next_after` even when a filtered version page is empty.
+See [object access and revocation](../../docs/design/object-access-38.md).

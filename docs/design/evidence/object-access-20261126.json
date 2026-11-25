@@ -1,0 +1,155 @@
+{
+  "work_item": "S02-1.02",
+  "status": "engineering_verified",
+  "source_head": "2647f941f54ad2d408b0ccddabbe30c62ccc2ec7",
+  "delivered": [
+    "Exact-version subject ACL with expiry, CAS, durable idempotency and E2AG Decision evidence",
+    "Current identity and request credential checks before and after provider reads",
+    "Original artifact download/preview and unified object paths share authorization boundary",
+    "No-store responses, content integrity checks, filtered relationships and version pages",
+    "API, trusted local CLI and installed Python SDK 0.1.13"
+  ],
+  "tests": {
+    "sqlite_postgresql": {
+      "modules": [
+        "test_runtime_object_access",
+        "test_object_client",
+        "test_runtime_objects",
+        "test_runtime_task_console",
+        "test_runtime_principals",
+        "test_runtime_recovery",
+        "test_installation_backup",
+        "test_installation_restore"
+      ],
+      "exit_code": 0,
+      "summary": "----------------------------------------------------------------------\nRan 75 tests in 82.762s\n\nOK (skipped=1)",
+      "total": 75,
+      "passed": 74,
+      "skipped": 1,
+      "seconds": 82.762,
+      "log_sha256": "2457aaac84b0732168d3961527bef8f38f1c1d813801f661d664bb8e3a41a86a"
+    },
+    "release_image": {
+      "image": "sha256:9a4c3dec4eea40e857ae02502818db5655b272bd12d70401c8e78ab2485e893c",
+      "base": "sha256:77a9495ab7fd5acfd28b644561fdfdc16e48a4c5535a9d84de1536b5dcafa8b7",
+      "network": "none",
+      "user": "65534:65534",
+      "summary": "Ran 17 tests in 14.764s\n\nOK (skipped=4)",
+      "total": 17,
+      "passed": 13,
+      "skipped": 4,
+      "seconds": 14.764
+    },
+    "installed_sdk": "Built wheel installed in isolated target; HTTP UTF-8/integrity/policy contract passed",
+    "frontend": "No frontend change; existing UI calls the guarded original artifact endpoints",
+    "lint": "New and changed object modules Ruff F checks and git diff --check passed"
+  },
+  "development": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": true
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "live_api_cli_sdk": {
+    "sdk": "0.1.13",
+    "installed_wheel": true,
+    "same_digest_distinct_acl": true,
+    "two_authenticated_principals": true,
+    "file_refs": [
+      {
+        "kind": "file",
+        "id": "450b35e3-facf-41d5-8177-c340823b6536",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "7059c231-ee95-4121-b393-9c1e321de5e8",
+        "version": 1
+      }
+    ],
+    "cli_revoke_observed_by_api": true,
+    "revoked_download_status": 404,
+    "cache_control": "no-store",
+    "cursor_run_id": "c1d03cff-e5cb-4bdb-af8d-55988805f2d9",
+    "native_artifact_id": "aa4aa52a-d5b7-469a-bf9f-5225c5e6827d",
+    "original_and_unified_download_equal": true,
+    "temporary_grants_revoked": true,
+    "identity_provider": "Dedicated short-lived opaque-token qualification principals; no OAuth source grant changed"
+  },
+  "sdk_wheel_sha256": "019b7153e58ba5f808b5d1f968acefe785bf5807031bf89bc6e1b9c2b8640781",
+  "source_sha256": {
+    "backend/app/api/os/runtime_objects.py": "93b344415317289d432f412d3c391636c70e10af3f6381f59999589dba296164",
+    "backend/app/api/os/runtime_tasks.py": "5ff13358b45ba74bba8d043a6493f3983a5cff6e4e602b2dcfab4e4f8b54ae46",
+    "backend/app/runtime/cli.py": "816d17695b11e026dfe0f1b2cf59c8e8bfd0758923ada84a0ec418f8ec784b4e",
+    "backend/app/runtime/database.py": "17e198fc6a3aa6b08600ac1cc5f353f34a77104110bd3a651472cbc91a92e7fa",
+    "backend/app/runtime/object_access.py": "4e933ec6bf9376c91339d4d61bb3323ef2b1a57d76bfa1d8dadea59052243700",
+    "backend/app/runtime/object_access_schema.py": "49e59f604ed579c363772eb2f5b3007c70c73279c40a31ee9a701b363969f108",
+    "backend/app/runtime/recovery.py": "f4b7b0ac459eaa41831de906e36a6a14694fe835ac8bfb7003249d0172cfc817",
+    "backend/app/services/object_access.py": "72497e16e454c317a20b0a23d1edbf916aff55b7c8475faa69fcaf6b5c1a397c",
+    "backend/app/services/task_console.py": "467d98f6486688818e9d3fd790ca541d8288fe03af7e1bd74264920af66315b0",
+    "backend/tests/test_runtime_object_access.py": "b3233e2c31f7017e702cf418cd725491601f4a24c40eeb080bbc6e1a4a2ddb4b",
+    "backend/tests/test_runtime_objects.py": "4c6d90ae456a0ddf497172edfce1793bc12d25b47a8a5affce87e1f83ef2e706",
+    "sdk/python/pyproject.toml": "a61c320dc0ad03642311f5e3830de1866b3653b601e715ca9f3b25e408544948",
+    "sdk/python/src/dios_sdk/__init__.py": "5ad5504585ac4269341b31897205daaf28f62cf0fbb4357666da0ea211e6a07f",
+    "sdk/python/src/dios_sdk/tasks.py": "4ebd0656fc697f5bde3c8d4c1d4d65c2a043d8db4c341dabb8b35a58aabeafbd",
+    "sdk/python/tests/test_object_client.py": "79fcd17f0378993c16325c53fd16bd4051a7d91dd07548cd30562276f7c149ff"
+  },
+  "design": "docs/design/object-access-38.md",
+  "sources": [
+    "https://www.usenix.org/conference/atc19/presentation/pang",
+    "https://www.rfc-editor.org/rfc/rfc9111.html"
+  ],
+  "limits": [
+    "Already authorized in-flight/client-held bytes cannot be recalled.",
+    "Single control-database authorization boundary; distributed/cache qualification remains W4.",
+    "Direct object ACL decisions do not issue Work execution authority or replace the E2AG execution/tool chain.",
+    "Existing development OAuth qualification identity a reported AUTH_PROVIDER_UNAVAILABLE, and old opaque identity b was unauthenticated. Dedicated temporary identities qualified object access; existing credentials/grants were preserved.",
+    "Retention/deletion remains S02-1.03; complete object lifecycle qualification remains S02-1.04."
+  ]
+}

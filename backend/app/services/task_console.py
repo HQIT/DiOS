@@ -329,6 +329,26 @@ class TaskConsole:
                 if exc.code!='NOT_FOUND':raise
                 tool_read=False
             diagnostics=await diagnostics_view(c,self.scope,run,now,include_tools=tool_read)
+        from app.runtime.object_access import ObjectPolicies
+        from app.runtime.objects import reference
+        policies=ObjectPolicies(self.db,self.scope)
+        visible=[]
+        for blob in blobs:
+            try:await policies.check(reference('artifact',blob['id']),self.principal,'object.read',audit=False)
+            except RuntimeErrorCode as exc:
+                if exc.code!='NOT_FOUND':raise
+            else:visible.append(blob)
+        blobs=visible
+        visible_attempts=[]
+        for attempt in rows:
+            item=dict(attempt)
+            if item['session_id']:
+                try:await policies.check(reference('session',item['id']),self.principal,'object.read',audit=False)
+                except RuntimeErrorCode as exc:
+                    if exc.code!='NOT_FOUND':raise
+                    item['session_id']=None
+            visible_attempts.append(item)
+        rows=visible_attempts
         kinds={}
         for payload,kind in kind_events:
             detail=payload['detail']
@@ -336,7 +356,6 @@ class TaskConsole:
             elif kind=='attempt.output_retained':kinds[detail['artifact_id']]=detail['kind']
             else:
                 for name,aid in detail.get('artifacts',{}).items():kinds[aid]=name
-        from app.runtime.objects import reference
         views=[]
         for a in rows:
             obs=a['remote'].get('runtime',{})
@@ -376,28 +395,23 @@ class TaskConsole:
             await asyncio.to_thread(self.check_access,run,'artifact.read')
             b=(await c.execute(select(artifacts).where(artifacts.c.id==artifact_id,artifacts.c.run_id==run_id))).mappings().first()
         if not b:raise RuntimeErrorCode('NOT_FOUND')
-        if b['provider']!=self.provider.name:raise RuntimeErrorCode('ARTIFACT_PROVIDER_UNAVAILABLE')
-        blob=await asyncio.to_thread(self.provider.verify,b['storage_key'])
-        if (blob.digest,blob.size)!=(b['digest'],b['size']):raise RuntimeErrorCode('ARTIFACT_DIGEST_MISMATCH')
+        from app.runtime.objects import reference
+        from app.services.object_access import ObjectReader
+        await ObjectReader(self).prepare(reference('artifact',artifact_id))
         return dict(b)
 
     async def stream_artifact(self,run_id,blob):
-        run=await self.authorize(run_id,'artifact.read')
-        stream=iter(self.provider.read(blob['storage_key']))
-        try:
-            while True:
-                chunk=await asyncio.to_thread(next,stream,None)
-                if chunk is None:break
-                await asyncio.to_thread(self.check_access,run,'run.read')
-                await asyncio.to_thread(self.check_access,run,'artifact.read')
-                yield chunk
-        finally:
-            if hasattr(stream,'close'):await asyncio.to_thread(stream.close)
+        from app.runtime.objects import reference
+        from app.services.object_access import ObjectReader
+        reader=ObjectReader(self)
+        value=await reader.get(reference('artifact',blob['id']))
+        if value['binding']['run_id']!=run_id:raise RuntimeErrorCode('NOT_FOUND')
+        async for chunk in reader.stream(value):yield chunk
 
     async def preview(self, run_id, artifact_id):
         blob=await self.artifact(run_id,artifact_id)
         if blob['size']>256*1024:raise RuntimeErrorCode('PREVIEW_TOO_LARGE')
-        data=await asyncio.to_thread(lambda:b''.join(self.provider.read(blob['storage_key'])))
+        data=b''.join([chunk async for chunk in self.stream_artifact(run_id,blob)])
         try:text=data.decode('utf-8')
         except UnicodeError:raise RuntimeErrorCode('PREVIEW_NOT_TEXT') from None
         detail=await self.detail(run_id)
@@ -407,5 +421,8 @@ class TaskConsole:
             try:value=json.loads(text)
             except ValueError:value={}
             if isinstance(value,dict) and isinstance(value.get('markdown'),str):markdown=value['markdown']
-        await self.authorize(run_id,'artifact.read')
+        from app.runtime.objects import reference
+        from app.services.object_access import ObjectReader
+        reader=ObjectReader(self)
+        await reader.authorize(await reader.get(reference('artifact',artifact_id)),'object.download')
         return dict(id=artifact_id,kind=kind,text=text,markdown=markdown,size=blob['size'],digest=blob['digest'])

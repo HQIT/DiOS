@@ -40,6 +40,7 @@ from .schedule_schema import metadata as schedule_metadata, CHECKSUM as SCHEDULE
 from .lifecycle import Lifecycle
 from .artifacts import LocalArtifacts
 from .object_schema import metadata as object_metadata, CHECKSUM as OBJECT_CHECKSUM
+from .object_access_schema import metadata as object_access_metadata, CHECKSUM as OBJECT_ACCESS_CHECKSUM
 
 
 def sqlite_path(url):
@@ -115,6 +116,7 @@ def _database_info(path):
             ('runtime_deployment_schema',deployment_metadata,DEPLOYMENT_CHECKSUM),
             ('runtime_compatibility_schema',compatibility_metadata,COMPATIBILITY_CHECKSUM),
             ('runtime_object_schema',object_metadata,OBJECT_CHECKSUM),
+            ('runtime_object_access_schema',object_access_metadata,OBJECT_ACCESS_CHECKSUM),
             ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):

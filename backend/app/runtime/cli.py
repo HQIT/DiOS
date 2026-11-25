@@ -63,6 +63,11 @@ async def execute(args):
                 value=json.loads(raw)
                 return await manager.link(value['source'],value['relation'],value['target'],args.actor)
             ref=reference(args.kind,args.object_id,args.version)
+            if args.object_command in {'policy-show','policy-set'}:
+                from .object_access import ObjectPolicies
+                policies=ObjectPolicies(db,args.scope)
+                if args.object_command=='policy-show':return await policies.show(ref)
+                return await policies.change(ref,json.loads(Path(args.file).read_text()),args.expected_revision,args.key,args.actor)
             if args.object_command=='show':return public(await manager.get(ref))
             if args.object_command=='relations':return await manager.relations(ref,after=args.after,limit=args.limit)
             result=await manager.versions(args.kind,args.object_id,after=args.after,limit=args.limit)
@@ -308,6 +313,12 @@ def main(argv=None):
     op.add_argument('--object-id');op.add_argument('--expected-version',type=int,default=0)
     op.add_argument('--media-type',default='application/octet-stream')
     op=object_commands.add_parser('link');op.add_argument('--file',required=True);op.add_argument('--actor',required=True)
+    for name in ('policy-show','policy-set'):
+        op=object_commands.add_parser(name);op.add_argument('kind',choices=['file','session','artifact']);op.add_argument('object_id')
+        op.add_argument('--version',type=int,default=1)
+        if name=='policy-set':
+            for flag in ('file','key','actor'):op.add_argument('--'+flag,required=True)
+            op.add_argument('--expected-revision',type=int,required=True)
     for name in ('show','versions','relations'):
         op=object_commands.add_parser(name);op.add_argument('kind',choices=['file','session','artifact']);op.add_argument('object_id')
         op.add_argument('--version',type=int,default=1)
