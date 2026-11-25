@@ -20,6 +20,27 @@ from work_auth_fixtures import policy_fixture
 
 
 class OutboundTests(unittest.IsolatedAsyncioTestCase):
+    async def test_revision_bound_a2a_worker_loads_frozen_endpoint(self):
+        from app.runtime.execution_revisions import compile_profile, load_profile
+        from app.runtime.revisions import Revisions
+        saved = await Revisions(self.console.store.db, self.console.store.scope).create(
+            'a2a-revision', compile_profile(self.profile), actor='qualification')
+        ref = saved['revision']['id']
+        original = self.console.store.submit
+        async def submit_bound(*args, **kwargs):
+            return await original(*args, **kwargs, revision_ref=ref)
+        with patch.object(self.console.store, 'submit', side_effect=submit_bound):
+            run = await self.submit()
+        self.profile['remote']['endpoint'] = 'https://changed.example/rpc'
+        _, _, spec, _, _ = await load_profile(self.console.store.db, self.console.store.scope, ref)
+        self.assertEqual(spec.endpoint, 'https://remote.example/rpc')
+        worker = self.worker()
+        worker.revision_ref = ref
+        result = await worker.once()
+        self.assertEqual(result['id'], run['id'])
+        self.assertEqual(result['state'], 'succeeded')
+        self.assertEqual(result['input']['revision_ref'], ref)
+
     async def asyncSetUp(self):
         await console_fixtures.TaskConsoleTests.asyncSetUp(self)
         row = {

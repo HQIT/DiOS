@@ -39,6 +39,12 @@ class FileWorkPolicy:
         if not isinstance(profiles,dict):raise RuntimeErrorCode('WORK_POLICY_INVALID')
         row=profiles.get(profile_id)
         if not isinstance(row,dict):raise RuntimeErrorCode('WORK_PROFILE_NOT_GRANTED')
+        if 'revisions' in row:
+            if set(row)-{'profile_digest','secret_refs','permissions','work_ttl_seconds','delegation_ref','revisions'}:raise RuntimeErrorCode('WORK_POLICY_UNSUPPORTED_FIELDS')
+            alternatives=row['revisions']
+            if not isinstance(alternatives,dict) or len(alternatives)>64:raise RuntimeErrorCode('WORK_POLICY_INVALID')
+            row=({k:v for k,v in row.items() if k!='revisions'} if row.get('profile_digest')==profile_digest else alternatives.get(profile_digest))
+            if not isinstance(row,dict):raise RuntimeErrorCode('WORK_PROFILE_CHANGED')
         if set(row)-{'profile_digest','secret_refs','permissions','work_ttl_seconds','delegation_ref'}:raise RuntimeErrorCode('WORK_POLICY_UNSUPPORTED_FIELDS')
         if row.get('profile_digest')!=profile_digest:raise RuntimeErrorCode('WORK_PROFILE_CHANGED')
         if row.get('secret_refs',[])!=secret_refs:raise RuntimeErrorCode('SECRET_REFERENCE_CHANGED')

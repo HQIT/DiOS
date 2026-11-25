@@ -39,9 +39,11 @@ class A2AWorker:
         timeout=300,
         poll_interval=1,
         transport_factory=A2ATransport,
+        revision_ref=None,
     ):
         if policy is None:
             raise RuntimeErrorCode("WORK_POLICY_REQUIRED")
+        self.revision_ref = revision_ref
         spec.validate()
         if not 0 < timeout <= 86400 or not 0.05 <= poll_interval <= 5:
             raise RuntimeErrorCode("INVALID_WORKER_LIMIT")
@@ -279,7 +281,7 @@ class A2AWorker:
             self.worker_id, self.instance, socket.gethostname(), os.getpid()
         )
         attempt = await self.execution.claim(
-            self.worker_id, self.instance, self.profile_id
+            self.worker_id, self.instance, self.profile_id, self.revision_ref
         )
         if attempt is None:
             return {"worker_id": self.worker_id, "state": "idle"}
@@ -341,6 +343,9 @@ class A2AWorker:
                             runs.c.state == "reconciliation_required",
                             runs.c.input["runtime_profile"].as_string()
                             == self.profile_id,
+                            runs.c.input["revision_ref"].as_string() == self.revision_ref
+                            if self.revision_ref is not None
+                            else runs.c.input["revision_ref"].as_string().is_(None),
                             or_(plans.c.retry_at.is_(None), plans.c.retry_at <= now),
                         )
                         .order_by(runs.c.updated_at)

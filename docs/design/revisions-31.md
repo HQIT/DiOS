@@ -60,3 +60,21 @@ python -m app.runtime.cli --scope local revision show REVISION_ID --manifest
 K02-1.02 将任务提交与 Worker 领取绑定到 Revision；K02-1.03 接入 Deployment 激活、健康检查、排空和回滚；K02-1.04 校验外部版本变化；K02-1.05 完成 API/CLI/Console 联合资格。每项按 [WBS](../planning/capability-wbs.md) 单独记录工程证据与接受状态。
 
 工程结果：[版本存储证据](evidence/runtime-revisions-20261125.json)。开发环境迁移与 CLI 验证通过，84 条既有 Run 身份完整保留。
+
+## 固定版本执行接线（K02-1.02）
+
+CLI 可将现有执行 Profile 发布为 dios-execution-profile-v1 快照。Docker 镜像标签在发布时解析为镜像内容 ID，公开配置和 Secret 绑定描述分别保存；Adapter 源码摘要随快照固定。加载时核验整个快照与当前 Adapter，版本不符返回明确错误。A2A 保存端点配置，并将远端实现和内部模型版本标为 opaque。
+
+```sh
+python -m app.runtime.cli --scope local revision publish-profile --profile profile.json --key publish-001 --actor operator
+python -m app.runtime.cli --scope local enqueue --revision-ref REVISION_ID --key task-001 --file input.json --policy-file policy.json
+python -m app.runtime.cli --scope local worker --revision-ref REVISION_ID --artifacts ./artifacts --policy-file policy.json --once
+```
+
+Run 在提交事务内绑定 revision_ref 和 revision_digest，核验 Profile 摘要及 Secret 引用；客户端输入不能直接指定这两个受控字段。幂等回执同时匹配 Revision，不能把不同版本的提交合并为同一个任务。
+
+Worker 按 Profile 摘要和 Revision 领取任务，恢复扫描使用同一 Revision 范围。不匹配任务保持排队，等待相应版本 Worker。原 --profile 入口继续处理未绑定 Revision 的任务；固定版本 Worker 通过 --revision-ref 从数据库重新加载启动配置，不受配置文件后续编辑影响。运行输入数据由数据提供方管理；挂载中的 Prompt、代码和技能属于受控版本依赖，其内容固定及旧版本供给仍需完成。远端不可见实现保留 opaque 标记。
+
+E2AG 策略按当前授权决定执行。FileWorkPolicy 的 Profile 行可增加 revisions 字典，以 Profile 摘要为键保存并存版本的授权行。当前版本仍使用原行，历史版本只允许显式列出的摘要。选中行单独计算策略摘要，添加新版本不会改变旧版本既有 Grant；删除历史行、修改其权限或停用主体仍会阻止后续受限动作。快照不复制执行权。
+
+K02-1.02 当前包含持久绑定、CLI、本地 Worker 与 A2A Worker 的执行接线。Console 提交自动绑定、远程 Worker 控制登记及受控挂载依赖的内容固定尚需接入，工作项保持进行中。工程证据见 [执行绑定记录](evidence/execution-revisions-20261125.json)。

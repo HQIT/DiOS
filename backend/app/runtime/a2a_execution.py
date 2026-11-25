@@ -101,7 +101,7 @@ class A2AExecution:
         self.store, self.provider, self.spec = store, provider, spec
         self.receipts = A2AReceipts(provider, store.scope)
 
-    async def claim(self, worker_id, instance, profile_id):
+    async def claim(self, worker_id, instance, profile_id, revision_ref=None):
         from .remote_control import TransactionView
 
         async with self.store.db.transaction(self.store.scope) as c:
@@ -125,6 +125,8 @@ class A2AExecution:
                 worker_id,
                 instance,
                 profile_id=profile_id,
+                profile_digest=self.spec.fingerprint(),
+                revision_ref=revision_ref,
                 recovery_policy=self.spec.recovery_policy(),
             )
 

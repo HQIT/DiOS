@@ -56,12 +56,13 @@ def boot_identity():
 
 class Worker:
     def __init__(self, store: RuntimeStore, adapter: RuntimeAdapter, profile_id, spec: LaunchSpec,
-                 artifacts: LocalArtifacts, *, poll_interval=.25, timeout=300, output_limit=1024*1024, authorization_verifier=None, secret_resolver=None, secret_requests=(), tool_gate=None, remote_tools=None):
+                 artifacts: LocalArtifacts, *, poll_interval=.25, timeout=300, output_limit=1024*1024, authorization_verifier=None, secret_resolver=None, secret_requests=(), tool_gate=None, remote_tools=None, revision_ref=None):
         if not 0 < poll_interval <= 5 or not 0 < timeout <= 86400 or not 1 <= output_limit <= 4*1024*1024:
             raise RuntimeErrorCode('INVALID_WORKER_LIMIT')
         spec.validate()
         if spec.kind != 'task': raise RuntimeErrorCode('WORKER_REQUIRES_TASK_PROFILE')
         self.store, self.adapter, self.profile_id, self.spec = store, adapter, profile_id, spec
+        self.revision_ref=revision_ref
         self.artifacts = artifacts
         from .faults import from_spec
         self.recovery_policy=from_spec(spec)
@@ -80,7 +81,8 @@ class Worker:
 
     async def once(self):
         await self.store.register_worker(self.worker_id, self.instance, socket.gethostname(), os.getpid(), slots=1)
-        a = await self.store.claim(self.worker_id, self.instance, profile_id=self.profile_id,recovery_policy=self.recovery_policy)
+        a = await self.store.claim(self.worker_id, self.instance, profile_id=self.profile_id,recovery_policy=self.recovery_policy,
+            profile_digest=self.spec.fingerprint(),revision_ref=self.revision_ref)
         if a is None: return {'worker_id':self.worker_id,'state':'idle'}
         binding = (a['run_id'], a['id'], self.worker_id, self.instance, a['epoch'])
         budget_observation_started = time.monotonic()
@@ -347,6 +349,7 @@ class Worker:
             query = select(runs.c.id).where(runs.c.scope == self.store.scope,
                 runs.c.state == 'reconciliation_required',
                 runs.c.input['runtime_profile'].as_string() == self.profile_id)
+            query=query.where(runs.c.input['revision_ref'].as_string()==self.revision_ref if self.revision_ref is not None else runs.c.input['revision_ref'].as_string().is_(None))
             if self._recovery_cursor: query = query.where(runs.c.id > self._recovery_cursor)
             ids = (await c.execute(query.order_by(runs.c.id).limit(limit))).scalars().all()
         # Cycle through unresolved work; an old live/blocked batch cannot starve later runs.

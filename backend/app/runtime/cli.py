@@ -34,6 +34,9 @@ async def execute(args):
         if args.command == 'revision':
             from .revisions import Revisions, MAX_MANIFEST_BYTES
             manager = Revisions(db, args.scope)
+            if args.revision_command == 'publish-profile':
+                from .execution_revisions import publish_profile
+                return await publish_profile(db,args.scope,args.profile,args.key,args.actor)
             if args.revision_command == 'show':
                 return await manager.show(args.revision_id, include_manifest=args.manifest)
             if args.revision_command == 'list':
@@ -112,11 +115,15 @@ async def execute(args):
             from .worker import Worker, read_profile
             from .artifacts import LocalArtifacts
             from .docker_adapter import DockerRuntimeAdapter
-            profile_id, spec = read_profile(args.profile)
             from .work_policy import FileWorkPolicy, security_profile
             from .work_authorizations import WorkAuthorizationVerifier
             from .secret_provider import FileSecretMounts
-            mode,secret_requests=security_profile(args.profile)
+            if args.revision_ref:
+                from .execution_revisions import load_profile
+                _,profile_id,spec,mode,secret_requests=await load_profile(db,args.scope,args.revision_ref)
+            else:
+                profile_id,spec=read_profile(args.profile)
+                mode,secret_requests=security_profile(args.profile)
             policy_path=args.policy_file
             policy=FileWorkPolicy(policy_path) if policy_path else None
             if mode=='e2ag' and policy is None:raise RuntimeErrorCode('WORK_POLICY_REQUIRED')
@@ -124,7 +131,7 @@ async def execute(args):
                 payload = json.loads(Path(args.file).read_text(encoding='utf-8')) if args.file else {}
                 descriptor=await asyncio.to_thread(policy.admission,profile_id,spec.fingerprint(),secret_requests) if mode=='e2ag' else None
                 return await store.submit(args.key,{'runtime_profile':profile_id,
-                    'profile_digest':spec.fingerprint(),'secret_refs':secret_requests,'payload':payload},authorization=descriptor)
+                    'profile_digest':spec.fingerprint(),'secret_refs':secret_requests,'payload':payload},authorization=descriptor,revision_ref=args.revision_ref)
             artifacts=LocalArtifacts(Path(args.artifacts))
             secrets=FileSecretMounts(args.secrets_file,args.scope) if args.secrets_file else None
             from .a2a_profile import A2AProfile
@@ -133,7 +140,7 @@ async def execute(args):
                 if args.tools_file or args.approvers_file or args.tool_gateway_file:
                     raise RuntimeErrorCode('A2A_REMOTE_TOOL_CONTROL_UNAVAILABLE')
                 runner=A2AWorker(store,profile_id,spec,artifacts,policy,secret_resolver=secrets,
-                    secret_requests=secret_requests,timeout=args.timeout,poll_interval=args.poll_interval)
+                    secret_requests=secret_requests,timeout=args.timeout,poll_interval=args.poll_interval,revision_ref=args.revision_ref)
                 return await runner.serve(once=args.once)
             tool_gate=None;remote_tools=None
             from .worker_tool_channel import POLICY_ENV
@@ -152,7 +159,7 @@ async def execute(args):
                 timeout=args.timeout,poll_interval=args.poll_interval,
                 authorization_verifier=WorkAuthorizationVerifier(store,policy) if mode=='e2ag' else None,
                 secret_requests=secret_requests,
-                secret_resolver=secrets,tool_gate=tool_gate,remote_tools=remote_tools)
+                secret_resolver=secrets,tool_gate=tool_gate,remote_tools=remote_tools,revision_ref=args.revision_ref)
             return await runner.serve(once=args.once)
         if args.command == 'credential':
             from .worker_credentials import WorkerCredentials
@@ -233,6 +240,10 @@ def main(argv=None):
     revision_create.add_argument('--file', required=True)
     revision_create.add_argument('--key', required=True)
     revision_create.add_argument('--actor', required=True, help='audit label of the trusted local publisher')
+    revision_publish = revision_commands.add_parser('publish-profile', help='freeze a local execution profile and resolved image identity')
+    revision_publish.add_argument('--profile', required=True)
+    revision_publish.add_argument('--key', required=True)
+    revision_publish.add_argument('--actor', required=True)
     revision_show = revision_commands.add_parser('show')
     revision_show.add_argument('revision_id')
     revision_show.add_argument('--manifest', action='store_true')
@@ -267,9 +278,13 @@ def main(argv=None):
     inspect_delegation=delegation_commands.add_parser('show');inspect_delegation.add_argument('reference')
     revoke_delegation=delegation_commands.add_parser('revoke');revoke_delegation.add_argument('reference');revoke_delegation.add_argument('--version',type=int,required=True)
     enqueue=commands.add_parser('enqueue',help='queue a pinned trusted profile and optional JSON input')
-    enqueue.add_argument('--profile',required=True);enqueue.add_argument('--key',required=True);enqueue.add_argument('--file')
+    enqueue_source=enqueue.add_mutually_exclusive_group(required=True)
+    enqueue_source.add_argument('--profile');enqueue_source.add_argument('--revision-ref')
+    enqueue.add_argument('--key',required=True);enqueue.add_argument('--file')
     worker=commands.add_parser('worker',help='run an independent one-slot Worker using an explicit trusted profile')
-    worker.add_argument('--profile',required=True);worker.add_argument('--artifacts',required=True)
+    worker_source=worker.add_mutually_exclusive_group(required=True)
+    worker_source.add_argument('--profile');worker_source.add_argument('--revision-ref')
+    worker.add_argument('--artifacts',required=True)
     worker.add_argument('--once',action='store_true');worker.add_argument('--timeout',type=float,default=300)
     worker.add_argument('--poll-interval',type=float,default=.25)
     for command in (enqueue,worker):command.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))

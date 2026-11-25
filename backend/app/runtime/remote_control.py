@@ -138,7 +138,7 @@ class RemoteControl:
             entry=(await asyncio.to_thread(document,self.profiles))['profiles'][e['profile']]
             _,spec=await asyncio.to_thread(read_profile,entry['path'])
             if spec.fingerprint()!=e['profile_digest']:raise RuntimeErrorCode('PROFILE_CHANGED')
-            a=await s.claim(e['worker_id'],e['instance'],profile_id=e['profile'],recovery_policy=from_spec(spec))
+            a=await s.claim(e['worker_id'],e['instance'],profile_id=e['profile'],profile_digest=e['profile_digest'],recovery_policy=from_spec(spec))
             if a:
                 run=await s.get(a['run_id'])
                 if run['input'].get('profile_digest')!=e['profile_digest']:raise RuntimeErrorCode('PROFILE_CHANGED')

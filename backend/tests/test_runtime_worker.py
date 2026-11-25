@@ -159,7 +159,9 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         await self.store.submit('other',{'runtime_profile':'other'})
         r=await self.store.submit('mismatch',{'runtime_profile':'test-profile','profile_digest':'changed'})
         a=FakeAdapter();result=await self.worker(a).once()
-        self.assertEqual(result['id'],r['id']);self.assertEqual(result['state'],'failed');self.assertEqual(a.started,0)
+        self.assertEqual(result['state'],'idle');self.assertEqual(a.started,0)
+        pending=await self.store.get(r['id'])
+        self.assertEqual(pending['state'],'queued');self.assertEqual(pending['attempts'],[])
         self.assertEqual((await self.worker(a).once())['state'],'idle')
     async def test_scope_drain_blocks_new_launch(self):
         await self.submit();await Lifecycle(self.db,self.scope).begin_drain()

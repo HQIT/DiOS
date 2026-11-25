@@ -1,0 +1,130 @@
+{
+  "work_item": "K02-1.02",
+  "status": "in_progress",
+  "engineering_slice": "verified",
+  "base_commit": "88740dff57136e36229409eb7b0b09cae4e43503",
+  "delivered": [
+    "Compile and persist execution profiles with resolved Docker image IDs",
+    "Transactional Run to Revision binding and protected identity fields",
+    "Revision-qualified claiming and recovery scan",
+    "Stable local CLI startup from immutable profiles",
+    "A2A Worker revision claiming and frozen endpoint load",
+    "Version-scoped live E2AG grants with removal/revocation semantics",
+    "Preserve mismatched tasks in queue instead of claiming and failing them"
+  ],
+  "tests": {
+    "sqlite_postgresql_and_regression": {
+      "total": 200,
+      "passed": 181,
+      "skipped": 19,
+      "seconds": 162.867,
+      "log": "contracts.log"
+    },
+    "final_binding_sqlite_postgresql": {
+      "total": 9,
+      "passed": 9,
+      "skipped": 0,
+      "seconds": 6.675,
+      "log": "binding-final.log"
+    },
+    "image": {
+      "total": 200,
+      "passed": 124,
+      "skipped": 76,
+      "seconds": 100.014,
+      "log": "image-contracts.log"
+    }
+  },
+  "native_docker": {
+    "passed": true,
+    "old_revision": "rev-82bd42c4c39416f5f3ffa25b0013e0bb05b1e8f4ef1b35b3e5d627e262c906a6",
+    "new_revision": "rev-7cfe07b7e95805e0a0cb7371c0b7599341e3ff3c27b10d69210ae55fd9077c76",
+    "old_image": "sha256:7991b23733b89c1cb7784e3ccad394e600c03d7272405c01102cb6aaef6ea3bf",
+    "new_image": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "mutable_tag_and_profile_changed": true,
+    "new_worker_left_old_task_queued": true,
+    "old_task_session": "old-version",
+    "new_task_session": "new-version",
+    "worker_pids": [
+      379931,
+      380027
+    ],
+    "e2ag": "live_version_scoped_policy",
+    "run_ids": [
+      "da1aedbb-291d-427d-8c7f-2c441ec62e61",
+      "f0f9fe07-51fa-4276-a5e5-5cea2c0f1bce"
+    ]
+  },
+  "image": {
+    "image": "sha256:29b2a35283cd25a21c4aeeaee1998411c4467a86c49c4fe37994c6607dc0d66d",
+    "base": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "tag": "dios-backend:execution-revisions-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "development": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "changed": false
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "remaining": [
+    "Console submissions bind the selected immutable Revision",
+    "Remote Worker registration/control accepts explicitly admitted historical Revisions",
+    "Content pinning and supply for mounted controlled Prompt/code/skill dependencies",
+    "Combined qualification of all supported entry paths"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/execution_revisions.py": "a41f2e1487021177d3745cbd333d2f71d72ed1280476d8c14339dabfcf63ea2a",
+    "backend/app/runtime/store.py": "b66a115fe3352521873e944790a6757cb7b73f1a86e581b3d29def1a4f0aff5b",
+    "backend/app/runtime/worker.py": "2b2915f52df5a0e35dc7aa5943134ef5f5f1555924e321b784b70bfa32533251",
+    "backend/app/runtime/work_policy.py": "94f969595dec31058111630c5dcc1ee77516c5108f68ab0cd0c51c0b530ba44a",
+    "backend/app/runtime/cli.py": "1e1353676dc1619ff38ae352b8e1a7599ac3c0f233282e17bcb606f80b56892e",
+    "backend/app/runtime/a2a_execution.py": "f499e4f7c6f2387ffd7b86fa07390628a9903e6fdf55ef983fe4f4005932504e",
+    "backend/app/runtime/a2a_worker.py": "bd023ae6a272963c94f5150374c7c93ab6b1c58056300383f20a571f25e4d4f3",
+    "backend/app/runtime/remote_control.py": "058e955526a39f20f9f8cb5fff6ca7c45cfd1bca96765316caaa06a53569fbc8",
+    "backend/app/runtime/remote_runtime.py": "3067a44eea0a6eb911c2a59bcebdf80ee6208ea18e74b738023b4f1eb31dc2a8",
+    "backend/tests/test_execution_revisions.py": "666d1c026d59dee3c9b8a2aeb868f4b346522bcbcdbc17734da0554bad526e19",
+    "backend/tests/test_runtime_worker.py": "09ec10bc279abfe41f2ef619c0d6a9ef3a4bea12ab72b04daa8795deb9709580",
+    "backend/tests/test_runtime_a2a_outbound.py": "bf8458fd9427ee7d4d37b27a2745ab99ef75ca67616fd03a66f9eb4413558bb8"
+  }
+}

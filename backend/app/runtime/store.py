@@ -96,9 +96,11 @@ class RuntimeStore:
                 raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
             return dict(existing)
 
-    async def submit(self, key, value, *, authorization=None, submission_digest=None, admission_guard=None, parent_binding=None):
+    async def submit(self, key, value, *, authorization=None, submission_digest=None, admission_guard=None, parent_binding=None, revision_ref=None):
         identifier(key)
         if not isinstance(value, dict): raise RuntimeErrorCode("INVALID_ARGUMENT")
+        if {'revision_ref','revision_digest'}.intersection(value):raise RuntimeErrorCode('REVISION_BINDING_SERVER_OWNED')
+        if revision_ref is not None:identifier(revision_ref)
         if 'parent_execution' in value:raise RuntimeErrorCode('CHILD_BINDING_INVALID')
         if parent_binding is not None:
             from .child_authorizations import validate_binding
@@ -118,12 +120,17 @@ class RuntimeStore:
                 work_policy_digest=authorization['policy_digest'])
         elif 'delegation_ref' in value:raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
         bounded(value)
-        hashed = digest(value)
         async with self.db.transaction(self.scope) as c:
+            if revision_ref is not None:
+                from .execution_revisions import bind_input
+                value=await bind_input(c,self.scope,revision_ref,value,authorized=authorization is not None)
+                bounded(value)
+            hashed = digest(value)
             existing = (await c.execute(select(runs).where(runs.c.scope == self.scope, runs.c.idempotency_key == key))).mappings().first()
             if existing:
                 same_receipt = (submission_digest is not None
-                    and existing['input'].get('submission_digest') == submission_digest)
+                    and existing['input'].get('submission_digest') == submission_digest
+                    and existing['input'].get('revision_ref') == value.get('revision_ref'))
                 legacy_exact = ('submission_digest' not in existing['input']
                     and existing['input_digest'] == digest({k:v for k,v in value.items() if k!='submission_digest'}))
                 if existing['input_digest'] != hashed and not same_receipt and not legacy_exact:
@@ -171,8 +178,13 @@ class RuntimeStore:
             result = await c.execute(workers.update().where(workers.c.id == worker_id, workers.c.scope == self.scope).values(draining=True))
             if result.rowcount != 1: raise RuntimeErrorCode('NOT_FOUND')
 
-    async def claim(self, worker_id, instance, lease_seconds=60, *, profile_id=None, recovery_policy=None):
+    async def claim(self, worker_id, instance, lease_seconds=60, *, profile_id=None, recovery_policy=None, profile_digest=None, revision_ref=None):
         if not 1 <= lease_seconds <= 60: raise RuntimeErrorCode('INVALID_LEASE')
+        if profile_digest is not None and (not isinstance(profile_digest,str) or len(profile_digest)!=64 or any(x not in '0123456789abcdef' for x in profile_digest)):
+            raise RuntimeErrorCode('INVALID_PROFILE_DIGEST')
+        if revision_ref is not None:
+            identifier(revision_ref)
+            if profile_digest is None:raise RuntimeErrorCode('REVISION_PROFILE_DIGEST_REQUIRED')
         async with self.db.transaction(self.scope) as c:
             if not await admission(c, self.scope): return None
             now = await self.db.now(c)
@@ -193,6 +205,9 @@ class RuntimeStore:
             if profile_id is not None:
                 identifier(profile_id)
                 query = query.where(runs.c.input['runtime_profile'].as_string() == profile_id)
+            if profile_digest is not None:
+                query=query.where(runs.c.input['profile_digest'].as_string()==profile_digest)
+            query=query.where(runs.c.input['revision_ref'].as_string()==revision_ref if revision_ref is not None else runs.c.input['revision_ref'].as_string().is_(None))
             from .capacity import admit_query
             query = await admit_query(c, self.scope, query)
             query = await budget_query(c, self.scope, query, now)

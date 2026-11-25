@@ -161,7 +161,9 @@
 - 完成验证：编辑原配置不改变历史 Revision；Prompt、模型、技能、工具、策略、镜像与 Adapter 均可追溯；Secret 仅存引用。
 - 依赖：已有基础可启动；原验收：K02-1-A01、K02-1-A02。
 
-**K02-1.02 运行绑定固定版本** · 实现/集成 · W1 · Codex 工程
+**K02-1.02 运行绑定固定版本** · 实现/集成 · W1 · Codex 工程 · 进行中
+
+已交付 CLI/本地 Worker/A2A Worker 的固定版本执行与 E2AG 验证，见[工程证据](../design/evidence/execution-revisions-20261125.json)。继续接入 Console、远程 Worker 登记及受控挂载依赖；本项尚未结项，剩余总数保持 78。
 
 - 交付：提交、队列领取和 Run 到 Revision 的实际执行绑定。
 - 完成验证：排队后编辑配置、Worker 重启及并发部署仍执行所绑定版本；原记录兼容且不误派给不匹配 Worker。
