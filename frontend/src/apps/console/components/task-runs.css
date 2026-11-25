@@ -24,6 +24,15 @@
 .tr-schedule-occurrence { margin: 12px 0; padding: 8px 0; }
 .tr-schedule-digest { display: block; overflow-wrap: anywhere; margin: 8px 0; }
 .tr-family-list { padding-left: 1.2rem; }
+.tr-capacity{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--surface);overflow-wrap:anywhere}
+.tr-capacity summary{cursor:pointer;font-weight:600}.tr-capacity p,.tr-capacity small{font-size:13px;color:var(--text-secondary)}
+.tr-capacity p{margin:12px 0}.tr-capacity-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tr-capacity-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:14px 0;border-top:1px solid var(--border);font-size:13px}
+.tr-capacity-row small{display:block;margin-top:5px}.tr-capacity-row button{justify-self:end}
+.tr-capacity-form fieldset{display:grid;gap:12px;border:1px solid var(--border);border-radius:8px;padding:14px;min-width:0}
+.tr-capacity-form label{display:grid;gap:6px;font-size:13px}.tr-capacity-form input,.tr-capacity-form select{box-sizing:border-box;width:100%;min-width:0;padding:9px;background:var(--bg);color:var(--text-primary);border:1px solid var(--border);border-radius:6px}
+.tr-capacity-form .tr-capacity-checkbox{display:flex;align-items:center;gap:8px}.tr-capacity-checkbox input{width:auto}.tr-capacity-block{display:block;margin-top:6px}
+@media(max-width:600px){.tr-capacity-row{grid-template-columns:minmax(0,1fr)}.tr-capacity-row button{justify-self:start}}
 .tr-family-list li { margin: .6rem 0; overflow-wrap: anywhere; }
 .tr-family-list .tr-badge { margin-left: .6rem; }
 [data-testid="task-family"] a { overflow-wrap: anywhere; }

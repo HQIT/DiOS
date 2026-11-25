@@ -7,6 +7,7 @@ import { runtimeApi, RuntimeApiError, scheduleApi } from "../../../api/runtime";
 import type { Profile, Sample, RunSummary, RunDetail, Preview } from "../../../api/runtime";
 import "./task-runs.css";
 import WorkerStatusPanel from "./WorkerStatusPanel";
+import CapacityPanel from "./CapacityPanel";
 import ToolActions from "./ToolActions";
 import DelegationEvidence from "./DelegationEvidence";
 import RunSchedulesPanel from "./RunSchedulesPanel";
@@ -260,6 +261,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
     <main className="tr-detail">
       {principalName && <p className="tr-muted">{translateUI("当前主体：{0}", [principalName])}</p>}
       {operatorMode && <WorkerStatusPanel />}
+      {operatorMode && <CapacityPanel />}
       {operatorMode && !selectedId && <RunSchedulesPanel refresh={refresh} />}
       {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>{translateUI("从一件具体工作开始")}</h3>
         <p>{translateUI("在左侧发起任务，或选择已有任务查看执行过程与成果。")}</p><div className="tr-steps"><span>{translateUI("① 发起任务")}</span><span>{translateUI("② 跟踪执行")}</span><span>{translateUI("③ 查看成果")}</span></div></div>}
@@ -288,7 +290,9 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             <p>{translateUI("远端上下文：{0}", [active.remote_agent.context_id || translateUI("待确认")])}</p>
             {active.remote_agent.cancel_requested_at && !terminal(detail.state) && <p>{translateUI("取消请求已保存，等待远端确认。")}</p>}
           </div>}
-          {detail.state === "queued" && <p className="tr-notice">{translateUI("任务已入队，等待对应 Agent 的 Worker 领取。")}</p>}
+          {detail.state === "queued" && <p className="tr-notice" role="status">{translateUI(detail.capacity?.blocked ? "共享执行额度暂满，等待已有任务结束或管理员调整。" : "任务已入队，等待对应 Agent 的 Worker 领取。")}
+            {detail.capacity?.limits.map(row => <span className="tr-capacity-block" key={row.id}>{row.id} · {translateUI("占位")}: {row.reserved_attempts}/{row.max_concurrent}{row.unresolved_attempts > 0 && ` · ${translateUI("待确认")}: ${row.unresolved_attempts}`}</span>)}
+          </p>}
           {detail.state === "reconciliation_required" && <p className="tr-notice">{translateUI("正在等待原执行结果对账，任务身份与已有输出已保留。")}</p>}
           {active?.error && <p className="tr-error">{translateUI("失败原因：")}{translateUI(active.error.code)}</p>}
           {detail.recovery && <p className="tr-notice" role="status">{translateUI("故障分类：")}{translateUI(({ network: "网络故障", rate_limit: "服务限流", quota: "额度不足", session: "会话创建失败", process: "进程退出", format: "结果格式", evidence: "证据不足", authorization: "授权限制" } as Record<string,string>)[detail.recovery.category] || detail.recovery.category)}

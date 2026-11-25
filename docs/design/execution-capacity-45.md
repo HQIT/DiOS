@@ -38,7 +38,7 @@ SQLite 使用 `BEGIN IMMEDIATE`，PostgreSQL 使用控制域级事务 advisory l
 
 ## 运维接口
 
-本地可信管理命令沿用数据库运维权限。当前没有 Agent 工具或普通应用写接口。创建使用预期 revision `0`，后续修改要求当前 revision；每次修改保存原值、新值和来源 `trusted_local`，并与配置更新原子提交。
+本地可信管理命令沿用数据库运维权限；Console 使用现有操作员令牌管理额度。创建使用预期 revision `0`，后续修改要求当前 revision；每次修改保存原值、新值和来源（`trusted_local` 或 `operator_api`），并与配置更新原子提交。普通应用身份无额度管理权限。
 
 ```json
 {
@@ -61,6 +61,12 @@ python -m app.runtime.cli --scope local capacity status
 
 `status` 返回配置 revision、占位 Attempt 数、结果未知 Attempt 数、匹配的排队任务数、剩余额度和观测时间。占位数包含准备及未知状态；实际并发继续读取 `workers` 的进程与会话证据。多个额度匹配同一任务时，其排队数有重叠，不应求和作为总任务量。
 
+Console「任务」页提供共享额度面板，支持新增、修改和停用。中英文、Light/Dark/Auto 样式沿用全局设置。观测失败时显示最近数据并禁用修改，刷新恢复后才能继续操作；版本冲突需要重新选择最新额度。
+
+`GET /api/os/runtime/capacity` 返回额度观测，`PUT /api/os/runtime/capacity` 接收 `id`、`selector`、`max_concurrent`、`enabled` 和 `expected_revision`。两个接口仅允许现有操作员认证，应用身份返回 403；额外字段与非整数上限拒绝，响应不缓存。范围由服务器控制域确定。
+
+任务详情新增 `capacity`：排队时给出 `blocked`、`reason` 和 `limits`，其他状态为 null。操作员可看到阻塞额度及占位数；普通应用仅获得自己可读任务的阻塞布尔值和 `SHARED_CAPACITY_EXHAUSTED` 原因，`limits` 为空。额度变化不会增加任务 revision，Console 轮询仍会更新等待说明。额度可用只表明该门禁已通过，Worker 可用性、排空和熔断等条件继续生效。
+
 ## 升级与验收
 
 新增 `runtime_capacity_schema`、`runtime_capacity_limits`、`runtime_capacity_changes`，原有 schema 保持校验和不变。升级顺序为停止新领取、排空并确认执行、备份、停止旧执行器、显式迁移、切换全部执行器、恢复调度。旧版执行器不具备额度门禁，应在启用额度前全部切换。备份校验包含新表；回滚采用升级前备份及原程序，并保留切换后产生的数据供对账。
@@ -78,4 +84,6 @@ backend/.venv/bin/python scripts/qualify_runtime_capacity.py --postgres --output
 
 [实测记录](evidence/execution-capacity-20261125.json)包含 SQLite/PostgreSQL 原生执行结果、专项及回归测试、发布镜像与开发切换证据。物理跨主机部署仍需单独验收。
 
-后续工作包含共享额度管理 UI、可观测的排队阻塞原因、运行时长与调用频率限制、Token/金额预留与可靠用量核销，以及远端服务不提供成本硬限制时的准入策略。网络、凭据与工作区限制继续由现有执行配置和 E2AG 工具治理承担，完整 #45 验收仍需统一验证这些约束。
+[Console 与权限实测](evidence/execution-capacity-ui-20261125.json)覆盖中英文桌面、移动端、操作冲突、观测中断和应用身份隔离。
+
+后续工作包含运行时长与调用频率限制、Token/金额预留与可靠用量核销，以及远端服务不提供成本硬限制时的准入策略。网络、凭据与工作区限制继续由现有执行配置和 E2AG 工具治理承担，完整 #45 验收仍需统一验证这些约束。父子任务容量规划、企业身份的细分运维角色和物理跨主机验收继续按整体计划推进。

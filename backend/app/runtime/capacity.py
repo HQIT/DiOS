@@ -90,6 +90,56 @@ async def admit_query(c, scope, query):
     return query
 
 
+async def queue_status(c, scope, run, *, operator=False):
+    """Explain a visible queued Run without exposing other subjects' usage."""
+    if run["state"] != "queued":
+        return None
+    await require(c)
+    subject = (
+        await c.execute(
+            select(work.c.subject).where(
+                work.c.scope == scope, work.c.run_id == run["id"]
+            )
+        )
+    ).scalar_one_or_none()
+    rows = (
+        (
+            await c.execute(
+                select(limits)
+                .where(limits.c.scope == scope, limits.c.enabled.is_(True))
+                .order_by(limits.c.id)
+            )
+        )
+        .mappings()
+        .all()
+    )
+    blocked = []
+    for row in rows:
+        selector = row["selector"]
+        if selector["kind"] == "subject" and selector["subject"] != subject:
+            continue
+        if (
+            selector["kind"] == "profiles"
+            and run["input"].get("runtime_profile") not in selector["profiles"]
+        ):
+            continue
+        occupied, unknown = await occupancy(c, scope, selector)
+        if occupied >= row["max_concurrent"]:
+            blocked.append(
+                {
+                    "id": row["id"],
+                    "max_concurrent": row["max_concurrent"],
+                    "reserved_attempts": occupied,
+                    "unresolved_attempts": unknown,
+                }
+            )
+    return {
+        "blocked": bool(blocked),
+        "reason": "SHARED_CAPACITY_EXHAUSTED" if blocked else None,
+        "limits": blocked if operator else [],
+    }
+
+
 class Capacity:
     """Trusted local administration, using the existing DB authority boundary."""
 
@@ -97,9 +147,18 @@ class Capacity:
         self.store = store
 
     async def put(
-        self, limit_id, selector, max_concurrent, expected_revision, *, enabled=True
+        self,
+        limit_id,
+        selector,
+        max_concurrent,
+        expected_revision,
+        *,
+        enabled=True,
+        source="trusted_local",
     ):
         identifier(limit_id)
+        if source not in {"trusted_local", "operator_api"}:
+            raise RuntimeErrorCode("INVALID_CAPACITY_SOURCE")
         selector = validate_selector(selector)
         if (
             type(max_concurrent) is not int
@@ -159,7 +218,7 @@ class Capacity:
                     limit_id=limit_id,
                     revision=record["revision"],
                     record={
-                        "source": "trusted_local",
+                        "source": source,
                         "before": dict(old) if old else None,
                         "after": record,
                     },

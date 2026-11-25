@@ -36,6 +36,7 @@ export interface WorkAuthorization {
   decisions?: { id: string; action: string; created_at: number; outcome: string; reason_codes: string[] }[];
 }
 export interface RunDetail extends RunSummary {
+  capacity?: {blocked: boolean; reason: string | null; limits: {id: string; max_concurrent: number; reserved_attempts: number; unresolved_attempts: number}[]} | null;
   family?: { parent: { parent_run_id: string; parent_attempt_id: string; parent_session_id: string; parent_epoch: number; root_run_id: string; depth: number; root_limit: number; depth_limit: number } | null;
     children: { run_id: string; parent_attempt_id: string; state: string; cancel_requested: boolean }[]; parent_close_policy: "request_cancel" } | null;
   access?: string[];
@@ -46,6 +47,16 @@ export interface RunDetail extends RunSummary {
   events: { id: string; version: number; type: string; state: string; created_at: number }[];
 }
 export interface Preview { id: string; kind: string; text: string; markdown: string | null; size: number; digest: string; }
+export type CapacitySelector = {kind: "scope"} | {kind: "subject"; subject: string} | {kind: "profiles"; profiles: string[]};
+export interface CapacityLimit {
+  id: string; selector: CapacitySelector; max_concurrent: number; enabled: boolean; revision: number;
+  reserved_attempts: number; unresolved_attempts: number; queued_runs: number; available: number | null;
+}
+export const capacityApi = {
+  status: (signal?: AbortSignal) => request<{items: CapacityLimit[]; observed_at: number}>("/capacity", {signal}),
+  save: (row: {id: string; selector: CapacitySelector; max_concurrent: number; enabled: boolean; expected_revision: number}) =>
+    request<{id: string; revision: number}>("/capacity", {method: "PUT", body: JSON.stringify(row)}),
+};
 
 async function response(path: string, init?: RequestInit) {
   const result = await fetch(`${BASE}${path}`, { ...init, headers: authHeaders(init?.headers), cache: "no-store" });

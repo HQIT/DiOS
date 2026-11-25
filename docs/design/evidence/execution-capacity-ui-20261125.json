@@ -1,0 +1,140 @@
+{
+  "capability": "shared capacity Console and queue explanation",
+  "tests": {
+    "release_image": {
+      "passed": 34,
+      "skipped": 10,
+      "skip_reason": "PostgreSQL fixture disabled inside release image",
+      "log_sha256": "fbc8adc703070ef012d3a2cf5c8d593ef6fff7ff4428685039416d086b088614"
+    }
+  },
+  "browser": {
+    "browser": "Playwright; Browser plugin not available",
+    "api": "real isolated HTTP API; outage injected at transport",
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "theme": "light",
+        "create": true,
+        "edit": true,
+        "disable": true,
+        "revisionConflict": true,
+        "queueReasonRefresh": true,
+        "staleControlsDisabled": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "theme": "dark",
+        "create": true,
+        "edit": true,
+        "disable": true,
+        "revisionConflict": true,
+        "queueReasonRefresh": true,
+        "staleControlsDisabled": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "theme": "auto",
+        "create": true,
+        "edit": true,
+        "disable": true,
+        "revisionConflict": true,
+        "queueReasonRefresh": true,
+        "staleControlsDisabled": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      },
+      {
+        "principalPrivacy": true,
+        "managementHidden": true
+      }
+    ]
+  },
+  "frontend_build": {
+    "node": "25.1.0",
+    "passed": true
+  },
+  "image": {
+    "image": "sha256:655d2bc10c2f3e94a22a8416e1fa3a1fbdfcd0659a2d80b1dc6702ddcb2e252d",
+    "base": "sha256:73ed94f753038e50cd8f4d7117aa8a50a2158b7cf8e87351bc802867c9ac0be5",
+    "tag": "dios-backend:capacity-ui-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "deployment": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "changed": false
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_contract": {
+    "api_schema_parent_binding": true,
+    "delegation_schema_parent_binding": true,
+    "historical_detail_readable": true,
+    "visible_runs": 54,
+    "frontend_status": 200
+  },
+  "deployed_ui": {
+    "liveDevelopmentApi": true,
+    "unconfiguredLimitsVisible": true,
+    "createFormVisible": true,
+    "noConfigurationMutation": true,
+    "pageErrors": []
+  },
+  "source_sha256": {
+    "backend/app/runtime/capacity.py": "ace4f471f5b4abbafd4e3d573b2c94e7cdadaeff6569c9b9e70adc96d81035b0",
+    "backend/app/services/task_console.py": "71c334d87f1bf4a2ee33351ad6a03af16785d286d7ba1834d0a0a6a10cf63c57",
+    "backend/app/api/os/runtime_tasks.py": "da8ba1e5311da93a735e799de937ce2e00ce57a1b2115b0c8d1c1706ea233003",
+    "backend/tests/test_runtime_capacity_api.py": "b860ec6330e2069732c2f580577c1face6b602e049644044d65d85a236efdf05",
+    "frontend/src/api/runtime.ts": "564a7f87ad1e9be56b6d54d343264f9397e722e70ee74c1514280b8163409782",
+    "frontend/src/apps/console/components/CapacityPanel.tsx": "fad0c2561ba067066339359b6357de839a533bded0e5e7135697fd14cd8f212c",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "585e68c479a069d09ab959e05cc2d5b07d03bc7a4adc0d42325d05af3b73a1e3",
+    "frontend/src/apps/console/components/task-runs.css": "0ecfd92efe20e6f86d246d4a8ce06330eb6e85bcdf51eb7b9be4e6449540aa93",
+    "frontend/src/lib/messages.ts": "52a62a039f5a41f8f06ef55924cfcd013c21420c6935ea9a210baec9b2747483"
+  },
+  "remaining": [
+    "enterprise-specific administrative role mapping",
+    "runtime and rate budgets; reliable token and cost accounting",
+    "physical cross-host acceptance"
+  ]
+}

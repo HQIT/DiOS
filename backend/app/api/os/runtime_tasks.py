@@ -198,6 +198,30 @@ async def workers(s=Depends(service)):
 async def listing(limit:int=Query(30,ge=1,le=100),cursor:str|None=Query(None,max_length=512),s=Depends(service)):
     return await s.list(limit=limit,cursor=cursor)
 
+
+class CapacityUpdate(BaseModel):
+    model_config = ConfigDict(extra='forbid', strict=True)
+    id: str = Field(min_length=1,max_length=160)
+    selector: dict
+    max_concurrent: int = Field(ge=0,le=100000)
+    expected_revision: int = Field(ge=0)
+    enabled: bool = True
+
+
+@router.get('/capacity')
+async def capacity_status(s=Depends(service)):
+    if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
+    from app.runtime.capacity import Capacity
+    return await Capacity(s.store).status()
+
+
+@router.put('/capacity')
+async def capacity_update(body:CapacityUpdate,s=Depends(service)):
+    if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
+    from app.runtime.capacity import Capacity
+    return await Capacity(s.store).put(body.id,body.selector,body.max_concurrent,
+        body.expected_revision,enabled=body.enabled,source='operator_api')
+
 @router.post('/runs',status_code=202)
 async def submit(body:Submit,s=Depends(service)):
     return await s.submit(body.profile_id,body.sample_id,body.goal,body.idempotency_key,
