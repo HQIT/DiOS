@@ -1,5 +1,15 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "模型用量": "Model usage",
+  "输出": "Output",
+  "Agent 报告值，尚未与服务商账单核销。上下文占用不计作输入消耗；不同会话与单位不合计。": "Agent-reported values, not reconciled with provider billing. Context occupancy is separate from input consumption. Sessions and units are shown separately.",
+  "尚无用量报告，消耗与费用未知。": "No usage report yet. Consumption and cost are unknown.",
+  "用量报告无效，等待来源修正。": "Invalid usage report; awaiting a corrected source report.",
+  "上下文占用": "Context occupancy",
+  "会话累计费用": "Cumulative session cost",
+  "报告 Token（累计范围未确认）": "Reported tokens (aggregation scope unconfirmed)",
+  "报告总量": "Reported total",
+  "仅显示最近 100 项用量快照。": "Showing the latest 100 usage snapshots.",
   "不限": "Unlimited",
   "成功": "Succeeded",
   "失败": "Failed",

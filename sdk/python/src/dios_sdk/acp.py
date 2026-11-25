@@ -72,6 +72,7 @@ class AcpClient:
         self.tool_activity = {}
         self.native_tool_seen = False
         self.denials = 0
+        self.usage_sequence = 0
         self.reader = None
         self.stderr = None
         self.failure = None
@@ -158,6 +159,10 @@ class AcpClient:
                         record["status"] = update["status"]
                 else:
                     diagnostic("ACP_TOOL_ACTIVITY_UNVERIFIED")
+            if update.get("sessionUpdate") == "usage_update":
+                from .usage import usage_frame
+                self.usage_sequence += 1
+                self.emit(usage_frame(self.session_id,self.usage_sequence,"acp_session",update))
             if update.get("sessionUpdate") == "agent_message_chunk":
                 content = update.get("content", {})
                 if content.get("type") == "text":
@@ -491,6 +496,7 @@ async def execute(
     )
     peer = AcpClient(
         process,
+        emit_event=emit,
         tool_client=tool_client,
         client_read_tool=read_tool,
         permission_decoder=permission_decoder,
@@ -580,6 +586,10 @@ async def execute(
             {"sessionId": sid, "prompt": [{"type": "text", "text": prompt}]},
             timeout=timeout,
         )
+        if response.get("usage") is not None:
+            from .usage import usage_frame
+            peer.usage_sequence += 1
+            emit(usage_frame(sid,peer.usage_sequence,"acp_prompt",response["usage"]))
         if response.get("stopReason") != "end_turn":
             raise RuntimeErrorCode("RESULT_INCOMPLETE")
         if peer.native_tool_seen:

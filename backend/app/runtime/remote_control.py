@@ -167,7 +167,7 @@ class RemoteControl:
         if method=='heartbeat':return await s.heartbeat(*b)
         if method=='report':
             report=p['report']
-            if not isinstance(report,dict) or set(report)-{'sequence','phase','session_id','process_id','process_instance','remote','output','output_observed_at','authorization_epoch','output_excerpt'}:
+            if not isinstance(report,dict) or set(report)-{'sequence','phase','session_id','process_id','process_instance','remote','output','output_observed_at','authorization_epoch','output_excerpt','usage'}:
                 raise RuntimeErrorCode('INVALID_REPORT')
             return await s.report(*b,**report)
         if method=='observe':

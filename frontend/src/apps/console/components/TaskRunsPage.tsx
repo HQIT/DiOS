@@ -290,6 +290,14 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             <p>{translateUI("远端上下文：{0}", [active.remote_agent.context_id || translateUI("待确认")])}</p>
             {active.remote_agent.cancel_requested_at && !terminal(detail.state) && <p>{translateUI("取消请求已保存，等待远端确认。")}</p>}
           </div>}
+          {detail.model_usage && <section className="tr-notice tr-usage" aria-label={translateUI("模型用量")}>
+            <strong>{translateUI("模型用量")}</strong><p>{translateUI("Agent 报告值，尚未与服务商账单核销。上下文占用不计作输入消耗；不同会话与单位不合计。")}</p>
+            {!detail.model_usage.items.length && <p>{translateUI("尚无用量报告，消耗与费用未知。")}</p>}
+            {detail.model_usage.items.map(row => <div key={`${row.attempt_id}-${row.kind}`}><small>{row.session_id} · {row.attempt_id.slice(0,8)} · {time(row.recorded_at)}</small>
+              {row.quality === "invalid" ? <p>{translateUI("用量报告无效，等待来源修正。")}</p> : row.kind === "acp_session" ? <p>{translateUI("上下文占用")}: {String(row.values.used)}/{String(row.values.size)}{typeof row.values.cost === "object" && <> · {translateUI("会话累计费用")}: {row.values.cost.amount} {row.values.cost.unit}</>}</p> : <p>{translateUI("报告 Token（累计范围未确认）")}: {translateUI("输入")}: {String(row.values.inputTokens)} · {translateUI("输出")}: {String(row.values.outputTokens)} · {translateUI("报告总量")}: {String(row.values.totalTokens)}</p>}
+            </div>)}
+            {detail.model_usage.at_limit && <p>{translateUI("仅显示最近 100 项用量快照。")}</p>}
+          </section>}
           {detail.tool_budget && <p className="tr-notice">{translateUI("工具派发用量")}: {detail.tool_budget.committed}/{detail.tool_budget.maximum ?? translateUI("不限")} · {translateUI("成功")}: {detail.tool_budget.succeeded} · {translateUI("失败")}: {detail.tool_budget.failed} · {translateUI("待确认")}: {detail.tool_budget.unresolved}{detail.tool_budget.exhausted && ` · ${translateUI("工具预算已耗尽")}`}</p>}
           {detail.execution_budget && <p className="tr-notice">{translateUI("执行预算截止时间")}: {time(detail.execution_budget.deadline_at)}{!terminal(detail.state) && detail.execution_budget.exhausted && ` · ${translateUI("执行预算已到期，等待停止或恢复对账。")}`}</p>}
           {detail.state === "queued" && <p className="tr-notice" role="status">{translateUI(detail.capacity?.reason === "DISPATCH_RATE_LIMITED" ? "任务领取频率已达上限，等待时间窗口释放。" : detail.capacity?.blocked ? "共享执行额度暂满，等待已有任务结束或管理员调整。" : "任务已入队，等待对应 Agent 的 Worker 领取。")}

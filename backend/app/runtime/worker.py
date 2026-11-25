@@ -173,11 +173,12 @@ class Worker:
         bridge = JsonlBridge()
         sequence, phase, output_count = 0, 'claimed', 0
         last_receipt, code = None, None
-        async def report(next_phase, *, output=False):
+        usage_cursor = 0
+        async def report(next_phase, *, output=False, usage=None):
             nonlocal sequence, phase, last_receipt
             sequence += 1
             last_receipt = await enqueue_report(self.store, self.spool, binding, sequence, next_phase,
-                session_id=bridge.session_id, output=output,
+                session_id=bridge.session_id, output=output, usage=usage,
                 output_excerpt=bridge.output_excerpt if output else None,
                 output_observed_at=time.time() if output else None, authorization_epoch=a['authorization_epoch'])
             phase = next_phase
@@ -247,6 +248,11 @@ class Worker:
                             output_count = bridge.output_count
                     except RuntimeErrorCode as exc:
                         code = exc.code
+                    if phase!='creating_session':
+                        while usage_cursor < len(bridge.usage):
+                            batch=bridge.usage[usage_cursor:usage_cursor+16]
+                            await report(phase,usage=batch)
+                            usage_cursor+=len(batch)
                 if code and observation.alive:
                     observation = await self.adapter.stop(handle)
                     await observe(observation)

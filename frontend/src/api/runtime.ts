@@ -37,6 +37,7 @@ export interface WorkAuthorization {
 }
 export interface RunDetail extends RunSummary {
   capacity?: {blocked: boolean; reason: string | null; available_at?: number; limits: {id: string; reason?: string; available_at?: number; max_concurrent: number; reserved_attempts: number; unresolved_attempts: number}[]} | null;
+  model_usage?: {evidence_level: string; settlement: string; at_limit: boolean; items: Array<{attempt_id: string; session_id: string; sequence: number; kind: string; quality: string; values: Record<string, number | {amount: string; unit: string}>; recorded_at: number}>};
   tool_budget?: {maximum: number | null; committed: number; succeeded: number; failed: number; unresolved: number; remaining: number | null; exhausted: boolean} | null;
   execution_budget?: {started_at: number; deadline_at: number; remaining_seconds: number; exhausted: boolean} | null;
   family?: { parent: { parent_run_id: string; parent_attempt_id: string; parent_session_id: string; parent_epoch: number; root_run_id: string; depth: number; root_limit: number; depth_limit: number } | null;

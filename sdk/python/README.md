@@ -69,7 +69,7 @@ Persist separate issuance and submission idempotency keys. Cross-identity result
 return requires explicit `runtime.read_result` permission on the live parent's
 governed channel. [Recipient contract](../../docs/design/child-recipients-35.md).
 
-SDK 0.1.10 provides `await ToolChannelClient.children(wait_seconds=20)` and MCP
+SDK 0.1.10 and later provide `await ToolChannelClient.children(wait_seconds=20)` and MCP
 `dios_task_list`. Discovery returns at most 32 direct children of the current
 parent Attempt/Session/epoch, with lightweight status and no artifact payload.
 The SDK defaults to immediate observation; MCP defaults to a 20-second wait,
@@ -79,3 +79,15 @@ Empty waits still check the live parent and Worker identity. Use the same run ID
 with `child()` to read the verified result. The coordinator's `--receive-child`
 mode discovers externally admitted children; the application holds separate
 issuer/recipient clients and credentials. [Native handoff](../../docs/design/recipient-harnesses-35-58.md).
+
+## Agent-reported usage
+
+SDK 0.1.11 emits optional JSONL `usage` frames from ACP session usage updates and
+prompt-response token counters. Each frame binds the session and a stable local
+sequence. Context occupancy, cumulative session cost, and reported token counters
+remain separate; absent values remain unknown. Unknown metadata is excluded.
+
+Upgrade the DiOS controller and Worker before updating Harness images to this
+SDK: earlier JSONL bridges reject the new frame type. Existing Harness images
+continue to run and show unknown usage when they provide no reports.
+See [usage semantics and recovery](../../docs/design/model-usage-46.md).

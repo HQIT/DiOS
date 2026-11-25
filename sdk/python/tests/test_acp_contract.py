@@ -96,7 +96,8 @@ for line in sys.stdin:
  elif method=='session/new':r={'sessionId':'persistent-session'}
  else:
   print(json.dumps({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'persistent-session','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':'{"summary":"retained","evidence":["sample"]}'}}}}),flush=True)
-  r={'stopReason':'end_turn'}
+  print(json.dumps({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'persistent-session','update':{'sessionUpdate':'usage_update','used':200,'size':20000,'cost':{'amount':0.125,'currency':'USD'}}}}),flush=True)
+  r={'stopReason':'end_turn','usage':{'inputTokens':100,'outputTokens':20,'totalTokens':120}}
  print(json.dumps({'jsonrpc':'2.0','id':m['id'],'result':r}),flush=True)
 sys.exit(1)
 """,encoding='utf-8')
@@ -106,6 +107,10 @@ sys.exit(1)
                 code=await execute(config,'review',lambda value:value)
             self.assertEqual(code,2)
             self.assertEqual(events[-1]['type'],'result')
+            usage=[x for x in events if x['type']=='usage']
+            self.assertEqual([x['kind'] for x in usage],['acp_session','acp_prompt'])
+            self.assertEqual(usage[0]['values']['cost']['amount'],'0.125')
+            self.assertEqual(usage[1]['values']['inputTokens'],100)
             self.assertEqual(events[-1]['session_id'],'persistent-session')
             self.assertEqual(events[-1]['result']['summary'],'retained')
 

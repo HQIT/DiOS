@@ -9,6 +9,7 @@ class JsonlBridge:
         self.offset = 0
         self.session_id = None
         self.result = None
+        self.usage = []
         self.output_count = 0
         self.output_excerpt = ""
 
@@ -38,6 +39,11 @@ class JsonlBridge:
                 if message['text'].strip():
                     self.output_count += 1
                     self.output_excerpt = (self.output_excerpt + message['text'])[-2000:]
+            elif kind == 'usage' and self.session_id:
+                from .usage import validate
+                validate(message)
+                if message['session_id'] != self.session_id:raise RuntimeErrorCode('SESSION_CHANGED')
+                self.usage.append(message)
             elif kind == 'error':
                 from .faults import CATEGORIES
                 code=message.get('code')

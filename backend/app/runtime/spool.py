@@ -93,7 +93,7 @@ class ReportSpool:
         for value in (scope, run_id, attempt_id, worker_id, instance): identifier(value)
         if type(epoch) is not int or epoch < 1 or type(sequence) is not int or sequence < 1 or phase not in ACTIVE_ATTEMPTS:
             raise RuntimeErrorCode('INVALID_REPORT')
-        if set(detail) - {'session_id', 'process_id', 'process_instance', 'remote', 'output', 'output_observed_at', 'authorization_epoch', 'output_excerpt'}:
+        if set(detail) - {'session_id', 'process_id', 'process_instance', 'remote', 'output', 'output_observed_at', 'authorization_epoch', 'output_excerpt', 'usage'}:
             raise RuntimeErrorCode('INVALID_REPORT')
         if detail.get('output') and 'output_observed_at' not in detail:
             raise RuntimeErrorCode('OUTPUT_OBSERVATION_REQUIRED')

@@ -17,6 +17,7 @@ from .child_handoff_schema import metadata as handoff_metadata, CHECKSUM as HAND
 from .capacity_schema import metadata as capacity_metadata, CHECKSUM as CAPACITY_CHECKSUM
 from .execution_budget_schema import metadata as execution_budget_metadata, CHECKSUM as EXECUTION_BUDGET_CHECKSUM
 from .tool_budget_schema import metadata as tool_budget_metadata, CHECKSUM as TOOL_BUDGET_CHECKSUM
+from .usage_schema import metadata as usage_metadata, CHECKSUM as USAGE_CHECKSUM
 from .history_schema import metadata as history_metadata, CHECKSUM as HISTORY_CHECKSUM
 from .history_archive_schema import metadata as history_archive_metadata, CHECKSUM as HISTORY_ARCHIVE_CHECKSUM
 from .lifecycle_schema import metadata as lifecycle_metadata, CHECKSUM as LIFECYCLE_CHECKSUM
@@ -101,7 +102,8 @@ def _database_info(path):
             ('runtime_child_handoff_schema',handoff_metadata,HANDOFF_CHECKSUM),
             ('runtime_capacity_schema',capacity_metadata,CAPACITY_CHECKSUM),
             ('runtime_execution_budget_schema',execution_budget_metadata,EXECUTION_BUDGET_CHECKSUM),
-            ('runtime_tool_budget_schema',tool_budget_metadata,TOOL_BUDGET_CHECKSUM)]
+            ('runtime_tool_budget_schema',tool_budget_metadata,TOOL_BUDGET_CHECKSUM),
+            ('runtime_usage_schema',usage_metadata,USAGE_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
             raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')

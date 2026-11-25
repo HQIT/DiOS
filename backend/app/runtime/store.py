@@ -234,7 +234,7 @@ class RuntimeStore:
 
     async def report(self, run_id, attempt_id, worker_id, instance, epoch, sequence, phase,
                      *, session_id=None, process_id=None, process_instance=None, remote=None, output=False,
-                     output_observed_at=None, authorization_epoch=None, output_excerpt=None):
+                     output_observed_at=None, authorization_epoch=None, output_excerpt=None, usage=None):
         if not isinstance(sequence, int) or sequence < 1 or phase not in ACTIVE_ATTEMPTS:
             raise RuntimeErrorCode('INVALID_REPORT')
         if output_observed_at is not None and (type(output_observed_at) not in (int, float)
@@ -249,6 +249,11 @@ class RuntimeStore:
             if not output or not isinstance(output_excerpt,str) or len(output_excerpt)>2000:
                 raise RuntimeErrorCode('INVALID_REPORT')
             report['output_excerpt']=output_excerpt
+        if usage is not None:
+            if not isinstance(usage,list) or len(usage)>64:raise RuntimeErrorCode("INVALID_USAGE")
+            from .usage import validate
+            for value in usage:validate(value)
+            report["usage"]=usage
         bounded(report)
         async with self.db.transaction(self.scope) as c:
             run, a, now = await self._owned(c, run_id, attempt_id, worker_id, instance, epoch, authorize=True)
@@ -280,6 +285,9 @@ class RuntimeStore:
             if output:
                 observed = now if output_observed_at is None else min(output_observed_at, now)
                 changes['last_output_at'] = max(a['last_output_at'] or 0, observed)
+            if usage:
+                from .usage import record
+                await record(c,self.scope,run,dict(a,session_id=session_id or a['session_id']),usage,now,{'report_sequence':sequence})
             await c.execute(attempts.update().where(attempts.c.id == attempt_id).values(**changes))
             detail = {'attempt_id': attempt_id, 'phase': phase, 'sequence': sequence}
             if output_observed_at is not None: detail['output_observed_at'] = output_observed_at
@@ -388,6 +396,8 @@ class RuntimeStore:
             run['execution_budget']=await budget_view(c,self.scope,run_id,run['observed_at'])
             from .tool_budgets import view as tool_budget_view
             run['tool_budget']=await tool_budget_view(c,self.scope,run_id)
+            from .usage import view as usage_view
+            run['model_usage']=await usage_view(c,self.scope,run_id)
             from .child_authorizations import view as family_view
             run['family']=await family_view(c,self.scope,run_id)
             return run
@@ -499,8 +509,11 @@ class RuntimeStore:
         """Retain raw stdout/stderr even for failed/cancelled results; no success claim."""
         if kind not in {'stdout', 'stderr'}: raise RuntimeErrorCode('INVALID_OUTPUT_KIND')
         blob = provider.verify(key)
+        from .usage import extract,record
+        frames=await asyncio.to_thread(lambda:extract(b''.join(provider.read(key)))) if kind=='stdout' and blob.size<=16777216 else []
         async with self.db.transaction(self.scope) as c:
             run, a, now = await self._owned(c, *binding)
+            if frames and a['session_id']:await record(c,self.scope,run,a,frames,now,{'artifact_key':key})
             old = (await c.execute(select(artifacts.c.id).where(artifacts.c.attempt_id==a['id'],
                 artifacts.c.digest==blob.digest))).first()
             if old: return old[0]
@@ -576,6 +589,8 @@ class RuntimeStore:
                 if blobs['result'].size>65536:raise RuntimeErrorCode('EVIDENCE_INSUFFICIENT')
                 from .result_contract import validate_bytes
                 validate_bytes(snapshot['input'],b''.join(provider.read(result_key)))
+        from .usage import extract,record
+        frames=await asyncio.to_thread(lambda:extract(b''.join(provider.read(receipt['stdout'])))) if blobs['stdout'].size<=16777216 else []
         obs = receipt['observation']
         if obs['alive'] or obs['state'] not in {'exited', 'dead'} or not obs['process_instance']:
             raise RuntimeErrorCode('PROCESS_EXIT_NOT_CONFIRMED')
@@ -621,6 +636,8 @@ class RuntimeStore:
                     await c.execute(artifacts.insert().values(id=aid, run_id=run['id'], attempt_id=a['id'],
                         digest=blob.digest, size=blob.size, provider=provider.name, storage_key=blob.key, created_at=now))
                 linked[kind] = aid
+            if frames and session_id:
+                await record(c,self.scope,run,dict(a,session_id=session_id),frames,now,{'artifact_key':receipt['stdout'],'exit_receipt':digest(receipt)})
             remote = dict(a['remote'], runtime=dict(obs, adapter=a['remote']['launch']['adapter'], observed_at=now),
                 reconciliation=dict(receipt_digest=digest(receipt), original_epoch=a['epoch'],
                     authorization_epoch=a['authorization_epoch']))
