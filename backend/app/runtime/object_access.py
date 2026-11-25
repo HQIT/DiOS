@@ -191,6 +191,11 @@ class ObjectPolicies:
                     for g in row["grants"]
                 )
                 reason = "OBJECT_ACCESS_GRANTED" if allowed else "OBJECT_NOT_GRANTED"
+            from .object_lifetime import ObjectLifetime
+            lifetime = await ObjectLifetime(self.db, self.scope).effective(c, ref)
+            if allowed and lifetime['state'] != 'active':
+                allowed = False
+                reason = 'OBJECT_UNAVAILABLE'
             decision = Decision(
                 "object-access",
                 "allow" if allowed else "deny",

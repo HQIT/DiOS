@@ -1,0 +1,185 @@
+{
+  "work_item": "S02-1.03",
+  "status": "partial_engineering_verified",
+  "source_head": "b14edbedc8886600c5c803487b27b0287ccdee3c",
+  "delivered": [
+    "Exact-version minimum retention, optional expiration, durable tombstones, CAS and idempotency",
+    "Immediate read denial after expiration/deletion, including explicit derived_from ancestry",
+    "Original task/artifact identities and provenance retained; shared-digest independent objects remain readable",
+    "Unified/original download and governed child result paths share lifecycle checks",
+    "API, CLI, installed SDK 0.1.14; additive SQLite/PostgreSQL migration and backup restore"
+  ],
+  "remaining": [
+    "Physical collection with verified isolation from every writer",
+    "Complete live-reference marking across files, artifacts, archive, uploads, tool receipts and recovery materials",
+    "Collection interruption/replay and backup/restore after physical collection; same-digest re-publication integrity"
+  ],
+  "tests": {
+    "contracts": {
+      "modules": [
+        "test_runtime_object_lifetime",
+        "test_runtime_child_channel",
+        "test_runtime_child_recipients",
+        "test_runtime_object_access",
+        "test_object_client",
+        "test_runtime_objects",
+        "test_runtime_task_console",
+        "test_runtime_principals",
+        "test_runtime_recovery",
+        "test_installation_backup",
+        "test_installation_restore"
+      ],
+      "exit_code": 0,
+      "summary": "----------------------------------------------------------------------\nRan 111 tests in 118.075s\n\nOK (skipped=15)",
+      "total": 111,
+      "passed": 96,
+      "skipped": 15,
+      "seconds": 118.075,
+      "log_sha256": "59e16c576852f882e681e78c8484af2cc5c9ba3c68de155b2c3a526ecf535e8e"
+    },
+    "skip_reasons": {
+      "postgres_sqlite_backup_only": 2,
+      "requires_explicit_real_opa": 13
+    },
+    "affected_real_opa": {
+      "test": "ChildRecipientTests.test_result_return_requires_explicit_parent_permission_and_live_owner",
+      "passed": 1,
+      "seconds": 10.551,
+      "log_sha256": "cabe590ae1381803a4b1733e146381d6fd20b485e54139da6201963e19cd7b35"
+    },
+    "release_image": {
+      "image": "sha256:9f1f4966ae23735860e241be3b864866d40623ad4134e8e3a7da7a8c5085084d",
+      "base": "sha256:9a4c3dec4eea40e857ae02502818db5655b272bd12d70401c8e78ab2485e893c",
+      "network": "none",
+      "user": "65534:65534",
+      "summary": "Ran 20 tests in 21.926s\n\nOK (skipped=5)",
+      "total": 20,
+      "passed": 15,
+      "skipped": 5,
+      "seconds": 21.926
+    },
+    "installed_sdk": "isolated wheel installation and HTTP integrity contract passed",
+    "lint": "New object lifetime modules and tests Ruff F checks; git diff --check passed"
+  },
+  "development": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": true
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "live_api_cli_sdk": {
+    "sdk": "0.1.14",
+    "installed_wheel": true,
+    "refs": [
+      {
+        "kind": "file",
+        "id": "3565a84a-743a-4b36-a5ea-c360afaf961d",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "2add94d8-acfc-47d4-89a6-75f5fc744b70",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "993139d3-ae5d-4fdc-a2db-f664a100a8b3",
+        "version": 1
+      }
+    ],
+    "source_and_derived_download_status": [
+      404,
+      404
+    ],
+    "same_digest_independent_readable": true,
+    "api_cli_tombstone_agree": true,
+    "retention_revision": 1,
+    "original_cursor_run_preserved": "c1d03cff-e5cb-4bdb-af8d-55988805f2d9",
+    "original_cursor_artifact_preserved": "aa4aa52a-d5b7-469a-bf9f-5225c5e6827d",
+    "physical_collection": "not performed; retained",
+    "actual_clock_expiry": {
+      "ref": {
+        "kind": "file",
+        "id": "3cf1184b-d170-40ee-9680-13118f4f1823",
+        "version": 1
+      },
+      "before": "readable",
+      "after": 404,
+      "state": "expired"
+    }
+  },
+  "sdk_wheel_sha256": "a2aa34b971e77a163f8bf016b57f6823f6d4b29990903d78fa0ee7f6bd2bc8c3",
+  "source_sha256": {
+    "backend/app/api/os/runtime_objects.py": "54bbb6796056d41bd89151e528b6f138c5292544d9597c91ab40b74acc91a357",
+    "backend/app/runtime/cli.py": "f9811472a84c6badddc89c4ff2eab604717ecd4c62463ade8e177b9fca24f1d5",
+    "backend/app/runtime/database.py": "0c0eff7432cfaa23f30dade22036bdbf7d412a16c99e85d92a497f720a8555bd",
+    "backend/app/runtime/object_access.py": "56f3f064a6808e1e4d65684121bf8f8bf59f79dd821a468c3a33f555f5f2b4b9",
+    "backend/app/runtime/object_lifetime.py": "0a74003effb44091af007d8df1dd5acf0987e46b6fdfe2f80b9cf178f19a32d5",
+    "backend/app/runtime/object_lifetime_schema.py": "c18a83058227de958a18f03c44b284e96c10237c353f11223c5fba06f9b0a10c",
+    "backend/app/runtime/objects.py": "f8f965d2dd69cae22bcac748051759b26eccf8595c76d511f28396614262225b",
+    "backend/app/runtime/recovery.py": "b7ae1ee102ad47c7c32a923b837ab024176d17e8fab27091f6bcd2674460fc78",
+    "backend/app/services/child_tasks.py": "67d87bb5f601d565ed418fb170f9a28c4e98d78cca4d42aa5c37bc68037ba83e",
+    "backend/tests/test_runtime_object_lifetime.py": "8b8fb23dceaac71531df61d24e482ba4d824e907c20ac47637380e7e66fc2fc4",
+    "sdk/python/pyproject.toml": "a297c7046cc2778c2df6b09a1734d059cd4f20565974a00a4afe0f4ee859dda0",
+    "sdk/python/src/dios_sdk/__init__.py": "3c22c3b8674f2e40681ea3a8f09d7d19c91d3c8b8570ee324404a40d2c48ceea",
+    "sdk/python/src/dios_sdk/tasks.py": "08bb2b7ae775233b4c96eb055e218d69cd5f98e8b309a3d449fc4d24936ef144"
+  },
+  "design": "docs/design/object-lifetime-38.md",
+  "sources": [
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html",
+    "https://www.w3.org/TR/prov-dm/",
+    "https://distribution.github.io/distribution/about/garbage-collection/"
+  ],
+  "limits": [
+    "Tombstones and expiration deny application reads; underlying bytes are retained until physical collection is implemented and verified.",
+    "Propagation follows explicitly registered derived_from links; opaque external references do not propagate automatically.",
+    "Already delivered bytes cannot be recalled. Operational task history remains accessible under its existing permissions."
+  ]
+}

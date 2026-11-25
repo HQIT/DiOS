@@ -129,6 +129,12 @@ class Objects:
             if not external:await self._get(c,target)
             old=(await c.execute(select(links).where(links.c.scope==self.scope,links.c.id==link_id))).mappings().first()
             if old:return dict(old)
+            if relation=='derived_from' and not external:
+                from .object_lifetime import ObjectLifetime,ref_key
+                lifetime=ObjectLifetime(self.db,self.scope)
+                await lifetime.available(c,source)
+                effective=await lifetime.effective(c,target,forbidden=ref_key(source))
+                if effective['state']!='active':raise RuntimeErrorCode('NOT_FOUND')
             row={'scope':self.scope,'id':link_id,'source_kind':source['kind'],'source_id':source['id'],'source_version':source['version'],
                 'relation':relation,'target':target,'created_by':actor,'created_at':await self.db.now(c)}
             await c.execute(links.insert().values(**row))

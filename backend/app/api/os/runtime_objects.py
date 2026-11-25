@@ -10,6 +10,7 @@ from app.runtime.database import RuntimeErrorCode
 from app.runtime.objects import Objects, public, reference
 from app.runtime.object_access import ObjectPolicies
 from app.services.object_access import ObjectReader
+from app.runtime.object_lifetime import ObjectLifetime
 
 
 class FileVersion(BaseModel):
@@ -42,6 +43,21 @@ class ObjectPolicy(BaseModel):
     idempotency_key: str = Field(min_length=1, max_length=160)
 
 
+class ObjectRetention(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=160)
+    retain_until: float = Field(default=0, ge=0, allow_inf_nan=False)
+    expires_at: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+
+
+class ObjectDelete(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=160)
+    reason: str = Field(min_length=1, max_length=160)
+
+
 def operator_only(service):
     if service.principal is not None:
         raise RuntimeErrorCode("AUTH_OPERATOR_REQUIRED")
@@ -53,6 +69,41 @@ async def authorized(service, kind, object_id, version):
 
 def register(router, service):
     dependency = Depends(service)
+
+    @router.get("/objects/{kind}/{object_id}/versions/{version}/lifecycle")
+    async def object_lifecycle(kind: str, object_id: str, version: int, s=dependency):
+        operator_only(s)
+        return await ObjectLifetime(s.db, s.scope).show(
+            reference(kind, object_id, version)
+        )
+
+    @router.put("/objects/{kind}/{object_id}/versions/{version}/retention")
+    async def object_retention(
+        kind: str, object_id: str, version: int, body: ObjectRetention, s=dependency
+    ):
+        operator_only(s)
+        return await ObjectLifetime(s.db, s.scope).change(
+            reference(kind, object_id, version),
+            expected_revision=body.expected_revision,
+            key=body.idempotency_key,
+            actor="operator:runtime-api",
+            retain_until=body.retain_until,
+            expires_at=body.expires_at,
+        )
+
+    @router.post("/objects/{kind}/{object_id}/versions/{version}/delete")
+    async def object_delete(
+        kind: str, object_id: str, version: int, body: ObjectDelete, s=dependency
+    ):
+        operator_only(s)
+        return await ObjectLifetime(s.db, s.scope).change(
+            reference(kind, object_id, version),
+            expected_revision=body.expected_revision,
+            key=body.idempotency_key,
+            actor="operator:runtime-api",
+            delete=True,
+            reason=body.reason,
+        )
 
     @router.post("/objects/files")
     async def publish_file(body: FileVersion, s=dependency):

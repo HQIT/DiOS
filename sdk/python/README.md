@@ -103,3 +103,10 @@ Downloads verify the complete byte count and SHA-256 digest before returning.
 Authorization is exact-version; original task access still applies to artifacts.
 Follow `next_after` even when a filtered version page is empty.
 See [object access and revocation](../../docs/design/object-access-38.md).
+
+SDK 0.1.14 adds operator-only `object_lifecycle`, `retain_object` and
+`delete_object`. Retention and deletion use optimistic revisions and stable
+idempotency keys. Deletion blocks reads and preserves a tombstone; physical
+content collection is still pending. Explicit derivations become unavailable
+when their pinned source expires or is deleted. See
+[object lifecycle](../../docs/design/object-lifetime-38.md).

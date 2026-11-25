@@ -3110,7 +3110,7 @@
       "issue": 38,
       "title": "留存删除与引用完整性",
       "kind": "I",
-      "state": "todo",
+      "state": "in_progress",
       "requirements": [
         "S02-1-A02",
         "S02-1-A03"
@@ -3123,12 +3123,20 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "已有文件/产物关联及读取授权切片；统一对象版本、留存、删除与撤销一致性待补。",
+      "basis": "版本留存、删除标记、到期和显式派生失效已部署；继续完成底层内容物理回收、写入隔离和回收恢复一致性。",
       "existing_evidence": [
         "docs/design/evidence/capability-boundary-20261124.json",
         "docs/design/evidence/business-evidence-20261123.json"
       ],
-      "wave": "W2"
+      "wave": "W2",
+      "progress_evidence": [
+        "docs/design/evidence/object-lifetime-20261126.json"
+      ],
+      "remaining_work": [
+        "物理回收与所有写入方隔离",
+        "全来源引用标记与共享内容保护",
+        "回收中断重试、同摘要重新发布及备份恢复验证"
+      ]
     },
     {
       "id": "S02-1.04",

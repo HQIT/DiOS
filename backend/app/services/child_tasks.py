@@ -143,10 +143,15 @@ class ChildTasks:
             artifact=next((a for a in result['artifacts'] if a['kind']=='result'),None)
             if artifact is not None and artifact['size']<=65536:
                 blob=await console.artifact(run_id,artifact['id'])
-                value['result']=await asyncio.to_thread(lambda:json.loads(b''.join(self.gate.provider.read(blob['storage_key']))))
+                value['result']=json.loads(b''.join([chunk async for chunk in console.stream_artifact(run_id,blob)]))
         # Access and owner may change while object I/O or identity lookups wait.
         await self.channel._owner(wait=True)
         async with self.store.db.read(self.store.scope) as c:await self.own(c,run_id,read_result=True)
+        if 'result' in value:
+            from app.runtime.object_lifetime import ObjectLifetime
+            from app.runtime.objects import reference
+            async with self.store.db.read(self.store.scope) as c:
+                await ObjectLifetime(self.store.db,self.store.scope).available(c,reference('artifact',artifact['id']))
         await self.audit(GET,{'run_id':run_id,'wait_seconds':wait_seconds},run_id)
         return value
 

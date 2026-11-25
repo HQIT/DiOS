@@ -63,6 +63,12 @@ async def execute(args):
                 value=json.loads(raw)
                 return await manager.link(value['source'],value['relation'],value['target'],args.actor)
             ref=reference(args.kind,args.object_id,args.version)
+            if args.object_command in {'lifecycle','retain','delete'}:
+                from .object_lifetime import ObjectLifetime
+                lifecycle=ObjectLifetime(db,args.scope)
+                if args.object_command=='lifecycle':return await lifecycle.show(ref)
+                values={'delete':True,'reason':args.reason} if args.object_command=='delete' else {'retain_until':args.retain_until,'expires_at':args.expires_at}
+                return await lifecycle.change(ref,expected_revision=args.expected_revision,key=args.key,actor=args.actor,**values)
             if args.object_command in {'policy-show','policy-set'}:
                 from .object_access import ObjectPolicies
                 policies=ObjectPolicies(db,args.scope)
@@ -319,6 +325,14 @@ def main(argv=None):
         if name=='policy-set':
             for flag in ('file','key','actor'):op.add_argument('--'+flag,required=True)
             op.add_argument('--expected-revision',type=int,required=True)
+    for name in ('lifecycle','retain','delete'):
+        op=object_commands.add_parser(name);op.add_argument('kind',choices=['file','session','artifact']);op.add_argument('object_id')
+        op.add_argument('--version',type=int,default=1)
+        if name!='lifecycle':
+            for flag in ('key','actor'):op.add_argument('--'+flag,required=True)
+            op.add_argument('--expected-revision',type=int,required=True)
+        if name=='delete':op.add_argument('--reason',required=True)
+        if name=='retain':op.add_argument('--retain-until',type=float,default=0);op.add_argument('--expires-at',type=float)
     for name in ('show','versions','relations'):
         op=object_commands.add_parser(name);op.add_argument('kind',choices=['file','session','artifact']);op.add_argument('object_id')
         op.add_argument('--version',type=int,default=1)

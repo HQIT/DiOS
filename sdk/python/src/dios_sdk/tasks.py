@@ -52,6 +52,17 @@ class TaskClient:
     def object_policy(self, kind, object_id, version=1):
         return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/policy')
 
+    def object_lifecycle(self, kind, object_id, version=1):
+        return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/lifecycle')
+
+    def retain_object(self, kind, object_id, *, version=1, expected_revision, idempotency_key, retain_until=0, expires_at=None):
+        return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/retention',
+            method='PUT',body={'expected_revision':expected_revision,'idempotency_key':idempotency_key,'retain_until':retain_until,'expires_at':expires_at})
+
+    def delete_object(self, kind, object_id, *, version=1, expected_revision, idempotency_key, reason):
+        return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/delete',
+            method='POST',body={'expected_revision':expected_revision,'idempotency_key':idempotency_key,'reason':reason})
+
     def set_object_policy(self, kind, object_id, grants, *, version=1, expected_revision, idempotency_key):
         return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/policy',
             method='PUT',body={'grants':grants,'expected_revision':expected_revision,'idempotency_key':idempotency_key})
