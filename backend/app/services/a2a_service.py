@@ -561,6 +561,8 @@ async def cancel_task(db: AsyncSession, task_id: str) -> A2ATask:
 
 
 async def _cancel_task_locked(db: AsyncSession, task_id: str) -> A2ATask:
+    from app.services.managed_admission import assert_not_restoring
+    await assert_not_restoring(db)
     from app.models.tables import ManagedTaskExecution
     from app.services.managed_recovery import register
     task = await db.get(A2ATask, task_id)

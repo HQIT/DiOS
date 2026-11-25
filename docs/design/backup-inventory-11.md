@@ -72,3 +72,18 @@ backend/.venv/bin/python cli/dios runtime installation-verify /srv/backup/new-in
 PostgreSQL 的原生 `pg_dump` 支持并发访问下的一致导出；跨数据库、文件和 Worker 数据仍需平台恢复清单关联。[PostgreSQL 16 pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html)
 
 K02-3.01 的安装清单包含兼容服务库、必要 workspace 与 Worker spool，工程证据见 [安装备份验证](evidence/installation-backup-20261125.json)。K02-3.02 承接干净实例恢复和远端重认证，K02-3.03 承接升级、回退及恢复计时。恢复历史授权和补报记录后，须隔离原调度器并重新认证、对账，才可恢复执行或补报；备份校验本身不授予执行权限。
+
+## 安装级干净恢复
+
+```sh
+backend/.venv/bin/python cli/dios runtime installation-restore \
+  /srv/backup/new-installation /srv/dios-restored
+```
+
+目标目录必须不存在。命令校验全部备份内容后，恢复 Runtime、服务库、配置、工作目录和 spool。Runtime 与兼容服务均处于全局 `restore_hold`；普通 drain/resume、旧任务继续派发、工具授权、进程停止及后台自动对账均无法解除此状态。复制或迁移失败时不发布完整的 `installation-restore.json`，不覆盖原实例。
+
+已生效的 Worker 短期凭据和兼容服务工具 Grant 在副本中撤销，保留身份、历史和原关联。配置副本保持私有权限。兼容对象中的显式工作目录及配置路径映射到新目录；不可变 Runtime Revision 保留原摘要，重定位所需新 Revision 在启用前单独核对。
+
+补报保存在独立 `spools` 目录，保持原内容，不自动挂到正在工作的产物目录或发送。恢复清单记录映射、撤销数量、来源摘要及外部依赖。`--timeout` 控制文件捕获和最终发布的期限；已开始的数据库恢复会安全完成其当前步骤，超时后不发布安装级成功凭据。
+
+工程证据见[干净恢复与冻结](evidence/installation-restore-hold-20261125.json)。K02-3.02 的远端重新认证、源控制面隔离、完整结果对账和安全启用仍需联合验证，依据[恢复研究约束](recovery-research-11.md)推进。

@@ -135,6 +135,8 @@ async def _ensure_running(agent_id: str, db: AsyncSession) -> str:
 
 
 async def stop_agent(agent_id: str, db: AsyncSession) -> None:
+    from app.services.managed_admission import assert_not_restoring
+    await assert_not_restoring(db)
     runtime_handle = managed_runtime.handle("service", agent_id)
     async with managed_runtime.exclusive(runtime_handle):
         runtime = await db.get(AgentRuntime, agent_id)

@@ -87,6 +87,7 @@ async def interrupted(call_id, error):
 
 
 async def reconcile(call_id):
+    from app.services.managed_admission import assert_not_restoring
     from app.db.database import async_session
     from app.services import managed_service_results
     from app.services.e2ag_tool_gateway import revoke_task_grants
@@ -94,6 +95,7 @@ async def reconcile(call_id):
     try:
         async with managed_runtime.exclusive("service-call:" + call_id):  # noqa: SIM117 - keep lock and DB lifetimes explicit
             async with async_session() as db:
+                await assert_not_restoring(db)
                 owner = await db.get(ManagedServiceOwner, call_id)
                 call = await db.get(ManagedServiceCall, call_id)
                 if (

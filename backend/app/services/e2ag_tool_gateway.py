@@ -123,6 +123,8 @@ async def issue_task_mcp_config(
     In enforce mode, unmediated stdio/SSE servers are withheld. Other modes keep
     the original connection so ablation behavior remains explicit.
     """
+    from app.services.managed_admission import assert_not_restoring
+    await assert_not_restoring(db)
     mode = str(getattr(settings, "e2ag_mode", "enforce") or "enforce").lower()
     governance = (agent.capabilities or {}).get("governance", {})
     governance = governance if isinstance(governance, Mapping) else {}
@@ -207,6 +209,9 @@ async def validate_grant(
     grant_id: str,
     raw_token: str,
 ) -> tuple[E2AGToolGrant | None, str]:
+    from app.services.managed_admission import restoring
+    if await restoring(db):
+        return None, "RESTORE_RECONCILIATION_REQUIRED"
     grant = await db.get(E2AGToolGrant, grant_id)
     if grant is None or not raw_token or not secrets.compare_digest(grant.token_hash, hash_grant_token(raw_token)):
         return None, "TOOL_GRANT_INVALID"

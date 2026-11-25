@@ -23,6 +23,9 @@ async def execute(args):
     if args.command == 'installation-verify':
         from app.services.installation_backup import verify_installation
         return await asyncio.to_thread(verify_installation,args.bundle)
+    if args.command == 'installation-restore':
+        from app.services.installation_restore import restore_installation
+        return await restore_installation(args.bundle,args.destination,timeout=args.timeout)
     if args.command == 'restore': return await restore_sqlite(args.bundle,args.destination)
     if args.command=='remote-worker':
         from .remote_runtime import serve_remote
@@ -296,6 +299,8 @@ def main(argv=None):
     installation.add_argument('--plan',required=True);installation.add_argument('--destination',required=True)
     installation.add_argument('--timeout',type=float,default=120);installation.add_argument('--max-tree-bytes',type=int,default=1024**3)
     installation_verify=commands.add_parser('installation-verify');installation_verify.add_argument('bundle')
+    installation_restore=commands.add_parser('installation-restore');installation_restore.add_argument('bundle');installation_restore.add_argument('destination')
+    installation_restore.add_argument('--timeout',type=float,default=120)
     restore=commands.add_parser('restore',help='restore into a new directory with scheduling held')
     restore.add_argument('bundle');restore.add_argument('destination')
     upgrade=commands.add_parser('upgrade',help='persistent scope drain; active work finishes naturally')

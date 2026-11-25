@@ -2,6 +2,8 @@
 
 格式 3 支持显式配置文件、逐表摘要、逻辑引用校验和外部恢复依赖。命令与覆盖范围见[一致性备份清单](../design/backup-inventory-11.md)。
 
+包含兼容服务库、工作目录和 Worker spool 的实例使用 `runtime installation-backup` / `installation-restore`。安装级恢复将两层入口共同冻结，撤销副本内旧 Worker 凭据与工具 Grant；spool 保留待对账。详见[安装级干净恢复](../design/backup-inventory-11.md#安装级干净恢复)。
+
 [历史归档](../design/managed-history-10-30-32.md)登记的内容对象随恢复包校验、复制和恢复。缺失归档内容阻止发布完整备份；使用该组件后保留支持 runtime_history_archive_schema 的备份工具。
 
 含兼容 A2A、聊天共享服务与 Worker 的安装，使用[统一升级排空](../design/managed-upgrade-10-30.md)关闭全部执行入口并核对两侧状态。本文的 Runtime 命令只控制运行内核。

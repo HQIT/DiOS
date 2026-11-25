@@ -21,6 +21,7 @@ from app.models.tables import (
 from app.runtime.database import Database, RuntimeErrorCode
 from app.runtime.lifecycle import Lifecycle
 from app.services import managed_recovery, managed_runtime
+from app.services.managed_admission import assert_not_restoring, restoring
 
 _observations = set()
 
@@ -56,6 +57,8 @@ class Upgrade:
             mode, revision = (
                 (control.mode, control.revision) if control else ("running", 0)
             )
+            if await restoring(db):
+                mode = "restore_hold"
             calls = dict(
                 (
                     await db.execute(
@@ -194,6 +197,7 @@ class Upgrade:
                 async_session() as db,
             ):
                 row = await db.get(ManagedRuntimeControl, settings.runtime_scope)
+                await assert_not_restoring(db)
                 if row is None:
                     row = ManagedRuntimeControl(
                         scope=settings.runtime_scope, mode="draining", revision=1
@@ -231,6 +235,7 @@ class Upgrade:
                 async_session() as db,
             ):
                 row = await db.get(ManagedRuntimeControl, settings.runtime_scope)
+                await assert_not_restoring(db)
                 if not row or row.revision != revision or row.mode != "draining":
                     raise RuntimeErrorCode("VERSION_CONFLICT")
                 async with self.kernel_lifecycle() as kernel:

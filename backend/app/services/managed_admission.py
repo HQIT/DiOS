@@ -21,8 +21,23 @@ from app.services import managed_runtime
 _owner = ContextVar("managed_admission_owner", default=None)
 
 
+async def restoring(db):
+    held = await db.scalar(
+        select(ManagedRuntimeControl.scope)
+        .where(ManagedRuntimeControl.mode == "restore_hold")
+        .limit(1)
+    )
+    return held is not None
+
+
+async def assert_not_restoring(db):
+    if await restoring(db):
+        raise RuntimeErrorCode("RESTORE_RECONCILIATION_REQUIRED")
+
+
 @asynccontextmanager
 async def gate(db, *, admitted_task_id=None):
+    await assert_not_restoring(db)
     # Nested calls in the same fan-out retain one admission. Spawned tasks must
     # acquire independently, even though asyncio copies their context.
     if _owner.get() is asyncio.current_task():
@@ -78,6 +93,7 @@ async def begin_call(db, agent_id, *, task_id=None, owner_id=None):
 
 
 async def validate_call(db, call_id, agent_id):
+    await assert_not_restoring(db)
     call = await db.get(ManagedServiceCall, call_id)
     if (
         not call
@@ -93,6 +109,7 @@ async def dispatch(call_id):
     from app.db.database import async_session
 
     async with async_session() as db:
+        await assert_not_restoring(db)
         call = await db.get(ManagedServiceCall, call_id)
         if not call or call.scope != settings.runtime_scope or call.state != "active":
             raise RuntimeErrorCode("SERVICE_CALL_NOT_ACTIVE")

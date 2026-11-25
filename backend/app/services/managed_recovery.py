@@ -50,6 +50,7 @@ async def _record_error(task_id, error):
 
 
 async def reconcile(task_id):
+    from app.services.managed_admission import assert_not_restoring
     from app.db.database import async_session
     from app.services.a2a_service import (
         _cancel_task_locked,
@@ -58,6 +59,7 @@ async def reconcile(task_id):
     )
 
     async with async_session() as db:
+        await assert_not_restoring(db)
         execution = await db.get(ManagedTaskExecution, task_id)
         if execution is None or execution.scope != settings.runtime_scope:
             raise RuntimeErrorCode("MANAGED_EXECUTION_NOT_FOUND")
