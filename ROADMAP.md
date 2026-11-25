@@ -16,7 +16,7 @@
 
 [ADR 0011](docs/adr/0011-capability-only-platform-boundary.md) 明确：DiOS 仅承载通用能力；L2 业务平台与 L3 客户应用独立发布。组织/岗位、数字员工、业务 WorkItem、审批人路由与客户 UI 归外部产品。原 Issue 标识保留；混合任务按能力与业务拆分验收，见 [执行计划](docs/planning/project-plan.json) 的 product_scope、dios_scope、application_scope。
 
-当前目标是先完成既定 DiOS 能力。先解除应用依赖并固定应用接入契约，再推进主体/凭据/受控委派与对象权限，接续版本发布、Connector、跨 Agent 资格、能力治理和部署验收。业务管理模块不作为 DiOS 通用能力的前置依赖。
+当前目标是先完成既定 DiOS 能力。执行顺序和完成条件以 [能力交付 WBS](docs/planning/capability-wbs.md) 为准：先完成 #31 不可变版本与部署回滚，再交付 #11 备份恢复、#51 安装升级；后续按依赖完成对象/知识、能力包/预算和多节点容量。WBS 覆盖 19 张原生能力 Issue 与六张分层任务的能力部分，业务管理模块由独立上层产品交付。同一时间推进一个实现结果，按交付物、验证和评审分别报告进度。
 
 ## 1. 定位与建设原则
 

@@ -1,0 +1,3472 @@
+{
+  "schema_version": 1,
+  "scope": "DiOS 业务无关能力；包含 split-delivery 的能力部分",
+  "baseline_commit": "a4a3413",
+  "count_semantics": "本表统计待闭环工作项，类型是当前剩余工作的主类型；不表示相同工作量或全部尚未开发。现有证据是复用起点，completion_evidence 才是本项完成凭据。",
+  "control": {
+    "wbs": "docs/planning/capability-wbs.json",
+    "guide": "docs/planning/capability-wbs.md",
+    "implementation_wip_limit": 1,
+    "next_work_item": "K02-1.01",
+    "next_delivery": "K02-1.05",
+    "next_delivery_order": [
+      "K02-1.05",
+      "K02-3.03",
+      "D01-1.03"
+    ],
+    "progress_rule": "按工作项报告待实现、待验证、待评审及阻断；不按 Issue 勾选数计算产品百分比。工程验证与责任人接受分别记录。",
+    "change_rule": "新增项先绑定原验收；超出原范围单列变更影响和顺序，须经用户确认，不静默扩项。拆分保留旧 ID 与父子关系，统计叶项，分母变化单列。",
+    "stop_rule": "原验收通过即停止追加优化；发现阻断缺陷归原工作项，性能或观测增强移至候选后续，不进入当前分母。",
+    "cadence": "每个工作项完成或发生阻断时同步证据和状态；每个可部署交付后报告本批完成、总剩余、下一项及分母变化。",
+    "timebox": "每工作项最多一个工作周期再复核；连续两小时仍无可验证结果则披露阻断，按原范围拆分或转向已就绪项；不连续多轮只补观测细节。",
+    "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
+    "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
+    "deferred": [
+      "#46 诊断导出未验证 WIP 已保存在 git stash，待 K04-3.02 顺序到达后处理。"
+    ]
+  },
+  "waves": [
+    {
+      "id": "W1",
+      "title": "版本、恢复与可安装交付"
+    },
+    {
+      "id": "W2",
+      "title": "通用对象、知识与治理闭环"
+    },
+    {
+      "id": "W3",
+      "title": "包准入、资源、配置与应用契约"
+    },
+    {
+      "id": "W4",
+      "title": "共享部署、多节点与容量交付"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "F03-2-A01",
+      "parent": "F03-2",
+      "text": "三类参考路径均映射到相同内核与服务对象",
+      "work_items": [
+        "F03-2.01",
+        "F03-2.03"
+      ]
+    },
+    {
+      "id": "F03-2-A02",
+      "parent": "F03-2",
+      "text": "验收覆盖授权、人工复核、技术失败及成果",
+      "work_items": [
+        "F03-2.02",
+        "F03-2.03"
+      ]
+    },
+    {
+      "id": "F03-2-A03",
+      "parent": "F03-2",
+      "text": "新增场景可通过模板/扩展表达，不把参考样例作为行业范围上限",
+      "work_items": [
+        "F03-2.01"
+      ]
+    },
+    {
+      "id": "F03-2-A04",
+      "parent": "F03-2",
+      "text": "同一业务结果可由不同实现完成；包含不支持能力、断连、授权撤销、重复回调和人工接管",
+      "work_items": [
+        "F03-2.02",
+        "F03-2.03"
+      ]
+    },
+    {
+      "id": "F03-2-A05",
+      "parent": "F03-2",
+      "text": "评审设计中的十八项故障/一致性场景有可执行输入和预期结果；合成数据与生产运行隔离",
+      "work_items": [
+        "F03-2.02",
+        "F03-2.03"
+      ]
+    },
+    {
+      "id": "K01-1-A01",
+      "parent": "K01-1",
+      "text": "通用 OS 服务不依赖 Docker 类型分支",
+      "work_items": [
+        "K01-1.01",
+        "K01-1.02"
+      ]
+    },
+    {
+      "id": "K01-1-A02",
+      "parent": "K01-1",
+      "text": "service/task 生命周期、取消、故障和资源回收通过回归",
+      "work_items": [
+        "K01-1.01",
+        "K01-1.02"
+      ]
+    },
+    {
+      "id": "K01-1-A03",
+      "parent": "K01-1",
+      "text": "backend 测试和镜像构建通过；后续拓扑不依赖单机路径假设",
+      "work_items": [
+        "K01-1.01",
+        "K01-1.02"
+      ]
+    },
+    {
+      "id": "K01-1-A04",
+      "parent": "K01-1",
+      "text": "至少一种第三方本地 Harness 的启动配置可表达，厂商交互逻辑不进入容器生命周期服务",
+      "work_items": [
+        "K01-1.01",
+        "K01-1.02"
+      ]
+    },
+    {
+      "id": "K01-2-A01",
+      "parent": "K01-2",
+      "text": "控制面/Worker 重启不丢失已接受任务",
+      "work_items": [
+        "K01-2.01",
+        "K01-2.03",
+        "K01-2.04",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-2-A02",
+      "parent": "K01-2",
+      "text": "支持幂等的动作边界通过重复执行检查；远端结果未知先查询/对账，重试按已验证语义进行",
+      "work_items": [
+        "K01-2.01",
+        "K01-2.02",
+        "K01-2.04",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-2-A03",
+      "parent": "K01-2",
+      "text": "恢复、取消和重试状态明确且带审计证据",
+      "work_items": [
+        "K01-2.01",
+        "K01-2.03",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-2-A04",
+      "parent": "K01-2",
+      "text": "重连、重复/乱序事件与取消待确认不会错误结束 Run 或重复分派",
+      "work_items": [
+        "K01-2.01",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-2-A05",
+      "parent": "K01-2",
+      "text": "重复触发不重复规划/入队；子进程退出使悬挂 RPC 有界结束；重启/断网/限流恢复与旧所有者写入拒绝有证据",
+      "work_items": [
+        "K01-2.01",
+        "K01-2.02",
+        "K01-2.03",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-2-A06",
+      "parent": "K01-2",
+      "text": "查询超时不触发盲目重派；不完整/证据不足不计成功；drain 后自然结束并保存最终产物/水位",
+      "work_items": [
+        "K01-2.01",
+        "K01-2.03",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-2-A07",
+      "parent": "K01-2",
+      "text": "撤销与派发竞争按数据库提交顺序验收；结果未知先对账，恢复后单路试运行",
+      "work_items": [
+        "K01-2.02",
+        "K01-2.04",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-2-A08",
+      "parent": "K01-2",
+      "text": "同一 Workspace 的无关 Run 可并行；热点审批、撤销及旧 epoch 保持不变量，性能与故障证据分别记录",
+      "work_items": [
+        "K01-2.02",
+        "K01-2.04",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-2-A09",
+      "parent": "K01-2",
+      "text": "轻量实现验证公平有界写队列、饱和背压和混合查询尾延迟；多节点实现另验仲裁、旧主隔离与复制 RPO，保持同一治理契约",
+      "work_items": [
+        "K01-2.04",
+        "K01-2.05"
+      ]
+    },
+    {
+      "id": "K01-3-A01",
+      "parent": "K01-3",
+      "text": "测试 Connector 无需修改通用服务即可被调用",
+      "work_items": [
+        "K01-3.01"
+      ]
+    },
+    {
+      "id": "K01-3-A02",
+      "parent": "K01-3",
+      "text": "通用 Poll Runtime 无类型判断；单实例失败不阻塞其他 Connector",
+      "work_items": [
+        "K01-3.01"
+      ]
+    },
+    {
+      "id": "K01-3-A03",
+      "parent": "K01-3",
+      "text": "IMAP 回归、后端测试和镜像构建通过",
+      "work_items": [
+        "K01-3.01"
+      ]
+    },
+    {
+      "id": "K02-1-A01",
+      "parent": "K02-1",
+      "text": "Run 可追踪到受控配置、Adapter 版本及可获得的实现版本/摘要，不透明远端版本显式标记",
+      "work_items": [
+        "K02-1.01",
+        "K02-1.02",
+        "K02-1.04",
+        "K02-1.05"
+      ]
+    },
+    {
+      "id": "K02-1-A02",
+      "parent": "K02-1",
+      "text": "运行版本不会被后续配置编辑隐式改写",
+      "work_items": [
+        "K02-1.01",
+        "K02-1.02",
+        "K02-1.03",
+        "K02-1.05"
+      ]
+    },
+    {
+      "id": "K02-1-A03",
+      "parent": "K02-1",
+      "text": "失败部署可回滚至已知版本并保留审计",
+      "work_items": [
+        "K02-1.03",
+        "K02-1.05"
+      ]
+    },
+    {
+      "id": "K02-1-A04",
+      "parent": "K02-1",
+      "text": "端点升级触发兼容复核；配置回退与远端实现版本回退的支持范围分别显示",
+      "work_items": [
+        "K02-1.04",
+        "K02-1.05"
+      ]
+    },
+    {
+      "id": "K02-2-A01",
+      "parent": "K02-2",
+      "text": "旧数据迁移后核心 API 与关联记录可用",
+      "work_items": [
+        "K02-2.01"
+      ]
+    },
+    {
+      "id": "K02-2-A02",
+      "parent": "K02-2",
+      "text": "不兼容 Schema 被拒绝，有失败恢复路径",
+      "work_items": [
+        "K02-2.01"
+      ]
+    },
+    {
+      "id": "K02-2-A03",
+      "parent": "K02-2",
+      "text": "跨层实体与迁移独立，存储不依赖固定宿主路径",
+      "work_items": [
+        "K02-2.01"
+      ]
+    },
+    {
+      "id": "K02-2-A04",
+      "parent": "K02-2",
+      "text": "托管和远端运行引用迁移后可用，未知版本与缺失能力字段保留",
+      "work_items": [
+        "K02-2.01"
+      ]
+    },
+    {
+      "id": "K02-2-A05",
+      "parent": "K02-2",
+      "text": "大详情失败不阻断轻进度；重复/乱序同步不覆盖新状态；中文 UTF-8 跨块回读摘要一致",
+      "work_items": [
+        "K02-2.02"
+      ]
+    },
+    {
+      "id": "K02-2-A06",
+      "parent": "K02-2",
+      "text": "历史来源和原始关联保留，旧成功与新版验收区分，导入不会调用模型或重置历史",
+      "work_items": [
+        "K02-2.01",
+        "K02-2.02"
+      ]
+    },
+    {
+      "id": "K02-2-A07",
+      "parent": "K02-2",
+      "text": "后端替换通过同一原子操作/恢复契约；相同持久保证下比较性能、成本及许可，选型有实测依据",
+      "work_items": [
+        "K02-2.03"
+      ]
+    },
+    {
+      "id": "K02-2-A08",
+      "parent": "K02-2",
+      "text": "轻量实现验证公平有界写队列、饱和背压和混合查询尾延迟；多节点实现另验仲裁、旧主隔离与复制 RPO，保持同一治理契约",
+      "work_items": [
+        "K02-2.03"
+      ]
+    },
+    {
+      "id": "K02-3-A01",
+      "parent": "K02-3",
+      "text": "干净实例恢复配置、Agent、事件/Run、产物及关联",
+      "work_items": [
+        "K02-3.01",
+        "K02-3.02"
+      ]
+    },
+    {
+      "id": "K02-3-A02",
+      "parent": "K02-3",
+      "text": "在线备份一致性、Schema 版本和完整性验证明确",
+      "work_items": [
+        "K02-3.01",
+        "K02-3.02"
+      ]
+    },
+    {
+      "id": "K02-3-A03",
+      "parent": "K02-3",
+      "text": "完整演练记录恢复时间，升级/回滚交互可验证",
+      "work_items": [
+        "K02-3.03"
+      ]
+    },
+    {
+      "id": "K02-3-A04",
+      "parent": "K02-3",
+      "text": "恢复后远端引用重新认证并对账；外部不可恢复数据列入交付范围",
+      "work_items": [
+        "K02-3.02",
+        "K02-3.03"
+      ]
+    },
+    {
+      "id": "K03-1-A01",
+      "parent": "K03-1",
+      "text": "终端用户不能借共享管理员令牌扩大权限",
+      "work_items": [
+        "K03-1.01",
+        "K03-1.03",
+        "K03-1.04"
+      ]
+    },
+    {
+      "id": "K03-1-A02",
+      "parent": "K03-1",
+      "text": "伪造/过期身份、未授权资源和凭据访问被拒绝",
+      "work_items": [
+        "K03-1.01",
+        "K03-1.02",
+        "K03-1.03",
+        "K03-1.04"
+      ]
+    },
+    {
+      "id": "K03-1-A03",
+      "parent": "K03-1",
+      "text": "Secret 不进入普通配置响应、Prompt 或日志，撤销有回归",
+      "work_items": [
+        "K03-1.01",
+        "K03-1.02",
+        "K03-1.03",
+        "K03-1.04"
+      ]
+    },
+    {
+      "id": "K03-1-A04",
+      "parent": "K03-1",
+      "text": "第三方授权凭据生命周期与日志脱敏通过回归，不复用共享管理员账号代表终端用户",
+      "work_items": [
+        "K03-1.01",
+        "K03-1.02",
+        "K03-1.03",
+        "K03-1.04"
+      ]
+    },
+    {
+      "id": "K03-1-A05",
+      "parent": "K03-1",
+      "text": "跨主机越权、凭据撤销、日志脱敏与同摘要跨 ACL 读取均有回归",
+      "work_items": [
+        "K03-1.03",
+        "K03-1.04"
+      ]
+    },
+    {
+      "id": "K03-1-A06",
+      "parent": "K03-1",
+      "text": "撤销、换所有者或终态后续期失败；长任务续期不扩大权限",
+      "work_items": [
+        "K03-1.01",
+        "K03-1.04"
+      ]
+    },
+    {
+      "id": "K03-1-A07",
+      "parent": "K03-1",
+      "text": "900 秒 Grant 在原工作期限内自动续期；并发版本冲突、权限收窄和上游撤销通过真实凭据回归",
+      "work_items": [
+        "K03-1.01",
+        "K03-1.04"
+      ]
+    },
+    {
+      "id": "K03-2-A01",
+      "parent": "K03-2",
+      "text": "未授予工具及审批前副作用在执行边界被阻止",
+      "work_items": [
+        "K03-2.01",
+        "K03-2.02",
+        "K03-2.03"
+      ]
+    },
+    {
+      "id": "K03-2-A02",
+      "parent": "K03-2",
+      "text": "参数变化、审批过期和结果未知有明确处理",
+      "work_items": [
+        "K03-2.01",
+        "K03-2.02",
+        "K03-2.03"
+      ]
+    },
+    {
+      "id": "K03-2-A03",
+      "parent": "K03-2",
+      "text": "受管工作负载必须声明治理配置；兼容路径显式标记；API/CLI/Console 回归通过",
+      "work_items": [
+        "K03-2.01",
+        "K03-2.03"
+      ]
+    },
+    {
+      "id": "K03-2-A04",
+      "parent": "K03-2",
+      "text": "工具通知与强制执行证据分开记录；能力不足的端点被拒绝承接相应风险工作",
+      "work_items": [
+        "K03-2.01",
+        "K03-2.03"
+      ]
+    },
+    {
+      "id": "K03-2-A05",
+      "parent": "K03-2",
+      "text": "真实 Agent 无法写源码、运行业务构建/脚本或越权外发；拒绝事件和实际文件/网络证据一致",
+      "work_items": [
+        "K03-2.01",
+        "K03-2.03"
+      ]
+    },
+    {
+      "id": "K03-2-A06",
+      "parent": "K03-2",
+      "text": "缺少治理声明的受管任务拒绝准入；MCP/原生 Shell/文件/网络分别验证实际拒绝，兼容路径明确标识",
+      "work_items": [
+        "K03-2.01",
+        "K03-2.03"
+      ]
+    },
+    {
+      "id": "K03-2-A07",
+      "parent": "K03-2",
+      "text": "审批单次消费、撤销/派发事务竞争、原生工具拒绝和授权/审计故障暂停通过；恢复保留原任务身份",
+      "work_items": [
+        "K03-2.01",
+        "K03-2.02",
+        "K03-2.03"
+      ]
+    },
+    {
+      "id": "K03-2-A08",
+      "parent": "K03-2",
+      "text": "采用不同策略及存储机制时保持授权结果、审批单次消费、意图先持久化与撤销顺序；不降低治理保证获取性能",
+      "work_items": [
+        "K03-2.02",
+        "K03-2.03"
+      ]
+    },
+    {
+      "id": "K01-4-A01",
+      "parent": "K01-4",
+      "text": "A2A 任务与 ACP 会话适配通过协议契约测试，形成第三方实现连接样例；业务与治理联合验收由 K01-5 承接",
+      "work_items": [
+        "K01-4.02"
+      ]
+    },
+    {
+      "id": "K01-4-A02",
+      "parent": "K01-4",
+      "text": "会话/任务关联、权限请求、产物、断连重连、重复消息与取消确认有契约测试",
+      "work_items": [
+        "K01-4.01",
+        "K01-4.02"
+      ]
+    },
+    {
+      "id": "K01-4-A03",
+      "parent": "K01-4",
+      "text": "未支持能力显式返回；远端未知结果进入查询或对账，不自动扩大权限",
+      "work_items": [
+        "K01-4.01",
+        "K01-4.02"
+      ]
+    },
+    {
+      "id": "K01-4-A04",
+      "parent": "K01-4",
+      "text": "通用内核无厂商分支；版本兼容矩阵、数据外发与实际执行控制点有证据",
+      "work_items": [
+        "K01-4.02",
+        "K01-4.03"
+      ]
+    },
+    {
+      "id": "K01-4-A05",
+      "parent": "K01-4",
+      "text": "dsh resume 无历史重放等实现差异通过能力协商表达；A2A 标准符合性与 legacy 适配分别登记",
+      "work_items": [
+        "K01-4.01",
+        "K01-4.02"
+      ]
+    },
+    {
+      "id": "K01-4-A06",
+      "parent": "K01-4",
+      "text": "Cursor/dsh 等不同 Agent 的语义差异不会绕过实际工具网关或沙箱，未覆盖动作明确限制",
+      "work_items": [
+        "K01-4.03"
+      ]
+    },
+    {
+      "id": "K03-3-A01",
+      "parent": "K03-3",
+      "text": "跨部门与跨工作越权、委派提权被拒绝",
+      "work_items": [
+        "K03-3.02",
+        "K03-3.03"
+      ]
+    },
+    {
+      "id": "K03-3-A02",
+      "parent": "K03-3",
+      "text": "停用身份后新的受限动作无法执行，在途结果可解释",
+      "work_items": [
+        "K03-3.01",
+        "K03-3.02",
+        "K03-3.03"
+      ]
+    },
+    {
+      "id": "K03-3-A03",
+      "parent": "K03-3",
+      "text": "状态事件重复/乱序不破坏上层工作状态",
+      "work_items": [
+        "K03-3.01",
+        "K03-3.02",
+        "K03-3.03"
+      ]
+    },
+    {
+      "id": "K03-3-A04",
+      "parent": "K03-3",
+      "text": "撤销时限与可控制范围可追踪，界面和 API 不把取消请求等同于已停止",
+      "work_items": [
+        "K03-3.01",
+        "K03-3.02",
+        "K03-3.03"
+      ]
+    },
+    {
+      "id": "K03-3-A05",
+      "parent": "K03-3",
+      "text": "参数变化、会话替换、委派和并发不能扩大权限；不足有版本化扩展及回归证据",
+      "work_items": [
+        "K03-3.01",
+        "K03-3.02",
+        "K03-3.03"
+      ]
+    },
+    {
+      "id": "K03-3-A06",
+      "parent": "K03-3",
+      "text": "三层委托收窄、上游主体撤销传播、审批人资格变化及自审批拒绝通过",
+      "work_items": [
+        "K03-3.01",
+        "K03-3.02",
+        "K03-3.03"
+      ]
+    },
+    {
+      "id": "K04-1-A01",
+      "parent": "K04-1",
+      "text": "未准入/摘要变更/不兼容包无法受控部署",
+      "work_items": [
+        "K04-1.01",
+        "K04-1.02",
+        "K04-1.03",
+        "K04-1.05"
+      ]
+    },
+    {
+      "id": "K04-1-A02",
+      "parent": "K04-1",
+      "text": "包升级与回滚保留授权及版本证据",
+      "work_items": [
+        "K04-1.01",
+        "K04-1.03",
+        "K04-1.05"
+      ]
+    },
+    {
+      "id": "K04-1-A03",
+      "parent": "K04-1",
+      "text": "API、CLI、Console/上层目录信息一致，插件分发与后端部署解耦",
+      "work_items": [
+        "K04-1.04",
+        "K04-1.05"
+      ]
+    },
+    {
+      "id": "K04-1-A04",
+      "parent": "K04-1",
+      "text": "企业目录以已验证能力准入，外部实现升级/声明变化触发复核",
+      "work_items": [
+        "K04-1.02",
+        "K04-1.04",
+        "K04-1.05"
+      ]
+    },
+    {
+      "id": "K04-2-A01",
+      "parent": "K04-2",
+      "text": "并发调用不能超支或绕过网络/文件边界",
+      "work_items": [
+        "K04-2.01",
+        "K04-2.02",
+        "K04-2.03",
+        "K04-2.04"
+      ]
+    },
+    {
+      "id": "K04-2-A02",
+      "parent": "K04-2",
+      "text": "取消/超时/Worker 故障后额度正确恢复",
+      "work_items": [
+        "K04-2.01",
+        "K04-2.02",
+        "K04-2.04"
+      ]
+    },
+    {
+      "id": "K04-2-A03",
+      "parent": "K04-2",
+      "text": "最小权限与多节点一致性有回归",
+      "work_items": [
+        "K04-2.02",
+        "K04-2.03",
+        "K04-2.04"
+      ]
+    },
+    {
+      "id": "K04-2-A04",
+      "parent": "K04-2",
+      "text": "平台预算门禁可测试；远端无法硬限制的内部成本显式展示且限制任务准入",
+      "work_items": [
+        "K04-2.01",
+        "K04-2.03",
+        "K04-2.04"
+      ]
+    },
+    {
+      "id": "K04-3-A01",
+      "parent": "K04-3",
+      "text": "一次工作可追踪到版本、工具、知识来源和成果",
+      "work_items": [
+        "K04-3.01",
+        "K04-3.04"
+      ]
+    },
+    {
+      "id": "K04-3-A02",
+      "parent": "K04-3",
+      "text": "失败、审批与外部结果未知可解释",
+      "work_items": [
+        "K04-3.01",
+        "K04-3.02",
+        "K04-3.03"
+      ]
+    },
+    {
+      "id": "K04-3-A03",
+      "parent": "K04-3",
+      "text": "敏感数据不泄露；费用与用量准确且跨 Worker 关联",
+      "work_items": [
+        "K04-3.02",
+        "K04-3.03",
+        "K04-3.04"
+      ]
+    },
+    {
+      "id": "K04-3-A04",
+      "parent": "K04-3",
+      "text": "实测、远端报告、估算和未知证据可区分；缺失事件不冒充完整工具审计",
+      "work_items": [
+        "K04-3.01",
+        "K04-3.02",
+        "K04-3.04"
+      ]
+    },
+    {
+      "id": "K04-3-A05",
+      "parent": "K04-3",
+      "text": "模型长等待、调度器停摆和看板同步失败可分别定位；配置并发不冒充实际并发",
+      "work_items": [
+        "K04-3.02",
+        "K04-3.03",
+        "K04-3.04"
+      ]
+    },
+    {
+      "id": "K04-3-A06",
+      "parent": "K04-3",
+      "text": "可区分策略、协议、执行、存储瓶颈，形成可复算的治理性能与证据完整性报告",
+      "work_items": [
+        "K04-3.04"
+      ]
+    },
+    {
+      "id": "D01-1-A01",
+      "parent": "D01-1",
+      "text": "干净环境可按文档安装并完成受控任务",
+      "work_items": [
+        "D01-1.01",
+        "D01-1.02",
+        "D01-1.03",
+        "D01-1.04"
+      ]
+    },
+    {
+      "id": "D01-1-A02",
+      "parent": "D01-1",
+      "text": "升级和回滚保留配置、工作与必要产物",
+      "work_items": [
+        "D01-1.02",
+        "D01-1.04"
+      ]
+    },
+    {
+      "id": "D01-1-A03",
+      "parent": "D01-1",
+      "text": "CI 有可重复的最小端到端和镜像构建证据",
+      "work_items": [
+        "D01-1.03",
+        "D01-1.04"
+      ]
+    },
+    {
+      "id": "D01-1-A04",
+      "parent": "D01-1",
+      "text": "最小交付闭环包含 K01-5 的跨实现证据",
+      "work_items": [
+        "D01-1.02",
+        "D01-1.03",
+        "D01-1.04"
+      ]
+    },
+    {
+      "id": "D01-1-A05",
+      "parent": "D01-1",
+      "text": "交互终端与计划任务环境差异可诊断；运行中升级不强杀活跃任务、不重复派发、不丢产物",
+      "work_items": [
+        "D01-1.01",
+        "D01-1.02",
+        "D01-1.04"
+      ]
+    },
+    {
+      "id": "D01-2-A01",
+      "parent": "D01-2",
+      "text": "多个 Worker 读写同一任务与产物状态一致",
+      "work_items": [
+        "D01-2.01",
+        "D01-2.02",
+        "D01-2.03"
+      ]
+    },
+    {
+      "id": "D01-2-A02",
+      "parent": "D01-2",
+      "text": "从起步部署迁移后引用及权限保持正确",
+      "work_items": [
+        "D01-2.02"
+      ]
+    },
+    {
+      "id": "D01-2-A03",
+      "parent": "D01-2",
+      "text": "生产备份恢复在干净环境通过",
+      "work_items": [
+        "D01-2.01",
+        "D01-2.03"
+      ]
+    },
+    {
+      "id": "D01-3-A01",
+      "parent": "D01-3",
+      "text": "按约定故障模型与 RPO 恢复已接收任务，支持幂等的动作边界通过重复检查",
+      "work_items": [
+        "D01-3.01",
+        "D01-3.02",
+        "D01-3.03",
+        "D01-3.04"
+      ]
+    },
+    {
+      "id": "D01-3-A02",
+      "parent": "D01-3",
+      "text": "权限、预算和审计在多节点保持一致",
+      "work_items": [
+        "D01-3.01",
+        "D01-3.02",
+        "D01-3.03",
+        "D01-3.04"
+      ]
+    },
+    {
+      "id": "D01-3-A03",
+      "parent": "D01-3",
+      "text": "RPO/RTO、可用性及降级行为达到 F01-2 验收口径",
+      "work_items": [
+        "D01-3.01",
+        "D01-3.02",
+        "D01-3.03",
+        "D01-3.04"
+      ]
+    },
+    {
+      "id": "D01-3-A04",
+      "parent": "D01-3",
+      "text": "按声明幂等与恢复能力处理副作用，远端未知结果进入对账",
+      "work_items": [
+        "D01-3.01",
+        "D01-3.03",
+        "D01-3.04"
+      ]
+    },
+    {
+      "id": "D01-4-A01",
+      "parent": "D01-4",
+      "text": "单节点/多节点容量矩阵由实测支持",
+      "work_items": [
+        "D01-4.01",
+        "D01-4.03"
+      ]
+    },
+    {
+      "id": "D01-4-A02",
+      "parent": "D01-4",
+      "text": "瓶颈、降级、扩容与恢复有可重复结果",
+      "work_items": [
+        "D01-4.01",
+        "D01-4.02",
+        "D01-4.03"
+      ]
+    },
+    {
+      "id": "D01-4-A03",
+      "parent": "D01-4",
+      "text": "行业包交付可复用，范围可增加新行业",
+      "work_items": [
+        "D01-4.02",
+        "D01-4.03"
+      ]
+    },
+    {
+      "id": "D01-4-A04",
+      "parent": "D01-4",
+      "text": "混合托管/远端拓扑及协议/实现升级有兼容、故障和恢复证据",
+      "work_items": [
+        "D01-4.02",
+        "D01-4.03"
+      ]
+    },
+    {
+      "id": "D01-4-A05",
+      "parent": "D01-4",
+      "text": "并发 1/8/32/128、热点/长链/撤销负载、同步保证及资源预算一致；吞吐、长尾、恢复和单位成本可复现",
+      "work_items": [
+        "D01-4.01",
+        "D01-4.03"
+      ]
+    },
+    {
+      "id": "K01-5-A01",
+      "parent": "K01-5",
+      "text": "同一平台契约可驱动两个不同来源 Agent，业务/运行标识和成果关联完整",
+      "work_items": [
+        "K01-5.01",
+        "K01-5.03"
+      ]
+    },
+    {
+      "id": "K01-5-A02",
+      "parent": "K01-5",
+      "text": "未授权和审批拒绝在声明控制点阻止动作；远端内部不可见部分明确记录并限制任务准入",
+      "work_items": [
+        "K01-5.01",
+        "K01-5.03"
+      ]
+    },
+    {
+      "id": "K01-5-A03",
+      "parent": "K01-5",
+      "text": "托管恢复、远端取消待确认、重复事件及结果未知均有证据；固定版本、环境和兼容矩阵",
+      "work_items": [
+        "K01-5.02",
+        "K01-5.03"
+      ]
+    },
+    {
+      "id": "K01-5-A04",
+      "parent": "K01-5",
+      "text": "证据不足不成功、完整结果抢救不重复调用模型、观察超时不重派、旧 epoch 拒写和真实并发均有端到端证据",
+      "work_items": [
+        "K01-5.02",
+        "K01-5.03"
+      ]
+    },
+    {
+      "id": "K01-5-A05",
+      "parent": "K01-5",
+      "text": "允许动作有完整证据；拒绝不触发执行，执行后断连保留未知结果，不凭单元测试宣称第三方完整受控",
+      "work_items": [
+        "K01-5.01",
+        "K01-5.02",
+        "K01-5.03"
+      ]
+    },
+    {
+      "id": "K01-5-A06",
+      "parent": "K01-5",
+      "text": "两来源 Agent 的审批重放、旧 epoch、源码写入、原生执行、未授权外发和撤销均有实际拒绝证据",
+      "work_items": [
+        "K01-5.01",
+        "K01-5.03"
+      ]
+    },
+    {
+      "id": "S01-1-A01",
+      "parent": "S01-1",
+      "text": "可信发行方、受众、主体及受控代理验证通过 #33/#35",
+      "work_items": [
+        "K03-1.01",
+        "K03-1.02",
+        "K03-3.02"
+      ]
+    },
+    {
+      "id": "S01-1-A02",
+      "parent": "S01-1",
+      "text": "身份停用和撤销传播至实际能力边界；组织模型由外部系统拥有",
+      "work_items": [
+        "K03-3.01",
+        "K03-1.03",
+        "S02-1.02"
+      ]
+    },
+    {
+      "id": "S02-1-A01",
+      "parent": "S02-1",
+      "text": "不同主体间对象读取、会话和成果下载越权被拒绝",
+      "work_items": [
+        "S02-1.02",
+        "S02-1.04"
+      ]
+    },
+    {
+      "id": "S02-1-A02",
+      "parent": "S02-1",
+      "text": "授权、撤销、版本、留存和删除在 API 与实际存储读取路径一致",
+      "work_items": [
+        "S02-1.01",
+        "S02-1.02",
+        "S02-1.03",
+        "S02-1.04"
+      ]
+    },
+    {
+      "id": "S02-1-A03",
+      "parent": "S02-1",
+      "text": "外部业务对象只以不透明引用关联，Runtime 更换不丢失对象与证据关系",
+      "work_items": [
+        "S02-1.01",
+        "S02-1.03",
+        "S02-1.04"
+      ]
+    },
+    {
+      "id": "S02-2-A01",
+      "parent": "S02-2",
+      "text": "同一查询不同主体仅返回获准资源与可核验来源",
+      "work_items": [
+        "S02-2.01",
+        "S02-2.02",
+        "S02-2.03"
+      ]
+    },
+    {
+      "id": "S02-2-A02",
+      "parent": "S02-2",
+      "text": "更新、过期、撤销和删除按 Provider 契约传播至索引和缓存",
+      "work_items": [
+        "S02-2.01",
+        "S02-2.02",
+        "S02-2.03"
+      ]
+    },
+    {
+      "id": "S02-2-A03",
+      "parent": "S02-2",
+      "text": "替代 Provider 验证相同契约，不依赖项目或岗位实体",
+      "work_items": [
+        "S02-2.01",
+        "S02-2.02",
+        "S02-2.03"
+      ]
+    },
+    {
+      "id": "S03-1-A01",
+      "parent": "S03-1",
+      "text": "能力与运行配置编辑可审阅 diff，经 Schema/授权校验后发布",
+      "work_items": [
+        "S03-1.01",
+        "S03-1.02",
+        "S03-1.03"
+      ]
+    },
+    {
+      "id": "S03-1-A02",
+      "parent": "S03-1",
+      "text": "工具及 Harness 调用沿用 E2AG，无业务模型依赖",
+      "work_items": [
+        "S03-1.02",
+        "S03-1.03"
+      ]
+    },
+    {
+      "id": "S03-2-A01",
+      "parent": "S03-2",
+      "text": "版本化技术评测、能力准入、环境晋级及失败回滚可验证",
+      "work_items": [
+        "S03-2.01",
+        "S03-2.02"
+      ]
+    },
+    {
+      "id": "S03-2-A02",
+      "parent": "S03-2",
+      "text": "业务质量审批通过外部引用关联，不成为底座业务表",
+      "work_items": [
+        "S03-2.01",
+        "S03-2.02"
+      ]
+    },
+    {
+      "id": "A01-1-A01",
+      "parent": "A01-1",
+      "text": "新增任务类型不修改 DiOS，输入与结果按版本化契约校验",
+      "work_items": [
+        "A01-1.01",
+        "A01-1.02"
+      ]
+    },
+    {
+      "id": "A01-1-A02",
+      "parent": "A01-1",
+      "text": "独立应用包升级、停用和回滚不改变其他应用与既有运行历史",
+      "work_items": [
+        "A01-1.01",
+        "A01-1.02"
+      ]
+    },
+    {
+      "id": "A01-1-A03",
+      "parent": "A01-1",
+      "text": "两个兼容执行实现通过对应授权、版本与恢复验收",
+      "work_items": [
+        "A01-1.02"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "F03-2.01",
+      "parent": "F03-2",
+      "issue": 29,
+      "title": "参考场景与扩展契约映射",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "F03-2-A01",
+        "F03-2-A03"
+      ],
+      "deliverable": "三参考路径到统一对象/API 的追踪表和新任务类型样例",
+      "done_when": "合成数据跑通三路径；新增样例无需改内核，逐条关联输入与产物",
+      "verification": "合成数据跑通三路径；新增样例无需改内核，逐条关联输入与产物",
+      "dependencies": [
+        "A01-1.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有合成资料与跨 Harness 切片；三参考路径和十八场景的完整追踪尚未闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/business-evidence-20261123.json",
+        "docs/design/evidence/harness-governance-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "F03-2.02",
+      "parent": "F03-2",
+      "issue": 29,
+      "title": "十八项故障验收夹具",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "F03-2-A02",
+        "F03-2-A04",
+        "F03-2-A05"
+      ],
+      "deliverable": "逐场景可执行输入、预期状态和断言，复用通用故障夹具",
+      "done_when": "十八场景逐项执行；含不支持能力、断连、撤销、重复回调、人工接管和复核；生产运行无变更",
+      "verification": "十八场景逐项执行；含不支持能力、断连、撤销、重复回调、人工接管和复核；生产运行无变更",
+      "dependencies": [
+        "K01-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有合成资料与跨 Harness 切片；三参考路径和十八场景的完整追踪尚未闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/business-evidence-20261123.json",
+        "docs/design/evidence/harness-governance-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "F03-2.03",
+      "parent": "F03-2",
+      "issue": 29,
+      "title": "跨实现参考场景资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "F03-2-A01",
+        "F03-2-A02",
+        "F03-2-A04",
+        "F03-2-A05"
+      ],
+      "deliverable": "同一任务契约的两来源运行与成果证据",
+      "done_when": "固定版本重放代表路径；结果关联、技术失败与人工接管完整，差异可解释",
+      "verification": "固定版本重放代表路径；结果关联、技术失败与人工接管完整，差异可解释",
+      "dependencies": [
+        "F03-2.01",
+        "F03-2.02",
+        "K01-5.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有合成资料与跨 Harness 切片；三参考路径和十八场景的完整追踪尚未闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/business-evidence-20261123.json",
+        "docs/design/evidence/harness-governance-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K01-1.01",
+      "parent": "K01-1",
+      "issue": 10,
+      "title": "Docker 原条款资格收口",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-1-A01",
+        "K01-1-A02",
+        "K01-1-A03",
+        "K01-1-A04"
+      ],
+      "deliverable": "生命周期和第三方 Harness 的条款到测试映射",
+      "done_when": "核对现有镜像证据与通用服务无类型分支；取消、失败、回收及无固定宿主路径通过，变化部分才重测",
+      "verification": "核对现有镜像证据与通用服务无类型分支；取消、失败、回收及无固定宿主路径通过，变化部分才重测",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Docker 生命周期、服务恢复及镜像证据；剩余原条款闭环与评审。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-lifecycle-20261124.json",
+        "docs/design/evidence/managed-service-recovery-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K01-1.02",
+      "parent": "K01-1",
+      "issue": 10,
+      "title": "Docker 交付评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "K01-1-A01",
+        "K01-1-A02",
+        "K01-1-A03",
+        "K01-1-A04"
+      ],
+      "deliverable": "原四条验收与 G2 评审结论",
+      "done_when": "指定责任人核验版本、消费者和证据并签署结论；无新增功能要求",
+      "verification": "指定责任人核验版本、消费者和证据并签署结论；无新增功能要求",
+      "dependencies": [
+        "K01-1.01"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有 Docker 生命周期、服务恢复及镜像证据；剩余原条款闭环与评审。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-lifecycle-20261124.json",
+        "docs/design/evidence/managed-service-recovery-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K01-2.01",
+      "parent": "K01-2",
+      "issue": 30,
+      "title": "恢复与补报组合故障资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-2-A01",
+        "K01-2-A02",
+        "K01-2-A03",
+        "K01-2-A04",
+        "K01-2-A05",
+        "K01-2-A06"
+      ],
+      "deliverable": "重启/断网/乱序/进程退出/观察超时/完整结果抢救场景报告",
+      "done_when": "任务身份不变；不重复派发、不丢历史与最终产物；不完整结果不成功；悬挂 RPC 有界结束",
+      "verification": "任务身份不变；不重复派发、不丢历史与最终产物；不完整结果不成功；悬挂 RPC 有界结束",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有持久队列、定时、租约、spool、分类故障和恢复；组合故障与多主裁决尚未完整资格验证。",
+      "existing_evidence": [
+        "docs/design/evidence/remote-worker-regression-20261119.json",
+        "docs/design/evidence/fault-recovery-regression-20261119.json",
+        "docs/design/evidence/durable-run-schedules-20261124.json",
+        "docs/design/evidence/durable-subscription-schedules-20261124.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K01-2.02",
+      "parent": "K01-2",
+      "issue": 30,
+      "title": "并发恢复与 E2AG 裁决资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-2-A02",
+        "K01-2-A05",
+        "K01-2-A07",
+        "K01-2-A08"
+      ],
+      "deliverable": "限流/额度恢复、撤销派发竞争及公平并发记录",
+      "done_when": "单路试恢复成功后恢复并发；旧 epoch 拒写、无关 Run 并行，记录提交顺序和进程会话证据",
+      "verification": "单路试恢复成功后恢复并发；旧 epoch 拒写、无关 Run 并行，记录提交顺序和进程会话证据",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有持久队列、定时、租约、spool、分类故障和恢复；组合故障与多主裁决尚未完整资格验证。",
+      "existing_evidence": [
+        "docs/design/evidence/remote-worker-regression-20261119.json",
+        "docs/design/evidence/fault-recovery-regression-20261119.json",
+        "docs/design/evidence/durable-run-schedules-20261124.json",
+        "docs/design/evidence/durable-subscription-schedules-20261124.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K01-2.03",
+      "parent": "K01-2",
+      "issue": 30,
+      "title": "定时重叠与排空升级资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-2-A01",
+        "K01-2-A03",
+        "K01-2-A05",
+        "K01-2-A06"
+      ],
+      "deliverable": "定时重复触发、Worker drain 与机器重启闭环记录",
+      "done_when": "多次触发不重复规划；排空后自然结束，重启后游标和产物可核验",
+      "verification": "多次触发不重复规划；排空后自然结束，重启后游标和产物可核验",
+      "dependencies": [
+        "K02-1.03"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有持久队列、定时、租约、spool、分类故障和恢复；组合故障与多主裁决尚未完整资格验证。",
+      "existing_evidence": [
+        "docs/design/evidence/remote-worker-regression-20261119.json",
+        "docs/design/evidence/fault-recovery-regression-20261119.json",
+        "docs/design/evidence/durable-run-schedules-20261124.json",
+        "docs/design/evidence/durable-subscription-schedules-20261124.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K01-2.04",
+      "parent": "K01-2",
+      "issue": 30,
+      "title": "多节点运行语义资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-2-A01",
+        "K01-2-A02",
+        "K01-2-A07",
+        "K01-2-A08",
+        "K01-2-A09"
+      ],
+      "deliverable": "消费共享 HA 环境的任务/租约故障报告",
+      "done_when": "沿 D01-3 故障模型验证仲裁、旧主隔离、持久保证与任务恢复；复用一次基础设施建设",
+      "verification": "沿 D01-3 故障模型验证仲裁、旧主隔离、持久保证与任务恢复；复用一次基础设施建设",
+      "dependencies": [
+        "D01-3.03"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有持久队列、定时、租约、spool、分类故障和恢复；组合故障与多主裁决尚未完整资格验证。",
+      "existing_evidence": [
+        "docs/design/evidence/remote-worker-regression-20261119.json",
+        "docs/design/evidence/fault-recovery-regression-20261119.json",
+        "docs/design/evidence/durable-run-schedules-20261124.json",
+        "docs/design/evidence/durable-subscription-schedules-20261124.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "K01-2.05",
+      "parent": "K01-2",
+      "issue": 30,
+      "title": "运行任务结项评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "K01-2-A01",
+        "K01-2-A02",
+        "K01-2-A03",
+        "K01-2-A04",
+        "K01-2-A05",
+        "K01-2-A06",
+        "K01-2-A07",
+        "K01-2-A08",
+        "K01-2-A09"
+      ],
+      "deliverable": "九条验收和恢复限制的 G2 结论",
+      "done_when": "完整映射本项及 K02-2、D01-3 证据；无缺项后由指定责任人结项",
+      "verification": "完整映射本项及 K02-2、D01-3 证据；无缺项后由指定责任人结项",
+      "dependencies": [
+        "K01-2.01",
+        "K01-2.02",
+        "K01-2.03",
+        "K01-2.04",
+        "K02-2.03"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有持久队列、定时、租约、spool、分类故障和恢复；组合故障与多主裁决尚未完整资格验证。",
+      "existing_evidence": [
+        "docs/design/evidence/remote-worker-regression-20261119.json",
+        "docs/design/evidence/fault-recovery-regression-20261119.json",
+        "docs/design/evidence/durable-run-schedules-20261124.json",
+        "docs/design/evidence/durable-subscription-schedules-20261124.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "K01-3.01",
+      "parent": "K01-3",
+      "issue": 9,
+      "title": "Poll Connector 结项评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "K01-3-A01",
+        "K01-3-A02",
+        "K01-3-A03"
+      ],
+      "deliverable": "三条已验证验收的证据和 G2 结论",
+      "done_when": "核验现有 TLS IMAP、故障隔离、进程锁释放及镜像记录；符合原范围则关闭 Issue",
+      "verification": "核验现有 TLS IMAP、故障隔离、进程锁释放及镜像记录；符合原范围则关闭 Issue",
+      "dependencies": [],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "原三条验收已勾选，具备 IMAP/TLS/隔离及镜像证据；Issue 尚待结项审阅。",
+      "existing_evidence": [
+        "docs/design/evidence/connector-poll-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K02-1.01",
+      "parent": "K02-1",
+      "issue": 31,
+      "title": "不可变 Revision 持久模型",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K02-1-A01",
+        "K02-1-A02"
+      ],
+      "deliverable": "Revision schema/迁移/存储，固定配置与依赖摘要",
+      "done_when": "编辑原配置不改变历史 Revision；Prompt、模型、技能、工具、策略、镜像与 Adapter 均可追溯；Secret 仅存引用",
+      "verification": "编辑原配置不改变历史 Revision；Prompt、模型、技能、工具、策略、镜像与 Adapter 均可追溯；Secret 仅存引用",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Revision/Deployment 契约和兼容升级切片；缺少统一不可变版本与部署持久模型。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K02-1.02",
+      "parent": "K02-1",
+      "issue": 31,
+      "title": "运行绑定固定版本",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K02-1-A01",
+        "K02-1-A02"
+      ],
+      "deliverable": "提交、队列领取和 Run 到 Revision 的实际执行绑定",
+      "done_when": "排队后编辑配置、Worker 重启及并发部署仍执行所绑定版本；原记录兼容且不误派给不匹配 Worker",
+      "verification": "排队后编辑配置、Worker 重启及并发部署仍执行所绑定版本；原记录兼容且不误派给不匹配 Worker",
+      "dependencies": [
+        "K02-1.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Revision/Deployment 契约和兼容升级切片；缺少统一不可变版本与部署持久模型。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K02-1.03",
+      "parent": "K02-1",
+      "issue": 31,
+      "title": "Deployment 激活与失败回滚",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K02-1-A02",
+        "K02-1-A03"
+      ],
+      "deliverable": "期望/实际部署状态、健康门禁、排空及已知版本回滚",
+      "done_when": "新版本健康失败回退已知版本；活跃任务自然结束、审计完整，API/CLI/Console 状态一致",
+      "verification": "新版本健康失败回退已知版本；活跃任务自然结束、审计完整，API/CLI/Console 状态一致",
+      "dependencies": [
+        "K02-1.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Revision/Deployment 契约和兼容升级切片；缺少统一不可变版本与部署持久模型。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K02-1.04",
+      "parent": "K02-1",
+      "issue": 31,
+      "title": "外部实现升级兼容门禁",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K02-1-A01",
+        "K02-1-A04"
+      ],
+      "deliverable": "端点能力/版本快照、变更检测及重新资格状态",
+      "done_when": "声明变化触发复核；不透明实现标识明确；配置回退与远端实现可否回退分别可查询",
+      "verification": "声明变化触发复核；不透明实现标识明确；配置回退与远端实现可否回退分别可查询",
+      "dependencies": [
+        "K02-1.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Revision/Deployment 契约和兼容升级切片；缺少统一不可变版本与部署持久模型。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K02-1.05",
+      "parent": "K02-1",
+      "issue": 31,
+      "title": "版本发布端到端资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K02-1-A01",
+        "K02-1-A02",
+        "K02-1-A03",
+        "K02-1-A04"
+      ],
+      "deliverable": "API/CLI/Console 的版本、失败部署及回滚报告",
+      "done_when": "固定镜像和至少一外部 Harness 验证四条原验收，保留全部既有 Run/产物引用",
+      "verification": "固定镜像和至少一外部 Harness 验证四条原验收，保留全部既有 Run/产物引用",
+      "dependencies": [
+        "K02-1.03",
+        "K02-1.04"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Revision/Deployment 契约和兼容升级切片；缺少统一不可变版本与部署持久模型。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K02-2.01",
+      "parent": "K02-2",
+      "issue": 32,
+      "title": "迁移与历史导入完整性资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K02-2-A01",
+        "K02-2-A02",
+        "K02-2-A03",
+        "K02-2-A04",
+        "K02-2-A06"
+      ],
+      "deliverable": "旧版本迁移、拒绝不兼容及历史身份映射报告",
+      "done_when": "干净副本迁移失败可恢复；任务/尝试/会话/产物/未知字段保留，导入零模型调用",
+      "verification": "干净副本迁移失败可恢复；任务/尝试/会话/产物/未知字段保留，导入零模型调用",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有轻量后端公平队列、混合查询、导入和关联查询；多节点持久保证归 D01-3。",
+      "existing_evidence": [
+        "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
+        "docs/design/evidence/provider-correctness-20261111.json",
+        "docs/design/evidence/history-query-regression-20261111.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K02-2.02",
+      "parent": "K02-2",
+      "issue": 32,
+      "title": "轻进度与分块同步故障资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K02-2-A05",
+        "K02-2-A06"
+      ],
+      "deliverable": "重复/乱序/中断同步及中文跨块验证记录",
+      "done_when": "详情失败仍更新进度；过期写入拒绝；中文回读摘要一致且原始关联保留",
+      "verification": "详情失败仍更新进度；过期写入拒绝；中文回读摘要一致且原始关联保留",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有轻量后端公平队列、混合查询、导入和关联查询；多节点持久保证归 D01-3。",
+      "existing_evidence": [
+        "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
+        "docs/design/evidence/provider-correctness-20261111.json",
+        "docs/design/evidence/history-query-regression-20261111.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K02-2.03",
+      "parent": "K02-2",
+      "issue": 32,
+      "title": "存储契约统一资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K02-2-A07",
+        "K02-2-A08"
+      ],
+      "deliverable": "现有公平队列/混合查询证据与多节点契约对照",
+      "done_when": "同持久保证复核现有实验并复用 D01-3 仲裁/RPO 证据；无新缺陷不扩展后端选型实验",
+      "verification": "同持久保证复核现有实验并复用 D01-3 仲裁/RPO 证据；无新缺陷不扩展后端选型实验",
+      "dependencies": [
+        "D01-3.03"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有轻量后端公平队列、混合查询、导入和关联查询；多节点持久保证归 D01-3。",
+      "existing_evidence": [
+        "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
+        "docs/design/evidence/provider-correctness-20261111.json",
+        "docs/design/evidence/history-query-regression-20261111.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "K02-3.01",
+      "parent": "K02-3",
+      "issue": 11,
+      "title": "完整一致性备份清单",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K02-3-A01",
+        "K02-3-A02"
+      ],
+      "deliverable": "覆盖配置/版本/Run/委派/回执/产物的备份 manifest 与校验",
+      "done_when": "并发写入期间备份引用闭合；Schema、摘要、缺失及外部不可恢复数据可检测",
+      "verification": "并发写入期间备份引用闭合；Schema、摘要、缺失及外部不可恢复数据可检测",
+      "dependencies": [
+        "K02-1.03"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有恢复演练；需纳入新增版本、委派、工具回执与完整产物的一致性恢复。",
+      "existing_evidence": [
+        "docs/design/evidence/recovery-drill-20261111.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K02-3.02",
+      "parent": "K02-3",
+      "issue": 11,
+      "title": "干净恢复与远端再认证资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K02-3-A01",
+        "K02-3-A02",
+        "K02-3-A04"
+      ],
+      "deliverable": "空实例恢复和远端引用重新认证/对账演练",
+      "done_when": "对象、历史与授权关系完整；旧租约/凭据不误恢复为有效执行权，无重复外部动作",
+      "verification": "对象、历史与授权关系完整；旧租约/凭据不误恢复为有效执行权，无重复外部动作",
+      "dependencies": [
+        "K02-3.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有恢复演练；需纳入新增版本、委派、工具回执与完整产物的一致性恢复。",
+      "existing_evidence": [
+        "docs/design/evidence/recovery-drill-20261111.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K02-3.03",
+      "parent": "K02-3",
+      "issue": 11,
+      "title": "恢复与版本升级联动资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K02-3-A03",
+        "K02-3-A04"
+      ],
+      "deliverable": "安装升级回退的恢复计时及故障报告",
+      "done_when": "固定候选版本记录 RTO；升级失败后恢复可用，远端未知结果先对账",
+      "verification": "固定候选版本记录 RTO；升级失败后恢复可用，远端未知结果先对账",
+      "dependencies": [
+        "K02-3.02",
+        "K02-1.05"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有恢复演练；需纳入新增版本、委派、工具回执与完整产物的一致性恢复。",
+      "existing_evidence": [
+        "docs/design/evidence/recovery-drill-20261111.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K03-1.01",
+      "parent": "K03-1",
+      "issue": 33,
+      "title": "凭据轮换与身份源资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K03-1-A01",
+        "K03-1-A02",
+        "K03-1-A03",
+        "K03-1-A04",
+        "K03-1-A06",
+        "K03-1-A07"
+      ],
+      "deliverable": "真实凭据续期、轮换、OIDC/注销及撤销测试矩阵",
+      "done_when": "900 秒 Grant 续期不超原期限；版本冲突、收窄、换所有者、终态、上游撤销均按预期拒绝",
+      "verification": "900 秒 Grant 续期不超原期限；版本冲突、收窄、换所有者、终态、上游撤销均按预期拒绝",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 OIDC、Keycloak、OpenBao、续期及注销；企业环境/轮换/跨主机完整资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/worker-credential-renewal-20261113.json",
+        "docs/design/evidence/identity-provider-20261124.json",
+        "docs/design/evidence/backchannel-logout-live-20261124.json",
+        "docs/design/evidence/managed-secrets-20261124.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K03-1.02",
+      "parent": "K03-1",
+      "issue": 33,
+      "title": "Secret 跨平台交付补齐",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K03-1-A02",
+        "K03-1-A03",
+        "K03-1-A04"
+      ],
+      "deliverable": "无人值守依赖、Secret 引用/注入/轮换及 Windows ACL 配置",
+      "done_when": "受限身份无共享管理员提权；凭据不进 Prompt/日志/普通配置，计划任务环境可复现",
+      "verification": "受限身份无共享管理员提权；凭据不进 Prompt/日志/普通配置，计划任务环境可复现",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 OIDC、Keycloak、OpenBao、续期及注销；企业环境/轮换/跨主机完整资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/worker-credential-renewal-20261113.json",
+        "docs/design/evidence/identity-provider-20261124.json",
+        "docs/design/evidence/backchannel-logout-live-20261124.json",
+        "docs/design/evidence/managed-secrets-20261124.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K03-1.03",
+      "parent": "K03-1",
+      "issue": 33,
+      "title": "跨主机身份与对象权限资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K03-1-A01",
+        "K03-1-A02",
+        "K03-1-A03",
+        "K03-1-A04",
+        "K03-1-A05"
+      ],
+      "deliverable": "两主机主体/凭据/同摘要不同 ACL 测试报告",
+      "done_when": "撤销后实际读取及工具边界拒绝；网络与日志无明文凭据；同内容不同 ACL 不互相授权",
+      "verification": "撤销后实际读取及工具边界拒绝；网络与日志无明文凭据；同内容不同 ACL 不互相授权",
+      "dependencies": [
+        "D01-3.02",
+        "S02-1.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 OIDC、Keycloak、OpenBao、续期及注销；企业环境/轮换/跨主机完整资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/worker-credential-renewal-20261113.json",
+        "docs/design/evidence/identity-provider-20261124.json",
+        "docs/design/evidence/backchannel-logout-live-20261124.json",
+        "docs/design/evidence/managed-secrets-20261124.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "K03-1.04",
+      "parent": "K03-1",
+      "issue": 33,
+      "title": "身份与凭据安全评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "K03-1-A01",
+        "K03-1-A02",
+        "K03-1-A03",
+        "K03-1-A04",
+        "K03-1-A05",
+        "K03-1-A06",
+        "K03-1-A07"
+      ],
+      "deliverable": "完整身份生命周期的独立安全评审结论",
+      "done_when": "另一位合适评审人确认权限/轮换/撤销证据及残余风险；人选未定记录待认领",
+      "verification": "另一位合适评审人确认权限/轮换/撤销证据及残余风险；人选未定记录待认领",
+      "dependencies": [
+        "K03-1.01",
+        "K03-1.02",
+        "K03-1.03"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有 OIDC、Keycloak、OpenBao、续期及注销；企业环境/轮换/跨主机完整资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/worker-credential-renewal-20261113.json",
+        "docs/design/evidence/identity-provider-20261124.json",
+        "docs/design/evidence/backchannel-logout-live-20261124.json",
+        "docs/design/evidence/managed-secrets-20261124.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "K03-2.01",
+      "parent": "K03-2",
+      "issue": 34,
+      "title": "原生工具控制完整资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K03-2-A01",
+        "K03-2-A02",
+        "K03-2-A03",
+        "K03-2-A04",
+        "K03-2-A05",
+        "K03-2-A06",
+        "K03-2-A07"
+      ],
+      "deliverable": "MCP/Shell/文件/网络逐路径允许及拒绝证据",
+      "done_when": "两来源真实 Harness 验证参数变更、审批重放/过期、源码写入、构建和外发；副作用与拒绝记录一致",
+      "verification": "两来源真实 Harness 验证参数变更、审批重放/过期、源码写入、构建和外发；副作用与拒绝记录一致",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有实际执行控制点、审批和三种 Harness 拒绝证据；完整矩阵与安全评审未闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/approval-qualification-20261124.json",
+        "docs/design/evidence/harness-governance-20261125.json",
+        "docs/design/evidence/authorization-providers-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K03-2.02",
+      "parent": "K03-2",
+      "issue": 34,
+      "title": "E2AG 跨策略及故障资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K03-2-A01",
+        "K03-2-A02",
+        "K03-2-A07",
+        "K03-2-A08"
+      ],
+      "deliverable": "策略/存储替换及授权审计失效的裁决记录",
+      "done_when": "同一授权结果、单次审批、意图先持久化及撤销提交顺序；结果未知先对账，故障暂停后恢复原身份",
+      "verification": "同一授权结果、单次审批、意图先持久化及撤销提交顺序；结果未知先对账，故障暂停后恢复原身份",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有实际执行控制点、审批和三种 Harness 拒绝证据；完整矩阵与安全评审未闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/approval-qualification-20261124.json",
+        "docs/design/evidence/harness-governance-20261125.json",
+        "docs/design/evidence/authorization-providers-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K03-2.03",
+      "parent": "K03-2",
+      "issue": 34,
+      "title": "工具治理安全评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "K03-2-A01",
+        "K03-2-A02",
+        "K03-2-A03",
+        "K03-2-A04",
+        "K03-2-A05",
+        "K03-2-A06",
+        "K03-2-A07",
+        "K03-2-A08"
+      ],
+      "deliverable": "能力声明、兼容限制和执行边界评审",
+      "done_when": "核验 API/CLI/Console、各路径真实控制证据；能力不足端点准入拒绝，评审人确认",
+      "verification": "核验 API/CLI/Console、各路径真实控制证据；能力不足端点准入拒绝，评审人确认",
+      "dependencies": [
+        "K03-2.01",
+        "K03-2.02"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有实际执行控制点、审批和三种 Harness 拒绝证据；完整矩阵与安全评审未闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/approval-qualification-20261124.json",
+        "docs/design/evidence/harness-governance-20261125.json",
+        "docs/design/evidence/authorization-providers-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K01-4.01",
+      "parent": "K01-4",
+      "issue": 56,
+      "title": "活动会话恢复与能力协商补齐",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K01-4-A02",
+        "K01-4-A03",
+        "K01-4-A05"
+      ],
+      "deliverable": "ACP/A2A 恢复能力矩阵及受支持路径的连接恢复",
+      "done_when": "按已验证协议恢复；DSH 无历史重放等差异明确，未支持返回稳定错误且不自动重放未知动作",
+      "verification": "按已验证协议恢复；DSH 无历史重放等差异明确，未支持返回稳定错误且不自动重放未知动作",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 A2A 0.3、ACP 及 Cursor/DSH/Codex；活动恢复和能力差异需收口。",
+      "existing_evidence": [
+        "docs/design/evidence/a2a-runtime-20261125.json",
+        "docs/design/evidence/a2a-outbound-20261125.json",
+        "docs/design/evidence/a2a-recovery-20261125.json",
+        "docs/design/evidence/acp-sessions-20261125.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K01-4.02",
+      "parent": "K01-4",
+      "issue": 56,
+      "title": "协议兼容矩阵收口",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-4-A01",
+        "K01-4-A02",
+        "K01-4-A03",
+        "K01-4-A04",
+        "K01-4-A05"
+      ],
+      "deliverable": "固定协议/SDK/Harness 版本契约报告",
+      "done_when": "A2A 标准与 legacy 分开；重复消息、产物、权限、取消确认通过，通用内核无厂商分支",
+      "verification": "A2A 标准与 legacy 分开；重复消息、产物、权限、取消确认通过，通用内核无厂商分支",
+      "dependencies": [
+        "K01-4.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 A2A 0.3、ACP 及 Cursor/DSH/Codex；活动恢复和能力差异需收口。",
+      "existing_evidence": [
+        "docs/design/evidence/a2a-runtime-20261125.json",
+        "docs/design/evidence/a2a-outbound-20261125.json",
+        "docs/design/evidence/a2a-recovery-20261125.json",
+        "docs/design/evidence/acp-sessions-20261125.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K01-4.03",
+      "parent": "K01-4",
+      "issue": 56,
+      "title": "协议到实际控制点资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-4-A04",
+        "K01-4-A06"
+      ],
+      "deliverable": "各 Harness 协商声明到工具网关/沙箱的映射",
+      "done_when": "实际文件/网络/工具动作符合声明；未覆盖动作限制准入，与 K03-2 共用拒绝样例",
+      "verification": "实际文件/网络/工具动作符合声明；未覆盖动作限制准入，与 K03-2 共用拒绝样例",
+      "dependencies": [
+        "K01-4.02",
+        "K03-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 A2A 0.3、ACP 及 Cursor/DSH/Codex；活动恢复和能力差异需收口。",
+      "existing_evidence": [
+        "docs/design/evidence/a2a-runtime-20261125.json",
+        "docs/design/evidence/a2a-outbound-20261125.json",
+        "docs/design/evidence/a2a-recovery-20261125.json",
+        "docs/design/evidence/acp-sessions-20261125.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K03-3.01",
+      "parent": "K03-3",
+      "issue": 35,
+      "title": "跨来源撤销顺序与传播补齐",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K03-3-A02",
+        "K03-3-A03",
+        "K03-3-A04",
+        "K03-3-A05",
+        "K03-3-A06"
+      ],
+      "deliverable": "身份源/委派链事件收敛及可追踪撤销水位",
+      "done_when": "重复乱序事件不复活权限；撤销提交后的新动作拒绝，在途动作和取消待确认可解释",
+      "verification": "重复乱序事件不复活权限；撤销提交后的新动作拒绝，在途动作和取消待确认可解释",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有三层委派、子任务工具通道及跨 Harness；跨来源撤销顺序和完整资格仍待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/delegation-policy-20261124.json",
+        "docs/design/evidence/child-task-channel-20261125.json",
+        "docs/design/evidence/mixed-harness-children-20261125.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K03-3.02",
+      "parent": "K03-3",
+      "issue": 35,
+      "title": "三层委派与子任务资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K03-3-A01",
+        "K03-3-A02",
+        "K03-3-A03",
+        "K03-3-A04",
+        "K03-3-A05",
+        "K03-3-A06"
+      ],
+      "deliverable": "三层收窄、替换会话、并发与审批资格矩阵",
+      "done_when": "无越权/提权/自审批；上游停用传播实际边界，审批人资格变化生效；复用已有子任务与 Harness 夹具",
+      "verification": "无越权/提权/自审批；上游停用传播实际边界，审批人资格变化生效；复用已有子任务与 Harness 夹具",
+      "dependencies": [
+        "K03-3.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有三层委派、子任务工具通道及跨 Harness；跨来源撤销顺序和完整资格仍待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/delegation-policy-20261124.json",
+        "docs/design/evidence/child-task-channel-20261125.json",
+        "docs/design/evidence/mixed-harness-children-20261125.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K03-3.03",
+      "parent": "K03-3",
+      "issue": 35,
+      "title": "委派安全评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "K03-3-A01",
+        "K03-3-A02",
+        "K03-3-A03",
+        "K03-3-A04",
+        "K03-3-A05",
+        "K03-3-A06"
+      ],
+      "deliverable": "版本化委派契约及独立安全结论",
+      "done_when": "评审确认声明的传播时限、不可控制范围和事件语义，无未承接的越权风险",
+      "verification": "评审确认声明的传播时限、不可控制范围和事件语义，无未承接的越权风险",
+      "dependencies": [
+        "K03-3.02"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有三层委派、子任务工具通道及跨 Harness；跨来源撤销顺序和完整资格仍待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/delegation-policy-20261124.json",
+        "docs/design/evidence/child-task-channel-20261125.json",
+        "docs/design/evidence/mixed-harness-children-20261125.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "K04-1.01",
+      "parent": "K04-1",
+      "issue": 44,
+      "title": "包摘要与依赖锁定",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-1-A01",
+        "K04-1-A02"
+      ],
+      "deliverable": "版本化包 manifest、依赖解析/锁定和摘要校验",
+      "done_when": "摘要变化、循环/缺失/不兼容依赖拒绝部署；已运行版本依赖不漂移",
+      "verification": "摘要变化、循环/缺失/不兼容依赖拒绝部署；已运行版本依赖不漂移",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Registry UI、应用包及能力预检；依赖锁定与完整准入发布链尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json",
+        "docs/design/evidence/a2a-preflight-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-1.02",
+      "parent": "K04-1",
+      "issue": 44,
+      "title": "准入与来源复核",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-1-A01",
+        "K04-1-A04"
+      ],
+      "deliverable": "来源/许可/能力证据与准入状态、变更复核门禁",
+      "done_when": "未准入及能力声明变化包阻断受控部署，证据关联固定版本",
+      "verification": "未准入及能力声明变化包阻断受控部署，证据关联固定版本",
+      "dependencies": [
+        "K04-1.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Registry UI、应用包及能力预检；依赖锁定与完整准入发布链尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json",
+        "docs/design/evidence/a2a-preflight-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-1.03",
+      "parent": "K04-1",
+      "issue": 44,
+      "title": "包发布升级与回滚集成",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-1-A01",
+        "K04-1-A02"
+      ],
+      "deliverable": "Registry 到 Revision/Deployment 的升级回滚链",
+      "done_when": "失败回滚保持版本与授权证据；插件分发不强绑后端产品部署",
+      "verification": "失败回滚保持版本与授权证据；插件分发不强绑后端产品部署",
+      "dependencies": [
+        "K04-1.02",
+        "K02-1.05"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Registry UI、应用包及能力预检；依赖锁定与完整准入发布链尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json",
+        "docs/design/evidence/a2a-preflight-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-1.04",
+      "parent": "K04-1",
+      "issue": 44,
+      "title": "目录消费者同步",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-1-A03",
+        "K04-1-A04"
+      ],
+      "deliverable": "API、CLI、Console 和上层目录的统一查询/错误口径",
+      "done_when": "相同筛选返回一致版本、依赖、准入与限制；中英主题和浏览器显示通过",
+      "verification": "相同筛选返回一致版本、依赖、准入与限制；中英主题和浏览器显示通过",
+      "dependencies": [
+        "K04-1.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Registry UI、应用包及能力预检；依赖锁定与完整准入发布链尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json",
+        "docs/design/evidence/a2a-preflight-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-1.05",
+      "parent": "K04-1",
+      "issue": 44,
+      "title": "Registry 完整资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K04-1-A01",
+        "K04-1-A02",
+        "K04-1-A03",
+        "K04-1-A04"
+      ],
+      "deliverable": "安装、拒绝、升级、回滚与外部端点变化报告",
+      "done_when": "所有四条原标准逐项有固定版本证据，无未准入执行路径",
+      "verification": "所有四条原标准逐项有固定版本证据，无未准入执行路径",
+      "dependencies": [
+        "K04-1.03",
+        "K04-1.04",
+        "K01-4.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Registry UI、应用包及能力预检；依赖锁定与完整准入发布链尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json",
+        "docs/design/evidence/a2a-preflight-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-2.01",
+      "parent": "K04-2",
+      "issue": 45,
+      "title": "用量预留与结算补齐",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-2-A01",
+        "K04-2-A02",
+        "K04-2-A04"
+      ],
+      "deliverable": "token/金额预留、幂等结算及未知成本处理",
+      "done_when": "并发不超平台预算，取消故障不重复扣费/释放；远端无法硬控成本显式展示并限制准入",
+      "verification": "并发不超平台预算，取消故障不重复扣费/释放；远端无法硬控成本显式展示并限制准入",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有执行并发、时限及工具预算；金额/token 结算及组合边界待补。",
+      "existing_evidence": [
+        "docs/design/evidence/execution-capacity-20261125.json",
+        "docs/design/evidence/execution-budgets-20261125.json",
+        "docs/design/evidence/tool-dispatch-budgets-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-2.02",
+      "parent": "K04-2",
+      "issue": 45,
+      "title": "父子任务预算与等待容量",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-2-A01",
+        "K04-2-A02",
+        "K04-2-A03"
+      ],
+      "deliverable": "父子任务预算收窄、等待子任务及恢复后的资源计账",
+      "done_when": "子任务不绕过父级上限，等待无容量死锁，取消/超时/Worker 退出后账实一致",
+      "verification": "子任务不绕过父级上限，等待无容量死锁，取消/超时/Worker 退出后账实一致",
+      "dependencies": [
+        "K04-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有执行并发、时限及工具预算；金额/token 结算及组合边界待补。",
+      "existing_evidence": [
+        "docs/design/evidence/execution-capacity-20261125.json",
+        "docs/design/evidence/execution-budgets-20261125.json",
+        "docs/design/evidence/tool-dispatch-budgets-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-2.03",
+      "parent": "K04-2",
+      "issue": 45,
+      "title": "网络与文件策略组合",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-2-A01",
+        "K04-2-A03",
+        "K04-2-A04"
+      ],
+      "deliverable": "网络出口/工作区/挂载与工具预算的统一执行策略",
+      "done_when": "组合策略不能通过原生工具绕过；受支持 Adapter 实测，远端不可强制项明确限制",
+      "verification": "组合策略不能通过原生工具绕过；受支持 Adapter 实测，远端不可强制项明确限制",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有执行并发、时限及工具预算；金额/token 结算及组合边界待补。",
+      "existing_evidence": [
+        "docs/design/evidence/execution-capacity-20261125.json",
+        "docs/design/evidence/execution-budgets-20261125.json",
+        "docs/design/evidence/tool-dispatch-budgets-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-2.04",
+      "parent": "K04-2",
+      "issue": 45,
+      "title": "跨节点资源治理资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K04-2-A01",
+        "K04-2-A02",
+        "K04-2-A03",
+        "K04-2-A04"
+      ],
+      "deliverable": "消费 D01-3 环境的并发预算和故障回收报告",
+      "done_when": "多节点重复消费/失联/旧主均不超授权额度；同一账本关联实际用量",
+      "verification": "多节点重复消费/失联/旧主均不超授权额度；同一账本关联实际用量",
+      "dependencies": [
+        "K04-2.01",
+        "K04-2.02",
+        "K04-2.03",
+        "D01-3.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有执行并发、时限及工具预算；金额/token 结算及组合边界待补。",
+      "existing_evidence": [
+        "docs/design/evidence/execution-capacity-20261125.json",
+        "docs/design/evidence/execution-budgets-20261125.json",
+        "docs/design/evidence/tool-dispatch-budgets-20261125.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "K04-3.01",
+      "parent": "K04-3",
+      "issue": 46,
+      "title": "版本与来源的全链关联",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-3-A01",
+        "K04-3-A02",
+        "K04-3-A04"
+      ],
+      "deliverable": "Run/Revision/工具/知识来源/产物的跨 Worker 查询",
+      "done_when": "一次工作能查询完整证据链；缺失、估算、远端报告与实测分别显示",
+      "verification": "一次工作能查询完整证据链；缺失、估算、远端报告与实测分别显示",
+      "dependencies": [
+        "K02-1.05",
+        "S02-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有阶段、真实并发、吞吐、用量及调度健康；版本/来源全链关联和诊断交付待补。",
+      "existing_evidence": [
+        "docs/design/evidence/runtime-diagnostics-20261125.json",
+        "docs/design/evidence/runtime-overview-20261125.json",
+        "docs/design/evidence/model-usage-20261125.json",
+        "docs/design/evidence/scheduler-health-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-3.02",
+      "parent": "K04-3",
+      "issue": 46,
+      "title": "有界诊断导出与脱敏",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-3-A02",
+        "K04-3-A03",
+        "K04-3-A04",
+        "K04-3-A05"
+      ],
+      "deliverable": "受权限控制、限制大小的诊断包和读取入口",
+      "done_when": "越权与敏感字段拒绝/脱敏；长等待、调度停摆、同步失败可定位，完整结果不依赖大快照上传",
+      "verification": "越权与敏感字段拒绝/脱敏；长等待、调度停摆、同步失败可定位，完整结果不依赖大快照上传",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有阶段、真实并发、吞吐、用量及调度健康；版本/来源全链关联和诊断交付待补。",
+      "existing_evidence": [
+        "docs/design/evidence/runtime-diagnostics-20261125.json",
+        "docs/design/evidence/runtime-overview-20261125.json",
+        "docs/design/evidence/model-usage-20261125.json",
+        "docs/design/evidence/scheduler-health-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-3.03",
+      "parent": "K04-3",
+      "issue": 46,
+      "title": "监测部署与运维配置",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "K04-3-A02",
+        "K04-3-A03",
+        "K04-3-A05"
+      ],
+      "deliverable": "最小权限监测、指标留存和本地告警配置",
+      "done_when": "已有健康规则持续生效，读身份不能派发/改配置；不默认向外部渠道发消息",
+      "verification": "已有健康规则持续生效，读身份不能派发/改配置；不默认向外部渠道发消息",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有阶段、真实并发、吞吐、用量及调度健康；版本/来源全链关联和诊断交付待补。",
+      "existing_evidence": [
+        "docs/design/evidence/runtime-diagnostics-20261125.json",
+        "docs/design/evidence/runtime-overview-20261125.json",
+        "docs/design/evidence/model-usage-20261125.json",
+        "docs/design/evidence/scheduler-health-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "K04-3.04",
+      "parent": "K04-3",
+      "issue": 46,
+      "title": "证据完整性和瓶颈报告",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K04-3-A01",
+        "K04-3-A03",
+        "K04-3-A04",
+        "K04-3-A05",
+        "K04-3-A06"
+      ],
+      "deliverable": "可复算阶段耗时、实际并发、用量及缺失率报告",
+      "done_when": "政策/协议/执行/存储瓶颈可区分；费用复用 K04-2 结算证据，吞吐来自真实完成记录",
+      "verification": "政策/协议/执行/存储瓶颈可区分；费用复用 K04-2 结算证据，吞吐来自真实完成记录",
+      "dependencies": [
+        "K04-3.01",
+        "K04-3.02",
+        "K04-3.03",
+        "K04-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有阶段、真实并发、吞吐、用量及调度健康；版本/来源全链关联和诊断交付待补。",
+      "existing_evidence": [
+        "docs/design/evidence/runtime-diagnostics-20261125.json",
+        "docs/design/evidence/runtime-overview-20261125.json",
+        "docs/design/evidence/model-usage-20261125.json",
+        "docs/design/evidence/scheduler-health-20261125.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "D01-1.01",
+      "parent": "D01-1",
+      "issue": 51,
+      "title": "安装与无人值守环境清单",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "D01-1-A01",
+        "D01-1-A05"
+      ],
+      "deliverable": "干净安装步骤、依赖/PATH/代理/凭据与后台运行配置",
+      "done_when": "新环境能安装；终端和计划任务差异可诊断，Windows 后台无频繁弹窗",
+      "verification": "新环境能安装；终端和计划任务差异可诊断，Windows 后台无频繁弹窗",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有开发镜像与升级演练；固定候选版本的干净安装、CI 和交付验收待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json",
+        "docs/design/evidence/harness-governance-20261125.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "D01-1.02",
+      "parent": "D01-1",
+      "issue": 51,
+      "title": "干净安装与升级回退资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "D01-1-A01",
+        "D01-1-A02",
+        "D01-1-A04",
+        "D01-1-A05"
+      ],
+      "deliverable": "固定候选版本安装、跨 Harness 任务及运行中升级报告",
+      "done_when": "排空不强杀、不重派、不丢配置/历史/产物；失败回退可用，镜像摘要固定",
+      "verification": "排空不强杀、不重派、不丢配置/历史/产物；失败回退可用，镜像摘要固定",
+      "dependencies": [
+        "K02-1.05",
+        "K02-3.03",
+        "K01-5.02",
+        "D01-1.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有开发镜像与升级演练；固定候选版本的干净安装、CI 和交付验收待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json",
+        "docs/design/evidence/harness-governance-20261125.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "D01-1.03",
+      "parent": "D01-1",
+      "issue": 51,
+      "title": "最小交付 CI",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "D01-1-A01",
+        "D01-1-A03",
+        "D01-1-A04"
+      ],
+      "deliverable": "可重复镜像构建和最小端到端工作流",
+      "done_when": "干净 runner 上构建/安装/受控任务/恢复通过；真实模型资格证据与 CI 可重复部分分别标记",
+      "verification": "干净 runner 上构建/安装/受控任务/恢复通过；真实模型资格证据与 CI 可重复部分分别标记",
+      "dependencies": [
+        "D01-1.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有开发镜像与升级演练；固定候选版本的干净安装、CI 和交付验收待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json",
+        "docs/design/evidence/harness-governance-20261125.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "D01-1.04",
+      "parent": "D01-1",
+      "issue": 51,
+      "title": "安装交付 G3 评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "D01-1-A01",
+        "D01-1-A02",
+        "D01-1-A03",
+        "D01-1-A04",
+        "D01-1-A05"
+      ],
+      "deliverable": "候选版本发布清单与残余问题接受记录",
+      "done_when": "发布责任人确认安装升级恢复和跨实现证据；工程通过与用户验收分别记录",
+      "verification": "发布责任人确认安装升级恢复和跨实现证据；工程通过与用户验收分别记录",
+      "dependencies": [
+        "D01-1.03",
+        "K01-5.03",
+        "K01-1.02",
+        "K03-2.03"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有开发镜像与升级演练；固定候选版本的干净安装、CI 和交付验收待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/managed-upgrade-20261124.json",
+        "docs/design/evidence/harness-governance-20261125.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "D01-2.01",
+      "parent": "D01-2",
+      "issue": 52,
+      "title": "共享持久服务部署方案",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "D01-2-A01",
+        "D01-2-A03"
+      ],
+      "deliverable": "生产候选 DB/队列/对象存储的配置与恢复文档",
+      "done_when": "多 Worker 共享状态和对象；凭据/权限/备份明确；选型优先成熟组件并记录许可，不重新无界跑分",
+      "verification": "多 Worker 共享状态和对象；凭据/权限/备份明确；选型优先成熟组件并记录许可，不重新无界跑分",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Provider 契约与局部数据库验证；生产共享存储部署与迁移尚未交付。",
+      "existing_evidence": [
+        "docs/design/evidence/provider-correctness-20261111.json",
+        "docs/design/evidence/recovery-drill-20261111.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-2.02",
+      "parent": "D01-2",
+      "issue": 52,
+      "title": "起步数据与引用迁移资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "D01-2-A01",
+        "D01-2-A02"
+      ],
+      "deliverable": "在副本上迁移任务/对象/权限与幂等校验报告",
+      "done_when": "原身份和引用保留，无模型调用、无历史重置；验收不接管现有生产评审",
+      "verification": "原身份和引用保留，无模型调用、无历史重置；验收不接管现有生产评审",
+      "dependencies": [
+        "D01-2.01",
+        "K02-2.01",
+        "S02-1.04"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Provider 契约与局部数据库验证；生产共享存储部署与迁移尚未交付。",
+      "existing_evidence": [
+        "docs/design/evidence/provider-correctness-20261111.json",
+        "docs/design/evidence/recovery-drill-20261111.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-2.03",
+      "parent": "D01-2",
+      "issue": 52,
+      "title": "共享后端干净恢复资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "D01-2-A01",
+        "D01-2-A03"
+      ],
+      "deliverable": "共享部署的备份恢复及多 Worker 读写报告",
+      "done_when": "空环境恢复后状态一致，权限和产物校验通过；产物存储恢复与数据库一致",
+      "verification": "空环境恢复后状态一致，权限和产物校验通过；产物存储恢复与数据库一致",
+      "dependencies": [
+        "D01-2.02",
+        "K02-3.03"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有 Provider 契约与局部数据库验证；生产共享存储部署与迁移尚未交付。",
+      "existing_evidence": [
+        "docs/design/evidence/provider-correctness-20261111.json",
+        "docs/design/evidence/recovery-drill-20261111.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-3.01",
+      "parent": "D01-3",
+      "issue": 53,
+      "title": "控制面 HA 与旧主隔离",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "D01-3-A01",
+        "D01-3-A02",
+        "D01-3-A03",
+        "D01-3-A04"
+      ],
+      "deliverable": "共享后端上的领导权/租约/fencing、故障接管及降级实现",
+      "done_when": "旧主不能提交授权或任务状态；故障模型/RPO 可配置且符合已接受契约，未知副作用先对账",
+      "verification": "旧主不能提交授权或任务状态；故障模型/RPO 可配置且符合已接受契约，未知副作用先对账",
+      "dependencies": [
+        "D01-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有远端 Worker 恢复切片；控制面 HA、仲裁、复制 RPO 和物理跨主机验收尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/a2a-recovery-20261125.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-3.02",
+      "parent": "D01-3",
+      "issue": 53,
+      "title": "物理跨主机资格环境",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "D01-3-A01",
+        "D01-3-A02",
+        "D01-3-A03"
+      ],
+      "deliverable": "两主机控制面/Worker/存储环境及可复用故障注入入口",
+      "done_when": "网络分区、杀进程、重启、延迟和存储故障可独立注入；主机/版本/资源预算留证",
+      "verification": "网络分区、杀进程、重启、延迟和存储故障可独立注入；主机/版本/资源预算留证",
+      "dependencies": [
+        "D01-3.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有远端 Worker 恢复切片；控制面 HA、仲裁、复制 RPO 和物理跨主机验收尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/a2a-recovery-20261125.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-3.03",
+      "parent": "D01-3",
+      "issue": 53,
+      "title": "HA 和复制恢复资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "D01-3-A01",
+        "D01-3-A02",
+        "D01-3-A03",
+        "D01-3-A04"
+      ],
+      "deliverable": "分区/旧主/复制故障下的 RPO/RTO/授权/预算/审计报告",
+      "done_when": "达到 F01-2 接受口径；不可幂等外部结果未知进入对账，无重复授权消费",
+      "verification": "达到 F01-2 接受口径；不可幂等外部结果未知进入对账，无重复授权消费",
+      "dependencies": [
+        "D01-3.02",
+        "D01-2.03",
+        "K04-2.04",
+        "K03-1.03"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有远端 Worker 恢复切片；控制面 HA、仲裁、复制 RPO 和物理跨主机验收尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/a2a-recovery-20261125.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-3.04",
+      "parent": "D01-3",
+      "issue": 53,
+      "title": "多节点交付评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "D01-3-A01",
+        "D01-3-A02",
+        "D01-3-A03",
+        "D01-3-A04"
+      ],
+      "deliverable": "故障模型、恢复限制和交付证据评审",
+      "done_when": "指定责任人确认实测条件与声明一致，未满足的容量/可用性不能标记已达成",
+      "verification": "指定责任人确认实测条件与声明一致，未满足的容量/可用性不能标记已达成",
+      "dependencies": [
+        "D01-3.03"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有远端 Worker 恢复切片；控制面 HA、仲裁、复制 RPO 和物理跨主机验收尚缺。",
+      "existing_evidence": [
+        "docs/design/evidence/a2a-recovery-20261125.json",
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-4.01",
+      "parent": "D01-4",
+      "issue": 54,
+      "title": "两档容量与治理负载资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "D01-4-A01",
+        "D01-4-A02",
+        "D01-4-A05"
+      ],
+      "deliverable": "单节点/多节点同条件 1/8/32/128 并发及热点/长链/撤销报告",
+      "done_when": "固定同步保证、资源预算与负载；报告吞吐、尾延迟、恢复、单位成本，目标与实测分列",
+      "verification": "固定同步保证、资源预算与负载；报告吞吐、尾延迟、恢复、单位成本，目标与实测分列",
+      "dependencies": [
+        "D01-3.03",
+        "K04-3.04"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有两档设计假设与局部性能实验；全平台两档容量不是已实测结论。",
+      "existing_evidence": [
+        "docs/design/evidence/capacity-estimate-20261111.json",
+        "docs/design/evidence/provider-summary-20261111.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-4.02",
+      "parent": "D01-4",
+      "issue": 54,
+      "title": "混合拓扑与可复用交付资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "D01-4-A02",
+        "D01-4-A03",
+        "D01-4-A04"
+      ],
+      "deliverable": "托管/远端混合、协议升级和新增应用包的交付记录",
+      "done_when": "扩容、降级、兼容和恢复结果可复现；新增行业只需上层包配置",
+      "verification": "扩容、降级、兼容和恢复结果可复现；新增行业只需上层包配置",
+      "dependencies": [
+        "D01-4.01",
+        "A01-1.02",
+        "K04-1.05"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有两档设计假设与局部性能实验；全平台两档容量不是已实测结论。",
+      "existing_evidence": [
+        "docs/design/evidence/capacity-estimate-20261111.json",
+        "docs/design/evidence/provider-summary-20261111.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "D01-4.03",
+      "parent": "D01-4",
+      "issue": 54,
+      "title": "容量与运营 G3 评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "D01-4-A01",
+        "D01-4-A02",
+        "D01-4-A03",
+        "D01-4-A04",
+        "D01-4-A05"
+      ],
+      "deliverable": "两档容量范围、运营手册与接受结论",
+      "done_when": "发布责任人按实测和故障记录接受交付范围；剩余问题有明确负责人",
+      "verification": "发布责任人按实测和故障记录接受交付范围；剩余问题有明确负责人",
+      "dependencies": [
+        "D01-4.02",
+        "D01-3.04",
+        "F03-2.03"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有两档设计假设与局部性能实验；全平台两档容量不是已实测结论。",
+      "existing_evidence": [
+        "docs/design/evidence/capacity-estimate-20261111.json",
+        "docs/design/evidence/provider-summary-20261111.json"
+      ],
+      "wave": "W4"
+    },
+    {
+      "id": "K01-5.01",
+      "parent": "K01-5",
+      "issue": 58,
+      "title": "两来源真实执行治理资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-5-A01",
+        "K01-5-A02",
+        "K01-5-A05",
+        "K01-5-A06"
+      ],
+      "deliverable": "固定两来源 Harness 的允许/审批/拒绝完整矩阵",
+      "done_when": "真实工具/文件/网络证据确认拒绝无执行；不透明内部能力限制任务准入，复用 K03-2 夹具",
+      "verification": "真实工具/文件/网络证据确认拒绝无执行；不透明内部能力限制任务准入，复用 K03-2 夹具",
+      "dependencies": [
+        "K03-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有三种真实 Harness 和治理切片；完整版本矩阵及联合资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/harness-governance-20261125.json",
+        "docs/design/evidence/recipient-harnesses-20261125.json",
+        "docs/design/evidence/acp-cancellation-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K01-5.02",
+      "parent": "K01-5",
+      "issue": 58,
+      "title": "跨实现恢复与升级资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "K01-5-A03",
+        "K01-5-A04",
+        "K01-5-A05"
+      ],
+      "deliverable": "活动任务恢复、取消待确认、未知结果及版本切换报告",
+      "done_when": "旧 epoch 拒写，完整结果抢救零重复模型调用；不完整不成功、观察超时不重派、实际并发有证据",
+      "verification": "旧 epoch 拒写，完整结果抢救零重复模型调用；不完整不成功、观察超时不重派、实际并发有证据",
+      "dependencies": [
+        "K01-4.01",
+        "K01-2.01",
+        "K02-1.05"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有三种真实 Harness 和治理切片；完整版本矩阵及联合资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/harness-governance-20261125.json",
+        "docs/design/evidence/recipient-harnesses-20261125.json",
+        "docs/design/evidence/acp-cancellation-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "K01-5.03",
+      "parent": "K01-5",
+      "issue": 58,
+      "title": "开放 Harness 联合评审",
+      "kind": "R",
+      "state": "review_pending",
+      "requirements": [
+        "K01-5-A01",
+        "K01-5-A02",
+        "K01-5-A03",
+        "K01-5-A04",
+        "K01-5-A05",
+        "K01-5-A06"
+      ],
+      "deliverable": "固定版本能力和联合验收结论",
+      "done_when": "确认两来源全条款证据及已声明限制；未支持能力不以单元测试替代真实资格",
+      "verification": "确认两来源全条款证据及已声明限制；未支持能力不以单元测试替代真实资格",
+      "dependencies": [
+        "K01-5.01",
+        "K01-5.02",
+        "K01-4.03"
+      ],
+      "owner": "评审责任人待认领",
+      "completion_evidence": [],
+      "basis": "已有三种真实 Harness 和治理切片；完整版本矩阵及联合资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/harness-governance-20261125.json",
+        "docs/design/evidence/recipient-harnesses-20261125.json",
+        "docs/design/evidence/acp-cancellation-20261124.json"
+      ],
+      "wave": "W1"
+    },
+    {
+      "id": "S02-1.01",
+      "parent": "S02-1",
+      "issue": 38,
+      "title": "统一对象版本与引用",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "S02-1-A02",
+        "S02-1-A03"
+      ],
+      "deliverable": "文件/会话/产物统一对象引用、版本及外部不透明关联",
+      "done_when": "Runtime 替换和版本变化不丢引用；业务项目/部门实体不进入内核",
+      "verification": "Runtime 替换和版本变化不丢引用；业务项目/部门实体不进入内核",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有文件/产物关联及读取授权切片；统一对象版本、留存、删除与撤销一致性待补。",
+      "existing_evidence": [
+        "docs/design/evidence/capability-boundary-20261124.json",
+        "docs/design/evidence/business-evidence-20261123.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "S02-1.02",
+      "parent": "S02-1",
+      "issue": 38,
+      "title": "读取下载与撤销一致性",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "S02-1-A01",
+        "S02-1-A02"
+      ],
+      "deliverable": "API 到实际存储读取的主体授权和撤销检查",
+      "done_when": "不同主体越权拒绝，同摘要跨 ACL 不串权；授权/撤销对下载及缓存一致生效",
+      "verification": "不同主体越权拒绝，同摘要跨 ACL 不串权；授权/撤销对下载及缓存一致生效",
+      "dependencies": [
+        "S02-1.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有文件/产物关联及读取授权切片；统一对象版本、留存、删除与撤销一致性待补。",
+      "existing_evidence": [
+        "docs/design/evidence/capability-boundary-20261124.json",
+        "docs/design/evidence/business-evidence-20261123.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "S02-1.03",
+      "parent": "S02-1",
+      "issue": 38,
+      "title": "留存删除与引用完整性",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "S02-1-A02",
+        "S02-1-A03"
+      ],
+      "deliverable": "对象留存、删除、墓碑及派生产物传播机制",
+      "done_when": "留存到期/删除可核验，不遗留绕过读取路径，历史证据保留合法关联",
+      "verification": "留存到期/删除可核验，不遗留绕过读取路径，历史证据保留合法关联",
+      "dependencies": [
+        "S02-1.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有文件/产物关联及读取授权切片；统一对象版本、留存、删除与撤销一致性待补。",
+      "existing_evidence": [
+        "docs/design/evidence/capability-boundary-20261124.json",
+        "docs/design/evidence/business-evidence-20261123.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "S02-1.04",
+      "parent": "S02-1",
+      "issue": 38,
+      "title": "对象完整生命周期资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "S02-1-A01",
+        "S02-1-A02",
+        "S02-1-A03"
+      ],
+      "deliverable": "两主体跨 Runtime/存储的生命周期回归",
+      "done_when": "读取/下载/撤销/版本/留存/删除全部有实际路径证据，外部业务模型独立",
+      "verification": "读取/下载/撤销/版本/留存/删除全部有实际路径证据，外部业务模型独立",
+      "dependencies": [
+        "S02-1.02",
+        "S02-1.03"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有文件/产物关联及读取授权切片；统一对象版本、留存、删除与撤销一致性待补。",
+      "existing_evidence": [
+        "docs/design/evidence/capability-boundary-20261124.json",
+        "docs/design/evidence/business-evidence-20261123.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "S02-2.01",
+      "parent": "S02-2",
+      "issue": 39,
+      "title": "Provider 更新删除契约",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "S02-2-A01",
+        "S02-2-A02",
+        "S02-2-A03"
+      ],
+      "deliverable": "知识/检索/图谱/记忆的版本化接口与授权/来源语义",
+      "done_when": "查询有可核验来源；更新、过期、撤销、删除传播索引和缓存，不依赖项目/岗位实体",
+      "verification": "查询有可核验来源；更新、过期、撤销、删除传播索引和缓存，不依赖项目/岗位实体",
+      "dependencies": [
+        "S02-1.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有授权检索和来源切片；替代 Provider 及更新删除传播资格待补。",
+      "existing_evidence": [
+        "docs/design/evidence/business-evidence-20261123.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "S02-2.02",
+      "parent": "S02-2",
+      "issue": 39,
+      "title": "替代 Provider 接入",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "S02-2-A01",
+        "S02-2-A02",
+        "S02-2-A03"
+      ],
+      "deliverable": "至少两种可替换实现和相同契约夹具",
+      "done_when": "同一主体/查询契约在两实现通过，成熟开源方案按许可/部署边界接入",
+      "verification": "同一主体/查询契约在两实现通过，成熟开源方案按许可/部署边界接入",
+      "dependencies": [
+        "S02-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有授权检索和来源切片；替代 Provider 及更新删除传播资格待补。",
+      "existing_evidence": [
+        "docs/design/evidence/business-evidence-20261123.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "S02-2.03",
+      "parent": "S02-2",
+      "issue": 39,
+      "title": "检索授权与更新传播资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "S02-2-A01",
+        "S02-2-A02",
+        "S02-2-A03"
+      ],
+      "deliverable": "不同主体查询及更新删除故障矩阵",
+      "done_when": "越权内容不返回；来源版本正确，失败/重试/乱序更新不复活已撤销资料",
+      "verification": "越权内容不返回；来源版本正确，失败/重试/乱序更新不复活已撤销资料",
+      "dependencies": [
+        "S02-2.02",
+        "S02-1.03"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有授权检索和来源切片；替代 Provider 及更新删除传播资格待补。",
+      "existing_evidence": [
+        "docs/design/evidence/business-evidence-20261123.json"
+      ],
+      "wave": "W2"
+    },
+    {
+      "id": "S03-1.01",
+      "parent": "S03-1",
+      "issue": 41,
+      "title": "配置编辑与可审阅 diff",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "S03-1-A01"
+      ],
+      "deliverable": "通用能力/运行配置编辑、自然语言建议与结构化 diff",
+      "done_when": "人工可核验改动；Schema 错误定位明确，不引入岗位/客户流程表",
+      "verification": "人工可核验改动；Schema 错误定位明确，不引入岗位/客户流程表",
+      "dependencies": [],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有配置入口；自然语言建议、可审阅 diff 与受控发布尚未形成完整闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/capability-boundary-20261124.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "S03-1.02",
+      "parent": "S03-1",
+      "issue": 41,
+      "title": "受控验证与发布接线",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "S03-1-A01",
+        "S03-1-A02"
+      ],
+      "deliverable": "编辑到校验/审批/Revision 发布及错误诊断链",
+      "done_when": "未授权修改不能发布，Harness/工具调用经过 E2AG，校验失败保留可修正草案",
+      "verification": "未授权修改不能发布，Harness/工具调用经过 E2AG，校验失败保留可修正草案",
+      "dependencies": [
+        "S03-1.01",
+        "K02-1.05"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有配置入口；自然语言建议、可审阅 diff 与受控发布尚未形成完整闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/capability-boundary-20261124.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "S03-1.03",
+      "parent": "S03-1",
+      "issue": 41,
+      "title": "Studio 端到端资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "S03-1-A01",
+        "S03-1-A02"
+      ],
+      "deliverable": "编辑、修错、审阅 diff、发布及拒绝场景",
+      "done_when": "API/界面版本一致，失败无隐式生效，原运行不被配置编辑改写",
+      "verification": "API/界面版本一致，失败无隐式生效，原运行不被配置编辑改写",
+      "dependencies": [
+        "S03-1.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有配置入口；自然语言建议、可审阅 diff 与受控发布尚未形成完整闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/capability-boundary-20261124.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "S03-2.01",
+      "parent": "S03-2",
+      "issue": 42,
+      "title": "技术评测与环境晋级门禁",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "S03-2-A01",
+        "S03-2-A02"
+      ],
+      "deliverable": "版本化技术评测、准入/晋级及外部审批引用",
+      "done_when": "未达技术门禁不能晋级；业务审核仅为外部引用，失败回滚复用 Revision/Deployment",
+      "verification": "未达技术门禁不能晋级；业务审核仅为外部引用，失败回滚复用 Revision/Deployment",
+      "dependencies": [
+        "K02-1.05",
+        "K04-1.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有应用包契约；通用技术评测、环境晋级与发布证据尚未闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "S03-2.02",
+      "parent": "S03-2",
+      "issue": 42,
+      "title": "晋级回滚联合资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "S03-2-A01",
+        "S03-2-A02"
+      ],
+      "deliverable": "双环境版本、准入失败、升级失败及回滚报告",
+      "done_when": "原始评测/审批/版本证据完整，业务质量模型不进入底座",
+      "verification": "原始评测/审批/版本证据完整，业务质量模型不进入底座",
+      "dependencies": [
+        "S03-2.01"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有应用包契约；通用技术评测、环境晋级与发布证据尚未闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "A01-1.01",
+      "parent": "A01-1",
+      "issue": 47,
+      "title": "开放包与 SDK 兼容收口",
+      "kind": "I",
+      "state": "todo",
+      "requirements": [
+        "A01-1-A01",
+        "A01-1-A02"
+      ],
+      "deliverable": "版本化 API/事件/客户端、应用登记与兼容验证器",
+      "done_when": "新任务类型无需改内核，输入/结果按版本契约校验；保持独立部署边界",
+      "verification": "新任务类型无需改内核，输入/结果按版本契约校验；保持独立部署边界",
+      "dependencies": [
+        "K02-1.05"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有独立应用与 SDK/包契约；全链兼容、升级停用及替代实现资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json",
+        "docs/design/evidence/capability-boundary-20261124.json"
+      ],
+      "wave": "W3"
+    },
+    {
+      "id": "A01-1.02",
+      "parent": "A01-1",
+      "issue": 47,
+      "title": "独立应用升级替代资格",
+      "kind": "V",
+      "state": "verification_pending",
+      "requirements": [
+        "A01-1-A01",
+        "A01-1-A02",
+        "A01-1-A03"
+      ],
+      "deliverable": "升级/停用/回滚与两执行实现的兼容报告",
+      "done_when": "其他应用和历史不受影响；两实现通过授权、版本及恢复验收；客户业务内容独立",
+      "verification": "其他应用和历史不受影响；两实现通过授权、版本及恢复验收；客户业务内容独立",
+      "dependencies": [
+        "A01-1.01",
+        "K01-5.02"
+      ],
+      "owner": "Codex 工程",
+      "completion_evidence": [],
+      "basis": "已有独立应用与 SDK/包契约；全链兼容、升级停用及替代实现资格待闭环。",
+      "existing_evidence": [
+        "docs/design/evidence/application-packages-20261124.json",
+        "docs/design/evidence/capability-boundary-20261124.json"
+      ],
+      "wave": "W3"
+    }
+  ],
+  "scope_references": [
+    {
+      "parent": "S01-1",
+      "issue": 36,
+      "owned_items": 0,
+      "references": [
+        "K03-1.01",
+        "K03-1.02",
+        "K03-1.03",
+        "K03-3.01",
+        "K03-3.02",
+        "S02-1.02"
+      ],
+      "reason": "身份能力归 #33/#35，对象授权归 #38；复用同一工作项，组织部门岗位属于上层。"
+    }
+  ],
+  "excluded_application_tasks": [
+    {
+      "id": "F03-1",
+      "title": "设计员工工作台、主管视图与管理入口"
+    },
+    {
+      "id": "S01-2",
+      "title": "建设数字员工档案、岗位模板与基础发布"
+    },
+    {
+      "id": "S02-3",
+      "title": "建设 WorkItem、人机协作与审批待办"
+    },
+    {
+      "id": "S03-3",
+      "title": "建设数字员工质量、成本与服务运营视图"
+    },
+    {
+      "id": "A01-2",
+      "title": "参考场景：专业服务与售前交付闭环"
+    },
+    {
+      "id": "A01-3",
+      "title": "参考场景：多岗位任务协同与汇总复核"
+    },
+    {
+      "id": "A01-4",
+      "title": "参考场景：个人数字分身与工作空间协作"
+    },
+    {
+      "id": "A01-5",
+      "title": "建设持续静态评审参考应用与覆盖账本"
+    },
+    {
+      "id": "D01-5",
+      "title": "验收持续评审历史接入、分区切换与回滚"
+    }
+  ],
+  "shared_work": [
+    {
+      "owner": "D01-3.02",
+      "consumers": [
+        "K01-2.04",
+        "K03-1.03",
+        "K04-2.04",
+        "D01-3.03",
+        "D01-4.01"
+      ],
+      "rule": "物理跨主机环境和注入工具建设一次；消费者只验各自语义。"
+    },
+    {
+      "owner": "K04-2.01",
+      "consumers": [
+        "K04-3.04"
+      ],
+      "rule": "用量预留和结算归资源治理，观测消费同一结果。"
+    },
+    {
+      "owner": "K03-2.01",
+      "consumers": [
+        "K01-4.03",
+        "K01-5.01"
+      ],
+      "rule": "实际工具拒绝夹具共用，协议/联合验收引用同一原始记录。"
+    },
+    {
+      "owner": "K02-1.03",
+      "consumers": [
+        "D01-1.02",
+        "K04-1.03",
+        "S03-2.01"
+      ],
+      "rule": "发布/回滚内核只实现一次，目录与环境晋级消费同一契约。"
+    }
+  ],
+  "external_dependencies": [
+    {
+      "items": [
+        "D01-3.02"
+      ],
+      "need": "两台可用主机、网络故障注入权限和共享存储环境；本轮未确认资源。",
+      "fallback": "先完成配置与同机契约测试，物理跨主机资格保留待验证。"
+    },
+    {
+      "items": [
+        "K03-1.01"
+      ],
+      "need": "企业实际身份源与凭据轮换配置；本地 Keycloak/OpenBao 证据可先复用。",
+      "fallback": "本地资格与企业环境资格分列。"
+    },
+    {
+      "items": [
+        "K03-1.04",
+        "K03-2.03",
+        "K03-3.03",
+        "D01-1.04",
+        "D01-3.04",
+        "D01-4.03"
+      ],
+      "need": "按 handbook 指定评审/发布责任人。",
+      "fallback": "工程实现、测试与开发部署继续；接受结论保持待认领。"
+    }
+  ]
+}
