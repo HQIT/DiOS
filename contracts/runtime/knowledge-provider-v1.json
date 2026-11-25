@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HQIT/DiOS/contracts/runtime/knowledge-provider-v1.json",
+  "title": "DiOS knowledge Provider v1 requests",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/query"
+    },
+    {
+      "$ref": "#/$defs/mutation"
+    }
+  ],
+  "$defs": {
+    "query": {
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Query",
+          "type": "string"
+        },
+        "limit": {
+          "default": 3,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "title": "KnowledgeQuery",
+      "type": "object"
+    },
+    "mutation": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_revision": {
+          "minimum": 0,
+          "title": "Expected Revision",
+          "type": "integer"
+        },
+        "idempotency_key": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "state": {
+          "default": "active",
+          "title": "State",
+          "type": "string",
+          "enum": [
+            "active",
+            "deleted"
+          ]
+        },
+        "object_ref": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Ref"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provenance"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires At"
+        }
+      },
+      "required": [
+        "expected_revision",
+        "idempotency_key"
+      ],
+      "title": "KnowledgeSource",
+      "type": "object"
+    }
+  },
+  "description": "Authenticated principal is bound by the service, not supplied in these payloads. See docs/design/knowledge-provider-39.md for provenance, applied receipts and invalidation semantics."
+}

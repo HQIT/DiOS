@@ -43,6 +43,7 @@ from .object_schema import metadata as object_metadata, CHECKSUM as OBJECT_CHECK
 from .object_access_schema import metadata as object_access_metadata, CHECKSUM as OBJECT_ACCESS_CHECKSUM
 from .object_lifetime_schema import metadata as object_lifetime_metadata, CHECKSUM as OBJECT_LIFETIME_CHECKSUM
 from .object_collection_schema import metadata as object_collection_metadata, CHECKSUM as OBJECT_COLLECTION_CHECKSUM
+from .knowledge_schema import metadata as knowledge_metadata, CHECKSUM as KNOWLEDGE_CHECKSUM
 
 
 def sqlite_path(url):
@@ -121,6 +122,7 @@ def _database_info(path):
             ('runtime_object_access_schema',object_access_metadata,OBJECT_ACCESS_CHECKSUM),
             ('runtime_object_lifetime_schema',object_lifetime_metadata,OBJECT_LIFETIME_CHECKSUM),
             ('runtime_object_collection_schema',object_collection_metadata,OBJECT_COLLECTION_CHECKSUM),
+            ('runtime_knowledge_schema',knowledge_metadata,KNOWLEDGE_CHECKSUM),
             ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):

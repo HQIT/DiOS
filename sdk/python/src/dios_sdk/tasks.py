@@ -43,6 +43,24 @@ class TaskClient:
         self._token, self.timeout, self.max_bytes = token, timeout, max_bytes
         self._opener = build_opener(ProxyHandler({}) if local else ProxyHandler(), _NoRedirect())
 
+    def knowledge_capabilities(self):
+        return self._request('/knowledge/capabilities')
+
+    def knowledge_source(self, source_id):
+        return self._request('/knowledge/sources/'+quote(source_id,safe=''))
+
+    def search_knowledge(self, query, *, limit=3):
+        return self._request('/knowledge/search', method='POST', body={'query':query,'limit':limit})
+
+    def replace_knowledge_source(self, source_id, object_ref, provenance, *, expected_revision, idempotency_key, expires_at=None):
+        return self._request('/knowledge/sources/'+quote(source_id,safe=''),method='PUT',
+            body={'expected_revision':expected_revision,'idempotency_key':idempotency_key,'state':'active',
+                  'object_ref':object_ref,'provenance':provenance,'expires_at':expires_at})
+
+    def delete_knowledge_source(self, source_id, *, expected_revision, idempotency_key):
+        return self._request('/knowledge/sources/'+quote(source_id,safe=''),method='PUT',
+            body={'expected_revision':expected_revision,'idempotency_key':idempotency_key,'state':'deleted'})
+
     def object_version(self, kind, object_id, version=1):
         return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version))
 

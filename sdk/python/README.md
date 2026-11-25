@@ -110,3 +110,9 @@ idempotency keys. Deletion blocks reads and preserves a tombstone; the offline
 `object-collect` administration CLI performs local physical collection. Explicit derivations become unavailable
 when their pinned source expires or is deleted. See
 [object lifecycle](../../docs/design/object-lifetime-38.md).
+
+SDK 0.1.15 adds `knowledge_capabilities`, `search_knowledge`,
+`replace_knowledge_source` and `delete_knowledge_source`. Sources pin exact object
+versions and opaque provenance; reads use current object authorization. Replacing
+or deleting a source requires operator credentials, a revision and an idempotency
+key. See the [knowledge Provider contract](../../docs/design/knowledge-provider-39.md).

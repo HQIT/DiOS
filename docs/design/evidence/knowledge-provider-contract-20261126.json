@@ -1,0 +1,178 @@
+{
+  "work_item": "S02-2.01",
+  "status": "engineering_verified",
+  "source_head": "986a1b61ddeab5de5118f88a367078fe121e9661",
+  "contract": "dios.knowledge/v1",
+  "design": "docs/design/knowledge-provider-39.md",
+  "delivered": [
+    "Public SDK structural Provider interface and versioned request schema without business entities",
+    "Authenticated query and operator source replace/delete/read API; optimistic revisions and durable replay-safe receipts",
+    "First object-backed source reference index reads current object authorization and content on every query",
+    "Source/object expiry, source replacement/delete, object revoke/delete, in-flight mutation rejection and provenance verification",
+    "No derived content index/cache in first Provider; mutations atomically update the reference index; applied/not_used explicitly reported",
+    "SDK 0.1.15 installed wheel and CLI knowledge commands verified against development API"
+  ],
+  "tests": {
+    "targeted_regression": {
+      "exit_code": 0,
+      "modules": [
+        "test_runtime_knowledge",
+        "test_runtime_recovery",
+        "test_installation_backup",
+        "test_installation_restore"
+      ],
+      "total": 44,
+      "passed": 39,
+      "skipped": 5,
+      "seconds": 53.697,
+      "evidence": "captured terminal run; new source-detail checks additionally covered by final image run"
+    },
+    "final_release_image": {
+      "image": "sha256:9c4cf5d56807e622e9691e908f5967acde55abb0384e837d782af92e9a1d5f76",
+      "base": "sha256:b8af51e17aa861ef0d80365fdc614d6e19ad78ff6a1ab401433a7036a1681bf6",
+      "network": "none",
+      "user": "65534:65534",
+      "summary": "Ran 6 tests in 13.687s\n\nOK"
+    },
+    "image_log_sha256": "991dbc96bb5c674474251905c36942c0ee459aeb5d00912e958a9622769f3979",
+    "fixture_correction": "Expiry fixture used a 250ms deadline shorter than the authorized storage read; changed to a 2s deadline and waited for the actual clock. Implementation correctly rejected already-expired mutations.",
+    "lint": "New modules Ruff F and git diff --check passed"
+  },
+  "development": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "knowledge_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": true
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "actual_api_sdk_cli": {
+    "passed": true,
+    "sdk": "0.1.15 installed wheel",
+    "two_principals": true,
+    "source_refs": [
+      {
+        "kind": "file",
+        "id": "5620d361-2704-45b5-8285-c181f7926255",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "611cf242-6829-4c26-9a97-113951c100d1",
+        "version": 1
+      }
+    ],
+    "updated_ref": {
+      "kind": "file",
+      "id": "5620d361-2704-45b5-8285-c181f7926255",
+      "version": 2
+    },
+    "source_replace_rechecks_version_acl": true,
+    "cli_query_and_delete": true,
+    "revoked_text_not_returned": true,
+    "source_cleanup": "tombstones retained",
+    "original_cursor_report_integrity": true,
+    "capabilities": {
+      "contract": "dios.knowledge/v1",
+      "provider": "object-read-through-v1",
+      "operations": [
+        "search",
+        "source.replace",
+        "source.delete"
+      ],
+      "content": [
+        "text/plain; charset=utf-8"
+      ],
+      "index": "object-reference",
+      "content_cache": false,
+      "mutation_completion": "applied",
+      "max_sources": 100,
+      "max_source_bytes": 1048576,
+      "max_query_bytes": 8388608
+    },
+    "new_model_calls": 0,
+    "object_authorization_decisions": {
+      "count": 61,
+      "outcomes": [
+        "allow",
+        "deny"
+      ]
+    }
+  },
+  "source_sha256": {
+    "backend/app/api/os/runtime_knowledge.py": "e71c7d30de5acd40eaccf59d5ad250598496bc19408e2560ae41e231d96b5f65",
+    "backend/app/api/os/runtime_tasks.py": "4c293b0595cae83eaa83b9fe70e14c4190b978f86b392e63a554b59a91371c37",
+    "backend/app/runtime/database.py": "54dc6cc485520c0f2cefd04fc12533363048dbc9c593a9949cb6487b233c9990",
+    "backend/app/runtime/knowledge_schema.py": "f3bdcb59ea83c0745d9699c963bdcec7122e8f6849f5fefb71e0698ada1491ff",
+    "backend/app/runtime/recovery.py": "df273ad626f5b8a28a36fd6ade76900b3c1488c96df42a0ea817779fecd8fe3f",
+    "backend/app/services/knowledge.py": "18d7f34496635447948db3f28b4f7fbef73065b9f0b0479ec152dda8dd776b11",
+    "backend/tests/test_runtime_knowledge.py": "7fa4b9f2c62b9d2502c80c8aaefb8c98dcde030a39ea856df9ce250b60df197c",
+    "cli/dios": "729cb4ee2ebe43e7ed1f273c8496d0c9bad965fdc270b8c8ac55af3008a9bbfd",
+    "contracts/runtime/knowledge-provider-v1.json": "9647c2ea23f461de550fcddcf0703710ac0c117f10bae2ffb9a371dac9a4dcec",
+    "sdk/python/src/dios_sdk/__init__.py": "a37a189a5eee42b7d44aacbef3271103c4947d76626f4ee77987d5d953e6cb7c",
+    "sdk/python/src/dios_sdk/knowledge.py": "6d316ba8ad30348a0f07b66dd10fd46f153802fb85f51bbcd39e365af67b91fc",
+    "sdk/python/src/dios_sdk/tasks.py": "d7954274453eb5d673c28605d604f5e03065de252a44813395210ff7f7a49f4f"
+  },
+  "sources": [
+    "https://reference.langchain.com/python/langchain-core/indexing/api/index",
+    "https://qdrant.tech/documentation/scaling/consistency-guarantees/"
+  ],
+  "remaining": [
+    "S02-2.02: second mature Provider, replaceable implementation selection and shared conformance fixtures",
+    "S02-2.03: complete Provider qualification including alternate index/cache fault behavior and governed Agent tool path"
+  ],
+  "limits": [
+    "First Provider is bounded UTF-8 literal search: 100 source identities per scope, 1 MiB per source, 8 MiB per query. Limits fail explicitly.",
+    "Graph traversal, vector search and memory write extensions are not advertised by this implementation.",
+    "SQLite/local object storage qualified here; distributed Provider behavior is not inferred.",
+    "Object authorization decisions reuse E2AG evidence; this data-read API does not issue execution Work grants.",
+    "Independent customer knowledge-source application and its project_id schema remain separate."
+  ]
+}

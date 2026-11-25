@@ -639,7 +639,23 @@ def cmd_task(args) -> int:
     method, data, suffix = "GET", None, ""
     command = args.task_command
     quote = lambda value: urllib.parse.quote(value, safe="")
-    if command.startswith("schedule-"):
+    if command.startswith("knowledge-"):
+        name = command.removeprefix("knowledge-")
+        suffix = "/knowledge/" + ("capabilities" if name == "capabilities" else "search")
+        if name == "search":
+            method, data = "POST", {"query":args.query,"limit":args.limit}
+        elif name == "apply":
+            method, suffix = "PUT", "/knowledge/sources/" + quote(args.source_id)
+            try:
+                with open(args.file, "rb") as source: raw = source.read(16385)
+                if len(raw) > 16384: raise ValueError()
+                data = json.loads(raw.decode("utf-8"))
+                if not isinstance(data, dict): raise ValueError()
+            except (OSError, ValueError, UnicodeError):
+                print(json.dumps({"error":"INVALID_KNOWLEDGE_MUTATION"})); return 2
+        elif name == "show":
+            suffix = "/knowledge/sources/" + quote(args.source_id)
+    elif command.startswith("schedule-"):
         suffix = "/run-schedules"
         name = command.removeprefix("schedule-")
         if name in {"history", "pause", "resume", "reauthorize", "resolve"}:
@@ -770,6 +786,21 @@ def task_parser():
     return p
 
 
+def knowledge_parser():
+    p = argparse.ArgumentParser(prog="dios knowledge", description="Authorized knowledge queries and versioned sources")
+    commands = p.add_subparsers(dest="knowledge_command", required=True)
+    for name in ("capabilities", "search", "apply", "show"):
+        c = commands.add_parser(name); c.add_argument("--base-url")
+        c.set_defaults(task_command="knowledge-" + name)
+        if name == "search":
+            c.add_argument("query"); c.add_argument("--limit", type=int, default=3)
+        elif name == "apply":
+            c.add_argument("source_id"); c.add_argument("--file", required=True, help="Versioned source mutation JSON with idempotency key")
+        elif name == "show":
+            c.add_argument("source_id")
+    return p
+
+
 def run_schedule_parser():
     p = argparse.ArgumentParser(prog="dios run-schedules", description="Durable UTC Profile/Run schedules; operator token required")
     commands = p.add_subparsers(dest="schedule_command", required=True)
@@ -804,6 +835,8 @@ def cmd_runtime(args, module="app.runtime.cli") -> int:
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "knowledge":
+        return cmd_task(knowledge_parser().parse_args(sys.argv[2:]))
     if len(sys.argv) > 1 and sys.argv[1] == "run-schedules":
         return cmd_task(run_schedule_parser().parse_args(sys.argv[2:]))
     if len(sys.argv) > 1 and sys.argv[1] == "task":
