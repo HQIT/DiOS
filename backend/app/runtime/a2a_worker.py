@@ -294,10 +294,23 @@ class A2AWorker:
             await self.authority(run, attempt)
             transport = await self.transport()
             try:
-                await transport.discover()
+                declaration = None
+                if self.revision_ref:
+                    from .endpoint_compatibility import Compatibility
+
+                    declaration = await Compatibility(
+                        self.store.db, self.store.scope
+                    ).discover(transport, self.spec)
+                else:
+                    await transport.discover()
             finally:
                 await transport.aclose()
-            await self.execution.prepare(self.binding(run, attempt))
+            await self.execution.prepare(
+                self.binding(run, attempt),
+                declaration_digest=declaration["snapshot_digest"]
+                if declaration
+                else None,
+            )
         except Exception as exc:  # noqa: BLE001 - retain sanitized preflight failure
             await self.recovery.preflight_failed(run, attempt, exc)
             return (await self.snapshot(run["id"]))[0]
@@ -343,7 +356,8 @@ class A2AWorker:
                             runs.c.state == "reconciliation_required",
                             runs.c.input["runtime_profile"].as_string()
                             == self.profile_id,
-                            runs.c.input["revision_ref"].as_string() == self.revision_ref
+                            runs.c.input["revision_ref"].as_string()
+                            == self.revision_ref
                             if self.revision_ref is not None
                             else runs.c.input["revision_ref"].as_string().is_(None),
                             or_(plans.c.retry_at.is_(None), plans.c.retry_at <= now),

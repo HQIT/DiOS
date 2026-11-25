@@ -1,0 +1,296 @@
+{
+  "work_item": "K02-1.04",
+  "status": "engineering_verified",
+  "base_commit": "80aaed1e1b15cf15e9b582683007f4992fe7775d",
+  "requirements": [
+    "K02-1-A01",
+    "K02-1-A04"
+  ],
+  "delivered": [
+    "Scope-qualified protocol/version/capability declarations, bounded audit query and CAS review",
+    "Versioned A2A dispatch requires a fresh accepted declaration; same-version capability changes trigger review",
+    "Incompatible protocol restoration cannot silently reuse prior compatibility acceptance",
+    "Stale discovery responses cannot overwrite a newer observation or review",
+    "Existing remote tasks retain original identity and recovery, with no resubmission on declaration change",
+    "Deployment activation binds the successful health Attempt declaration to the current accepted declaration",
+    "API and CLI separately report configuration, local image, remote implementation and model rollback capabilities",
+    "Controlled local ACP/CLI implementation remains pinned by immutable image/configuration; remote model implementation remains opaque"
+  ],
+  "tests": {
+    "sqlite_postgresql": {
+      "total": 147,
+      "passed": 146,
+      "skipped": 1,
+      "seconds": 438.126,
+      "log": "contracts.log"
+    },
+    "offline_image": {
+      "total": 147,
+      "passed": 108,
+      "skipped": 39,
+      "seconds": 331.803,
+      "log": "image-contracts.log"
+    },
+    "design_contract_checks": 681,
+    "lint": "targeted Ruff passed",
+    "wbs": "79 leaves;116 original acceptance clauses;acyclic dependencies"
+  },
+  "native": {
+    "passed": true,
+    "transport": "official A2A SDK over real loopback HTTP to synthetic peer",
+    "cli_processes": [
+      403550,
+      403555,
+      403560,
+      403566,
+      403572,
+      403577,
+      403583,
+      403587,
+      403593,
+      403601
+    ],
+    "revision_ref": "rev-1bd5203ad09d86eb7869f0a1c6b172c576d09b0023709c583c7d1a5f8f75e083",
+    "run_ids": [
+      "abdd1b00-70bd-42fa-b404-28ab96aec2bc",
+      "1ccf94c6-34e7-40b0-a595-f81ac036a5e1",
+      "adcd87b3-9d40-4589-9ef7-c66acaa118c8",
+      "24612f63-cf34-44b3-862e-4fce7cf0d1f2"
+    ],
+    "states": [
+      "succeeded",
+      "failed",
+      "succeeded",
+      "failed"
+    ],
+    "remote_submissions": 2,
+    "changed_and_restored_declarations_blocked": true,
+    "configuration_rollback": "supported",
+    "remote_implementation_rollback": "unsupported",
+    "audit_events": 5,
+    "e2ag": "current policy and Work authorization retained"
+  },
+  "image": {
+    "image": "sha256:175ecaad617f32edbc517b9a36b4a4921b88f7685439967547cbfdd3d5293de1",
+    "base": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "tag": "dios-backend:compatibility-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "development": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "compatibility_version": 1,
+      "changed": true
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "api_smoke": {
+    "checks": [
+      {
+        "path": "/health",
+        "status": 200
+      },
+      {
+        "path": "/api/os/runtime/deployments",
+        "status": 200
+      },
+      {
+        "path": "/api/os/runtime/profiles",
+        "status": 200
+      },
+      {
+        "path": "/api/os/runtime/revisions/absent/compatibility",
+        "status": 404
+      }
+    ],
+    "unauthenticated": 401
+  },
+  "qualification_recheck": {
+    "initial_host": "----------------------------------------------------------------------\nRan 147 tests in 376.916s\n\nFAILED (errors=1, skipped=1)",
+    "initial_image": "147 tests; one STALE_OWNER error;39 skipped; retained image-contracts-failure.log",
+    "targeted_same_image": {
+      "total": 10,
+      "passed": 10,
+      "skipped": 0,
+      "seconds": 80.217,
+      "log": "image-fault-recheck.log"
+    },
+    "clock_observation": "First run coincided with an approximately two-hour WSL wall-clock advance observed from shell timestamps and process elapsed time. The initial failing Attempts have no per-failure clock trace. Source remained unchanged for the full repeat.",
+    "repeat_host_clock": {
+      "wall_seconds": 460.25150442123413,
+      "monotonic_seconds": 443.9546679240011,
+      "jumps": [
+        {
+          "at": 1795613290.554718,
+          "wall_minus_monotonic_delta": 1.05017902381951
+        },
+        {
+          "at": 1795613324.09754,
+          "wall_minus_monotonic_delta": 1.0200069422571687
+        },
+        {
+          "at": 1795613357.7372782,
+          "wall_minus_monotonic_delta": 1.1176647479369421
+        },
+        {
+          "at": 1795613391.1266966,
+          "wall_minus_monotonic_delta": 1.116318392167159
+        },
+        {
+          "at": 1795613424.836266,
+          "wall_minus_monotonic_delta": 1.1866142084181774
+        },
+        {
+          "at": 1795613458.4483979,
+          "wall_minus_monotonic_delta": 1.3397572338217287
+        },
+        {
+          "at": 1795613491.8445878,
+          "wall_minus_monotonic_delta": 1.1230807120518875
+        },
+        {
+          "at": 1795613525.6710038,
+          "wall_minus_monotonic_delta": 1.301290999770572
+        },
+        {
+          "at": 1795613559.298703,
+          "wall_minus_monotonic_delta": 1.1043661177027388
+        },
+        {
+          "at": 1795613593.0013444,
+          "wall_minus_monotonic_delta": 1.1778542320098495
+        },
+        {
+          "at": 1795613626.4800572,
+          "wall_minus_monotonic_delta": 1.206509631134395
+        },
+        {
+          "at": 1795613660.1628597,
+          "wall_minus_monotonic_delta": 1.156718912468932
+        },
+        {
+          "at": 1795613693.898153,
+          "wall_minus_monotonic_delta": 1.2042506573052378
+        },
+        {
+          "at": 1795613727.365424,
+          "wall_minus_monotonic_delta": 1.192222330806544
+        }
+      ]
+    },
+    "repeat_image_clock": {
+      "wall_seconds": 349.1497890949249,
+      "monotonic_seconds": 336.4061465840059,
+      "jumps": [
+        {
+          "at": 1795613290.554387,
+          "wall_minus_monotonic_delta": 1.0501790062553482
+        },
+        {
+          "at": 1795613324.0970592,
+          "wall_minus_monotonic_delta": 1.0200062290386995
+        },
+        {
+          "at": 1795613357.7364974,
+          "wall_minus_monotonic_delta": 1.1176652598151122
+        },
+        {
+          "at": 1795613391.126708,
+          "wall_minus_monotonic_delta": 1.116318416003196
+        },
+        {
+          "at": 1795613424.8369238,
+          "wall_minus_monotonic_delta": 1.1866151554640965
+        },
+        {
+          "at": 1795613458.4483588,
+          "wall_minus_monotonic_delta": 1.339757069850748
+        },
+        {
+          "at": 1795613491.8432925,
+          "wall_minus_monotonic_delta": 1.12308089358703
+        },
+        {
+          "at": 1795613525.6667202,
+          "wall_minus_monotonic_delta": 1.301291190487973
+        },
+        {
+          "at": 1795613559.293545,
+          "wall_minus_monotonic_delta": 1.1043661628427799
+        },
+        {
+          "at": 1795613592.9930227,
+          "wall_minus_monotonic_delta": 1.177854790170386
+        },
+        {
+          "at": 1795613626.4727838,
+          "wall_minus_monotonic_delta": 1.206508619870874
+        }
+      ]
+    }
+  },
+  "limits": [
+    "A2A runtime remains on the qualified 0.3 JSON-RPC contract; unsupported protocol changes require a separate adapter qualification",
+    "Agent Card version is self-reported; unchanged declarations cannot prove an unchanged remote implementation",
+    "A2A declaration fetch and remote submission cannot be atomic across the remote service",
+    "Unversioned compatibility entry points retain existing protocol checks; immutable release uses Revision-bound execution",
+    "Local ACP rollback covers retained image/configuration, not a remote model implementation",
+    "Native test uses real HTTP and independent CLI processes against a synthetic peer, not a live commercial model",
+    "Complete fixed-image and external Harness release qualification remains K02-1.05"
+  ],
+  "source_sha256": {
+    "backend/app/api/os/runtime_tasks.py": "473f4196019f92e94f56aced2dca0b9d7ae0123f02ee97c7f94c8f6b4e4ae4c6",
+    "backend/app/runtime/a2a_execution.py": "2e0b86c89a52dc3e127796869de4fccb3edc1a732118f5bc2fc314b84beb0aee",
+    "backend/app/runtime/a2a_worker.py": "b9e04293c2780b2a224682184b63d802d75469d5db18f93b6e199de7817d42a2",
+    "backend/app/runtime/cli.py": "6a1979bc3a072151301542da1ffee631ba20f9a3b9357adbec93fb59e911be61",
+    "backend/app/runtime/compatibility_schema.py": "35d72f016d3368264e5592e2c9615e67fe287d81b2f1797f27c27142fd50fe77",
+    "backend/app/runtime/database.py": "5fdc6447b610067a46a7a05513c4f2dc8b40019b27281353cd76e0ae48a4f2ca",
+    "backend/app/runtime/deployments.py": "21b66948e8cb11d435d46be367ae2948814ac85fcb667c049f7ed41837dd48d4",
+    "backend/app/runtime/endpoint_compatibility.py": "672dfdbc772767cea896fcb88a38544f1e1535d92e913c3065c7ecfe70326ccd",
+    "backend/app/runtime/faults.py": "d72e8b839bbdaa859fd02c1de13fe980fb73638ed922be2dcd2509b0eb22b1e6",
+    "backend/app/runtime/recovery.py": "723f7932ad666124820b1cf284b83c420f8a4df2c06f7456b5e01f4db72e2686",
+    "backend/app/runtime/revision_compatibility.py": "52514db1da9a5b43058d00b3cafa7539e280830aa529dbdac8583108bf4450e3",
+    "backend/tests/test_endpoint_compatibility.py": "ae3156c46a24156b665208ad48e0aea090d758855049a8107f3a896c0f7a21c8",
+    "backend/tests/test_runtime_a2a_outbound.py": "0d228fedf27eb6cef34c23576097207509347b50e097957457a4719edafd0f27"
+  }
+}

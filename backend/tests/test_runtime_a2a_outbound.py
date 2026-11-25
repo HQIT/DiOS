@@ -35,6 +35,11 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         self.profile['remote']['endpoint'] = 'https://changed.example/rpc'
         _, _, spec, _, _ = await load_profile(self.console.store.db, self.console.store.scope, ref)
         self.assertEqual(spec.endpoint, 'https://remote.example/rpc')
+        from app.runtime.endpoint_compatibility import Compatibility, a2a_snapshot
+        from a2a.types import AgentCard
+        compatibility = Compatibility(self.db, "one")
+        observed = await compatibility.observe(spec.fingerprint(), a2a_snapshot(AgentCard.model_validate(self.card), spec))
+        await compatibility.accept(spec.fingerprint(), observed['version'], observed['snapshot_digest'], 'qualification', 'Fixture protocol and result contract reviewed')
         worker = self.worker()
         worker.revision_ref = ref
         result = await worker.once()

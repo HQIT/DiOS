@@ -39,6 +39,7 @@ def policy(value):
 
 def from_spec(spec):return policy(json.loads(spec.environment[POLICY_ENV])) if POLICY_ENV in spec.environment else None
 def category(code):
+    if code.startswith('COMPATIBILITY_'):return 'configuration'
     if code.startswith(('AUTH_','WORK_AUTHORIZATION','EXECUTION_GRANT','WORK_POLICY','TOOL_','SECRET_')):return 'authorization'
     return CATEGORIES.get(code,'unknown')
 def delay(p,count,kind):

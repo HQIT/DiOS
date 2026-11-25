@@ -130,13 +130,21 @@ class A2AExecution:
                 recovery_policy=self.spec.recovery_policy(),
             )
 
-    async def prepare(self, binding):
+    async def prepare(self, binding, *, declaration_digest=None):
         async with self.store.db.transaction(self.store.scope) as c:
             run, attempt, now = await self.store._owned(c, *binding, authorize=True)
             if run["input"].get("profile_digest") != self.spec.fingerprint():
                 raise RuntimeErrorCode("PROFILE_CHANGED")
             if not run["input"].get("work_authorization_ref"):
                 raise RuntimeErrorCode("WORK_AUTHORIZATION_REQUIRED")
+            if run["input"].get("revision_ref"):
+                from .endpoint_compatibility import Compatibility
+
+                if declaration_digest is None:
+                    raise RuntimeErrorCode("COMPATIBILITY_REVIEW_REQUIRED")
+                await Compatibility(self.store.db, self.store.scope).require_accepted(
+                    c, self.spec.fingerprint(), declaration_digest
+                )
             if run["input"].get("input_registration", {}).get("result_schema") is None:
                 raise RuntimeErrorCode("A2A_RESULT_SCHEMA_REQUIRED")
             message = Message.model_validate(
@@ -165,6 +173,8 @@ class A2AExecution:
                 "observed_at": None,
                 "cancel_requested_at": None,
             }
+            if declaration_digest is not None:
+                value["declaration_digest"] = declaration_digest
             bounded(value)
             if "a2a" in attempt["remote"]:
                 old = attempt["remote"]["a2a"]
@@ -194,6 +204,12 @@ class A2AExecution:
             value = attempt["remote"]["a2a"]
             if value["stage"] != "prepared":
                 raise RuntimeErrorCode("A2A_SUBMISSION_ALREADY_DISPATCHED")
+            if run["input"].get("revision_ref"):
+                from .endpoint_compatibility import Compatibility
+
+                await Compatibility(self.store.db, self.store.scope).require_accepted(
+                    c, self.spec.fingerprint(), value["declaration_digest"]
+                )
             value = {**value, "stage": "dispatched", "dispatched_at": now}
             await c.execute(
                 attempts.update()

@@ -340,6 +340,35 @@ class Deployments:
 
                     if not policy_matches(grant, probe["input"]["work_policy_digest"]):
                         raise RuntimeErrorCode("WORK_POLICY_CHANGED")
+                    from .a2a_profile import A2AProfile
+                    from .endpoint_compatibility import Compatibility
+                    from .schema import attempts
+
+                    _, _, spec, _, _ = await load_profile(
+                        TransactionView(self.db, c, self.scope),
+                        self.scope,
+                        rollout["revision_id"],
+                    )
+                    if isinstance(spec, A2AProfile):
+                        attempt = (
+                            (
+                                await c.execute(
+                                    select(attempts).where(
+                                        attempts.c.id == probe["attempt_id"]
+                                    )
+                                )
+                            )
+                            .mappings()
+                            .one()
+                        )
+                        declared = (
+                            attempt["remote"].get("a2a", {}).get("declaration_digest")
+                        )
+                        if not declared:
+                            raise RuntimeErrorCode("COMPATIBILITY_REVIEW_REQUIRED")
+                        await Compatibility(self.db, self.scope).require_accepted(
+                            c, spec.fingerprint(), declared, fresh=False
+                        )
                 except RuntimeErrorCode as exc:
                     failure = exc.code
             if failure:

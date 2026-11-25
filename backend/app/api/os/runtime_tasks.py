@@ -207,6 +207,36 @@ def deployment_manager(s):
     return Deployments(s.db,s.scope,s.policy)
 
 
+def compatibility_manager(s):
+    if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
+    from app.runtime.revision_compatibility import RevisionCompatibility
+    from app.runtime.secret_provider import FileSecretMounts
+    resolver=FileSecretMounts(settings.runtime_secrets_file,s.scope) if settings.runtime_secrets_file else None
+    return RevisionCompatibility(s.db,s.scope,s.policy,resolver)
+
+
+class CompatibilityReview(BaseModel):
+    model_config=ConfigDict(extra='forbid',strict=True)
+    expected_version:int=Field(ge=1)
+    snapshot_digest:str=Field(pattern=r'^[0-9a-f]{64}$')
+    evidence:str=Field(min_length=1,max_length=1000)
+
+
+@router.get('/revisions/{revision_ref}/compatibility')
+async def compatibility_detail(revision_ref:str,s=Depends(service)):
+    return await compatibility_manager(s).show(revision_ref)
+
+
+@router.post('/revisions/{revision_ref}/compatibility/observe')
+async def compatibility_observe(revision_ref:str,s=Depends(service)):
+    return await compatibility_manager(s).observe(revision_ref)
+
+
+@router.post('/revisions/{revision_ref}/compatibility/accept')
+async def compatibility_accept(revision_ref:str,body:CompatibilityReview,s=Depends(service)):
+    return await compatibility_manager(s).accept(revision_ref,body.expected_version,body.snapshot_digest,'operator:console',body.evidence)
+
+
 @router.get('/deployments')
 async def deployments(after:str=Query('',max_length=160),limit:int=Query(50,ge=1,le=100),s=Depends(service)):
     return {'items':await deployment_manager(s).list(after=after,limit=limit)}

@@ -69,6 +69,15 @@ async def execute(args):
                 return await query.run(args.run_id, limit=args.limit,
                     attempt_cursor=args.attempt_cursor, artifact_cursor=args.artifact_cursor)
         store = RuntimeStore(db, args.scope)
+        if args.command == 'compatibility':
+            from .revision_compatibility import RevisionCompatibility
+            from .work_policy import FileWorkPolicy
+            from .secret_provider import FileSecretMounts
+            manager=RevisionCompatibility(db,args.scope,FileWorkPolicy(args.policy_file) if args.policy_file else None,
+                FileSecretMounts(args.secrets_file,args.scope) if args.secrets_file else None)
+            if args.compatibility_command=='show':return await manager.show(args.revision_ref)
+            if args.compatibility_command=='observe':return await manager.observe(args.revision_ref)
+            return await manager.accept(args.revision_ref,args.version,args.snapshot_digest,args.actor,args.evidence)
         if args.command == 'deployment':
             from .deployments import Deployments
             from .work_policy import FileWorkPolicy
@@ -321,6 +330,15 @@ def main(argv=None):
     remote.add_argument('--once',action='store_true');remote.add_argument('--timeout',type=float,default=300)
     remote.add_argument('--poll-interval',type=float,default=.25)
     deployment=commands.add_parser('deployment',help='governed candidate health, natural drain and activation')
+    compatibility=commands.add_parser('compatibility',help='review external declarations bound to an immutable Revision')
+    compatibility.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))
+    compatibility.add_argument('--secrets-file',default=os.environ.get('DIOS_RUNTIME_SECRETS_FILE'))
+    compatibility_commands=compatibility.add_subparsers(dest='compatibility_command',required=True)
+    for name in ('show','observe','accept'):
+        command=compatibility_commands.add_parser(name);command.add_argument('revision_ref')
+        if name=='accept':
+            command.add_argument('--version',type=int,required=True);command.add_argument('--snapshot-digest',required=True)
+            command.add_argument('--actor',required=True);command.add_argument('--evidence',required=True)
     deployment.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))
     deployment_commands=deployment.add_subparsers(dest='deployment_command',required=True)
     deployment_list=deployment_commands.add_parser('list');deployment_list.add_argument('--after',default='');deployment_list.add_argument('--limit',type=int,default=50)

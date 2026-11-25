@@ -886,7 +886,7 @@
         "work_item": "K02-1.01",
         "evidence": "docs/design/evidence/runtime-revisions-20261125.json",
         "image": "sha256:7991b23733b89c1cb7784e3ccad394e600c03d7272405c01102cb6aaef6ea3bf",
-        "next": "K02-1.04 external compatibility gate; #31 remains open through K02-1.05 and required acceptance."
+        "next": "K02-1.05 release qualification; #31 remains open pending complete evidence and acceptance."
       },
       "execution_revision_binding": {
         "status": "engineering_verified",
@@ -913,6 +913,22 @@
           "Natural drain retains original Run and Attempt; unresolved tool outcomes block activation",
           "Failed candidate retains ready version; rollback uses a fresh governed health Run",
           "Restart-safe bounded background reconciliation, CLI/API and bilingual Console status"
+        ],
+        "remaining": []
+      },
+      "external_compatibility": {
+        "status": "engineering_verified",
+        "work_item": "K02-1.04",
+        "evidence": "docs/design/evidence/endpoint-compatibility-20261125.json",
+        "delivered": [
+          "Scope-qualified protocol/version/capability declarations, bounded audit query and CAS review",
+          "Versioned A2A dispatch requires a fresh accepted declaration; same-version capability changes trigger review",
+          "Incompatible protocol restoration cannot silently reuse prior compatibility acceptance",
+          "Stale discovery responses cannot overwrite a newer observation or review",
+          "Existing remote tasks retain original identity and recovery, with no resubmission on declaration change",
+          "Deployment activation binds the successful health Attempt declaration to the current accepted declaration",
+          "API and CLI separately report configuration, local image, remote implementation and model rollback capabilities",
+          "Controlled local ACP/CLI implementation remains pinned by immutable image/configuration; remote model implementation remains opaque"
         ],
         "remaining": []
       }
@@ -3010,7 +3026,7 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-1.04",
+    "next_work_item": "K02-1.05",
     "next_delivery": "K02-1.05",
     "next_delivery_order": [
       "K02-1.05",

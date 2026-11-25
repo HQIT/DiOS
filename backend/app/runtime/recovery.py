@@ -22,6 +22,7 @@ from .outcome_schema import metadata as outcome_metadata, CHECKSUM as OUTCOME_CH
 from .monitor_schema import metadata as monitor_metadata, CHECKSUM as MONITOR_CHECKSUM
 from .revision_schema import metadata as revision_metadata, CHECKSUM as REVISION_CHECKSUM, GUARDS as REVISION_GUARDS
 from .deployment_schema import metadata as deployment_metadata, CHECKSUM as DEPLOYMENT_CHECKSUM
+from .compatibility_schema import metadata as compatibility_metadata, CHECKSUM as COMPATIBILITY_CHECKSUM
 from .history_schema import metadata as history_metadata, CHECKSUM as HISTORY_CHECKSUM
 from .history_archive_schema import metadata as history_archive_metadata, CHECKSUM as HISTORY_ARCHIVE_CHECKSUM
 from .lifecycle_schema import metadata as lifecycle_metadata, CHECKSUM as LIFECYCLE_CHECKSUM
@@ -111,6 +112,7 @@ def _database_info(path):
             ('runtime_monitor_schema',monitor_metadata,MONITOR_CHECKSUM),
             ('runtime_revision_schema',revision_metadata,REVISION_CHECKSUM),
             ('runtime_deployment_schema',deployment_metadata,DEPLOYMENT_CHECKSUM),
+            ('runtime_compatibility_schema',compatibility_metadata,COMPATIBILITY_CHECKSUM),
             ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
