@@ -26,6 +26,8 @@ OPA 采用[官方 external-data Option 2](https://www.openpolicyagent.org/docs/e
 
 Python SDK 的 `TaskClient` 提供 `issue_delegation(...)`、`delegation(reference)` 和 `revoke_delegation(reference, expected_version=...)`，沿用 HTTPS、禁止重定向转发凭据及传输结果不确定性处理。
 
+获授身份可通过任务提交中的 `delegation_ref` 使用新签发记录，API、SDK、CLI 与 Console 共用准入约束，见[认证委派与任务准入](delegated-task-admission-35.md)。
+
 ## 执行与撤权
 
 `runtime_delegation_issuers` 保存不可变的签发身份绑定、受信身份目录路径和 profile。记录不含原始 Token；备份与恢复识别新增 schema。准入、Work/Grant 检查、工具派发及结果接收都会沿链核对签发身份。已观察到的签发权限收回进入现有工作授权撤销流程，恢复身份权限不会复活已撤销 Work。

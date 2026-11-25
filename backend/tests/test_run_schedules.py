@@ -264,6 +264,11 @@ class RunScheduleTests(unittest.IsolatedAsyncioTestCase):
         response = await self.client.post(path, headers=self.headers, json=body)
         self.assertEqual(201, response.status_code, response.text)
         self.assertEqual("no-store", response.headers["cache-control"])
+        # Per-request identity delegation is separate from operator schedule templates.
+        for reference in (None, "dl-user-supplied"):
+            rejected = await self.client.post(path, headers=self.headers,
+                json=body | {"delegation_ref": reference})
+            self.assertEqual(422, rejected.status_code)
         self.assertEqual(
             422,
             (

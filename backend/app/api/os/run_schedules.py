@@ -3,7 +3,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.api.os.runtime_tasks import RuntimeRoute, Submit
+from app.api.os.runtime_tasks import RuntimeRoute, TaskInput
 from app.api.os.upgrade import control_operator
 from app.config import settings
 from app.services.run_schedules import RunSchedules
@@ -26,7 +26,7 @@ async def service(request: Request):
 Service = Annotated[RunSchedules, Depends(service)]
 
 
-class Create(Submit):
+class Create(TaskInput):
     cron_expression: str = Field(min_length=1, max_length=64)
 
 

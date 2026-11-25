@@ -1,0 +1,375 @@
+{
+  "date": "2026-11-25",
+  "scope": "isolated WSL Docker / synthetic source / authenticated HTTP and native OPA",
+  "runtime": {
+    "run": {
+      "id": "76969b3f-f42f-467a-8778-c0a7f7bc7952",
+      "state": "succeeded"
+    },
+    "revoked_run": {
+      "id": "b21270f0-2062-4aaf-981e-c5fb0b973526",
+      "state": "failed"
+    },
+    "active_runs": 0,
+    "calls": [
+      {
+        "state": "succeeded",
+        "approval_state": "consumed"
+      }
+    ]
+  },
+  "live": {
+    "image": "sha256:bed625d81a847e2ae019ceac53c52665ea4c920ff0e3ed75687a8101c84e5ecb",
+    "run_id": "76969b3f-f42f-467a-8778-c0a7f7bc7952",
+    "attempts": [
+      {
+        "id": "f778c0f2-a8af-4421-9346-29ee7e39601c",
+        "epoch": 1,
+        "state": "completed",
+        "session_id": "1a37edc5-73b2-4254-b912-06a6dfed0ad4",
+        "worker_id": "27c7ce44-e8d9-485a-a491-932cb26b3d9a",
+        "process_id": 204787,
+        "started_at": 1795576341.49801,
+        "finished_at": 1795576352.9860184,
+        "last_output_at": 1795576352.0376363,
+        "error": null,
+        "freshness": "final",
+        "runtime_state": "exited",
+        "confirmed_running": false,
+        "output_excerpt": "I'll first call the governed MCP tool as instructed.{\"summary\": \"检索工具返回的结果与待审查源码一致（sample.py，SHA256 为 c9f28bea98a2738fd61db45b1a927b35357a4a9a22303e1343450814dea7c632）。静态分析发现：first(items) 直接在空列表上取下标 items[0] 前未做任何校验，当 items 为空序列（空列表、空元组）时抛出 IndexError，可能导致调用方异常中断。\", \"findings\": [{\"title\": \"未检查空列表即索引首元素导致 IndexError\", \"line_start\": 2, \"line_end\": 2, \"condition\": \"调用 first(items) 时传入的 items 为空序列（如 [] 或 ()），函数未对长度做校验便直接取 items[0]\", \"evidence\": \"    return items[0]\", \"impact\": \"运行期抛出 IndexError: list index out of range，异常向上传播；若调用方未捕获将导致程序崩溃或接口返回错误，属输入边界处理缺失。\"}]}"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "71e34df4-2641-49be-89ad-4535b702b28c",
+        "attempt_id": "f778c0f2-a8af-4421-9346-29ee7e39601c",
+        "digest": "2abb4b2fc46075fb06f4879e4f2ae020b908627718f8bf4f372f465380084f92",
+        "size": 2235,
+        "created_at": 1795576352.9860184,
+        "kind": "result"
+      },
+      {
+        "id": "53d20bc5-b800-4116-8af8-5b51669e1215",
+        "attempt_id": "f778c0f2-a8af-4421-9346-29ee7e39601c",
+        "digest": "825fe00879bec6546b05a463ad5c5dfb44b2e966fc8e6482a782eded0744e33d",
+        "size": 135,
+        "created_at": 1795576352.5669904,
+        "kind": "stderr"
+      },
+      {
+        "id": "5e147e61-b450-4648-b178-7156f8eacfef",
+        "attempt_id": "f778c0f2-a8af-4421-9346-29ee7e39601c",
+        "digest": "6994bcdb966aff46d01de759dae61035ce233c669b406550bc4f691ccf14cfcf",
+        "size": 3360,
+        "created_at": 1795576352.5210037,
+        "kind": "stdout"
+      },
+      {
+        "id": "615aa4b3-30e6-442f-8f63-a864c0fc93ff",
+        "attempt_id": "f778c0f2-a8af-4421-9346-29ee7e39601c",
+        "digest": "52ddf76589705ed3ebba5aeec7441b834c2100ea93a5aa931bd21de08f6288b4",
+        "size": 2181,
+        "created_at": 1795576350.1270115,
+        "kind": "raw"
+      },
+      {
+        "id": "dc2aeb2e-63f8-4142-bcd5-a3641d4c6d5c",
+        "attempt_id": "f778c0f2-a8af-4421-9346-29ee7e39601c",
+        "digest": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+        "size": 226,
+        "created_at": 1795576350.1270115,
+        "kind": "raw"
+      }
+    ],
+    "authorization": {
+      "mode": "e2ag",
+      "reference": "wa-f5d57eb2231df96b3c9e1417a61f0327386b60cbd227eaf92e4de7603e96",
+      "subject": "subject:qualification",
+      "actor": "service:agent",
+      "policy_id": "harness-governance",
+      "state": "closed",
+      "expires_at": 1795578140.958907,
+      "authorization_epoch": 1,
+      "source_check": null,
+      "source_event": null,
+      "delegation": {
+        "reference": "dl-996e6d5247791dad8feb1d0a6eae6fd5f111c12ae703ceae01ae3efc408c",
+        "captured_at": 1795576341.3779945,
+        "chain": [
+          {
+            "id": "dl-a780103ee3a805f1bc1b0e5da3ec511bee6bc30a7c0d5c7663cab94db3f0",
+            "parent_ref": null,
+            "subject": "subject:qualification",
+            "actor": "service:issuer",
+            "depth": 0,
+            "state": "active",
+            "expires_at": 1795578740.8155656,
+            "authorization_epoch": 1,
+            "captured_epoch": 1,
+            "source_check": null
+          },
+          {
+            "id": "dl-996e6d5247791dad8feb1d0a6eae6fd5f111c12ae703ceae01ae3efc408c",
+            "parent_ref": "dl-a780103ee3a805f1bc1b0e5da3ec511bee6bc30a7c0d5c7663cab94db3f0",
+            "subject": "subject:qualification",
+            "actor": "service:agent",
+            "depth": 1,
+            "state": "active",
+            "expires_at": 1795578140.958907,
+            "authorization_epoch": 1,
+            "captured_epoch": 1,
+            "source_check": null
+          }
+        ]
+      },
+      "secret_refs": [
+        {
+          "ref": "model/ecnu",
+          "version": "v1"
+        }
+      ],
+      "grant": {
+        "attempt_id": "f778c0f2-a8af-4421-9346-29ee7e39601c",
+        "session_id": "1a37edc5-73b2-4254-b912-06a6dfed0ad4",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "closed",
+        "expires_at": 1795577241.6049898
+      },
+      "decisions": [
+        {
+          "id": "214a5c78-7141-4e3f-a6c4-b222f4abcd9b",
+          "action": "accept_result",
+          "created_at": 1795576352.815993,
+          "outcome": "allow",
+          "reason_codes": [
+            "RESULT_ACCEPTANCE_AUTHORIZED"
+          ]
+        },
+        {
+          "id": "a60ee39f-e625-4163-a06e-c703df5a4516",
+          "action": "tool-activity",
+          "created_at": 1795576352.0349874,
+          "outcome": "allow",
+          "reason_codes": [
+            "ACP_TOOL_ACTIVITY_LINKED"
+          ]
+        },
+        {
+          "id": "c8aff34c-a09d-43fc-967a-1e35fe0dd90e",
+          "action": "tool-control",
+          "created_at": 1795576346.8840196,
+          "outcome": "deny",
+          "reason_codes": [
+            "TOOL_SESSION_NOT_READY"
+          ]
+        },
+        {
+          "id": "ecf487d6-0beb-4d8e-b75c-d5bb95b4ecb6",
+          "action": "tool-control",
+          "created_at": 1795576345.7819939,
+          "outcome": "deny",
+          "reason_codes": [
+            "TOOL_SESSION_NOT_READY"
+          ]
+        },
+        {
+          "id": "b6e243ca-e359-4424-90d5-f2d7bec1f681",
+          "action": "execute",
+          "created_at": 1795576345.7249835,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_SESSION_BOUND"
+          ]
+        },
+        {
+          "id": "73c88624-f36f-44ab-95f5-1d13ec6811cd",
+          "action": "execute",
+          "created_at": 1795576341.6049898,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_GRANT_CREATED"
+          ]
+        },
+        {
+          "id": "ec29ba09-34eb-4a7e-a71b-ec0f52f3b0ea",
+          "action": "admit",
+          "created_at": 1795576341.2819982,
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ]
+        }
+      ]
+    },
+    "tool_calls": 1,
+    "delegation_ref": "dl-996e6d5247791dad8feb1d0a6eae6fd5f111c12ae703ceae01ae3efc408c",
+    "checks": [
+      "authenticated-API-issuance",
+      "SDK-task-reference-bound",
+      "duplicate-submission-same-run",
+      "real-DSH-ECNU-Max-session",
+      "approval-before-tool",
+      "one-tool-one-report",
+      "unchanged-profile-policy",
+      "API-issuer-revocation-blocks-new-process"
+    ]
+  },
+  "live_record_sha256": "ebc7d05b410be1c292972dd647de9b090dc6cda86529489839e0ef7160d6a3cf",
+  "cli": {
+    "cli_run_id": "4985f2ad-3cef-4b98-aaa6-28867d53c03e",
+    "reference_bound": true,
+    "idempotent": true,
+    "cancelled_queued": [
+      "4985f2ad-3cef-4b98-aaa6-28867d53c03e",
+      "5a3b5a64-a873-4381-ae5f-5900cb62648a",
+      "40327d24-0cf1-4352-9233-489b07a25919",
+      "aa73780c-0d2c-48ed-a66d-2c6579bef46b",
+      "1611c7d1-9f1a-4314-a96a-1aebb1ec5a41"
+    ]
+  },
+  "ui": {
+    "browser": "Playwright Chromium",
+    "reason": "Browser plugin not available",
+    "source": "live authenticated Runtime API",
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "run_id": "aa73780c-0d2c-48ed-a66d-2c6579bef46b",
+        "referenceBound": true,
+        "unknownReferenceError": true,
+        "chainVisible": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "run_id": "40327d24-0cf1-4352-9233-489b07a25919",
+        "referenceBound": true,
+        "unknownReferenceError": true,
+        "chainVisible": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "run_id": "5a3b5a64-a873-4381-ae5f-5900cb62648a",
+        "referenceBound": true,
+        "unknownReferenceError": true,
+        "chainVisible": true,
+        "pageErrors": [],
+        "horizontalOverflow": false
+      }
+    ],
+    "screenshots": [
+      {
+        "name": "zh-1440.png",
+        "sha256": "7700d06d0a07d3a0c1c5aef4f4bf279f9d220ef29c1a55aef6f678be8543d5ff"
+      },
+      {
+        "name": "en-1440.png",
+        "sha256": "b17760b17b4249da7cd32a07773160ef685e1138815c36ff762bcd2cd27ceffd"
+      },
+      {
+        "name": "en-390.png",
+        "sha256": "c5f562459bab58bc74fff6f4df65341b90a1648c9cf949b342cb291e5795bfca"
+      }
+    ]
+  },
+  "tests": {
+    "verified-regression": {
+      "total": 92,
+      "passed": 78,
+      "skipped": 14,
+      "sha256": "ca7aa3c27daa704c3d2ee14cb0ab13224193f906c9aad7e8a6ff1cc2172ca77c"
+    },
+    "sdk-tests": {
+      "total": 53,
+      "passed": 53,
+      "skipped": 0,
+      "sha256": "04502f5a959e80dad450a318c62dd3c57caf22e414197d648e298737d17171e8"
+    },
+    "sdk-installed-tests": {
+      "total": 10,
+      "passed": 10,
+      "skipped": 0,
+      "sha256": "9e36647656a56cb9b7f14b2f1fb90e7bf2caa352063d11b9d7e4005003b117ad"
+    },
+    "image-contracts": {
+      "total": 58,
+      "passed": 44,
+      "skipped": 14,
+      "sha256": "4dff04452d53c929f0de1f1fb0093eafe2a0663ee997be577b2d2d1fbe8e29b1"
+    },
+    "design": {
+      "scope": "design contract consistency and reference semantics; no runtime/concurrency certification",
+      "schemas": 68,
+      "operations": 31,
+      "schema_examples": 12,
+      "state_scenarios": 13,
+      "checks_passed": 681,
+      "errors": []
+    }
+  },
+  "deployment": {
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "image": {
+    "image": "sha256:37b8e909a99c8740445eb9522d9330c323aac5ca997a6813f557162eb74cefff",
+    "tag": "dios-backend:delegated-submission-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "sdk_package": {
+    "version": "0.1.6",
+    "wheel": "dios_sdk-0.1.6-py3-none-any.whl",
+    "sha256": "146c4049e623f268fd7c61e86dea6fe9a7014aec68c05b966aca8d6eb658af52",
+    "offline_install_verified": true
+  },
+  "frontend_build": {
+    "passed": true,
+    "sha256": "09972f1e789cf27d636dcd7a93652c7baf750222a7e583830470788fab7ef186"
+  },
+  "deployed_contract": {
+    "development_openapi_delegation_field": true,
+    "schedule_schema_unchanged": true,
+    "api_health": {
+      "status": "ok"
+    }
+  },
+  "source_sha256": {
+    "backend/app/services/delegation_access.py": "6b86114fd17cf151c239596d16cca335b2e181612fa59a5f4d851c52fef53d08",
+    "backend/app/services/task_console.py": "08171a1f86bdaceadb1f38626fa238b8d0922fb7613deca84ecc509cd7c6499f",
+    "backend/app/api/os/runtime_tasks.py": "9bf166dcbdaf5833df9afce29f1b9f342c3a90690bf1f778c4423ff6a18862cb",
+    "backend/app/api/os/run_schedules.py": "9bcb83448f3e96135534e6fef503ddbdc68f9345b922ad4adb8cab6d281438f0",
+    "backend/tests/test_runtime_delegated_submission.py": "992ad0830339968e227d0748e6e85dd0db5bab601783a212c3da978267b91230",
+    "backend/tests/test_run_schedules.py": "ff0f01f6fbd9fd3987023061f7465eb14d606fbeecf3461c0c7a293f0826925d",
+    "cli/dios": "f55c651887f7f2d0b9d5ad6322fb8e2b22cbf5c31fce3eaa46f3914d75e4f424",
+    "sdk/python/src/dios_sdk/tasks.py": "b0a93c1c25225fdd788c82aede8d501996eb60cf10fd45c0427dd3868d4c7a13",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "1b92f7165646954bb0fb610db931e8fd578aef4283a9f7c123686547462bfaab",
+    "frontend/src/lib/messages.ts": "32afb1fdb24b7f516175ffef0d2ff27bf8c1e791ae1f9277e6f12ac3c5353ea1"
+  },
+  "remaining": [
+    "Running-Agent child-task tool channel and authenticated parent Run/Attempt/Session/epoch binding",
+    "Parent-close and budget propagation semantics",
+    "Physical cross-host, strict cross-Provider revocation ordering and independent G2 acceptance"
+  ]
+}

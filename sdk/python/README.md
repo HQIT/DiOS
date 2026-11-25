@@ -27,3 +27,9 @@ Authenticated delegation: `TaskClient.issue_delegation`, `delegation`, and
 `revoke_delegation` use the same authenticated Runtime transport. Issuance requires
 an existing parent and an explicit profile grant; the server resolves the issuer.
 See [issuer identity and revocation](../../docs/design/delegation-identity-35.md).
+
+SDK 0.1.6 supports `delegation_ref=...` on `submit` and `submit_input`.
+Use the recipient's authenticated client and retain both the reference and the
+idempotency key on retries. The server checks subject, actor, the configured
+ancestor and the live authorization chain in the admission transaction.
+See [delegated task admission](../../docs/design/delegated-task-admission-35.md).

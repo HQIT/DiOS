@@ -10,6 +10,28 @@ from app.runtime.store import digest
 from sqlalchemy import select
 
 
+def submission_guard(console, descriptor, reference, previous=None):
+    """An explicit leaf can narrow, but cannot replace, a configured ancestor."""
+    if descriptor is None:
+        raise RuntimeErrorCode("WORK_POLICY_REQUIRED")
+    anchor = descriptor.get("delegation_ref")
+
+    async def guard(c):
+        chain = await lineage(c, console.scope, reference)
+        if anchor is not None and anchor not in {row["id"] for row in chain}:
+            raise RuntimeErrorCode("DELEGATION_ANCESTOR_REQUIRED")
+        leaf = chain[-1]
+        if (leaf["subject_ref"] != console.principal["subject"]
+                or leaf["actor_ref"] != console.principal["actor"]):
+            raise RuntimeErrorCode("AUTH_DELEGATION_BINDING_MISMATCH")
+        if previous is not None:
+            await previous(c)
+        # Runtime.create binds the leaf, checks its live chain with OPA, clamps
+        # the deadline and persists dependencies in this same admission txn.
+
+    return guard
+
+
 class AuthorizedDelegations:
     def __init__(self, console):
         self.console = console

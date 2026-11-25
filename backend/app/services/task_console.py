@@ -156,10 +156,17 @@ class TaskConsole:
             **{key:descriptor[key] for key in ('subject','actor','policy_id','policy_digest')})
 
     async def submit(self, profile_id, sample_id, goal, key, *, input_payload=None,
-                     expected_schedule_binding=None, admission_guard=None, transport_binding=None):
+                     expected_schedule_binding=None, admission_guard=None, transport_binding=None,
+                     delegation_ref=None):
+        if delegation_ref is not None:
+            from app.runtime.store import identifier
+            identifier(delegation_ref)
+            if self.principal is None:raise RuntimeErrorCode('AUTH_PRINCIPAL_REQUIRED')
         prepared=await self.prepare_submission(profile_id,sample_id,goal,input_payload=input_payload)
         registered,profile,value=(prepared[k] for k in ('registered','profile','value'))
         submission_digest=prepared['submission_digest']
+        if delegation_ref is not None:
+            submission_digest=digest([submission_digest,dict(delegation_ref=delegation_ref)])
         # Trusted protocol adapters bind correlation to the same durable receipt.
         # Transport identity never supplies execution authority or business input.
         if transport_binding is not None:
@@ -174,6 +181,10 @@ class TaskConsole:
         if expected_schedule_binding is not None:
             if self.principal is not None or self.schedule_binding(prepared,descriptor)!=expected_schedule_binding:
                 raise RuntimeErrorCode('SCHEDULE_BINDING_CHANGED')
+        if delegation_ref is not None:
+            from app.services.delegation_access import submission_guard
+            admission_guard=submission_guard(self,descriptor,delegation_ref,admission_guard)
+            descriptor=dict(descriptor,delegation_ref=delegation_ref)
         run=await self.store.submit(key,dict(origin=CONSOLE_ORIGIN,
             **({'transport_binding':transport_binding} if transport_binding is not None else {}),
             **({'principal':self.principal} if self.principal is not None else {}),

@@ -1318,6 +1318,14 @@
           "企业 IdP、TLS/主机隔离与 HA",
           "标准注销事件、受控长任务续期及严格撤销排序"
         ]
+      },
+      "harness_governance_verification": {
+        "date": "2026-11-25",
+        "state": "nine_real_cases_passed",
+        "design": "docs/design/harness-governance-56-58.md",
+        "evidence": "docs/design/evidence/harness-governance-20261125.json",
+        "delivered": "Cursor/DSH/Codex 续期、三层委派、祖先撤权、旧 epoch；终态未派发调用原子收尾，保留审批",
+        "remaining": "运行中 Agent 子任务入口、额外原生工具路径、物理跨主机、G2 与用户验收"
       }
     },
     {
@@ -1356,7 +1364,15 @@
         "validation_evidence": "docs/design/evidence/a2a-recovery-20261125.json",
         "remaining": "首次预检的安全自动重试；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
       },
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "harness_governance_verification": {
+        "date": "2026-11-25",
+        "state": "nine_real_cases_passed",
+        "design": "docs/design/harness-governance-56-58.md",
+        "evidence": "docs/design/evidence/harness-governance-20261125.json",
+        "delivered": "Cursor/DSH/Codex 续期、三层委派、祖先撤权、旧 epoch；终态未派发调用原子收尾，保留审批",
+        "remaining": "运行中 Agent 子任务入口、额外原生工具路径、物理跨主机、G2 与用户验收"
+      }
     },
     {
       "id": "K03-3",
@@ -1532,6 +1548,23 @@
           "Authorization and reconciliation throughput and latency qualification"
         ],
         "next": "#35 跨服务 audience 与远程撤权保证；结合整体部署拓扑和容量计划验收"
+      },
+      "delegated_task_admission": {
+        "date": "2026-11-25",
+        "state": "development_verified_parent_task_channel_pending",
+        "design": "docs/design/delegated-task-admission-35.md",
+        "evidence": "docs/design/evidence/delegated-submission-20261125.json",
+        "delivered": [
+          "认证主体按请求消费委派，保留配置上级约束及同事务授权链检查",
+          "SDK 0.1.6、CLI 与中英文 Console 同步",
+          "原生 OPA、DSH/ECNU Max 审批报告与 API 撤权阻止新进程"
+        ],
+        "verification": "78 项相关回归通过、14 项条件跳过；SDK 53 项、离线安装 10 项通过；镜像 44 项通过、14 项条件跳过；开发历史 84 条保留",
+        "remaining": [
+          "Running-Agent child-task tool channel and authenticated parent Run/Attempt/Session/epoch binding",
+          "Parent-close and budget propagation semantics",
+          "Physical cross-host, strict cross-Provider revocation ordering and independent G2 acceptance"
+        ]
       }
     },
     {
@@ -2316,7 +2349,15 @@
         "validation_evidence": "docs/design/evidence/a2a-recovery-20261125.json",
         "remaining": "首次预检的安全自动重试；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
       },
-      "product_scope": "dios-capability"
+      "product_scope": "dios-capability",
+      "harness_governance_verification": {
+        "date": "2026-11-25",
+        "state": "nine_real_cases_passed",
+        "design": "docs/design/harness-governance-56-58.md",
+        "evidence": "docs/design/evidence/harness-governance-20261125.json",
+        "delivered": "Cursor/DSH/Codex 续期、三层委派、祖先撤权、旧 epoch；终态未派发调用原子收尾，保留审批",
+        "remaining": "运行中 Agent 子任务入口、额外原生工具路径、物理跨主机、G2 与用户验收"
+      }
     },
     {
       "id": "A01-5",

@@ -1,5 +1,10 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "委派授权引用（可选）": "Delegation reference (optional)",
+  "使用签发给当前身份的委派；留空沿用执行配置的授权。": "Use a delegation issued to your identity; leave blank to use the profile authorization.",
+  "所选委派必须保留执行配置要求的上级授权。": "The selected delegation must retain the ancestor required by the execution profile.",
+  "委派的主体或执行者与当前登录身份不一致。": "The delegation subject or actor does not match your signed-in identity.",
+  "委派授权不存在或不在当前作用域内。": "The delegation does not exist in the current scope.",
   "定时执行": "Run on a schedule",
   "执行时间（Cron · UTC）": "Schedule (Cron · UTC)",
   "五字段 UTC 时间。例如 0 1 * * * 表示北京时间每天 09:00。每次执行独立核验 E2AG 服务授权。": "Five fields in UTC. For example, 0 1 * * * runs daily at 01:00 UTC. Each run revalidates E2AG service authorization.",

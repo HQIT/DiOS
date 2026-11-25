@@ -42,6 +42,9 @@ const ERRORS: Record<string, string> = {
   DELEGATION_REVOKED: "委派授权已撤销，请重新获取授权。",
   DELEGATION_EXPIRED: "委派授权已过期，请重新获取授权。",
   DELEGATION_DENIED: "当前委派范围不包含这项操作。",
+  DELEGATION_ANCESTOR_REQUIRED: "所选委派必须保留执行配置要求的上级授权。",
+  AUTH_DELEGATION_BINDING_MISMATCH: "委派的主体或执行者与当前登录身份不一致。",
+  DELEGATION_NOT_FOUND: "委派授权不存在或不在当前作用域内。",
   WORK_AUTH_MIGRATION_REQUIRED: "工作授权数据结构尚未初始化，请联系管理员。",
   RUNTIME_DRAINING: "运行环境正在排空，恢复服务后可发起新任务。",
 };
@@ -74,6 +77,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   const [scheduled, setScheduled] = useState(false);
   const [cron, setCron] = useState("0 1 * * *");
   const [principalName, setPrincipalName] = useState("");
+  const [delegationRef, setDelegationRef] = useState("");
   const [refresh, setRefresh] = useState(0); const [artifact, setArtifact] = useState("");
   const [preview, setPreview] = useState<Preview>(); const [previewError, setPreviewError] = useState("");
   const [downloading, setDownloading] = useState(false);
@@ -146,7 +150,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         supplied = canonicalInput(value) as Record<string, unknown>;
       } catch { setActionError("任务输入必须是有效的 JSON 对象。"); setBusy(false); return; }
     }
-    const input = { profile_id: profile, ...(customInput ? {input_payload: supplied} : {sample_id: sample}), goal: goal.trim(), ...(scheduled && operatorMode ? {cron_expression: cron.trim()} : {}) };
+    const input = { profile_id: profile, ...(customInput ? {input_payload: supplied} : {sample_id: sample}), goal: goal.trim(), ...(!operatorMode && delegationRef.trim() ? {delegation_ref: delegationRef.trim()} : {}), ...(scheduled && operatorMode ? {cron_expression: cron.trim()} : {}) };
     const content = JSON.stringify(input);
     if (!keyRef.current) {
       try { keyRef.current = JSON.parse(sessionStorage.getItem("dios_pending_task") || "null"); } catch { /* storage unavailable */ }
@@ -221,6 +225,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           {source && <pre className="tr-source"><code>{typeof source.source === "string" ? source.source : JSON.stringify(source, null, 2)}</code></pre>}
         </>}
         <label>{translateUI("工作目标")}<textarea aria-label={translateUI("工作目标")} value={goal} onChange={e => setGoal(e.target.value)} maxLength={2000} rows={4} required disabled={busy} /></label>
+        {!operatorMode && <label>{translateUI("委派授权引用（可选）")}<input aria-label={translateUI("委派授权引用（可选）")} value={delegationRef} onChange={e => setDelegationRef(e.target.value)} maxLength={160} disabled={busy} /><span className="tr-muted">{translateUI("使用签发给当前身份的委派；留空沿用执行配置的授权。")}</span></label>}
         {operatorMode && <label><input type="checkbox" checked={scheduled} onChange={e => setScheduled(e.target.checked)} disabled={busy}/>{translateUI("定时执行")}</label>}
         {operatorMode && scheduled && <>
           <label>{translateUI("执行时间（Cron · UTC）")}<input value={cron} onChange={e => setCron(e.target.value)} maxLength={64} required disabled={busy}/></label>

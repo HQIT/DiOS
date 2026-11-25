@@ -91,7 +91,7 @@ export const runtimeApi = {
   list: (cursor?: string, signal?: AbortSignal) => request<{ items: RunSummary[]; next_cursor: string | null; observed_at: number }>(
     `/runs?limit=30${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { signal }),
   detail: (id: string, signal?: AbortSignal) => request<RunDetail>(path(id), { signal }),
-  submit: (data: { profile_id: string; sample_id?: string; input_payload?: Record<string, unknown>; goal: string; idempotency_key: string }) =>
+  submit: (data: { profile_id: string; sample_id?: string; input_payload?: Record<string, unknown>; goal: string; idempotency_key: string; delegation_ref?: string }) =>
     request<RunDetail>("/runs", { method: "POST", body: JSON.stringify(data) }),
   cancel: (id: string, version: number) => request<RunDetail>(`${path(id)}/cancel`, {
     method: "POST", body: JSON.stringify({ expected_version: version }),

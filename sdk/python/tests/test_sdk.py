@@ -43,6 +43,13 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(caught.exception.status,302)
         self.assertEqual(len(self.requests),2)
         self.assertFalse(any('redirect-target' in x[1] for x in self.requests))
+    def test_delegated_submissions_bind_same_reference_and_key_on_retry(self):
+        for _ in range(2):
+            self.client.submit('profile','input','goal',idempotency_key='same',delegation_ref='dl-one')
+        self.client.submit_input('profile',{'id':'input','name':'中文'},'goal',idempotency_key='dynamic',delegation_ref='dl-two')
+        self.assertEqual(self.requests[0][2],self.requests[1][2])
+        self.assertEqual(self.requests[0][2]['delegation_ref'],'dl-one')
+        self.assertEqual(self.requests[2][2]['delegation_ref'],'dl-two')
     def test_query_timeout_keeps_same_task_and_never_resubmits(self):
         self.body={'state':'running','id':'existing'}
         with self.assertRaises(ObservationTimeout) as caught:self.client.wait('existing',timeout=.03,interval=.01)
