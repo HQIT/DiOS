@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K01-5.02",
-    "next_delivery": "K01-5.02",
+    "next_work_item": "S02-1.01",
+    "next_delivery": "S02-1.01",
     "next_delivery_order": [
-      "K01-5.02",
+      "S02-1.01",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -31,7 +31,8 @@
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
-    "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。"
+    "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
+    "next_selection_reason": "W1 剩余恢复/升级链依赖 K02-3.02 的源端隔离决策；先推进既定 W2 无前置依赖的 S02-1.01 统一对象版本与引用。"
   },
   "waves": [
     {
@@ -2989,7 +2990,7 @@
       "issue": 58,
       "title": "跨实现恢复与升级资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K01-5-A03",
         "K01-5-A04",
@@ -3004,8 +3005,10 @@
         "K02-1.05"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有三种真实 Harness 和治理切片；完整版本矩阵及联合资格待闭环。",
+      "completion_evidence": [
+        "docs/design/evidence/cursor-recovery-upgrade-20261126.json"
+      ],
+      "basis": "Cursor ACP 首条路径恢复、并发与版本切换资格通过；两来源完整执行与联合接受仍由 K01-5.01/.03 承接。",
       "existing_evidence": [
         "docs/design/evidence/harness-governance-20261125.json",
         "docs/design/evidence/recipient-harnesses-20261125.json",

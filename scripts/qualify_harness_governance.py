@@ -9,6 +9,7 @@ import argparse
 import asyncio
 import hashlib
 import json
+import os
 import sys
 import threading
 import time
@@ -144,7 +145,7 @@ async def qualify(args):
     directory.mkdir(mode=0o700, parents=True, exist_ok=False)
     scope = "harness-" + uuid4().hex[:16]
     source = sample("first-item")
-    positive_cases = {"renew", "approve", "native-deny"}
+    positive_cases = {"renew", "approve", "native-deny", "recovery-crash"}
     server = SourceServer(source["source"], args.case not in positive_cases)
     db = Database("sqlite+aiosqlite:///" + str(directory / "runtime.sqlite"))
     worker_task = None
@@ -306,6 +307,18 @@ async def qualify(args):
             authorization=policy.admission(profile_id, spec.fingerprint(), refs),
         )
         evidence.update(run_id=run["id"], image=spec.image)
+        if args.case == "recovery-crash":
+            async def crash_before_commit(*_args, **_kwargs):
+                current = await store.get(run["id"])
+                receipt = ExitReceipts(provider, scope).load(current["attempts"][0])
+                assert receipt and not receipt["observation"]["alive"]
+                save(directory / "recovery-target.json", {
+                    "run": current, "worker_pid": os.getpid(),
+                    "tool_calls": server.calls, "scope": scope,
+                    "evidence": evidence,
+                })
+                os._exit(75)
+            store.complete = crash_before_commit
         worker_task = asyncio.create_task(worker.once())
 
         async def pending():
@@ -348,6 +361,20 @@ async def qualify(args):
             invocation_id=item["id"],
         )
         evidence["checks"].append("real-process-session-and-three-level-delegation")
+        if getattr(args, "release_file", None):
+            save(directory / "ready.json", {
+                "worker_pid": os.getpid(), "worker_id": worker.worker_id,
+                "run_id": run["id"], "attempt_id": attempt["id"],
+                "session_id": attempt["session_id"], "process_id": observed.pid,
+                "process_instance": observed.process_instance, "scope": scope,
+                "observed_at": time.time(),
+            })
+            async def released():
+                if worker_task.done():
+                    await worker_task
+                    raise AssertionError("Worker ended before concurrency barrier")
+                return args.release_file.is_file()
+            await wait_for(released, seconds=90)
         if args.case == "approval-expired":
             async with db.read(scope) as c:
                 original = await gate._row(c, run["id"], item["id"])
@@ -584,8 +611,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("profile", "secrets", "opa", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--release-file", type=Path)
     parser.add_argument(
-        "--case", required=True, choices=("renew", "approve", "native-deny", "approval-expired", "ancestor-revoke", "stale-epoch")
+        "--case", required=True, choices=("renew", "approve", "native-deny", "approval-expired", "ancestor-revoke", "stale-epoch", "recovery-crash")
     )
     args = parser.parse_args()
     asyncio.run(qualify(args))

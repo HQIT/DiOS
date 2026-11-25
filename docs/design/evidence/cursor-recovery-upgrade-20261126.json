@@ -1,0 +1,162 @@
+{
+  "work_item": "K01-5.02",
+  "status": "engineering_verified",
+  "primary_harness": "Cursor ACP",
+  "versions": {
+    "cursor_cli": "2026.11.05-86047df",
+    "dios_sdk": "0.1.11",
+    "agent_client_protocol": "1.0.0",
+    "image": "sha256:b461e1f42bc8c8ece7b735752a0877c4e62868728944cf8c1e02d3be04c21464",
+    "host": "Linux/WSL Ubuntu 24.04"
+  },
+  "native_concurrency": {
+    "observed_at": 1795625463.5516973,
+    "actual_concurrency": 2,
+    "workers": [
+      {
+        "worker_pid": 490392,
+        "worker_id": "59be33a4-c57c-4cda-8fe2-44448fee619d",
+        "run_id": "2712b59a-8cac-414f-be60-8dfdf760fd26",
+        "attempt_id": "cb96eb4e-2a74-4b93-b565-3cf7afe11069",
+        "session_id": "ec54a71b-d46c-42d5-8b12-d957af0d0287",
+        "process_id": 490504,
+        "process_instance": "b61e7e461263132082e996e10b9ded9e68cf41b0623bf877dd495e813cc53497:2026-11-25T16:50:42.978043312Z",
+        "scope": "harness-23138071ae5e4d49",
+        "observed_at": 1795625463.4046814,
+        "checked_at": 1795625463.5453448,
+        "alive": true
+      },
+      {
+        "worker_pid": 490393,
+        "worker_id": "1f8ffb03-6881-4054-962c-d6db55d0e8b0",
+        "run_id": "7a1a9465-54fd-47f5-99c9-fdfa034fa2cb",
+        "attempt_id": "7222b13d-4ad1-4a73-826a-d37214d6180b",
+        "session_id": "1b072446-9833-4be8-838c-fb31b72e3279",
+        "process_id": 490497,
+        "process_instance": "6b818cf80d39fb6cb976e76621df85d488a4eb1866cde906e4fb972bf53e50c4:2026-11-25T16:50:42.957119798Z",
+        "scope": "harness-362680628a25454d",
+        "observed_at": 1795625462.696806,
+        "checked_at": 1795625463.5512602,
+        "alive": true
+      }
+    ],
+    "scope": "Two independent Cursor Workers and live model sessions in separate isolated control scopes; no shared-queue capacity claim"
+  },
+  "crash_recovery": {
+    "passed": true,
+    "run_id": "7a1a9465-54fd-47f5-99c9-fdfa034fa2cb",
+    "attempt_id": "7222b13d-4ad1-4a73-826a-d37214d6180b",
+    "session_id": "1b072446-9833-4be8-838c-fb31b72e3279",
+    "state": "succeeded",
+    "old_worker_pid": 490393,
+    "verification_pid": 491636,
+    "verification_only": true,
+    "model_launches_during_recovery": 0,
+    "tool_calls": 1,
+    "original_task_attempt_session_preserved": true,
+    "observation_timeout": null,
+    "old_owner_error": "STALE_OWNER",
+    "artifact_count": 5,
+    "stdout_sha256": "49a40a9408ef7406b1d4c07c8281220fcdc0c63f97470c050d8e1fee2455c988",
+    "image": "sha256:b461e1f42bc8c8ece7b735752a0877c4e62868728944cf8c1e02d3be04c21464",
+    "recovery_worker_pid": 490912,
+    "worker_exit_code": 75,
+    "verification_note": "Recovery succeeded on the first invocation; a final artifact-count assertion expected three but there are five including tool/evidence objects. Readback verifies all original identity bindings and the stdout/stderr/result subset plus every linked object hash. No model rerun.",
+    "first_pass_log_sha256": "44296134f6d8e9281f5f377d079f918b546d06d07321991221e37dd580716dbc"
+  },
+  "steady": {
+    "run_id": "2712b59a-8cac-414f-be60-8dfdf760fd26",
+    "attempt_id": "cb96eb4e-2a74-4b93-b565-3cf7afe11069",
+    "session_id": "ec54a71b-d46c-42d5-8b12-d957af0d0287",
+    "process_id": 490504,
+    "state": "succeeded",
+    "tool_calls": 1,
+    "result_frames": 1,
+    "checks": [
+      "real-process-session-and-three-level-delegation",
+      "usage-matches-retained-output-or-remains-unknown",
+      "completed-dispatch-replay-does-not-call-tool-again",
+      "original-run-attempt-session-retained"
+    ]
+  },
+  "requirements": {
+    "K01-5-A03": "Current fixed Cursor image crash recovery plus existing real ACP cancellation and A2A original-task cancel/unknown-result qualification. Controlled configuration rollout and rollback reuse unchanged version/deployment implementation.",
+    "K01-5-A04": "Two actual independent Cursor Worker/process/session observations; complete retained output recovered on original Attempt with launch guard. Old epoch rejected. Current combination suite covers query timeout and incomplete result; real native-control probe refuses unverified activity.",
+    "K01-5-A05": "Current approvals precede a single source-tool execution per task, existing native-deny probe and recipient-worker-loss evidence cover denial and unknown-result retention without automatic replay."
+  },
+  "version_rollout": {
+    "source": "docs/design/evidence/release-qualification-20261125.json",
+    "checks": [
+      "published configuration survives original edits and controlled-source deletion",
+      "real independent Worker process/session and approved tool evidence",
+      "candidate waits for original active Attempt to finish naturally",
+      "failed candidate retains known good version",
+      "rollback uses fresh E2AG Work and approval",
+      "original Run Attempt and artifact identities remain readable"
+    ],
+    "images": {
+      "old": "sha256:8a0107555477fe561262b96731452b9c1ce700a8e88c3dde328d10e3f80f9a40",
+      "new": "sha256:8a0107555477fe561262b96731452b9c1ce700a8e88c3dde328d10e3f80f9a40",
+      "bad": "sha256:8a0107555477fe561262b96731452b9c1ce700a8e88c3dde328d10e3f80f9a40"
+    },
+    "scope": "Immutable local image and configuration revision; remote provider model rollback is unavailable."
+  },
+  "unchanged_release_sources": {
+    "backend/app/runtime/deployments.py": "21b66948e8cb11d435d46be367ae2948814ac85fcb667c049f7ed41837dd48d4",
+    "backend/app/runtime/endpoint_compatibility.py": "672dfdbc772767cea896fcb88a38544f1e1535d92e913c3065c7ecfe70326ccd",
+    "backend/app/runtime/revision_compatibility.py": "52514db1da9a5b43058d00b3cafa7539e280830aa529dbdac8583108bf4450e3",
+    "backend/app/runtime/revisions.py": "5545b3afe3f2b92b0490f571990abadf5cc0d79857380b3c1bc4b8f42de3c127",
+    "scripts/qualify_revision_release.py": "74ab9804ea1b1ca9b14f483f8ac4f14e15214bbac4fad8834d3379334100c6d1"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/design/evidence/combined-recovery-20261126.json",
+      "sha256": "bc67ba4c0636b84b660fd0bd580d33a74e6f02df7560e78ad5f4c252f8d5dbdf"
+    },
+    {
+      "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+      "sha256": "04f8bd16c8fd79709c2783d422bfd27fde2f5e7a53e2c788d2a1463b16912a98"
+    },
+    {
+      "path": "docs/design/evidence/release-qualification-20261125.json",
+      "sha256": "228fe6d0e364a693def6b1e9f0549f3bd11af619db2a3a047b9488d686469631"
+    },
+    {
+      "path": "docs/design/evidence/protocol-recovery-closure-20261125.json",
+      "sha256": "7244eef563b67b5f7177330ca9d2f4b764f1db22b3ed0ecc6c52af53b07b1881"
+    },
+    {
+      "path": "docs/design/evidence/acp-cancellation-20261124.json",
+      "sha256": "a5966c1a70432f9048c420cfb1208377a157ab79315da8a46cf51386786d2edc"
+    },
+    {
+      "path": "docs/design/evidence/recipient-harnesses-20261125.json",
+      "sha256": "6d8819f742ee1efbac2756abe5a319529b81d008e697ec81a6413f56246cae27"
+    }
+  ],
+  "source_sha256": {
+    "scripts/qualify_harness_governance.py": "682b1c401942d9739d8edb45ac2c7f57d1600c9a55ab39d6dd96ccd21428aede",
+    "scripts/qualify_cursor_recovery.py": "9ddf5c8d00e3e091b0009f17fc6f46825b0aac06b0960a07b097b5ed43f6cd01",
+    "backend/app/runtime/worker.py": "2b2915f52df5a0e35dc7aa5943134ef5f5f1555924e321b784b70bfa32533251",
+    "backend/app/runtime/reconciliation.py": "ae22276d1110df32720bee55af2b5d62301220f492aad5a2676971361ab80822",
+    "sdk/python/src/dios_sdk/acp.py": "3c3a7a9795d3652329092aa753ecfe56920901a0f2a3fa427e1ef682b46586d1"
+  },
+  "verification": {
+    "new_real_model_sessions": 2,
+    "new_model_sessions_during_recovery": 0,
+    "runtime_code_changed": false,
+    "ruff": "passed",
+    "initial_qualification_failure": "Final assertion assumed exactly three artifacts; current governed task retains five. Recovery/identity/old-owner assertions had passed before that failure.",
+    "targeted_readback": "passed with original completed task; content and Attempt associations verified, no model restart"
+  },
+  "limits": [
+    "Two control scopes prove actual independent native concurrency, not shared-queue capacity or cross-host capacity.",
+    "K01-5.01 retains second-source execution qualification; K01-5.03 retains joint acceptance. No new DSH or Codex validation in this delivery.",
+    "ACP original active prompt continuation is not supported by retained-result recovery.",
+    "Machine reboot, physical cross-host fencing and whole-installation rollback remain their separate WBS items."
+  ],
+  "deployment": {
+    "required": false,
+    "reason": "Only opt-in qualification scripts, evidence and planning changed."
+  }
+}

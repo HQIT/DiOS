@@ -3009,7 +3009,17 @@
         "K01-5.01",
         "K01-5.02",
         "K01-5.03"
-      ]
+      ],
+      "primary_recovery_qualification": {
+        "work_item": "K01-5.02",
+        "status": "engineering_verified",
+        "evidence": "docs/design/evidence/cursor-recovery-upgrade-20261126.json",
+        "primary_harness": "Cursor ACP",
+        "remaining": [
+          "K01-5.01",
+          "K01-5.03"
+        ]
+      }
     },
     {
       "id": "A01-5",
@@ -3082,10 +3092,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K01-5.02",
-    "next_delivery": "K01-5.02",
+    "next_work_item": "S02-1.01",
+    "next_delivery": "S02-1.01",
     "next_delivery_order": [
-      "K01-5.02",
+      "S02-1.01",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -3106,6 +3116,7 @@
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
-    "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。"
+    "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
+    "next_selection_reason": "W1 剩余恢复/升级链依赖 K02-3.02 的源端隔离决策；先推进既定 W2 无前置依赖的 S02-1.01 统一对象版本与引用。"
   }
 }
