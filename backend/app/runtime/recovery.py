@@ -158,11 +158,13 @@ def _database_info(path):
     finally:c.close()
 
 
-def backup_sqlite(url, artifact_root, destination, *, timeout=60):
+def backup_sqlite(url, artifact_root, destination, *, timeout=60, config_files=()):
     """Online SQLite snapshot. Call from a worker thread, never an async event loop."""
     started=time.monotonic()
     if not math.isfinite(timeout) or timeout<=0: raise RuntimeErrorCode('INVALID_BACKUP_LIMIT')
     source=sqlite_path(url)
+    from .backup_inventory import configuration_files, inventory
+    configurations=configuration_files(config_files)
     artifact_root=Path(artifact_root).resolve()
     if not artifact_root.is_dir(): raise RuntimeErrorCode('BACKUP_ARTIFACT_ROOT_REQUIRED')
     destination=Path(destination).resolve()
@@ -180,6 +182,7 @@ def backup_sqlite(url, artifact_root, destination, *, timeout=60):
         outgoing.execute('PRAGMA journal_mode=DELETE')
     finally:outgoing.close();incoming.close()
     info=_database_info(snapshot)
+    catalog=inventory(snapshot,budget)
     for key,expected in info['objects'].items():
         budget()
         def chunks():
@@ -202,9 +205,22 @@ def backup_sqlite(url, artifact_root, destination, *, timeout=60):
     # Flush database pages before publishing the complete manifest.
     with snapshot.open('rb') as f:os.fsync(f.fileno())
     _sync_dir(objects_dir)
-    manifest={'format':1,'provider':'sqlite-local-v1','created_at':time.time(),
+    configuration={}
+    if configurations:
+        config_dir=destination/'configuration';config_dir.mkdir(mode=0o700)
+        for name,(path,raw) in configurations.items():
+            budget()
+            expected=_write(config_dir/name,[raw])
+            if _file_info(path)!=expected:raise RuntimeErrorCode('BACKUP_CONFIGURATION_CHANGED')
+            configuration[name]=expected
+        _sync_dir(config_dir)
+        for name,(path,_) in configurations.items():
+            budget()
+            if _file_info(path)!=configuration[name]:raise RuntimeErrorCode('BACKUP_CONFIGURATION_CHANGED')
+    manifest={'format':3,'provider':'sqlite-local-v1','created_at':time.time(),
         'database':_file_info(snapshot),**info,'duration_seconds':round(time.monotonic()-started,3)}
-    if sources:manifest.update(format=2,tool_receipts=tool_receipts)
+    manifest.update(inventory=catalog,configuration=configuration)
+    if sources:manifest.update(tool_receipts=tool_receipts)
     encoded_manifest=json.dumps(manifest,ensure_ascii=False,sort_keys=True).encode('utf-8')
     if len(encoded_manifest)>8*1024*1024:raise RuntimeErrorCode('BACKUP_MANIFEST_TOO_LARGE')
     _write(destination/'manifest.json',[encoded_manifest])
@@ -220,7 +236,7 @@ def verify_backup(bundle):
         raise RuntimeErrorCode('BACKUP_MANIFEST_INVALID')
     try:
         manifest=json.loads(path.read_text(encoding='utf-8'))
-        if manifest['format'] not in {1,2} or manifest['provider']!='sqlite-local-v1':raise ValueError()
+        if manifest['format'] not in {1,2,3} or manifest['provider']!='sqlite-local-v1':raise ValueError()
         if not isinstance(manifest['objects'],dict):raise ValueError()
         for key,value in manifest['objects'].items():
             if not re.fullmatch('[0-9a-f]{64}',key) or value['sha256']!=key or type(value['size']) is not int or value['size']<0:
@@ -232,10 +248,18 @@ def verify_backup(bundle):
             raise RuntimeErrorCode('BACKUP_MANIFEST_MISMATCH')
         for key,value in manifest['objects'].items():
             if _file_info(bundle/'objects'/key)!=value:raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
-        if manifest['format']==2:
+        if manifest['format']==2 or (manifest['format']==3 and 'tool_receipts' in manifest):
             from .tool_receipt_backup import verify
             verify(bundle/'state.sqlite',bundle/'tool-receipts',bundle/'objects',manifest['tool_receipts'])
         elif 'tool_receipts' in manifest:raise RuntimeErrorCode('BACKUP_MANIFEST_INVALID')
+        if manifest['format']==3:
+            from .backup_inventory import inventory
+            if inventory(bundle/'state.sqlite')!=manifest['inventory']:raise RuntimeErrorCode('BACKUP_INVENTORY_MISMATCH')
+            if not isinstance(manifest['configuration'],dict) or len(manifest['configuration'])>64:raise ValueError()
+            if (bundle/'configuration').is_symlink():raise RuntimeErrorCode('BACKUP_FILE_INVALID')
+            for name,expected in manifest['configuration'].items():
+                if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,79}',name):raise ValueError()
+                if _file_info(bundle/'configuration'/name)!=expected:raise RuntimeErrorCode('BACKUP_CONFIGURATION_MISMATCH')
         return manifest
     except (KeyError,TypeError,ValueError,UnicodeError) as exc:
         if isinstance(exc,RuntimeErrorCode):raise
@@ -253,13 +277,19 @@ def _prepare_restore(bundle,destination):
     for key,expected in manifest['objects'].items():
         if _write(destination/'objects'/key,_chunks(bundle/'objects'/key))!=expected:
             raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
-    if manifest['format']==2:
+    if manifest['format']==2 or (manifest['format']==3 and 'tool_receipts' in manifest):
         from .tool_receipt_backup import install
         section=manifest['tool_receipts']
         for key,expected in section['objects'].items():
             if key not in manifest['objects'] and _write(destination/'objects'/key,_chunks(bundle/'objects'/key))!=expected:
                 raise RuntimeErrorCode('BACKUP_ARTIFACT_MISMATCH')
         install(bundle/'tool-receipts',LocalArtifacts(destination/'objects'),section)
+    if manifest.get('configuration'):
+        (destination/'configuration').mkdir(mode=0o700)
+        for name,expected in manifest['configuration'].items():
+            if _write(destination/'configuration'/name,_chunks(bundle/'configuration'/name))!=expected:
+                raise RuntimeErrorCode('BACKUP_CONFIGURATION_MISMATCH')
+        _sync_dir(destination/'configuration')
     return manifest
 
 
@@ -282,6 +312,8 @@ async def restore_sqlite(bundle,destination):
         receipt={'format':1,'mode':'restore_hold','source_database':manifest['database'],
             'restored_database':_file_info(destination/'state.sqlite'),
             'counts':manifest['counts'],'duration_seconds':round(time.monotonic()-started,3),
+            'configuration':manifest.get('configuration',{}),
+            'external_recovery':manifest.get('inventory',{}).get('external',[]),
             'requires':['source-controller-isolation','remote-reference-reauthentication','task-and-effect-reconciliation']}
         _write(destination/'restore.json',[json.dumps(receipt,sort_keys=True).encode()])
         _sync_dir(destination);_sync_dir(destination.parent)

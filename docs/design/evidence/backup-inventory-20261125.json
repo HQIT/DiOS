@@ -1,0 +1,751 @@
+{
+  "work_item": "K02-3.01",
+  "status": "in_progress",
+  "base_commit": "f01fec230952b0903b3594b7f6ab19f4f2d98493",
+  "delivered": [
+    "Format 3 Runtime snapshot inventory with per-table count/digest and logical references",
+    "Immutable revision digest, Run ownership, Work/grant, delegation, tool, child and deployment reference validation",
+    "Explicit bounded private configuration file copies with observed-drift detection",
+    "External image, secret, workspace, execution and remote-state recovery requirements",
+    "Backward-compatible reading/restoration of formats 1/2; restored configuration never automatically activates"
+  ],
+  "remaining": [
+    "Include compatibility service database and verify cross-store managed-object references in the installation manifest",
+    "Capture required workspace inputs and Worker spool records with explicit consistency and recovery ownership"
+  ],
+  "tests": {
+    "backup_regressions_sqlite_pg_opa": {
+      "total": 56,
+      "passed": 52,
+      "skipped": 4,
+      "seconds": 162.539
+    },
+    "offline_image_regressions": {
+      "total": 56,
+      "passed": 42,
+      "skipped": 14,
+      "seconds": 98.244
+    },
+    "final_workspace_inventory_host": {
+      "passed": 7,
+      "skipped": 0
+    },
+    "final_image": {
+      "total": 7,
+      "passed": 7,
+      "skipped": 0,
+      "seconds": 10.809
+    },
+    "selection": [
+      "test_backup_inventory.InventoryTests.test_concurrent_commit_after_snapshot_does_not_enter_inventory",
+      "test_backup_inventory.InventoryTests.test_configuration_changed_during_snapshot_prevents_publication",
+      "test_backup_inventory.InventoryTests.test_configuration_corruption_missing_and_inventory_tampering_fail",
+      "test_backup_inventory.InventoryTests.test_configuration_names_and_symlinks_rejected_before_destination",
+      "test_backup_inventory.InventoryTests.test_json_reference_missing_and_cross_scope_are_rejected",
+      "test_backup_inventory.InventoryTests.test_legacy_format_one_is_still_readable",
+      "test_backup_inventory.InventoryTests.test_named_configuration_revision_and_external_inventory_survive_restore",
+      "test_delegation_reconciliation.DelegationReconciliationTests.test_backup_restore_preserves_lease_and_observation",
+      "test_identity_reconciliation.IdentityReconciliationTests.test_backup_covers_observations_and_schema",
+      "test_managed_history.ManagedHistoryTests.test_backup_restore_includes_all_history_blobs_and_preserves_mapping",
+      "test_managed_history.ManagedHistoryTests.test_missing_history_blob_stops_backup_publication",
+      "test_run_schedules.RunScheduleTests.test_backup_retains_schedule_occurrence_run_and_authorization",
+      "test_runtime_capacity.SQLiteCapacityTests.test_old_database_requires_additive_migration_and_backup_includes_limits",
+      "test_runtime_child_recipients.ChildRecipientTests.test_backup_keeps_immutable_handoff_and_its_runtime_tree",
+      "test_runtime_children.ChildRunTests.test_failed_admission_rolls_back_relation_and_count_and_backup_preserves_it",
+      "test_runtime_delegation_identity.DelegationIdentityTests.test_backup_preserves_delegation_and_immutable_receipts",
+      "test_runtime_delegation_identity.DelegationIdentityTests.test_backup_restores_authenticated_issuer_binding",
+      "test_runtime_delegation_lifecycle.DelegationLifecycleTests.test_backup_preserves_delegation_and_immutable_receipts",
+      "test_runtime_execution_budgets.SQLiteBudgetTests.test_backup_preserves_policy_and_pinned_deadline",
+      "test_runtime_faults.FaultTests.test_backup_contains_circuit_and_retry_plan",
+      "test_runtime_faults.PostgresFaultTests.test_backup_contains_circuit_and_retry_plan",
+      "test_runtime_logout.LogoutTests.test_event_before_admission_persists_across_restart_and_scope",
+      "test_runtime_monitor.PostgresMonitorTests.test_healthy_instance_cannot_hide_fresh_failed_peer",
+      "test_runtime_monitor.SQLiteMonitorTests.test_healthy_instance_cannot_hide_fresh_failed_peer",
+      "test_runtime_overview.PostgresOutcomeTests.test_backup_keeps_outcome_evidence",
+      "test_runtime_overview.SQLiteOutcomeTests.test_backup_keeps_outcome_evidence",
+      "test_runtime_recovery.PostgresDrain.test_drain_allows_natural_completion_and_preserves_queued_identity",
+      "test_runtime_recovery.PostgresDrain.test_racing_claim_and_drain_never_hide_an_accepted_attempt",
+      "test_runtime_recovery.PostgresDrain.test_restart_scope_isolation_and_stale_resume",
+      "test_runtime_recovery.PostgresDrain.test_slow_observation_does_not_kill_or_reassign",
+      "test_runtime_recovery.PostgresDrain.test_timeout_and_unknown_result_do_not_reassign",
+      "test_runtime_recovery.RecoveryTests.test_backup_restore_preserves_links_events_blobs_and_holds_new_work",
+      "test_runtime_recovery.RecoveryTests.test_cli_backup_verify_restore_and_drain",
+      "test_runtime_recovery.RecoveryTests.test_corrupt_object_or_database_is_rejected_before_restore_publication",
+      "test_runtime_recovery.RecoveryTests.test_manifest_path_escape_and_unsupported_provider_rejected",
+      "test_runtime_recovery.RecoveryTests.test_missing_object_incomplete_backup_and_existing_destination",
+      "test_runtime_recovery.RecoveryTests.test_restore_rejects_old_live_owner",
+      "test_runtime_recovery.RecoveryTests.test_schema_failure_never_publishes_restore_database",
+      "test_runtime_recovery.RecoveryTests.test_wal_snapshot_is_consistent_with_uncommitted_writer",
+      "test_runtime_recovery.SQLiteDrain.test_cancelled_read_releases_lock_and_connection_is_writable",
+      "test_runtime_recovery.SQLiteDrain.test_drain_allows_natural_completion_and_preserves_queued_identity",
+      "test_runtime_recovery.SQLiteDrain.test_racing_claim_and_drain_never_hide_an_accepted_attempt",
+      "test_runtime_recovery.SQLiteDrain.test_repeated_short_observation_deadlines_do_not_leak_read_locks",
+      "test_runtime_recovery.SQLiteDrain.test_restart_scope_isolation_and_stale_resume",
+      "test_runtime_recovery.SQLiteDrain.test_slow_observation_does_not_kill_or_reassign",
+      "test_runtime_recovery.SQLiteDrain.test_timeout_and_unknown_result_do_not_reassign",
+      "test_runtime_remote_control.PostgresRemoteControlTests.test_backup_contains_incomplete_upload_and_resumes",
+      "test_runtime_remote_control.RemoteControlTests.test_backup_contains_incomplete_upload_and_resumes",
+      "test_runtime_revisions.SQLiteRevisionTests.test_legacy_upgrade_preserves_runs_and_backup_restores_immutable_records",
+      "test_runtime_tool_budgets.SQLiteToolBudgetTests.test_backup_contains_budget_and_usage",
+      "test_runtime_tool_invocations.ToolInvocationTests.test_backup_includes_tool_ledger",
+      "test_runtime_tool_receipts.ToolReceiptTests.test_backup_preserves_unlinked_receipt_and_restored_hold_blocks_recovery_write",
+      "test_runtime_usage.SQLiteUsageTests.test_backup_preserves_usage_evidence",
+      "test_runtime_work_authorizations.PostgresWorkAuthorizationTests.test_backup_includes_authorization_component",
+      "test_runtime_work_authorizations.WorkAuthorizationTests.test_backup_includes_authorization_component",
+      "test_runtime_worker_credentials.WorkerCredentialTests.test_restart_and_backup_preserve_hashes"
+    ]
+  },
+  "native": {
+    "passed": true,
+    "source": "persisted real Cursor ACP release fixture; independent writer process modifies only a private clone",
+    "writer_pid": 419529,
+    "commits_during_backup": 15,
+    "run_ids_preserved": [
+      "1c7256b5-2fd9-4693-9cea-af0ed5df9986",
+      "ac93f776-e689-4f6c-a231-7b65a701d235",
+      "5d3b3385-0441-491c-b328-dfc3905a1b39",
+      "bd80a365-4a07-4ac4-a359-b6e0990caffa",
+      "f4c31595-bdfa-4cd5-9767-3eeec9141718"
+    ],
+    "backup_seconds": 0.3759179400076391,
+    "restored": {
+      "format": 1,
+      "mode": "restore_hold",
+      "source_database": {
+        "sha256": "2fa912495beb9f952759b9b0e806f70ef021b8ee29a5b10f7525aa65a92a41b8",
+        "size": 868352
+      },
+      "restored_database": {
+        "sha256": "f7ce1d9579138bf039dfb2c06364ca342ac58f43f7b51312795adbad6d9fde68",
+        "size": 868352
+      },
+      "counts": {
+        "runtime_artifacts": 20,
+        "runtime_attempts": 5,
+        "runtime_events": 74,
+        "runtime_imports": 0,
+        "runtime_runs": 5
+      },
+      "duration_seconds": 0.543,
+      "configuration": {
+        "policy": {
+          "sha256": "c3b6d4e139e90665d732c107e08dfc353b0ab4f91897c6341bd9cb2467848d5e",
+          "size": 18363
+        },
+        "profile": {
+          "sha256": "148aa298c0b98577025fdc494b72378bc5cc9bea919ff815aa7d5d772b17fd48",
+          "size": 75
+        },
+        "tools": {
+          "sha256": "f85dfb354e3e1c1fe255c75f3215b5871fb277b46687d4ddc6aba36a0e206dc2",
+          "size": 967
+        }
+      },
+      "external_recovery": [
+        {
+          "kind": "image",
+          "recovery": "reacquire-and-verify",
+          "reference": "sha256:8a0107555477fe561262b96731452b9c1ce700a8e88c3dde328d10e3f80f9a40",
+          "scope": "revision-release-67532edfb77e4b3b"
+        },
+        {
+          "kind": "execution",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task",
+          "reference": "c1beedfc-7832-464d-b504-f3b5a39e95bd",
+          "scope": "revision-release-67532edfb77e4b3b"
+        },
+        {
+          "kind": "model",
+          "recovery": "reauthenticate-and-reconcile",
+          "reference": "urn:dios:harness-selected-model",
+          "scope": "revision-release-67532edfb77e4b3b"
+        },
+        {
+          "kind": "harness",
+          "recovery": "reacquire-and-verify",
+          "reference": "urn:dios:mount:sha256:0d4d6fb6b66e19482c68c6049c0e5d6d2d26abb6b3476633ef11d6c954f188d7",
+          "scope": "revision-release-67532edfb77e4b3b"
+        },
+        {
+          "kind": "secret",
+          "recovery": "reauthenticate-secret-provider",
+          "reference": "model/cursor",
+          "scope": "revision-release-67532edfb77e4b3b"
+        },
+        {
+          "kind": "execution",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task",
+          "reference": "3e8295d9-7b12-49ad-bb3f-ae786717a8eb",
+          "scope": "revision-release-67532edfb77e4b3b"
+        },
+        {
+          "kind": "execution",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task",
+          "reference": "4e64701e-b99f-4dc4-b183-69377f3a68fc",
+          "scope": "revision-release-67532edfb77e4b3b"
+        },
+        {
+          "kind": "execution",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task",
+          "reference": "9f2d241e-3c92-4c7f-b65c-a424fdedf03c",
+          "scope": "revision-release-67532edfb77e4b3b"
+        },
+        {
+          "kind": "execution",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task",
+          "reference": "024249aa-957e-48c8-a188-f6a83abbaa06",
+          "scope": "revision-release-67532edfb77e4b3b"
+        }
+      ],
+      "requires": [
+        "source-controller-isolation",
+        "remote-reference-reauthentication",
+        "task-and-effect-reconciliation"
+      ]
+    },
+    "inventory": {
+      "version": 1,
+      "tables": {
+        "runtime_artifacts": {
+          "rows": 20,
+          "sha256": "7e1235f0b08a507408505c14b7a003ab17a4159f1f6dcea8155e9370f75d45cd"
+        },
+        "runtime_attempts": {
+          "rows": 5,
+          "sha256": "1a7b59d77853af8819cf30a7171e12f8dde741535a37bb79af211edb9aa88b12"
+        },
+        "runtime_capacity_changes": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_capacity_limits": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_capacity_schema": {
+          "rows": 1,
+          "sha256": "908580f18bfad3b0a32e92a283656356d1e5c8d2c9a68d760f13a5339f1c3b50"
+        },
+        "runtime_child_handoff_schema": {
+          "rows": 1,
+          "sha256": "81b29c9b55b87b71d6020b405b7a1244c2b4849a85424ce0a5b9804dbcd3b029"
+        },
+        "runtime_child_handoffs": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_child_runs": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_child_schema": {
+          "rows": 1,
+          "sha256": "9d463ba7eb04d34ead1e5c8857abb959d5d32f25cd30f16bec64e21713a1861c"
+        },
+        "runtime_circuits": {
+          "rows": 1,
+          "sha256": "e3fc851b8def5dd8a49e19763ddc49201760f8af930e38ee1d01af01fbb5ca28"
+        },
+        "runtime_compatibility_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_compatibility_schema": {
+          "rows": 1,
+          "sha256": "58e0ddc3b44ccfdeddda3f280af3f1f073241ec27deb37d0e1fa8dc0c04e3651"
+        },
+        "runtime_credential_schema": {
+          "rows": 1,
+          "sha256": "424fc824a77a2e21cb15df960f9d73e16bd630f43333c87202d609b3b3792837"
+        },
+        "runtime_delegation_check_schema": {
+          "rows": 1,
+          "sha256": "bb19230211efad74f77fc39d5e8722c1c55e0303e2c2f185625d826117b9df0c"
+        },
+        "runtime_delegation_checks": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_delegation_dependencies": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_delegation_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_delegation_identity_schema": {
+          "rows": 1,
+          "sha256": "16f50fe8f086e8ebcf8e3ecc0d3ef8ccf3a6399b20bf9d5c759b6cb7d2dd9b28"
+        },
+        "runtime_delegation_issuers": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_delegation_receipts": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_delegation_schema": {
+          "rows": 1,
+          "sha256": "25fc7af0a79666f8e8b6cd9bb09f8d2d6bbc29a95a986fec667c9cdda6b1e5c7"
+        },
+        "runtime_delegations": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_deployment_events": {
+          "rows": 11,
+          "sha256": "c5410ba9cec7bac41e843dae3077ab15b944da4532673c362cae5ad9aad2cc55"
+        },
+        "runtime_deployment_receipts": {
+          "rows": 4,
+          "sha256": "1490f6c67d0f3a97b199f25f40df31ea413903c569e19f3eb90b519bf6f8311f"
+        },
+        "runtime_deployment_rollouts": {
+          "rows": 4,
+          "sha256": "53da2baee3a205f148bab5b93cf3b10de422819d2eb9e79b11989a8ae399628b"
+        },
+        "runtime_deployment_schema": {
+          "rows": 1,
+          "sha256": "290cb1e7acb3e60d259f8893fd7fe0fab018207532ed8c5025ed49a625d7efd0"
+        },
+        "runtime_deployments": {
+          "rows": 1,
+          "sha256": "6e7998d9e0d49188f90cd25a3555e396bbf6e97589257d3a42e1999b5e600518"
+        },
+        "runtime_endpoint_compatibility": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_event_acks": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_events": {
+          "rows": 74,
+          "sha256": "6042f7d251ec9f7483d4e8ea027e6aa18d93c8961877f9520ab7c85e9215a3e4"
+        },
+        "runtime_execution_budget_bindings": {
+          "rows": 5,
+          "sha256": "e80d563d2a049085b8abc6354d4bd330f173c1d21d082586ca7db588781870f3"
+        },
+        "runtime_execution_budget_policies": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_execution_budget_schema": {
+          "rows": 1,
+          "sha256": "c186164c55d19aab376e8691fd7473492f37d52cae02f6cc216f417d69cf99fc"
+        },
+        "runtime_fault_bindings": {
+          "rows": 5,
+          "sha256": "21bd7eb1c82896e6d711a253d93cd17a70c04610c9a031c0241c3460edc5cbdf"
+        },
+        "runtime_fault_schema": {
+          "rows": 1,
+          "sha256": "ffad12902bcbf99a520eb6fb3e5e83bedde2ef336892dd6802b85c45d19a6c40"
+        },
+        "runtime_history_archive_objects": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_history_archive_schema": {
+          "rows": 1,
+          "sha256": "91ce28c8884743514ab511d2715478603113717ce79e5cd64819314da0d5310d"
+        },
+        "runtime_history_links": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_history_schema": {
+          "rows": 1,
+          "sha256": "231e094a8f10a75c768e758fb7fe98cf307eb9127fc7a72f55eeed43547acd34"
+        },
+        "runtime_identity_check_schema": {
+          "rows": 1,
+          "sha256": "8d5989c304e49535ab90dad075426bf8a9974f6709cf2338562cec6a552a76bc"
+        },
+        "runtime_identity_checks": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_imports": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_lifecycle": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_lifecycle_schema": {
+          "rows": 1,
+          "sha256": "119c98e0d6897e7c185f877249e9efbaea4173f21d4ef39d4c30745753888cc1"
+        },
+        "runtime_logout_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_logout_schema": {
+          "rows": 1,
+          "sha256": "9091d7d5ee877be6f4211b8145680322f0377e56c9342ad9b99bf25548724266"
+        },
+        "runtime_loop_observations": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_monitor_schema": {
+          "rows": 1,
+          "sha256": "e9eefa9dd6884bb7dda502d4c874cc92c82e6d024b544466940a2a1a165e224e"
+        },
+        "runtime_outcome_schema": {
+          "rows": 1,
+          "sha256": "18ba852acacb2b5374ee7defb6e6a36440b12e0de859b4809a98c41bebc855e7"
+        },
+        "runtime_projections": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_remote_chunks": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_remote_receipts": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_remote_schema": {
+          "rows": 1,
+          "sha256": "bb56aa020b71dd601b2c93a6abfcf95c6d5b77adaf54de4dff9dd34304eedea7"
+        },
+        "runtime_remote_uploads": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_remote_workers": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_retry_plans": {
+          "rows": 1,
+          "sha256": "143f472c0c0008f19ef35587d6af3ec7566a7e6f3f3bb8bd71a41e576cf374ac"
+        },
+        "runtime_revision_receipts": {
+          "rows": 3,
+          "sha256": "bab92f8e4ab8c6d39ebd4e5c1577d4795cc22eb39bec847a9686f10cdd90b2e2"
+        },
+        "runtime_revision_schema": {
+          "rows": 1,
+          "sha256": "bfa498116880ef0419417c84ca8c8bf2e9841d82f833467fa73f6f3203727f14"
+        },
+        "runtime_revisions": {
+          "rows": 3,
+          "sha256": "4c35aa73694def113a107c78cb9555af3be6b55078bc7617b8a4a50d19b2791b"
+        },
+        "runtime_run_outcomes": {
+          "rows": 5,
+          "sha256": "87f48eca246fd08b412c7e18a15f93b1d7154ee727a3edf1ae5fd16be234ebea"
+        },
+        "runtime_runs": {
+          "rows": 5,
+          "sha256": "a4e0423849d94d1c72efae8c6cc2b6af5faf99be770a8e7a856a0a7fcb40b7bf"
+        },
+        "runtime_schedule_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_schedule_occurrences": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_schedule_schema": {
+          "rows": 1,
+          "sha256": "77de557d9d8c18dc7d7f8c67ad6f69e419d17d12152624781a635bdb3f145ea0"
+        },
+        "runtime_schedules": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_schema": {
+          "rows": 1,
+          "sha256": "e9eaba965973d8212ba3f0bf0ddfa4802c037a485acd7805f73b7d16c40a5948"
+        },
+        "runtime_tool_budget_bindings": {
+          "rows": 5,
+          "sha256": "789ffc3d0b1eb3fc65016f0756f62387240f803e2f7f7721a1c4b5224dd33314"
+        },
+        "runtime_tool_budget_policies": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_tool_budget_schema": {
+          "rows": 1,
+          "sha256": "b1d2c6949debe872580aaf83c5ec362dcc9786f662900ac2066893e16590bd7d"
+        },
+        "runtime_tool_evidence": {
+          "rows": 16,
+          "sha256": "52ce4dd001d8f8d78d670a6c1b19ce8fd706ed783d32603e6a9ae319fe0aa608"
+        },
+        "runtime_tool_invocations": {
+          "rows": 4,
+          "sha256": "2fba300066ebb4aeccd066fe1f854c299b5152368890aaab963edb859982b7f7"
+        },
+        "runtime_tool_schema": {
+          "rows": 1,
+          "sha256": "fb2a188287703c2d43b0b091db1841cfb727d06ac37da839abf505a26d8f39d8"
+        },
+        "runtime_usage_observations": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_usage_schema": {
+          "rows": 1,
+          "sha256": "000708507626b566d9ecd0060c63fe39792dd6a3fb57ce3e082840e992c62117"
+        },
+        "runtime_work_auth_schema": {
+          "rows": 1,
+          "sha256": "fc9885fdc480add6770709b1c5c34f8cdebe976d255c3621b367fdd9641b0161"
+        },
+        "runtime_work_authorizations": {
+          "rows": 5,
+          "sha256": "7f44a8519003867859dd247de3f0543c16875c78336ab922df916c64d8080eaf"
+        },
+        "runtime_work_decisions": {
+          "rows": 35,
+          "sha256": "0e6b396d02d74557b00ee4328ef3e1da1b020d505f6f08184f9ae83032c38d57"
+        },
+        "runtime_work_grants": {
+          "rows": 5,
+          "sha256": "fa7ea749bb2e9d5ca641765bc312ccefc114b1ad98bf1b1bd8a6c7474d6462b5"
+        },
+        "runtime_worker_credentials": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "runtime_workers": {
+          "rows": 5,
+          "sha256": "2cae2af5c83460134a4fe9e285a9c29f36f31bf2bc4b6d5049e5818778056b15"
+        }
+      },
+      "references": {
+        "runtime_runs.attempt_id": 5,
+        "runtime_artifacts.attempt_id": 20,
+        "runtime_work_authorizations.run_id": 5,
+        "runtime_work_decisions.run_id": 35,
+        "runtime_tool_invocations.run_id": 4,
+        "runtime_delegation_receipts.run_id": 0,
+        "runtime_child_runs.run_id": 0,
+        "runtime_child_handoffs.parent_run_id": 0,
+        "runtime_work_grants.authorization_id": 5,
+        "runtime_work_grants.attempt_id": 5,
+        "runtime_tool_invocations.attempt_id": 4,
+        "runtime_tool_evidence.invocation_id": 16,
+        "runtime_delegations.parent_ref": 0,
+        "runtime_delegation_receipts.authorization_ref": 0,
+        "runtime_delegation_receipts.leaf_ref": 0,
+        "runtime_delegation_dependencies.authorization_ref": 0,
+        "runtime_delegation_dependencies.delegation_ref": 0,
+        "runtime_child_runs.parent_run_id": 0,
+        "runtime_child_runs.root_run_id": 0,
+        "runtime_child_runs.parent_attempt_id": 0,
+        "runtime_child_handoffs.delegation_ref": 0,
+        "runtime_revision_receipts.revision_id": 3,
+        "runtime_deployments.revision_id": 1,
+        "runtime_deployments.previous_revision_id": 1,
+        "runtime_deployment_rollouts.revision_id": 4,
+        "runtime_deployment_rollouts.previous_revision_id": 3,
+        "runtime_deployments.active_revision_id": 1,
+        "runtime_deployments.rollout_id": 1,
+        "runtime_deployment_rollouts.probe_run_id": 4,
+        "runtime_deployment_rollouts.deployment_id": 4,
+        "runtime_deployment_events.deployment_id": 11,
+        "runtime_deployment_receipts.deployment_id": 4,
+        "runtime_deployment_events.rollout_id": 11,
+        "runtime_deployment_receipts.rollout_id": 4,
+        "runtime_runs.input.revision_ref": 5,
+        "runtime_runs.input.work_authorization_ref": 5,
+        "runtime_runs.input.deployment_id": 5
+      },
+      "external": [
+        {
+          "kind": "image",
+          "reference": "sha256:8a0107555477fe561262b96731452b9c1ce700a8e88c3dde328d10e3f80f9a40",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "reacquire-and-verify"
+        },
+        {
+          "kind": "execution",
+          "reference": "c1beedfc-7832-464d-b504-f3b5a39e95bd",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task"
+        },
+        {
+          "kind": "model",
+          "reference": "urn:dios:harness-selected-model",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "reauthenticate-and-reconcile"
+        },
+        {
+          "kind": "harness",
+          "reference": "urn:dios:mount:sha256:0d4d6fb6b66e19482c68c6049c0e5d6d2d26abb6b3476633ef11d6c954f188d7",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "reacquire-and-verify"
+        },
+        {
+          "kind": "secret",
+          "reference": "model/cursor",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "reauthenticate-secret-provider"
+        },
+        {
+          "kind": "execution",
+          "reference": "3e8295d9-7b12-49ad-bb3f-ae786717a8eb",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task"
+        },
+        {
+          "kind": "execution",
+          "reference": "4e64701e-b99f-4dc4-b183-69377f3a68fc",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task"
+        },
+        {
+          "kind": "execution",
+          "reference": "9f2d241e-3c92-4c7f-b65c-a424fdedf03c",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task"
+        },
+        {
+          "kind": "execution",
+          "reference": "024249aa-957e-48c8-a188-f6a83abbaa06",
+          "scope": "revision-release-67532edfb77e4b3b",
+          "recovery": "collect-worker-spool-and-reconcile-original-process-or-remote-task"
+        }
+      ],
+      "coverage": {
+        "database": "runtime-snapshot",
+        "configuration": "explicit-file-set",
+        "service_database": "separate-backup-and-cross-store-reconciliation-required",
+        "worker_spools": "collect-from-each-worker",
+        "remote_state": "not-contained"
+      }
+    },
+    "configuration": {
+      "policy": {
+        "sha256": "c3b6d4e139e90665d732c107e08dfc353b0ab4f91897c6341bd9cb2467848d5e",
+        "size": 18363
+      },
+      "profile": {
+        "sha256": "148aa298c0b98577025fdc494b72378bc5cc9bea919ff815aa7d5d772b17fd48",
+        "size": 75
+      },
+      "tools": {
+        "sha256": "f85dfb354e3e1c1fe255c75f3215b5871fb277b46687d4ddc6aba36a0e206dc2",
+        "size": 967
+      }
+    },
+    "objects": 17,
+    "tool_receipts": 4,
+    "cli_verify": true
+  },
+  "cli": {
+    "backup": true,
+    "format": 3,
+    "configuration_names": [
+      "policy"
+    ],
+    "runtime_runs": 5
+  },
+  "image": {
+    "image": "sha256:2efa2e5f5dd680acb45df69cfb462b10631c2d6536225f19750ff77a82682eb9",
+    "base": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "tag": "dios-backend:backup-inventory-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "development": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "compatibility_version": 1,
+      "changed": false
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "api_smoke": {
+    "checks": [
+      {
+        "path": "/health",
+        "status": 200
+      },
+      {
+        "path": "/api/os/runtime/deployments",
+        "status": 200
+      },
+      {
+        "path": "/api/os/runtime/profiles",
+        "status": 200
+      },
+      {
+        "path": "/api/os/runtime/revisions/absent/compatibility",
+        "status": 404
+      }
+    ],
+    "unauthenticated": 401
+  },
+  "sources": [
+    "https://www.sqlite.org/backup.html",
+    "https://www.postgresql.org/docs/16/app-pgdump.html"
+  ],
+  "limits": [
+    "Runtime component snapshot, not a completed installation recovery qualification",
+    "Observed configuration drift fails backup; external files and database do not share one atomic transaction",
+    "PostgreSQL backup Provider remains unsupported by this SQLite command",
+    "Offline image qualification uses the same source as the development supervisor deployment",
+    "Physical cross-host recovery, native secret-provider recovery and product acceptance remain pending"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/backup_inventory.py": "cd998e4d74f3d4f88895dc9b0d8035afcfea5f266963e6039aa521708ebe1a4c",
+    "backend/app/runtime/recovery.py": "6d774f32ae4b629d74886b5a3e33412e0e3ed7e63a6d945e62390a60cb348595",
+    "backend/app/runtime/cli.py": "dc0db8aa9773b41baf31b8dbdc5682bf09df8bf269070ca08c2b3d27dfe5fb0b",
+    "backend/tests/test_backup_inventory.py": "162e4e6a70513d5e03499623864e172f49cd49c9a9232a450f22601b400cdf38"
+  }
+}

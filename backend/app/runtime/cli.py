@@ -24,7 +24,7 @@ async def execute(args):
     if not args.database_url:
         raise RuntimeErrorCode('RUNTIME_DATABASE_URL_REQUIRED')
     if args.command == 'backup':
-        return await asyncio.to_thread(backup_sqlite,args.database_url,args.artifacts,args.destination,timeout=args.timeout)
+        return await asyncio.to_thread(backup_sqlite,args.database_url,args.artifacts,args.destination,timeout=args.timeout,config_files=args.config_file)
     db = Database(args.database_url)
     try:
         if args.command == 'tool-gateway':
@@ -284,6 +284,7 @@ def main(argv=None):
     backup=commands.add_parser('backup',help='snapshot SQLite and referenced local artifacts to a new directory')
     backup.add_argument('--artifacts',required=True);backup.add_argument('--destination',required=True)
     backup.add_argument('--timeout',type=float,default=60)
+    backup.add_argument('--config-file',action='append',default=[],metavar='NAME=PATH',help='include an explicit configuration file; repeat for each required file')
     verify=commands.add_parser('backup-verify');verify.add_argument('bundle')
     restore=commands.add_parser('restore',help='restore into a new directory with scheduling held')
     restore.add_argument('bundle');restore.add_argument('destination')

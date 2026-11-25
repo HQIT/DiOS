@@ -223,7 +223,9 @@ CLI、Console、本地/A2A/远程 Worker 已绑定固定版本，E2AG 授权与�
 
 已有依据：[recovery-drill-20261111](../design/evidence/recovery-drill-20261111.json)。
 
-**K02-3.01 完整一致性备份清单** · 实现/集成 · W1 · Codex 工程
+**K02-3.01 完整一致性备份清单** · 实现/集成 · W1 · Codex 工程 · 进行中
+
+Runtime 清单、配置副本、引用校验和外部依赖已通过测试并部署。安装级兼容服务库、必要 workspace 与 Worker spool 仍在本项，未计完成。见[覆盖范围](../design/backup-inventory-11.md)与[工程证据](../design/evidence/backup-inventory-20261125.json)。
 
 - 交付：覆盖配置/版本/Run/委派/回执/产物的备份 manifest 与校验。
 - 完成验证：并发写入期间备份引用闭合；Schema、摘要、缺失及外部不可恢复数据可检测。

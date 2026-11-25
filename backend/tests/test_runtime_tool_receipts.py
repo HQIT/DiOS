@@ -87,7 +87,7 @@ class ToolReceiptTests(unittest.IsolatedAsyncioTestCase):
         f=self.f;item=await self.stranded();bundle=f.root/'receipt-backup'
         await asyncio.to_thread(backup_sqlite,f.url,f.provider.root,bundle)
         manifest=await asyncio.to_thread(verify_backup,bundle)
-        self.assertEqual(manifest['format'],2);self.assertEqual(len(manifest['tool_receipts']['files']),1)
+        self.assertEqual(manifest['format'],3);self.assertEqual(len(manifest['tool_receipts']['files']),1)
         destination=f.root/'restored';await restore_sqlite(bundle,destination)
         db=Database('sqlite+aiosqlite:///'+str(destination/'state.sqlite'))
         try:
