@@ -41,7 +41,11 @@ Worker 每次进程启动使用“登记 ID:随机进程 ID”，instance 继续
 
 ## Secret 与控制点
 
-`tool_channel.worker_secret_refs` 列出允许挂载给 Agent 的引用名，并随整个通道策略进入 LaunchSpec 指纹。远端模式只解析这些引用；工具注册的 credential_ref 必须在原工作授权中，且与 Worker 挂载引用互斥。更改分区需要重新固定 profile 与工作授权。
+`tool_channel.worker_secret_refs` 列出允许挂载给 Agent 的引用名，并随整个通道策略进入 LaunchSpec 指纹。本地和远端 Worker 均只挂载这些引用；省略或空列表表示不挂载凭据。工具注册的 credential_ref 必须在原工作授权中，且与 Worker 挂载引用互斥。未知引用或工具凭据进入挂载列表时，以 `SECRET_TARGET_CONFLICT` 拒绝启动。更改分区需要重新固定 profile 与工作授权。
+
+现有本地 profile 若通过工具通道执行，必须显式列出执行端需要的模型凭据。Cursor 示例已列出 `model/cursor`。未配置工具通道的 profile 继续使用原有工作授权 Secret 挂载规则。固定宿主挂载属于受信配置，不能用目录挂载绕过凭据分区。
+
+[本地/远程分区及真实容器验证](evidence/secret-partition-20261126.json)覆盖模型凭据只读、网关凭据不可见、未知引用拒绝和任务产物无凭据原文。
 
 ```json
 {

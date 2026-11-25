@@ -84,13 +84,7 @@ class ToolGateway:
             if run['input']['runtime_profile']!=profile or run['input']['profile_digest']!=spec.fingerprint():
                 raise RuntimeErrorCode('PROFILE_CHANGED')
             await channel.initialize()
-            # This provider's model/Agent mounts are explicitly partitioned from gateway secrets.
-            mount_refs=channel.policy.get('worker_secret_refs',[])
-            if not isinstance(mount_refs,list) or any(not isinstance(x,str) for x in mount_refs) or len(set(mount_refs))!=len(mount_refs):
-                raise RuntimeErrorCode('SECRET_ACCESS_DENIED')
-            known={x['ref'] for x in run['input'].get('secret_refs',[])}
-            tool_refs={x['credential_ref']['ref'] for x in channel.registered.values() if x.get('credential_ref')}
-            if set(mount_refs)-known or set(mount_refs)&tool_refs:raise RuntimeErrorCode('SECRET_TARGET_CONFLICT')
+            mount_refs=list(channel.worker_secret_refs)
             if a['session_id'] is not None:await channel.bind_session(a['session_id'])
             await identity_guard()
             # Audit binds the TLS sender to the original execution, before any business action.

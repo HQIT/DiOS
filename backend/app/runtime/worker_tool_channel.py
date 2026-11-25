@@ -16,7 +16,6 @@ from app.services.e2ag import Decision, evaluate_work_permission
 from .adapter import Mount
 from .database import RuntimeErrorCode
 from .store import encoded, digest, bounded, identifier
-from .work_auth_schema import work
 from .work_authorizations import audit
 from .tool_schema import invocations, require
 
@@ -57,7 +56,7 @@ class WorkerToolChannel:
         self.gate,self.store,self.binding=gate,gate.store,binding
         self.policy=profile_policy(policy);self.uid=uid
         self.session_id=None;self.server=None;self.directory=None;self.connections=set();self.closing=False
-        self.registered={};self.busy=False;self.request_lock=asyncio.Lock()
+        self.registered={};self.worker_secret_refs=();self.busy=False;self.request_lock=asyncio.Lock()
 
     async def _owner(self, *, wait=False):
         from .identity_wait import identity_wait
@@ -86,6 +85,15 @@ class WorkerToolChannel:
             if alias==self.policy.get('client_read_tool') and reg['permission']['action']!='filesystem.read':
                 raise RuntimeErrorCode('ACP_READ_TOOL_PERMISSION_INVALID')
             self.registered[alias]=reg
+        # Both local and remote Workers use the same server-owned partition.
+        # Tool transport credentials stay with the gateway, even when the Work
+        # authorizes their use. Only explicitly listed execution secrets mount.
+        mount_refs=self.policy.get('worker_secret_refs',[])
+        known={x['ref'] for x in run['input'].get('secret_refs',[])}
+        tool_refs={x['credential_ref']['ref'] for x in self.registered.values() if x.get('credential_ref')}
+        if set(mount_refs)-known or set(mount_refs)&tool_refs:
+            raise RuntimeErrorCode('SECRET_TARGET_CONFLICT')
+        self.worker_secret_refs=tuple(mount_refs)
 
     async def open(self):
         await self.initialize()

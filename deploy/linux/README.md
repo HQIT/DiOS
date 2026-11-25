@@ -66,6 +66,8 @@ sudo systemctl daemon-reload
 
 生成器固定安装账户、Docker 组、Python 路径、PATH、工作目录和环境文件，不自动启动 Worker。登记 `config/profiles/cursor.json` 以及 E2AG 工作权限、工具目录、审批者、Secret 引用后，用 `sudo systemctl enable --now dios-worker@cursor` 启用。需要的 `DIOS_RUNTIME_TOOLS_FILE`、`DIOS_RUNTIME_APPROVERS_FILE`、`DIOS_RUNTIME_SECRETS_FILE` 加入受保护的 `service.env`；使用只读的安装配置目录存放文件。
 
+使用工具通道的 profile 通过 `tool_channel.worker_secret_refs` 显式列出 Agent 需要的模型凭据。本地和远程执行均遵循此列表；省略表示不向容器挂载凭据。工具网关使用的 `credential_ref` 留在网关侧，与执行端列表互斥。修改列表后重新固定 profile 和 E2AG 工作授权，排空旧任务后切换；不要通过固定目录挂载暴露整个 Secret 目录。
+
 采用 [Cursor 原生控制配置](../../docs/design/cursor-native-controls.md)和已验证镜像。每个服务实例运行一个 Worker，实际并发以 Runtime 进程、Attempt 与 Session 观测为准。计划升级或停止前先用 Runtime `upgrade drain`、`upgrade wait` 排空；systemd 配置不以超时强杀代替排空。
 
 ## 交付验证

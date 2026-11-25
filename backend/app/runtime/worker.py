@@ -154,7 +154,7 @@ class Worker:
                 if run['input'].get('secret_refs') != self.secret_requests:
                     raise RuntimeErrorCode('SECRET_REFERENCE_CHANGED')
                 requested=self.secret_requests
-                if self.remote_tools:requested=[x for x in requested if x['ref'] in channel.worker_secret_refs]
+                if channel:requested=[x for x in requested if x['ref'] in channel.worker_secret_refs]
                 if requested:
                     if self.secret_resolver is None:raise RuntimeErrorCode('SECRET_AUTHORIZATION_REQUIRED')
                     resolved=await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,requested)
