@@ -81,6 +81,19 @@ class PrincipalTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.get('a','runs/'+a['id'])).status_code,200)
         await self.finish()
 
+    async def test_run_read_share_does_not_grant_tool_diagnostics(self):
+        from app.runtime.tool_invocations import audit
+        a=await self.submit_as('a')
+        async with self.console.db.transaction('one') as c:
+            await audit(c,'one','uncreated-invocation','policy','deny','PRIVATE_TOOL_REASON',
+                await self.console.db.now(c),{'run_id':a['id'],'timing':{'clock':'monotonic','opa_request_seconds':.02}})
+        own=(await self.get('a','runs/'+a['id'])).json()
+        self.assertTrue(any(x['kind']=='tool' for x in own['diagnostics']['governance']))
+        self.directory['principals']['b']['objects'][a['id']]=['run.read'];self.save()
+        shared=await self.get('b','runs/'+a['id']);self.assertEqual(shared.status_code,200)
+        self.assertNotIn('PRIVATE_TOOL_REASON',shared.text)
+        self.assertFalse(any(x['kind']=='tool' for x in shared.json()['diagnostics']['governance']))
+
     async def test_queued_revocation_blocks_execution(self):
         await self.submit_as('a');self.directory['principals']['a']['enabled']=False;self.save()
         adapter=FakeAdapter();result=await Worker(self.console.store,adapter,'review',self.spec,self.console.provider,authorization_verifier=self.verifier).once()

@@ -3,6 +3,7 @@ from .work_policy import policy_matches
 from .principals import admit
 import asyncio
 import json
+from time import perf_counter
 from uuid import uuid4
 from sqlalchemy import select
 from jsonschema import Draft202012Validator
@@ -85,7 +86,17 @@ class ToolInvocations:
             'resource':{'type':permission['resource_kind'],'id':permission['resource_id'],
                 'properties':{'version':permission['resource_version']}},
             'context':{'scope':self.store.scope,'binding':binding,'permission':permission,'permissions':authorization['permissions']}}
-        result=await self.policy_evaluator.evaluate(configuration,value)
+        started=perf_counter()
+        try:result=await self.policy_evaluator.evaluate(configuration,value)
+        except RuntimeErrorCode as exc:
+            elapsed=perf_counter()-started
+            await audit(c,self.store.scope,call_id,'policy','deny',exc.code,await self.store.db.now(c),
+                {'run_id':binding['run_id'],'attempt_id':binding['attempt_id'],
+                 'timing':{'clock':'monotonic','opa_request_seconds':elapsed}})
+            raise
+        elapsed=perf_counter()-started
+        result={**result,'run_id':binding['run_id'],'attempt_id':binding['attempt_id'],
+            'timing':{'clock':'monotonic','opa_request_seconds':elapsed}}
         now=await self.store.db.now(c)
         await audit(c,self.store.scope,call_id,'policy','allow' if result['allow'] else 'deny',
             'POLICY_ALLOWED' if result['allow'] else 'POLICY_DENIED',now,result)

@@ -36,6 +36,7 @@ export interface WorkAuthorization {
   decisions?: { id: string; action: string; created_at: number; outcome: string; reason_codes: string[] }[];
 }
 export interface RunDetail extends RunSummary {
+  diagnostics?: RunDiagnostics;
   capacity?: {blocked: boolean; reason: string | null; available_at?: number; limits: {id: string; reason?: string; available_at?: number; max_concurrent: number; reserved_attempts: number; unresolved_attempts: number}[]} | null;
   model_usage?: {evidence_level: string; settlement: string; at_limit: boolean; items: Array<{attempt_id: string; session_id: string; sequence: number; kind: string; quality: string; values: Record<string, number | {amount: string; unit: string}>; recorded_at: number}>};
   tool_budget?: {maximum: number | null; committed: number; succeeded: number; failed: number; unresolved: number; remaining: number | null; exhausted: boolean} | null;
@@ -48,6 +49,12 @@ export interface RunDetail extends RunSummary {
   observed_at: number; sample: Sample; attempts: Attempt[]; artifacts: Artifact[];
   attempts_has_more: boolean; artifacts_at_limit: boolean;
   events: { id: string; version: number; type: string; state: string; created_at: number }[];
+}
+export interface RunDiagnostics {
+  time_basis: string; observed_at: number; last_event_at: number; last_output_at: number | null;
+  freshness: string; attempts_has_more: boolean; governance_has_more: boolean;
+  stages: Array<{attempt_id: string; epoch: number; phase: string; event_id: string | null; started_at: number; ended_at: number | null; duration_seconds: number | null; elapsed_seconds: number | null; clock_anomaly: boolean; end_reason: string}>;
+  governance: Array<{id: string; kind: string; attempt_id: string | null; action: string; outcome: string; reason_codes: string[]; created_at: number; timing: ({clock: string} & Record<string, number | string>) | null}>;
 }
 export interface Preview { id: string; kind: string; text: string; markdown: string | null; size: number; digest: string; }
 export type CapacitySelector = {kind: "scope"} | {kind: "subject"; subject: string} | {kind: "profiles"; profiles: string[]};

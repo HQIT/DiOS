@@ -1,0 +1,170 @@
+{
+  "capability": "Durable execution phase observations and monotonic E2AG checkpoint timings",
+  "tests": {
+    "sqlite_postgresql_and_regression": {
+      "passed": 98,
+      "skipped": 1,
+      "log_sha256": "95145d0f39222ddb2353cb63ea33f9df4bd003f7223d9a78b7d9a886ed1959e7",
+      "skip_reasons": [
+        "SQLite backup provider"
+      ]
+    },
+    "release_image": {
+      "passed": 52,
+      "skipped": 22,
+      "log_sha256": "8c039bac52b8b9ef57cc96751d41c751b4558c3a25f0ba9f986ed9b113fe7842",
+      "skip_reasons": [
+        "PostgreSQL fixture disabled",
+        "isolated PostgreSQL not enabled"
+      ]
+    },
+    "native_opa_http": {
+      "passed": 8,
+      "skipped": 0,
+      "log_sha256": "dc9d3cb206ce6e3bdd36785abbc72d103134a5305de54ec070debb51196bd262",
+      "skip_reasons": []
+    }
+  },
+  "semantics": {
+    "phase_clock": "database receipt timestamps; replay/transport delays included",
+    "check_clock": "same-process monotonic clock",
+    "unknown": "null, including historical audit timings and unfinished phase duration",
+    "coverage": "Audited work-authorization checkpoints and OPA request boundaries; excludes audit persistence/commit and agent-internal spans",
+    "query_limits": {
+      "attempts": 20,
+      "governance_records": 100
+    },
+    "hot_path": "Diagnostics are opt-in for RuntimeStore.get; task detail and CLI show include them"
+  },
+  "browser": {
+    "browser": "Playwright; Browser plugin not available",
+    "api": "real isolated HTTP API; synthetic governed Worker",
+    "principalPrivacy": true,
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "stageCount": 6,
+        "measuredAndUnknown": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "stageCount": 6,
+        "measuredAndUnknown": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "stageCount": 6,
+        "measuredAndUnknown": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      }
+    ]
+  },
+  "cli": {
+    "cli_show": true,
+    "receipt_time_basis": true,
+    "open_duration_unknown": true
+  },
+  "image": {
+    "image": "sha256:c609096a6271055e77aeb78f5672ee35031f766b805d7a40d518e6668b66eeb3",
+    "base": "sha256:540e805e0a3381af40528341ab8d3e7f1b1af1aab5d78cecb93120116806c49f",
+    "tag": "dios-backend:runtime-diagnostics-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "deployment": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "changed": false
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_contract": {
+    "api_budget_schema": true,
+    "model_usage_detail": true,
+    "diagnostics_detail": true,
+    "tool_budget_detail": true,
+    "budget_detail": true,
+    "api_schema_parent_binding": true,
+    "delegation_schema_parent_binding": true,
+    "historical_detail_readable": true,
+    "visible_runs": 54,
+    "frontend_status": 200
+  },
+  "deployed_ui": {
+    "liveDevelopmentApi": true,
+    "historicalTimingUnknown": true,
+    "stageCount": 4,
+    "pageErrors": []
+  },
+  "frontend_build": {
+    "passed": true,
+    "node": "25.1.0",
+    "existing_warning": "bundle greater than 500 kB"
+  },
+  "source_sha256": {
+    "backend/app/runtime/cli.py": "a2ff26db257b30725c700eb072ff94129cba712c5aef62fd0259209aa07dfe27",
+    "backend/app/runtime/store.py": "f574505c11b25d704659d3dd5e8c391cf7899e201550fc626047348d0adaabc3",
+    "backend/app/runtime/tool_invocations.py": "3fcbf5154bbd990587cf5b7ad4593ccef206b467f2adab86b7b3cac8da5bb266",
+    "backend/app/runtime/work_authorizations.py": "8058a451109463a8ca18491f2b44079e86df1c252eefa488b597356e50c287de",
+    "backend/app/services/task_console.py": "6640b0c44f74d69de29c4397949f5bb15de5a2390f423227f7d1860f5ae276b4",
+    "backend/tests/test_runtime_opa_integration.py": "9a093d1617b1888298e5b771655c96744853e456ff3676eefd5d0c08476683fb",
+    "backend/tests/test_runtime_principals.py": "371d138afb4b658385c87bfb2cf8cf7f554e9780594c8b1953cf71818fbb92ef",
+    "frontend/src/api/runtime.ts": "5bda48129c1eb8e87d5fa6e12ef584db0255df4070ed0e32a17effb63994a424",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "90df541ec863b7b5d215e3147dcd5aa66141e2b3424050220c70fbefe2f073da",
+    "frontend/src/apps/console/components/task-runs.css": "2542fb9595b53c32d1a1fd8c1e960d30afd8e3b48837d9411918a4eb9896ce34",
+    "frontend/src/lib/messages.ts": "539ea52a6091c92fc0617e1744b69633925fc6156c580fbd7cfd3da43a0093db",
+    "backend/app/runtime/diagnostics.py": "27b1bef3249c8565863cb8e840d251ccd61f976a4b80eb746926a0625e8f9bf8",
+    "backend/tests/test_runtime_diagnostics.py": "57c79a3f209b1cfbe02f5434783754ca81db72263153fdaabdfc7b84f1490f36",
+    "frontend/src/apps/console/components/RunDiagnostics.tsx": "e1834e38fcbdd85fadcf20ae12f312c20b926883add77c38c7b25e164f2013d8"
+  },
+  "remaining": [
+    "OTLP export and trace context propagation",
+    "Agent-internal preparation, retrieval, first-token and generation timing",
+    "Forwarding, audit persistence and commit timing",
+    "Durable hourly/daily throughput, freshness diagnostics, alerts and diagnostic export",
+    "Large per-run history query cost qualification; physical multi-host acceptance"
+  ]
+}

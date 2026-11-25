@@ -183,7 +183,7 @@ async def execute(args):
             return {'run_id':args.run_id,'removed':True}
         if args.command == 'submit':
             return await store.submit(args.key, json.loads(Path(args.file).read_text(encoding='utf-8')))
-        if args.command == 'show': return await store.get(args.run_id)
+        if args.command == 'show': return await store.get(args.run_id,diagnostics=True)
         if args.command == 'events': return await store.pending_events(args.consumer, args.limit)
         if args.command == 'drain':
             await store.drain(args.worker_id)

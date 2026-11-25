@@ -102,10 +102,16 @@ class OpaIntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.calls[0]['id'],item['id'])
         decisions=[e['decision']['evidence'] for e in result['evidence'] if e['stage']=='policy']
         self.assertTrue(decisions);self.assertTrue(all(d['bundles']=={'/policy':'v1'} for d in decisions))
+        self.assertTrue(all(d['timing']['opa_request_seconds']>=0 for d in decisions))
+        diagnostic=(await self.store.get(self.run['id'],diagnostics=True))['diagnostics']
+        self.assertTrue(any(row['action']=='policy' and row['timing'] for row in diagnostic['governance']))
         await self.gate.dispatch(self.run['id'],item['id'],item['version']);self.assertEqual(len(self.calls),1)
     async def test_real_opa_parameter_deny_produces_no_upstream_call(self):
         with self.assertRaisesRegex(RuntimeErrorCode,'POLICY_DENIED'):await self.request(arguments={'query':'forbidden'})
         self.assertEqual(self.calls,[])
+        diagnostic=(await self.store.get(self.run['id'],diagnostics=True))['diagnostics']
+        policy=next(row for row in diagnostic['governance'] if row['action']=='policy')
+        self.assertEqual(policy['outcome'],'deny');self.assertIsNotNone(policy['timing'])
     async def test_bundle_change_after_approval_blocks_dispatch(self):
         item=await self.approve(await self.request());self.write_bundle('v2')
         await asyncio.to_thread(self.docker,'restart',self.cid);await self.ready()

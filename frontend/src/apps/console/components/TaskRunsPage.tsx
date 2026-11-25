@@ -8,6 +8,7 @@ import type { Profile, Sample, RunSummary, RunDetail, Preview } from "../../../a
 import "./task-runs.css";
 import WorkerStatusPanel from "./WorkerStatusPanel";
 import CapacityPanel from "./CapacityPanel";
+import RunDiagnostics from "./RunDiagnostics";
 import ToolActions from "./ToolActions";
 import DelegationEvidence from "./DelegationEvidence";
 import RunSchedulesPanel from "./RunSchedulesPanel";
@@ -290,6 +291,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             <p>{translateUI("远端上下文：{0}", [active.remote_agent.context_id || translateUI("待确认")])}</p>
             {active.remote_agent.cancel_requested_at && !terminal(detail.state) && <p>{translateUI("取消请求已保存，等待远端确认。")}</p>}
           </div>}
+          <RunDiagnostics value={detail.diagnostics} />
           {detail.model_usage && <section className="tr-notice tr-usage" aria-label={translateUI("模型用量")}>
             <strong>{translateUI("模型用量")}</strong><p>{translateUI("Agent 报告值，尚未与服务商账单核销。上下文占用不计作输入消耗；不同会话与单位不合计。")}</p>
             {!detail.model_usage.items.length && <p>{translateUI("尚无用量报告，消耗与费用未知。")}</p>}

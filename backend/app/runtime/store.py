@@ -383,7 +383,7 @@ class RuntimeStore:
             await self._event(c, run, 'run.completed', {'artifact_id':aid}, now, state='succeeded')
             return aid
 
-    async def get(self, run_id):
+    async def get(self, run_id, *, diagnostics=False):
         # Keep run and attempt snapshots coherent without joining the SQLite writer queue.
         async with self.db.read(self.scope) as c:
             run = await self._run(c, run_id)
@@ -398,6 +398,9 @@ class RuntimeStore:
             run['tool_budget']=await tool_budget_view(c,self.scope,run_id)
             from .usage import view as usage_view
             run['model_usage']=await usage_view(c,self.scope,run_id)
+            if diagnostics:
+                from .diagnostics import view as diagnostics_view
+                run['diagnostics']=await diagnostics_view(c,self.scope,run,await self.db.now(c))
             from .child_authorizations import view as family_view
             run['family']=await family_view(c,self.scope,run_id)
             return run

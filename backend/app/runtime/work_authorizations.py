@@ -7,6 +7,7 @@ from .work_policy import policy_matches
 from .principals import admit
 import asyncio
 import math
+from time import perf_counter
 from uuid import uuid4
 from sqlalchemy import select
 from .database import Database, RuntimeErrorCode
@@ -16,9 +17,11 @@ from .work_policy import permission
 from app.services.e2ag import Decision, evaluate_work_permission
 
 
-async def audit(c,scope,run_id,attempt_id,action,decision,now):
+async def audit(c,scope,run_id,attempt_id,action,decision,now,timing=None):
+    value=decision.as_dict()
+    if timing is not None:value['evidence']['timing']=timing
     await c.execute(decisions.insert().values(id=str(uuid4()),scope=scope,run_id=run_id,
-        attempt_id=attempt_id,action=action,decision=decision.as_dict(),created_at=now))
+        attempt_id=attempt_id,action=action,decision=value,created_at=now))
 
 
 async def persist_identity_revocation(c,scope,reference):
@@ -132,6 +135,7 @@ class WorkAuthorizationVerifier:
     def __init__(self,store,policy):self.store,self.policy=store,policy
 
     async def __call__(self,context,action):
+        started=perf_counter()
         if context.scope!=self.store.scope:raise RuntimeErrorCode('WORKER_MISMATCH')
         if not context.authorization_ref:raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
         # Configuration I/O stays outside the transaction; authoritative state is checked again inside.
@@ -141,6 +145,7 @@ class WorkAuthorizationVerifier:
             if not row:raise RuntimeErrorCode('WORK_AUTHORIZATION_NOT_FOUND')
             captured=dict(row)
             principal=(await self.store._run(c,context.run_id))['input'].get('principal')
+        looked_up=perf_counter()
         policy_error=None
         try:
             current=await asyncio.to_thread(admit,self.policy,captured['profile_id'],captured['profile_digest'],captured['secret_refs'],principal)
@@ -149,8 +154,15 @@ class WorkAuthorizationVerifier:
                 policy_error=RuntimeErrorCode('WORK_POLICY_CHANGED')
         except RuntimeErrorCode as exc:policy_error=exc
         except (OSError,ValueError):policy_error=RuntimeErrorCode('WORK_POLICY_UNAVAILABLE')
+        policy_done=perf_counter()
         failure=None
         async with self.store.db.transaction(self.store.scope) as c:
+            entered=perf_counter()
+            def timing():
+                finished=perf_counter()
+                return dict(clock='monotonic',lookup_seconds=looked_up-started,
+                    policy_refresh_seconds=policy_done-looked_up,transaction_wait_seconds=entered-policy_done,
+                    authorization_seconds=finished-entered,before_audit_seconds=finished-started)
             await require(c)
             now=await self.store.db.now(c)
             try:
@@ -189,7 +201,7 @@ class WorkAuthorizationVerifier:
                             await c.execute(grants.update().where(grants.c.attempt_id==a['id'],grants.c.version==grant['version'])
                                 .values(**changes,version=grant['version']+1))
                             code='EXECUTION_GRANT_RENEWED' if 'expires_at' in changes else 'EXECUTION_SESSION_BOUND'
-                    if code:await audit(c,self.store.scope,run['id'],a['id'],action,Decision('work-grant','allow',(code,)),now)
+                    if code:await audit(c,self.store.scope,run['id'],a['id'],action,Decision('work-grant','allow',(code,)),now,timing())
                 elif action=='accept_result':
                     from .lifecycle import admission
                     await admission(c,self.store.scope,ownership=True)
@@ -198,7 +210,7 @@ class WorkAuthorizationVerifier:
                         if run['state']!='reconciliation_required' or run['epoch']!=a['epoch']+1:raise RuntimeErrorCode('STALE_OWNER')
                     else:await self.store._owned(c,run['id'],a['id'],a['worker_id'],a['worker_instance'],a['epoch'])
                     await audit(c,self.store.scope,run['id'],a['id'],action,
-                        Decision('work-result','allow',('RESULT_ACCEPTANCE_AUTHORIZED',)),now)
+                        Decision('work-result','allow',('RESULT_ACCEPTANCE_AUTHORIZED',)),now,timing())
                 else:raise RuntimeErrorCode('INVALID_AUTHORIZATION_ACTION')
             except RuntimeErrorCode as exc:
                 failure=exc
@@ -206,7 +218,7 @@ class WorkAuthorizationVerifier:
                     # Once observed, re-enabling an identity cannot resurrect its old grant.
                     await persist_identity_revocation(c,self.store.scope,context.authorization_ref)
                 await audit(c,self.store.scope,context.run_id,context.attempt_id,action,
-                    Decision('work-authorization','deny',(exc.code,)),now)
+                    Decision('work-authorization','deny',(exc.code,)),now,timing())
         if failure:raise failure
         return True
 

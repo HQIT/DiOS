@@ -267,6 +267,13 @@ class TaskConsole:
             tool_budget=await tool_budget_view(c,self.scope,run_id)
             from app.runtime.usage import view as usage_view
             model_usage=await usage_view(c,self.scope,run_id)
+            from app.runtime.diagnostics import view as diagnostics_view
+            tool_read=True
+            try:await asyncio.to_thread(self.check_access,run,'tool.read')
+            except RuntimeErrorCode as exc:
+                if exc.code!='NOT_FOUND':raise
+                tool_read=False
+            diagnostics=await diagnostics_view(c,self.scope,run,now,include_tools=tool_read)
         kinds={}
         for payload,kind in kind_events:
             detail=payload['detail']
@@ -297,7 +304,7 @@ class TaskConsole:
             try:await asyncio.to_thread(self.check_access,run,action);access.append(action)
             except RuntimeErrorCode as exc:
                 if exc.code!='NOT_FOUND':raise
-        return dict(self.summary(run),access=access,observed_at=now,attempts=views,authorization=authorization,recovery=recovery,family=family,capacity=capacity,execution_budget=execution_budget,tool_budget=tool_budget,model_usage=model_usage,
+        return dict(self.summary(run),access=access,observed_at=now,attempts=views,authorization=authorization,recovery=recovery,family=family,capacity=capacity,execution_budget=execution_budget,tool_budget=tool_budget,model_usage=model_usage,diagnostics=diagnostics,
             sample=run['input']['payload']['sample'],
             artifacts=[{**{k:b[k] for k in ('id','attempt_id','digest','size','created_at')},'kind':kinds.get(b['id'],'raw')}
                 for b in blobs],
