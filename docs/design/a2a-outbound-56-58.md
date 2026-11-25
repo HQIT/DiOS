@@ -72,11 +72,21 @@ cd backend
 
 HTTP 429 映射为限流，连接中断、超时与 502/503/504 映射为网络类故障；401/403 与支付要求分别保存。HTTP 402 本身不证明额度不足。明确的 DiOS 端点错误 `error.data.dios.code = PROVIDER_QUOTA_EXHAUSTED` 可映射为额度类；该字段是 DiOS 端点扩展，第三方服务的配额含义需要通过其 Adapter 资格验证。
 
-默认网络退避基数为 5 秒、上限 300 秒，额度退避基数为 300 秒。等待时间加入抖动，并遵守有界的 `Retry-After` 秒数或 HTTP 日期（最多一天）。策略可在执行配置的 `remote.recovery` 中设置，沿用既有 `resource`、`base_delay`、`max_delay`、`quota_delay` 字段；`replay_safe` 必须为 `false`，`max_attempts` 为 1。策略属于配置指纹，更换后须重新授权。
+默认网络退避基数为 5 秒、上限 300 秒，额度退避基数为 300 秒。远端查询等待加入抖动，并遵守有界的 `Retry-After` 秒数或 HTTP 日期（最多一天）。策略可在执行配置的 `remote.recovery` 中设置，沿用既有 `resource`、`base_delay`、`max_delay`、`quota_delay` 字段；`replay_safe` 必须为 `false`，`max_attempts` 限制未派发预检的总尝试次数，默认 3、可设 1–10。显式设为 1 关闭预检重试。策略属于配置指纹，更换后须重新授权。
 
 共享资源故障打开熔断，暂停新的任务领取。冷却到期时仅允许一个探测者查询，探测成功关闭该资源的熔断；探测失败重新退避。进程重启不清空冷却时间。探测进程退出后，可在查询租约过期后重新竞争；旧探测令牌不能清除新探测者的状态。查询成功说明该端点的请求恢复，远端内部模型账户的余额和执行能力仍由端点能力与实际任务结果证明。
 
-授权撤销、取消意图和成果 Schema 校验在恢复期间继续生效。完整远端结果下载失败时保留终态回执，冷却后只重试成果下载。没有远端 Task ID 的未知提交继续保留身份等待对账。首次 Agent Card 发现失败的任务明确失败，后续新任务受同一熔断约束；首次预检的自动重试尚未启用。
+授权撤销、取消意图和成果 Schema 校验在恢复期间继续生效。完整远端结果下载失败时保留终态回执，冷却后只重试成果下载。没有远端 Task ID 的未知提交继续保留身份等待对账。
+
+## 首次连接预检恢复
+
+首次 Agent Card 发现遇到网络或限流错误时，确认 Attempt 仍为 `claimed`，且没有进程、Session、远端意图或派发记录，才保存 `retry_wait` 和 `RETRY_UNLAUNCHED`。旧 Attempt 记为失败并关闭执行 Grant，Run 与 Work 保留；预算、当前权限和未结工具检查通过后，恢复领取创建新 Attempt 并重新取得 E2AG 执行授权。
+
+预检等待使用原有指数退避、共享熔断与单路探测，并同时满足 `Retry-After`。Worker 重启读取持久计划；多个 Worker 竞争时仅一个探测者执行。认证拒绝、配置错误、撤权、取消或预算耗尽会阻止重试，具体原因保留在账本。任何新增派发、进程或会话证据都会使“未派发”依据失效。
+
+这一规则沿用 [HTTP 幂等重试语义](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2)和 [Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3)。发现阶段的 GET 可以再次执行；已发送的 `message/send` 结果未知时，继续查询/对账原请求。预检恢复不会授权重放远端业务提交。
+
+Console 显示“尚未派发”、故障分类、下次重试时间和原任务状态。每次预检均保留独立 Attempt；成功恢复后关联唯一远端 Task、Session 和成果。[预检恢复证据](evidence/a2a-preflight-20261125.json)记录真实 429、首次连接前停机、独立 Worker 重启及 Docker 远端执行；两场景各有两次本地 Attempt、一次远端提交与一次远端执行。中英文桌面、移动端的实时状态与刷新通过验证。
 
 实现依据为 [RFC 9110 Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after)、[AWS 超时、退避与抖动](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)和 [Azure 熔断状态模式](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker)。查询重试与创建任务分别处理，有副作用的提交保留原幂等门槛。
 

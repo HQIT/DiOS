@@ -754,6 +754,21 @@
         "state": "development_verified",
         "evidence": "docs/design/evidence/child-task-channel-20261125.json",
         "delivered": "共享 outbox 的其他投递者持有回执时，有界等待原回执确认；三独立 Worker 并发和排空通过"
+      },
+      "a2a_preflight_recovery": {
+        "state": "development_verified",
+        "design": "docs/design/a2a-outbound-56-58.md",
+        "evidence": "docs/design/evidence/a2a-preflight-20261125.json",
+        "delivered": [
+          "确认未派发的 Agent Card 预检失败持久退避，默认最多三次；每次重新校验 E2AG",
+          "同一 Run 保留失败 Attempt，Worker 重启恢复与单路探测；已派发未知请求继续对账",
+          "中英文 Console 展示尚未派发、冷却和下次重试"
+        ],
+        "verification": "真实 HTTP 429 与首次连接前停机后恢复；各两次本地 Attempt、一次远端提交和 Docker 执行；专项28项、回归69项、镜像68项通过，PG条件项分别45/31跳过；中英文桌面及移动端刷新通过；开发历史84条保留",
+        "remaining": [
+          "活动 ACP 请求续接需固定 Adapter 的请求身份与续接资格",
+          "物理跨主机、生产 HTTPS、企业凭据轮换与 G2/用户验收"
+        ]
       }
     },
     {
@@ -1367,7 +1382,7 @@
         "validation_status": "a2a_remote_recovery_and_acp_three_harness_slices_verified",
         "summary": "远端 A2A 复用既有故障账本，接入持久退避、Retry-After、限流/明确额度分类及单路探测；Worker 重启保留冷却，按原任务/产物恢复，E2AG 和旧探测令牌校验持续生效。真实 HTTP 429、额度注入、目标 API 停止/重启和实时 UI 冷却恢复均通过；SQLite 写事务取消后回滚与后续写入通过。相关回归 207 项通过 / 76 项条件跳过，镜像 45 项通过；开发部署保留 84 条 Run 身份。",
         "validation_evidence": "docs/design/evidence/a2a-recovery-20261125.json",
-        "remaining": "首次预检的安全自动重试；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
+        "remaining": "活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
       },
       "product_scope": "dios-capability",
       "harness_governance_verification": {
@@ -1435,6 +1450,21 @@
           "Active-session reattachment",
           "Monetary/token budgets",
           "Independent G2 and user acceptance"
+        ]
+      },
+      "a2a_preflight_recovery": {
+        "state": "development_verified",
+        "design": "docs/design/a2a-outbound-56-58.md",
+        "evidence": "docs/design/evidence/a2a-preflight-20261125.json",
+        "delivered": [
+          "确认未派发的 Agent Card 预检失败持久退避，默认最多三次；每次重新校验 E2AG",
+          "同一 Run 保留失败 Attempt，Worker 重启恢复与单路探测；已派发未知请求继续对账",
+          "中英文 Console 展示尚未派发、冷却和下次重试"
+        ],
+        "verification": "真实 HTTP 429 与首次连接前停机后恢复；各两次本地 Attempt、一次远端提交和 Docker 执行；专项28项、回归69项、镜像68项通过，PG条件项分别45/31跳过；中英文桌面及移动端刷新通过；开发历史84条保留",
+        "remaining": [
+          "活动 ACP 请求续接需固定 Adapter 的请求身份与续接资格",
+          "物理跨主机、生产 HTTPS、企业凭据轮换与 G2/用户验收"
         ]
       }
     },
@@ -2486,14 +2516,14 @@
         "F03-2"
       ],
       "priority": "最高",
-      "next_acceptance": "按既定矩阵推进活动会话恢复及跨来源授权验证；首次预检重试、跨主机和供应商资格继续补齐。",
+      "next_acceptance": "继续跨主机、供应商工具路径和企业凭据资格验证；活动 ACP 请求续接以固定 Adapter 提供稳定请求身份及可核验的续接语义为准。",
       "status": "In Progress",
       "progress": {
         "date": "2026-11-25",
         "validation_status": "a2a_remote_recovery_and_acp_three_harness_slices_verified",
         "summary": "远端 A2A 复用既有故障账本，接入持久退避、Retry-After、限流/明确额度分类及单路探测；Worker 重启保留冷却，按原任务/产物恢复，E2AG 和旧探测令牌校验持续生效。真实 HTTP 429、额度注入、目标 API 停止/重启和实时 UI 冷却恢复均通过；SQLite 写事务取消后回滚与后续写入通过。相关回归 207 项通过 / 76 项条件跳过，镜像 45 项通过；开发部署保留 84 条 Run 身份。",
         "validation_evidence": "docs/design/evidence/a2a-recovery-20261125.json",
-        "remaining": "首次预检的安全自动重试；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
+        "remaining": "活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
       },
       "product_scope": "dios-capability",
       "harness_governance_verification": {
@@ -2581,6 +2611,21 @@
           "Active-session reattachment",
           "Monetary/token budgets",
           "Independent G2 and user acceptance"
+        ]
+      },
+      "a2a_preflight_recovery": {
+        "state": "development_verified",
+        "design": "docs/design/a2a-outbound-56-58.md",
+        "evidence": "docs/design/evidence/a2a-preflight-20261125.json",
+        "delivered": [
+          "确认未派发的 Agent Card 预检失败持久退避，默认最多三次；每次重新校验 E2AG",
+          "同一 Run 保留失败 Attempt，Worker 重启恢复与单路探测；已派发未知请求继续对账",
+          "中英文 Console 展示尚未派发、冷却和下次重试"
+        ],
+        "verification": "真实 HTTP 429 与首次连接前停机后恢复；各两次本地 Attempt、一次远端提交和 Docker 执行；专项28项、回归69项、镜像68项通过，PG条件项分别45/31跳过；中英文桌面及移动端刷新通过；开发历史84条保留",
+        "remaining": [
+          "活动 ACP 请求续接需固定 Adapter 的请求身份与续接资格",
+          "物理跨主机、生产 HTTPS、企业凭据轮换与 G2/用户验收"
         ]
       }
     },

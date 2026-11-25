@@ -81,13 +81,13 @@ class A2AProfile:
             or {
                 "resource": "a2a:" + digest(self.endpoint),
                 "replay_safe": False,
-                "max_attempts": 1,
+                "max_attempts": 3,
                 "base_delay": 5,
                 "max_delay": 300,
                 "quota_delay": 300,
             }
         )
-        if value["replay_safe"] or value["max_attempts"] != 1:
+        if value["replay_safe"]:
             raise RuntimeErrorCode("A2A_REPLAY_UNSUPPORTED")
         return value
 

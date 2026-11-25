@@ -468,15 +468,19 @@ class RuntimeStore:
             if (old.get('state'), old.get('process_instance')) != (observation.state, observation.process_instance):
                 await self._event(c, run, 'runtime.observed', value, now)
 
-    async def reject_unlaunched(self, binding, code):
+    async def reject_unlaunched(self, binding, code, *, retry_unlaunched=False, retry_after=0):
         identifier(code)
         async with self.db.transaction(self.scope) as c:
             run, a, now = await self._owned(c, *binding)
-            if a['state']!='claimed' or a['process_instance'] or a['remote']:
+            if a['state']!='claimed' or a['process_instance'] or a['process_id'] or a['session_id'] or a['remote']:
                 raise RuntimeErrorCode('LAUNCH_ALREADY_STARTED')
+            state,error='failed',{'code':code}
+            if retry_unlaunched:
+                from .faults import failed
+                state,error=await failed(c,self,run,a,code,now,retry_unlaunched=True,retry_after=retry_after)
             await c.execute(attempts.update().where(attempts.c.id==a['id']).values(
-                state='failed',error={'code':code},finished_at=now))
-            await self._event(c,run,'attempt.preflight_failed',{'attempt_id':a['id'],'code':code},now,state='failed')
+                state='failed',error=error,finished_at=now))
+            await self._event(c,run,'attempt.preflight_failed',{'attempt_id':a['id'],**error},now,state=state)
 
     async def retain_output(self, binding, provider, key, kind):
         """Retain raw stdout/stderr even for failed/cancelled results; no success claim."""

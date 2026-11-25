@@ -232,7 +232,15 @@ class A2ARecovery:
                 attempt["epoch"],
             )
             current, a, now = await self.store._owned(c, *binding)
-            await faults.failed(c, self.store, current, a, code(exc), now)
+            bound = RuntimeStore(
+                TransactionView(self.store.db, c, self.store.scope), self.store.scope
+            )
+            await bound.reject_unlaunched(
+                binding,
+                code(exc),
+                retry_unlaunched=True,
+                retry_after=getattr(exc, "retry_after", 0),
+            )
             state = await faults.circuit(c, self.store.scope, self.policy["resource"])
             if state and state["state"] != "closed":
                 await c.execute(
@@ -247,10 +255,6 @@ class A2ARecovery:
                         )
                     )
                 )
-            bound = RuntimeStore(
-                TransactionView(self.store.db, c, self.store.scope), self.store.scope
-            )
-            await bound.reject_unlaunched(binding, code(exc))
 
     async def release(self, run, attempt, token, *, reconcile):
         async with self.store.db.transaction(self.store.scope) as c:

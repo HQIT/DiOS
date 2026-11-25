@@ -383,6 +383,8 @@ export const messages: Record<string, string> = {
   "· 下次重试": "· Next retry",
   "，继续原任务": ", continuing the original task",
   "· 自动重试受限：": "· Automatic retry restricted:",
+  "· 尚未派发远端请求，等待连接恢复": "· Remote request not sent; waiting for connectivity",
+  "尚未派发": "Not dispatched",
   "最近更新：": "Last update:",
   "取消任务": "Cancel task",
   "执行授权": "Execution authorization",

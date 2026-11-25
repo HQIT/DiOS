@@ -87,7 +87,7 @@ class RecoveryTests(fixture.OutboundTests):
         self.peer = limited
         await self.submit()
         first = await self.worker().once()
-        self.assertEqual("failed", first["state"])
+        self.assertEqual("retry_wait", first["state"])
         self.assertEqual(0, self.submit_count)
         self.assertGreaterEqual(
             first["recovery"]["circuit"]["retry_at"] - first["updated_at"], 119

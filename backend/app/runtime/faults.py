@@ -52,6 +52,9 @@ async def put_plan(c,row):
     if old:await c.execute(plans.update().where(plans.c.run_id==row['run_id']).values(**row))
     else:await c.execute(plans.insert().values(**row))
 
+def unlaunched(a):
+    return not (a['remote'] or a['process_instance'] or a['process_id'] or a['session_id'])
+
 async def ready(c,store,p,profile,now):
     """Promote bounded due retries; every new claim still requires a fresh E2AG grant."""
     if not p:return True
@@ -62,7 +65,9 @@ async def ready(c,store,p,profile,now):
     for row in rows:
         run=dict(row);a=(await c.execute(select(attempts).where(attempts.c.id==run['attempt_id']))).mappings().one()
         try:
-            if not p['replay_safe']:raise RuntimeErrorCode('REPLAY_DISABLED')
+            reason=(await c.execute(select(plans.c.reason).where(plans.c.run_id==run['id']))).scalar_one()
+            preflight=reason=='RETRY_UNLAUNCHED' and a['state']=='failed' and unlaunched(a)
+            if not p['replay_safe'] and not preflight:raise RuntimeErrorCode('REPLAY_DISABLED')
             from .work_authorizations import checked_work
             if await checked_work(c,run,a,now,'execute') is None:raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
             from .tool_invocations import require_settled
@@ -104,7 +109,7 @@ async def outcome(c,scope,attempt_id,success,now,code=None):
             failures=count,retry_at=max(state['retry_at'],now+delay(b['policy'],count,category(code or ''))),
             probe_attempt=None if own else state['probe_attempt'],reason=code,updated_at=now))
 
-async def failed(c,store,run,a,code,now):
+async def failed(c,store,run,a,code,now,*,retry_unlaunched=False,retry_after=0):
     kind=category(code);b=(await c.execute(select(bindings).where(bindings.c.attempt_id==a['id']))).mappings().first()
     await outcome(c,store.scope,a['id'],False,now,code)
     if not b:return 'failed',{'code':code,'category':kind}
@@ -112,20 +117,22 @@ async def failed(c,store,run,a,code,now):
     count=(await c.execute(select(func.count()).select_from(attempts).where(attempts.c.run_id==run['id']))).scalar_one()
     if kind in TRANSIENT:
         try:
-            if not p['replay_safe']:raise RuntimeErrorCode('REPLAY_DISABLED')
+            preflight=retry_unlaunched and a['state']=='claimed' and unlaunched(a)
+            if not p['replay_safe'] and not preflight:raise RuntimeErrorCode('REPLAY_DISABLED')
             if count>=p['max_attempts']:raise RuntimeErrorCode('RETRY_BUDGET_EXHAUSTED')
             from .work_authorizations import checked_work
             if await checked_work(c,run,a,now,'execute') is None:raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
             from .tool_invocations import require_settled
             await require_settled(c,store.scope,run['id'])
-            retry_at=now+delay(p,count,kind);reason=None
+            retry_at=now+max(delay(p,count,kind),retry_after)
+            reason='RETRY_UNLAUNCHED' if preflight else None
         except RuntimeErrorCode as exc:reason=exc.code
     await put_plan(c,dict(run_id=run['id'],scope=store.scope,attempt_id=a['id'],resource=p['resource'],
         state='waiting' if retry_at else 'blocked',category=kind,code=code,retry_at=retry_at,reason=reason,updated_at=now))
     if retry_at:
         from .work_auth_schema import grants
         await c.execute(grants.update().where(grants.c.attempt_id==a['id']).values(state='closed',version=grants.c.version+1))
-    return ('retry_wait' if retry_at else 'failed'),dict(code=code,category=kind,retry_at=retry_at,retry_blocked=reason)
+    return ('retry_wait' if retry_at else 'failed'),dict(code=code,category=kind,retry_at=retry_at,retry_blocked=None if retry_at else reason)
 
 async def view(c,scope,run_id):
     row=(await c.execute(select(plans).where(plans.c.scope==scope,plans.c.run_id==run_id))).mappings().first()

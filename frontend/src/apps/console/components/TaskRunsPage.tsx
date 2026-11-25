@@ -208,6 +208,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   const policyMissing = chosenProfile?.governance === "e2ag" && !chosenProfile.policy_configured;
   const source = samples.find(s => s.id === sample);
   const active = detail?.attempts.find(a => a.id === detail.attempt_id);
+  const preflightWaiting = detail?.state === "retry_wait" && detail?.recovery?.reason === "RETRY_UNLAUNCHED";
 
   return <section className="task-runs">
     <header className="tr-heading"><div><p className="tr-eyebrow">{translateUI("DiOS · 任务与成果")}</p><h2>{translateUI("交给 Agent，带回成果")}</h2>
@@ -278,7 +279,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         <section className="tr-card"><div className="tr-section-title"><h3>{detail.goal}</h3><Badge state={detail.state} /></div>
           <p className="tr-muted">{detail.display.name || detail.profile_id} · {translateUI(detail.display.synthetic ? "合成端点" : detail.display.implementation)}</p>
           <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : active?.runtime_state === "paused" && !terminal(detail.state) ? "执行已暂停" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>
-            <div><span>{translateUI(active?.remote_agent ? "远端任务观测" : "进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : active?.remote_agent ? active.remote_agent.freshness === "stale" ? "观测过期" : ({ submitted: "远端已受理", working: "远端报告运行中", completed: "远端报告完成", canceled: "远端确认取消", failed: "远端报告失败", rejected: "远端拒绝", "input-required": "远端等待输入", "auth-required": "远端等待认证" } as Record<string,string>)[active.remote_agent.observed_state || ""] || "远端状态待确认" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.runtime_state === "paused" ? "执行已暂停" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
+            <div><span>{translateUI(active?.remote_agent || preflightWaiting ? "远端任务观测" : "进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : preflightWaiting ? "尚未派发" : active?.remote_agent ? active.remote_agent.freshness === "stale" ? "观测过期" : ({ submitted: "远端已受理", working: "远端报告运行中", completed: "远端报告完成", canceled: "远端确认取消", failed: "远端报告失败", rejected: "远端拒绝", "input-required": "远端等待输入", "auth-required": "远端等待认证" } as Record<string,string>)[active.remote_agent.observed_state || ""] || "远端状态待确认" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.runtime_state === "paused" ? "执行已暂停" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
             <div><span>{translateUI("最近有效输出")}</span><strong>{translateUI(time(active?.last_output_at))}</strong></div>
           </div>
           {active?.remote_agent && <div className="tr-notice" data-testid="remote-agent-observation">
@@ -294,7 +295,8 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             {detail.state === "retry_wait" && detail.recovery.retry_at && <>{translateUI("· 下次重试")}{translateUI(time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0)))}{translateUI("，继续原任务")}</>}
             {detail.recovery.state === "observing" && detail.recovery.retry_at && <>{translateUI("· 下次查询原任务：")}{translateUI(time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0)))}</>}
             {detail.recovery.state === "observed" && <>{translateUI("· 远端查询已恢复")}</>}
-            {detail.recovery.reason && detail.recovery.reason !== "QUERY_ORIGINAL_TASK" && <>{translateUI("· 自动重试受限：")}{translateUI(detail.recovery.reason)}</>}
+            {detail.recovery.reason === "RETRY_UNLAUNCHED" && <>{translateUI("· 尚未派发远端请求，等待连接恢复")}</>}
+            {detail.recovery.reason && !["QUERY_ORIGINAL_TASK", "RETRY_UNLAUNCHED"].includes(detail.recovery.reason) && <>{translateUI("· 自动重试受限：")}{translateUI(detail.recovery.reason)}</>}
           </p>}
           <div className="tr-actions"><span className="tr-muted">{translateUI("最近更新：")}{translateUI(time(detail.observed_at))}</span>
             {can("run.cancel") && !terminal(detail.state) && <button disabled={busy || detail.cancel_requested || !!detailError} onClick={() => void cancel()}>{translateUI(detail.cancel_requested ? "取消待确认" : "取消任务")}</button>}</div>
