@@ -24,7 +24,8 @@
       "#46 诊断导出未验证 WIP 已保存在 git stash，待 K04-3.02 顺序到达后处理。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
-    "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。"
+    "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
+    "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。"
   },
   "waves": [
     {
@@ -816,7 +817,7 @@
     {
       "id": "D01-1-A05",
       "parent": "D01-1",
-      "text": "交互终端与计划任务环境差异可诊断；运行中升级不强杀活跃任务、不重复派发、不丢产物",
+      "text": "Linux 交互终端与后台服务环境差异可诊断；运行中升级不强杀活跃任务、不重复派发、不丢产物",
       "work_items": [
         "D01-1.01",
         "D01-1.02",
@@ -1812,7 +1813,7 @@
       "id": "K03-1.02",
       "parent": "K03-1",
       "issue": 33,
-      "title": "Secret 跨平台交付补齐",
+      "title": "Secret 服务交付补齐",
       "kind": "I",
       "state": "todo",
       "requirements": [
@@ -1820,9 +1821,9 @@
         "K03-1-A03",
         "K03-1-A04"
       ],
-      "deliverable": "无人值守依赖、Secret 引用/注入/轮换及 Windows ACL 配置",
-      "done_when": "受限身份无共享管理员提权；凭据不进 Prompt/日志/普通配置，计划任务环境可复现",
-      "verification": "受限身份无共享管理员提权；凭据不进 Prompt/日志/普通配置，计划任务环境可复现",
+      "deliverable": "Linux 无人值守依赖、Secret 引用/注入/轮换及文件权限配置",
+      "done_when": "受限身份无共享管理员提权；凭据不进 Prompt/日志/普通配置，后台服务环境可复现",
+      "verification": "受限身份无共享管理员提权；凭据不进 Prompt/日志/普通配置，后台服务环境可复现",
       "dependencies": [],
       "owner": "Codex 工程",
       "completion_evidence": [],
@@ -2546,8 +2547,8 @@
         "D01-1-A05"
       ],
       "deliverable": "干净安装步骤、依赖/PATH/代理/凭据与后台运行配置",
-      "done_when": "新环境能安装；终端和计划任务差异可诊断，Windows 后台无频繁弹窗",
-      "verification": "新环境能安装；终端和计划任务差异可诊断，Windows 后台无频繁弹窗",
+      "done_when": "Linux 新环境能安装；交互终端与后台服务的环境差异可诊断",
+      "verification": "Linux 新环境能安装；交互终端与后台服务的环境差异可诊断",
       "dependencies": [],
       "owner": "Codex 工程",
       "completion_evidence": [],

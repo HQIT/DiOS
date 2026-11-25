@@ -689,7 +689,7 @@
         ],
         "verification": "537 项后端回归：409 通过、128 条件跳过；9 项暂停专项含原生 Docker 全通过；真实 IdP 停机恢复后原 PID/会话及审批继续，报告成功；66 条原历史保留，共 67 条",
         "remaining": [
-          "Native local Docker qualified; physical multi-host, Windows and vendor model/ACP timeout qualification pending",
+          "Native local Docker qualified; physical Linux multi-host and vendor model/ACP timeout qualification pending",
           "Worker restart does not automatically adopt or unfreeze original process; existing reconciliation remains authoritative",
           "Strict ordering between database revocation and external runtime actions remains a separate #35 acceptance",
           "Unknown external side effects are not replayed; total task and Work expiry remain bounded"
@@ -842,7 +842,7 @@
         "design": "docs/design/connector-poll-runtime-9.md",
         "evidence": "docs/design/evidence/connector-poll-20261124.json",
         "verification": "后端 639 项中 448 通过、191 跳过；最终 Connector 专项 25 项通过；TypeScript 与变更文件 lint 通过；镜像构建及运行 5 项通过；开发部署 10 项通过，84 条历史身份保持不变",
-        "next": "G2 独立评审与产品验收；跨主机 fencing Provider 和 Windows 资格按部署计划推进",
+        "next": "G2 独立评审与产品验收；跨主机 fencing Provider 资格按 Linux 部署计划推进",
         "project_sync": "Issue 正文及仓库计划同步；GitHub Project 字段因令牌缺少 read:project/project scope 未更新"
       },
       "closure_work_items": [
@@ -1049,7 +1049,7 @@
         ],
         "date": "2026-11-12",
         "summary": "基于 #32 已交付存储子集，完成 SQLite/本地产物恢复基线及恢复调度关闭；新目录恢复保留身份、事件与历史关联。154 项后端回归和合成恢复演练通过。",
-        "remaining": "完整交付仍依赖 #32/#30 联合验收；外置配置/workspace、Secret 服务与 Worker spool 的备份策略、远端重认证/对账后启用、Windows ACL、PostgreSQL 与多节点恢复待完成。"
+        "remaining": "完整交付仍依赖 #32/#30 联合验收；外置配置/workspace、Secret 服务与 Worker spool 的备份策略、远端重认证/对账后启用、PostgreSQL 与 Linux 多节点恢复待完成。"
       },
       "product_scope": "dios-capability",
       "history_archive": {
@@ -1192,7 +1192,7 @@
           "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
         ],
         "remaining": [
-          "签名及客户端密钥轮换、通用 Worker Secret 挂载、Windows ACL Provider 资格",
+          "签名及客户端密钥轮换、通用 Worker Secret 挂载、Linux 文件权限与 Secret Provider 资格",
           "标准注销/安全事件和恢复对账",
           "三层委派收窄与跨服务撤销/派发排序",
           "真实企业身份服务及物理多主机资格"
@@ -1415,7 +1415,7 @@
           "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
         ],
         "remaining": [
-          "托管 Secret、签名及客户端密钥轮换、Windows ACL Provider 资格",
+          "托管 Secret、签名及客户端密钥轮换、Linux 文件权限与 Secret Provider 资格",
           "标准注销/安全事件和恢复对账",
           "三层委派收窄与跨服务撤销/派发排序",
           "真实企业身份服务及物理多主机资格"
@@ -1675,7 +1675,7 @@
           "API/CLI/SDK/Console、真实 Worker 与报告链路验证，52 条原历史保留"
         ],
         "remaining": [
-          "托管 Secret、签名及客户端密钥轮换、Windows ACL Provider 资格",
+          "托管 Secret、签名及客户端密钥轮换、Linux 文件权限与 Secret Provider 资格",
           "标准注销/安全事件和恢复对账",
           "三层委派收窄与跨服务撤销/派发排序",
           "真实企业身份服务及物理多主机资格"
@@ -2620,14 +2620,14 @@
         "保持 Console/CLI/API 契约一致性，建立合并前检查",
         "将运行、授权、恢复与回滚纳入部署 smoke test",
         "包含标准协议接入和第三方 Harness 的安装/凭据/兼容检查",
-        "增加无人值守依赖/绝对路径/PATH/凭据/代理预检，Windows 后台隐藏启动；升级停止领取并自然排空"
+        "增加 Linux 后台服务的依赖/绝对路径/PATH/凭据/代理预检；升级停止领取并自然排空"
       ],
       "accept": [
         "干净环境可按文档安装并完成受控任务",
         "升级和回滚保留配置、工作与必要产物",
         "CI 有可重复的最小端到端和镜像构建证据",
         "最小交付闭环包含 K01-5 的跨实现证据",
-        "交互终端与计划任务环境差异可诊断；运行中升级不强杀活跃任务、不重复派发、不丢产物"
+        "Linux 交互终端与后台服务环境差异可诊断；运行中升级不强杀活跃任务、不重复派发、不丢产物"
       ],
       "deps": [
         "K01-1",
@@ -3065,6 +3065,7 @@
       "#46 诊断导出未验证 WIP 已保存在 git stash，待 K04-3.02 顺序到达后处理。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
-    "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。"
+    "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
+    "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。"
   }
 }
