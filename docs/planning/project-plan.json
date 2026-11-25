@@ -2143,17 +2143,20 @@
         "work_item": "S02-2.01",
         "status": "development_verified",
         "evidence": "docs/design/evidence/knowledge-provider-contract-20261126.json",
-        "remaining": [
-          "S02-2.03"
-        ]
+        "remaining": []
       },
       "provider_substitution": {
         "work_item": "S02-2.02",
         "status": "development_verified",
         "evidence": "docs/design/evidence/knowledge-provider-substitution-20261126.json",
-        "remaining": [
-          "S02-2.03"
-        ]
+        "remaining": []
+      },
+      "provider_governance_qualification": {
+        "work_item": "S02-2.03",
+        "status": "development_verified",
+        "evidence": "docs/design/evidence/knowledge-governance-qualification-20261126.json",
+        "delivered": "通用检索契约、两实现、受控工具接入和更新故障资格",
+        "limits": "历史回执保留；语义检索、图遍历和记忆写入按扩展能力声明交付"
       }
     },
     {
@@ -3131,10 +3134,11 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "S02-2.03",
-    "next_delivery": "S02-2.03",
+    "next_work_item": "K03-1.01",
+    "next_delivery": "K03-1.01",
     "next_delivery_order": [
-      "S02-2.03",
+      "K03-1.01",
+      "K03-1.02",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -3156,6 +3160,6 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "两种知识 Provider 已通过相同契约及实际切换；按 W2 顺序完成检索授权和更新传播故障资格，复用现有证据；W1 恢复启用仍待源端隔离决策。"
+    "next_selection_reason": "S02-2 三项工程工作已完成；按 W2 身份与权限顺序推进凭据轮换和身份源资格，复用已有 Cursor 路径。W1 源端隔离决策仍待定，不阻塞其他已就绪工作。"
   }
 }

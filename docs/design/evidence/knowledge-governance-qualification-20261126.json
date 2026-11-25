@@ -1,0 +1,217 @@
+{
+  "work_item": "S02-2.03",
+  "status": "engineering_verified",
+  "source_head": "9fa3aac8b36848a7a01c0d27405856972342f5c6",
+  "tests": {
+    "new_fault_cases": {
+      "total": 6,
+      "exit_code": 0,
+      "seconds": 9.689,
+      "log": "faults.log"
+    },
+    "adapter_boundaries": {
+      "total": 7,
+      "exit_code": 0,
+      "installed_wheel": true
+    },
+    "new_passed": 13,
+    "skipped": 0,
+    "prior_unchanged_provider_contracts": {
+      "count": 17,
+      "evidence": "docs/design/evidence/knowledge-provider-substitution-20261126.json"
+    },
+    "log_sha256": {
+      "faults.log": "c8c4afd1c88666c69aa69cf1079a20dee624ee0373810efa80eca7a7fffcd214",
+      "adapter.log": "e383f1007ab8ec1e1ec31cd8a4d3e90830ede4be0eeb0920e6db46e3278c428a"
+    }
+  },
+  "matrix": [
+    {
+      "scenario": "Receipt insert fails after source update",
+      "result": "Transaction rolls back both; same key retries exactly once",
+      "providers": "both"
+    },
+    {
+      "scenario": "Acknowledgement lost after commit",
+      "result": "Replay returns original receipt without advancing revision",
+      "providers": "both"
+    },
+    {
+      "scenario": "Late stale update after deletion",
+      "result": "VERSION_CONFLICT; tombstone retained",
+      "providers": "both"
+    },
+    {
+      "scenario": "Reused key with changed request",
+      "result": "IDEMPOTENCY_CONFLICT; tombstone retained",
+      "providers": "both"
+    },
+    {
+      "scenario": "Content integrity failure",
+      "result": "ARTIFACT_DIGEST_MISMATCH; no partial/empty success",
+      "providers": "both"
+    },
+    {
+      "scenario": "Identity revoked",
+      "result": "HTTP 401; MCP initialization denied",
+      "providers": "both"
+    },
+    {
+      "scenario": "MCP operator credential or wrong token",
+      "result": "403; no upstream search"
+    },
+    {
+      "scenario": "Binding revoked while query runs",
+      "result": "Error result; query content not released"
+    },
+    {
+      "scenario": "Caller forged actor field",
+      "result": "Schema rejects input; no upstream search"
+    },
+    {
+      "scenario": "Source replacement, expiry, deletion, in-flight mutation and object ACL revocation",
+      "result": "Prior shared contracts reused; no production changes",
+      "providers": "both"
+    }
+  ],
+  "actual_governed_tool": [
+    {
+      "run_id": "5c3b979a-9e5e-4e16-b72f-ce4e7bbd8c02",
+      "attempt_id": "435de0d9-90c7-410e-9e7d-61d1577c2a87",
+      "invocation_id": "96ae5b9d-5fb4-4146-97c6-9449f31fa76f",
+      "citation": {
+        "source_id": "a",
+        "source_revision": 1,
+        "object_ref": {
+          "id": "dcea0ce0-dc72-429b-bb40-6cfeab6e542b",
+          "kind": "file",
+          "version": 1
+        },
+        "provenance": {
+          "key": "a",
+          "locator": "record/a",
+          "namespace": "fixture",
+          "version": "v1"
+        },
+        "descriptor": {
+          "digest": "sha256:2f61c9b60b72b9d332351926729a97b5da000f1a518a710f319e65c8f41a6302",
+          "size": 15,
+          "media_type": "application/octet-stream"
+        },
+        "text": "共同 来源 a"
+      },
+      "approval_required": true,
+      "delete_fresh_query_empty": true,
+      "historical_receipt_retained": true,
+      "revoked_reader_error": "MCP_UPSTREAM_HTTP_ERROR",
+      "work_revocation_blocks_receipt_replay": "AUTH_REVOKED",
+      "real_unix_peer_credentials": true,
+      "passed": true,
+      "new_model_calls": 0,
+      "fixture": "controlled-session; real HTTP and Unix transport",
+      "protocol": "2025-06-18",
+      "mcp_sdk": "1.30.0",
+      "separate_credentials": true,
+      "provider": "object-read-through-v1"
+    },
+    {
+      "run_id": "d4ee6962-136c-4c37-8dc8-7fe2d7c4fdfa",
+      "attempt_id": "412e2e1f-b0fb-4341-bb63-8b8125b855ea",
+      "invocation_id": "71e2f375-2a9b-4da1-bdcd-1248346ec91a",
+      "citation": {
+        "source_id": "a",
+        "source_revision": 1,
+        "object_ref": {
+          "id": "c2365d88-d121-4402-9ae5-442b1dc467ba",
+          "kind": "file",
+          "version": 1
+        },
+        "provenance": {
+          "key": "a",
+          "locator": "record/a",
+          "namespace": "fixture",
+          "version": "v1"
+        },
+        "descriptor": {
+          "digest": "sha256:2f61c9b60b72b9d332351926729a97b5da000f1a518a710f319e65c8f41a6302",
+          "size": 15,
+          "media_type": "application/octet-stream"
+        },
+        "text": "共同 来源 a"
+      },
+      "approval_required": true,
+      "delete_fresh_query_empty": true,
+      "historical_receipt_retained": true,
+      "revoked_reader_error": "MCP_UPSTREAM_HTTP_ERROR",
+      "work_revocation_blocks_receipt_replay": "AUTH_REVOKED",
+      "real_unix_peer_credentials": true,
+      "passed": true,
+      "new_model_calls": 0,
+      "fixture": "controlled-session; real HTTP and Unix transport",
+      "protocol": "2025-06-18",
+      "mcp_sdk": "1.30.0",
+      "separate_credentials": true,
+      "provider": "sqlite-fts5-v1"
+    }
+  ],
+  "development": {
+    "service": "dios-knowledge-tool.service",
+    "endpoint": "http://127.0.0.1:13287/mcp",
+    "active": true,
+    "package": "dios-knowledge-mcp 0.1.0",
+    "credentials_expire_at": 1796237743.9958444,
+    "principal": "knowledge-tool-demo",
+    "source": {
+      "id": "7b5e0c5f-1099-402f-80f5-a6120335366f",
+      "kind": "file",
+      "version": 1
+    },
+    "exact_citation_verified": true,
+    "model_calls": 0,
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "preserved": true
+      }
+    },
+    "activation": "Independent opt-in MCP endpoint; existing Worker profiles and their pinned tool catalogs unchanged",
+    "packaging": "Installed wheel with pinned MCP 1.30.0; backend remains running without restart"
+  },
+  "package": {
+    "name": "dios-knowledge-mcp",
+    "version": "0.1.0",
+    "mcp": "1.30.0",
+    "mcp_license": "MIT",
+    "wheel_sha256": "9c75271034b432b412474d4ccd72d09adef7952195980541001f57af2488c3ca",
+    "separate_runtime": true,
+    "protocol": "2025-06-18"
+  },
+  "source_sha256": {
+    "adapters/knowledge-mcp/src/dios_knowledge_mcp/server.py": "54451f95b723e940e80b9617aa10bb623faf382d564a9c671fd68ca5123f4ffa",
+    "adapters/knowledge-mcp/tests/test_server.py": "f8a8c24b711b3b597805e51d912eddfb35844d10180dff581823e1c6a20afac0",
+    "backend/tests/test_runtime_knowledge.py": "0120dfd0350b776afa7b25ce59d9839d6cdeac568b7311cb0d43fed78116b7f6",
+    "scripts/qualify_knowledge_tool.py": "b5ccf4f33728ab3591527f31f0e66bc53517f78e2d1671c6f008bf62fca5c5b6"
+  },
+  "upstream": [
+    "https://github.com/modelcontextprotocol/python-sdk",
+    "https://modelcontextprotocol.io/specification/2025-06-18/basic/transports",
+    "https://modelcontextprotocol.io/specification/2025-06-18/server/tools"
+  ],
+  "cursor_evidence_reused": "docs/design/evidence/cursor-recovery-upgrade-20261126.json",
+  "new_model_calls": 0,
+  "limits": [
+    "The new gate qualification uses a controlled task/session and real HTTP/Unix transports; it does not claim a new Cursor model run.",
+    "Fresh calls revalidate sources and object permissions; completed invocation receipts retain historical text under Work/Attempt/Session controls. Source revocation does not retroactively erase every report or invocation receipt.",
+    "The development tool endpoint is opt-in. Existing profiles retain pinned tool registrations; no active task is silently redirected.",
+    "Local loopback deployment; external TLS/OAuth identity federation and multi-host scale are not qualified here.",
+    "Graph traversal, semantic vectors and memory writes remain explicitly unadvertised provider extensions."
+  ]
+}

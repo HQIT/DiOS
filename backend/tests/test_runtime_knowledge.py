@@ -134,3 +134,64 @@ class KnowledgeTests(unittest.IsolatedAsyncioTestCase):
         finally:
             console.provider.close()
             await db.close()
+
+    async def test_failed_receipt_insert_rolls_back_binding_then_retry_applies_once(self):
+        from sqlalchemy import select
+        from app.runtime.database import _BufferedConnection
+        from app.runtime.knowledge_schema import receipts
+        ref = await self.seeded()
+        original = _BufferedConnection.execute
+        injected = []
+
+        async def fail_receipt(connection, statement, *args, **kwargs):
+            if getattr(statement, 'is_insert', False) and statement.table.name == receipts.name:
+                injected.append(statement.table.name)
+                raise OSError('injected receipt write failure')
+            return await original(connection, statement, *args, **kwargs)
+
+        with patch.object(_BufferedConnection, 'execute', fail_receipt):
+            failed = await self.change('source', revision=1)
+        self.assertEqual(injected, [receipts.name], failed.text)
+        self.assertNotEqual(failed.status_code, 200, failed.text)
+        current = await self.client.get('/api/os/runtime/knowledge/sources/source', headers=self.headers)
+        self.assertEqual((current.json()['state'], current.json()['revision']), ('active', 1))
+        self.assertEqual((await self.search()).json()['items'][0]['object_ref'], ref)
+        async with self.db.read('one') as connection:
+            self.assertIsNone((await connection.execute(select(receipts).where(receipts.c.key == 'source:1'))).first())
+        applied = await self.change('source', revision=1)
+        self.assertEqual(applied.status_code, 200, applied.text)
+        # Simulate an acknowledgement lost after commit: resend the original request.
+        replay = await self.change('source', revision=1)
+        self.assertEqual(replay.json(), applied.json())
+        self.assertEqual((await self.search()).json()['items'], [])
+        current = await self.client.get('/api/os/runtime/knowledge/sources/source', headers=self.headers)
+        self.assertEqual((current.json()['state'], current.json()['revision']), ('deleted', 2))
+
+    async def test_out_of_order_update_and_key_collision_do_not_resurrect_source(self):
+        ref = await self.seeded()
+        self.assertEqual((await self.change('source', revision=1)).status_code, 200)
+        stale = await self.change('source', ref, 1, idempotency_key='late-unseen-update')
+        self.assertEqual(stale.status_code, 409, stale.text)
+        self.assertEqual(stale.json()['detail'], 'VERSION_CONFLICT')
+        collision = await self.change('source', ref, 2, idempotency_key='source:1')
+        self.assertEqual(collision.status_code, 409, collision.text)
+        self.assertEqual(collision.json()['detail'], 'IDEMPOTENCY_CONFLICT')
+        self.assertEqual((await self.change('source', ref)).json()['revision'], 1)
+        self.assertEqual((await self.search()).json()['items'], [])
+        current = await self.client.get('/api/os/runtime/knowledge/sources/source', headers=self.headers)
+        self.assertEqual((current.json()['state'], current.json()['revision']), ('deleted', 2))
+
+    async def test_corrupt_content_is_error_and_revoked_identity_cannot_query(self):
+        ref = await self.seeded()
+        item = (await self.search()).json()['items'][0]
+        path = self.console.provider.path(item['descriptor']['digest'].removeprefix('sha256:'))
+        original = path.read_bytes()
+        path.write_bytes(b'corrupted storage')
+        failed = await self.search()
+        self.assertNotEqual(failed.status_code, 200)
+        self.assertEqual(failed.json()['detail'], 'ARTIFACT_DIGEST_MISMATCH')
+        path.write_bytes(original)
+        self.assertEqual((await self.search()).json()['items'][0]['object_ref'], ref)
+        self.directory['principals']['a']['enabled'] = False
+        self.save()
+        self.assertEqual((await self.search()).status_code, 401)

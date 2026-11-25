@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dios-knowledge-mcp"
+version = "0.1.0"
+description = "Read-only official MCP adapter for governed DiOS knowledge queries"
+requires-python = ">=3.11"
+dependencies = ["mcp==1.30.0", "dios-sdk>=0.1.15,<0.2"]
+
+[project.scripts]
+dios-knowledge-mcp = "dios_knowledge_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
