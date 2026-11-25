@@ -26,6 +26,9 @@ async def execute(args):
     if args.command == 'installation-restore':
         from app.services.installation_restore import restore_installation
         return await restore_installation(args.bundle,args.destination,timeout=args.timeout)
+    if args.command == 'installation-readiness':
+        from app.services.installation_readiness import inspect_restore
+        return await asyncio.to_thread(inspect_restore,args.destination,sample_limit=args.sample_limit)
     if args.command == 'restore-reconcile':
         from .restore_client import cli
         return await cli(args)
@@ -304,6 +307,8 @@ def main(argv=None):
     installation_verify=commands.add_parser('installation-verify');installation_verify.add_argument('bundle')
     installation_restore=commands.add_parser('installation-restore');installation_restore.add_argument('bundle');installation_restore.add_argument('destination')
     installation_restore.add_argument('--timeout',type=float,default=120)
+    readiness=commands.add_parser('installation-readiness');readiness.add_argument('destination')
+    readiness.add_argument('--sample-limit',type=int,default=20)
     restore_reconcile=commands.add_parser('restore-reconcile',help='reauthenticate and reconcile retained original results while execution is held')
     for option in ('control-file','profile-file','receipt-file','artifacts'):restore_reconcile.add_argument('--'+option,required=True)
     restore_reconcile.add_argument('--expected-version',type=int,required=True);restore_reconcile.add_argument('--revision-ref')

@@ -88,3 +88,12 @@ backend/.venv/bin/python cli/dios runtime --scope local restore-reconcile \
 复跑：`backend/.venv/bin/python scripts/check_runtime_recovery.py --output docs/design/evidence/recovery-drill-20261111.json`。全后端回归沿用 `scripts/check_runtime_foundation.py`，设置隔离 `DIOS_TEST_POSTGRES_URL` 后可覆盖 PostgreSQL 排空路径。
 
 下一主项回到 #30 真实 Worker 的持久调度、进程/会话观测与对账，结合 #33 凭据和 #34 E2AG 授权；#11 的完整交付集与多节点恢复按这些前置能力继续完善。
+## 恢复就绪观察
+
+```bash
+cli/dios runtime installation-readiness /path/to/restored-installation --sample-limit 20
+```
+
+命令只读观察 Runtime、兼容服务和捕获的 Worker spool，覆盖全部 scope，输出冻结状态、未结任务/尝试、未决工具调用、未应用结果、旧凭据和待补报数量。样例上限不改变总数；输出不含密钥、消息正文和模型结果。
+
+`local_execution_settled` 表示双层冻结仍生效且本地待处理项为零。`ready_to_activate` 始终为 `false`：源控制面和执行器隔离、恢复点之后的副作用、远端重新认证及资源路径仍需核验。该命令不解除冻结、不操作源端进程、不补发消息。各组件使用独立读事务，观察不构成跨库一致检查点。

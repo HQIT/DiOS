@@ -1,0 +1,30 @@
+{
+  "work_item": "K02-3.02",
+  "status": "in_progress",
+  "base_commit": "698e6df",
+  "capability": "Read-only installation-readiness CLI with all-scope counts and bounded samples",
+  "tests": {
+    "module": "test_installation_readiness",
+    "passed": 4,
+    "skipped": 0,
+    "seconds": 6.379,
+    "provenance": "unittest output, exec chunk d42a7d",
+    "lint": "ruff check passed; git diff --check passed"
+  },
+  "observations": [
+    "No database writes or secret output",
+    "All scopes included; sample limit does not reduce counts",
+    "Missing captured spool rejected",
+    "Settled local state does not grant activation"
+  ],
+  "limits": [
+    "Per-component read transactions, not a distributed checkpoint",
+    "Readiness is advisory; source fencing and external effect reconciliation remain required",
+    "No activation or source process operations; consolidated deployment remains pending"
+  ],
+  "source_sha256": {
+    "backend/app/services/installation_readiness.py": "3d51e69fc9c0e4d915be11b98d87bb831ced705930513b3f393df2b43fd65275",
+    "backend/app/runtime/cli.py": "6af6ef4bd32aa4fb081ae492d5bf2e5749e6e28d8d7c72f8713bc7bd99ebd2ed",
+    "backend/tests/test_installation_readiness.py": "72a80a10a5a137d6d178159d192e2d2e7164d9903ef2db2feed4712ade0ad369"
+  }
+}
