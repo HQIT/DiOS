@@ -1,0 +1,53 @@
+{
+  "work_item": "K01-1.01",
+  "status": "engineering_verified",
+  "requirements": {
+    "K01-1-A01": "Services consume RuntimeAdapter contracts; Docker construction is in the providers composition root. Existing fake-adapter service/task tests cover consumers.",
+    "K01-1-A02": "Reuse real native task cancellation, failed missing result cleanup, service health/reuse/stop and scoped artifact retention; lifecycle method bodies unchanged since 1550a4b.",
+    "K01-1-A03": "Current image lifecycle source hashes match checkout; two new alternate-root and escape tests pass. Host paths and endpoint selection remain explicit configuration.",
+    "K01-1-A04": "Pinned Cursor profile and real Worker/Session/report qualification reused; vendor metadata handling remains SDK-side."
+  },
+  "tests": {
+    "new_tests": 2,
+    "passed": 2,
+    "log_sha256": "4f0b042ec3dd85cc8f492b26fde5c5efcc15eb3a244264981020a3ecb32d249b"
+  },
+  "reused_evidence": [
+    "docs/design/evidence/managed-lifecycle-20261124.json",
+    "docs/design/evidence/managed-service-recovery-20261124.json",
+    "docs/design/evidence/managed-adoption-20261124.json",
+    "docs/design/evidence/managed-upgrade-20261124.json",
+    "docs/design/evidence/cursor-native-controls-20261126.json",
+    "docs/design/evidence/linux-installation-20261126.json"
+  ],
+  "unchanged_native_methods": [
+    "start",
+    "observe",
+    "endpoint",
+    "logs",
+    "stop",
+    "_freeze",
+    "pause",
+    "resume",
+    "remove"
+  ],
+  "compared_commit": "1550a4b",
+  "image": "sha256:37c744e7cc12349a06abbbe3766be841600b0a86672dc32340a34fea2bbbe589",
+  "source_sha256": {
+    "app/runtime/docker_adapter.py": "51045e73d675a3cebe125f57df890f52f1ad714d1e105e6bd514c1389d23b08c",
+    "app/runtime/adapter.py": "53db9d470b3e84334999530aaf578f1f9da41ab30cc566a4e02cdc5889f2b2cf",
+    "app/runtime/providers.py": "c130c07939b4fffc512f6836cad3a53ae2a7cd031ef8aa57777a6d213fa40ae6",
+    "app/runtime/docker_binding.py": "f7b37ab436ec41e9ee8a1fd58aaffa6e109c6e43d97e07244e278e4fcff8fc8c",
+    "app/runtime/linux_cgroup.py": "45bd5c2d89b2556eff9f0fa4680d8217e548cc1f0cb5f62cd310a4bc4b0e5e94",
+    "app/services/managed_runtime.py": "66e1cd4c6c0698f61325b0f735a9ea6e2fd362c8884a84005930f8fa68e18493",
+    "app/services/agent_runtime.py": "a2a1abfc266bc7a332b7829421c96a5674379f3f81547cbb91224da28ce95c26",
+    "app/services/a2a_service.py": "e9ee14e3e2d2185b44f90b784e8f9c84586d93b9058d240969d526589627a388",
+    "app/services/managed_recovery.py": "d4ac3b77df5e656944b6d1dc24986b1f4339505198252217ee3843626e638352"
+  },
+  "limits": [
+    "Local Docker requires paths available on its selected executor host; this qualification does not establish shared storage or physical cross-host operation.",
+    "Frozen termination on remote daemons or cgroup v1 requires a qualified provider; unsupported hosts preserve freeze and report failure without thaw.",
+    "Common lifecycle supports task and service processes; per-request service cancellation remains explicitly unsupported where the service protocol lacks it.",
+    "Engineering closure does not supply the separate K01-1.02 responsible-owner acceptance."
+  ]
+}

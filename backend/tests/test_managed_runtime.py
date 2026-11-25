@@ -99,6 +99,30 @@ class ManagedRuntimeTests(unittest.IsolatedAsyncioTestCase):
         )
         LaunchSpec("fixture", None).validate()
 
+    async def test_workspace_and_cli_paths_are_explicit_for_both_lifecycle_kinds(self):
+        # API-visible paths and executor-host paths can differ; only the configured
+        # roots participate in translation. No developer checkout path is required.
+        with (
+            patch.object(settings, "host_workspace_root", "/executor/installation/work"),
+            patch.object(settings, "host_shared_cli_root", "/executor/installation/cli"),
+        ):
+            for kind in ("task", "service"):
+                spec = managed_runtime.launch_spec(kind, self.root / "nested/agent", {})
+                self.assertEqual(spec.mounts[0].source, "/executor/installation/work/nested/agent")
+                self.assertEqual(spec.mounts[1].source, "/executor/installation/work/skills")
+                self.assertEqual(spec.mounts[2].source, "/executor/installation/cli")
+                self.assertEqual(spec.mounts[0].target, "/workspace")
+                spec.validate()
+
+    async def test_workspace_translation_rejects_outside_and_symlink_escape(self):
+        with patch.object(settings, "host_workspace_root", "/executor/installation/work"):
+            outside = self.root.parent / "outside-installation"
+            with self.assertRaises(ValueError):
+                managed_runtime.host_workspace(outside)
+            (self.root / "escape").symlink_to(outside, target_is_directory=True)
+            with self.assertRaises(ValueError):
+                managed_runtime.host_workspace(self.root / "escape")
+
     async def test_cancellation_drains_native_operation_before_releasing_owner(self):
         entered, release = threading.Event(), threading.Event()
 
