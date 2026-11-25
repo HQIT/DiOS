@@ -525,14 +525,10 @@ async def execute(
                 "clientInfo": {"name": "dios-acp-bridge", "version": "0.1"},
             },
         )
-        if initialized.get("protocolVersion") != 1:
-            raise RuntimeErrorCode("ACP_VERSION_UNSUPPORTED")
-        capabilities = initialized.get("agentCapabilities", {}).get(
-            "sessionCapabilities", {}
-        )
-        peer.session_close_supported = isinstance(capabilities, dict) and isinstance(
-            capabilities.get("close"), dict
-        )
+        from .acp_sessions import session_capabilities
+
+        capabilities = session_capabilities(initialized)
+        peer.session_close_supported = capabilities["close"]
         method = config.get("authentication_method")
         if method:
             if not any(

@@ -1,0 +1,389 @@
+{
+  "date": "2026-11-25",
+  "scope": "isolated synthetic-text protocol probes on one WSL Docker host; governed application regression uses separate Runtime databases",
+  "versions": {
+    "dios_sdk": "0.1.5",
+    "static_review": "0.1.4",
+    "agent_client_protocol": "1.0.0",
+    "cursor_cli": "2026.11.05-86047df",
+    "dsh": "0.2.2-rc.5",
+    "codex_acp": "2.11.0",
+    "codex_cli": "0.172.0"
+  },
+  "session_checks": [
+    {
+      "harness": "cursor",
+      "scenario": "complete",
+      "image": "sha256:46f5a5050f67deedf5a035063f71c255726c91d55e31bccffcf0aaf310d0f2e1",
+      "process_ids": [
+        170115,
+        170742
+      ],
+      "capabilities": {
+        "load": true,
+        "resume": false,
+        "list": true,
+        "close": false
+      },
+      "session_id": "5d63891a-9fff-4b7a-92e0-7c891d2c7969",
+      "stop_reason": "end_turn",
+      "output_bytes": 21,
+      "output_sha256": "1eb38439b547bf15ec05321d1c3f35df183aacc4ebea699563bc811bc6b037e4",
+      "first_exit": 143,
+      "restored": true,
+      "inspection": {
+        "session_id": "5d63891a-9fff-4b7a-92e0-7c891d2c7969",
+        "method": "load",
+        "complete": true,
+        "history_bytes": 513,
+        "history_sha256": "9900d987e4e1fbd8fb86b30a37b7602f91620e49f0406f8f3b1cbe12b68c0d27",
+        "denied_requests": 0,
+        "execution_resumed": false
+      },
+      "update_types": {
+        "agent_message_chunk": 1,
+        "agent_thought_chunk": 1,
+        "user_message_chunk": 1
+      },
+      "live_output_bytes": 0,
+      "native_tool_records": 0,
+      "second_exit": 143,
+      "client_prompt_requests_after_restore": 0,
+      "client_prompt_requests_before_restore": 1
+    },
+    {
+      "harness": "cursor",
+      "scenario": "interrupted",
+      "image": "sha256:46f5a5050f67deedf5a035063f71c255726c91d55e31bccffcf0aaf310d0f2e1",
+      "process_ids": [
+        171167,
+        171875
+      ],
+      "capabilities": {
+        "load": true,
+        "resume": false,
+        "list": true,
+        "close": false
+      },
+      "session_id": "384c63de-3c48-4212-9484-5edcb756f128",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "prompt_in_flight_at_kill": true,
+      "fault_boundary": "prompt RPC outstanding at process kill",
+      "prompt_failure": "ACP_PROCESS_EXITED",
+      "first_exit": 137,
+      "restored": true,
+      "inspection": {
+        "session_id": "384c63de-3c48-4212-9484-5edcb756f128",
+        "method": "load",
+        "complete": true,
+        "history_bytes": 0,
+        "history_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "denied_requests": 0,
+        "execution_resumed": false
+      },
+      "update_types": {},
+      "live_output_bytes": 0,
+      "native_tool_records": 0,
+      "second_exit": 143,
+      "client_prompt_requests_after_restore": 0,
+      "client_prompt_requests_before_restore": 1
+    },
+    {
+      "harness": "dsh",
+      "scenario": "complete",
+      "image": "sha256:0abf8099242909820e9959e113807b77ae6f2bb41a798ebdfa67291e9d7c9771",
+      "process_ids": [
+        169676,
+        169815
+      ],
+      "capabilities": {
+        "load": false,
+        "resume": true,
+        "list": true,
+        "close": true
+      },
+      "session_id": "ff93fbd0-b053-4b74-bb35-cf828df6e31b",
+      "stop_reason": "end_turn",
+      "output_bytes": 21,
+      "output_sha256": "1eb38439b547bf15ec05321d1c3f35df183aacc4ebea699563bc811bc6b037e4",
+      "first_exit": 0,
+      "restored": true,
+      "inspection": {
+        "session_id": "ff93fbd0-b053-4b74-bb35-cf828df6e31b",
+        "method": "resume",
+        "complete": true,
+        "history_bytes": 0,
+        "history_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "denied_requests": 0,
+        "execution_resumed": false
+      },
+      "update_types": {},
+      "live_output_bytes": 0,
+      "native_tool_records": 0,
+      "second_exit": 0,
+      "client_prompt_requests_after_restore": 0,
+      "client_prompt_requests_before_restore": 1
+    },
+    {
+      "harness": "dsh",
+      "scenario": "interrupted",
+      "image": "sha256:0abf8099242909820e9959e113807b77ae6f2bb41a798ebdfa67291e9d7c9771",
+      "process_ids": [
+        171147,
+        171472
+      ],
+      "capabilities": {
+        "load": false,
+        "resume": true,
+        "list": true,
+        "close": true
+      },
+      "session_id": "3c224fe7-0c50-4c95-b81a-0258f83c3e25",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "prompt_in_flight_at_kill": true,
+      "fault_boundary": "prompt RPC outstanding at process kill",
+      "prompt_failure": "ACP_PROCESS_EXITED",
+      "first_exit": 137,
+      "restored": true,
+      "inspection": {
+        "session_id": "3c224fe7-0c50-4c95-b81a-0258f83c3e25",
+        "method": "resume",
+        "complete": true,
+        "history_bytes": 0,
+        "history_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "denied_requests": 0,
+        "execution_resumed": false
+      },
+      "update_types": {},
+      "live_output_bytes": 0,
+      "native_tool_records": 0,
+      "second_exit": 0,
+      "client_prompt_requests_after_restore": 0,
+      "client_prompt_requests_before_restore": 1
+    },
+    {
+      "harness": "codex",
+      "scenario": "complete",
+      "image": "sha256:bf93d3ab8cfb4aaf5e08fde8bc9616c1af893534d87f60c866b5732d915f7324",
+      "process_ids": [
+        170095,
+        170497
+      ],
+      "capabilities": {
+        "load": true,
+        "resume": true,
+        "list": true,
+        "close": true
+      },
+      "session_id": "01a21087-9884-7390-aac5-0fc01ebcda2b",
+      "stop_reason": "end_turn",
+      "output_bytes": 21,
+      "output_sha256": "1eb38439b547bf15ec05321d1c3f35df183aacc4ebea699563bc811bc6b037e4",
+      "first_exit": -9,
+      "restored": true,
+      "inspection": {
+        "session_id": "01a21087-9884-7390-aac5-0fc01ebcda2b",
+        "method": "load",
+        "complete": true,
+        "history_bytes": 3987,
+        "history_sha256": "af39e6163075d817d13b21a6ac875fca480fcb705e5c5b260f43b9e3092e870d",
+        "denied_requests": 0,
+        "execution_resumed": false
+      },
+      "update_types": {
+        "agent_message_chunk": 1,
+        "available_commands_update": 1,
+        "session_info_update": 2,
+        "usage_update": 1,
+        "user_message_chunk": 1
+      },
+      "live_output_bytes": 0,
+      "native_tool_records": 0,
+      "second_exit": -9,
+      "client_prompt_requests_after_restore": 0,
+      "client_prompt_requests_before_restore": 1
+    },
+    {
+      "harness": "codex",
+      "scenario": "interrupted",
+      "image": "sha256:bf93d3ab8cfb4aaf5e08fde8bc9616c1af893534d87f60c866b5732d915f7324",
+      "process_ids": [
+        171148,
+        171611
+      ],
+      "capabilities": {
+        "load": true,
+        "resume": true,
+        "list": true,
+        "close": true
+      },
+      "session_id": "01a21088-89f9-73e1-ba60-43db79cd70ca",
+      "output_bytes": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "prompt_in_flight_at_kill": true,
+      "fault_boundary": "prompt RPC outstanding at process kill",
+      "prompt_failure": "ACP_PROCESS_EXITED",
+      "first_exit": 137,
+      "restored": true,
+      "inspection": {
+        "session_id": "01a21088-89f9-73e1-ba60-43db79cd70ca",
+        "method": "load",
+        "complete": true,
+        "history_bytes": 3955,
+        "history_sha256": "f9fedb564396642e41d8f1c6667717e7f1e89dfe7e8a9b12dd7d73524ac4a4ff",
+        "denied_requests": 0,
+        "execution_resumed": false
+      },
+      "update_types": {
+        "available_commands_update": 1,
+        "session_info_update": 2,
+        "user_message_chunk": 1
+      },
+      "live_output_bytes": 0,
+      "native_tool_records": 0,
+      "second_exit": -9,
+      "client_prompt_requests_after_restore": 0,
+      "client_prompt_requests_before_restore": 1
+    }
+  ],
+  "execution_turn_reattachment": "not qualified; no original prompt reattachment primitive demonstrated",
+  "images": {
+    "static-review": "sha256:3c5cc54dc6612ec3989a45e42cb559656794fcbc09526927a961d9d549b45885",
+    "dsh": "sha256:bed625d81a847e2ae019ceac53c52665ea4c920ff0e3ed75687a8101c84e5ecb",
+    "codex": "sha256:87d073af961f50462cedf6eeb947a87c0263d2aa158205d5202faa494af6f4fb",
+    "cursor": "sha256:61629d589ead98ed9bd17f07bf1507d37a83fcc6e7b9440639ce86d2656b7a9a"
+  },
+  "tests": {
+    "sdk-tests": {
+      "total": 52,
+      "passed": 52,
+      "skipped": 0,
+      "log_sha256": "2d22fcca02a406052fe004ed951212b6c0920183fa83a00fa604216a1aa3a5d1"
+    },
+    "installed-tests": {
+      "total": 52,
+      "passed": 52,
+      "skipped": 0,
+      "log_sha256": "8004258059995d8c9228d42edbd6c64aab3395e60f118a2f3c7110b6f0e93abd"
+    },
+    "image-tests": {
+      "total": 52,
+      "passed": 52,
+      "skipped": 0,
+      "log_sha256": "4e9b92c9d2d5f832d753b5c6df37a026e6d24d2494b8321a93630e841f7de9b1"
+    },
+    "core-only-tests": {
+      "total": 9,
+      "passed": 9,
+      "skipped": 0,
+      "log_sha256": "8561b31bcb8a1eef46aac452fa08fe5b345da2b1cd5887927ee37613bb1521cc"
+    },
+    "backend-regression": {
+      "total": 123,
+      "passed": 80,
+      "skipped": 43,
+      "log_sha256": "cfdb02d89add91e9d23d66e9b519df5de3eb6ef82a7bd6cf15d5672cae0ad17e"
+    },
+    "design_contracts": {
+      "scope": "design contract consistency and reference semantics; no runtime/concurrency certification",
+      "schemas": 68,
+      "operations": 31,
+      "schema_examples": 12,
+      "state_scenarios": 13,
+      "checks_passed": 681,
+      "errors": []
+    }
+  },
+  "governed_runs": [
+    {
+      "harness": "dsh",
+      "image": "sha256:34aed2e04f0a883af0f86aceed2ee6a0312ef21b34e9de5c88218af042c7ebff",
+      "case": "approve",
+      "run_id": "37041e3f-31b5-4ddd-917d-18283365f2fc",
+      "attempt_id": "904d94b9-855c-4d64-b6a8-a0890a2da959",
+      "attempt_count": 1,
+      "session_id": "a8635b5b-92c3-4706-817a-671e7cdd6a9a",
+      "state": "succeeded",
+      "error": null,
+      "tool_calls": 1,
+      "result_frames": 1,
+      "diagnostic_codes": [
+        "ACP_SESSION_CLOSED"
+      ],
+      "exit": {
+        "alive": false,
+        "exit_code": 0,
+        "handle": "904d94b9-855c-4d64-b6a8-a0890a2da959",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "4223f43806efedee3ac31d52801303bf6acca4d1403b79bc4b60e7925f83c63c:2026-11-25T02:31:17.758812482Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 1,
+      "receipt_sha256": "d9fe7c39ada0fd653d4e55f8a910d7e4ed9e7487720b13df5a65e3054331a4aa"
+    },
+    {
+      "harness": "codex",
+      "image": "sha256:279b93c226130a126f99c4e7cff9a26a8c6f6dcf96d30544062cdc927a0ca1b9",
+      "case": "revoke",
+      "run_id": "9dc18084-ef95-4fcc-b5bf-08a8d38fbbe0",
+      "attempt_id": "318b4104-7bb2-4fa8-a503-854a6abaf0a5",
+      "attempt_count": 1,
+      "session_id": "01a2108c-a10d-7d32-a46b-c78f50f56a77",
+      "state": "failed",
+      "error": {
+        "code": "AUTH_REVOKED",
+        "category": "authorization",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "tool_calls": 0,
+      "result_frames": 0,
+      "diagnostic_codes": [
+        "ACP_CANCEL_REQUESTED",
+        "ACP_CANCEL_ACKNOWLEDGED",
+        "ACP_SESSION_CLOSED"
+      ],
+      "exit": {
+        "alive": false,
+        "exit_code": 130,
+        "handle": "318b4104-7bb2-4fa8-a503-854a6abaf0a5",
+        "health": "not_configured",
+        "pid": null,
+        "process_instance": "7c6876a317f1ced6d091c52fb44cd44e69c678fe8d95cb406c6781b3041055f9:2026-11-25T02:32:58.742037762Z",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "state": "exited"
+      },
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 2,
+      "receipt_sha256": "b8ca692db472948a2995dc4eaa9ae264ff9e86f2f64c88a39a5e96b58fae28d8",
+      "old_authority_rejected": "AUTH_REVOKED"
+    }
+  ],
+  "excluded_probe": {
+    "harness": "dsh",
+    "scenario": "first streaming interruption probe",
+    "reason": "did not capture the intended in-flight streaming boundary; not counted as crash recovery",
+    "result_sha256": "974f40a7d97b1248501156058dc26081238edb6747beaeb04bf060235185b478"
+  },
+  "source_sha256": {
+    "sdk/python/src/dios_sdk/acp.py": "6b1413894d7d12f1cd64082aa262d2c85e31c09f65f284aeb9a29359a5b7f471",
+    "sdk/python/src/dios_sdk/acp_sessions.py": "7ca412e894f4faeabf92dd24eb3c5da62e46045cc15abd9b376ee092014c6df2",
+    "sdk/python/tests/test_acp_sessions.py": "856c238ced7156ba46015dc24263b2aa17ea5ccc2e41d5d47040fa71529cd89d"
+  },
+  "bundle_sha256": "003360d098e29a4d9761a44296078659f797b0daf11f33597a54365d56fe60ce",
+  "development_health": {
+    "status": "ok"
+  },
+  "remaining": [
+    "stable original-turn identity and query/reattach semantics",
+    "cross-source renewal/delegation/stale epoch matrix",
+    "physical cross-host failure",
+    "enterprise egress and credentials",
+    "G2 independent review and user acceptance"
+  ]
+}

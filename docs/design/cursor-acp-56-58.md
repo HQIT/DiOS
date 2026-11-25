@@ -63,7 +63,7 @@ ACP 的 `allow_once` 只允许请求进入 DiOS 提供的 MCP 代理。工具网
 - 沙箱：非 root、只读镜像、无宿主工作区挂载；实际根目录写入失败，直接外连失败，代理拒绝未许可域名。`/tmp` 为临时可写空间。
 - 开发 Console：通过真实 UI 提交、查看审批和实际并发、批准并下载 Markdown；工程身份与真实用户产品验收分别登记。
 
-本批恢复能力为已完成输出的持久对账。Cursor 原生 `session/load` 跨进程恢复、运行中会话重连、供应商结构化限流/额度映射仍需独立验证。当前 profile 的 `replay_safe=false`，不会自动重发模型任务。
+完整输出的持久对账继续沿用原 Run/Attempt/Session。Cursor 原生 `session/load` 已通过跨进程检查，见 [会话恢复契约](acp-session-recovery-56-58.md)；活动请求续接和供应商结构化故障映射继续单独验收。当前 profile 的 `replay_safe=false`，不会自动重发模型任务。
 
 Agent 内部读取和未经过 ACP 回调的内置工具路径仍待完整资格验证；当前仅开放固定样例，没有企业源码挂载。模型凭据在执行容器内使用，更强的凭据代理隔离由 #33/#58 继续推进。
 
@@ -82,6 +82,6 @@ Console、API 与 CLI 继续共用既有任务契约；CLI 通过注册 profile 
 
 ## 后续安排
 
-#56/#58 保持进行中。真实任务取消确认、审批等待中撤权和旧授权拒绝已通过独立应用镜像验证。下一段按 #57 接入 DeepSeek Harness 替换对照、Codex Adapter 和 A2A 互操作，继续覆盖跨主机断连及双来源旧 epoch 场景。#31 固定版本发布、#36 企业身份继续沿既定路线衔接。G2 的独立权限评审与用户产品验收保留为后续门槛。
+#56/#58 保持进行中。Cursor、DSH、Codex 与标准 A2A 均已有实际接入证据；三种 ACP Harness 的跨进程检查见 [会话恢复契约](acp-session-recovery-56-58.md)。下一段补齐跨来源续期、委派与旧 epoch 联合验证。活动请求续接、跨物理主机、原生工具额外路径、企业网络与凭据、G2 独立评审及用户验收继续沿用既定门槛。
 
 协议参考：[Cursor ACP 文档](https://cursor.com/docs/cli/acp)、[ACP 会话设置](https://agentclientprotocol.com/protocol/v1/session-setup)。本页能力结论以固定版本实测为准。
