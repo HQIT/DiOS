@@ -886,7 +886,7 @@
         "work_item": "K02-1.01",
         "evidence": "docs/design/evidence/runtime-revisions-20261125.json",
         "image": "sha256:7991b23733b89c1cb7784e3ccad394e600c03d7272405c01102cb6aaef6ea3bf",
-        "next": "K02-1.02 Run/Worker binding; #31 remains open through K02-1.05 and required acceptance."
+        "next": "K02-1.04 external compatibility gate; #31 remains open through K02-1.05 and required acceptance."
       },
       "execution_revision_binding": {
         "status": "engineering_verified",
@@ -900,6 +900,19 @@
           "Remote tool channel selects the Run version and retains live E2AG approval/revocation controls",
           "Controlled code/Prompt/skill mounts are packaged into a content-addressed Docker image",
           "Direct execution manifests reject unfrozen controlled mounts; runtime data targets must be explicit"
+        ],
+        "remaining": []
+      },
+      "deployment_activation": {
+        "status": "engineering_verified",
+        "work_item": "K02-1.03",
+        "evidence": "docs/design/evidence/deployments-20261125.json",
+        "delivered": [
+          "Persistent desired/current/previous Revision and idempotent CAS rollout",
+          "Real E2AG-governed health Run; current policy rechecked before activation",
+          "Natural drain retains original Run and Attempt; unresolved tool outcomes block activation",
+          "Failed candidate retains ready version; rollback uses a fresh governed health Run",
+          "Restart-safe bounded background reconciliation, CLI/API and bilingual Console status"
         ],
         "remaining": []
       }
@@ -2997,7 +3010,7 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-1.03",
+    "next_work_item": "K02-1.04",
     "next_delivery": "K02-1.05",
     "next_delivery_order": [
       "K02-1.05",

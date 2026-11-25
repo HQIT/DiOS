@@ -69,6 +69,21 @@ async def execute(args):
                 return await query.run(args.run_id, limit=args.limit,
                     attempt_cursor=args.attempt_cursor, artifact_cursor=args.artifact_cursor)
         store = RuntimeStore(db, args.scope)
+        if args.command == 'deployment':
+            from .deployments import Deployments
+            from .work_policy import FileWorkPolicy
+            manager=Deployments(db,args.scope,FileWorkPolicy(args.policy_file) if args.policy_file else None)
+            if args.deployment_command=='list':return {'items':await manager.list(after=args.after,limit=args.limit)}
+            if args.deployment_command=='show':return await manager.show(args.id)
+            if args.deployment_command=='reconcile':return await manager.reconcile(args.id)
+            with Path(args.file).open('rb') as source:raw=source.read(16385)
+            if len(raw)>16384:raise RuntimeErrorCode('METADATA_TOO_LARGE')
+            value=json.loads(raw)
+            if (not isinstance(value,dict) or set(value)-{'id','revision_ref','key','expected_version','actor','probe_input','timeout','rollback'}
+                    or not {'id','key','expected_version','actor','probe_input'}<=set(value)):
+                raise RuntimeErrorCode('INVALID_DEPLOYMENT_REQUEST')
+            return await manager.request(value['id'],value.get('revision_ref'),value['key'],value['expected_version'],
+                value['actor'],value['probe_input'],timeout=value.get('timeout',300),rollback=value.get('rollback',False))
         if args.command == 'capacity':
             from .capacity import Capacity
             manager = Capacity(store)
@@ -118,6 +133,12 @@ async def execute(args):
             from .work_policy import FileWorkPolicy, security_profile
             from .work_authorizations import WorkAuthorizationVerifier
             from .secret_provider import FileSecretMounts
+            deployment_id=getattr(args,'deployment_id',None)
+            if deployment_id is not None:
+                from .deployments import row as deployment_row
+                async with db.read(args.scope) as c:active=await deployment_row(c,args.scope,deployment_id)
+                if active['state'] not in {'ready','pending'} or active['active_revision_id'] is None:raise RuntimeErrorCode('DEPLOYMENT_NOT_READY')
+                args.revision_ref=active['active_revision_id']
             if args.revision_ref:
                 from .execution_revisions import load_profile
                 _,profile_id,spec,mode,secret_requests=await load_profile(db,args.scope,args.revision_ref)
@@ -131,7 +152,7 @@ async def execute(args):
                 payload = json.loads(Path(args.file).read_text(encoding='utf-8')) if args.file else {}
                 descriptor=await asyncio.to_thread(policy.admission,profile_id,spec.fingerprint(),secret_requests) if mode=='e2ag' else None
                 return await store.submit(args.key,{'runtime_profile':profile_id,
-                    'profile_digest':spec.fingerprint(),'secret_refs':secret_requests,'payload':payload},authorization=descriptor,revision_ref=args.revision_ref)
+                    'profile_digest':spec.fingerprint(),'secret_refs':secret_requests,'payload':payload},authorization=descriptor,revision_ref=args.revision_ref,deployment_id=deployment_id)
             artifacts=LocalArtifacts(Path(args.artifacts))
             secrets=FileSecretMounts(args.secrets_file,args.scope) if args.secrets_file else None
             from .a2a_profile import A2AProfile
@@ -279,7 +300,7 @@ def main(argv=None):
     revoke_delegation=delegation_commands.add_parser('revoke');revoke_delegation.add_argument('reference');revoke_delegation.add_argument('--version',type=int,required=True)
     enqueue=commands.add_parser('enqueue',help='queue a pinned trusted profile and optional JSON input')
     enqueue_source=enqueue.add_mutually_exclusive_group(required=True)
-    enqueue_source.add_argument('--profile');enqueue_source.add_argument('--revision-ref')
+    enqueue_source.add_argument('--profile');enqueue_source.add_argument('--revision-ref');enqueue_source.add_argument('--deployment-id')
     enqueue.add_argument('--key',required=True);enqueue.add_argument('--file')
     worker=commands.add_parser('worker',help='run an independent one-slot Worker using an explicit trusted profile')
     worker_source=worker.add_mutually_exclusive_group(required=True)
@@ -299,6 +320,13 @@ def main(argv=None):
     remote.add_argument('--artifacts',required=True);remote.add_argument('--secrets-file')
     remote.add_argument('--once',action='store_true');remote.add_argument('--timeout',type=float,default=300)
     remote.add_argument('--poll-interval',type=float,default=.25)
+    deployment=commands.add_parser('deployment',help='governed candidate health, natural drain and activation')
+    deployment.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))
+    deployment_commands=deployment.add_subparsers(dest='deployment_command',required=True)
+    deployment_list=deployment_commands.add_parser('list');deployment_list.add_argument('--after',default='');deployment_list.add_argument('--limit',type=int,default=50)
+    deployment_show=deployment_commands.add_parser('show');deployment_show.add_argument('id')
+    deployment_reconcile=deployment_commands.add_parser('reconcile');deployment_reconcile.add_argument('id')
+    deployment_request=deployment_commands.add_parser('request');deployment_request.add_argument('--file',required=True)
     gateway=commands.add_parser('tool-gateway',help='serve the explicit mTLS tool Provider; no automatic migration')
     for name in ('config','artifacts','policy-file','tools-file','identities-file','profiles-file'):
         gateway.add_argument('--'+name,required=True)

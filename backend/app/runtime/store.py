@@ -96,10 +96,19 @@ class RuntimeStore:
                 raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
             return dict(existing)
 
-    async def submit(self, key, value, *, authorization=None, submission_digest=None, admission_guard=None, parent_binding=None, revision_ref=None):
+    async def submit(self, key, value, *, authorization=None, submission_digest=None, admission_guard=None, parent_binding=None, revision_ref=None, deployment_id=None, deployment_rollout_id=None):
         identifier(key)
         if not isinstance(value, dict): raise RuntimeErrorCode("INVALID_ARGUMENT")
         if {'revision_ref','revision_digest'}.intersection(value):raise RuntimeErrorCode('REVISION_BINDING_SERVER_OWNED')
+        if {'deployment_id','deployment_rollout_id'}.intersection(value):raise RuntimeErrorCode('DEPLOYMENT_BINDING_SERVER_OWNED')
+        if deployment_id is not None:
+            identifier(deployment_id)
+            if revision_ref is None:raise RuntimeErrorCode('DEPLOYMENT_REVISION_REQUIRED')
+            value=dict(value,deployment_id=deployment_id)
+        if deployment_rollout_id is not None:
+            identifier(deployment_rollout_id)
+            if deployment_id is None:raise RuntimeErrorCode('DEPLOYMENT_BINDING_INVALID')
+            value=dict(value,deployment_rollout_id=deployment_rollout_id)
         if revision_ref is not None:identifier(revision_ref)
         if 'parent_execution' in value:raise RuntimeErrorCode('CHILD_BINDING_INVALID')
         if parent_binding is not None:
@@ -130,13 +139,18 @@ class RuntimeStore:
             if existing:
                 same_receipt = (submission_digest is not None
                     and existing['input'].get('submission_digest') == submission_digest
-                    and existing['input'].get('revision_ref') == value.get('revision_ref'))
+                    and existing['input'].get('revision_ref') == value.get('revision_ref')
+                    and existing['input'].get('deployment_id') == deployment_id
+                    and existing['input'].get('deployment_rollout_id') == deployment_rollout_id)
                 legacy_exact = ('submission_digest' not in existing['input']
                     and existing['input_digest'] == digest({k:v for k,v in value.items() if k!='submission_digest'}))
                 if existing['input_digest'] != hashed and not same_receipt and not legacy_exact:
                     raise RuntimeErrorCode('IDEMPOTENCY_CONFLICT')
                 return dict(existing)
             if not await admission(c, self.scope): raise RuntimeErrorCode('RUNTIME_DRAINING')
+            if deployment_id is not None:
+                from .deployments import admit_run
+                await admit_run(c,self.scope,deployment_id,revision_ref,key,deployment_rollout_id)
             if admission_guard is not None:
                 await admission_guard(c)
             now = await self.db.now(c)

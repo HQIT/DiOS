@@ -1,0 +1,219 @@
+{
+  "work_item": "K02-1.03",
+  "status": "engineering_verified",
+  "base_commit": "294aa793642601e4b56ce66e410068b478034ee3",
+  "requirements": [
+    "K02-1-A02",
+    "K02-1-A03"
+  ],
+  "delivered": [
+    "Persistent desired/current/previous Revision and idempotent CAS rollout",
+    "Real E2AG-governed health Run; current policy rechecked before activation",
+    "Natural drain retains original Run and Attempt; unresolved tool outcomes block activation",
+    "Failed candidate retains ready version; rollback uses a fresh governed health Run",
+    "Restart-safe bounded background reconciliation, CLI/API and bilingual Console status"
+  ],
+  "tests": {
+    "sqlite_postgresql": {
+      "total": 215,
+      "passed": 194,
+      "skipped": 21,
+      "seconds": 211.111,
+      "log": "contracts.log"
+    },
+    "offline_image": {
+      "total": 215,
+      "passed": 146,
+      "skipped": 69,
+      "seconds": 143.769,
+      "log": "image-contracts.log"
+    },
+    "frontend_build": "tsc -b and Vite passed; existing chunk-size warning"
+  },
+  "native": {
+    "passed": true,
+    "scope": "deployment-native-f8fd78e31a8d450b9fe0960ab509a308",
+    "source": "independent CLI processes and actual Docker containers",
+    "image": "sha256:ad478b4761afa493dcf556655dfd4911f0791db9d1a88cb2d96f9534a2d615f5",
+    "revision_ids": {
+      "old": "rev-79c464b0b850f1000b17da548796d4dde1f50d42d6f4caaf98ca1f97cba5e1a8",
+      "new": "rev-ea5a4e37679602d51ff9444ac83d7e7b9237136b9a65388b414b3805c3ff6dbf",
+      "bad": "rev-95cb45cf300da4482d134f7445c374ec967bddc9d8a3b4dc51e96f0ed7ba3f6e"
+    },
+    "long_work_run": "998d4cf2-0dc4-416b-bc37-5a1d068ed965",
+    "original_attempt": "67378533-07ea-4be4-8f86-831b5a5e540e",
+    "natural_completion_without_replacement": true,
+    "failed_candidate_retained_ready_version": true,
+    "rollback_used_fresh_governed_probe": true,
+    "final": {
+      "deployment": {
+        "id": "primary",
+        "version": 11,
+        "revision_id": "rev-79c464b0b850f1000b17da548796d4dde1f50d42d6f4caaf98ca1f97cba5e1a8",
+        "state": "ready",
+        "resource_scope_ref": "deployment-native-f8fd78e31a8d450b9fe0960ab509a308"
+      },
+      "status": {
+        "definition_id": "rollout-agent",
+        "active_revision_id": "rev-79c464b0b850f1000b17da548796d4dde1f50d42d6f4caaf98ca1f97cba5e1a8",
+        "previous_revision_id": "rev-ea5a4e37679602d51ff9444ac83d7e7b9237136b9a65388b414b3805c3ff6dbf",
+        "rollout_id": "cef1467a-f044-4261-aaed-a918bd20830a",
+        "error": null,
+        "created_at": 1795604444.8019834,
+        "updated_at": 1795604462.2570083
+      }
+    },
+    "event_types": [
+      "deployment.activated",
+      "deployment.draining",
+      "deployment.requested",
+      "deployment.rejected",
+      "deployment.requested",
+      "deployment.activated",
+      "deployment.draining",
+      "deployment.requested",
+      "deployment.activated",
+      "deployment.draining",
+      "deployment.requested"
+    ],
+    "cli_processes": [
+      398314,
+      398316,
+      398329,
+      398343,
+      398355,
+      398360,
+      398445,
+      398450,
+      398458,
+      398459,
+      398469,
+      398524,
+      398526,
+      398530,
+      398617,
+      398651,
+      398655,
+      398659,
+      398740,
+      398744,
+      398752,
+      398835,
+      398839
+    ]
+  },
+  "ui": {
+    "browser": "Playwright; Browser plugin not available",
+    "api": "isolated real HTTP API with persistent deployment records",
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "drainingAndFailureVisible": true,
+        "apiConsistent": true,
+        "probeAndAuditVisible": true,
+        "stalePreservesData": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "drainingAndFailureVisible": true,
+        "apiConsistent": true,
+        "probeAndAuditVisible": true,
+        "stalePreservesData": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "drainingAndFailureVisible": true,
+        "apiConsistent": true,
+        "probeAndAuditVisible": true,
+        "stalePreservesData": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      }
+    ]
+  },
+  "image": {
+    "image": "sha256:0cda7fdc307c56f00af46338be63bfc3e3fcbc49fcaf6d7a9c2ca8fe994a82ef",
+    "base": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "tag": "dios-backend:deployments-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "development": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "changed": true
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "limits": [
+    "Worker pools are provisioned through existing version-bound Worker deployment; no replica provisioning claim",
+    "Native Docker execution is single-host; physical multi-host qualification remains W4",
+    "Health input is operator-supplied; full external Harness release qualification remains K02-1.05",
+    "Remote implementation upgrade and rollback capability gate remains K02-1.04",
+    "Console displays and reconciles rollout state; publication and rollback requests use API/CLI",
+    "Engineering verification does not replace designated G2/G3 acceptance"
+  ],
+  "source_sha256": {
+    "backend/app/api/os/runtime_tasks.py": "b04db1bf76dcb3b17ee1d324715667402d72cbf765785e21c463e220db2e8c55",
+    "backend/app/runtime/cli.py": "51f2e85a537c530754660d1fefabf1d43195d5aa511996a44c001e364576539a",
+    "backend/app/runtime/database.py": "9dfdb302c42966980d39954be87e985c38ad72f4b7fb940e602b8e87a64340d3",
+    "backend/app/runtime/deployment_schema.py": "4f3ae688a718e19e46ac17bc1009b5f0a1a8ffacba31f292201803110d76c552",
+    "backend/app/runtime/deployments.py": "a508d62bebd3b482ef56d8435efe4ed4cc83868f4462ece6aac72e1f90da5bea",
+    "backend/app/runtime/recovery.py": "3f3f1da3e0b3411141d2453d29aff033d749f0412e5a9d6fdad713166a36296e",
+    "backend/app/runtime/store.py": "7efbfa6825a8c52290c44414fc49343252d26f1bdb8e46a3ca5640414c90fad7",
+    "backend/app/services/deployment_worker.py": "5e548c6525903ffdef9d0286f1b9759b9792a5692426fe1f0f50a5fca10714fd",
+    "backend/app/services/task_console.py": "8ceec87fb1486e247eb802de20422e2d841a3aa998e70f468d2b610f6fb1bf67",
+    "backend/tests/test_deployment_console.py": "6740ae9b68c1750568ebe5c7c0b114372581acc29680a207c3ee020dd72c98fa",
+    "backend/tests/test_runtime_deployments.py": "0fe8cc9c21850e72b00bea92a493202f1070c23761de38581e2d95a5ab5a93de",
+    "frontend/src/api/runtime.ts": "d42edd5b1d595fb463d8fce42b3940b860a15da85e8d3dbdc110a88696e4d039",
+    "frontend/src/apps/console/components/DeploymentsPanel.tsx": "9c61f9e855e829fc67ecc92da075f5a1346e8b3405fb73775a82dc49ed797192",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "1f27550b11fb0586293ef9b4ec482696b3897e7276927feb1e0c19d4628b1f5c",
+    "frontend/src/lib/messages.ts": "479c4882f6bb52f6f585ddbc54a958a0a19263fd36595295661a59318caea745"
+  }
+}

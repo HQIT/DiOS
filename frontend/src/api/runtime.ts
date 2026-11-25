@@ -125,6 +125,18 @@ export interface SchedulerHealth {
   }[];
 }
 export interface Circuit { resource: string; state: string; retry_at: number; reason: string | null; probe_attempt: string | null; }
+export interface DeploymentView {
+  deployment: {id: string; version: number; revision_id: string; state: string; resource_scope_ref: string};
+  status: {definition_id: string; active_revision_id: string | null; previous_revision_id: string | null; rollout_id: string; error: string | null; updated_at: number};
+  probe?: {id: string; state: string; attempt_id: string | null; updated_at: number};
+  rollout?: {state: string; operation: string; deadline: number};
+  events?: Array<{version: number; type: string; actor: string; created_at: number}>;
+}
+export const deploymentApi = {
+  list: (after: string, signal?: AbortSignal) => request<{items: DeploymentView[]}>(`/deployments?limit=50&after=${encodeURIComponent(after)}`, {signal}),
+  detail: (id: string, signal?: AbortSignal) => request<DeploymentView>(`/deployments/${encodeURIComponent(id)}`, {signal}),
+  reconcile: (id: string) => request<DeploymentView>(`/deployments/${encodeURIComponent(id)}/reconcile`, {method: "POST"}),
+};
 export const runtimeApi = {
   identity: (signal?: AbortSignal) => request<{ mode: "operator" | "principal"; principal: { id: string; subject: string } | null }>("/identity", { signal }),
   workers: (signal?: AbortSignal) => request<WorkerStatus>("/workers", { signal }),

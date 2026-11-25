@@ -50,7 +50,7 @@ async def operator(request: Request):
 
 @asynccontextmanager
 async def console_lifespan(app):
-    db=None;app.state.runtime_console=None;schedule_loop=None
+    db=None;app.state.runtime_console=None;schedule_loop=None;deployment_loop=None
     if (settings.runtime_console_enabled and settings.runtime_database_url
             and settings.runtime_profiles_dir and settings.runtime_artifacts_root):
         db=Database(settings.runtime_database_url)
@@ -72,9 +72,13 @@ async def console_lifespan(app):
         from app.services.run_schedule_worker import ScheduleLoop
         schedule_loop=ScheduleLoop(app.state.runtime_console,enabled=settings.runtime_schedules_enabled)
         schedule_loop.start()
+        from app.services.deployment_worker import DeploymentLoop
+        deployment_loop=DeploymentLoop(app.state.runtime_console)
+        deployment_loop.start()
     try:yield
     finally:
         if schedule_loop:await schedule_loop.stop()
+        if deployment_loop:await deployment_loop.stop()
         if db:await db.close()
         app.state.runtime_console=None
 
@@ -184,6 +188,44 @@ async def identity(s=Depends(service)):
 @router.get('/profiles')
 async def profiles(s=Depends(service)):
     return {'items':await s.catalog()}
+
+
+class DeploymentRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid', strict=True)
+    id: str = Field(min_length=1,max_length=160)
+    revision_ref: str | None = Field(default=None,min_length=1,max_length=160)
+    idempotency_key: str = Field(min_length=1,max_length=160)
+    expected_version: int = Field(ge=0)
+    probe_input: dict
+    timeout: int = Field(default=300,ge=10,le=3600)
+    rollback: bool = False
+
+
+def deployment_manager(s):
+    if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
+    from app.runtime.deployments import Deployments
+    return Deployments(s.db,s.scope,s.policy)
+
+
+@router.get('/deployments')
+async def deployments(after:str=Query('',max_length=160),limit:int=Query(50,ge=1,le=100),s=Depends(service)):
+    return {'items':await deployment_manager(s).list(after=after,limit=limit)}
+
+
+@router.get('/deployments/{deployment_id}')
+async def deployment_detail(deployment_id:str,s=Depends(service)):
+    return await deployment_manager(s).show(deployment_id)
+
+
+@router.post('/deployments',status_code=202)
+async def deployment_request(body:DeploymentRequest,s=Depends(service)):
+    return await deployment_manager(s).request(body.id,body.revision_ref,body.idempotency_key,
+        body.expected_version,'operator:console',body.probe_input,timeout=body.timeout,rollback=body.rollback)
+
+
+@router.post('/deployments/{deployment_id}/reconcile')
+async def deployment_reconcile(deployment_id:str,s=Depends(service)):
+    return await deployment_manager(s).reconcile(deployment_id)
 
 @router.get('/samples')
 async def samples(s=Depends(service)):

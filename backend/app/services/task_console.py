@@ -101,7 +101,20 @@ class TaskConsole:
     async def _registrations(self):
         profiles=[]
         for path,raw in await asyncio.to_thread(self._profile_sources):
-            revision_ref=None
+            revision_ref=None;deployment_id=None;deployment_state=None
+            if 'deployment_id' in raw:
+                if set(raw)!={'id','deployment_id','enabled'} or type(raw['enabled']) is not bool:
+                    raise RuntimeErrorCode('INVALID_PROFILE_CATALOG')
+                if not raw['enabled']:continue
+                if not await asyncio.to_thread(self.profile_allowed,raw['id']):continue
+                from app.runtime.deployments import row as deployment_row
+                deployment_id=raw['deployment_id']
+                async with self.db.read(self.scope) as c:
+                    selected=await deployment_row(c,self.scope,deployment_id)
+                if selected['definition_id']!=raw['id']:raise RuntimeErrorCode('DEPLOYMENT_DEFINITION_CHANGED')
+                if selected['active_revision_id'] is None:continue
+                deployment_state=selected['state']
+                raw=dict(id=raw['id'],revision_ref=selected['active_revision_id'],enabled=True)
             if 'revision_ref' in raw:
                 if set(raw)!={'id','revision_ref','enabled'} or type(raw['enabled']) is not bool:
                     raise RuntimeErrorCode('INVALID_PROFILE_CATALOG')
@@ -125,7 +138,7 @@ class TaskConsole:
             if spec.mounts and any(not m.read_only for m in spec.mounts):
                 raise RuntimeErrorCode('PROFILE_REQUIRES_READ_ONLY_MOUNTS')
             mode,refs=security_profile(path,raw=raw)
-            profiles.append(dict(inputs=registered_inputs,refs=refs,revision_ref=revision_ref,registration_digest=registered['digest'],
+            profiles.append(dict(inputs=registered_inputs,refs=refs,revision_ref=revision_ref,deployment_id=deployment_id,registration_digest=registered['digest'],
                 requires_e2ag=registered['requires_e2ag'],contract=registered,view=dict(id=profile_id,name=str(display.get('name',profile_id))[:120],
                 description=str(display.get('description',''))[:500],
                 implementation=str(display.get('implementation','unknown'))[:120],
@@ -136,6 +149,8 @@ class TaskConsole:
             profiles[-1]['view']['execution_kind']=getattr(spec,'execution_kind','managed-process')
             profiles[-1]['view']['control_scope']=getattr(spec,'control_scope','managed-runtime')
             profiles[-1]['view']['revision_ref']=revision_ref
+            profiles[-1]['view']['deployment_id']=deployment_id
+            profiles[-1]['view']['deployment_state']=deployment_state
         return profiles
 
     async def catalog(self):
@@ -154,6 +169,7 @@ class TaskConsole:
                          if x['view']['id']==profile_id),None)
         if registered is None:raise RuntimeErrorCode('PROFILE_NOT_AVAILABLE')
         profile=registered['view']
+        if profile.get('deployment_state') not in (None,'ready','pending'):raise RuntimeErrorCode('DEPLOYMENT_NOT_READY')
         if profile.get('execution_kind')=='remote-a2a' and registered['contract']['result_schema'] is None:
             raise RuntimeErrorCode('A2A_RESULT_SCHEMA_REQUIRED')
         if self.principal is not None and not await asyncio.to_thread(self.profile_allowed,profile_id,'run.read'):
@@ -173,6 +189,7 @@ class TaskConsole:
                  if self.principal is not None else None)
         submission_digest=digest(dict(owner=owner,profile_id=profile_id,sample_id=sample_id,
             **({'revision_ref':registered['revision_ref']} if registered['revision_ref'] is not None else {}),
+            **({'deployment_id':registered['deployment_id']} if registered['deployment_id'] is not None else {}),
             input_payload=input_payload,goal=goal,registered_input=value,
             registration_digest=registered['registration_digest'],profile_digest=profile['profile_digest'],
             secret_refs=registered['refs']))
@@ -239,7 +256,7 @@ class TaskConsole:
                 **({'result_schema':registered['contract']['result_schema']} if registered['contract']['result_schema'] is not None else {})),
             runtime_profile=profile_id,profile_digest=profile['profile_digest'],
             task_kind=profile['input_kind'],payload=dict(goal=goal,sample=value),
-            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest,admission_guard=admission_guard,parent_binding=parent_binding,revision_ref=registered['revision_ref'])
+            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest,admission_guard=admission_guard,parent_binding=parent_binding,revision_ref=registered['revision_ref'],deployment_id=registered['deployment_id'])
         return await self.detail(run['id'])
 
     @staticmethod
@@ -248,7 +265,7 @@ class TaskConsole:
         return {**{k:run[k] for k in ('id','state','version','attempt_id','created_at','updated_at','cancel_requested')},
             'goal':payload.get('goal',''), 'sample_id':payload.get('sample',{}).get('id'),
             'task_kind':value.get('task_kind'),'profile_id':value.get('runtime_profile'), 'display':value.get('display',{}),
-            'revision_ref':value.get('revision_ref')}
+            'revision_ref':value.get('revision_ref'),'deployment_id':value.get('deployment_id')}
 
     async def overview(self, *, period='hour',buckets=24,profile_id=None):
         from app.runtime.overview import view

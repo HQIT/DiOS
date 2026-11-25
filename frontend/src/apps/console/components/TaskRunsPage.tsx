@@ -9,6 +9,7 @@ import "./task-runs.css";
 import WorkerStatusPanel from "./WorkerStatusPanel";
 import SchedulerHealthPanel from "./SchedulerHealthPanel";
 import CapacityPanel from "./CapacityPanel";
+import DeploymentsPanel from "./DeploymentsPanel";
 import RunDiagnostics from "./RunDiagnostics";
 import RuntimeOverviewPanel from "./RuntimeOverviewPanel";
 import ToolActions from "./ToolActions";
@@ -268,6 +269,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
       {operatorMode && <WorkerStatusPanel />}
       {operatorMode && <SchedulerHealthPanel />}
       {operatorMode && <CapacityPanel />}
+      {operatorMode && !selectedId && <DeploymentsPanel />}
       {operatorMode && !selectedId && <RunSchedulesPanel refresh={refresh} />}
       {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>{translateUI("从一件具体工作开始")}</h3>
         <p>{translateUI("在左侧发起任务，或选择已有任务查看执行过程与成果。")}</p><div className="tr-steps"><span>{translateUI("① 发起任务")}</span><span>{translateUI("② 跟踪执行")}</span><span>{translateUI("③ 查看成果")}</span></div></div>}
