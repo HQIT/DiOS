@@ -10,6 +10,7 @@ export class RuntimeApiError extends Error {
 export interface Profile { dynamic_inputs?: boolean; input_schema?: Record<string, unknown> | boolean | null; input_kind?: string; input_ids?: string[]; id: string; name: string; description: string; implementation: string; synthetic: boolean; governance: string; policy_configured: boolean; }
 export interface Sample { [key: string]: unknown; id: string; name: string; filename?: string; source?: string; sha256: string; }
 export interface RunSummary {
+  revision_ref?: string | null; deployment_id?: string | null;
   id: string; state: string; version: number; attempt_id: string | null;
   goal: string; profile_id: string; created_at: number; updated_at: number; cancel_requested: boolean;
   display: { name?: string; implementation?: string; synthetic?: boolean };
@@ -65,6 +66,16 @@ export interface RunDiagnostics {
   governance: Array<{id: string; kind: string; attempt_id: string | null; action: string; outcome: string; reason_codes: string[]; created_at: number; timing: ({clock: string} & Record<string, number | string>) | null}>;
 }
 export interface Preview { id: string; kind: string; text: string; markdown: string | null; size: number; digest: string; }
+export interface RevisionCompatibility {
+  revision_ref: string; state: string; configuration_rollback: string;
+  implementation_visibility: string; implementation_rollback: string; implementation_digest: string | null;
+  model_implementation_visibility: string; model_implementation_rollback: string;
+  qualification: {state: string; error: string | null; observed_at: number; observed_stale: boolean;
+    snapshot: {reported_version?: string; protocol_version?: string}; snapshot_digest: string} | null;
+}
+export const revisionApi = {
+  compatibility: (ref: string, signal?: AbortSignal) => request<RevisionCompatibility>(`/revisions/${encodeURIComponent(ref)}/compatibility`, {signal}),
+};
 export type CapacitySelector = {kind: "scope"} | {kind: "subject"; subject: string} | {kind: "profiles"; profiles: string[]};
 export interface CapacityLimit {
   id: string; selector: CapacitySelector; max_concurrent: number; enabled: boolean; revision: number;

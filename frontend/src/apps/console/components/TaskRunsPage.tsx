@@ -10,6 +10,7 @@ import WorkerStatusPanel from "./WorkerStatusPanel";
 import SchedulerHealthPanel from "./SchedulerHealthPanel";
 import CapacityPanel from "./CapacityPanel";
 import DeploymentsPanel from "./DeploymentsPanel";
+import RunRevision from "./RunRevision";
 import RunDiagnostics from "./RunDiagnostics";
 import RuntimeOverviewPanel from "./RuntimeOverviewPanel";
 import ToolActions from "./ToolActions";
@@ -288,6 +289,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         </section>}
         <section className="tr-card"><div className="tr-section-title"><h3>{detail.goal}</h3><Badge state={detail.state} /></div>
           <p className="tr-muted">{detail.display.name || detail.profile_id} · {translateUI(detail.display.synthetic ? "合成端点" : detail.display.implementation)}</p>
+          <RunRevision revision={detail.revision_ref} deployment={detail.deployment_id} operator={operatorMode} />
           <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : active?.runtime_state === "paused" && !terminal(detail.state) ? "执行已暂停" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>
             <div><span>{translateUI(active?.remote_agent || preflightWaiting ? "远端任务观测" : "进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : preflightWaiting ? "尚未派发" : active?.remote_agent ? active.remote_agent.freshness === "stale" ? "观测过期" : ({ submitted: "远端已受理", working: "远端报告运行中", completed: "远端报告完成", canceled: "远端确认取消", failed: "远端报告失败", rejected: "远端拒绝", "input-required": "远端等待输入", "auth-required": "远端等待认证" } as Record<string,string>)[active.remote_agent.observed_state || ""] || "远端状态待确认" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.runtime_state === "paused" ? "执行已暂停" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
             <div><span>{translateUI("最近有效输出")}</span><strong>{translateUI(time(active?.last_output_at))}</strong></div>

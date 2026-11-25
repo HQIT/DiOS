@@ -22,6 +22,7 @@ DEPENDENCY_KINDS = {
     "harness",
 }
 ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,159}\Z")
+SECRET_REF = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}\Z")
 DIGEST = re.compile(r"sha256:[0-9a-f]{64}\Z")
 SENSITIVE = re.compile(
     r"(?:^|_)(?:password|passwd|token|credentials?|private_key|api_key|apikey|authorization|secrets?)$",
@@ -153,7 +154,11 @@ def manifest(value):
         if (
             not isinstance(refs, list)
             or len(refs) > 128
-            or any(not isinstance(ref, str) or not ID.fullmatch(ref) for ref in refs)
+            or any(
+                not isinstance(ref, str)
+                or not (SECRET_REF if name == "secret_refs" else ID).fullmatch(ref)
+                for ref in refs
+            )
             or len(set(refs)) != len(refs)
         ):
             invalid()

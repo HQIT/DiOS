@@ -59,6 +59,16 @@ class BindingScenarios:
         await (store or self.store).register_worker(*pair, "fixture-host", os.getpid())
         return pair
 
+    async def test_secret_reference_namespace_survives_revision_roundtrip(self):
+        raw = profile(mode="e2ag")
+        raw["secrets"] = [
+            {"ref": "model/cursor", "version": "v1", "target": "/run/secrets/cursor"}
+        ]
+        ref, _, _, refs = await self.snapshot(raw)
+        self.assertEqual(refs, raw["secrets"])
+        saved = await Revisions(self.db, self.scope).show(ref, include_manifest=True)
+        self.assertEqual(saved["manifest"]["secret_refs"], ["model/cursor"])
+
     async def test_new_version_skips_old_queue_without_claiming_or_failing_it(self):
         old = await self.snapshot()
         new = await self.snapshot(profile("new-command"))
