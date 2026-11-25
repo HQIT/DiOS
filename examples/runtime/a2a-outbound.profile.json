@@ -1,0 +1,27 @@
+{
+  "id": "remote-agent-example",
+  "bridge": "a2a-0.3-jsonrpc",
+  "governance": {"mode": "e2ag"},
+  "remote": {
+    "endpoint": "https://agent.example.org/a2a",
+    "card_url": "https://agent.example.org/.well-known/agent-card.json",
+    "skill_id": "registered-capability",
+    "artifact_prefix": "https://agent.example.org/artifacts/",
+    "request_timeout": 10,
+    "response_limit": 262144,
+    "max_concurrent": 1
+  },
+  "secrets": [{
+    "ref": "remote/agent",
+    "version": "v1",
+    "target": "/run/secrets/a2a-token"
+  }],
+  "console": {
+    "enabled": false,
+    "name": "Remote Agent",
+    "implementation": "A2A 0.3.0",
+    "synthetic": false,
+    "input_kind": "a2a-message",
+    "input_catalog": "/etc/dios/applications/remote-inputs.json"
+  }
+}

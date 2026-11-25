@@ -104,6 +104,8 @@ class TaskConsole:
                 input_schema=registered['schema'] if registered['dynamic_inputs'] else None,
                 dynamic_inputs=registered['dynamic_inputs'],input_kind=display['input_kind'],input_ids=[x['id'] for x in registered_inputs],
                 governance=mode,policy_configured=self.policy is not None if mode=='e2ag' else True)))
+            profiles[-1]['view']['execution_kind']=getattr(spec,'execution_kind','managed-process')
+            profiles[-1]['view']['control_scope']=getattr(spec,'control_scope','managed-runtime')
         return profiles
 
     def catalog(self):
@@ -122,6 +124,8 @@ class TaskConsole:
                          if x['view']['id']==profile_id),None)
         if registered is None:raise RuntimeErrorCode('PROFILE_NOT_AVAILABLE')
         profile=registered['view']
+        if profile.get('execution_kind')=='remote-a2a' and registered['contract']['result_schema'] is None:
+            raise RuntimeErrorCode('A2A_RESULT_SCHEMA_REQUIRED')
         if self.principal is not None and not await asyncio.to_thread(self.profile_allowed,profile_id,'run.read'):
             raise RuntimeErrorCode('AUTH_ACTION_DENIED')
         if (sample_id is None)==(input_payload is None):raise RuntimeErrorCode('INVALID_WORK_INPUT')
@@ -244,6 +248,11 @@ class TaskConsole:
                 'runtime_state':obs.get('state'),
                 'confirmed_running':bool(fresh and not terminal and obs.get('state')!='paused' and obs.get('alive') and obs.get('pid') and obs.get('process_instance')),
                 'output_excerpt':a['remote'].get('progress',{}).get('text','')})
+            agent=a['remote'].get('a2a')
+            if agent:
+                views[-1]['remote_agent']={**{k:agent.get(k) for k in ('stage','task_id','context_id','observed_state','observed_at','cancel_requested_at')},
+                    'protocol':'a2a-0.3-jsonrpc','control_scope':'remote-boundary',
+                    'freshness':'final' if terminal else ('fresh' if (agent.get('observed_at') or 0)>=now-15 else 'stale')}
         from app.runtime.work_authorizations import view
         authorization=await view(self.store,run_id)
         access=[]

@@ -99,6 +99,14 @@ async def execute(args):
                     'profile_digest':spec.fingerprint(),'secret_refs':secret_requests,'payload':payload},authorization=descriptor)
             artifacts=LocalArtifacts(Path(args.artifacts))
             secrets=FileSecretMounts(args.secrets_file,args.scope) if args.secrets_file else None
+            from .a2a_profile import A2AProfile
+            if isinstance(spec,A2AProfile):
+                from .a2a_worker import A2AWorker
+                if args.tools_file or args.approvers_file or args.tool_gateway_file:
+                    raise RuntimeErrorCode('A2A_REMOTE_TOOL_CONTROL_UNAVAILABLE')
+                runner=A2AWorker(store,profile_id,spec,artifacts,policy,secret_resolver=secrets,
+                    secret_requests=secret_requests,timeout=args.timeout,poll_interval=args.poll_interval)
+                return await runner.serve(once=args.once)
             tool_gate=None;remote_tools=None
             from .worker_tool_channel import POLICY_ENV
             if args.tool_gateway_file:

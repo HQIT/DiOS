@@ -12,7 +12,7 @@
 
 每项按已有依赖和验收标准测试、部署并记录证据。#37/#40 与客户应用不阻塞 DiOS 的通用能力交付。
 
-#56/#58 已通过 Cursor、DSH、Codex 三种 Harness 的受控执行切片。Codex 官方账号完成审批、拒绝、取消、撤权与报告，ECNU 网关的 namespace 工具兼容缺口有对照证据，见 [Codex 接入与模型服务资格](../design/codex-acp-56-58.md)。A2A 0.3 标准入口已通过官方客户端、真实 Worker 和 E2AG 验证，见 [A2A 任务入口](../design/a2a-runtime-56-58.md)。下一段补齐远端 A2A 出站任务与恢复对账；活动会话恢复、跨主机故障与跨来源完整治理资格继续按原任务验收。
+#56/#58 已通过 Cursor、DSH、Codex 三种 Harness 的受控执行切片。Codex 官方账号完成审批、拒绝、取消、撤权与报告，ECNU 网关的 namespace 工具兼容缺口有对照证据，见 [Codex 接入与模型服务资格](../design/codex-acp-56-58.md)。A2A 0.3 标准入口已通过官方客户端、真实 Worker 和 E2AG 验证，见 [A2A 任务入口](../design/a2a-runtime-56-58.md)。[远端 A2A 出站任务与恢复对账](../design/a2a-outbound-56-58.md)已通过双服务真实执行、Worker 终止后恢复、取消和旧所有者拒写；接续远端限流/额度熔断及持久退避。活动会话恢复、跨主机故障与跨来源完整治理资格继续按原任务验收。
 
 
 日期：2026-11-19。依据 GitHub Project #2、project-plan.json 与 #30 本批工程证据；本表说明优先次序，任务验收状态沿用原 Project。

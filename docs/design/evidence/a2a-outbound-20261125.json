@@ -1,0 +1,130 @@
+{
+  "protocol": "A2A 0.3.0 JSON-RPC",
+  "sdk": "a2a-sdk 0.3.26",
+  "scope": "two isolated TCP APIs, independent CLI Workers and Docker agent on one host",
+  "control_scope": "remote-boundary",
+  "tests": {
+    "contracts": {
+      "total": 12,
+      "passed": 12,
+      "skipped": 0,
+      "sha256": "d72d9aa399e79955c46edd2d2f69cfc66f2d19006b79924ebe6b0db5344d4c46"
+    },
+    "backend-regression-final": {
+      "total": 186,
+      "passed": 143,
+      "skipped": 43,
+      "sha256": "a2b10debacef375d1722c7dcac6b980901ad637bf0ed16f996122cc3c24475b1"
+    },
+    "image-contracts": {
+      "total": 25,
+      "passed": 25,
+      "skipped": 0,
+      "sha256": "58b0d2c1511ae532caed2cf78a1675dc458764fd22b46a33cd8dc8cc6809d640"
+    }
+  },
+  "network_cases": [
+    {
+      "mode": "complete",
+      "run_id": "69e54f51-3ec3-4256-880a-9b4325788b4b",
+      "attempt_id": "293166d1-3cfc-41ba-b30a-415b4fba1b6f",
+      "remote_task_id": "83b2c982-a950-42d9-9f61-86e271a6d44e",
+      "state": "succeeded",
+      "source_worker_pid": 157568,
+      "target_worker_pid": 157579,
+      "remote_agent_pid": 157634,
+      "remote_session_id": "84d3f702-05cd-48e8-b99b-047198635f77",
+      "single_attempt_each_side": true
+    },
+    {
+      "mode": "restart",
+      "run_id": "89562e77-cd4c-43a7-bf9b-5606294fbccf",
+      "attempt_id": "0f767f10-9d71-4c10-91a6-f9d510f3e483",
+      "remote_task_id": "21954b19-3741-465d-9321-91fdeb2cac0f",
+      "state": "succeeded",
+      "source_worker_pid": 157683,
+      "target_worker_pid": 157684,
+      "remote_agent_pid": 157734,
+      "remote_session_id": "7ea28378-9211-4893-b6f9-725d19e141dd",
+      "single_attempt_each_side": true
+    },
+    {
+      "mode": "cancel",
+      "run_id": "45f4a32f-2b88-461d-833c-eb6be49371fc",
+      "attempt_id": "8286c40d-0769-459c-ba57-c6561aab0169",
+      "remote_task_id": "d7f7c979-007c-48fc-a677-177ce330afdf",
+      "state": "cancelled",
+      "source_worker_pid": 158230,
+      "target_worker_pid": 158236,
+      "remote_agent_pid": 158288,
+      "remote_session_id": "a33730ee-88e6-4048-a854-c10b72631475",
+      "single_attempt_each_side": true
+    }
+  ],
+  "ui": {
+    "scope": "actual isolated API data through browser test routing",
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "completedRemoteTaskVisible": true,
+        "cancelConfirmed": true,
+        "taskListNavigation": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "completedRemoteTaskVisible": true,
+        "cancelConfirmed": true,
+        "taskListNavigation": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "completedRemoteTaskVisible": true,
+        "cancelConfirmed": true,
+        "taskListNavigation": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      }
+    ]
+  },
+  "image": {
+    "image": "sha256:b6d631776c185902bcce282c44ff8ed8c4232bb3b05debd4d7705935e5f4d992",
+    "tag": "dios-backend:a2a-outbound-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "deployment": {
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "unverified": [
+    "cross-physical-host network partitions and TLS",
+    "external supplier and credential rotation",
+    "durable backoff and remote quota circuits",
+    "resubmission after unknown remote task identity"
+  ],
+  "frontend_build": {
+    "passed": true,
+    "sha256": "6d8d4c912d447ccfb469776826efaa273b67b1d7111ab2c4faf5dc22bd8a99e1"
+  }
+}

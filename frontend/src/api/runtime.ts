@@ -20,6 +20,9 @@ export interface Attempt {
   error: { code: string } | null; freshness: "fresh" | "stale" | "final";
   confirmed_running: boolean; output_excerpt: string;
   runtime_state?: string | null;
+  remote_agent?: { protocol: string; control_scope: string; stage: string; task_id: string | null;
+    context_id: string | null; observed_state: string | null; observed_at: number | null;
+    cancel_requested_at: number | null; freshness: "fresh" | "stale" | "final" };
 }
 export interface Artifact { id: string; attempt_id: string; kind: string; size: number; digest: string; created_at: number; }
 export interface WorkAuthorization {

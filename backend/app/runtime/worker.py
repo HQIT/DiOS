@@ -24,6 +24,9 @@ from .schema import runs
 def read_profile(path, *, value=None):
     value = json.loads(Path(path).read_text(encoding='utf-8')) if value is None else value
     identifier(value['id'])
+    if value.get('bridge') == 'a2a-0.3-jsonrpc':
+        from .a2a_profile import read
+        return read(value)
     if value.get('bridge') != 'jsonl-v1': raise RuntimeErrorCode('BRIDGE_UNSUPPORTED')
     config = dict(value['launch'])
     from .worker_tool_channel import profile_policy, POLICY_ENV, SOCKET_ENV

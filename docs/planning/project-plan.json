@@ -1349,10 +1349,10 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-25",
-        "validation_status": "acp_three_harnesses_and_a2a_ingress_verified_outbound_pending",
-        "summary": "Cursor、DSH、Codex 的受控执行切片通过；A2A 0.3 标准入口使用官方 SDK，任务、E2AG Work 与消息关联原子落库。官方客户端经真实 HTTP 驱动 Docker Worker，完成结果下载和取消；13 项契约、13 项发布镜像测试通过，相关回归 130 项通过 / 43 项跳过。开发服务已排空更新，84 条 Run 身份保留。",
-        "validation_evidence": "docs/design/a2a-runtime-56-58.md",
-        "remaining": "远端 A2A 出站任务提交意图/幂等/查询与取消对账；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
+        "validation_status": "acp_three_harnesses_and_a2a_bidirectional_isolated_verified",
+        "summary": "Cursor、DSH、Codex 的受控执行切片通过；A2A 0.3 标准入口与远端出站均使用官方 SDK。出站持久关联 Run/Attempt/远端 Task/Context，保留响应回执，按原任务恢复并验证 E2AG；未知提交不盲目重发。真实 HTTP 双服务与独立 Worker 完成任务、进程终止后自然租约恢复和取消，双方均保留唯一 Attempt。12 项出站契约、25 项镜像测试、相关回归 143 项通过 / 43 项跳过，中英文桌面与移动端通过；开发部署保留 84 条 Run 身份。",
+        "validation_evidence": "docs/design/a2a-outbound-56-58.md",
+        "remaining": "远端限流/额度熔断和持久退避；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
       },
       "product_scope": "dios-capability"
     },
@@ -2305,14 +2305,14 @@
         "F03-2"
       ],
       "priority": "最高",
-      "next_acceptance": "接续远端 A2A 任务提交、观察与恢复资格；保留三种 Harness 的完整故障/授权矩阵。",
+      "next_acceptance": "接续远端限流/额度熔断与持久退避；跨主机及三种 Harness 完整故障/授权矩阵继续验收。",
       "status": "In Progress",
       "progress": {
         "date": "2026-11-25",
-        "validation_status": "acp_three_harnesses_and_a2a_ingress_verified_outbound_pending",
-        "summary": "Cursor、DSH、Codex 的受控执行切片通过；A2A 0.3 标准入口使用官方 SDK，任务、E2AG Work 与消息关联原子落库。官方客户端经真实 HTTP 驱动 Docker Worker，完成结果下载和取消；13 项契约、13 项发布镜像测试通过，相关回归 130 项通过 / 43 项跳过。开发服务已排空更新，84 条 Run 身份保留。",
-        "validation_evidence": "docs/design/a2a-runtime-56-58.md",
-        "remaining": "远端 A2A 出站任务提交意图/幂等/查询与取消对账；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
+        "validation_status": "acp_three_harnesses_and_a2a_bidirectional_isolated_verified",
+        "summary": "Cursor、DSH、Codex 的受控执行切片通过；A2A 0.3 标准入口与远端出站均使用官方 SDK。出站持久关联 Run/Attempt/远端 Task/Context，保留响应回执，按原任务恢复并验证 E2AG；未知提交不盲目重发。真实 HTTP 双服务与独立 Worker 完成任务、进程终止后自然租约恢复和取消，双方均保留唯一 Attempt。12 项出站契约、25 项镜像测试、相关回归 143 项通过 / 43 项跳过，中英文桌面与移动端通过；开发部署保留 84 条 Run 身份。",
+        "validation_evidence": "docs/design/a2a-outbound-56-58.md",
+        "remaining": "远端限流/额度熔断和持久退避；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
       },
       "product_scope": "dios-capability"
     },

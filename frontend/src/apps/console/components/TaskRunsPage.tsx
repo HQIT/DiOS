@@ -255,9 +255,15 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
         <section className="tr-card"><div className="tr-section-title"><h3>{detail.goal}</h3><Badge state={detail.state} /></div>
           <p className="tr-muted">{detail.display.name || detail.profile_id} · {translateUI(detail.display.synthetic ? "合成端点" : detail.display.implementation)}</p>
           <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : active?.runtime_state === "paused" && !terminal(detail.state) ? "执行已暂停" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>
-            <div><span>{translateUI("进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.runtime_state === "paused" ? "执行已暂停" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
+            <div><span>{translateUI(active?.remote_agent ? "远端任务观测" : "进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : active?.remote_agent ? active.remote_agent.freshness === "stale" ? "观测过期" : ({ submitted: "远端已受理", working: "远端报告运行中", completed: "远端报告完成", canceled: "远端确认取消", failed: "远端报告失败", rejected: "远端拒绝", "input-required": "远端等待输入", "auth-required": "远端等待认证" } as Record<string,string>)[active.remote_agent.observed_state || ""] || "远端状态待确认" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.runtime_state === "paused" ? "执行已暂停" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
             <div><span>{translateUI("最近有效输出")}</span><strong>{translateUI(time(active?.last_output_at))}</strong></div>
           </div>
+          {active?.remote_agent && <div className="tr-notice" data-testid="remote-agent-observation">
+            <p>{translateUI("控制范围：远端任务边界")}</p>
+            <p>{translateUI("远端任务：{0}", [active.remote_agent.task_id || translateUI("待确认")])}</p>
+            <p>{translateUI("远端上下文：{0}", [active.remote_agent.context_id || translateUI("待确认")])}</p>
+            {active.remote_agent.cancel_requested_at && !terminal(detail.state) && <p>{translateUI("取消请求已保存，等待远端确认。")}</p>}
+          </div>}
           {detail.state === "queued" && <p className="tr-notice">{translateUI("任务已入队，等待对应 Agent 的 Worker 领取。")}</p>}
           {detail.state === "reconciliation_required" && <p className="tr-notice">{translateUI("正在等待原执行结果对账，任务身份与已有输出已保留。")}</p>}
           {active?.error && <p className="tr-error">{translateUI("失败原因：")}{translateUI(active.error.code)}</p>}

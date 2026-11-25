@@ -4,7 +4,7 @@
 
 2026-11-24 工程证据：[Cursor 官方 SDK 接入、真实取消与撤权](acp-cancellation-56-58.md)、[DSH + ECNU Max 替换执行与 E2AG](dsh-acp-56-58.md)、[Codex ACP 与模型服务资格](codex-acp-56-58.md)。DiOS 统一执行和治理能力；DiAgent、框架构建的 Agent、dsh、Codex、Cursor 等 Harness 经开放协议或独立 Adapter 接入。下表中的未验证能力继续按固定版本逐项验收。
 
-2026-11-25：[A2A 0.3 标准 Runtime 入口](a2a-runtime-56-58.md)通过官方 SDK 客户端、真实 HTTP / Docker Worker、E2AG、任务幂等、结果下载与取消验证。该入口复用通用 Runtime，legacy DiAgent 网关保持独立；远端 A2A 出站任务与恢复仍待接续。
+2026-11-25：[A2A 0.3 标准 Runtime 入口](a2a-runtime-56-58.md)通过官方 SDK 客户端、真实 HTTP / Docker Worker、E2AG、任务幂等、结果下载与取消验证。该入口复用通用 Runtime，legacy DiAgent 网关保持独立；[远端 A2A 出站](a2a-outbound-56-58.md)已通过持久任务关联、真实 HTTP / Worker 重启恢复与取消，E2AG 控制范围为远端任务边界；跨主机、生产 TLS 和远端内部工具控制继续按能力准入验收。
 
 ## 选择结论
 
