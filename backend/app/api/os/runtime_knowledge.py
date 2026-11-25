@@ -1,7 +1,7 @@
 """Business-neutral knowledge API; caller identity comes from runtime service."""
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict, Field
-from app.services.knowledge import CAPABILITIES, ObjectKnowledgeProvider
+from app.services.knowledge_providers import knowledge_provider
 
 
 class KnowledgeQuery(BaseModel):
@@ -25,16 +25,16 @@ def register(router, service):
 
     @router.get('/knowledge/capabilities')
     async def capabilities(s=dependency):
-        return CAPABILITIES
+        return knowledge_provider(s).capabilities()
 
     @router.post('/knowledge/search')
     async def search(body: KnowledgeQuery, s=dependency):
-        return await ObjectKnowledgeProvider(s).search(body.query, body.limit)
+        return await knowledge_provider(s).search(body.query, body.limit)
 
     @router.get('/knowledge/sources/{source_id}')
     async def source(source_id: str, s=dependency):
-        return await ObjectKnowledgeProvider(s).source(source_id)
+        return await knowledge_provider(s).source(source_id)
 
     @router.put('/knowledge/sources/{source_id}')
     async def change(source_id: str, body: KnowledgeSource, s=dependency):
-        return await ObjectKnowledgeProvider(s).change(source_id, body.model_dump())
+        return await knowledge_provider(s).change(source_id, body.model_dump())

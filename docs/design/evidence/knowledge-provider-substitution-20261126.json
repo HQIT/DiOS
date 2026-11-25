@@ -1,0 +1,179 @@
+{
+  "work_item": "S02-2.02",
+  "status": "engineering_verified",
+  "source_head": "a46f559f1ab972728e441fa00551f10f1dcc36e1",
+  "implementations": [
+    "object-read-through-v1",
+    "sqlite-fts5-v1"
+  ],
+  "selection": "DIOS_RUNTIME_KNOWLEDGE_PROVIDER; deployment selected, query cannot override",
+  "delivered": [
+    "SQLite FTS5 trigram implementation using a private authorized corpus per request",
+    "Shared exact object references, immutable source versions, E2AG object read decisions, source mutation receipts and final revocation checks",
+    "Same API fixtures executed for both adapters, with actual SQL MATCH, Unicode, quotes, short terms, engine failures, cancellation and timeout",
+    "Same-installation real HTTP switch and rollback preserves source identities, exact query results and deletion across old receipt replay"
+  ],
+  "tests": {
+    "release_image": {
+      "image": "sha256:53a1dd796a7dd82042b9186966788c4d4cbbeff4886c370de7c6616a31c94a40",
+      "base": "sha256:9c4cf5d56807e622e9691e908f5967acde55abb0384e837d782af92e9a1d5f76",
+      "network": "none",
+      "user": "65534:65534",
+      "summary": "Ran 17 tests in 35.067s\n\nOK"
+    },
+    "total": 17,
+    "passed": 17,
+    "skipped": 0,
+    "seconds": 35.067,
+    "image_log_sha256": "0a1273e905b083f0991ec8aee8aa3e687a95c98a8b53e806de618e71e05d5252",
+    "initial_failure": "Connection establishment occurred outside error translation; moved inside the guarded block. Final image verifies normalized 503 without fallback.",
+    "lint": "New/affected modules Ruff F and git diff --check passed"
+  },
+  "actual_http_switch": {
+    "passed": true,
+    "image": "sha256:53a1dd796a7dd82042b9186966788c4d4cbbeff4886c370de7c6616a31c94a40",
+    "same_installation": true,
+    "principals": 2,
+    "switch_order": [
+      "object-read-through-v1",
+      "sqlite-fts5-v1",
+      "object-read-through-v1"
+    ],
+    "query_comparisons": 12,
+    "source_refs": [
+      {
+        "kind": "file",
+        "id": "55f86661-4a16-4154-a04d-a46d3269e2e7",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "3efd3209-d848-471d-92fc-50be7123aaab",
+        "version": 1
+      }
+    ],
+    "updated_ref": {
+      "kind": "file",
+      "id": "55f86661-4a16-4154-a04d-a46d3269e2e7",
+      "version": 2
+    },
+    "version_grant_required": true,
+    "delete_and_old_receipt_replay_preserved": true,
+    "fts_capabilities": {
+      "contract": "dios.knowledge/v1",
+      "provider": "sqlite-fts5-v1",
+      "operations": [
+        "search",
+        "source.replace",
+        "source.delete"
+      ],
+      "content": [
+        "text/plain; charset=utf-8"
+      ],
+      "index": "request-scoped-fts5-trigram",
+      "content_cache": false,
+      "mutation_completion": "applied",
+      "max_sources": 100,
+      "max_source_bytes": 1048576,
+      "max_query_bytes": 8388608,
+      "index_lifetime": "single-query",
+      "short_terms": "sqlite-instr",
+      "engine_version": "3.46.1",
+      "rank_timeout_seconds": 10
+    },
+    "new_model_calls": 0
+  },
+  "development": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "knowledge_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": false
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_api_cli": {
+    "default_provider": "object-read-through-v1",
+    "api_cli_capabilities_agree": true,
+    "original_cursor_report_integrity": true,
+    "active_runtime_provider_selection": "default retained; FTS5 exercised in isolated real HTTP installation"
+  },
+  "source_sha256": {
+    "backend/app/api/os/runtime_knowledge.py": "5507fdd7cb69d891738d013e53b83f7b1f10e9513f52e43398dc41e0fe3a924a",
+    "backend/app/api/os/runtime_tasks.py": "3929ad4072bba0a15383fb8773f26404091b702f1bb44943b9238b63ba196a5a",
+    "backend/app/config.py": "e4cd98161ef7a9603e6ec8047f1ccb2d2c39ea262592cb7f24b15553a7d38739",
+    "backend/app/services/knowledge.py": "00caaffbb4e039cba4458550e30689076d42528e3d681dbfa754571bdaadafc1",
+    "backend/app/services/knowledge_fts.py": "9ec9ac5eb0ed5fc9b1b48a8c159d6508bcf74a29b015fda7de68d67bb01f3166",
+    "backend/app/services/knowledge_providers.py": "912a2aa5351a86b59f0ed263aa92c344f9e89c6990f24a70d0f6d28a261e122d",
+    "backend/tests/test_runtime_knowledge.py": "d83be2e81d7df0888de4703c8e4c3f808aca8f8eef8eac3270e5f4f6488b99b4",
+    "backend/tests/test_runtime_knowledge_fts.py": "597a3258372f64570581caa8be0d468dd30f457b177e8691233b310dd0355b97",
+    "scripts/qualify_knowledge_providers.py": "1521b12fc98f7efafb17ef75cba1040918801da49466c9df3874fafb03c25f8c"
+  },
+  "upstream": {
+    "component": "SQLite FTS5",
+    "verified_image_sqlite_version": "3.46.1",
+    "license": "SQLite deliverable library is public domain; other runtime image components keep their licenses",
+    "distribution": "Uses existing Python runtime library; no additional database server",
+    "sources": [
+      "https://sqlite.org/fts5.html",
+      "https://sqlite.org/inmemorydb.html",
+      "https://sqlite.org/copyright.html",
+      "https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.set_progress_handler"
+    ]
+  },
+  "remaining": [
+    "S02-2.03: complete retrieval authorization and update failure matrix; governed Agent tool integration"
+  ],
+  "limits": [
+    "Both implementations retain the explicit bounded UTF-8 literal query contract; no semantic vector, graph or memory-write capability is advertised.",
+    "FTS5 index exists for one query; persistent indexing, multi-node search and capacity claims require separate evidence.",
+    "Development keeps the original default Provider; FTS5 selection and switch-back are verified in an isolated real HTTP installation.",
+    "No new model calls, no customer application schema changes, and no Codeup production migration."
+  ]
+}

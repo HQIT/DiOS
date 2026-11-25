@@ -21,6 +21,8 @@ CAPABILITIES = {
 
 
 class ObjectKnowledgeProvider:
+    provider_id = 'object-read-through-v1'
+    ranking = 'literal-terms-v1'
     def __init__(self, console):
         self.console = console
         self.db, self.scope = console.db, console.scope
@@ -31,7 +33,15 @@ class ObjectKnowledgeProvider:
         return sources.c.scope == self.scope, sources.c.id == source_id
 
     def capabilities(self):
-        return dict(CAPABILITIES)
+        return dict(CAPABILITIES, provider=self.provider_id)
+
+    async def rank(self, candidates, terms):
+        matches = []
+        for row, value, text in candidates:
+            score = sum(term in text.casefold() for term in terms)
+            if score:
+                matches.append((score, row, value, text))
+        return sorted(matches, key=lambda hit: (-hit[0], hit[1]['id']))
 
     async def source(self, source_id):
         if self.console.principal is not None:
@@ -136,7 +146,7 @@ class ObjectKnowledgeProvider:
         if not isinstance(query, str) or not query.strip() or len(query) > 500 or type(limit) is not int or not 1 <= limit <= 20:
             raise RuntimeErrorCode('INVALID_KNOWLEDGE_QUERY')
         snapshot, now = await self.snapshot()
-        matches, consumed = [], 0
+        candidates, consumed = [], 0
         terms = query.casefold().split()
         for row in snapshot:
             if row['state'] != 'active' or row['expires_at'] is not None and row['expires_at'] <= now:
@@ -150,10 +160,8 @@ class ObjectKnowledgeProvider:
             consumed += value['descriptor']['size']
             if consumed > CAPABILITIES['max_query_bytes']:
                 raise RuntimeErrorCode('KNOWLEDGE_QUERY_TOO_LARGE')
-            score = sum(term in text.casefold() for term in terms)
-            if score:
-                matches.append((score, row, value, text))
-        matches.sort(key=lambda hit: (-hit[0], hit[1]['id']))
+            candidates.append((row, value, text))
+        matches = await self.rank(candidates, terms)
         # A source replacement/delete during retrieval invalidates the response.
         current, now = await self.snapshot()
         if current != snapshot:
@@ -182,5 +190,5 @@ class ObjectKnowledgeProvider:
             raise RuntimeErrorCode('KNOWLEDGE_VIEW_CHANGED')
         expiries = {row['id']: row['expires_at'] for row in snapshot}
         results = [item for item in results if expiries[item['source_id']] is None or expiries[item['source_id']] > final_time]
-        return {'contract': 'dios.knowledge/v1', 'provider': CAPABILITIES['provider'], 'items': results,
-                'ranking': 'literal-terms-v1', 'cache': 'none'}
+        return {'contract': 'dios.knowledge/v1', 'provider': self.provider_id, 'items': results,
+                'ranking': self.ranking, 'cache': 'none'}

@@ -57,6 +57,7 @@ class Settings(BaseSettings):
     runtime_secrets_file: str = ""
     runtime_tools_file: str = ""
     runtime_approvers_file: str = ""
+    runtime_knowledge_provider: str = "object-read-through-v1"
 
     model_config = {"env_prefix": "DIOS_"}
 

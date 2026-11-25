@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "S02-2.02",
-    "next_delivery": "S02-2.02",
+    "next_work_item": "S02-2.03",
+    "next_delivery": "S02-2.03",
     "next_delivery_order": [
-      "S02-2.02",
+      "S02-2.03",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -32,7 +32,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "通用知识 Provider 契约及首个对象直读实现已部署，按 W2 顺序接入第二实现并复用相同契约；W1 恢复启用仍待源端隔离决策。"
+    "next_selection_reason": "两种知识 Provider 已通过相同契约及实际切换；按 W2 顺序完成检索授权和更新传播故障资格，复用现有证据；W1 恢复启用仍待源端隔离决策。"
   },
   "waves": [
     {
@@ -3197,7 +3197,7 @@
       "issue": 39,
       "title": "替代 Provider 接入",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "S02-2-A01",
         "S02-2-A02",
@@ -3210,8 +3210,10 @@
         "S02-2.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有授权检索和来源切片；替代 Provider 及更新删除传播资格待补。",
+      "completion_evidence": [
+        "docs/design/evidence/knowledge-provider-substitution-20261126.json"
+      ],
+      "basis": "对象直读与 SQLite FTS5 两实现通过相同契约夹具；真实 HTTP 切换和回切保留主体、来源版本、删除与幂等回执。",
       "existing_evidence": [
         "docs/design/evidence/business-evidence-20261123.json"
       ],

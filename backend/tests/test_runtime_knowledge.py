@@ -7,6 +7,7 @@ import unittest
 from app.runtime.database import Database
 from app.runtime.recovery import backup_sqlite, restore_sqlite
 from app.services.knowledge import ObjectKnowledgeProvider
+from app.services.knowledge_providers import knowledge_provider
 from app.services.task_console import TaskConsole
 import test_runtime_object_access as fixtures
 
@@ -127,7 +128,7 @@ class KnowledgeTests(unittest.IsolatedAsyncioTestCase):
         db = Database('sqlite+aiosqlite:///' + str(self.root / 'restored/state.sqlite'))
         console = TaskConsole(db, 'one', self.profiles, self.root / 'restored/objects', policy=self.console.policy)
         try:
-            result = await ObjectKnowledgeProvider(console).search('共同')
+            result = await knowledge_provider(console).search('共同')
             self.assertEqual(result['items'][0]['object_ref'], ref)
             self.assertEqual(result['items'][0]['source_revision'], 2)
         finally:

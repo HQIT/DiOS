@@ -50,7 +50,7 @@ CLI 提供 `dios knowledge capabilities/search/show/apply`；`apply SOURCE_ID --
 | 主体或对象撤销 | 使用当前凭据和对象权限重新检查 | 已下载到调用方的副本不受服务端删除控制 |
 | 对象删除或派生失效 | ObjectReader 拒绝，检索结果不含该内容 | 沿用对象墓碑、恢复与共享内容回收规则 |
 
-Provider 必须区分 `accepted`、`applied`、`failed`。只有对应索引完成更新、缓存失效完成或明确未使用缓存时，才能报告 `applied`。异步 Provider 应暴露稳定操作 ID 和查询状态；控制面观察超时不触发重复写入。替代 Provider 在 S02-2.02 实现并验证相同语义。
+Provider 必须区分 `accepted`、`applied`、`failed`。只有对应索引完成更新、缓存失效完成或明确未使用缓存时，才能报告 `applied`。异步 Provider 应暴露稳定操作 ID 和查询状态；控制面观察超时不触发重复写入。当前两种实现共用事务化来源绑定与回执。
 
 首个 `object-read-through-v1` 实现采用事务化的对象引用索引，每次查询重新读取对象，不保存派生文本索引或结果缓存。来源变更和回执在同一数据库事务提交，报告 `index_status: applied`、`cache_status: not_used`。授权、到期和删除直接作用于权威对象读取，无额外异步索引副本。响应均为 `no-store`。
 
@@ -60,7 +60,24 @@ Provider 必须区分 `accepted`、`applied`、`failed`。只有对应索引完�
 
 知识检索、图谱和记忆 Provider 共用来源版本、授权上下文、更新/删除回执和失效语义。图边、记忆记录等派生结果须关联全部来源版本，任一必需来源不可读时不得输出其派生文本。具体查询语言、向量维度、图遍历和记忆写入属于显式声明的扩展操作，不静默退化为字面检索。
 
-模型和业务应用通过稳定契约消费结果；Provider 不获得调用者未授予的对象权限。后续接入可使用 MCP 工具或专用适配器，仍需保留当前受控工具链。替代实现、缓存失效故障、Agent 工具集成的完整资格分别由 S02-2.02/.03 承接。
+模型和业务应用通过稳定契约消费结果；Provider 不获得调用者未授予的对象权限。后续接入可使用 MCP 工具或专用适配器，仍需保留当前受控工具链。替代实现由 S02-2.02 交付；完整更新故障矩阵与 Agent 工具集成资格由 S02-2.03 承接。
+
+## FTS5 替代实现
+
+通过部署配置 `DIOS_RUNTIME_KNOWLEDGE_PROVIDER` 选择 `object-read-through-v1`（默认）或 `sqlite-fts5-v1`。重启 API 生效，SDK 和 CLI 请求不变。来源 ID、修订号、权限和历史留在相同权威存储中。查询参数不允许指定 Provider；配置未知或引擎不可用返回明确错误，不静默切回另一实现。
+
+| 实现 | 检索执行 | 内容副本 |
+| --- | --- | --- |
+| `object-read-through-v1` | 获准文本逐条字面匹配 | 请求内缓冲 |
+| `sqlite-fts5-v1` | 获准文本的 SQLite FTS5 trigram 索引与 MATCH | 独立内存数据库，单次查询结束关闭 |
+
+FTS5 索引在对象授权和完整性校验之后建立，只包含当前主体可读内容。排序后沿用来源修订、到期时间和对象权限复核。它不共享检索结果缓存，也不保存跨查询文本副本；新查询重新取得当前来源与权限。因此，删除、替换和撤销无需等待旁路索引同步。该实现验证第二检索引擎的可替换性；持久索引、语义检索和更大规模数据仍按后续 Provider 与容量任务推进。
+
+[SQLite FTS5 trigram](https://sqlite.org/fts5.html#the_trigram_tokenizer)支持子串匹配，少于三个 Unicode 字符不能使用 MATCH 命中。本适配器对短词显式使用 SQLite `instr`，对其余词使用转义后的字面 MATCH；大小写统一 casefold，不把用户输入作为 FTS 查询语言执行。排序保持命中词数与来源 ID 的稳定顺序。
+
+[SQLite 内存数据库](https://sqlite.org/inmemorydb.html)在连接关闭时释放。索引构建和查询在工作线程执行，取消通过停止信号与 SQLite progress handler 传入，等待线程结束后返回取消；引擎执行预算为 10 秒，超时返回 `KNOWLEDGE_QUERY_INTERRUPTED`。源码、依赖或运行镜像缺少 FTS5/trigram 时返回 `KNOWLEDGE_PROVIDER_UNAVAILABLE`。capabilities 暴露实际 SQLite 版本与索引生命周期。
+
+[SQLite 本体属于公有领域](https://sqlite.org/copyright.html)，可随产品分发。此适配复用 Python 运行镜像的 SQLite 库，不引入独立数据库服务或客户业务模型；镜像中的其他组件仍遵守各自许可。Runtime 元数据后端与检索引擎独立选择。
 
 ## 方案依据
 

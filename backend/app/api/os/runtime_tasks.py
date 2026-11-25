@@ -27,6 +27,8 @@ class RuntimeRoute(APIRoute):
                 if exc.code.startswith('AUTH_'):status=403
                 if exc.code=='AUTH_UNAUTHENTICATED':status=401
                 if exc.code=='AUTH_PROVIDER_UNAVAILABLE':status=503
+                if exc.code=='KNOWLEDGE_PROVIDER_UNAVAILABLE':status=503
+                if exc.code=='KNOWLEDGE_QUERY_INTERRUPTED':status=504
                 if exc.code in {'PREVIEW_TOO_LARGE','PREVIEW_NOT_TEXT'}:status=413
                 raise HTTPException(status,detail=exc.code,headers={'Cache-Control':'no-store'}) from None
             except (SQLAlchemyError,OSError,ValueError):
