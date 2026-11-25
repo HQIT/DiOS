@@ -17,6 +17,12 @@ async def execute(args):
     if args.command == 'spool-status':
         return await asyncio.to_thread(ReportSpool.inspect, args.file)
     if args.command == 'backup-verify': return await asyncio.to_thread(verify_backup,args.bundle)
+    if args.command == 'installation-backup':
+        from app.services.installation_backup import backup_installation
+        return await asyncio.to_thread(backup_installation,json.loads(Path(args.plan).read_text()),args.destination,timeout=args.timeout,max_tree_bytes=args.max_tree_bytes)
+    if args.command == 'installation-verify':
+        from app.services.installation_backup import verify_installation
+        return await asyncio.to_thread(verify_installation,args.bundle)
     if args.command == 'restore': return await restore_sqlite(args.bundle,args.destination)
     if args.command=='remote-worker':
         from .remote_runtime import serve_remote
@@ -286,6 +292,10 @@ def main(argv=None):
     backup.add_argument('--timeout',type=float,default=60)
     backup.add_argument('--config-file',action='append',default=[],metavar='NAME=PATH',help='include an explicit configuration file; repeat for each required file')
     verify=commands.add_parser('backup-verify');verify.add_argument('bundle')
+    installation=commands.add_parser('installation-backup',help='capture an explicit installation plan without changing live scheduling')
+    installation.add_argument('--plan',required=True);installation.add_argument('--destination',required=True)
+    installation.add_argument('--timeout',type=float,default=120);installation.add_argument('--max-tree-bytes',type=int,default=1024**3)
+    installation_verify=commands.add_parser('installation-verify');installation_verify.add_argument('bundle')
     restore=commands.add_parser('restore',help='restore into a new directory with scheduling held')
     restore.add_argument('bundle');restore.add_argument('destination')
     upgrade=commands.add_parser('upgrade',help='persistent scope drain; active work finishes naturally')

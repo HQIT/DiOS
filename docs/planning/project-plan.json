@@ -1064,13 +1064,10 @@
         "K02-3.03"
       ],
       "backup_inventory": {
-        "status": "in_progress",
+        "status": "engineering_verified",
         "work_item": "K02-3.01",
-        "evidence": "docs/design/evidence/backup-inventory-20261125.json",
-        "remaining": [
-          "Include compatibility service database and verify cross-store managed-object references in the installation manifest",
-          "Capture required workspace inputs and Worker spool records with explicit consistency and recovery ownership"
-        ]
+        "evidence": "docs/design/evidence/installation-backup-20261125.json",
+        "next": "K02-3.02 clean installation restoration and remote reauthentication"
       }
     },
     {
@@ -3041,7 +3038,7 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-3.01",
+    "next_work_item": "K02-3.02",
     "next_delivery": "K02-3.03",
     "next_delivery_order": [
       "K02-3.03",
@@ -3056,6 +3053,7 @@
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
       "#46 诊断导出未验证 WIP 已保存在 git stash，待 K04-3.02 顺序到达后处理。"
-    ]
+    ],
+    "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。"
   }
 }

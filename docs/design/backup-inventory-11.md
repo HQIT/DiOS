@@ -25,7 +25,38 @@ backend/.venv/bin/python cli/dios runtime backup-verify /srv/backup/new-bundle
 
 备份目录和配置文件使用私有权限；配置可能包含敏感内容。Secret 服务中的密钥不按引用自动抓取。恢复仅将配置放入新目录，不自动覆盖运行中的配置或解除 `restore_hold`。
 
-## 当前覆盖与待完成部分
+## 安装级备份
+
+`installation-backup` 将 Runtime 恢复包、兼容服务数据库、必要工作目录及 Worker 离线补报纳入同一清单。安装编排位于 `app.services`，复用 Runtime 的快照、产物与授权引用校验；内核数据模型不依赖业务应用。兼容执行记录的 `run_id` 保留原身份，与 Runtime Run 分别校验。
+
+计划文件使用绝对路径，示例：
+
+```json
+{
+  "format": 1,
+  "runtime_database_url": "sqlite+aiosqlite:////srv/dios/runtime.sqlite",
+  "service_database_url": "sqlite+aiosqlite:////srv/dios/service.sqlite",
+  "artifacts": "/srv/dios/objects",
+  "configuration": [{"id": "profiles", "path": "/srv/dios/profiles.json"}],
+  "workspaces": [{"id": "agents", "path": "/srv/dios/agents"}],
+  "spools": [],
+  "external": []
+}
+```
+
+```sh
+backend/.venv/bin/python cli/dios runtime installation-backup \
+  --plan /srv/dios/backup-plan.json --destination /srv/backup/new-installation
+backend/.venv/bin/python cli/dios runtime installation-verify /srv/backup/new-installation
+```
+
+本地产物目录的 `.reports-<scope摘要>.sqlite` 自动收集；其他 Worker 的 spool 通过计划显式提供。补报校验原 Run、Attempt、scope、Worker 实例、epoch、事件序号和内容摘要，备份过程不发送补报。已知工作目录或 MCP 配置必须存在于捕获内容中，或通过 `external` 的 `kind`、`reference`、`recovery` 明确恢复安排。
+
+服务数据库与 spool 使用 SQLite 原生快照，清单记录逐表摘要、Schema 和关联。各数据库分别保持一致，跨库依据持久引用核验；需要共同业务时点时，应先排空相关写入。工作目录适用于稳定输入文件，使用有界复制与复查；发现变化、软链接或特殊文件即失败，保留空目录及可执行标志。在线数据库应使用数据库快照 Provider，不能作为普通工作目录文件复制。当前文件树 Provider 使用 POSIX `dir_fd` / `O_NOFOLLOW`，Windows ACL 备份另需 Provider。[Python os](https://docs.python.org/3/library/os.html#os.open)
+
+默认工作目录总量上限为 1 GiB，每棵树最多 20,000 个文件；可通过 `--max-tree-bytes` 调整总字节上限。服务数据库可能包含凭据，恢复包采用私有权限，应置于受控存储。完整 `installation.json` 最后发布；缺少该文件的目录视为未完成备份。安装验证可脱离来源路径独立完成。
+
+## 覆盖范围
 
 | 数据 | 当前恢复包 |
 | --- | --- |
@@ -34,10 +65,10 @@ backend/.venv/bin/python cli/dios runtime backup-verify /srv/backup/new-bundle
 | 本地产物、归档、远程上传分块、工具回执 | 依照已有持久引用复制并校验摘要 |
 | 显式配置文件 | 捕获字节、源文件变化检测、私有副本和恢复 |
 | 固定镜像与模型/端点 | 记录可获得的引用；镜像须独立保存，远端内部实现不可恢复 |
-| 工作目录、各 Worker spool | 记录恢复需要，安装级收集仍待接入 |
-| 兼容服务数据库与跨库关联 | 安装级备份及联合一致性校验仍待接入 |
+| 工作目录、各 Worker spool | 显式工作目录、自动本地补报及显式远端副本；内容摘要和执行身份校验 |
+| 兼容服务数据库与关联 | 原生快照、逐表摘要、任务/服务归属及 scope 校验；保留独立执行身份 |
 | PostgreSQL | 当前命令明确返回不支持；后续 Provider 采用原生工具 |
 
 PostgreSQL 的原生 `pg_dump` 支持并发访问下的一致导出；跨数据库、文件和 Worker 数据仍需平台恢复清单关联。[PostgreSQL 16 pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html)
 
-K02-3.01 保持进行中，直到安装级清单覆盖兼容服务库、必要 workspace 与 Worker spool，并完成关联验证。K02-3.02 承接干净实例恢复和远端重认证，K02-3.03 承接升级、回退及恢复计时。三项的原有范围和工作项数量保持不变。
+K02-3.01 的安装清单包含兼容服务库、必要 workspace 与 Worker spool，工程证据见 [安装备份验证](evidence/installation-backup-20261125.json)。K02-3.02 承接干净实例恢复和远端重认证，K02-3.03 承接升级、回退及恢复计时。恢复历史授权和补报记录后，须隔离原调度器并重新认证、对账，才可恢复执行或补报；备份校验本身不授予执行权限。

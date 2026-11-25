@@ -7,7 +7,7 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-3.01",
+    "next_work_item": "K02-3.02",
     "next_delivery": "K02-3.03",
     "next_delivery_order": [
       "K02-3.03",
@@ -22,7 +22,8 @@
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
       "#46 诊断导出未验证 WIP 已保存在 git stash，待 K04-3.02 顺序到达后处理。"
-    ]
+    ],
+    "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。"
   },
   "waves": [
     {
@@ -1693,7 +1694,7 @@
       "issue": 11,
       "title": "完整一致性备份清单",
       "kind": "I",
-      "state": "in_progress",
+      "state": "done",
       "requirements": [
         "K02-3-A01",
         "K02-3-A02"
@@ -1705,19 +1706,15 @@
         "K02-1.03"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
+      "completion_evidence": [
+        "docs/design/evidence/backup-inventory-20261125.json",
+        "docs/design/evidence/installation-backup-20261125.json"
+      ],
       "basis": "已有恢复演练；需纳入新增版本、委派、工具回执与完整产物的一致性恢复。",
       "existing_evidence": [
         "docs/design/evidence/recovery-drill-20261111.json"
       ],
-      "wave": "W1",
-      "progress_evidence": [
-        "docs/design/evidence/backup-inventory-20261125.json"
-      ],
-      "remaining_detail": [
-        "Include compatibility service database and verify cross-store managed-object references in the installation manifest",
-        "Capture required workspace inputs and Worker spool records with explicit consistency and recovery ownership"
-      ]
+      "wave": "W1"
     },
     {
       "id": "K02-3.02",

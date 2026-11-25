@@ -1,0 +1,113 @@
+{
+  "work_item": "K02-3.01",
+  "status": "engineering_verified",
+  "base_commit": "12c12c1af1c680bcf8c0e4c3ca3f36ae73632a9f",
+  "delivered": [
+    "Installation manifest composes Runtime snapshot and immutable objects, compatibility service state, configuration, workspace inputs and Worker report spools",
+    "Service schema and managed task/service references, scope ownership and independent execution identities verified",
+    "Local report spools discovered; original Run/Attempt/Worker/epoch/event/digest bindings preserved and checked",
+    "Bounded POSIX file-tree capture rejects drift, symlinks and special files; explicit external recovery declarations for uncaptured referenced resources",
+    "Standalone verification after removal of source paths; backup does not execute tasks or deliver pending reports"
+  ],
+  "tests": {
+    "development_affected_suites": {
+      "total": 19,
+      "passed": 19,
+      "skipped": 0,
+      "seconds": 57.198
+    },
+    "final_image_installation_suite": {
+      "total": 12,
+      "passed": 12,
+      "skipped": 0,
+      "seconds": 18.493
+    },
+    "selection": "12 final installation cases cover changed components and CLI imports; unchanged Runtime backup regression evidence is reused. No frontend changes or model calls."
+  },
+  "native": {
+    "passed": true,
+    "data": "synthetic compatibility task and independent Runtime Attempt; real SQLite stores, spool and filesystem",
+    "backup_cli_pid": 422259,
+    "writer_pid": 422257,
+    "commits_during_cli_capture": 19,
+    "runtime_run_id": "511e2c89-5850-4633-a786-2055f0b76342",
+    "attempt_id": "9490b710-6ae6-481e-93c9-681c35202cfd",
+    "source_unchanged_execution_state": true,
+    "spool_not_delivered": true,
+    "verify_after_source_removed": true
+  },
+  "native_measurement": "Writer commits counted during CLI process lifetime, including startup; component databases have separate snapshot points.",
+  "native_final_source_verification": "passed after source fixture removal; no second capture/model execution",
+  "image": {
+    "image": "sha256:5978ecb5074c8485d2ee5e32f24233a758f7e044cdc877790a80689c73df448b",
+    "base": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "tag": "dios-backend:installation-backup-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "development": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "compatibility_version": 1,
+      "changed": false
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "reused_evidence": [
+    "docs/design/evidence/backup-inventory-20261125.json"
+  ],
+  "limits": [
+    "SQLite installation Provider; POSIX workspace files; PostgreSQL and Windows ACL Providers not qualified",
+    "Independent database snapshots have no shared transaction; stable file inputs are required; use a drain window for a common business checkpoint",
+    "Native integration fixture is synthetic; no production Codeup migration",
+    "Clean installation restoration and remote reauthentication remain K02-3.02; upgrade/recovery timing remains K02-3.03",
+    "Original controllers must be fenced and old authorization reauthenticated/reconciled before execution or spool delivery",
+    "Offline qualification image and development supervisor use identical backend source"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/cli.py": "6a8b3ffbe7f51ea9be335f2595401672250a46e94e2ec316ef404e7c93983db1",
+    "backend/app/runtime/backup_tree.py": "38543db64f4242dd7d2f66bef428ee337270e5105c7d62a50e9e7f01e70d1555",
+    "backend/app/services/installation_backup.py": "91b0919945bfdee557354513a016c6956b8ff5278d436216f9802ea0579697fb",
+    "backend/app/services/installation_catalog.py": "7b93fcda51bbb222d4e6afa964a7cf605f2434e1b4c31defa0e3094400ce355c",
+    "backend/tests/test_installation_backup.py": "d8286beabb6ba057bf7a71b2bf58540c1522e5fbdf9b7652fbc09105c3d8e080"
+  }
+}
