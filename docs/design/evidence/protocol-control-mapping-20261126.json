@@ -1,0 +1,48 @@
+{
+  "work_item": "K01-4.03",
+  "status": "engineering_verified",
+  "primary_harness": "Cursor ACP",
+  "tests": {
+    "new_combination_tests": 5,
+    "passed": 5,
+    "native_operations_rejected": 7,
+    "changed_control_boundaries_rejected": [
+      "image",
+      "command",
+      "network",
+      "read_only_root"
+    ],
+    "transport": "SDK client to real Worker Unix socket and SQLite; synthetic tool transport"
+  },
+  "reused_evidence": [
+    "docs/design/evidence/cursor-native-controls-20261126.json",
+    "docs/design/evidence/acp-sessions-20261125.json",
+    "docs/design/evidence/a2a-recovery-20261125.json"
+  ],
+  "deployment": {
+    "runtime_source_changed": false,
+    "reused_run_id": "c1d03cff-e5cb-4bdb-af8d-55988805f2d9",
+    "result": "succeeded",
+    "new_model_invocations": 0
+  },
+  "limits": [
+    "Qualification admission is operator-owned; configuration and permission digests enforce the admitted boundary, not an automatic test-report trust service.",
+    "ACP client capability flags do not sandbox Harness-internal operations; fixed Cursor policy and container controls supply that enforcement.",
+    "Remote A2A does not inherit local native-tool or network qualification.",
+    "Other Harness real qualification remains deferred to K01-5.01."
+  ],
+  "source_sha256": {
+    "sdk/python/src/dios_sdk/acp.py": "3c3a7a9795d3652329092aa753ecfe56920901a0f2a3fa427e1ef682b46586d1",
+    "sdk/python/src/dios_sdk/acp_sessions.py": "7ca412e894f4faeabf92dd24eb3c5da62e46045cc15abd9b376ee092014c6df2",
+    "sdk/python/src/dios_sdk/cursor.py": "4f5465e9aa1d013b5840ca6dd539f1d43e26d204b6d031da7f631c94afab0b85",
+    "backend/app/runtime/worker_tool_channel.py": "a48b3127b72810c2baec8d8b9c60e57fcd9fd577fed5379990e7b699edb28c4b",
+    "backend/app/runtime/work_policy.py": "94f969595dec31058111630c5dcc1ee77516c5108f68ab0cd0c51c0b530ba44a",
+    "backend/app/services/task_console.py": "8ceec87fb1486e247eb802de20422e2d841a3aa998e70f468d2b610f6fb1bf67",
+    "backend/tests/test_runtime_capability_controls.py": "35446948870a161f73d2c361a49b69333229ec5bfaa60afbbcfc04cab068bc2d"
+  },
+  "references": [
+    "https://agentclientprotocol.com/protocol/v1/initialization",
+    "https://agentclientprotocol.com/protocol/v1/file-system",
+    "https://cursor.com/docs/cli/reference/permissions"
+  ]
+}
