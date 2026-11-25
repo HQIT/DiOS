@@ -35,8 +35,8 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         self.profile['remote']['endpoint'] = 'https://changed.example/rpc'
         _, _, spec, _, _ = await load_profile(self.console.store.db, self.console.store.scope, ref)
         self.assertEqual(spec.endpoint, 'https://remote.example/rpc')
-        from app.runtime.endpoint_compatibility import Compatibility, a2a_snapshot
         from a2a.types import AgentCard
+        from app.runtime.endpoint_compatibility import Compatibility, a2a_snapshot
         compatibility = Compatibility(self.db, "one")
         observed = await compatibility.observe(spec.fingerprint(), a2a_snapshot(AgentCard.model_validate(self.card), spec))
         await compatibility.accept(spec.fingerprint(), observed['version'], observed['snapshot_digest'], 'qualification', 'Fixture protocol and result contract reviewed')
@@ -92,6 +92,7 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         self.cancel_pending = False
         self.started = asyncio.Event()
         self.query = asyncio.Event()
+        self.cancel_seen = asyncio.Event()
         self.remote = {
             "kind": "task",
             "id": "remote-task-1",
@@ -158,6 +159,7 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
             if self.auto_complete and self.remote["status"]["state"] == "working":
                 self.complete()
         elif method == "tasks/cancel":
+            self.cancel_seen.set()
             if not self.cancel_pending:
                 self.remote["status"] = {"state": "canceled"}
         else:
@@ -180,6 +182,24 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
             ),
             **kwargs,
         )
+
+    async def await_worker_event(self, process, event):
+        """Synchronize on protocol progress, with a bounded deadlock guard."""
+        waiter = asyncio.create_task(event.wait())
+        try:
+            done, _ = await asyncio.wait(
+                {process, waiter}, timeout=15, return_when=asyncio.FIRST_COMPLETED
+            )
+            if process in done:
+                self.fail(f"Worker exited before protocol checkpoint: {process.result()}")
+            self.assertIn(waiter, done, "Worker did not reach protocol checkpoint")
+        finally:
+            waiter.cancel()
+            await asyncio.gather(waiter, return_exceptions=True)
+
+    async def stop_worker(self, process):
+        process.cancel()
+        await asyncio.gather(process, return_exceptions=True)
 
     async def test_shared_capacity_blocks_a2a_before_any_remote_request(self):
         from app.runtime.capacity import Capacity
@@ -316,7 +336,8 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         run = await self.submit()
         worker = self.worker()
         process = asyncio.create_task(worker.once())
-        await asyncio.wait_for(self.query.wait(), 3)
+        self.addAsyncCleanup(self.stop_worker, process)
+        await self.await_worker_event(process, self.query)
         process.cancel()
         await asyncio.gather(process, return_exceptions=True)
         await self.expire(run["id"])
@@ -347,14 +368,13 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         run = await self.submit()
         worker = self.worker()
         process = asyncio.create_task(worker.once())
-        await asyncio.wait_for(self.query.wait(), 3)
+        self.addAsyncCleanup(self.stop_worker, process)
+        await self.await_worker_event(process, self.query)
         current = await self.console.store.get(run["id"])
         await self.console.store.cancel(run["id"], current["version"])
-        for _ in range(60):
-            current = await self.console.store.get(run["id"])
-            if current["attempts"][0]["remote"]["a2a"]["cancel_requested_at"]:
-                break
-            await asyncio.sleep(0.05)
+        await self.await_worker_event(process, self.cancel_seen)
+        current = await self.console.store.get(run["id"])
+        self.assertIsNotNone(current["attempts"][0]["remote"]["a2a"]["cancel_requested_at"])
         self.assertNotIn(current["state"], {"cancelled", "succeeded"})
         process.cancel()
         await asyncio.gather(process, return_exceptions=True)
@@ -370,10 +390,11 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         self.auto_complete = False
         run = await self.submit()
         process = asyncio.create_task(self.worker().once())
-        await asyncio.wait_for(self.query.wait(), 3)
+        self.addAsyncCleanup(self.stop_worker, process)
+        await self.await_worker_event(process, self.query)
         current = await self.console.store.get(run["id"])
         await self.console.store.revoke(run["id"], current["version"])
-        result = await asyncio.wait_for(process, 5)
+        result = await asyncio.wait_for(process, 15)
         self.assertEqual("failed", result["state"], result["attempts"][0]["error"])
         self.assertEqual("AUTH_REVOKED", result["attempts"][0]["error"]["code"])
         self.assertEqual("canceled", self.remote["status"]["state"])

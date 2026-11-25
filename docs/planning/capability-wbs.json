@@ -7,9 +7,12 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-3.02",
-    "next_delivery": "K02-3.03",
+    "next_work_item": "K01-4.02",
+    "next_delivery": "K03-2.01",
     "next_delivery_order": [
+      "K03-2.01",
+      "K01-4.03",
+      "K02-3.02",
       "K02-3.03",
       "D01-1.03"
     ],
@@ -21,7 +24,8 @@
     "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
-      "#46 诊断导出未验证 WIP 已保存在 git stash，待 K04-3.02 顺序到达后处理。"
+      "#46 诊断导出未验证 WIP 已保存在 git stash，待 K04-3.02 顺序到达后处理。",
+      "K02-3.02 等待源端隔离方式选择；当前先推进 W1 已就绪的 Harness 恢复与治理资格，原恢复验收保留。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
@@ -1724,7 +1728,7 @@
       "issue": 11,
       "title": "干净恢复与远端再认证资格",
       "kind": "V",
-      "state": "in_progress",
+      "state": "blocked",
       "requirements": [
         "K02-3-A01",
         "K02-3-A02",
@@ -1751,7 +1755,8 @@
         "docs/design/evidence/installation-restore-hold-20261125.json",
         "docs/design/evidence/restore-remote-20261125.json",
         "docs/design/evidence/restore-readiness-20261125.json"
-      ]
+      ],
+      "blocking_reason": "恢复启用前的源控制面隔离方式待用户选择：管理员完成隔离并确认，或独立仲裁/基础设施 fencing；保持恢复冻结。"
     },
     {
       "id": "K02-3.03",
@@ -2000,7 +2005,7 @@
       "issue": 56,
       "title": "活动会话恢复与能力协商补齐",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "K01-4-A02",
         "K01-4-A03",
@@ -2011,7 +2016,9 @@
       "verification": "按已验证协议恢复；DSH 无历史重放等差异明确，未支持返回稳定错误且不自动重放未知动作",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
+      "completion_evidence": [
+        "docs/design/evidence/protocol-recovery-closure-20261125.json"
+      ],
       "basis": "已有 A2A 0.3、ACP 及 Cursor/DSH/Codex；活动恢复和能力差异需收口。",
       "existing_evidence": [
         "docs/design/evidence/a2a-runtime-20261125.json",
@@ -2019,7 +2026,8 @@
         "docs/design/evidence/a2a-recovery-20261125.json",
         "docs/design/evidence/acp-sessions-20261125.json"
       ],
-      "wave": "W1"
+      "wave": "W1",
+      "design_reference": "docs/design/protocol-recovery-matrix-56.md"
     },
     {
       "id": "K01-4.02",

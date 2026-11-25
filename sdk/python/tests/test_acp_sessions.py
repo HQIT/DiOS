@@ -95,6 +95,8 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         }
 
     async def test_history_tool_records_never_become_live_execution_or_output(self):
+        emitted = []
+        self.peer.emit = emitted.append
         task, request = await self.restore_request()
         self.assertEqual(
             request["params"],
@@ -108,11 +110,14 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         self.frame(
             self.update("tool_call", toolCallId="old", rawInput={"query": "old"})
         )
+        self.frame(self.update("usage_update", used=100, size=1000))
         self.frame({"id": request["id"], "result": {}})
         await task
         snapshot = self.peer.snapshot()
         self.assertTrue(snapshot["complete"])
-        self.assertEqual(len(snapshot["history"]), 2)
+        self.assertEqual(len(snapshot["history"]), 3)
+        self.assertEqual(emitted, [])
+        self.assertEqual(self.peer.usage_sequence, 0)
         self.assertFalse(snapshot["execution_resumed"])
         self.assertEqual(self.peer.output, "")
         self.assertEqual(self.peer.tool_activity, {})

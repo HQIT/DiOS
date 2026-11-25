@@ -1,0 +1,108 @@
+{
+  "date": "2026-11-25",
+  "work_item": "K01-4.01",
+  "source_head": "e6779f975c739063ec6bc29ab8f098f2de516567",
+  "scope": "ACP v1 session inspection and A2A 0.3 original-task reconciliation; Linux/WSL qualification",
+  "matrix": "docs/design/protocol-recovery-matrix-56.md",
+  "source_sha256": {
+    "sdk/python/src/dios_sdk/acp_sessions.py": "7ca412e894f4faeabf92dd24eb3c5da62e46045cc15abd9b376ee092014c6df2",
+    "sdk/python/src/dios_sdk/acp.py": "3c3a7a9795d3652329092aa753ecfe56920901a0f2a3fa427e1ef682b46586d1",
+    "backend/app/runtime/a2a_worker.py": "b9e04293c2780b2a224682184b63d802d75469d5db18f93b6e199de7817d42a2",
+    "backend/app/runtime/a2a_execution.py": "2e0b86c89a52dc3e127796869de4fccb3edc1a732118f5bc2fc314b84beb0aee",
+    "backend/app/runtime/a2a_recovery.py": "754ecda85c8a79a61d1558ac52e528f1c9d7cd5aafe152f8bdb7ad46a01d95fe",
+    "backend/tests/test_runtime_a2a_outbound.py": "a127b2fbb573ec8ddcb91276d560daacd1e95785f928c2a014f281505ba84d0d",
+    "sdk/python/tests/test_acp_sessions.py": "24351dba52d28b52e74ba9d38e42b27fc6c65751046f031fe855f8c977cfad1f"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/design/evidence/acp-sessions-20261125.json",
+      "sha256": "62594a3eacc77b446ddcc3ae9d87f7c88c9e56f7e0ea3f3d1a42673cd283e8e6"
+    },
+    {
+      "path": "docs/design/evidence/a2a-runtime-20261125.json",
+      "sha256": "e3705ed0bafbb4745e1814e84dd7b894eaf29f38f52b1a6ab69230e790236cdd"
+    },
+    {
+      "path": "docs/design/evidence/a2a-outbound-20261125.json",
+      "sha256": "b6759d3c798b6785ab10fe940b91f51619a66039d31f71897958e28bbee491ba"
+    },
+    {
+      "path": "docs/design/evidence/a2a-recovery-20261125.json",
+      "sha256": "fa9d88601eaa07faebca770311187124d6a156db285e73eba57912a0742ee970"
+    },
+    {
+      "path": "docs/design/evidence/a2a-preflight-20261125.json",
+      "sha256": "ab639adb69562bfed403181a6a48ecc0d459a2c5ad2ccaf15658ebeb090a4aba"
+    }
+  ],
+  "reuse_basis": {
+    "acp_sessions": "Inspector source unchanged from the real three-harness probes; current client historical usage notification is additionally checked.",
+    "a2a": "Earlier real HTTP/independent Worker evidence retained; current shared revision/capacity integration exercised by focused contracts."
+  },
+  "qualification": {
+    "initial": {
+      "passed": false,
+      "total": 25,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 3,
+      "seconds": 126.975,
+      "selection": [
+        "test_acp_sessions",
+        "test_runtime_a2a_outbound.OutboundTests.test_submit_response_loss_stays_unknown_without_resending",
+        "test_runtime_a2a_outbound.OutboundTests.test_query_timeout_recovers_same_task_without_model_resubmission",
+        "test_runtime_a2a_outbound.OutboundTests.test_response_receipt_recovers_after_database_write_failure",
+        "test_runtime_a2a_outbound.OutboundTests.test_worker_loss_queries_remote_after_lease_expiry",
+        "test_runtime_a2a_outbound.OutboundTests.test_cancel_requires_remote_terminal_and_restart_preserves_intent",
+        "test_runtime_a2a_outbound.OutboundTests.test_revocation_cancels_remote_and_never_accepts_result",
+        "test_runtime_a2a_outbound.OutboundTests.test_recovery_rejects_changed_profile_and_retains_unknown",
+        "test_runtime_a2a.RuntimeA2ATests.test_strict_wire_errors_and_unsupported_capabilities",
+        "test_runtime_a2a.RuntimeA2ATests.test_concurrent_replay_context_conflict_and_restart",
+        "test_runtime_a2a.RuntimeA2ATests.test_response_lost_after_commit_reuses_work_and_binding",
+        "test_runtime_a2a.RuntimeA2ATests.test_active_cancel_waits_for_exit_evidence_and_repeats_idempotently",
+        "test_runtime_a2a_recovery.RecoveryTests.test_completed_result_download_recovers_without_resubmission",
+        "test_runtime_a2a_recovery.RecoveryTests.test_rate_limit_persists_and_respects_retry_after_on_restart",
+        "test_runtime_a2a_recovery.RecoveryTests.test_quota_has_long_cooldown_and_single_probe_across_workers",
+        "test_runtime_a2a_preflight.PreflightTests.test_ambiguous_post_is_never_retried_after_successful_discovery"
+      ],
+      "log_sha256": "fa57c461f1e5f12ee73bc7222bf35cad0d2c47cc05d0bf20a76ebe9835c51af7"
+    },
+    "targeted_recheck": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 6.049,
+      "cases": [
+        "test_worker_loss_queries_remote_after_lease_expiry",
+        "test_cancel_requires_remote_terminal_and_restart_preserves_intent",
+        "test_revocation_cancels_remote_and_never_accepts_result"
+      ],
+      "result_source": "exec output a3a6e2, python -m unittest, exit 0",
+      "fix": "Protocol-event synchronization with a bounded deadlock guard and early Worker-exit diagnostics; cancellation checkpoint asserted. Runtime deadlines unchanged."
+    },
+    "accepted_unique_tests": 25,
+    "new_model_calls": 0,
+    "production_code_changed": false
+  },
+  "acceptance": {
+    "K01-4-A02": "Original Task/Session identifiers retained; current result authority and schema checks; no new prompt during ACP inspection.",
+    "K01-4-A03": "Unsupported methods fail without RPC or task creation; unknown submit outcomes are not resent; query and reconciliation retain current authority.",
+    "K01-4-A05": "Explicit ACP negotiation records DSH resume with zero history; Runtime A2A 0.3 and legacy compatibility paths are separately identified in the matrix."
+  },
+  "limitations": [
+    "ACP original active prompt continuation is not qualified.",
+    "Physical cross-host qualification and supplier-internal tool enforcement remain separate work items.",
+    "Legacy compatibility service is not declared A2A 0.3 conformant."
+  ],
+  "deployment": {
+    "required": false,
+    "reason": "This delivery changes documentation and tests only; development runtime unchanged."
+  },
+  "references": [
+    "https://agentclientprotocol.com/protocol/v1/session-setup",
+    "https://a2a-protocol.org/v0.3.0/specification/",
+    "https://docs.python.org/3.12/library/asyncio-task.html#asyncio.wait"
+  ]
+}
