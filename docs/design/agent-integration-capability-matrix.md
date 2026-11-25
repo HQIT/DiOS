@@ -2,7 +2,7 @@
 
 日期：2026-11-11 · 关联：[F01-3 #57](https://github.com/HQIT/DiOS/issues/57) · 状态：能力勘察完成。执行实现、协议兼容整改和生产准入由 #25/#27/#30/#34/#35/#56/#58 承接。
 
-2026-11-24 工程证据：[Cursor 官方 SDK 接入、真实取消与撤权](acp-cancellation-56-58.md)、[DSH + ECNU Max 替换执行与 E2AG](dsh-acp-56-58.md)。DiOS 统一执行和治理能力；DiAgent、框架构建的 Agent、dsh、Codex、Cursor 等 Harness 经开放协议或独立 Adapter 接入。下表中的未验证能力继续按固定版本逐项验收。
+2026-11-24 工程证据：[Cursor 官方 SDK 接入、真实取消与撤权](acp-cancellation-56-58.md)、[DSH + ECNU Max 替换执行与 E2AG](dsh-acp-56-58.md)、[Codex ACP 与模型服务资格](codex-acp-56-58.md)。DiOS 统一执行和治理能力；DiAgent、框架构建的 Agent、dsh、Codex、Cursor 等 Harness 经开放协议或独立 Adapter 接入。下表中的未验证能力继续按固定版本逐项验收。
 
 ## 选择结论
 
@@ -22,7 +22,7 @@
 | Cursor | 本机固定版本 `2026.11.05-86047df` | 实测版本、ACP initialize/认证、新会话、ask 模式、合成代码输出和同进程 load；厂商服务及部署条款另行核定。 |
 | dsh | 发布包 `@deepseek-ai/dsh@0.2.2-rc.5`，Node 24，固定开发镜像 digest | 实测 ACP 生命周期、ECNU Max 模型与 E2AG 审批/拒绝/取消/撤权；官方包 MIT。 |
 | Codex 本机 | `0.167.0-alpha.3.2` | 实测版本、App Server 帮助与本地 JSON Schema 导出；未启动模型执行。 |
-| Codex ACP Adapter | `agentclientprotocol/codex-acp`，`ab7a968e982a95d8a765c1e6c6682a520d4f7638`；包字段 `2.6.0` | 文档声明；Apache-2.0；依赖 Codex `^0.166.0`，实际探测需锁定解析版本。旧 zed-industries 仓库已归档。 |
+| Codex ACP Adapter | 固定发布 `2.11.0`，CLI `0.172.0` | 官方账号实测任务、E2AG 审批/拒绝/取消/撤权与报告；Adapter Apache-2.0。ECNU namespace 工具不兼容，模型路由分别准入。 |
 | Claude Agent ACP | `agentclientprotocol/claude-agent-acp`，`51f514d73c8bfd786979c84adb7a8517dbc22695`；包字段 `0.106.0` | 文档声明；Apache-2.0；SDK `0.3.322`。CLI/服务使用权与 Adapter 许可分别核定。 |
 
 远端包字段是指定提交的源码版本，不表示已安装或已验证的发布组合。开源 Adapter 许可不自动覆盖模型服务、商标或厂商二进制再分发。
@@ -31,18 +31,18 @@
 
 | 维度 | DiAgent 当前路径 | Cursor ACP | dsh ACP | Codex | Claude Agent ACP |
 | --- | --- | --- | --- | --- | --- |
-| 入口 | 源码：DiOS task/service；内部容器或 HTTP | 实测入口：`agent acp`，stdio JSON-RPC | 实测：`dsh --profile acp`，stdio，ACP v1 | 本机 App Server；ACP 由 Adapter 转换 | SDK/CLI 驱动的 ACP Adapter |
-| 认证 | 平台入口 Token；执行环境另配 | 实测 cursor_login 成功；第二进程未取得成功认证结果 | 声明：ACP authenticate 无服务端认证；依赖可信本地控制者和模型凭据 | 声明：ChatGPT/API key/网关；实际账号待测 | 声明：供应方认证；无人值守路径待测 |
-| 任务/会话 | 源码：A2ATask 与 AgentRuntime；缺 Attempt | 实测 new、ask、含输出会话同进程 load；空会话 load 返回参数错误 | 实测 new/list/close、跨进程 resume；活动会话恢复待测 | Schema 有 thread/turn；Adapter 转为 ACP session | 声明 ACP；版本能力须协商 |
-| 更新与输出 | 服务路径当前非流式；任务读日志/文件 | 实测 session/update 与 end_turn，合成代码评审 JSON 可解析 | 实测提交后的文本/工具更新和 end_turn；无原始 provider delta | Schema/Adapter 声明流式 item/turn 与工具事件 | 声明工具、权限和输出事件 |
+| 入口 | 源码：DiOS task/service；内部容器或 HTTP | 实测入口：`agent acp`，stdio JSON-RPC | 实测：`dsh --profile acp`，stdio，ACP v1 | 实测 CLI 0.172.0 / Adapter 2.11.0 ACP v1 | SDK/CLI 驱动的 ACP Adapter |
+| 认证 | 平台入口 Token；执行环境另配 | 实测 cursor_login 成功；第二进程未取得成功认证结果 | 声明：ACP authenticate 无服务端认证；依赖可信本地控制者和模型凭据 | 实测官方账号只读凭据；其他 Provider 按工具协议准入 | 声明：供应方认证；无人值守路径待测 |
+| 任务/会话 | 源码：A2ATask 与 AgentRuntime；缺 Attempt | 实测 new、ask、含输出会话同进程 load；空会话 load 返回参数错误 | 实测 new/list/close、跨进程 resume；活动会话恢复待测 | 实测 ACP new、Run/Attempt/Session 关联；原生 load/resume 待验证 | 声明 ACP；版本能力须协商 |
+| 更新与输出 | 服务路径当前非流式；任务读日志/文件 | 实测 session/update 与 end_turn，合成代码评审 JSON 可解析 | 实测提交后的文本/工具更新和 end_turn；无原始 provider delta | 实测流式文本、MCP 事件与 end_turn；用量归因待验证 | 声明工具、权限和输出事件 |
 | 产物 | 源码内嵌 JSON/文本文件；缺验收 | 平台须从协议输出归集和校验 | 平台保存更新/产物；原始日志接入另定 | 平台保存事件/产物；不依赖可视界面 | 同左，需验证 SDK 返回完整度 |
-| 取消 | 源码主要修改记录状态，执行中断未闭环 | 实测 session/cancel → cancelled 确认及进程退出；SDK 保留迟到输出 | 实测审批中取消/撤权、cancelled 确认与 close；子任务已禁用 | Schema 有 turn/interrupt；ACP 映射待测 | 声明取消；子进程/子任务收敛待测 |
+| 取消 | 源码主要修改记录状态，执行中断未闭环 | 实测 session/cancel → cancelled 确认及进程退出；SDK 保留迟到输出 | 实测审批中取消/撤权、cancelled 确认与 close；子任务已禁用 | 实测 ACP cancelled 确认、session/close 和容器退出 | 声明取消；子进程/子任务收敛待测 |
 | 恢复 | 当前进程内轮询无持久恢复保证 | 同进程含输出会话 load 成功；跨进程、活动中断连、优雅退出仍待验证 | 实测跨进程 resume、拒绝 load；无历史重放，活动任务重接待测 | Schema 有 thread/resume；Adapter 历史和重连语义待测 | v1/v2 能力不同，选定版本测试恢复/重放 |
-| 权限控制 | 已有部分 MCP grant；Docker 挂载 rw | 声明 request_permission；ask/plan 模式需强制只读测试 | 实测 DiOS 受控 MCP 审批/拒绝；原生工具禁用，模型出口待企业资格 | Adapter 声明审批/sandbox/permission profile；本地 Schema 有 read-only | 声明工具权限；实际控制范围待测 |
-| MCP | 当前平台已有配置与工具入口 | 实测声明 HTTP/SSE；文档还说明 stdio；逐项待测 | 声明 stdio/HTTP；不支持 SSE；仅消费 MCP tools | 声明 stdio/HTTP；具体版本待测 | 声明 Client MCP；具体传输待测 |
-| 资源/并发 | Docker 生命周期基础；平台配额/独立尝试缺失 | 来源历史曾有独立 PID/Session；本轮不代表当前三路 | 声明单连接多会话；独立进程要求由 Supervisor 保证 | 本机仅 Schema；独立进程与会话尚待验证 | 本地无已验证安装；待验证 |
+| 权限控制 | 已有部分 MCP grant；Docker 挂载 rw | 声明 request_permission；ask/plan 模式需强制只读测试 | 实测 DiOS 受控 MCP 审批/拒绝；原生工具禁用，模型出口待企业资格 | 实测 read-only profile、MCP 审批/拒绝/撤权；额外原生路径待验证 | 声明工具权限；实际控制范围待测 |
+| MCP | 当前平台已有配置与工具入口 | 实测声明 HTTP/SSE；文档还说明 stdio；逐项待测 | 声明 stdio/HTTP；不支持 SSE；仅消费 MCP tools | 实测 stdio 受控 MCP；HTTP 传输待验证 | 声明 Client MCP；具体传输待测 |
+| 资源/并发 | Docker 生命周期基础；平台配额/独立尝试缺失 | 来源历史曾有独立 PID/Session；本轮不代表当前三路 | 声明单连接多会话；独立进程要求由 Supervisor 保证 | 实测独立容器 PID/Session；并发压测待验证 | 本地无已验证安装；待验证 |
 | 用量/成本 | 缺统一归因 | 精确费用与缺失场景待测 | 声明 context usage；成本仍须供应方数据 | Adapter 声明 token usage；计费口径待测 | 用量与费用完整性待测 |
-| 本轮准入状态 | 平台基线候选，需契约整改 | 首个第三方候选；控制面已探测 | 第二来源合成样例与 E2AG 实测通过；完整联合资格待完成 | 后续对照候选；桥接组合待探测 | 兼容候选；尚未本地探测 |
+| 本轮准入状态 | 平台基线候选，需契约整改 | 首个第三方候选；控制面已探测 | 第二来源合成样例与 E2AG 实测通过；完整联合资格待完成 | 官方账号受控执行切片通过；活动恢复与完整联合资格待完成 | 兼容候选；尚未本地探测 |
 
 协议与 Harness 的恢复能力不能代替平台持久队列、租约和结果验收。dsh 的多会话支持也不能满足“三个独立进程”的业务验收，Worker 模式须单独配置。
 

@@ -1,0 +1,251 @@
+{
+  "qualification": "Codex ACP through Runtime and E2AG",
+  "date": "2026-11-24",
+  "scope": "isolated synthetic-source Linux/WSL Docker qualification",
+  "versions": {
+    "dios_sdk": "0.1.4",
+    "static_review": "0.1.3",
+    "agent_client_protocol": "1.0.0",
+    "codex_acp": "2.11.0",
+    "codex_cli": "0.172.0"
+  },
+  "model": {
+    "configured": "gpt-6-astra",
+    "provider": "OpenAI ChatGPT",
+    "credentials": "existing operator-managed read-only reference"
+  },
+  "image": {
+    "id": "sha256:bf93d3ab8cfb4aaf5e08fde8bc9616c1af893534d87f60c866b5732d915f7324",
+    "tag": "dios-codex-review:governed-20261124"
+  },
+  "runs": [
+    {
+      "case": "approve",
+      "run_id": "72b5eb00-7439-4047-8e63-46c630be09c5",
+      "attempt_id": "1ada210b-88fa-4dbe-a54f-d90c8f38accb",
+      "attempt_count": 1,
+      "session_id": "01a20e10-89bf-7853-94e6-b3849a2b7dec",
+      "worker_id": "795e064e-a032-4a82-a982-f95e35b0ffb5",
+      "process_id": 144032,
+      "state": "succeeded",
+      "error": null,
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 1,
+      "tool_calls": 1,
+      "result_frames": 1,
+      "diagnostic_codes": [
+        "ACP_SESSION_CLOSED",
+        "ACP_CHILD_EXIT_NONZERO"
+      ],
+      "exit_state": "exited",
+      "exit_code": 2,
+      "process_instance": "92699d499c29b78585be57597d7524dfb10a5a5c9c10101ce46847fe9a62c59c:2026-11-24T14:58:11.946553457Z",
+      "stdout_sha256": "21df399e830fe4fe57328bcb8ada3d8e77dbea91c7d51f8df384f6796d625970",
+      "stderr_sha256": "41aabf00d042eb232792d8e513daa0d029d5117d8ed4ec36498184f19213eaa8",
+      "exit_receipt_sha256": "1f260aeb7157531da7b1acd2b61e09f08505831f0da8bdae273e5e716e3e8c3a"
+    },
+    {
+      "case": "deny",
+      "run_id": "71e84616-f5fc-46a1-beef-91801e321f70",
+      "attempt_id": "4c22d7e3-de80-4e52-b9b7-b53ef2d6c527",
+      "attempt_count": 1,
+      "session_id": "01a20e11-73f4-78e1-8467-e3599a7abd30",
+      "worker_id": "f71d8a25-ad4f-4440-90c3-b97f2ee27dbb",
+      "process_id": 144386,
+      "state": "failed",
+      "error": {
+        "code": "ACP_TOOL_ACTIVITY_UNVERIFIED",
+        "category": "evidence",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 1,
+      "tool_calls": 0,
+      "result_frames": 0,
+      "diagnostic_codes": [
+        "ACP_SESSION_CLOSED",
+        "ACP_TOOL_ACTIVITY_UNVERIFIED"
+      ],
+      "exit_state": "exited",
+      "exit_code": 2,
+      "process_instance": "182e655e548758e3d099a98f374c20e9d92e86d4983d8029ec7cc843a241fd34:2026-11-24T14:59:11.024885492Z",
+      "stdout_sha256": "a41839a332b95c37282fd049f33af9064478edac401f54533e12f828a77623f4",
+      "stderr_sha256": "7cc749311eb4103df67b065fe74eb38f7ace19afe76af131059e405476358bb7",
+      "exit_receipt_sha256": "eefaf7d9f0059a04f0fdc6d3a67167b3c10ee88b5f9924fd8fb8eaad1e5bb14a"
+    },
+    {
+      "case": "cancel",
+      "run_id": "597c6f38-dba8-4d7d-aa0c-f1ca27d8bd88",
+      "attempt_id": "380b8c38-5159-4d15-9d7b-94e36bd6884d",
+      "attempt_count": 1,
+      "session_id": "01a20e11-ae56-78c2-a2b2-4b67e1394dab",
+      "worker_id": "1931b81e-5e9a-4449-b93b-da93ae714bc4",
+      "process_id": 144646,
+      "state": "cancelled",
+      "error": null,
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 1,
+      "tool_calls": 0,
+      "result_frames": 0,
+      "diagnostic_codes": [
+        "ACP_CANCEL_REQUESTED",
+        "ACP_CANCEL_ACKNOWLEDGED",
+        "ACP_SESSION_CLOSED"
+      ],
+      "exit_state": "exited",
+      "exit_code": 130,
+      "process_instance": "7e2c4d7af6fbcff952953eaa111ef8b50efc9c8546c2f9a0df690fdef8169f27:2026-11-24T14:59:26.018045401Z",
+      "stdout_sha256": "b0d41c4912cc59d1c2afc0011468bddc2f7a4b4259a0315e98ca060e7672ce1d",
+      "stderr_sha256": "e2164196226644606b31bec6504d6d171743edce0ba7cef018b2b5e3f54c51a3",
+      "exit_receipt_sha256": "8d7bc61bcccc74fc693e4fa6a2486d951c4b5837205d1e35287b0598fc414403"
+    },
+    {
+      "case": "revoke",
+      "run_id": "59ef61d0-ad79-4cef-b9ae-53129f1e0d41",
+      "attempt_id": "8a2f4e69-8f70-4d43-80d5-534179051b6e",
+      "attempt_count": 1,
+      "session_id": "01a20e11-f8a2-72d2-b0f4-c1e863b2ceef",
+      "worker_id": "423caf7e-da0f-4254-84d8-528b6bdd0e4c",
+      "process_id": 144882,
+      "state": "failed",
+      "error": {
+        "code": "AUTH_REVOKED",
+        "category": "authorization",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "authorization_epoch_before": 1,
+      "authorization_epoch_after": 2,
+      "tool_calls": 0,
+      "result_frames": 0,
+      "diagnostic_codes": [
+        "ACP_CANCEL_REQUESTED",
+        "ACP_CANCEL_ACKNOWLEDGED",
+        "ACP_SESSION_CLOSED"
+      ],
+      "exit_state": "exited",
+      "exit_code": 130,
+      "process_instance": "fbbdbad392596147fd471ae94a47e45a6282bd8c1d9b64a1f8293c2b98fb84b6:2026-11-24T14:59:45.936318677Z",
+      "stdout_sha256": "ac60aa2ade28323c9ff061eab044b31b770171d7bd2cf1654865ffe15bc9640d",
+      "stderr_sha256": "c54bc1dbeb5e012c25e90200667e5aba3ceeab91d882e549fcbe41b265c75824",
+      "exit_receipt_sha256": "133feedf880766d58d418cc5dfdfe2e86792da364e3d1fec4877e494235141e9"
+    }
+  ],
+  "advertised_capabilities": {
+    "auth": {
+      "logout": {},
+      "status": {}
+    },
+    "providers": {},
+    "loadSession": true,
+    "promptCapabilities": {
+      "embeddedContext": true,
+      "image": true
+    },
+    "sessionCapabilities": {
+      "resume": {},
+      "list": {},
+      "close": {},
+      "delete": {},
+      "fork": {},
+      "options": {},
+      "title": {},
+      "additionalDirectories": {},
+      "systemPrompt": {}
+    },
+    "mcpCapabilities": {
+      "acp": true,
+      "http": true,
+      "sse": false
+    },
+    "_meta": {
+      "authStatus": {}
+    }
+  },
+  "ecnu_probe": {
+    "text_completion": true,
+    "cleanup_exit_code": 137,
+    "note": "initial control-only probe stopped by container supervisor after EOF; governed tests below use session/close"
+  },
+  "ecnu_tool_compatibility": [
+    {
+      "case": "flat",
+      "http_status": 200,
+      "output": [
+        {
+          "id": "msg_12b39c41c4dd4c8c8154a59eb3609b02",
+          "type": "message",
+          "status": "completed",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "",
+              "annotations": []
+            }
+          ],
+          "model": "ecnu-max"
+        },
+        {
+          "id": "fc_104e130096c34de29002fd30b7601a5a",
+          "type": "function_call",
+          "status": "completed",
+          "call_id": "call_7da4e41cb1614bbf8aa03393",
+          "name": "lookup",
+          "arguments": "{\"query\": \"probe\"}"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case": "namespace",
+      "http_status": 500
+    }
+  ],
+  "tests": {
+    "installed-tests": {
+      "total": 42,
+      "passed": 42,
+      "skipped": 0,
+      "log_sha256": "8667d2e3339a38ca14e07498f14bcb065c1680628d997688d2f132f0440c7686"
+    },
+    "image-tests": {
+      "total": 42,
+      "passed": 42,
+      "skipped": 0,
+      "log_sha256": "8b9d1af4d3787c460b3d49cd76dddeb8271d89dcf4da1384f44a2216c8dd2d8e"
+    },
+    "core-only-tests": {
+      "total": 9,
+      "passed": 9,
+      "skipped": 0,
+      "log_sha256": "37fed36abae1b73dd0ae815ff6562c3eea5131e33c68fa70810386843820dba1"
+    },
+    "backend-regression": {
+      "total": 123,
+      "passed": 80,
+      "skipped": 43,
+      "log_sha256": "37936c92eeadb54e0052e4761c9cba5a6d25ca0a0596eb35fac1de20d4ff743a"
+    }
+  },
+  "source_sha256": {
+    "sdk/python/src/dios_sdk/acp.py": "42e8a7cc91fe8397b792758e804ab0dc994b5ef1fb54b05cb5a2c082f7a89653",
+    "sdk/python/src/dios_sdk/codex.py": "6d97bdfbc37e9713f5e06d1edfa528237c515a398634c87e3ed3f260e0802481",
+    "sdk/python/src/dios_sdk/acp_result.py": "4e8cd22dc8a39bf6f0adc37bd97515e7c33b1bc19398478254e22f6f897a873c",
+    "sdk/python/tests/test_codex.py": "cddd4713329413e86e44eb8da077c24c75e44bb9c4e62f21cac2776e84c4ec74",
+    "applications/static-review/src/dios_review/codex.py": "71f0e323ab5fc5252407b89e8dfe954b5a54950292a91538f2f2683da083225c"
+  },
+  "bundle_sha256": "2a78d97af7de379659e4c1075106cb13dcb60d1bd9b5251a2d4d35f6591dceab",
+  "existing_development_health": {
+    "status": "ok"
+  },
+  "remaining": [
+    "active-session reattachment and network recovery",
+    "A2A interoperability",
+    "physical cross-host failures",
+    "cross-source delegation/renewal/stale epoch matrix",
+    "enterprise model/provider qualification and graceful adapter EOF shutdown",
+    "G2 independent security review and user acceptance"
+  ]
+}
