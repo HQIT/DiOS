@@ -332,6 +332,8 @@ export const messages: Record<string, string> = {
   "远端已受理": "Accepted remotely",
   "远端报告运行中": "Remote reports working",
   "远端报告完成": "Remote reports completion",
+  "· 下次查询原任务：": "· Next query of the original task: ",
+  "· 远端查询已恢复": "· Remote queries have recovered",
   "远端确认取消": "Remote cancellation confirmed",
   "远端报告失败": "Remote reports failure",
   "远端拒绝": "Rejected remotely",

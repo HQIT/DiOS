@@ -1,6 +1,7 @@
 import asyncio
 import tempfile
 import unittest
+import threading
 from sqlalchemy import text
 from app.runtime.database import Database, RuntimeErrorCode
 from app.runtime.store import RuntimeStore
@@ -88,3 +89,29 @@ class RuntimeWriteTests(unittest.IsolatedAsyncioTestCase):
         replay=await self.store.submit('retry',{})
         self.assertEqual(run['id'],replay['id'])
         self.assertEqual(len(await self.store.pending_events('audit')),1)
+
+    async def test_cancel_in_flight_sql_finishes_then_rolls_back_and_releases_writer(self):
+        run=await self.store.submit('before-cancel',{})
+        entered=threading.Event();release=threading.Event()
+        def pause():
+            entered.set();release.wait(3);return 1
+        async def transaction():
+            async with self.db.transaction('test') as c:
+                await c.run_sync(lambda conn:conn.connection.dbapi_connection.create_function('pause_for_cancel',0,pause))
+                await c.execute(text('UPDATE runtime_runs SET version=999 WHERE id=:id'),{'id':run['id']})
+                await c.execute(text('SELECT pause_for_cancel()'))
+        task=asyncio.create_task(transaction())
+        try:
+            for _ in range(300):
+                if entered.is_set():break
+                await asyncio.sleep(.01)
+            self.assertTrue(entered.is_set())
+            task.cancel();await asyncio.sleep(.01);release.set()
+            with self.assertRaises(asyncio.CancelledError):await task
+            self.assertEqual(run['version'],(await self.store.get(run['id']))['version'])
+            await asyncio.wait_for(self.store.submit('after-cancel',{}),2)
+            self.assertFalse(self.db.write_gate.active)
+        finally:
+            release.set()
+            if not task.done():task.cancel()
+            await asyncio.gather(task,return_exceptions=True)

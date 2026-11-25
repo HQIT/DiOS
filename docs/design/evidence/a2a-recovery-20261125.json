@@ -1,0 +1,151 @@
+{
+  "scope": "two real HTTP services, independent CLI Workers, Docker agent; injected 429/quota and actual target API stop/restart on one host",
+  "protocol": "A2A 0.3.0 JSON-RPC",
+  "sdk": "a2a-sdk 0.3.26",
+  "tests": {
+    "contracts": {
+      "total": 29,
+      "passed": 29,
+      "skipped": 0,
+      "sha256": "87af442aac94bf2fc505edec62de4743b7b39c9067d6e3f098e6eaca1415b83a"
+    },
+    "backend-regression-final": {
+      "total": 283,
+      "passed": 207,
+      "skipped": 76,
+      "sha256": "de2ad195f812e890c612cd78d04aafdcae6a83c115c4bd401180c15857c5acc3"
+    },
+    "image-contracts": {
+      "total": 45,
+      "passed": 45,
+      "skipped": 0,
+      "sha256": "ae0e04f44536b97be0fc9742fdf141135bcee546a45afae29345bc70c1af4693"
+    }
+  },
+  "network_cases": [
+    {
+      "mode": "rate",
+      "run_id": "ee827f72-8440-4dda-b050-990597800a39",
+      "attempt_id": "04a16b65-bb71-4b26-9c92-cbcab64d19ce",
+      "remote_task_id": "557e305e-7bbb-41f3-8a16-f50ecd250d0a",
+      "state": "succeeded",
+      "initial_worker_pid": 163840,
+      "restarted_worker_pid": 163851,
+      "remote_agent_pid": 163903,
+      "remote_session_id": "9ea14491-6dcc-4f6f-b814-0c3d8e45e157",
+      "single_attempt_each_side": true,
+      "circuit": "closed",
+      "error_category": "rate_limit"
+    },
+    {
+      "mode": "quota",
+      "run_id": "16eeec5c-169f-4c04-bd73-93ed1a93e89c",
+      "attempt_id": "7065bafe-5a1a-4a71-a69b-c931b7785603",
+      "remote_task_id": "99cd6553-12c6-4f33-8eae-8adf54cbad98",
+      "state": "succeeded",
+      "initial_worker_pid": 163971,
+      "restarted_worker_pid": 163981,
+      "remote_agent_pid": 164035,
+      "remote_session_id": "7b183ee8-590f-47c6-a334-a0647fe2e913",
+      "single_attempt_each_side": true,
+      "circuit": "closed",
+      "error_category": "quota"
+    },
+    {
+      "mode": "network",
+      "run_id": "31824ce4-6e8a-4dd3-a5b8-a513ffcd2e6f",
+      "attempt_id": "6f265dd0-84da-46a2-846f-b5ef0c064a5a",
+      "remote_task_id": "c4ce2bfc-57fc-4769-ad4b-97d1817a77fb",
+      "state": "succeeded",
+      "initial_worker_pid": 164099,
+      "restarted_worker_pid": 164107,
+      "remote_agent_pid": 164160,
+      "remote_session_id": "3b64359f-cb7e-4443-ab65-c29d7cce4d28",
+      "single_attempt_each_side": true,
+      "circuit": "closed",
+      "error_category": "network"
+    }
+  ],
+  "ui": {
+    "scope": "live HTTP 429 cooldown from isolated API, not injected page state",
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "liveCooldown": true,
+        "originalTaskQueryTimeVisible": true,
+        "refreshWorks": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "liveCooldown": true,
+        "originalTaskQueryTimeVisible": true,
+        "refreshWorks": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "liveCooldown": true,
+        "originalTaskQueryTimeVisible": true,
+        "refreshWorks": true,
+        "horizontalOverflow": false,
+        "pageErrors": []
+      }
+    ]
+  },
+  "ui_task_recovery": {
+    "run_id": "2d2dde65-ca30-4fdb-a495-ee47ce68b097",
+    "state": "succeeded",
+    "attempt_count": 1,
+    "circuit": "closed"
+  },
+  "image": {
+    "image": "sha256:6f3b39288a5378fbd19436f9eb265b3479e5e099186cdd810a649595a92a8a22",
+    "tag": "dios-backend:a2a-recovery-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "deployment": {
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "design_contracts": {
+    "scope": "design contract consistency and reference semantics; no runtime/concurrency certification",
+    "schemas": 68,
+    "operations": 31,
+    "schema_examples": 12,
+    "state_scenarios": 13,
+    "checks_passed": 681,
+    "errors": []
+  },
+  "frontend_build": {
+    "passed": true,
+    "sha256": "975782bd551fad7c6d104d320f1ff4ca7cbdc09ead68455e467e949e72c372a0"
+  },
+  "limits": [
+    "single physical host and synthetic agent",
+    "quota error uses explicit DiOS extension, external provider mapping needs qualification",
+    "first discovery failure is terminal; only subsequent task intake observes its circuit",
+    "unknown submission without remote id is not replayed",
+    "production TLS, remote provider model quota and cross-host network partitions remain unverified"
+  ]
+}

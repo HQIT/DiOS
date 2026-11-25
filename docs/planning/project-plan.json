@@ -594,9 +594,11 @@
       "priority": "最高",
       "status": "In Progress",
       "progress": {
-        "date": "2026-11-24",
-        "summary": "兼容订阅与内核 Profile/Run 均具备持久定时；内核提交使用事务内租约围栏和 E2AG 服务策略绑定，API/CLI/Console、备份恢复和排空部署已验证。",
+        "date": "2026-11-25",
+        "summary": "兼容订阅与内核 Profile/Run 均具备持久定时；内核提交使用事务内租约围栏和 E2AG 服务策略绑定，API/CLI/Console、备份恢复和排空部署已验证。远端 A2A 复用既有故障账本，接入持久退避、Retry-After、限流/明确额度分类及单路探测；Worker 重启保留冷却，按原任务/产物恢复，E2AG 和旧探测令牌校验持续生效。真实 HTTP 429、额度注入、目标 API 停止/重启和实时 UI 冷却恢复均通过；SQLite 写事务取消后回滚与后续写入通过。相关回归 207 项通过 / 76 项条件跳过，镜像 45 项通过；开发部署保留 84 条 Run 身份。",
         "evidence_paths": [
+          "docs/design/a2a-outbound-56-58.md",
+          "docs/design/evidence/a2a-recovery-20261125.json",
           "docs/design/lightweight-runtime-32.md",
           "docs/adr/0010-lightweight-runtime-default.md",
           "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
@@ -1349,10 +1351,10 @@
       "status": "In Progress",
       "progress": {
         "date": "2026-11-25",
-        "validation_status": "acp_three_harnesses_and_a2a_bidirectional_isolated_verified",
-        "summary": "Cursor、DSH、Codex 的受控执行切片通过；A2A 0.3 标准入口与远端出站均使用官方 SDK。出站持久关联 Run/Attempt/远端 Task/Context，保留响应回执，按原任务恢复并验证 E2AG；未知提交不盲目重发。真实 HTTP 双服务与独立 Worker 完成任务、进程终止后自然租约恢复和取消，双方均保留唯一 Attempt。12 项出站契约、25 项镜像测试、相关回归 143 项通过 / 43 项跳过，中英文桌面与移动端通过；开发部署保留 84 条 Run 身份。",
-        "validation_evidence": "docs/design/a2a-outbound-56-58.md",
-        "remaining": "远端限流/额度熔断和持久退避；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
+        "validation_status": "a2a_remote_recovery_and_acp_three_harness_slices_verified",
+        "summary": "远端 A2A 复用既有故障账本，接入持久退避、Retry-After、限流/明确额度分类及单路探测；Worker 重启保留冷却，按原任务/产物恢复，E2AG 和旧探测令牌校验持续生效。真实 HTTP 429、额度注入、目标 API 停止/重启和实时 UI 冷却恢复均通过；SQLite 写事务取消后回滚与后续写入通过。相关回归 207 项通过 / 76 项条件跳过，镜像 45 项通过；开发部署保留 84 条 Run 身份。",
+        "validation_evidence": "docs/design/evidence/a2a-recovery-20261125.json",
+        "remaining": "首次预检的安全自动重试；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
       },
       "product_scope": "dios-capability"
     },
@@ -2305,14 +2307,14 @@
         "F03-2"
       ],
       "priority": "最高",
-      "next_acceptance": "接续远端限流/额度熔断与持久退避；跨主机及三种 Harness 完整故障/授权矩阵继续验收。",
+      "next_acceptance": "按既定矩阵推进活动会话恢复及跨来源授权验证；首次预检重试、跨主机和供应商资格继续补齐。",
       "status": "In Progress",
       "progress": {
         "date": "2026-11-25",
-        "validation_status": "acp_three_harnesses_and_a2a_bidirectional_isolated_verified",
-        "summary": "Cursor、DSH、Codex 的受控执行切片通过；A2A 0.3 标准入口与远端出站均使用官方 SDK。出站持久关联 Run/Attempt/远端 Task/Context，保留响应回执，按原任务恢复并验证 E2AG；未知提交不盲目重发。真实 HTTP 双服务与独立 Worker 完成任务、进程终止后自然租约恢复和取消，双方均保留唯一 Attempt。12 项出站契约、25 项镜像测试、相关回归 143 项通过 / 43 项跳过，中英文桌面与移动端通过；开发部署保留 84 条 Run 身份。",
-        "validation_evidence": "docs/design/a2a-outbound-56-58.md",
-        "remaining": "远端限流/额度熔断和持久退避；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
+        "validation_status": "a2a_remote_recovery_and_acp_three_harness_slices_verified",
+        "summary": "远端 A2A 复用既有故障账本，接入持久退避、Retry-After、限流/明确额度分类及单路探测；Worker 重启保留冷却，按原任务/产物恢复，E2AG 和旧探测令牌校验持续生效。真实 HTTP 429、额度注入、目标 API 停止/重启和实时 UI 冷却恢复均通过；SQLite 写事务取消后回滚与后续写入通过。相关回归 207 项通过 / 76 项条件跳过，镜像 45 项通过；开发部署保留 84 条 Run 身份。",
+        "validation_evidence": "docs/design/evidence/a2a-recovery-20261125.json",
+        "remaining": "首次预检的安全自动重试；活动会话重接、跨物理主机与生产 HTTPS、跨来源续期/委派/旧 epoch 完整矩阵、Codex 优雅退出、原生工具额外路径、企业网络与凭据轮换、G2 和用户验收。"
       },
       "product_scope": "dios-capability"
     },

@@ -8,10 +8,13 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
-from a2a.client.errors import A2AClientHTTPError, A2AClientJSONRPCError
-from sqlalchemy import select
+from a2a.client.errors import A2AClientJSONRPCError
+from sqlalchemy import or_, select
 
 from .a2a_execution import REMOTE_TERMINAL, A2AExecution
+from .a2a_faults import A2AFault
+from .a2a_faults import code as error_code
+from .a2a_recovery import A2ARecovery
 from .a2a_transport import A2ATransport
 from .authorization import authorize_work
 from .database import RuntimeErrorCode
@@ -20,16 +23,6 @@ from .schema import runs
 from .store import TERMINAL
 from .work_authorizations import WorkAuthorizationVerifier, checked_work
 from .work_policy import policy_matches
-
-
-def error_code(exc):
-    if isinstance(exc, RuntimeErrorCode):
-        return exc.code
-    if isinstance(exc, A2AClientHTTPError) and exc.status_code == 429:
-        return "A2A_RATE_LIMITED"
-    if isinstance(exc, A2AClientJSONRPCError):
-        return "A2A_REMOTE_RPC_ERROR"
-    return "A2A_OBSERVATION_UNAVAILABLE"
 
 
 class A2AWorker:
@@ -72,6 +65,7 @@ class A2AWorker:
         )
         self.worker_id, self.instance = str(uuid4()), str(uuid4())
         self.execution = A2AExecution(store, provider, spec)
+        self.recovery = A2ARecovery(self.execution)
         self.verifier = WorkAuthorizationVerifier(store, policy)
         self.stopping = False
 
@@ -178,6 +172,13 @@ class A2AWorker:
                 and run["state"] == "reconciliation_required"
             ):
                 await self.execution.abort_prepared(run, attempt)
+            elif reconcile:
+                await self.recovery.failure(
+                    run,
+                    attempt,
+                    RuntimeErrorCode("A2A_REMOTE_ID_UNKNOWN"),
+                    reconcile=True,
+                )
             return (await self.snapshot(run_id))[0]
         reason = remote.get("cancel_reason")
         if not reason:
@@ -187,8 +188,16 @@ class A2AWorker:
                 if exc.code in {"STALE_OWNER", "VERSION_CONFLICT"}:
                     raise
                 reason = exc.code
-        transport = await self.transport()
+        token = await self.recovery.permit(run, attempt, reconcile=reconcile)
+        if token is None:
+            if not reconcile:
+                await self.store.mark_unknown(
+                    self.binding(run, attempt), "A2A_OBSERVATION_COOLDOWN"
+                )
+            return (await self.snapshot(run_id))[0]
+        transport = None
         try:
+            transport = await self.transport()
             if reason and remote["observed_state"] not in REMOTE_TERMINAL:
                 await self.execution.cancel_intent(
                     run, attempt, reason, reconcile=reconcile
@@ -204,6 +213,7 @@ class A2AWorker:
             )
             task = await self.retain(run, attempt, task, reconcile=reconcile)
             if task.status.state not in REMOTE_TERMINAL:
+                await self.recovery.success(run, attempt, token, reconcile=reconcile)
                 return (await self.snapshot(run_id))[0]
             run, attempt = await self.snapshot(run_id)
             failure, data = reason, None
@@ -217,27 +227,49 @@ class A2AWorker:
                         session_id=task.context_id,
                         verifier=self.verifier,
                     )
-                    data = await transport.result(task)
-                    from .result_contract import validate_bytes
-
-                    validate_bytes(run["input"], data)
                 except RuntimeErrorCode as exc:
                     failure = exc.code
-                    data = None
+                if not failure:
+                    # Transfer failures are observation failures, not completed
+                    # tasks; preserve the remote result and retry its download.
+                    from .result_contract import validate_bytes
+
+                    try:
+                        data = await transport.result(task)
+                        validate_bytes(run["input"], data)
+                    except A2AFault:
+                        raise
+                    except RuntimeErrorCode as exc:
+                        failure, data = exc.code, None
+            await self.recovery.success(run, attempt, token, reconcile=reconcile)
+            run, attempt = await self.snapshot(run_id)
             await self.execution.finish(
                 run, attempt, task, data=data, failure=failure, reconcile=reconcile
             )
             return (await self.snapshot(run_id))[0]
+        except Exception as exc:
+            if isinstance(exc, RuntimeErrorCode) and exc.code in {
+                "STALE_OWNER",
+                "VERSION_CONFLICT",
+            }:
+                if exc.code == "VERSION_CONFLICT":
+                    await self.recovery.release(
+                        run, attempt, token, reconcile=reconcile
+                    )
+                raise
+            await self.recovery.failure(
+                run, attempt, exc, token=token, reconcile=reconcile
+            )
+            return (await self.snapshot(run_id))[0]
         finally:
-            await transport.aclose()
+            if transport:
+                await transport.aclose()
 
     async def uncertain(self, run_id, exc):
         run, attempt = await self.snapshot(run_id)
         if run["state"] not in TERMINAL | {"reconciliation_required"}:
             try:
-                await self.store.mark_unknown(
-                    self.binding(run, attempt), error_code(exc)
-                )
+                await self.recovery.failure(run, attempt, exc)
             except RuntimeErrorCode as error:
                 if error.code not in {"STALE_OWNER", "VERSION_CONFLICT"}:
                     raise
@@ -265,9 +297,7 @@ class A2AWorker:
                 await transport.aclose()
             await self.execution.prepare(self.binding(run, attempt))
         except Exception as exc:  # noqa: BLE001 - retain sanitized preflight failure
-            await self.store.reject_unlaunched(
-                self.binding(run, attempt), error_code(exc)
-            )
+            await self.recovery.preflight_failed(run, attempt, exc)
             return (await self.snapshot(run["id"]))[0]
         try:
             transport = await self.transport()
@@ -287,7 +317,7 @@ class A2AWorker:
                         raise
                     await asyncio.sleep(self.poll_interval)
                     continue
-                if current["state"] in TERMINAL:
+                if current["state"] in TERMINAL | {"reconciliation_required"}:
                     return current
                 await asyncio.sleep(self.poll_interval)
             raise RuntimeErrorCode("A2A_OBSERVATION_DEADLINE")
@@ -297,16 +327,21 @@ class A2AWorker:
 
     async def recover(self):
         await self.store.expire()
+        from .fault_schema import plans
+
         async with self.store.db.read(self.store.scope) as c:
+            now = await self.store.db.now(c)
             ids = (
                 (
                     await c.execute(
                         select(runs.c.id)
+                        .outerjoin(plans, plans.c.run_id == runs.c.id)
                         .where(
                             runs.c.scope == self.store.scope,
                             runs.c.state == "reconciliation_required",
                             runs.c.input["runtime_profile"].as_string()
                             == self.profile_id,
+                            or_(plans.c.retry_at.is_(None), plans.c.retry_at <= now),
                         )
                         .order_by(runs.c.updated_at)
                         .limit(32)

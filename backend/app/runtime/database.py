@@ -18,7 +18,7 @@ class RuntimeErrorCode(ValueError):
         super().__init__(code)
 
 
-class _ReadConnection:
+class _BufferedConnection:
     """Finish each buffered DB operation before propagating task cancellation.
 
     Cancelling aiosqlite between execute and fetchall can strand an SQLite cursor
@@ -36,6 +36,10 @@ class _ReadConnection:
         return await self._finish(self.connection.execute(*args, **kwargs))
     async def run_sync(self, *args, **kwargs):
         return await self._finish(self.connection.run_sync(*args, **kwargs))
+    async def commit(self):
+        return await self._finish(self.connection.commit())
+    async def rollback(self):
+        return await self._finish(self.connection.rollback())
 
 class Database:
     def __init__(self, url, *, write_queue_capacity=64, write_queue_timeout=5.0):
@@ -71,7 +75,7 @@ class Database:
                 yield c
             return
         async with self.engine.connect() as c:
-            reader = _ReadConnection(c)
+            reader = _BufferedConnection(c)
             try:
                 await reader.execute(text('PRAGMA query_only=ON'))
                 await reader.execute(text('BEGIN'))
@@ -101,7 +105,8 @@ class Database:
 
     @asynccontextmanager
     async def transaction(self, scope, *, check=True):
-        async with self._write_slot(), self.engine.connect() as c:
+        async with self._write_slot(), self.engine.connect() as connection:
+            c = _BufferedConnection(connection) if self.write_gate else connection
             try:
                 if c.dialect.name == 'sqlite':
                     await c.execute(text('BEGIN IMMEDIATE'))

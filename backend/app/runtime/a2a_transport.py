@@ -18,6 +18,7 @@ from a2a.types import (
     TaskQueryParams,
 )
 
+from .a2a_faults import A2AFault, code, http_code, retry_after
 from .database import RuntimeErrorCode
 from .store import encoded
 
@@ -36,8 +37,16 @@ class PinnedTransport(httpx.AsyncBaseTransport):
         )
         if not permitted:
             raise RuntimeErrorCode("A2A_DESTINATION_DENIED")
-        response = await self.inner.handle_async_request(request)
         try:
+            response = await self.inner.handle_async_request(request)
+        except httpx.TransportError as exc:
+            raise A2AFault(code(exc)) from None
+        try:
+            failure = http_code(response.status_code)
+            if failure:
+                raise A2AFault(
+                    failure, retry_after(response.headers.get("retry-after"))
+                )
             if response.headers.get("content-encoding", "identity") != "identity":
                 raise RuntimeErrorCode("A2A_ENCODING_UNSUPPORTED")
             data = bytearray()
@@ -58,6 +67,17 @@ class PinnedTransport(httpx.AsyncBaseTransport):
                     or type(received.get("id")) is not type(sent.get("id"))
                 ):
                     raise RuntimeErrorCode("A2A_RESPONSE_BINDING_CHANGED")
+                error = received.get("error")
+                error_data = error.get("data") if isinstance(error, dict) else None
+                extension = (
+                    error_data.get("dios") if isinstance(error_data, dict) else None
+                )
+                failure = extension.get("code") if isinstance(extension, dict) else None
+                if isinstance(failure, str) and failure in {
+                    "PROVIDER_RATE_LIMITED",
+                    "PROVIDER_QUOTA_EXHAUSTED",
+                }:
+                    raise A2AFault(failure)
             return httpx.Response(
                 response.status_code,
                 headers=response.headers,

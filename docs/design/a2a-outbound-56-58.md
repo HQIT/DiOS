@@ -64,4 +64,20 @@ cd backend
 
 [执行证据](evidence/a2a-outbound-20261125.json)记录两套隔离 HTTP 服务、独立 CLI Worker 和 Docker Agent 的完成、进程终止后恢复、执行中取消。三种场景两端均只有一次 Attempt；重启恢复等待自然租约到期。12 项出站契约覆盖提交响应丢失、查询超时、回执入库故障、旧所有者拒绝、撤权、成果不足、原子容量、配置变化及凭据目的地约束。
 
-此验证在同一物理主机使用合成 Agent，真实外部供应商、跨主机 TLS、网络分区和凭据轮换资格继续归入 #58。持久退避、供应商限流/额度熔断、流式消息、输入补充、多产物和异步回调尚待接续；现有恢复循环每次查询有超时与响应大小限制。#56/#58 保持进行中。
+此验证在同一物理主机使用合成 Agent，真实外部供应商、跨主机 TLS、网络分区和凭据轮换资格继续归入 #58。流式消息、输入补充、多产物和异步回调尚待接续。#56/#58 保持进行中。
+
+## 持久退避与单路恢复
+
+远端恢复复用 `runtime_fault_bindings`、`runtime_retry_plans` 和 `runtime_circuits`，没有增加任务数据库。任务在 `reconciliation_required` 状态保存查询计划、错误分类、下次查询时间和独占探测租约；计划状态 `observing` 表示再次查询原任务，恢复后变为 `observed`。Console 同时显示限流/额度/网络分类与原任务的下次查询时间。
+
+HTTP 429 映射为限流，连接中断、超时与 502/503/504 映射为网络类故障；401/403 与支付要求分别保存。HTTP 402 本身不证明额度不足。明确的 DiOS 端点错误 `error.data.dios.code = PROVIDER_QUOTA_EXHAUSTED` 可映射为额度类；该字段是 DiOS 端点扩展，第三方服务的配额含义需要通过其 Adapter 资格验证。
+
+默认网络退避基数为 5 秒、上限 300 秒，额度退避基数为 300 秒。等待时间加入抖动，并遵守有界的 `Retry-After` 秒数或 HTTP 日期（最多一天）。策略可在执行配置的 `remote.recovery` 中设置，沿用既有 `resource`、`base_delay`、`max_delay`、`quota_delay` 字段；`replay_safe` 必须为 `false`，`max_attempts` 为 1。策略属于配置指纹，更换后须重新授权。
+
+共享资源故障打开熔断，暂停新的任务领取。冷却到期时仅允许一个探测者查询，探测成功关闭该资源的熔断；探测失败重新退避。进程重启不清空冷却时间。探测进程退出后，可在查询租约过期后重新竞争；旧探测令牌不能清除新探测者的状态。查询成功说明该端点的请求恢复，远端内部模型账户的余额和执行能力仍由端点能力与实际任务结果证明。
+
+授权撤销、取消意图和成果 Schema 校验在恢复期间继续生效。完整远端结果下载失败时保留终态回执，冷却后只重试成果下载。没有远端 Task ID 的未知提交继续保留身份等待对账。首次 Agent Card 发现失败的任务明确失败，后续新任务受同一熔断约束；首次预检的自动重试尚未启用。
+
+实现依据为 [RFC 9110 Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after)、[AWS 超时、退避与抖动](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)和 [Azure 熔断状态模式](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker)。查询重试与创建任务分别处理，有副作用的提交保留原幂等门槛。
+
+[故障与恢复证据](evidence/a2a-recovery-20261125.json)包含真实 HTTP 429、明确额度错误、目标 API 实际停止/重启、独立 Worker 重启，以及中英文桌面/移动端的实时冷却展示。SQLite 写事务沿用读连接已有的缓冲操作取消保护，先完成驱动操作并清理事务再释放连接；测试验证中断后的回滚与下一次写入，符合 [SQLAlchemy 事务清理要求](https://docs.sqlalchemy.org/en/20/errors.html#can-t-reconnect-until-invalid-transaction-is-rolled-back-please-rollback-fully-before-proceeding)。

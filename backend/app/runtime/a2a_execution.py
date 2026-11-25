@@ -121,7 +121,12 @@ class A2AExecution:
             bound = RuntimeStore(
                 TransactionView(self.store.db, c, self.store.scope), self.store.scope
             )
-            return await bound.claim(worker_id, instance, profile_id=profile_id)
+            return await bound.claim(
+                worker_id,
+                instance,
+                profile_id=profile_id,
+                recovery_policy=self.spec.recovery_policy(),
+            )
 
     async def prepare(self, binding):
         async with self.store.db.transaction(self.store.scope) as c:

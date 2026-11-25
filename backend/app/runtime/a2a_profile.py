@@ -18,6 +18,7 @@ class A2AProfile:
     request_timeout: float = 10
     response_limit: int = 262144
     max_concurrent: int = 1
+    recovery: dict | None = None
     execution_kind = "remote-a2a"
     control_scope = "remote-boundary"
     kind = "task"
@@ -72,6 +73,24 @@ class A2AProfile:
         self.validate()
         return digest({"protocol": "a2a-0.3-jsonrpc", **asdict(self)})
 
+    def recovery_policy(self):
+        from .faults import policy
+
+        value = policy(
+            self.recovery
+            or {
+                "resource": "a2a:" + digest(self.endpoint),
+                "replay_safe": False,
+                "max_attempts": 1,
+                "base_delay": 5,
+                "max_delay": 300,
+                "quota_delay": 300,
+            }
+        )
+        if value["replay_safe"] or value["max_attempts"] != 1:
+            raise RuntimeErrorCode("A2A_REPLAY_UNSUPPORTED")
+        return value
+
 
 def read(value):
     if value.get("governance", {}).get("mode") != "e2ag":
@@ -81,6 +100,7 @@ def read(value):
     try:
         spec = A2AProfile(**value["remote"])
         spec.validate()
+        spec.recovery_policy()
     except (KeyError, TypeError, ValueError) as exc:
         if isinstance(exc, RuntimeErrorCode):
             raise

@@ -12,6 +12,7 @@ from a2a.types import Task
 from app.runtime.a2a_transport import A2ATransport
 from app.runtime.a2a_worker import A2AWorker
 from app.runtime.database import RuntimeErrorCode
+from app.runtime.fault_schema import circuits, plans
 from app.runtime.schema import attempts
 from app.runtime.store import digest, encoded
 from app.runtime.worker import read_profile
@@ -162,9 +163,42 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
             await c.execute(
                 attempts.update()
                 .where(attempts.c.id == run["attempt_id"])
-                .values(lease_until=0)
+                .values(
+                    lease_until=0,
+                    remote={
+                        **run["attempts"][0]["remote"],
+                        "a2a_poll": {
+                            **run["attempts"][0]["remote"].get("a2a_poll", {}),
+                            "lease_until": 0,
+                        },
+                    },
+                )
             )
         await self.console.store.expire()
+
+    async def due(self, run_id):
+        run = await self.console.store.get(run_id)
+        attempt = run["attempts"][0]
+        async with self.db.transaction("one") as c:
+            await c.execute(
+                plans.update().where(plans.c.run_id == run_id).values(retry_at=0)
+            )
+            await c.execute(
+                circuits.update().where(circuits.c.scope == "one").values(retry_at=0)
+            )
+            await c.execute(
+                attempts.update()
+                .where(attempts.c.id == attempt["id"])
+                .values(
+                    remote={
+                        **attempt["remote"],
+                        "a2a_poll": {
+                            **attempt["remote"].get("a2a_poll", {}),
+                            "retry_at": 0,
+                        },
+                    }
+                )
+            )
 
     async def test_real_sdk_executes_once_and_links_remote_result_without_fake_pid(
         self,
@@ -212,6 +246,7 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         )
         self.fail_get = False
         self.complete()
+        await self.due(run["id"])
         await self.worker().recover()
         result = await self.console.store.get(run["id"])
         self.assertEqual("succeeded", result["state"], result)
@@ -228,6 +263,7 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("reconciliation_required", result["state"])
         self.assertIsNone(result["attempts"][0]["remote"]["a2a"]["task_id"])
         self.complete()
+        await self.due(run["id"])
         await self.worker().recover()
         self.assertEqual(
             "succeeded", (await self.console.store.get(run["id"]))["state"]
@@ -402,6 +438,7 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         await self.worker().once()
         changed = self.worker()
         changed.spec = replace(self.spec, endpoint="https://remote.example/changed")
+        await self.due(run["id"])
         result = await changed.recover()
         self.assertEqual("PROFILE_CHANGED", result[0]["error"])
         self.assertEqual(

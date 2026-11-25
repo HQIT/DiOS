@@ -269,7 +269,9 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           {active?.error && <p className="tr-error">{translateUI("失败原因：")}{translateUI(active.error.code)}</p>}
           {detail.recovery && <p className="tr-notice" role="status">{translateUI("故障分类：")}{translateUI(({ network: "网络故障", rate_limit: "服务限流", quota: "额度不足", session: "会话创建失败", process: "进程退出", format: "结果格式", evidence: "证据不足", authorization: "授权限制" } as Record<string,string>)[detail.recovery.category] || detail.recovery.category)}
             {detail.state === "retry_wait" && detail.recovery.retry_at && <>{translateUI("· 下次重试")}{translateUI(time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0)))}{translateUI("，继续原任务")}</>}
-            {detail.recovery.reason && <>{translateUI("· 自动重试受限：")}{translateUI(detail.recovery.reason)}</>}
+            {detail.recovery.state === "observing" && detail.recovery.retry_at && <>{translateUI("· 下次查询原任务：")}{translateUI(time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0)))}</>}
+            {detail.recovery.state === "observed" && <>{translateUI("· 远端查询已恢复")}</>}
+            {detail.recovery.reason && detail.recovery.reason !== "QUERY_ORIGINAL_TASK" && <>{translateUI("· 自动重试受限：")}{translateUI(detail.recovery.reason)}</>}
           </p>}
           <div className="tr-actions"><span className="tr-muted">{translateUI("最近更新：")}{translateUI(time(detail.observed_at))}</span>
             {can("run.cancel") && !terminal(detail.state) && <button disabled={busy || detail.cancel_requested || !!detailError} onClick={() => void cancel()}>{translateUI(detail.cancel_requested ? "取消待确认" : "取消任务")}</button>}</div>
