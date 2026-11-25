@@ -44,7 +44,7 @@ class ToolGateway:
         exchange=message.get('method') in {'credentials.issue','credentials.renew'}
         if (exchange or mode=='automatic') and self.credentials is None:raise RuntimeErrorCode('CREDENTIAL_ISSUER_NOT_CONFIGURED')
         if exchange and mode!='automatic':raise RuntimeErrorCode('WORKER_CREDENTIAL_MODE_INVALID')
-        bound_entry=None;bound_spec=None
+        bound_entry=None;bound_spec=None;bound_revision=None
         async def identity_guard(connection=None):
             if time.time()>=certificate_expiry:raise RuntimeErrorCode('WORKER_CERTIFICATE_EXPIRED')
             if mode=='automatic':
@@ -56,18 +56,22 @@ class ToolGateway:
             if bound_entry is not None:
                 fresh=await asyncio.to_thread(document,self.profiles)
                 if fresh.get('profiles',{}).get(profile)!=bound_entry:raise RuntimeErrorCode('WORKER_PROFILE_CHANGED')
-                from .worker import read_profile
-                _,spec=await asyncio.to_thread(read_profile,bound_entry['path'])
-                if spec.fingerprint()!=bound_spec:raise RuntimeErrorCode('PROFILE_CHANGED')
+                from .remote_profiles import resolve
+                from .remote_control import TransactionView
+                database=self.gate.store.db if connection is None else TransactionView(self.gate.store.db,connection,envelope['scope'])
+                await resolve(database,envelope['scope'],bound_entry,profile,bound_spec,bound_revision)
             return peer
         peer=await identity_guard()
         # Profile and tool mapping are server-owned; callers cannot supply an allowlist.
         config=await asyncio.to_thread(document,self.profiles)
         entry=config.get('profiles',{}).get(profile)
         if not isinstance(entry,dict) or entry.get('enabled') is not True:raise RuntimeErrorCode('WORKER_PROFILE_DENIED')
-        from .worker import read_profile
-        profile_id,spec=await asyncio.to_thread(read_profile,entry['path'])
-        if profile_id!=profile or spec.fingerprint()!=envelope['profile_digest'] or POLICY_ENV not in spec.environment:
+        from .remote_profiles import resolve
+        async with self.gate.store.db.read(envelope['scope']) as c:
+            selected_run=await self.gate.store._run(c,binding[0])
+        bound_revision=selected_run['input'].get('revision_ref')
+        spec,_=await resolve(self.gate.store.db,envelope['scope'],entry,profile,envelope['profile_digest'],bound_revision)
+        if POLICY_ENV not in spec.environment:
             raise RuntimeErrorCode('PROFILE_CHANGED')
         bound_entry=entry;bound_spec=spec.fingerprint()
         # One in-flight message per Worker, bounded globally. Retry uses the same call identity.

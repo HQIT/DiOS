@@ -211,7 +211,7 @@ class RemoteControlTests(unittest.IsolatedAsyncioTestCase):
             gateway.stopping=True;task.cancel();await asyncio.gather(task,return_exceptions=True)
         self.assertEqual(len((await self.f.store.get(self.run['id']))['attempts']),1)
 
-    async def actual_tls(self,adapter):
+    async def actual_tls(self,adapter,revision_ref=None,revision_export=None):
         from app.runtime.remote_tool_gateway import ToolGateway
         from app.runtime.remote_tool_channel import RemoteToolProvider
         root=self.f.root/'tls';root.mkdir()
@@ -234,9 +234,21 @@ class RemoteControlTests(unittest.IsolatedAsyncioTestCase):
                 port=gate.server.sockets[0].getsockname()[1],ca_file=str(root/'ca.pem'),certificate_file=str(root/'client.pem'),key_file=str(root/'client.key'),credential_mode='automatic')
             path=root/'client.json';path.write_text(json.dumps(config))
             transport=RemoteToolProvider(path,SimpleNamespace(scope=self.f.scope),'test-profile',self.f.spec)
+            transport.revision_ref=revision_ref
             remote=RemoteRuntimeStore(self.f.scope,transport)
-            worker=Worker(remote,adapter,'test-profile',self.f.spec,self.client_provider,poll_interval=.1,authorization_verifier=remote.verifier)
-            result=await worker.serve(once=True);self.assertEqual(result['state'],'succeeded')
+            worker=Worker(remote,adapter,'test-profile',self.f.spec,self.client_provider,poll_interval=.1,authorization_verifier=remote.verifier,revision_ref=revision_ref)
+            if revision_export:
+                import sys
+                env=dict(os.environ,PYTHONPATH=str(fixtures.ROOT/'backend'))
+                env.pop('DIOS_RUNTIME_DATABASE_URL',None)
+                process=await asyncio.create_subprocess_exec(sys.executable,'-m','app.runtime.cli',
+                    '--scope',self.f.scope,'remote-worker','--revision-file',str(revision_export),
+                    '--control-file',str(path),'--artifacts',str(self.client_provider.root),'--once','--poll-interval','.1',
+                    cwd=fixtures.ROOT/'backend',env=env,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)
+                out,err=await asyncio.wait_for(process.communicate(),40)
+                self.assertEqual(process.returncode,0,err.decode());result=json.loads(out)
+            else:result=await worker.serve(once=True)
+            self.assertEqual(result['state'],'succeeded')
             return result
         finally:stop.set();await asyncio.wait_for(task,15)
     async def test_actual_tls_control_roundtrip(self):await self.actual_tls(self.adapter)

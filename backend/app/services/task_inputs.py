@@ -20,20 +20,32 @@ def is_console_input(value):
             (value.get('origin') is None and value.get('task_kind') in LEGACY_INPUT_KINDS))
 
 
+def catalog_value(display):
+    """Resolve bounded catalog data; immutable profiles carry it inline."""
+    if 'input_catalog_data' in display:
+        if 'input_catalog' in display:
+            raise ValueError()
+        value = display['input_catalog_data']
+        if len(encoded(value)) > 65536:
+            raise ValueError()
+        return value
+    path = Path(display['input_catalog'])
+    if not path.is_absolute() or path.is_symlink() or not path.is_file():
+        raise ValueError()
+    with path.open('rb') as stream:
+        raw = stream.read(65537)
+    if len(raw) > 65536:
+        raise ValueError()
+    return json.loads(raw)
+
+
 def registration(display):
     """Read one operator-controlled catalog, validate and fingerprint its contract."""
     try:
         kind = display['input_kind']
         if not isinstance(kind, str) or not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9._/-]{0,159}', kind):
             raise ValueError()
-        path = Path(display['input_catalog'])
-        if not path.is_absolute() or path.is_symlink() or not path.is_file():
-            raise ValueError()
-        with path.open('rb') as stream:
-            raw = stream.read(65537)
-        if len(raw) > 65536:
-            raise ValueError()
-        value = json.loads(raw)
+        value = catalog_value(display)
         if not isinstance(value, dict) or type(value.get('version')) is not int or value['version'] != 1:
             raise ValueError()
         if set(value) - {'version', 'inputs', 'schema', 'input_digest', 'requires_e2ag', 'dynamic_inputs', 'result_schema'}:

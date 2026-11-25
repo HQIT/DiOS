@@ -95,9 +95,9 @@ class BusinessConsoleTests(unittest.IsolatedAsyncioTestCase):
         p={**self.profile,'id':'knowledge','console':dict(enabled=True,input_kind='knowledge-evidence',name='Knowledge',
             input_catalog=str(ROOT/'examples/business/sales-inputs.json'))}
         (self.profiles/'knowledge.json').write_text(json.dumps(p))
-        profiles=self.console.catalog();knowledge=next(x for x in profiles if x['id']=='knowledge')
+        profiles=await self.console.catalog();knowledge=next(x for x in profiles if x['id']=='knowledge')
         self.assertEqual(knowledge['input_ids'],['sales-evidence-demo'])
-        self.assertEqual(len(self.console.samples()),3)
+        self.assertEqual(len(await self.console.samples()),3)
         with self.assertRaisesRegex(RuntimeErrorCode,'WORK_POLICY_REQUIRED'):
             await self.console.submit('knowledge','sales-evidence-demo','核查','demo')
         with self.assertRaisesRegex(RuntimeErrorCode,'SAMPLE_NOT_FOUND'):

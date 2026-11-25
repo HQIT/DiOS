@@ -7,7 +7,7 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-1.02",
+    "next_work_item": "K02-1.03",
     "next_delivery": "K02-1.05",
     "next_delivery_order": [
       "K02-1.05",
@@ -1494,7 +1494,7 @@
       "issue": 31,
       "title": "运行绑定固定版本",
       "kind": "I",
-      "state": "in_progress",
+      "state": "done",
       "requirements": [
         "K02-1-A01",
         "K02-1-A02"
@@ -1506,22 +1506,20 @@
         "K02-1.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "CLI、本地 Worker、A2A Worker 的版本绑定和当前 E2AG 已通过验证；Console、远程 Worker 登记及受控挂载内容固定待接入。",
+      "completion_evidence": [
+        "docs/design/evidence/execution-revisions-20261125.json",
+        "docs/design/evidence/revision-entries-20261125.json"
+      ],
+      "basis": "固定版本已贯通 CLI、Console、本地/A2A/远程 Worker、E2AG 工具控制；受控挂载打包、源目录删除及进程重启后旧版本执行通过工程验证。",
       "existing_evidence": [
         "docs/design/evidence/managed-upgrade-20261124.json",
         "docs/design/evidence/runtime-revisions-20261125.json"
       ],
       "wave": "W1",
       "progress_evidence": [
-        "docs/design/evidence/execution-revisions-20261125.json"
+        "docs/design/evidence/revision-entries-20261125.json"
       ],
-      "remaining": [
-        "Console submissions bind the selected immutable Revision",
-        "Remote Worker registration/control accepts explicitly admitted historical Revisions",
-        "Content pinning and supply for mounted controlled Prompt/code/skill dependencies",
-        "Combined qualification of all supported entry paths"
-      ]
+      "remaining": []
     },
     {
       "id": "K02-1.03",

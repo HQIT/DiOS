@@ -1,6 +1,6 @@
 # 不可变运行版本
 
-标识：K02-1.01；关联：#31、#25、#32；工程责任：Codex；状态：K02-1.01 工程验证通过，G2 评审待认领。
+标识：K02-1.01；关联：#31、#25、#32；工程责任：Codex；状态：K02-1.01/.02 工程验证通过，G2 评审待认领。
 
 ## 目标与对象
 
@@ -51,7 +51,7 @@ python -m app.runtime.cli --scope local revision list agent-definition --limit 2
 python -m app.runtime.cli --scope local revision show REVISION_ID --manifest
 ```
 
-创建版本不启动 Worker、不调用模型、不创建或扩大 E2AG 工作授权。API/Console 发布入口与实际任务绑定分别由后续 K02-1 工作项接入，当前普通任务继续使用原路径。
+创建版本不启动 Worker、不调用模型、不创建或扩大 E2AG 工作授权。Console 可注册已发布 Revision；版本发布、健康门禁和回滚管理界面由后续 K02-1 工作项接入。已有未绑定 Revision 的任务继续使用原路径。
 
 ## 验证与后续依赖
 
@@ -73,8 +73,48 @@ python -m app.runtime.cli --scope local worker --revision-ref REVISION_ID --arti
 
 Run 在提交事务内绑定 revision_ref 和 revision_digest，核验 Profile 摘要及 Secret 引用；客户端输入不能直接指定这两个受控字段。幂等回执同时匹配 Revision，不能把不同版本的提交合并为同一个任务。
 
-Worker 按 Profile 摘要和 Revision 领取任务，恢复扫描使用同一 Revision 范围。不匹配任务保持排队，等待相应版本 Worker。原 --profile 入口继续处理未绑定 Revision 的任务；固定版本 Worker 通过 --revision-ref 从数据库重新加载启动配置，不受配置文件后续编辑影响。运行输入数据由数据提供方管理；挂载中的 Prompt、代码和技能属于受控版本依赖，其内容固定及旧版本供给仍需完成。远端不可见实现保留 opaque 标记。
+Worker 按 Profile 摘要和 Revision 领取任务，恢复扫描使用同一 Revision 范围。不匹配任务保持排队，等待相应版本 Worker。原 --profile 入口继续处理未绑定 Revision 的任务；固定版本 Worker 通过 --revision-ref 从数据库重新加载启动配置，不受配置文件后续编辑影响。远端不可见实现保留 opaque 标记。
 
 E2AG 策略按当前授权决定执行。FileWorkPolicy 的 Profile 行可增加 revisions 字典，以 Profile 摘要为键保存并存版本的授权行。当前版本仍使用原行，历史版本只允许显式列出的摘要。选中行单独计算策略摘要，添加新版本不会改变旧版本既有 Grant；删除历史行、修改其权限或停用主体仍会阻止后续受限动作。快照不复制执行权。
 
-K02-1.02 当前包含持久绑定、CLI、本地 Worker 与 A2A Worker 的执行接线。Console 提交自动绑定、远程 Worker 控制登记及受控挂载依赖的内容固定尚需接入，工作项保持进行中。工程证据见 [执行绑定记录](evidence/execution-revisions-20261125.json)。
+### Console 和输入契约
+
+发布 Profile 时，console.input_catalog 的受信文件被读取、校验并以内联 input_catalog_data 保存，样例、动态输入 Schema 和结果 Schema 同属该 Revision。发布后编辑或删除原文件不影响历史版本。
+
+Console 的 profiles_dir 中可使用以下激活文件，id 必须与同一 scope 下的 Revision 定义一致：
+
+```json
+{"id":"agent-definition","revision_ref":"rev-<sha256>","enabled":true}
+```
+
+普通 API 调用者仍选择 profile_id，不能提交配置、命令或自行提升版本准入。服务在同一提交事务绑定 Revision，并把版本纳入幂等摘要。切换激活文件后，新请求使用新版本；已排队任务保留原绑定。定时计划的提交摘要包含版本，变化时返回 SCHEDULE_BINDING_CHANGED。列表和详情返回 revision_ref。
+
+### 远程 Worker 与工具控制
+
+网关的受信 profiles 文件在已有 path 旁增加 revisions 准入列表；只服务固定版本时可以省略 path：
+
+```json
+{"version":1,"profiles":{"agent-definition":{"enabled":true,"revisions":["rev-<sha256>"]}}}
+```
+
+机器身份、定义准入、版本准入与当前 E2AG 授权分别校验。版本摘要或导出文件本身不授予执行权。远程任务领取、Attempt 操作、恢复扫描和持久回执均绑定 Revision；移除准入后拒绝该版本后续请求。工具通道从所属 Run 取得版本，沿用人工审批、派发前授权复核和原调用回执。
+
+远程执行机通过受信运维路径接收公开 Revision 导出和相应 Docker 镜像，不需要数据库凭据：
+
+```sh
+python -m app.runtime.cli --scope local revision show REVISION_ID --manifest > revision.json
+# 将 revision.json 与对应镜像提供到执行机，再运行：
+python -m app.runtime.cli --scope local remote-worker --revision-file revision.json --control-file control.json --artifacts ./artifacts --once
+```
+
+执行机校验 scope、内容摘要、配置摘要、Revision ID 和 Adapter 版本。镜像供给使用现有 Docker save/load 或镜像分发机制；缺失镜像明确失败。网关登记和 E2AG 策略需要显式保留仍有未完成任务的版本，不能用新版本 Worker 领取旧版本任务。
+
+### 受控挂载与内容供给
+
+发布时，受控只读挂载中的代码、Prompt 和技能通过 [Docker 构建上下文](https://docs.docker.com/build/concepts/context/) 与 [COPY](https://docs.docker.com/reference/dockerfile/#copy) 打入派生镜像，并取消对应宿主机 bind mount。Revision 同时保存各挂载的内容摘要、大小及条目数，执行绑定派生镜像的内容 ID。原目录后续编辑、删除或迁移不改变既有执行内容。
+
+业务输入挂载须在 Profile 的 input_mount_targets 中显式列出目标路径，沿用原数据供给与权限管理；默认把挂载视为受控实现依赖。输入挂载不得遮蔽已打包代码路径。受控目录复制前清除镜像中同路径的原内容，保持 bind mount 原有的目录覆盖语义。
+
+当前 Linux/WSL 发布器限总计 64 MiB、10,000 个条目，拒绝符号链接、特殊文件、读取期间变化和被系统临时目录或镜像 Volume 遮蔽的目标。派生构建关闭网络，拒绝 ONBUILD，基础镜像需具备 rm；更大或不兼容的实现可先用标准镜像流水线打包，再以镜像内容 ID 发布。镜像保留与分发纳入部署运维，不能清理仍被未完成任务引用的版本。
+
+工程证据：[首次执行绑定](evidence/execution-revisions-20261125.json)、[入口与内容绑定](evidence/revision-entries-20261125.json)。部署激活、健康失败回滚和外部声明变化门禁继续由 K02-1.03/.04 承接。

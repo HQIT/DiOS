@@ -195,6 +195,17 @@ class BindingScenarios:
 
 
 class SQLiteBindingTests(BindingScenarios, unittest.IsolatedAsyncioTestCase):
+    async def test_direct_manifest_cannot_bypass_controlled_mount_snapshot(self):
+        raw = profile()
+        raw["launch"]["mounts"] = [
+            {"source": "/mutable/code", "target": "/opt/agent", "read_only": True}
+        ]
+        with self.assertRaisesRegex(RuntimeErrorCode, "REVISION_MOUNTS_NOT_PINNED"):
+            await self.snapshot(raw)
+        raw["input_mount_targets"] = ["/opt/agent"]
+        snap = await self.snapshot(raw)
+        self.assertEqual(snap[2].mounts[0].target, "/opt/agent")
+
     async def test_idempotency_receipt_cannot_alias_a_different_revision(self):
         old = await self.snapshot()
         raw = profile()

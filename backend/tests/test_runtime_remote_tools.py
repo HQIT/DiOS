@@ -35,11 +35,12 @@ class RemoteToolTests(unittest.IsolatedAsyncioTestCase):
         self.spec=replace(f.spec,environment={POLICY_ENV:json.dumps(policy)})
         # Only the public profile fingerprint is stubbed; ownership and E2AG remain real fixtures.
         self.profile_patch=patch('app.runtime.worker.read_profile',return_value=('test-profile',self.spec));self.profile_patch.start()
+        self.security_patch=patch('app.runtime.work_policy.security_profile',return_value=('e2ag',[]));self.security_patch.start()
         self.fingerprint_patch=patch.object(type(self.spec),'fingerprint',return_value=f.run['input']['profile_digest']);self.fingerprint_patch.start()
         self.gateway=ToolGateway(f.gate,self.identities,self.profiles_file)
 
     async def asyncTearDown(self):
-        self.fingerprint_patch.stop();self.profile_patch.stop();await self.f.asyncTearDown()
+        self.fingerprint_patch.stop();self.profile_patch.stop();self.security_patch.stop();await self.f.asyncTearDown()
 
     def write_identity(self):
         self.identities_file.write_text(json.dumps({'version':1,'audience':'tools:test','workers':[self.row]}))
@@ -121,6 +122,45 @@ class RemoteToolTests(unittest.IsolatedAsyncioTestCase):
             decision=(await c.execute(select(evidence.c.decision).where(evidence.c.invocation_id==item['id'],evidence.c.stage=='dispatch'))).scalar_one()
         self.assertEqual(decision['evidence']['sender']['certificate_sha256'],self.cert)
         self.assertNotIn(self.token,json.dumps(decision))
+
+    async def test_immutable_revision_keeps_tool_approval_and_live_registry_revocation(self):
+        from app.runtime.authorization import WorkAuthorizationContext
+        from app.runtime.execution_revisions import compile_profile,load_profile
+        from app.runtime.revisions import Revisions
+        from app.runtime.work_authorizations import WorkAuthorizationVerifier
+        from work_auth_fixtures import policy_fixture
+        self.fingerprint_patch.stop();self.profile_patch.stop();self.security_patch.stop()
+        f=self.f
+        raw={'id':'test-profile','bridge':'jsonl-v1','governance':{'mode':'e2ag'},
+             'launch':{'image':'sha256:'+'1'*64,'command':['fixture']},
+             'tool_channel':{'tools':{'search':'search'}}}
+        record=await Revisions(f.db,f.scope).create('tool-revision',compile_profile(raw),actor='operator')
+        ref=record['revision']['id'];_,name,spec,_,_=await load_profile(f.db,f.scope,ref)
+        policy,_=policy_fixture(f.root,name,spec);config=json.loads(policy.path.read_text())
+        for permissions in config['profiles'][name]['permissions'].values():permissions.append(f.permission)
+        policy.path.write_text(json.dumps(config));f.policy=policy;f.gate.policy=policy
+        descriptor=policy.admission(name,spec.fingerprint(),[])
+        f.run=await f.store.submit('versioned-tool',{'runtime_profile':name,'profile_digest':spec.fingerprint(),'secret_refs':[]},authorization=descriptor,revision_ref=ref)
+        await f.store.register_worker('worker:version','instance','host',os.getpid())
+        f.attempt=await f.store.claim('worker:version','instance',profile_id=name,profile_digest=spec.fingerprint(),revision_ref=ref)
+        f.binding=(f.run['id'],f.attempt['id'],'worker:version','instance',f.attempt['epoch'])
+        context=WorkAuthorizationContext(f.scope,*f.binding[:2],'worker:version','instance',f.attempt['epoch'],f.attempt['authorization_epoch'],None,f.run['input']['work_authorization_ref'])
+        verifier=WorkAuthorizationVerifier(f.store,policy);await verifier(context,'execute')
+        await f.store.report(*f.binding,1,'preparing');await f.store.report(*f.binding,2,'creating_session')
+        await verifier(replace(context,session_id='session-one'),'execute')
+        await f.store.report(*f.binding,3,'waiting_model',session_id='session-one')
+        self.entry={'enabled':True,'revisions':[ref]}
+        self.row['worker_id']='worker:version';self.write_identity()
+        self.profiles_file.write_text(json.dumps({'version':1,'profiles':{name:self.entry}}))
+        item=await self.call('request',{'tool':'search','arguments':{'query':'evidence'},'key':'versioned-call'})
+        self.assertEqual(item['state'],'awaiting_approval');self.assertEqual(f.transport.calls,[])
+        await f.approve(item)
+        result=await self.call('advance',{'invocation_id':item['id']})
+        self.assertEqual(result['state'],'succeeded');self.assertEqual(len(f.transport.calls),1)
+        self.profiles_file.write_text(json.dumps({'version':1,'profiles':{name:{'enabled':True,'revisions':[]}}}))
+        with self.assertRaisesRegex(RuntimeErrorCode,'WORKER_REVISION_DENIED'):
+            await self.call('request',{'tool':'search','arguments':{'query':'evidence'},'key':'revoked-call'})
+        self.assertEqual(len(f.transport.calls),1)
 
     async def test_token_revocation_during_mcp_initialization_blocks_actual_call(self):
         f=self.f;item=await self.call('request',{'tool':'search','arguments':{'query':'evidence'},'key':'one'})

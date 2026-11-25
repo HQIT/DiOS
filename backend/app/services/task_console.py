@@ -89,24 +89,43 @@ class TaskConsole:
             owner['scope'].as_string()==self.scope,runs.c.input['runtime_profile'].as_string().in_(profiles))
         return or_(own,runs.c.id.in_(shared))
 
-    def _registrations(self):
-        profiles=[]
+    def _profile_sources(self):
+        sources=[]
         for path in sorted(self.profiles_dir.glob('*.json')):
             with path.open('rb') as stream: data=stream.read(65537)
             if len(data)>65536: raise RuntimeErrorCode('INVALID_PROFILE_CATALOG')
             raw=json.loads(data)
+            sources.append((path,raw))
+        return sources
+
+    async def _registrations(self):
+        profiles=[]
+        for path,raw in await asyncio.to_thread(self._profile_sources):
+            revision_ref=None
+            if 'revision_ref' in raw:
+                if set(raw)!={'id','revision_ref','enabled'} or type(raw['enabled']) is not bool:
+                    raise RuntimeErrorCode('INVALID_PROFILE_CATALOG')
+                if not raw['enabled']:continue
+                # Activation is operator-owned. HTTP callers select only an admitted profile ID.
+                if not await asyncio.to_thread(self.profile_allowed,raw['id']):continue
+                from app.runtime.execution_revisions import load_profile
+                revision_ref=raw['revision_ref'];expected_id=raw['id']
+                raw,loaded_id,_,_,_=await load_profile(self.db,self.scope,revision_ref)
+                if loaded_id!=expected_id:raise RuntimeErrorCode('REVISION_EXECUTION_BINDING_INVALID')
+                if 'input_catalog_data' not in raw.get('console',{}):
+                    raise RuntimeErrorCode('REVISION_INPUT_CATALOG_NOT_PINNED')
             display=raw.get('console',{})
             if display.get('enabled') is not True: continue
             profile_id,spec=read_profile(path,value=raw)
-            if not self.profile_allowed(profile_id):continue
+            if not await asyncio.to_thread(self.profile_allowed,profile_id):continue
             if any(x['view']['id']==profile_id for x in profiles):raise RuntimeErrorCode('DUPLICATE_PROFILE_ID')
-            registered=registration(display)
+            registered=await asyncio.to_thread(registration,display)
             registered_inputs=registered['inputs']
             # Explicit operator activation; API never accepts commands, paths or secrets.
             if spec.mounts and any(not m.read_only for m in spec.mounts):
                 raise RuntimeErrorCode('PROFILE_REQUIRES_READ_ONLY_MOUNTS')
             mode,refs=security_profile(path,raw=raw)
-            profiles.append(dict(inputs=registered_inputs,refs=refs,registration_digest=registered['digest'],
+            profiles.append(dict(inputs=registered_inputs,refs=refs,revision_ref=revision_ref,registration_digest=registered['digest'],
                 requires_e2ag=registered['requires_e2ag'],contract=registered,view=dict(id=profile_id,name=str(display.get('name',profile_id))[:120],
                 description=str(display.get('description',''))[:500],
                 implementation=str(display.get('implementation','unknown'))[:120],
@@ -116,21 +135,22 @@ class TaskConsole:
                 governance=mode,policy_configured=self.policy is not None if mode=='e2ag' else True)))
             profiles[-1]['view']['execution_kind']=getattr(spec,'execution_kind','managed-process')
             profiles[-1]['view']['control_scope']=getattr(spec,'control_scope','managed-runtime')
+            profiles[-1]['view']['revision_ref']=revision_ref
         return profiles
 
-    def catalog(self):
-        return [item['view'] for item in self._registrations()]
+    async def catalog(self):
+        return [item['view'] for item in await self._registrations()]
 
-    def samples(self):
+    async def samples(self):
         rows={}
-        for registered in self._registrations():
+        for registered in await self._registrations():
             for item in registered['inputs']:
                 if item['id'] in rows and rows[item['id']]!=item:raise RuntimeErrorCode('INVALID_INPUT_CATALOG')
                 rows[item['id']]=item
         return list(rows.values())
 
     async def prepare_submission(self, profile_id, sample_id, goal, *, input_payload=None):
-        registered=next((x for x in await asyncio.to_thread(self._registrations)
+        registered=next((x for x in await self._registrations()
                          if x['view']['id']==profile_id),None)
         if registered is None:raise RuntimeErrorCode('PROFILE_NOT_AVAILABLE')
         profile=registered['view']
@@ -152,6 +172,7 @@ class TaskConsole:
         owner = ({k:self.principal[k] for k in ('issuer','id','scope','subject','actor')}
                  if self.principal is not None else None)
         submission_digest=digest(dict(owner=owner,profile_id=profile_id,sample_id=sample_id,
+            **({'revision_ref':registered['revision_ref']} if registered['revision_ref'] is not None else {}),
             input_payload=input_payload,goal=goal,registered_input=value,
             registration_digest=registered['registration_digest'],profile_digest=profile['profile_digest'],
             secret_refs=registered['refs']))
@@ -218,7 +239,7 @@ class TaskConsole:
                 **({'result_schema':registered['contract']['result_schema']} if registered['contract']['result_schema'] is not None else {})),
             runtime_profile=profile_id,profile_digest=profile['profile_digest'],
             task_kind=profile['input_kind'],payload=dict(goal=goal,sample=value),
-            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest,admission_guard=admission_guard,parent_binding=parent_binding)
+            secret_refs=refs,display=dict(name=profile['name'],implementation=profile['implementation'],synthetic=profile['synthetic'])),authorization=descriptor,submission_digest=submission_digest,admission_guard=admission_guard,parent_binding=parent_binding,revision_ref=registered['revision_ref'])
         return await self.detail(run['id'])
 
     @staticmethod
@@ -226,7 +247,8 @@ class TaskConsole:
         value=run['input'];payload=value.get('payload',{})
         return {**{k:run[k] for k in ('id','state','version','attempt_id','created_at','updated_at','cancel_requested')},
             'goal':payload.get('goal',''), 'sample_id':payload.get('sample',{}).get('id'),
-            'task_kind':value.get('task_kind'),'profile_id':value.get('runtime_profile'), 'display':value.get('display',{})}
+            'task_kind':value.get('task_kind'),'profile_id':value.get('runtime_profile'), 'display':value.get('display',{}),
+            'revision_ref':value.get('revision_ref')}
 
     async def overview(self, *, period='hour',buckets=24,profile_id=None):
         from app.runtime.overview import view

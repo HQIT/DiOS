@@ -1,0 +1,147 @@
+{
+  "work_item": "K02-1.02",
+  "status": "engineering_verified",
+  "base_commit": "cf450a4e92b9a9817eef3dd4a9722b8369c75139",
+  "requirements": [
+    "K02-1-A01",
+    "K02-1-A02"
+  ],
+  "delivered": [
+    "Console operator activation selects immutable Revision and frozen input/result contracts",
+    "Submission and schedule identity include Revision; existing unversioned input remains compatible",
+    "Remote control enforces explicit version admission for claim, ownership, recovery and receipt replay",
+    "Remote CLI verifies scope-qualified public export without database credentials",
+    "Remote tool channel selects the Run version and retains live E2AG approval/revocation controls",
+    "Controlled code/Prompt/skill mounts are packaged into a content-addressed Docker image",
+    "Direct execution manifests reject unfrozen controlled mounts; runtime data targets must be explicit"
+  ],
+  "tests": {
+    "sqlite_postgresql_regression": {
+      "total": 324,
+      "passed": 289,
+      "skipped": 35,
+      "seconds": 293.337,
+      "log": "contracts.log"
+    },
+    "offline_image_regression": {
+      "total": 324,
+      "passed": 232,
+      "skipped": 92,
+      "seconds": 213.74,
+      "log": "image-contracts-broad.log"
+    },
+    "final_mount_guard_sqlite_postgresql": {
+      "total": 22,
+      "passed": 20,
+      "skipped": 2,
+      "seconds": 19.14,
+      "log": "final-contracts.log"
+    },
+    "final_image": {
+      "total": 22,
+      "passed": 16,
+      "skipped": 6,
+      "seconds": 14.592,
+      "log": "image-contracts.log"
+    },
+    "native": {
+      "total": 2,
+      "passed": 2,
+      "skipped": 0,
+      "seconds": 8.233,
+      "log": "native.log"
+    }
+  },
+  "qualification_note": "Broad regression precedes the final direct-manifest mount guard; final targeted suites cover that guard and all revised entry paths.",
+  "native": {
+    "exit_code": 0,
+    "tests": [
+      "test_revision_mounts.NativeMountRevisionTests",
+      "test_remote_revisions.RemoteRevisionTests.test_actual_mtls_docker_uses_admitted_revision_without_source_profile"
+    ],
+    "e2ag": "current-policy-enforced",
+    "remote_cli": "separate-process-without-database-url",
+    "result": "----------------------------------------------------------------------\nRan 2 tests in 8.233s\n\nOK"
+  },
+  "image": {
+    "image": "sha256:ad478b4761afa493dcf556655dfd4911f0791db9d1a88cb2d96f9534a2d615f5",
+    "base": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "tag": "dios-backend:revision-entries-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "development": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "changed": false
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "prior_evidence": [
+    "docs/design/evidence/execution-revisions-20261125.json"
+  ],
+  "limits": [
+    "Logical remote connection and mTLS used one physical host; physical multi-host qualification remains in W4",
+    "Image distribution and retention use existing Docker operations; active Deployment selection and rollback remain K02-1.03",
+    "Remote Harness implementation remains opaque where it cannot be inspected; external compatibility gate remains K02-1.04",
+    "Controlled mount packaging is bounded to 64 MiB and 10000 entries; no symlinks/special files/ONBUILD; base image requires rm",
+    "G2/G3 acceptance remains assigned separately from engineering verification"
+  ],
+  "source_sha256": {
+    "backend/app/api/os/runtime_a2a.py": "1d9be3293f273f1ebf9efe4a2f1842c1a6c44b093787e5dc8aede491e815ac68",
+    "backend/app/api/os/runtime_tasks.py": "cf50dad11afc6803ad121fd256914899afdfa27d48c884df0c66f44edba7c377",
+    "backend/app/runtime/cli.py": "53bdc41a6d174369193d3660141022a25491106caa72e3d15a414659ac0979c6",
+    "backend/app/runtime/execution_revisions.py": "f776dbd2a190e63a9bb3b304ed9175df74d75df9ceb9c68e44029d5e619bd911",
+    "backend/app/runtime/remote_profiles.py": "478043f378e9e7582970da505aef900a6d9a6167cb1c0a573f3b0dfdd7d5af16",
+    "backend/app/runtime/revision_mounts.py": "df60e3d39a432a4713332efd12bb33b67cdf0f9b6d0781ce64deb4063669cece",
+    "backend/app/runtime/remote_control.py": "eb0b5eb39f3149b4b886062157fa7f0364edbc6928197848d6682bd04f2e6b87",
+    "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+    "backend/app/runtime/remote_tool_gateway.py": "e8509e83ebf593786a5d359478ef84d52a8bc102fb93e0cf712c1dd4fc66cc7b",
+    "backend/app/services/task_console.py": "8ded03e96819b2fba9fba624a4d65b6486d00af55dd6383c470b933e0cfc20ac",
+    "backend/app/services/task_inputs.py": "c3c2688108b2c162ab985d1ad075d9457fdaceb850c95d6a3434c6567653e09f",
+    "backend/tests/test_console_revisions.py": "b40d0e142bfe358c933013c5717ff5537e95ef902cb9e186f82c19f807f7d4f8",
+    "backend/tests/test_remote_revisions.py": "8990f9ee132058bef5d6ba98761c3bfc9f28dfbf4313a7ccb5e5ed06a336ef45",
+    "backend/tests/test_revision_mounts.py": "9e853e33df97e085ea551c88bbdceb89dd1f6c2b8df5b409f1afdfffeeee1dad",
+    "backend/tests/test_execution_revisions.py": "2c8e0113a18917951112dfbcd4808e67c80607adaba39165accebe0a3146d096",
+    "backend/tests/test_runtime_remote_tools.py": "f1c2658b7d3d7267efe1e9df1c3baba015a84ce8397a14c8f327752cb92b6eff",
+    "backend/tests/test_runtime_remote_control.py": "b89a3e2f4544214aa861ecccff726d33721ac718c0ba998b4f8f6d4238d12bef"
+  }
+}

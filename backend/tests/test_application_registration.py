@@ -142,7 +142,7 @@ class DynamicRegistrationTests(unittest.IsolatedAsyncioTestCase):
         del body['sample_id'];del body['input_payload']
         self.assertEqual((await self.client.post('/api/os/runtime/runs',headers=self.headers,json=body)).status_code,422)
         self.data['dynamic_inputs']=True;del self.data['schema'];self.save()
-        with self.assertRaisesRegex(RuntimeErrorCode,'INVALID_INPUT_CATALOG'):self.console.catalog()
+        with self.assertRaisesRegex(RuntimeErrorCode,'INVALID_INPUT_CATALOG'):await self.console.catalog()
 
     async def test_dynamic_does_not_bypass_e2ag_or_digest(self):
         self.register(governed=True);self.data['dynamic_inputs']=True;self.save()

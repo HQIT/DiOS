@@ -51,6 +51,14 @@ def compile_profile(raw):
     dependencies = {kind: [] for kind in sorted(DEPENDENCY_KINDS)}
     dependencies["adapter"] = [adapter_descriptor(raw["bridge"])]
     if raw["bridge"] == "jsonl-v1":
+        inputs = raw.get("input_mount_targets", [])
+        if (
+            not isinstance(inputs, list)
+            or any(not isinstance(x, str) for x in inputs)
+            or len(set(inputs)) != len(inputs)
+            or set(inputs) != {m.target for m in spec.mounts}
+        ):
+            raise RuntimeErrorCode("REVISION_MOUNTS_NOT_PINNED")
         if not re.fullmatch(r"sha256:[0-9a-f]{64}", spec.image):
             raise RuntimeErrorCode("REVISION_IMAGE_NOT_PINNED")
         dependencies["image"] = [
@@ -62,6 +70,16 @@ def compile_profile(raw):
                 "visibility": "pinned",
             }
         ]
+        for index, mount in enumerate(raw.get("packaged_mounts", [])):
+            dependencies["harness"].append(
+                {
+                    "name": "mount-" + str(index),
+                    "reference": "urn:dios:mount:" + mount["digest"],
+                    "version": None,
+                    "digest": mount["digest"],
+                    "visibility": "pinned",
+                }
+            )
     else:
         dependencies["harness"] = [
             {
@@ -188,6 +206,7 @@ async def publish_profile(db, scope, path, key, actor):
 
     read_profile(path, value=raw)
     security_profile(path, raw=raw)
+    freeze_console(raw)
     if raw.get("bridge") == "jsonl-v1":
         import docker
         from docker.errors import ImageNotFound
@@ -195,11 +214,61 @@ async def publish_profile(db, scope, path, key, actor):
         def resolve():
             client = docker.from_env(timeout=5)
             try:
-                return client.images.get(raw["launch"]["image"]).id
+                raw["launch"]["image"] = client.images.get(raw["launch"]["image"]).id
+                from .revision_mounts import package
+
+                package(client, raw)
             except ImageNotFound:
                 raise RuntimeErrorCode("RUNTIME_IMAGE_MISSING") from None
             finally:
                 client.close()
 
-        raw["launch"]["image"] = await asyncio.to_thread(resolve)
+        await asyncio.to_thread(resolve)
     return await Revisions(db, scope).create(key, compile_profile(raw), actor=actor)
+
+
+def freeze_console(raw):
+    """Include the input contract and samples in the published configuration."""
+    from app.services.task_inputs import catalog_value, registration
+
+    display = raw.get("console", {})
+    if display.get("enabled") is True:
+        try:
+            value = catalog_value(display)
+        except (
+            OSError,
+            ValueError,
+            TypeError,
+            KeyError,
+            AttributeError,
+            RecursionError,
+        ):
+            raise RuntimeErrorCode("INVALID_INPUT_CATALOG") from None
+        display.pop("input_catalog", None)
+        display["input_catalog_data"] = value
+        registration(display)
+
+
+def read_export(path, scope):
+    """Verify a public CLI export on a Worker without database credentials."""
+    from .revisions import hashes, manifest
+
+    try:
+        with Path(path).open("rb") as stream:
+            data = stream.read(300001)
+        if len(data) > 300000:
+            raise ValueError()
+        record = json.loads(data)
+        value = manifest(record["manifest"])
+        content, config = hashes(value)
+        ref = "rev-" + digest([scope, value["definition_id"], content])
+        expected = record["revision"]
+        if (expected["id"], expected["content_digest"], expected["config_digest"]) != (
+            ref,
+            content,
+            config,
+        ):
+            raise ValueError()
+    except (OSError, ValueError, TypeError, KeyError, RecursionError):
+        raise RuntimeErrorCode("REVISION_INTEGRITY_FAILED") from None
+    return ref, decode(record)

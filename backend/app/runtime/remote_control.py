@@ -34,7 +34,8 @@ class RemoteControl:
 
     async def handle(self,certificate,expiry,e):
         fields={'protocol','audience','scope','profile','profile_digest','worker_id','instance','request_id','message'}
-        if not isinstance(e,dict) or set(e)!=fields or e['protocol']!=PROTOCOL:raise RuntimeErrorCode('WORKER_GATEWAY_FRAME_INVALID')
+        if not isinstance(e,dict) or set(e) not in (fields,fields|{'revision_ref'}) or e['protocol']!=PROTOCOL:raise RuntimeErrorCode('WORKER_GATEWAY_FRAME_INVALID')
+        if 'revision_ref' in e and not isinstance(e['revision_ref'],str):raise RuntimeErrorCode('WORKER_GATEWAY_FRAME_INVALID')
         if e['scope']!=self.store.scope or e['audience']!=self.identities.audience:raise RuntimeErrorCode('WORKER_IDENTITY_SCOPE_DENIED')
         for k in ('worker_id','instance','request_id','profile'):identifier(e[k])
         if max(len(e[k]) for k in ('worker_id','instance','request_id'))>64:raise RuntimeErrorCode('INVALID_IDENTIFIER')
@@ -44,12 +45,9 @@ class RemoteControl:
         if not isinstance(method,str) or not method.startswith('runtime.'):raise RuntimeErrorCode('WORKER_GATEWAY_FRAME_INVALID')
         method=method[8:]
         entry=(await asyncio.to_thread(document,self.profiles)).get('profiles',{}).get(e['profile'])
-        if not isinstance(entry,dict) or entry.get('enabled') is not True:raise RuntimeErrorCode('WORKER_PROFILE_DENIED')
-        from .worker import read_profile
-        from .work_policy import security_profile
-        profile,spec=await asyncio.to_thread(read_profile,entry['path'])
-        mode,_=await asyncio.to_thread(security_profile,entry['path'])
-        if mode!='e2ag' or profile!=e['profile'] or spec.fingerprint()!=e['profile_digest']:raise RuntimeErrorCode('PROFILE_CHANGED')
+        from .remote_profiles import resolve
+        profile=e['profile']
+        await resolve(self.store.db,self.store.scope,entry,profile,e['profile_digest'],e.get('revision_ref'))
         async with self.store.db.transaction(self.store.scope) as c:
             await require(c);now=await self.store.db.now(c)
             if expiry<=max(now,time.time()):raise RuntimeErrorCode('WORKER_CERTIFICATE_EXPIRED')
@@ -61,7 +59,8 @@ class RemoteControl:
             if peer and any(peer[k]!=v for k,v in expected.items()):raise RuntimeErrorCode('WORKER_IDENTITY_BINDING_CHANGED')
             if not peer and method!='register':raise RuntimeErrorCode('WORKER_REGISTRATION_REQUIRED')
             # The key is scoped to an authenticated process; bodies cannot be changed on retry.
-            rid=digest([e['scope'],certificate,e['worker_id'],e['instance'],e['request_id']]);hashed=digest(message)
+            rid=digest([e['scope'],certificate,e['worker_id'],e['instance'],e['request_id']])
+            hashed=digest([message,e['profile'],e['profile_digest'],e['revision_ref']]) if 'revision_ref' in e else digest(message)
             durable=method in {'claim','complete','finish_failed','confirm_cancel','reject_unlaunched','resolve_exit'}
             if durable:
                 old=(await c.execute(select(receipts).where(receipts.c.id==rid))).mappings().first()
@@ -79,8 +78,10 @@ class RemoteControl:
                 # Preserve denial evidence after rolling back a partial claim or result write.
                 target=None;aid=None
                 if method=='claim':
+                    revision_column=runs.c.input['revision_ref'].as_string()
                     target=(await c.execute(select(runs.c.id).where(runs.c.scope==bound.scope,runs.c.state=='queued',
-                        runs.c.input['runtime_profile'].as_string()==profile).order_by(runs.c.created_at,runs.c.id).limit(1))).scalar_one_or_none()
+                        runs.c.input['runtime_profile'].as_string()==profile,runs.c.input['profile_digest'].as_string()==e['profile_digest'],
+                        revision_column==e['revision_ref'] if 'revision_ref' in e else revision_column.is_(None)).order_by(runs.c.created_at,runs.c.id).limit(1))).scalar_one_or_none()
                 elif isinstance(p.get('binding'),list):
                     try:
                         denied_run,denied_attempt=await self.binding(c,bound,e,p['binding'],recovery=True)
@@ -102,7 +103,7 @@ class RemoteControl:
         caller=(await c.execute(select(peers).where(peers.c.id==e['worker_id']))).mappings().one()
         if not peer or any(peer[k]!=caller[k] for k in ('certificate','machine_id','profile')):raise RuntimeErrorCode('WORKER_IDENTITY_SCOPE_DENIED')
         if not recovery and (binding[2],binding[3])!=(e['worker_id'],e['instance']):raise RuntimeErrorCode('STALE_OWNER')
-        if run['attempt_id']!=a['id'] or run['input'].get('runtime_profile')!=e['profile'] or run['input'].get('profile_digest')!=e['profile_digest']:
+        if run['attempt_id']!=a['id'] or run['input'].get('runtime_profile')!=e['profile'] or run['input'].get('profile_digest')!=e['profile_digest'] or run['input'].get('revision_ref')!=e.get('revision_ref'):
             raise RuntimeErrorCode('STALE_OWNER')
         return run,dict(a)
 
@@ -133,12 +134,11 @@ class RemoteControl:
                 .where(peers.c.scope==s.scope,peers.c.certificate==m['certificate_sha256'],peers.c.machine_id==m['worker_id'],
                 attempts.c.state.in_(ACTIVE_ATTEMPTS|{'result_unknown'})))).scalar_one()
             if busy>=capacity:return None
-            from .worker import read_profile
+            from .remote_profiles import resolve
             from .faults import from_spec
             entry=(await asyncio.to_thread(document,self.profiles))['profiles'][e['profile']]
-            _,spec=await asyncio.to_thread(read_profile,entry['path'])
-            if spec.fingerprint()!=e['profile_digest']:raise RuntimeErrorCode('PROFILE_CHANGED')
-            a=await s.claim(e['worker_id'],e['instance'],profile_id=e['profile'],profile_digest=e['profile_digest'],recovery_policy=from_spec(spec))
+            spec,_=await resolve(s.db,s.scope,entry,e['profile'],e['profile_digest'],e.get('revision_ref'))
+            a=await s.claim(e['worker_id'],e['instance'],profile_id=e['profile'],profile_digest=e['profile_digest'],revision_ref=e.get('revision_ref'),recovery_policy=from_spec(spec))
             if a:
                 run=await s.get(a['run_id'])
                 if run['input'].get('profile_digest')!=e['profile_digest']:raise RuntimeErrorCode('PROFILE_CHANGED')
@@ -149,7 +149,10 @@ class RemoteControl:
             await s.expire()
             q=select(attempts).join(runs,runs.c.attempt_id==attempts.c.id).join(peers,peers.c.id==attempts.c.worker_id).where(
                 runs.c.scope==s.scope,runs.c.state=='reconciliation_required',peers.c.certificate==m['certificate_sha256'],
-                peers.c.machine_id==m['worker_id'],peers.c.profile==e['profile'])
+                peers.c.machine_id==m['worker_id'],peers.c.profile==e['profile'],
+                runs.c.input['profile_digest'].as_string()==e['profile_digest'])
+            revision_column=runs.c.input['revision_ref'].as_string()
+            q=q.where(revision_column==e['revision_ref'] if 'revision_ref' in e else revision_column.is_(None))
             if p['cursor']:q=q.where(runs.c.id>p['cursor'])
             rows=(await c.execute(q.order_by(runs.c.id).limit(p['limit']))).mappings().all()
             return [{'run_id':a['run_id'],'binding':[a['run_id'],a['id'],a['worker_id'],a['worker_instance'],a['epoch']]} for a in rows]

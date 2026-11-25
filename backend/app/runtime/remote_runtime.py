@@ -20,6 +20,8 @@ class RemoteRuntimeStore:
         e=dict(protocol=PROTOCOL,audience=self.transport.config['audience'],scope=self.scope,
             profile=self.transport.profile,profile_digest=self.transport.spec.fingerprint(),worker_id=self.worker_id,
             instance=self.instance,request_id=request_id or digest([method,params]),message={'method':'runtime.'+method,'params':params})
+        revision_ref=getattr(self.transport,'revision_ref',None)
+        if revision_ref is not None:e['revision_ref']=revision_ref
         try:return await self.transport.exchange(e)
         except RuntimeErrorCode as exc:
             if exc.code in {'WORKER_GATEWAY_OBSERVATION_UNAVAILABLE','WORKER_GATEWAY_UNAVAILABLE','WORKER_GATEWAY_DRAINING','WORKER_GATEWAY_BUSY'}:
@@ -31,7 +33,7 @@ class RemoteRuntimeStore:
         self.instance=instance
         return await self.call('register',dict(host=host,pid=pid))
     async def claim(self,worker_id,instance,*,profile_id,recovery_policy=None,profile_digest=None,revision_ref=None):
-        if revision_ref is not None:raise RuntimeErrorCode('REMOTE_REVISION_BINDING_REQUIRED')
+        if revision_ref!=getattr(self.transport,'revision_ref',None):raise RuntimeErrorCode('REMOTE_REVISION_BINDING_REQUIRED')
         if profile_digest is not None and profile_digest!=self.transport.spec.fingerprint():raise RuntimeErrorCode('PROFILE_CHANGED')
         if (worker_id,instance,profile_id)!=(self.worker_id,self.instance,self.transport.profile):raise RuntimeErrorCode('WORKER_MISMATCH')
         self.pending_claim=self.pending_claim or uuid4().hex
@@ -116,12 +118,19 @@ async def serve_remote(args):
     from .secret_provider import FileSecretMounts
     from .docker_adapter import DockerRuntimeAdapter
     from .worker_tool_channel import POLICY_ENV
-    profile,spec=read_profile(args.profile);mode,secret_refs=security_profile(args.profile)
+    revision_ref=None
+    if getattr(args,'revision_file',None):
+        from .execution_revisions import read_export
+        revision_ref,(_,profile,spec,mode,secret_refs)=await asyncio.to_thread(read_export,args.revision_file,args.scope)
+    else:
+        profile,spec=read_profile(args.profile);mode,secret_refs=security_profile(args.profile)
     if mode!='e2ag':raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
     transport=RemoteToolProvider(args.control_file,SimpleNamespace(scope=args.scope),profile,spec)
+    transport.revision_ref=revision_ref
     if not transport.automatic:raise RuntimeErrorCode('WORKER_CREDENTIAL_MODE_INVALID')
     store=RemoteRuntimeStore(args.scope,transport);transport.store=store
     worker=Worker(store,DockerRuntimeAdapter(args.scope),profile,spec,LocalArtifacts(Path(args.artifacts)),
+        revision_ref=revision_ref,
         timeout=args.timeout,poll_interval=args.poll_interval,authorization_verifier=store.verifier,
         remote_tools=transport if POLICY_ENV in spec.environment else None,
         secret_requests=secret_refs,secret_resolver=FileSecretMounts(args.secrets_file,args.scope) if args.secrets_file else None)

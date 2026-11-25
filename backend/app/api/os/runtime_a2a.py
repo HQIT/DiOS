@@ -108,7 +108,7 @@ class ProtocolResponse(Response):
 
 async def profile_card(request, profile_id, console):
     profile = next(
-        (p for p in await asyncio.to_thread(console.catalog) if p["id"] == profile_id),
+        (p for p in await console.catalog() if p["id"] == profile_id),
         None,
     )
     if profile is None:

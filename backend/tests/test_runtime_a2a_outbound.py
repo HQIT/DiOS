@@ -28,7 +28,8 @@ class OutboundTests(unittest.IsolatedAsyncioTestCase):
         ref = saved['revision']['id']
         original = self.console.store.submit
         async def submit_bound(*args, **kwargs):
-            return await original(*args, **kwargs, revision_ref=ref)
+            kwargs['revision_ref']=ref
+            return await original(*args, **kwargs)
         with patch.object(self.console.store, 'submit', side_effect=submit_bound):
             run = await self.submit()
         self.profile['remote']['endpoint'] = 'https://changed.example/rpc'

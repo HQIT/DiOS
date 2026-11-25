@@ -183,11 +183,11 @@ async def identity(s=Depends(service)):
 
 @router.get('/profiles')
 async def profiles(s=Depends(service)):
-    return {'items':await asyncio.to_thread(s.catalog)}
+    return {'items':await s.catalog()}
 
 @router.get('/samples')
 async def samples(s=Depends(service)):
-    return {'items':await asyncio.to_thread(s.samples)}
+    return {'items':await s.samples()}
 
 @router.get('/workers')
 async def workers(s=Depends(service)):
