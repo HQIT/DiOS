@@ -124,7 +124,8 @@ class NativeSchedules(unittest.IsolatedAsyncioTestCase):
             str(self.root / "work-policy.json"),
         )
         await asyncio.gather(*(self.process(*args) for _ in range(3)))
-        first = (await self.manager.list())["items"][0]["active"]["run_id"]
+        first_occurrence = (await self.manager.list())["items"][0]["active"]
+        first = first_occurrence["run_id"]
         self.assertEqual(len((await self.console.list())["items"]), 1)
         await self.process(
             "-m",
@@ -152,18 +153,22 @@ class NativeSchedules(unittest.IsolatedAsyncioTestCase):
         # Another control process observes completion; it never starts a Worker itself.
         await self.process(*args)
         row = (await self.manager.list())["items"][0]
-        self.assertIsNone(row["active"])
+        history = (await self.manager.history(row["id"]))["items"]
         self.assertEqual(
-            (await self.manager.history(row["id"]))["items"][0]["state"], "succeeded"
+            next(item for item in history if item["run_id"] == first)["state"], "succeeded"
         )
         # The next occurrence obtains a distinct bounded Work, not renewal of the old one.
-        async with self.db.transaction("one") as c:
-            await c.execute(
-                schedules.update()
-                .where(schedules.c.id == row["id"])
-                .values(next_due=time.time() - 1)
-            )
-        await self.process(*args)
+        if row["active"]:
+            # A real minute boundary may have arrived while the Docker Worker ran.
+            self.assertGreater(row["active"]["first_due"], first_occurrence["last_due"])
+        else:
+            async with self.db.transaction("one") as c:
+                await c.execute(
+                    schedules.update()
+                    .where(schedules.c.id == row["id"])
+                    .values(next_due=time.time() - 1)
+                )
+            await self.process(*args)
         second = (await self.manager.list())["items"][0]["active"]["run_id"]
         self.assertNotEqual(first, second)
         async with self.db.read("one") as c:

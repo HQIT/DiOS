@@ -270,6 +270,7 @@ async def deliver(db, cursor, now):
 class CronScheduler:
     def __init__(self):
         self._task = None
+        self.observer = None
 
     async def start(self):
         if self._task is None or self._task.done():
@@ -285,12 +286,22 @@ class CronScheduler:
             self._task = None
 
     async def _loop(self):
-        while True:
-            try:
-                await self._tick()
-            except Exception:
-                logger.exception("Durable timer tick failed")
-            await asyncio.sleep(CHECK_INTERVAL)
+        try:
+            while True:
+                try:
+                    if self.observer:
+                        await self.observer.cycle(self._tick)
+                    else:
+                        await self._tick()
+                except Exception:
+                    logger.exception("Durable timer tick failed")
+                if self.observer:
+                    await self.observer.idle(CHECK_INTERVAL)
+                else:
+                    await asyncio.sleep(CHECK_INTERVAL)
+        finally:
+            if self.observer:
+                await self.observer.record("stopped")
 
     async def _tick(self, now=None):
         from app.db.database import async_session

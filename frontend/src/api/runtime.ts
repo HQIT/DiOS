@@ -116,10 +116,19 @@ export interface WorkerStatus {
   workers: { id: string; host: string; pid: number; draining: boolean; heartbeat_at: number }[];
   attempts: { attempt_id: string; worker_id: string; run_id: string; phase: string; freshness: string; runtime?: {state?: string} }[];
 }
+
+export interface SchedulerHealth {
+  observed_at: number; freshness_seconds: number; slow_seconds: number;
+  services: { service: string; state: string; fresh_instances: number; at_limit: boolean;
+    evidence: { heartbeat_at: number; completed_at: number|null; succeeded_at: number|null; consecutive_errors: number; duration_seconds: number|null; error: string|null }|null;
+    instances: unknown[];
+  }[];
+}
 export interface Circuit { resource: string; state: string; retry_at: number; reason: string | null; probe_attempt: string | null; }
 export const runtimeApi = {
   identity: (signal?: AbortSignal) => request<{ mode: "operator" | "principal"; principal: { id: string; subject: string } | null }>("/identity", { signal }),
   workers: (signal?: AbortSignal) => request<WorkerStatus>("/workers", { signal }),
+  schedulerHealth: (signal?: AbortSignal) => request<SchedulerHealth>("/scheduler-health", { signal }),
   profiles: (signal?: AbortSignal) => request<{ items: Profile[] }>("/profiles", { signal }),
   samples: (signal?: AbortSignal) => request<{ items: Sample[] }>("/samples", { signal }),
   list: (cursor?: string, signal?: AbortSignal, profileId?: string) => request<{ items: RunSummary[]; next_cursor: string | null; observed_at: number }>(

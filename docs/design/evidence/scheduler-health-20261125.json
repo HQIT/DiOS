@@ -1,0 +1,195 @@
+{
+  "capability": "Persistent scheduler liveness and progress observations with Prometheus alert rules",
+  "tests": {
+    "sqlite_postgresql_and_regression": {
+      "passed": 162,
+      "skipped": 3,
+      "log_sha256": "21df805302b3e5251358f622b32778866782cf09b1a47a2595f7b3822708af5b",
+      "skip_reasons": [
+        "SQLite backup provider",
+        "explicit native Docker qualification required"
+      ]
+    },
+    "release_image": {
+      "passed": 101,
+      "skipped": 38,
+      "log_sha256": "ac62c9cf8385b59aabdf4bf749722b525807a3748559e86afee41154dccaa301",
+      "skip_reasons": [
+        "PostgreSQL fixture disabled",
+        "isolated PostgreSQL not enabled",
+        "isolated PostgreSQL test URL not set"
+      ]
+    },
+    "native_docker_schedule": {
+      "passed": 1,
+      "skipped": 0,
+      "log_sha256": "c16219cfb879d72bf453d59a532e0c4c5238febd6a782807080e3f4218625129",
+      "skip_reasons": []
+    }
+  },
+  "semantics": {
+    "services": [
+      "run_scheduler",
+      "subscription_scheduler"
+    ],
+    "identity": "new UUID per loop instance; scope and service separation",
+    "clock": "database receipt timestamps; monotonic cycle durations",
+    "cycle_success": "scheduler check returned; not a successful task or evidence of ownership",
+    "automatic_restart_on_observation_timeout": false,
+    "telemetry_failure": "no operation replay; missing or stale evidence remains unknown",
+    "freshness_seconds": 20,
+    "slow_cycle_seconds": 120,
+    "retained_instances_per_service_response": 100,
+    "errors": "bounded canonical codes; unexpected exceptions normalized"
+  },
+  "browser": {
+    "browser": "Playwright; Browser plugin not available",
+    "api": "isolated real HTTP API with synthetic persistent observations",
+    "principalPrivacy": true,
+    "results": [
+      {
+        "locale": "zh",
+        "width": 1440,
+        "slowAndFailedEvidence": true,
+        "stalePreservesData": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 1440,
+        "slowAndFailedEvidence": true,
+        "stalePreservesData": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      },
+      {
+        "locale": "en",
+        "width": 390,
+        "slowAndFailedEvidence": true,
+        "stalePreservesData": true,
+        "noHorizontalOverflow": true,
+        "pageErrors": []
+      }
+    ]
+  },
+  "process": {
+    "real_process_crash": true,
+    "stale_after_heartbeat_expiry": true,
+    "restart_new_instance": true,
+    "old_instance_preserved": true,
+    "graceful_stop_recorded": true,
+    "automatic_relaunch": false
+  },
+  "prometheus": {
+    "prometheus_image": "sha256:a3bc50fcb50fb1409287c32773d8fe799f6cad5511c4ba3e2e851784e7a05026",
+    "rules": 4,
+    "scenarios": 5,
+    "rule_tests_passed": true,
+    "metric_format_passed": true,
+    "delayed_fire_and_recovery": true
+  },
+  "image": {
+    "image": "sha256:324185ee9ee9e397b1b4f72062b33e76d1037a41888df18be40fc7db078e67fe",
+    "base": "sha256:38d7e63f84833175eb90240b83edcdd3933388ec2690fbe2d67fee2bca0bf806",
+    "tag": "dios-backend:runtime-monitor-20261125",
+    "network": "none",
+    "user": "65534:65534"
+  },
+  "deployment": {
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "changed": true
+    },
+    "api_health": "ok",
+    "a2a_card": "0.3.0",
+    "unknown_task_code": -32001,
+    "mode": "running",
+    "history": {
+      "runtime": {
+        "count": 84,
+        "identity_sha256": "db38dce3f4c9f8d95d6ae066cbe9e95246de6af062dda855c2c6607649e65c21",
+        "preserved": true
+      },
+      "events": {
+        "count": 0,
+        "identity_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "preserved": true
+      }
+    }
+  },
+  "deployed_contract": {
+    "live_api": true,
+    "cli_matches_api": true,
+    "states": {
+      "run_scheduler": "healthy",
+      "subscription_scheduler": "healthy"
+    },
+    "visible_runs": 54,
+    "unauthenticated_status": 401,
+    "metrics_exclude_instance_ids": true,
+    "prometheus_real_scrape": true,
+    "prometheus_rules_loaded": 4,
+    "external_notifications_configured": false
+  },
+  "deployed_ui": {
+    "liveDevelopmentApi": true,
+    "services": 2,
+    "cycleEvidenceVisible": true,
+    "pageErrors": []
+  },
+  "frontend_build": {
+    "passed": true,
+    "node": "25.1.0",
+    "existing_warning": "bundle greater than 500 kB"
+  },
+  "source_sha256": {
+    "backend/app/api/os/runtime_tasks.py": "ee58292d5dd7af8e8b9bf615826714e9a404c7e0e55bc5adc12ac50e144db332",
+    "backend/app/runtime/cli.py": "5116c7420ee457e7401f9be2696ad29a26b8e3f44e950c630c75c4ccf94340e4",
+    "backend/app/runtime/database.py": "36689c87e1d2f0cf3694d33f3ceb0e013de3f845c7d2651b9688ba4a63f3b62d",
+    "backend/app/runtime/recovery.py": "31d6f2b2b157208ba3450332b1f65674cff0a1763e43eead1f7d14861ad2fb19",
+    "backend/app/services/durable_cron.py": "fef8df4a5923a378eadd1fe3a2808340259c21d62306d1f945509aae0089bd4b",
+    "backend/app/services/run_schedule_worker.py": "584bbd3f974b6d2d68851ea9a783729e4e4b17b1f530ad7464afaed3edf9c9df",
+    "backend/main.py": "c8e7ef44900f2c65559686e255fe3646c8f748d621d7b15a6c92d286a6fda1e5",
+    "backend/tests/test_run_schedule_native.py": "1061e14069eda7bdef5ca5ff549ffb31f94fd765e308ef597e20fe9545303be8",
+    "frontend/src/api/runtime.ts": "13e9ef39abb36bead9fae66a9d1927a39977f47d189feb47b1656ac3bf1345c5",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "d434a030bd62ec6a83d31e71851469106e94385b2aac44b70d31d58b3df30ea2",
+    "frontend/src/apps/console/components/task-runs.css": "30aee44610f4198a55996bbb1b388960397d920997023c18c91d86a8a039aa4d",
+    "frontend/src/lib/messages.ts": "a07ae8ce7da44f75c6befca3ff70825a60f604effd4d0f4d80f14eb6c24ee02f",
+    "backend/app/runtime/monitor.py": "3df1aa03d9b7ef1b1d5518ed6a56e56dcb58bb5e496593cf7e73202df1797ad4",
+    "backend/app/runtime/monitor_schema.py": "24cef27f85dd448292357db2a3e53945a0555a2ec50d10ef171ae8479b61fdc1",
+    "backend/tests/test_runtime_monitor.py": "ba0d779cb0f3a3c7bb97eebb7229dc0e2bfc051f97d1c1f865ece0c8c4df90f9",
+    "deploy/observability/scheduler-alerts.test.yml": "a7e39a5b40270d51937807c5f65a2caedbb3ae0056e406a46f2e897e4b5f75eb",
+    "deploy/observability/scheduler-alerts.yml": "e01a15b6e0c2e047ea2af503a6b3e0b791f5538b522acb113e85b48313d950c5",
+    "frontend/src/apps/console/components/SchedulerHealthPanel.tsx": "72655f2a80cb80ca326b4e0cfae1ed150d4f0da2d0ad1b715ee8fa3928f8d780"
+  },
+  "remaining": [
+    "Bounded redacted diagnostic packages and end-to-end trace",
+    "Deployment-managed continuous Prometheus and Alertmanager routes; no external notifications configured",
+    "Dedicated read-only monitoring principal",
+    "Instance retention and large-scale query cost qualification",
+    "Physical multi-host acceptance"
+  ]
+}

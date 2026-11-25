@@ -21,19 +21,26 @@ from app.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
-    await cron_scheduler.start()
     await connector_poller.start()
     retry_worker.start()
     if settings.managed_recovery_enabled:
         managed_recovery.start()
     try:
         async with runtime_tasks.console_lifespan(app):
-            yield
+            console=app.state.runtime_console
+            if console:
+                from app.runtime.monitor import LoopObservation
+                cron_scheduler.observer=LoopObservation(console.db,console.scope,'subscription_scheduler')
+            try:
+                await cron_scheduler.start()
+                yield
+            finally:
+                await cron_scheduler.stop()
+                cron_scheduler.observer=None
     finally:
         await managed_recovery.stop()
         retry_worker.stop()
         await connector_poller.stop()
-        await cron_scheduler.stop()
 
 
 app = FastAPI(title="DiOS", description="DiFlow Intelligent Operation System", lifespan=lifespan)

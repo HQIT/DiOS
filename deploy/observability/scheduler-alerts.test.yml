@@ -1,0 +1,87 @@
+rule_files:
+- scheduler-alerts.yml
+evaluation_interval: 15s
+tests:
+- interval: 15s
+  input_series:
+  - series: dios_scheduler_state{service="run_scheduler",state="stale"}
+    values: 1 1 1 1 1 0 0 0 0
+  alert_rule_test:
+  - eval_time: 45s
+    alertname: DiOSSchedulerObservationUnavailable
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: DiOSSchedulerObservationUnavailable
+    exp_alerts:
+    - exp_labels:
+        service: run_scheduler
+        state: stale
+        severity: warning
+      exp_annotations:
+        summary: DiOS scheduler observation unavailable
+        description: Inspect scheduler health and the process supervisor. Missing
+          evidence does not authorize replay or restart of active work.
+  - eval_time: 2m
+    alertname: DiOSSchedulerObservationUnavailable
+    exp_alerts: []
+- interval: 15s
+  input_series:
+  - series: dios_scheduler_state{service="run_scheduler",state="disabled"}
+    values: 1+0x12
+  - series: dios_scheduler_state{service="subscription_scheduler",state="healthy"}
+    values: 1+0x12
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: DiOSSchedulerObservationUnavailable
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: DiOSSchedulerCycleSlow
+    exp_alerts: []
+- interval: 15s
+  input_series:
+  - series: dios_scheduler_state{service="run_scheduler",state="degraded"}
+    values: 1+0x16
+  alert_rule_test:
+  - eval_time: 3m
+    alertname: DiOSSchedulerCycleFailing
+    exp_alerts:
+    - exp_labels:
+        service: run_scheduler
+        state: degraded
+        severity: warning
+      exp_annotations:
+        summary: DiOS scheduler cycles keep failing
+        description: Inspect the last cycle error and E2AG admission evidence in the
+          console.
+- interval: 15s
+  input_series:
+  - series: dios_scheduler_state{service="run_scheduler",state="slow"}
+    values: 1+0x16
+  alert_rule_test:
+  - eval_time: 3m
+    alertname: DiOSSchedulerCycleSlow
+    exp_alerts:
+    - exp_labels:
+        service: run_scheduler
+        state: slow
+        severity: warning
+      exp_annotations:
+        summary: DiOS scheduler cycle is taking too long
+        description: The loop has a fresh observation but its cycle has exceeded 120
+          seconds. Inspect dependencies without duplicating active work.
+- interval: 15s
+  input_series:
+  - series: up{job="dios-schedulers",instance="fixture"}
+    values: 0+0x16
+  alert_rule_test:
+  - eval_time: 3m
+    alertname: DiOSSchedulerMetricsUnavailable
+    exp_alerts:
+    - exp_labels:
+        job: dios-schedulers
+        instance: fixture
+        severity: warning
+      exp_annotations:
+        summary: DiOS scheduler metrics cannot be scraped
+        description: Check the control plane, database, network and scrape credentials.
+          Scheduler state is unknown.

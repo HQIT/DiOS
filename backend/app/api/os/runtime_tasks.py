@@ -68,9 +68,9 @@ async def console_lifespan(app):
                 McpHttpTransport(),FileApprovers(settings.runtime_approvers_file) if settings.runtime_approvers_file else None,
                 FileSecretMounts(settings.runtime_secrets_file,settings.runtime_scope) if settings.runtime_secrets_file else None)
 
-    if app.state.runtime_console is not None and settings.runtime_schedules_enabled:
+    if app.state.runtime_console is not None:
         from app.services.run_schedule_worker import ScheduleLoop
-        schedule_loop=ScheduleLoop(app.state.runtime_console)
+        schedule_loop=ScheduleLoop(app.state.runtime_console,enabled=settings.runtime_schedules_enabled)
         schedule_loop.start()
     try:yield
     finally:
@@ -202,6 +202,19 @@ async def listing(limit:int=Query(30,ge=1,le=100),cursor:str|None=Query(None,max
 async def overview(period:str=Query('hour',pattern='^(hour|day)$'),buckets:int=Query(24,ge=1,le=168),
                    profile_id:str|None=Query(None,min_length=1,max_length=160),s=Depends(service)):
     return await s.overview(period=period,buckets=buckets,profile_id=profile_id)
+
+@router.get('/scheduler-health')
+async def scheduler_health(s=Depends(service)):
+    if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
+    from app.runtime.monitor import snapshot
+    return await snapshot(s.db,s.scope)
+
+@router.get('/scheduler-metrics')
+async def scheduler_metrics(s=Depends(service)):
+    if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
+    from fastapi.responses import Response
+    from app.runtime.monitor import snapshot, prometheus
+    return Response(prometheus(await snapshot(s.db,s.scope)),media_type='text/plain; version=0.0.4; charset=utf-8')
 
 
 class CapacityUpdate(BaseModel):

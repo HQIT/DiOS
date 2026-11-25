@@ -2241,7 +2241,7 @@
           "OTLP export and trace context propagation",
           "Agent-internal preparation, retrieval, first-token and generation timing",
           "Forwarding, audit persistence and commit timing",
-          "Scheduler liveness, sustained anomaly detection, alerts and diagnostic export",
+          "Task-level sustained anomaly detection, alert routing deployment and diagnostic export",
           "Large per-run history query cost qualification; physical multi-host acceptance"
         ]
       },
@@ -2256,10 +2256,28 @@
           "CLI/API/中英文桌面及手机 Console；看板断连保留同范围旧数据并标记待刷新"
         ],
         "remaining": [
-          "Scheduler liveness evidence and further fault attribution",
-          "Sustained anomaly detection, alerting and bounded diagnostic export",
+          "Further dependency-level fault attribution",
+          "Task-level sustained anomaly detection, alert routing deployment and bounded diagnostic export",
           "Large-history permission-filtered aggregation cost qualification",
           "OTLP export and physical multi-host qualification"
+        ]
+      },
+      "scheduler_health": {
+        "status": "in_progress",
+        "design": "docs/design/scheduler-health-46.md",
+        "evidence": "docs/design/evidence/scheduler-health-20261125.json",
+        "delivered": [
+          "任务/订阅调度持久心跳、周期完成与成功、连续错误、耗时；实例重启身份独立",
+          "CLI/API/中英文桌面及手机界面；多实例异常与断连过期证据独立展示",
+          "Prometheus 固定标签指标及四条持续窗口告警规则；标准规则测试与真实采集通过",
+          "独立进程崩溃/重启、原生 Docker Worker、E2AG 授权、调度幂等与恢复验证"
+        ],
+        "remaining": [
+          "Bounded redacted diagnostic packages and end-to-end trace",
+          "Deployment-managed continuous Prometheus and Alertmanager routes; no external notifications configured",
+          "Dedicated read-only monitoring principal",
+          "Instance retention and large-scale query cost qualification",
+          "Physical multi-host acceptance"
         ]
       }
     },

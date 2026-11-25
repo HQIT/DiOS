@@ -7,6 +7,7 @@ import { runtimeApi, RuntimeApiError, scheduleApi } from "../../../api/runtime";
 import type { Profile, Sample, RunSummary, RunDetail, Preview } from "../../../api/runtime";
 import "./task-runs.css";
 import WorkerStatusPanel from "./WorkerStatusPanel";
+import SchedulerHealthPanel from "./SchedulerHealthPanel";
 import CapacityPanel from "./CapacityPanel";
 import RunDiagnostics from "./RunDiagnostics";
 import RuntimeOverviewPanel from "./RuntimeOverviewPanel";
@@ -265,6 +266,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
     <main className="tr-detail">
       {principalName && <p className="tr-muted">{translateUI("当前主体：{0}", [principalName])}</p>}
       {operatorMode && <WorkerStatusPanel />}
+      {operatorMode && <SchedulerHealthPanel />}
       {operatorMode && <CapacityPanel />}
       {operatorMode && !selectedId && <RunSchedulesPanel refresh={refresh} />}
       {!selectedId && <div className="tr-card tr-welcome"><span className="tr-symbol">↗</span><h3>{translateUI("从一件具体工作开始")}</h3>

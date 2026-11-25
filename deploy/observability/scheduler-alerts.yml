@@ -1,0 +1,35 @@
+groups:
+  - name: dios-schedulers
+    rules:
+      - alert: DiOSSchedulerObservationUnavailable
+        expr: dios_scheduler_state{state=~"stale|stopped|unobserved"} == 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DiOS scheduler observation unavailable"
+          description: "Inspect scheduler health and the process supervisor. Missing evidence does not authorize replay or restart of active work."
+      - alert: DiOSSchedulerCycleFailing
+        expr: dios_scheduler_state{state="degraded"} == 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DiOS scheduler cycles keep failing"
+          description: "Inspect the last cycle error and E2AG admission evidence in the console."
+      - alert: DiOSSchedulerCycleSlow
+        expr: dios_scheduler_state{state="slow"} == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DiOS scheduler cycle is taking too long"
+          description: "The loop has a fresh observation but its cycle has exceeded 120 seconds. Inspect dependencies without duplicating active work."
+      - alert: DiOSSchedulerMetricsUnavailable
+        expr: up{job="dios-schedulers"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DiOS scheduler metrics cannot be scraped"
+          description: "Check the control plane, database, network and scrape credentials. Scheduler state is unknown."

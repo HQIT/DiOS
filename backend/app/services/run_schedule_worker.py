@@ -4,14 +4,17 @@ import asyncio
 import logging
 
 from app.runtime.database import RuntimeErrorCode
+from app.runtime.monitor import LoopObservation
 from app.services.run_schedules import RunSchedules
 
 logger = logging.getLogger(__name__)
 
 
 class ScheduleLoop:
-    def __init__(self, console):
+    def __init__(self, console, *, enabled=True):
         self.service = RunSchedules(console)
+        self.observer = LoopObservation(console.db, console.scope, "run_scheduler")
+        self.enabled = enabled
         self.task = None
 
     def start(self):
@@ -28,10 +31,19 @@ class ScheduleLoop:
             self.task = None
 
     async def run(self):
+        try:
+            await self._run()
+        finally:
+            await self.observer.record("stopped")
+
+    async def _run(self):
         previous = None
         while True:
+            if not self.enabled:
+                await self.observer.idle(5, disabled=True)
+                continue
             try:
-                await self.service.tick()
+                await self.observer.cycle(self.service.tick)
                 previous = None
             except RuntimeErrorCode as exc:
                 if previous != exc.code:
@@ -39,4 +51,4 @@ class ScheduleLoop:
                 previous = exc.code
             except Exception:
                 logger.exception("Run scheduler observation failed")
-            await asyncio.sleep(5)
+            await self.observer.idle(5)
