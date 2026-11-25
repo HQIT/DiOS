@@ -21,12 +21,24 @@
       "--required-tool",
       "repository_search"
     ],
-    "network": "dios-model-egress",
-    "environment": {},
+    "network": "dios-controlled-workloads",
+    "environment": {
+      "HOME": "/tmp",
+      "AGENT_CLI_CREDENTIAL_STORE": "memory",
+      "HTTP_PROXY": "http://model-egress:3128",
+      "HTTPS_PROXY": "http://model-egress:3128",
+      "NODE_USE_ENV_PROXY": "1",
+      "NO_PROXY": ""
+    },
     "mounts": [
       {
         "source": "/absolute/operator/acp.json",
         "target": "/opt/dios/acp.json",
+        "read_only": true
+      },
+      {
+        "source": "/absolute/operator/cursor-cli-permissions.json",
+        "target": "/work/.cursor/cli.json",
         "read_only": true
       }
     ],

@@ -2,7 +2,7 @@
 
 Cursor CLI 固定版本 `2026.11.05-86047df`。本批在 Linux/WSL Docker 中使用真实 Cursor 模型，覆盖固定样例任务、E2AG 工具审批、证据报告和 Worker 中断恢复。原有 Windows 持续评审保持独立运行。
 
-当前独立应用使用 dios-sdk[acp] 0.1.2 和 ACP 官方 SDK 1.0.0；真实取消、撤权与正常批准路径见 [取消与受控执行契约](acp-cancellation-56-58.md)。
+当前主路径使用 dios-sdk[acp] 0.1.11 和 ACP 官方 SDK 1.0.0；真实取消、撤权与正常批准路径见 [取消与受控执行契约](acp-cancellation-56-58.md)。
 
 ## 执行与授权
 
@@ -65,7 +65,7 @@ ACP 的 `allow_once` 只允许请求进入 DiOS 提供的 MCP 代理。工具网
 
 完整输出的持久对账继续沿用原 Run/Attempt/Session。Cursor 原生 `session/load` 已通过跨进程检查，见 [会话恢复契约](acp-session-recovery-56-58.md)；活动请求续接和供应商结构化故障映射继续单独验收。当前 profile 的 `replay_safe=false`，不会自动重发模型任务。
 
-Agent 内部读取和未经过 ACP 回调的内置工具路径仍待完整资格验证；当前仅开放固定样例，没有企业源码挂载。模型凭据在执行容器内使用，更强的凭据代理隔离由 #33/#58 继续推进。
+固定 Cursor 的 MCP、Shell、文件和网络控制已完成首轮资格，见[原生工具控制](cursor-native-controls.md)。编辑/执行通知与实际副作用分别核验；当前仅开放固定样例，没有企业源码挂载。模型凭据在执行容器内使用，更强的凭据代理隔离由 #33/#58 继续推进。
 
 网络代理仅放行当前实测需要的 Cursor 服务域名，模型提供商能看到提交的固定样例与工具证据。企业源码、企业数据外发策略和真实仓库准入由后续场景配置与验收确定。
 
@@ -82,6 +82,6 @@ Console、API 与 CLI 继续共用既有任务契约；CLI 通过注册 profile 
 
 ## 后续安排
 
-#56/#58 保持进行中。Cursor、DSH、Codex 与标准 A2A 均已有实际接入证据；三种 ACP Harness 的跨进程检查见 [会话恢复契约](acp-session-recovery-56-58.md)。三种 Harness 的续期、三层委派与旧 epoch 联合验证已通过，见[授权与工具收尾](harness-governance-56-58.md)。下一段推进额外原生工具路径与 Agent 自主子任务的认证委派入口。活动请求续接、跨物理主机、原生工具额外路径、企业网络与凭据、G2 独立评审及用户验收继续沿用既定门槛。
+#56/#58 保持进行中。Cursor、DSH、Codex 与标准 A2A 均已有实际接入证据；三种 ACP Harness 的跨进程检查见 [会话恢复契约](acp-session-recovery-56-58.md)。三种 Harness 的续期、三层委派与旧 epoch 联合验证已通过，见[授权与工具收尾](harness-governance-56-58.md)。首条路径集中交付 Cursor ACP；下一项 K01-4.03 复用原生工具证据核对能力声明与实际控制点。第二 Harness 额外实测后置。活动请求续接、跨物理主机、原生工具额外路径、企业网络与凭据、G2 独立评审及用户验收继续沿用既定门槛。
 
 协议参考：[Cursor ACP 文档](https://cursor.com/docs/cli/acp)、[ACP 会话设置](https://agentclientprotocol.com/protocol/v1/session-setup)。本页能力结论以固定版本实测为准。

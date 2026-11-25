@@ -144,7 +144,8 @@ async def qualify(args):
     directory.mkdir(mode=0o700, parents=True, exist_ok=False)
     scope = "harness-" + uuid4().hex[:16]
     source = sample("first-item")
-    server = SourceServer(source["source"], args.case != "renew")
+    positive_cases = {"renew", "approve", "native-deny"}
+    server = SourceServer(source["source"], args.case not in positive_cases)
     db = Database("sqlite+aiosqlite:///" + str(directory / "runtime.sqlite"))
     worker_task = None
     worker = None
@@ -347,6 +348,19 @@ async def qualify(args):
             invocation_id=item["id"],
         )
         evidence["checks"].append("real-process-session-and-three-level-delegation")
+        if args.case == "approval-expired":
+            async with db.read(scope) as c:
+                original = await gate._row(c, run["id"], item["id"])
+                request_key = original["request_key"]
+            try:
+                await gate.request(run["id"], attempt["id"], attempt["session_id"],
+                    tool_id, {"query": "changed-synthetic-argument"}, request_key)
+            except RuntimeErrorCode as exc:
+                assert exc.code == "IDEMPOTENCY_CONFLICT", exc.code
+            else:
+                raise AssertionError("Changed arguments reused the original request")
+            assert server.calls == 0
+            evidence["checks"].append("changed-arguments-cannot-reuse-real-pending-invocation")
         if args.case == "renew":
             async with db.transaction(scope) as c:
                 shortened = await db.now(c) + 100
@@ -378,7 +392,15 @@ async def qualify(args):
             run["id"], item["id"], item["version"], "approved", token
         )
         evidence["approved_version"] = approved["version"]
-        if args.case != "renew":
+        if args.case == "approval-expired":
+            try:
+                await gate.decide(run["id"], item["id"], item["version"], "approved", token)
+            except RuntimeErrorCode as exc:
+                assert exc.code == "VERSION_CONFLICT", exc.code
+            else:
+                raise AssertionError("Stale approval was accepted")
+            evidence["checks"].append("stale-approval-replay-rejected")
+        if args.case not in positive_cases:
 
             async def initializing():
                 return server.initializing.is_set()
@@ -391,6 +413,12 @@ async def qualify(args):
                 evidence["faults"].append(
                     {"kind": "root-delegation-revoked", "reference": chain[0]["id"]}
                 )
+            elif args.case == "approval-expired":
+                from app.runtime.tool_schema import invocations
+                async with db.transaction(scope) as c:
+                    await c.execute(invocations.update().where(invocations.c.id == item["id"]).values(expires_at=0))
+                expected = "TOOL_AUTHORIZATION_EXPIRED"
+                evidence["faults"].append({"kind":"isolated-invocation-expired","invocation_id":item["id"]})
             else:
                 async with db.transaction(scope) as c:
                     await c.execute(
@@ -405,13 +433,14 @@ async def qualify(args):
                 evidence["faults"].append(
                     {"kind": "isolated-lease-expired", "new_epoch": fenced["epoch"]}
                 )
-            try:
-                await store.heartbeat(*binding)
-            except RuntimeErrorCode as exc:
-                assert exc.code == expected, exc.code
-                evidence["old_owner_error"] = exc.code
-            else:
-                raise AssertionError("Old authority renewed")
+            if args.case != "approval-expired":
+                try:
+                    await store.heartbeat(*binding)
+                except RuntimeErrorCode as exc:
+                    assert exc.code == expected, exc.code
+                    evidence["old_owner_error"] = exc.code
+                else:
+                    raise AssertionError("Old authority renewed")
             server.release.set()
         try:
             await asyncio.wait_for(asyncio.shield(worker_task), 120)
@@ -475,7 +504,7 @@ async def qualify(args):
             receipts.path(attempt["id"]).read_bytes()
         ).hexdigest()
         evidence["exit"] = receipt["observation"]
-        if args.case == "renew":
+        if args.case in {"renew", "approve"}:
             assert (
                 final["state"] == "succeeded"
                 and server.calls == 1
@@ -488,6 +517,11 @@ async def qualify(args):
             evidence["checks"].append(
                 "completed-dispatch-replay-does-not-call-tool-again"
             )
+        elif args.case == "native-deny":
+            assert final["state"] == "failed" and server.calls == 1
+            assert evidence["result_frames"] == 0
+            assert invocation["state"] == "succeeded"
+            evidence["checks"].append("unverified-native-activity-cannot-be-accepted-as-success")
         else:
             assert (
                 final["state"] == "failed"
@@ -551,7 +585,7 @@ def main():
     for name in ("profile", "secrets", "opa", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument(
-        "--case", required=True, choices=("renew", "ancestor-revoke", "stale-epoch")
+        "--case", required=True, choices=("renew", "approve", "native-deny", "approval-expired", "ancestor-revoke", "stale-epoch")
     )
     args = parser.parse_args()
     asyncio.run(qualify(args))

@@ -1,0 +1,32 @@
+services:
+  model-egress:
+    image: ubuntu/squid@sha256:6a097f68bae708cedbabd6188d68c7e2e7a38cedd05a176e1cc0ba29e3bbe029
+    entrypoint: ["/usr/sbin/squid", "-N", "-f", "/etc/squid/squid.conf"]
+    user: "13:13"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+      - ./cursor-domains.txt:/etc/squid/allowed-domains.txt:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    networks:
+      - workloads
+      - uplink
+    restart: unless-stopped
+    mem_limit: 256m
+    pids_limit: 64
+    logging:
+      driver: json-file
+      options:
+        max-size: 4m
+        max-file: "2"
+
+networks:
+  workloads:
+    name: ${DIOS_WORKLOAD_NETWORK:-dios-controlled-workloads}
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+  uplink: {}

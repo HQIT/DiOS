@@ -1,0 +1,143 @@
+{
+  "work_item": "K03-2.01",
+  "status": "engineering_verified",
+  "primary_harness": "Cursor ACP",
+  "cursor_cli": "2026.11.05-86047df",
+  "dios_sdk": "0.1.11",
+  "image": "sha256:b461e1f42bc8c8ece7b735752a0877c4e62868728944cf8c1e02d3be04c21464",
+  "cases": {
+    "approve-run": {
+      "case": "approve",
+      "state": "succeeded",
+      "tool_calls": 1,
+      "result_frames": 1,
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "usage-matches-retained-output-or-remains-unknown",
+        "completed-dispatch-replay-does-not-call-tool-again",
+        "original-run-attempt-session-retained"
+      ],
+      "passed": true
+    },
+    "expired-run": {
+      "case": "approval-expired",
+      "state": "failed",
+      "tool_calls": 0,
+      "result_frames": 0,
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "changed-arguments-cannot-reuse-real-pending-invocation",
+        "stale-approval-replay-rejected",
+        "usage-matches-retained-output-or-remains-unknown",
+        "approved-tool-blocked-after-authority-change",
+        "unstarted-tool-closed-with-original-approval-retained",
+        "original-run-attempt-session-retained"
+      ],
+      "passed": true
+    },
+    "native-run-2": {
+      "case": "native-deny",
+      "state": "failed",
+      "tool_calls": 1,
+      "result_frames": 0,
+      "checks": [
+        "real-process-session-and-three-level-delegation",
+        "usage-matches-retained-output-or-remains-unknown",
+        "unverified-native-activity-cannot-be-accepted-as-success",
+        "original-run-attempt-session-retained"
+      ],
+      "passed": true
+    }
+  },
+  "native_effects": {
+    "source_unchanged": true,
+    "build_marker_absent": true,
+    "build_sensor_positive_control": true,
+    "positive_marker_sha256": "63247c9f09119590c6664825b736c9c0658008b169e1483a58805085dba8d4b2",
+    "webfetch_permission": "reject-once",
+    "accept_result_error": "ACP_TOOL_ACTIVITY_UNVERIFIED"
+  },
+  "boundary": {
+    "passed": true,
+    "checks": {
+      "example.org:443": {
+        "status": 403,
+        "denied": true
+      },
+      "api2.cursor.sh.evil.invalid:443": {
+        "status": 403,
+        "denied": true
+      },
+      "127.0.0.1:443": {
+        "status": 403,
+        "denied": true
+      },
+      "169.254.169.254:443": {
+        "status": 403,
+        "denied": true
+      },
+      "api2.cursor.sh:80": {
+        "status": 403,
+        "denied": true
+      },
+      "non_connect": {
+        "status": 403,
+        "denied": true
+      },
+      "model_connect": {
+        "status": 200,
+        "allowed": true
+      },
+      "direct:1.1.1.1": {
+        "blocked": true,
+        "errno": 101
+      },
+      "direct:172.17.0.1": {
+        "blocked": true,
+        "errno": 101
+      },
+      "/probe-source/sample.py": {
+        "write_blocked": true,
+        "errno": 13,
+        "control": "filesystem_permissions"
+      },
+      "/opt/dios/should-not-write": {
+        "write_blocked": true,
+        "errno": 30,
+        "control": "read_only_mount"
+      }
+    },
+    "network": "dios-controlled-workloads",
+    "internal": true,
+    "gateway_mode": "isolated",
+    "image": "sha256:b461e1f42bc8c8ece7b735752a0877c4e62868728944cf8c1e02d3be04c21464",
+    "log_sha256": "e2113fb7c57015f62c0d239545755abf1705d3364481fda2b59aa68b50f8d8c1"
+  },
+  "development": {
+    "run_id": "c1d03cff-e5cb-4bdb-af8d-55988805f2d9",
+    "state": "succeeded",
+    "attempts": 1,
+    "session_id": "c1d0242d-0772-47a3-a664-7a6afcefc0e6",
+    "process_id": 475683,
+    "approved": true,
+    "markdown_sha256": "17ef9db656b61eff220559957d54fe04055326c8677f49add5561118146071cb",
+    "history_preserved": 84,
+    "active_runs": 0
+  },
+  "limits": [
+    "Cursor edit/execute notifications say completed without output; source bytes and the positive-controlled build sensor establish absence of these effects, not a kernel trace of every syscall.",
+    "Native WebFetch has an explicit ACP denial; edit and shell are also restricted by the pinned Cursor CLI policy. Do not invent per-action E2AG decisions absent from the trace.",
+    "The proxy restricts destinations, not TLS payloads; the allowed model provider receives submitted data.",
+    "Qualification covers the pinned Cursor and synthetic source. Other Harnesses and enterprise data admission remain separate."
+  ],
+  "retained_sha256": {
+    "effects/protocol.jsonl": "1cb667e765223d2ce523cc045a7b1b9c7aec8def2e4439b92df4e937ad7e3be5",
+    "source/sample.py": "c9f28bea98a2738fd61db45b1a927b35357a4a9a22303e1343450814dea7c632",
+    "approve-run/result.json": "3de56c86eec3011b5f8303e7b85b92a07e9d40c5b5fd75a3db3042b51678db03",
+    "expired-run/result.json": "5ca2ecf007e9f6dc00c7ac624fa028af40ab3907a915ffdf4c8175cb2a557c8c",
+    "native-run-2/result.json": "dc8c85beb83bc5fd9a77f5ae65015a3040a1e0cfc4ebaf3524489c7a54d769fe",
+    "boundary.json": "5bae7b9d7a583e7e52e57f2042a6386d2c0cdd064a29072003c14b92d65200a3",
+    "development/verification.json": "91b9b4ee917082c0f5dea61710598200f49cf28026ee2615145f69511a291949",
+    "development/report.md": "17ef9db656b61eff220559957d54fe04055326c8677f49add5561118146071cb"
+  }
+}

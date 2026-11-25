@@ -8,7 +8,7 @@
 | 2 | #11 一致备份与干净恢复 | K02-3.01–.03 | 新增版本、委派、回执和产物纳入备份；空实例恢复引用完整；远端再认证和对账；升级恢复可计时 |
 | 3 | #51 可安装、可升级的固定候选版本 | D01-1.01–.04 | 干净环境安装与受控任务通过；排空升级保留活跃任务和历史；失败回退可用；CI 构建和最小端到端可重复；发布责任人接受 |
 
-**当前下一项：K03-2.01 的 Cursor ACP 工具控制闭环，随后 K01-4.03。K01-4.01/.02 已完成。** K02-3.02 等待源控制面隔离方式选择，恢复实例保持冻结；安装级备份 K02-3.01 已通过工程验证。 K02-1.01/.02/.03/.04/.05 已通过工程验证，见[版本存储](../design/evidence/runtime-revisions-20261125.json)、[执行绑定](../design/evidence/revision-entries-20261125.json)、[部署回滚](../design/evidence/deployments-20261125.json)与[外部兼容门禁](../design/evidence/endpoint-compatibility-20261125.json)。 必要的 Harness 恢复与治理资格按 WBS 依赖随本批完成。#9/#10 的已有工程证据进入结项审阅。
+**当前下一项：K01-4.03 协议声明到实际控制点资格。K01-4.01/.02、K03-2.01 已完成；复用 [Cursor 工具控制证据](../design/cursor-native-controls.md)。** K02-3.02 等待源控制面隔离方式选择，恢复实例保持冻结；安装级备份 K02-3.01 已通过工程验证。 K02-1.01/.02/.03/.04/.05 已通过工程验证，见[版本存储](../design/evidence/runtime-revisions-20261125.json)、[执行绑定](../design/evidence/revision-entries-20261125.json)、[部署回滚](../design/evidence/deployments-20261125.json)与[外部兼容门禁](../design/evidence/endpoint-compatibility-20261125.json)。 必要的 Harness 恢复与治理资格按 WBS 依赖随本批完成。#9/#10 的已有工程证据进入结项审阅。
 
 之后依次推进通用对象与知识、包准入与预算及配置发布、共享部署与物理跨主机容量。每批内部按工作项依赖推进，不用整个上游 Issue 尚未关闭阻断已具备条件的工程切片。跨主机完整验收由 W4 承接。
 
