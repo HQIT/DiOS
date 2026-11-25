@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K01-2.01",
-    "next_delivery": "K01-2.01",
+    "next_work_item": "K01-5.02",
+    "next_delivery": "K01-5.02",
     "next_delivery_order": [
-      "K01-2.01",
       "K01-5.02",
       "K02-3.02",
       "K02-3.03",
@@ -1292,7 +1291,7 @@
       "issue": 30,
       "title": "恢复与补报组合故障资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K01-2-A01",
         "K01-2-A02",
@@ -1306,8 +1305,10 @@
       "verification": "任务身份不变；不重复派发、不丢历史与最终产物；不完整结果不成功；悬挂 RPC 有界结束",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有持久队列、定时、租约、spool、分类故障和恢复；组合故障与多主裁决尚未完整资格验证。",
+      "completion_evidence": [
+        "docs/design/evidence/combined-recovery-20261126.json"
+      ],
+      "basis": "单控制面恢复与补报组合故障工程资格通过；并发裁决、整机重启和跨主机由 K01-2.02/.03/.04 承接。",
       "existing_evidence": [
         "docs/design/evidence/remote-worker-regression-20261119.json",
         "docs/design/evidence/fault-recovery-regression-20261119.json",

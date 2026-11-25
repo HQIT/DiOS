@@ -1,0 +1,100 @@
+{
+  "work_item": "K01-2.01",
+  "status": "engineering_verified",
+  "date": "2026-11-26",
+  "source_head": "f68cb3f2cdcd8fb282bfb6be202e1d53570b2740",
+  "report": "docs/design/recovery-combinations-30.md",
+  "scope": "Linux/WSL, single durable control plane, Cursor-first; isolated recovery faults",
+  "qualification": {
+    "combined": {
+      "tests": 3,
+      "passed": 3,
+      "skipped": 0,
+      "seconds": 7.175,
+      "command": "python -m unittest discover -s backend/tests -p test_runtime_combined_recovery.py -v",
+      "cases": [
+        "test_chunk_ack_loss_restart_observation_timeout_and_stale_reports",
+        "test_revoked_work_after_chunk_loss_never_accepts_retained_result",
+        "test_incomplete_output_after_chunk_loss_remains_failed"
+      ],
+      "environment": "Real isolated SQLite and separate controller/Worker objects; fake adapter; injected transport outage after durable chunk commit"
+    },
+    "focused": {
+      "tests": 10,
+      "passed": 10,
+      "skipped": 0,
+      "seconds": 12.361,
+      "result_source": "exec chunks 6b97a3 and 272f82, unittest exit 0",
+      "cases": [
+        "test_actual_tls_control_roundtrip",
+        "test_drain_allows_active_completion_and_blocks_new_claim",
+        "test_remote_retry_uses_server_profile_and_same_work_identity",
+        "test_lost_claim_response_and_duplicate_triggers_do_not_duplicate_attempt",
+        "test_offline_restart_and_utf8_resume",
+        "test_lost_commit_receipt_replays_once",
+        "test_two_relays_and_expired_delivery_token",
+        "test_real_process_crash_preserves_committed_report",
+        "test_child_eof_unblocks_pending_rpc",
+        "test_timeout_is_explicit_and_partial_output_kept"
+      ]
+    },
+    "new_model_calls": 0,
+    "runtime_code_changed": false,
+    "ruff": "passed"
+  },
+  "requirements": {
+    "K01-2-A01": "Persisted accepted Run, Attempt, Session and upload receipt survive controller/Worker reconstruction; process crash retains committed spool.",
+    "K01-2-A02": "Lost claim/chunk/report acknowledgements reuse identity and committed receipt; observation timeout does not relaunch.",
+    "K01-2-A03": "Recovery, revocation and server-controlled retry preserve original work and failure evidence; failed attempts retained.",
+    "K01-2-A04": "Spool ordering and delivery tokens serialize replay; old ownership cannot overwrite final state. Protocol cancellation evidence retained in protocol-recovery-closure.",
+    "K01-2-A05": "Duplicate trigger/claim and ACP EOF verified; prior durable schedule and rate/quota recovery evidence reused. Concurrent arbitration and machine restart combinations remain K01-2.02/.03.",
+    "K01-2-A06": "Observation timeout never stops/relaunches; complete UTF-8 output restored; incomplete and revoked results rejected; drain allows active completion."
+  },
+  "source_sha256": {
+    "backend/tests/test_runtime_combined_recovery.py": "06e731e5f670623aebbcdf526d9fdb6ee32ae583351bccc56c6a0fe2d5b32703",
+    "backend/tests/test_runtime_remote_control.py": "b89a3e2f4544214aa861ecccff726d33721ac718c0ba998b4f8f6d4238d12bef",
+    "backend/tests/test_runtime_spool.py": "e02811e704abde0e31e51cfa4d6cc5ed093144cba082951d07781f4682f9fbdc",
+    "sdk/python/tests/test_acp_contract.py": "6e71043d0d7772de51c3afd39ce9aabd6585ff20890b67e36f65424927b48d36",
+    "backend/app/runtime/remote_control.py": "b4ec3ee1592f981926d5916e81934167668aa6d72274881c4b9b44061caf789b",
+    "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+    "backend/app/runtime/reporting.py": "55bad5424b2b290a74e13c5df4f2645f002fb6288a449aca87d1b88cdb8f6e86",
+    "backend/app/runtime/spool.py": "6f15a0ee7cba5bb67c21eb5d2dbc53fcee98ca4e84283c770dde2360fe4bac07",
+    "backend/app/runtime/worker.py": "2b2915f52df5a0e35dc7aa5943134ef5f5f1555924e321b784b70bfa32533251",
+    "backend/app/runtime/reconciliation.py": "ae22276d1110df32720bee55af2b5d62301220f492aad5a2676971361ab80822",
+    "backend/app/runtime/faults.py": "d72e8b839bbdaa859fd02c1de13fe980fb73638ed922be2dcd2509b0eb22b1e6",
+    "sdk/python/src/dios_sdk/acp.py": "3c3a7a9795d3652329092aa753ecfe56920901a0f2a3fa427e1ef682b46586d1"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/design/evidence/fault-recovery-development-20261119.json",
+      "sha256": "9cd5ae0fe3bd3664fbd02fba4c8a27b6eb89a531e5af951e0699101504c9466c"
+    },
+    {
+      "path": "docs/design/evidence/durable-run-schedules-20261124.json",
+      "sha256": "0c07cc66050695c65022339f2efe68d44f0c63d331230d26e3f0f2a614942a4f"
+    },
+    {
+      "path": "docs/design/evidence/durable-subscription-schedules-20261124.json",
+      "sha256": "0a550137597eb7e768611446d1db2405a03e8d673e5b019854ed9cfb2043404b"
+    },
+    {
+      "path": "docs/design/evidence/protocol-recovery-closure-20261125.json",
+      "sha256": "7244eef563b67b5f7177330ca9d2f4b764f1db22b3ed0ecc6c52af53b07b1881"
+    },
+    {
+      "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+      "sha256": "04f8bd16c8fd79709c2783d422bfd27fde2f5e7a53e2c788d2a1463b16912a98"
+    }
+  ],
+  "reuse_basis": "No runtime implementation changed in this delivery; focused current transport, retry, spool and ACP checks supplement prior native/real Cursor and scheduler evidence.",
+  "limits": [
+    "Object/database reopening is not a machine reboot; machine-restart composition remains K01-2.03.",
+    "Physical cross-host old-master fencing remains K01-2.04; concurrent E2AG/circuit arbitration remains K01-2.02.",
+    "Active ACP prompt continuation is not qualified by retained-output recovery.",
+    "K01-2.05 responsible-owner acceptance remains open."
+  ],
+  "deployment": {
+    "required": false,
+    "reason": "Only qualification tests, evidence and planning changed; existing deployed runtime retained."
+  }
+}
