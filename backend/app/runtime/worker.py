@@ -83,7 +83,11 @@ class Worker:
         a = await self.store.claim(self.worker_id, self.instance, profile_id=self.profile_id,recovery_policy=self.recovery_policy)
         if a is None: return {'worker_id':self.worker_id,'state':'idle'}
         binding = (a['run_id'], a['id'], self.worker_id, self.instance, a['epoch'])
+        budget_observation_started = time.monotonic()
         run = await self.store.get(a['run_id'])
+        budget = run.get('execution_budget')
+        # Conservatively subtract the full observation round trip; host clocks need not agree.
+        budget_deadline = budget_observation_started+budget['remaining_seconds'] if budget else None
         if run['input'].get('profile_digest') != self.spec.fingerprint():
             await self.store.reject_unlaunched(binding,'PROFILE_CHANGED')
             return await self.store.get(a['run_id'])
@@ -91,6 +95,8 @@ class Worker:
         handle, started, paused_instance = None, None, None
         async def maintain_authority():
             if handle is None:return  # No Grant exists yet; initial wait stays below the claim lease.
+            if budget_deadline is not None and time.monotonic() >= budget_deadline:
+                raise RuntimeErrorCode('RUN_BUDGET_EXHAUSTED')
             if started is not None and time.monotonic()-started >= self.timeout:
                 raise RuntimeErrorCode('PROCESS_DEADLINE_EXCEEDED')
             await self.store.heartbeat(*binding)
@@ -194,19 +200,32 @@ class Worker:
             await confirm_report(self.store,self.spool,last_receipt)
             # Check current ownership/authorization after the asynchronous verifier.
             await self.store.heartbeat(*binding)
+            if budget_deadline is not None and time.monotonic() >= budget_deadline:
+                raise RuntimeErrorCode('RUN_BUDGET_EXHAUSTED')
             observation = await self.adapter.start(handle,spec)
             await observe(observation)
             started, heartbeat_at = time.monotonic(), time.monotonic()
             code = None
             while True:
                 # Database read failures cannot be interpreted as process death.
-                current = await self.store.get(a['run_id'])
+                budget_expired = budget_deadline is not None and time.monotonic() >= budget_deadline
+                if budget_expired:
+                    current = run
+                elif budget_deadline is not None:
+                    try:
+                        current = await asyncio.wait_for(self.store.get(a['run_id']),max(.001,budget_deadline-time.monotonic()))
+                    except TimeoutError:
+                        if time.monotonic()<budget_deadline:raise
+                        current,budget_expired=run,True
+                else:
+                    current = await self.store.get(a['run_id'])
                 cancelled = current['cancel_requested']
                 revoked = current['revoked']
-                if cancelled or revoked or time.monotonic()-started >= self.timeout:
+                budget_expired = budget_expired or bool(current.get('execution_budget') and current['execution_budget']['exhausted'])
+                if cancelled or revoked or budget_expired or time.monotonic()-started >= self.timeout:
                     observation = await self.adapter.stop(handle)
                     await observe(observation)
-                    code = 'AUTH_REVOKED' if revoked else 'PROCESS_DEADLINE_EXCEEDED'
+                    code = 'AUTH_REVOKED' if revoked else 'RUN_BUDGET_EXHAUSTED' if budget_expired else 'PROCESS_DEADLINE_EXCEEDED'
                 else:
                     observation = await self.adapter.observe(handle)
                     await observe(observation)
@@ -292,11 +311,13 @@ class Worker:
         except Exception as exc:
             # Best effort local evidence, independent of controller availability.
             # A live workload stays discoverable; a read error never proves its death.
+            exception_code = exc.code if isinstance(exc,RuntimeErrorCode) else 'RUNTIME_OBSERVATION_UNAVAILABLE'
             try:
-                observed = await self.adapter.stop(handle) if run['input'].get('work_authorization_ref') else await self.adapter.observe(handle)
+                observed = await self.adapter.stop(handle) if run['input'].get('work_authorization_ref') or budget else await self.adapter.observe(handle)
                 if not observed.alive and observed.state in {'exited','dead'}:
                     saved_logs = await self.adapter.logs(handle,self.output_limit)
-                    await asyncio.to_thread(self.receipts.save,a,observed,saved_logs,failure=code)
+                    await asyncio.to_thread(self.receipts.save,a,observed,saved_logs,
+                        failure=exception_code if exception_code=='RUN_BUDGET_EXHAUSTED' else code)
             except Exception:
                 pass
             code = exc.code if isinstance(exc,RuntimeErrorCode) else 'RUNTIME_OBSERVATION_UNAVAILABLE'

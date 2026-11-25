@@ -57,11 +57,11 @@ async def execute(args):
             with Path(args.file).open('rb') as source:raw=source.read(16385)
             if len(raw)>16384:raise RuntimeErrorCode('METADATA_TOO_LARGE')
             value=json.loads(raw)
-            if (not isinstance(value,dict) or set(value)-{'id','selector','max_concurrent','enabled'}
+            if (not isinstance(value,dict) or set(value)-{'id','selector','max_concurrent','enabled','budget'}
                     or not {'id','selector','max_concurrent'}<=set(value)):
                 raise RuntimeErrorCode('INVALID_CAPACITY_LIMIT')
             return await manager.put(value['id'],value['selector'],value['max_concurrent'],
-                args.revision,enabled=value.get('enabled',True))
+                args.revision,enabled=value.get('enabled',True),budget=value.get('budget'))
         if args.command=='delegation':
             from .delegations import Delegations
             manager=Delegations(store)

@@ -261,6 +261,8 @@ class TaskConsole:
             family=await family_view(c,self.scope,run_id,await asyncio.to_thread(self.access_filter))
             from app.runtime.capacity import queue_status
             capacity=await queue_status(c,self.scope,run,operator=self.principal is None)
+            from app.runtime.execution_budgets import view as budget_view
+            execution_budget=await budget_view(c,self.scope,run_id,now)
         kinds={}
         for payload,kind in kind_events:
             detail=payload['detail']
@@ -291,7 +293,7 @@ class TaskConsole:
             try:await asyncio.to_thread(self.check_access,run,action);access.append(action)
             except RuntimeErrorCode as exc:
                 if exc.code!='NOT_FOUND':raise
-        return dict(self.summary(run),access=access,observed_at=now,attempts=views,authorization=authorization,recovery=recovery,family=family,capacity=capacity,
+        return dict(self.summary(run),access=access,observed_at=now,attempts=views,authorization=authorization,recovery=recovery,family=family,capacity=capacity,execution_budget=execution_budget,
             sample=run['input']['payload']['sample'],
             artifacts=[{**{k:b[k] for k in ('id','attempt_id','digest','size','created_at')},'kind':kinds.get(b['id'],'raw')}
                 for b in blobs],

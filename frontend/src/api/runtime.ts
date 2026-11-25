@@ -36,7 +36,8 @@ export interface WorkAuthorization {
   decisions?: { id: string; action: string; created_at: number; outcome: string; reason_codes: string[] }[];
 }
 export interface RunDetail extends RunSummary {
-  capacity?: {blocked: boolean; reason: string | null; limits: {id: string; max_concurrent: number; reserved_attempts: number; unresolved_attempts: number}[]} | null;
+  capacity?: {blocked: boolean; reason: string | null; available_at?: number; limits: {id: string; reason?: string; available_at?: number; max_concurrent: number; reserved_attempts: number; unresolved_attempts: number}[]} | null;
+  execution_budget?: {started_at: number; deadline_at: number; remaining_seconds: number; exhausted: boolean} | null;
   family?: { parent: { parent_run_id: string; parent_attempt_id: string; parent_session_id: string; parent_epoch: number; root_run_id: string; depth: number; root_limit: number; depth_limit: number } | null;
     children: { run_id: string; parent_attempt_id: string; state: string; cancel_requested: boolean }[]; parent_close_policy: "request_cancel" } | null;
   access?: string[];
@@ -51,10 +52,13 @@ export type CapacitySelector = {kind: "scope"} | {kind: "subject"; subject: stri
 export interface CapacityLimit {
   id: string; selector: CapacitySelector; max_concurrent: number; enabled: boolean; revision: number;
   reserved_attempts: number; unresolved_attempts: number; queued_runs: number; available: number | null;
+  budget?: ExecutionBudgetPolicy;
+  dispatch_rate?: {used: number; maximum: number; window_seconds: number; available_at: number | null} | null;
 }
+export interface ExecutionBudgetPolicy {max_runtime_seconds: number | null; max_dispatches: number | null; dispatch_window_seconds: number | null;}
 export const capacityApi = {
   status: (signal?: AbortSignal) => request<{items: CapacityLimit[]; observed_at: number}>("/capacity", {signal}),
-  save: (row: {id: string; selector: CapacitySelector; max_concurrent: number; enabled: boolean; expected_revision: number}) =>
+  save: (row: {id: string; selector: CapacitySelector; max_concurrent: number; enabled: boolean; expected_revision: number; budget?: ExecutionBudgetPolicy}) =>
     request<{id: string; revision: number}>("/capacity", {method: "PUT", body: JSON.stringify(row)}),
 };
 

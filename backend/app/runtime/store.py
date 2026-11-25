@@ -178,6 +178,8 @@ class RuntimeStore:
                 attempts.c.state.in_(ACTIVE_ATTEMPTS | {'result_unknown'})))).all()
             if len(busy) >= w['slots']: return None
             from .faults import claimed, policy, ready
+            from .execution_budgets import expire_waiting, admit_query as budget_query, bind as bind_budget
+            await expire_waiting(c,self,now)
             recovery_policy=policy(recovery_policy)
             if not await ready(c,self,recovery_policy,profile_id,now):return None
             query = select(runs).where(runs.c.scope == self.scope, runs.c.state == 'queued',
@@ -187,9 +189,14 @@ class RuntimeStore:
                 query = query.where(runs.c.input['runtime_profile'].as_string() == profile_id)
             from .capacity import admit_query
             query = await admit_query(c, self.scope, query)
+            query = await budget_query(c, self.scope, query, now)
             row = (await c.execute(query.order_by(runs.c.created_at, runs.c.id).limit(1))).mappings().first()
             if not row: return None
             run = dict(row)
+            deadline = await bind_budget(c,self.scope,run,now)
+            if deadline is not None and deadline <= now:
+                await self._event(c,run,'run.execution_budget_exhausted',{},now,state='failed')
+                return None
             aid, epoch = str(uuid4()), run['epoch'] + 1
             record = dict(id=aid, run_id=run['id'], worker_id=worker_id, worker_instance=instance,
                 epoch=epoch, authorization_epoch=run['authorization_epoch'], lease_until=now+lease_seconds,
@@ -377,6 +384,8 @@ class RuntimeStore:
             run['recovery']=await view(c,self.scope,run_id)
             run['recovery_policy']=await bound_policy(c,self.scope,run['attempt_id'])
             run['observed_at'] = await self.db.now(c)
+            from .execution_budgets import view as budget_view
+            run['execution_budget']=await budget_view(c,self.scope,run_id,run['observed_at'])
             from .child_authorizations import view as family_view
             run['family']=await family_view(c,self.scope,run_id)
             return run

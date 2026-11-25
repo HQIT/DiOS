@@ -290,8 +290,10 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             <p>{translateUI("远端上下文：{0}", [active.remote_agent.context_id || translateUI("待确认")])}</p>
             {active.remote_agent.cancel_requested_at && !terminal(detail.state) && <p>{translateUI("取消请求已保存，等待远端确认。")}</p>}
           </div>}
-          {detail.state === "queued" && <p className="tr-notice" role="status">{translateUI(detail.capacity?.blocked ? "共享执行额度暂满，等待已有任务结束或管理员调整。" : "任务已入队，等待对应 Agent 的 Worker 领取。")}
-            {detail.capacity?.limits.map(row => <span className="tr-capacity-block" key={row.id}>{row.id} · {translateUI("占位")}: {row.reserved_attempts}/{row.max_concurrent}{row.unresolved_attempts > 0 && ` · ${translateUI("待确认")}: ${row.unresolved_attempts}`}</span>)}
+          {detail.execution_budget && <p className="tr-notice">{translateUI("执行预算截止时间")}: {time(detail.execution_budget.deadline_at)}{!terminal(detail.state) && detail.execution_budget.exhausted && ` · ${translateUI("执行预算已到期，等待停止或恢复对账。")}`}</p>}
+          {detail.state === "queued" && <p className="tr-notice" role="status">{translateUI(detail.capacity?.reason === "DISPATCH_RATE_LIMITED" ? "任务领取频率已达上限，等待时间窗口释放。" : detail.capacity?.blocked ? "共享执行额度暂满，等待已有任务结束或管理员调整。" : "任务已入队，等待对应 Agent 的 Worker 领取。")}
+            {detail.capacity?.available_at && <> · {translateUI("最早可再次领取")}: {time(detail.capacity.available_at)}</>}
+            {detail.capacity?.limits.map((row, index) => <span className="tr-capacity-block" key={`${row.id}-${index}`}>{row.id} · {row.reason === "DISPATCH_RATE_LIMITED" ? translateUI("任务领取频率已达上限，等待时间窗口释放。") : `${translateUI("占位")}: ${row.reserved_attempts}/${row.max_concurrent}`}{row.unresolved_attempts > 0 && ` · ${translateUI("待确认")}: ${row.unresolved_attempts}`}</span>)}
           </p>}
           {detail.state === "reconciliation_required" && <p className="tr-notice">{translateUI("正在等待原执行结果对账，任务身份与已有输出已保留。")}</p>}
           {active?.error && <p className="tr-error">{translateUI("失败原因：")}{translateUI(active.error.code)}</p>}

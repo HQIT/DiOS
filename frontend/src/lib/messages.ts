@@ -1,5 +1,14 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "执行时长上限（秒）": "Execution duration limit (seconds)",
+  "窗口内已领取": "Claims in window",
+  "窗口长度（秒）": "Window length (seconds)",
+  "窗口内最多领取次数": "Maximum claims per window",
+  "最早可再次领取": "Earliest next claim",
+  "留空表示不设置该预算。时长从首次领取计时，包含重试等待；修改时长只影响尚未领取的任务。领取频率按 Attempt 计数。": "Leave blank for no budget. Duration starts at the first claim and includes retry waits. Duration changes apply to unclaimed tasks. Each Attempt consumes one claim.",
+  "执行预算截止时间": "Execution budget deadline",
+  "执行预算已到期，等待停止或恢复对账。": "Execution budget expired; awaiting stop confirmation or reconciliation.",
+  "任务领取频率已达上限，等待时间窗口释放。": "Claim rate limit reached. Waiting for the rolling window to release capacity.",
   "共享执行额度": "Shared execution limits",
   "准备中和结果待确认的任务均占用额度。实际并发见 Worker 观测。": "Preparing and unresolved tasks reserve capacity. See Worker observations for actual concurrency.",
   "额度观测暂不可用，请刷新后操作。": "Capacity observations are unavailable. Refresh before making changes.",

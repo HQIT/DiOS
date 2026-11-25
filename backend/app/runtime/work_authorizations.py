@@ -65,6 +65,9 @@ async def create(c,scope,run,descriptor,now):
 
 
 async def checked_work(c,run,attempt,now,action):
+    if action=='execute':
+        from .execution_budgets import require_execution
+        await require_execution(c,run,now)
     reference=run['input'].get('work_authorization_ref')
     if not reference:return None
     from .logout_events import require_source
@@ -86,6 +89,7 @@ async def checked_work(c,run,attempt,now,action):
     from .delegations import check_work
     await check_work(c,Database,run,row,permission(row,action))
     if row['expires_at']<=await Database.now(c):raise RuntimeErrorCode('WORK_AUTHORIZATION_EXPIRED')
+    if action=='execute':await require_execution(c,run,await Database.now(c))
     return dict(row)
 
 

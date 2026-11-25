@@ -114,6 +114,10 @@ async def queue_status(c, scope, run, *, operator=False):
         .all()
     )
     blocked = []
+    from .database import Database
+    from .execution_budgets import policy, rate_status
+
+    now = await Database.now(c)
     for row in rows:
         selector = row["selector"]
         if selector["kind"] == "subject" and selector["subject"] != subject:
@@ -124,6 +128,8 @@ async def queue_status(c, scope, run, *, operator=False):
         ):
             continue
         occupied, unknown = await occupancy(c, scope, selector)
+        budget = await policy(c, scope, row["id"])
+        rate = await rate_status(c, scope, selector, budget, now)
         if occupied >= row["max_concurrent"]:
             blocked.append(
                 {
@@ -133,9 +139,32 @@ async def queue_status(c, scope, run, *, operator=False):
                     "unresolved_attempts": unknown,
                 }
             )
+        if rate and rate["available_at"] is not None:
+            blocked.append(
+                {
+                    "id": row["id"],
+                    "reason": "DISPATCH_RATE_LIMITED",
+                    "available_at": rate["available_at"],
+                    "max_concurrent": row["max_concurrent"],
+                    "reserved_attempts": occupied,
+                    "unresolved_attempts": unknown,
+                }
+            )
+    rate_only = bool(blocked) and all(
+        x.get("reason") == "DISPATCH_RATE_LIMITED" for x in blocked
+    )
     return {
         "blocked": bool(blocked),
-        "reason": "SHARED_CAPACITY_EXHAUSTED" if blocked else None,
+        "reason": (
+            "DISPATCH_RATE_LIMITED" if rate_only else "SHARED_CAPACITY_EXHAUSTED"
+        )
+        if blocked
+        else None,
+        **(
+            {"available_at": max(x["available_at"] for x in blocked)}
+            if rate_only
+            else {}
+        ),
         "limits": blocked if operator else [],
     }
 
@@ -155,11 +184,16 @@ class Capacity:
         *,
         enabled=True,
         source="trusted_local",
+        budget=None,
     ):
         identifier(limit_id)
         if source not in {"trusted_local", "operator_api"}:
             raise RuntimeErrorCode("INVALID_CAPACITY_SOURCE")
         selector = validate_selector(selector)
+        from .execution_budgets import policy, put_policy, validate
+
+        if budget is not None:
+            budget = validate(budget)
         if (
             type(max_concurrent) is not int
             or not 0 <= max_concurrent <= 100000
@@ -195,6 +229,7 @@ class Capacity:
                 if count >= 64:
                     raise RuntimeErrorCode("CAPACITY_LIMIT_COUNT_EXCEEDED")
             now = await self.store.db.now(c)
+            old_budget = await policy(c, scope, limit_id)
             record = {
                 "scope": scope,
                 "id": limit_id,
@@ -212,6 +247,9 @@ class Capacity:
                 )
             else:
                 await c.execute(limits.insert().values(**record))
+            record["budget"] = await put_policy(
+                c, scope, limit_id, old_budget if budget is None else budget
+            )
             await c.execute(
                 changes.insert().values(
                     scope=scope,
@@ -219,7 +257,7 @@ class Capacity:
                     revision=record["revision"],
                     record={
                         "source": source,
-                        "before": dict(old) if old else None,
+                        "before": dict(old, budget=old_budget) if old else None,
                         "after": record,
                     },
                     created_at=now,
@@ -245,6 +283,12 @@ class Capacity:
             result = []
             for row in rows:
                 occupied, unknown = await occupancy(c, scope, row["selector"])
+                from .execution_budgets import policy, rate_status
+
+                budget = await policy(c, scope, row["id"])
+                rate = await rate_status(
+                    c, scope, row["selector"], budget, await self.store.db.now(c)
+                )
                 waiting = (
                     await c.execute(
                         select(func.count())
@@ -261,6 +305,8 @@ class Capacity:
                 result.append(
                     dict(
                         row,
+                        budget=budget,
+                        dispatch_rate=rate,
                         reserved_attempts=occupied,
                         unresolved_attempts=unknown,
                         queued_runs=waiting,

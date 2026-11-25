@@ -206,6 +206,7 @@ class CapacityUpdate(BaseModel):
     max_concurrent: int = Field(ge=0,le=100000)
     expected_revision: int = Field(ge=0)
     enabled: bool = True
+    budget: dict | None = None
 
 
 @router.get('/capacity')
@@ -220,7 +221,7 @@ async def capacity_update(body:CapacityUpdate,s=Depends(service)):
     if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
     from app.runtime.capacity import Capacity
     return await Capacity(s.store).put(body.id,body.selector,body.max_concurrent,
-        body.expected_revision,enabled=body.enabled,source='operator_api')
+        body.expected_revision,enabled=body.enabled,source='operator_api',budget=body.budget)
 
 @router.post('/runs',status_code=202)
 async def submit(body:Submit,s=Depends(service)):

@@ -63,9 +63,9 @@ python -m app.runtime.cli --scope local capacity status
 
 Console「任务」页提供共享额度面板，支持新增、修改和停用。中英文、Light/Dark/Auto 样式沿用全局设置。观测失败时显示最近数据并禁用修改，刷新恢复后才能继续操作；版本冲突需要重新选择最新额度。
 
-`GET /api/os/runtime/capacity` 返回额度观测，`PUT /api/os/runtime/capacity` 接收 `id`、`selector`、`max_concurrent`、`enabled` 和 `expected_revision`。两个接口仅允许现有操作员认证，应用身份返回 403；额外字段与非整数上限拒绝，响应不缓存。范围由服务器控制域确定。
+`GET /api/os/runtime/capacity` 返回额度观测，`PUT /api/os/runtime/capacity` 接收 `id`、`selector`、`max_concurrent`、`enabled`、`expected_revision` 和可选 `budget`。两个接口仅允许现有操作员认证，应用身份返回 403；额外字段与非整数上限拒绝，响应不缓存。范围由服务器控制域确定。
 
-任务详情新增 `capacity`：排队时给出 `blocked`、`reason` 和 `limits`，其他状态为 null。操作员可看到阻塞额度及占位数；普通应用仅获得自己可读任务的阻塞布尔值和 `SHARED_CAPACITY_EXHAUSTED` 原因，`limits` 为空。额度变化不会增加任务 revision，Console 轮询仍会更新等待说明。额度可用只表明该门禁已通过，Worker 可用性、排空和熔断等条件继续生效。
+任务详情新增 `capacity`：排队时给出 `blocked`、`reason` 和 `limits`，其他状态为 null。操作员可看到阻塞额度及占位数；普通应用仅获得自己可读任务的阻塞布尔值、原因及可用时刻，`limits` 为空。额度变化不会增加任务 revision，Console 轮询仍会更新等待说明。额度可用只表明该门禁已通过，Worker 可用性、排空和熔断等条件继续生效。
 
 ## 升级与验收
 
@@ -86,4 +86,39 @@ backend/.venv/bin/python scripts/qualify_runtime_capacity.py --postgres --output
 
 [Console 与权限实测](evidence/execution-capacity-ui-20261125.json)覆盖中英文桌面、移动端、操作冲突、观测中断和应用身份隔离。
 
-后续工作包含运行时长与调用频率限制、Token/金额预留与可靠用量核销，以及远端服务不提供成本硬限制时的准入策略。网络、凭据与工作区限制继续由现有执行配置和 E2AG 工具治理承担，完整 #45 验收仍需统一验证这些约束。父子任务容量规划、企业身份的细分运维角色和物理跨主机验收继续按整体计划推进。
+## 执行时长与领取频率
+
+额度可增加 `budget` 配置；CLI、API 和 Console 使用同一契约：
+
+```json
+{
+  "id": "shared-model-pool",
+  "selector": {"kind": "profiles", "profiles": ["cursor-review", "dsh-review"]},
+  "max_concurrent": 2,
+  "budget": {
+    "max_runtime_seconds": 1800,
+    "max_dispatches": 10,
+    "dispatch_window_seconds": 60
+  }
+}
+```
+
+`max_runtime_seconds` 为一个 Run 从首次领取开始的墙钟预算，包含准备、重试和重试等待；初次排队不计入。首次领取时持久化最严格的匹配截止时间及额度 revision，后续重试、Worker 重启和配置放宽不会重置或延长。未配置时保留现有 Worker 超时与 Work 授权期限。修改时长只影响尚未绑定预算的任务。时长范围为 1–604800 秒，E2AG Work 期限等更严格条件继续生效。
+
+总执行期限与单次尝试超时分离，参考 [Temporal 执行期限契约](https://nodejs.temporal.io/api/namespaces/common/interfaces/WorkflowDurationOptions)。DiOS 持续使用自身 Run/Attempt 身份；预算到期后停止授予执行权，允许对已保留产物继续做授权校验和结果恢复。
+
+`max_dispatches` 与 `dispatch_window_seconds` 必须同时配置。两者分别为 1–100000 次和 1–86400 秒。成功领取创建一个 Attempt 时计一次；重试和已领取后的预检失败同样计数。被门禁拒绝而没有创建 Attempt 的请求不计数。该指标约束平台领取准入，模型内部 HTTP 请求数与 Token 消耗另行核算。
+
+频率使用精确滚动窗口：同一数据库事务读取当前时钟、统计窗口内 Attempt，并决定是否创建新 Attempt。算法参考 [Redis 滚动窗口日志说明](https://redis.io/learn/howtos/ratelimiting/)，复用已有持久 Attempt 时间戳，未增加 Redis 依赖。失败、重启及停用后重新启用不会删除窗口历史；下调上限时等待足够多的历史领取离开窗口。所有匹配额度共同约束任务，队首受限任务不会阻塞其他配置的可用任务。
+
+已有调用方省略 `budget` 时保留原配置；传入 `{}` 或三个 null 清除未来任务的预算配置。Console 留空对应清除。已经绑定的执行截止时间继续生效。新增预算或扩大选择范围时，领取频率计入对应范围内仍处于窗口的既有 Attempt。
+
+本地和远程 Worker 根据服务端剩余时长建立保守的本地单调时钟截止时间；控制面查询不能无限延长执行。E2AG 执行、续租和工具控制点继续核验持久截止时间。到期后请求运行适配器停止进程，保留输出和退出证据；只有确认退出才释放并发占位。A2A 对原 Task 发起取消并查询原身份，取消未确认或端点不可达时维持对账及占位。第三方端点的停止完成时间取决于其取消能力。
+
+Task 详情的 `execution_budget` 给出起点、截止时间、剩余秒数和是否到期；排队频率受限时 `capacity.reason` 为 `DISPATCH_RATE_LIMITED`，`available_at` 给出最早可再次领取的时间。仍需等待 Worker、其他额度和熔断条件满足。该时间与原因可供任务所有者查看，共享用量明细仅供操作员查看。
+
+新增独立的 `runtime_execution_budget_schema`、策略表与 Run 绑定表，并纳入备份校验。升级前没有预算绑定的历史重试，首次由新执行器领取时以最早 Attempt 为起点绑定；已超时的任务结束并记录 `run.execution_budget_exhausted`，不再创建 Attempt。历史保留策略必须保留有效频率窗口内的 Attempt 及尚未结算的绑定。
+
+可重复运行 `scripts/qualify_runtime_budgets.py --output <新目录>`，或指定 `--postgres` 使用 `DIOS_TEST_POSTGRES_URL` 隔离库。验证真实容器超时、原始输出保留、Worker 重启后频率窗口保留，以及后续任务恢复。详情见[预算验证记录](evidence/execution-budgets-20261125.json)。
+
+后续工作包含受控工具/模型请求的调用预算、Token/金额预留与可靠用量核销。网络、凭据与工作区限制继续由现有执行配置和 E2AG 工具治理承担，完整 #45 验收仍需统一验证这些约束。父子任务容量规划、企业身份的细分运维角色和物理跨主机验收继续按整体计划推进。
