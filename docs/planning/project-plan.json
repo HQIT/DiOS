@@ -2052,18 +2052,17 @@
         "切换实现时按授权转交上下文，远端不可删除或不可迁移内容显式显示"
       ],
       "implementation_progress": {
-        "date": "2026-11-24",
-        "state": "in_progress",
+        "state": "capability_engineering_verified",
         "delivered": [
-          "可信主体 Provider 与独立令牌，准入和运行时 E2AG 绑定",
-          "任务归属、查询过滤、Run 关联产物读取和分享撤销，Console/CLI/SDK 同步"
+          "统一文件版本、原生会话/产物身份及外部不透明引用",
+          "主体/对象读取下载权限、版本隔离、撤销及 E2AG 决策证据",
+          "留存、删除、派生失效、本地离线物理回收及恢复关联完整性"
         ],
         "remaining": [
-          "企业 OIDC/SSO、签发与密钥托管轮换",
-          "三层受控委派及上游撤销传播 #35",
-          "单产物 ACL 与持久对象授权管理 #38"
+          "个人/团队/项目 Workspace、业务目录、分享对象选择与业务归属"
         ],
-        "evidence": "docs/design/evidence/runtime-principals-20261124.json"
+        "evidence": "docs/design/evidence/object-lifecycle-qualification-20261126.json",
+        "shared_dependencies": "企业身份和委派继续由 K03-1/K03-3 追踪，应用交付单列。"
       },
       "implementation_selection": "成熟方案实测见 docs/design/e2ag-mature-solutions-20261124.md；OPA Data API 接入共用工具执行点，自定义 authority 原型已移出运行源码。关系授权及跨服务撤销排序保持专项评审。",
       "closure_work_items": [
@@ -2076,25 +2075,25 @@
         "work_item": "S02-1.01",
         "status": "development_verified",
         "evidence": "docs/design/evidence/object-versions-20261126.json",
-        "remaining": [
-          "S02-1.04"
-        ]
+        "remaining": []
       },
       "object_access": {
         "work_item": "S02-1.02",
         "status": "development_verified",
         "evidence": "docs/design/evidence/object-access-20261126.json",
-        "remaining": [
-          "S02-1.04"
-        ]
+        "remaining": []
       },
       "object_lifecycle": {
         "work_item": "S02-1.03",
         "status": "development_verified",
         "evidence": "docs/design/evidence/object-collection-20261126.json",
-        "remaining": [
-          "S02-1.04"
-        ]
+        "remaining": []
+      },
+      "object_qualification": {
+        "work_item": "S02-1.04",
+        "status": "engineering_verified",
+        "evidence": "docs/design/evidence/object-lifecycle-qualification-20261126.json",
+        "remaining": []
       }
     },
     {
@@ -3116,10 +3115,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "S02-1.04",
-    "next_delivery": "S02-1.04",
+    "next_work_item": "S02-2.01",
+    "next_delivery": "S02-2.01",
     "next_delivery_order": [
-      "S02-1.04",
+      "S02-2.01",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -3141,6 +3140,6 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "对象实现三项已完成，按既定 W2 依赖推进完整生命周期资格，复用未变化的工程证据；W1 恢复启用仍等待源端隔离决策。"
+    "next_selection_reason": "S02-1 四项能力工程已完成，按 W2 依赖推进知识 Provider 更新删除契约；S02-2.01 的对象授权前置已满足，W1 恢复启用仍待源端隔离决策。"
   }
 }

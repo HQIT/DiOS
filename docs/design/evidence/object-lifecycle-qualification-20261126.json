@@ -1,0 +1,126 @@
+{
+  "work_item": "S02-1.04",
+  "status": "engineering_verified",
+  "source_head": "81d56f9f077d2ea444e0833223324acc56f88a76",
+  "actual_http_and_storage": {
+    "passed": true,
+    "image": "sha256:b8af51e17aa861ef0d80365fdc614d6e19ad78ff6a1ab401433a7036a1681bf6",
+    "checks": [
+      "native artifact/session object ACL restricts existing Run shares and all report paths",
+      "two principals, content reuse, exact-version ACL and revoked grant replay",
+      "retention blocks deletion, clock expiry and derived invalidation at actual HTTP reads",
+      "physical collection respects shared content; relocated restored API preserves identities, ACL, tombstones and opaque links"
+    ],
+    "collection": {
+      "dry_run": false,
+      "operation_key": "object-qualification",
+      "collected_blobs": 2,
+      "collected_bytes": 22,
+      "retained_on_resume": 0,
+      "released_objects": 2,
+      "shared_blobs_retained": 1
+    },
+    "cursor_run_id": "7a1a9465-54fd-47f5-99c9-fdfa034fa2cb",
+    "attempt_id": "7222b13d-4ad1-4a73-826a-d37214d6180b",
+    "session_id": "1b072446-9833-4be8-838c-fb31b72e3279",
+    "artifact_id": "9373d725-5186-43e9-bdfc-6f3020f7857a",
+    "artifact_sha256": "748fa6a90c92cda5fcee2f3fb1f808224b53f614a9d558e5a81f9bffbf886fd5",
+    "source_recovery_evidence_sha256": "c2469777290608ed043ab5b166ec26031fa12f83c5237559ee8919e7d9c62605",
+    "file_refs": [
+      {
+        "kind": "file",
+        "id": "ee7aae41-53c5-4d6c-9213-21e5add135ef",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "c7bdb209-29a8-478a-8154-7b5b61ae1925",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "ee7aae41-53c5-4d6c-9213-21e5add135ef",
+        "version": 2
+      },
+      {
+        "kind": "file",
+        "id": "5d7f6404-b244-40bf-8e55-68640c5daeb3",
+        "version": 1
+      },
+      {
+        "kind": "file",
+        "id": "bf8c2990-2721-4582-affe-1a8f9c7fa9a2",
+        "version": 1
+      }
+    ],
+    "new_model_calls": 0,
+    "scope": "Linux SQLite/LocalArtifacts; Cursor retained results; API replacement and storage relocation. No cross-Harness or vendor transcript claim."
+  },
+  "requirements": {
+    "S02-1-A01": [
+      "Two independently authenticated principals share the original Run; exact artifact/session ACL still denies the second principal",
+      "Native download, preview, Markdown and unified object reads honor the same restrictions; Run detail hides restricted metadata"
+    ],
+    "S02-1-A02": [
+      "Version-specific grants, revoke and old-grant replay, minimum retention, actual-clock expiry and explicit derivation invalidation verified over TCP",
+      "Real offline CLI collects two invalid blobs and retains one shared blob; restored API preserves effective denial and live bytes",
+      "Unchanged existing regressions cover native deletion, in-flight revocation, child-tool E2AG channel and collection interruption"
+    ],
+    "S02-1-A03": [
+      "Original recovered Cursor Run/Attempt/Session/artifact identities and verified content survive a second API instance and a different storage directory",
+      "Business reference is only namespace/key/version; no application schema added",
+      "Previously verified Cursor Worker replacement and immutable configuration revision rollout retained; qualification does not claim cross-Harness context transfer"
+    ]
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/design/evidence/object-versions-20261126.json",
+      "sha256": "8577f8f642df28b8ee8e57804fb6aa61b4614355a6b3d83fb71701b5758a15fd"
+    },
+    {
+      "path": "docs/design/evidence/object-access-20261126.json",
+      "sha256": "c2226f46b624988e32aaefd484d1f479ad86925a1390b94f8bfc0c0696222071"
+    },
+    {
+      "path": "docs/design/evidence/object-lifetime-20261126.json",
+      "sha256": "1c4d1dab23d9eebac0cd17159dac8e19547cc7cbcdc966fa40667e7fb823d123"
+    },
+    {
+      "path": "docs/design/evidence/object-collection-20261126.json",
+      "sha256": "4d5412d9471004ebb0edc6d7fbd6ed8e19e7209dca22f4685594d5b6bb0f7c81"
+    },
+    {
+      "path": "docs/design/evidence/cursor-recovery-upgrade-20261126.json",
+      "sha256": "af7cab892aac677d28ca4158a6cbf562ba8dc7680a284170d254f8ba4139b89c"
+    }
+  ],
+  "reuse_check": {
+    "collection_source_hashes_verified": true,
+    "release_source_hashes_verified": true,
+    "prior_regression_total": 194,
+    "prior_passed": 174,
+    "prior_skipped": 20,
+    "new_full_regression_runs": 0
+  },
+  "source_sha256": {
+    "scripts/qualify_object_lifecycle.py": "e9d2f6891b2446c85b64b044423a5adfadc4225db7303b72de7b2ec6ace53d6a",
+    "backend/tests/test_runtime_objects.py": "4c6d90ae456a0ddf497172edfce1793bc12d25b47a8a5affce87e1f83ef2e706",
+    "backend/tests/test_runtime_object_access.py": "b3233e2c31f7017e702cf418cd725491601f4a24c40eeb080bbc6e1a4a2ddb4b",
+    "backend/tests/test_runtime_object_lifetime.py": "8b8fb23dceaac71531df61d24e482ba4d824e907c20ac47637380e7e66fc2fc4",
+    "backend/tests/test_runtime_object_collection.py": "25df792a9f686d51b0bc743a84f4ce42c966bbbe9f70145cf05204df0b5ae0cc",
+    "backend/app/api/os/runtime_objects.py": "54bbb6796056d41bd89151e528b6f138c5292544d9597c91ab40b74acc91a357",
+    "backend/app/services/object_access.py": "72497e16e454c317a20b0a23d1edbf916aff55b7c8475faa69fcaf6b5c1a397c"
+  },
+  "qualification_fixture_correction": "Initial fixture expected OBJECT_RETAINED; implementation correctly returned OBJECT_RETENTION_ACTIVE. Corrected fixture and reran in a new isolated directory.",
+  "deployment": {
+    "required": false,
+    "reason": "Runtime code/image unchanged; only opt-in qualification and evidence/planning added",
+    "existing_image": "sha256:b8af51e17aa861ef0d80365fdc614d6e19ad78ff6a1ab401433a7036a1681bf6"
+  },
+  "limits": [
+    "Linux SQLite and LocalArtifacts; distributed/shared backend qualification stays in W4.",
+    "Session v1 identifies the original Attempt and vendor session; vendor transcript migration/deletion belongs to its Provider.",
+    "Object read policy uses E2AG decision evidence but grants no execution Work authority.",
+    "Customer workspaces, business sharing choices and cross-Harness context transfer remain upper-application scope; #38 stays open for that scope."
+  ]
+}

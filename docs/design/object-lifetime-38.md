@@ -69,7 +69,7 @@ python -m app.runtime.cli --database-url sqlite+aiosqlite:////data/runtime.sqlit
 
 备份保留墓碑、来源边、回收计划与状态；已回收或待确认回收的版本不要求复制其内容。恢复后普通读取仍按墓碑拒绝。迁移到不同目录后，经正常组件初始化建立新的存储绑定，再停止组件并用新的维护键完成回收；原维护键绑定原安装地址，任务和对象身份保持不变。
 
-完整生命周期资格由 S02-1.04 承接。基础状态证据与[物理回收工程证据](evidence/object-collection-20261126.json)共同支持 S02-1.03 的工程完成。
+S02-1.04 的[完整生命周期资格](evidence/object-lifecycle-qualification-20261126.json)已通过：两主体真实 API、原 Cursor 成果、共享内容回收及异目录恢复保持权限和身份关联。基础状态证据与[物理回收工程证据](evidence/object-collection-20261126.json)共同支持 S02-1.03 的工程完成。
 
 ## 依据与验证
 
