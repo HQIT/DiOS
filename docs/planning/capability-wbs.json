@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-2.01",
-    "next_delivery": "K02-2.01",
+    "next_work_item": "K02-2.02",
+    "next_delivery": "K02-2.02",
     "next_delivery_order": [
-      "K02-2.01",
       "K02-2.02",
       "K02-3.02",
       "K02-3.03",
@@ -33,7 +32,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "定时重叠与排空重启资格完成；源控制面隔离选择仍待定，继续 W2 已就绪的迁移与历史导入完整性资格。"
+    "next_selection_reason": "迁移与历史导入完整性资格完成；继续 W2 轻进度与分块同步故障资格，源控制面隔离选择仍待定。"
   },
   "waves": [
     {
@@ -1634,7 +1633,7 @@
       "issue": 32,
       "title": "迁移与历史导入完整性资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K02-2-A01",
         "K02-2-A02",
@@ -1647,8 +1646,11 @@
       "verification": "干净副本迁移失败可恢复；任务/尝试/会话/产物/未知字段保留，导入零模型调用",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有轻量后端公平队列、混合查询、导入和关联查询；多节点持久保证归 D01-3。",
+      "completion_evidence": [
+        "docs/design/evidence/history-migration-qualification-20261126.json",
+        "docs/design/history-migration-qualification-32.md"
+      ],
+      "basis": "27 项专项通过；填充旧库迁移与历史组导入遭 SIGKILL 后完整回滚并可重试，身份、共享关联、未知字段及不透明运行引用保留，导入无执行。",
       "existing_evidence": [
         "docs/design/evidence/lightweight-runtime-mixed-20261111.json",
         "docs/design/evidence/provider-correctness-20261111.json",

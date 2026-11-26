@@ -1,0 +1,110 @@
+{
+  "work_item": "K02-2.01",
+  "passed": true,
+  "tests": 27,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 33.677,
+  "selected_suites": [
+    "tests.test_history_migration_qualification.CrashHistoryQualification",
+    "tests.test_history_migration_qualification.SourceExtensionQualification",
+    "tests.test_runtime_history.SQLiteHistory",
+    "tests.test_runtime_history.HistoryMigrationTests",
+    "tests.test_managed_history.ManagedHistoryTests"
+  ],
+  "implementation_commit": "7e328a5d982670e5fb491a1119955f0232337706",
+  "observations": [
+    {
+      "case": "history-group-crash",
+      "signal": "SIGKILL",
+      "database_rolled_back": true,
+      "idempotent_mappings": [
+        {
+          "source": "legacy",
+          "kind": "task",
+          "source_id": "task",
+          "target_id": "6d024d9f-c9f4-4191-9f5d-7f476baa9596",
+          "acceptance": "legacy_unverified"
+        },
+        {
+          "source": "legacy",
+          "kind": "attempt",
+          "source_id": "attempt1",
+          "target_id": "9dc2e8ab-3e3e-4daf-b5b9-0af01c39429c",
+          "acceptance": "legacy_unverified"
+        },
+        {
+          "source": "legacy",
+          "kind": "attempt",
+          "source_id": "attempt2",
+          "target_id": "4407288d-639d-44b9-9916-5c00155ba103",
+          "acceptance": "legacy_unverified"
+        },
+        {
+          "source": "legacy",
+          "kind": "session",
+          "source_id": "shared-session",
+          "target_id": "b8db83e3-8c30-4f31-a680-cadec62c3948",
+          "acceptance": "legacy_unverified"
+        },
+        {
+          "source": "legacy",
+          "kind": "artifact",
+          "source_id": "shared-artifact",
+          "target_id": "826015bb-d8f7-40d0-8c97-650917f7850d",
+          "acceptance": "legacy_unverified"
+        }
+      ],
+      "relation_count": 6,
+      "shared_session_and_artifact_origins": 2,
+      "native_runs": 0,
+      "execution_events": 0,
+      "artifact_digest": "92b17820a615561fd6a4f04441065b21a6615bc316d91bea8b4186b5769ddabe"
+    },
+    {
+      "case": "populated-v1-migration-crash",
+      "signal": "SIGKILL",
+      "source_unchanged": true,
+      "rollback_matches_source": true,
+      "migration_retry_idempotent": true,
+      "run_id": "c5ee9c3e-a12f-4718-b16b-39ccd2bc1709",
+      "attempt_id": "attempt",
+      "session_id": "original-session",
+      "artifact_digest": "9edddc83a6c5514474230d8aad649b719d707e8d51bd865471926e6d900603cb",
+      "unknown_fields_preserved": true
+    },
+    {
+      "case": "managed-source-extension",
+      "unknown_column_preserved": true,
+      "opaque_runtime_handle_preserved": true,
+      "source_unchanged": true,
+      "adapter_start_calls": 0
+    }
+  ],
+  "source_sha256": {
+    "backend/tests/test_history_migration_qualification.py": "c111db0ef65d8b3642a7f5e8cb91e52ceb9932ed96c83c29cdc1a751770b5c8c",
+    "backend/tests/test_runtime_history.py": "ce4875a29ec37fd47bd90c4582eb030ee8170f4afadfdc709516549118025bd7",
+    "backend/tests/test_managed_history.py": "746a82cd2440debb085c88e6d77e329f4fad571a31ebbeb215252e62981d37cc",
+    "backend/app/runtime/database.py": "959164cf52be1597fbe9ca239fcd9d7887268f345f528c34bc663373b0af43a9",
+    "backend/app/runtime/history.py": "17cb9cf1831497e4a66111b1795a4240c8e8f1dda7e75f857b24d6d93c0626cf",
+    "backend/app/runtime/history_archive.py": "cec32a3b8aae2e737921d0cdf8b460f7eca2d0aabb2d448150c0698226f97a10",
+    "backend/app/services/managed_history.py": "db052fd69afb61ba36f8e171bd8323582b1ae2b2b4e4e28d817988b4afb22b6e",
+    "backend/app/runtime/schema.py": "f2cbb142318cb6e25809aa818ec4d504f331afffa34cf1b49602cfabf7e2d715",
+    "backend/app/runtime/history_schema.py": "d8b4ed8efdf894d2c27d6eb2f327a8d9b8bd1f567e813f01da2f835e32e8d4d4",
+    "backend/app/runtime/history_archive_schema.py": "b766cb1e875fcd8a2724f07e90bc4ce4f5f29d393d9a45bfcedc794b2ac9613c",
+    "scripts/qualify_history_migration.py": "2331766e879c544a8a09fff2f9fbba31cdcc4f01a40c1b24262b1f350787bb27"
+  },
+  "failure_cases": [],
+  "limits": [
+    "Isolated Linux SQLite databases and synthetic source records; no production review migration.",
+    "Native runtime v1 and managed-history source adapter; external Codeup source schema requires its own adapter qualification.",
+    "SIGKILL process interruption is tested; physical host power loss and storage hardware durability are separate qualifications.",
+    "PostgreSQL provider parity and multi-node consistency belong to K02-2.03 and W4."
+  ],
+  "references": [
+    "https://www.sqlite.org/atomiccommit.html",
+    "https://www.sqlite.org/backup.html"
+  ],
+  "fixture_correction": "Missing-history-object qualification selects a registered content digest; directory ordering could select the maintenance lock file."
+}

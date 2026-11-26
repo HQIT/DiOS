@@ -402,7 +402,19 @@ class ManagedHistoryTests(unittest.IsolatedAsyncioTestCase):
         await self.seed()
         bundle, manifest = await self.export()
         await self.apply(bundle, manifest)
-        next(self.artifacts.iterdir()).unlink()
+        async with self.runtime.read(self.scope) as connection:
+            key = (
+                await connection.execute(
+                    select(objects.c.digest)
+                    .where(objects.c.scope == self.scope)
+                    .limit(1)
+                )
+            ).scalar_one()
+        provider = LocalArtifacts(self.artifacts)
+        try:
+            provider.path(key).unlink()
+        finally:
+            provider.close()
         with self.assertRaises(FileNotFoundError):
             await asyncio.to_thread(
                 backup_sqlite,
