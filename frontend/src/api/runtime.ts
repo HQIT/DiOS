@@ -7,6 +7,23 @@ export class RuntimeApiError extends Error {
   status: number;
   constructor(code: string, status: number) { super(code); this.code = code; this.status = status; }
 }
+export interface PackageEntry {
+  digest: string; name: string; version: string; kind: string; registered_at: number;
+  dependencies: Array<{name: string; specifier: string}>;
+  declaration: {source: {uri: string; revision: string}; license: string; capabilities: string[]} | null;
+  admission: {state: string; version: number; evidence_valid: boolean | null; reason: string | null; reviewed_at: number | null};
+  limitations: string[]; file_count: number; size: number;
+  files?: Array<{path: string; digest: string; size: number; mediaType: string; mode: number}>;
+  checks?: Record<string, {result: string; evidence: ObjectReference; digest: string}>;
+}
+export interface PackagePage {schema_version: number; items: PackageEntry[]; next_after: string | null; filters: Record<string, string | number>;}
+export interface PackageReleases {items: Array<{id: string; definition_id: string; sequence: number; content_digest: string; created_at: number}>; next_after: string | null;}
+export type PackageFilters = {q: string; kind: string; version: string; admission: string};
+export const packageApi = {
+  list: (filters: PackageFilters, after = "", signal?: AbortSignal) => request<PackagePage>(`/packages?${new URLSearchParams({...filters, after, limit: "20"})}`, {signal}),
+  detail: (digest: string, signal?: AbortSignal) => request<PackageEntry>(`/packages/${encodeURIComponent(digest)}`, {signal}),
+  releases: (digest: string, after = "", signal?: AbortSignal) => request<PackageReleases>(`/packages/${encodeURIComponent(digest)}/releases?${new URLSearchParams({after, limit: "20"})}`, {signal}),
+};
 export interface Profile { dynamic_inputs?: boolean; input_schema?: Record<string, unknown> | boolean | null; input_kind?: string; input_ids?: string[]; id: string; name: string; description: string; implementation: string; synthetic: boolean; governance: string; policy_configured: boolean; }
 export interface Sample { [key: string]: unknown; id: string; name: string; filename?: string; source?: string; sha256: string; }
 export interface RunSummary {

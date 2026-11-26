@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K04-1.04",
-    "next_delivery": "K04-1.04",
+    "next_work_item": "K04-1.05",
+    "next_delivery": "K04-1.05",
     "next_delivery_order": [
-      "K04-1.04",
       "K04-1.05",
       "K02-3.02",
       "K02-3.03",
@@ -33,7 +32,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "包依赖锁、证据准入、Registry 发布与升级回滚完成；继续统一 API、CLI 与 Console 目录消费者，随后完成 Registry 验收。"
+    "next_selection_reason": "统一目录 API、CLI、Console 和上层 SDK 已完成；接续 Registry 完整资格，复用已通过的锁定、准入、升级回滚和目录证据，补齐跨能力组合与外部端点变化验收。"
   },
   "waves": [
     {
@@ -2311,7 +2310,7 @@
       "issue": 44,
       "title": "目录消费者同步",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "K04-1-A03",
         "K04-1-A04"
@@ -2323,8 +2322,11 @@
         "K04-1.02"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有 Registry UI、应用包及能力预检；依赖锁定与完整准入发布链尚缺。",
+      "completion_evidence": [
+        "docs/design/evidence/package-catalog-20261126.json",
+        "docs/design/package-catalog-44.md"
+      ],
+      "basis": "18 项相关测试通过；API/CLI/SDK 五组筛选一致；16 项浏览器检查覆盖中英主题、分页、深链接、移动端和故障恢复；SDK 0.1.16 wheel 独立安装通过；开发环境部署并复核四类 Registry 路由。",
       "existing_evidence": [
         "docs/design/evidence/application-packages-20261124.json",
         "docs/design/evidence/a2a-preflight-20261125.json"

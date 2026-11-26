@@ -116,3 +116,10 @@ SDK 0.1.15 adds `knowledge_capabilities`, `search_knowledge`,
 versions and opaque provenance; reads use current object authorization. Replacing
 or deleting a source requires operator credentials, a revision and an idempotency
 key. See the [knowledge Provider contract](../../docs/design/knowledge-provider-39.md).
+
+SDK 0.1.16 provides `package_catalog`, `package_detail` and `package_releases`
+for platform-operator catalog consumers. Filters, dependency metadata, admission
+decisions and current evidence validity match the Console and CLI. Follow
+`next_after` on revision candidate pages even when `items` is empty. These read
+operations do not register, approve or launch a package. See the
+[package catalog contract](../../docs/design/package-catalog-44.md).

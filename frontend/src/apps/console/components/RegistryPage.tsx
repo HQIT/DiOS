@@ -2,10 +2,12 @@ import { t as translateUI } from "../../../lib/i18n";
 import McpServersPage from "./McpServersPage";
 import PluginsPage from "./PluginsPage";
 import SkillsPage from "./SkillsPage";
+import PackageCatalogPage from "./PackageCatalogPage";
 
-type RegistryKind = "mcp" | "skills" | "plugins";
+type RegistryKind = "mcp" | "skills" | "plugins" | "packages";
 
 const REGISTRIES: Array<{ key: RegistryKind; label: string; standard: string }> = [
+  { key: "packages", label: "受控能力包", standard: "版本与准入" },
   { key: "mcp", label: "MCP Servers", standard: "MCP Registry" },
   { key: "skills", label: "Skills", standard: "Agent Skills" },
   { key: "plugins", label: "Plugins", standard: "Open Plugins" },
@@ -51,6 +53,7 @@ export default function RegistryPage({ sub }: { sub: string }) {
       </nav>
 
       <div className="registry-content">
+        {kind === "packages" && <PackageCatalogPage selected={sub.split("/").filter(Boolean)[1] || ""} />}
         {kind === "mcp" && <McpServersPage />}
         {kind === "skills" && <SkillsPage />}
         {kind === "plugins" && <PluginsPage />}

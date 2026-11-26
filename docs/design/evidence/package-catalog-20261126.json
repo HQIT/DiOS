@@ -1,0 +1,197 @@
+{
+  "work_item": "K04-1.04",
+  "passed": true,
+  "tests": 18,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 23.896,
+  "suites": [
+    "test_package_catalog.PackageCatalogTests",
+    "test_package_registry.RegistryTests",
+    "test_runtime_task_console.TaskConsoleTests",
+    "test_deployment_console.DeploymentConsoleTests"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/package_catalog.py": "cfa463a6df91b8e0f5fabbcf77fc2b52d5fb0326f1885e6cb7b36786cc27cc45",
+    "backend/app/runtime/cli.py": "2f07b13f4a828d125f9a71332e92ff23889413c92db84f3449e42cf7e298ae06",
+    "backend/app/api/os/runtime_packages.py": "6d95b1584e414e52ed3700b5c45a57d43287ae404059c55c683c21d71f5f0587",
+    "backend/app/api/os/runtime_tasks.py": "227997b1a1a470ed4f3b245e78d1882d958c444b8c216130dc0e04cf3fe03e0b",
+    "backend/tests/test_package_catalog.py": "658e47814ef93f66ae655cad48e498451cfeb9d84d89a84b7ce75e916d12d57d",
+    "sdk/python/src/dios_sdk/tasks.py": "e58902438d8b2dfe591abc2a015cc2d792d68e24be5166a01ace29ccd12888d4",
+    "frontend/src/api/runtime.ts": "76cc4ac0d07e8cee56f730b233f4e9788522c9f1ed8b173d79e80ef614840cb3",
+    "frontend/src/apps/console/components/PackageCatalogPage.tsx": "06ce89fc61cd1cfbddbb4f99cc2be4ea1d1565b2f60f4240d8041d715815ee3a",
+    "frontend/src/apps/console/components/RegistryPage.tsx": "8cba7b229a45adcd7e779e72969de317c3027a734f5df533334d4e014d1ed57d",
+    "frontend/src/apps/console/components/package-catalog.css": "958b4b0e705d3e73d01d9f3591c1631b95df2142017f9010ba1c3f6a0881091b",
+    "frontend/src/lib/messages.ts": "381a18958fb0597551db35f21706aa6ecb3f6d30e928fd28a41b2935663d8f8f",
+    "scripts/qualify_package_catalog.py": "15a016c7c696820f5b69e66e1de7f189f73e91086e520aa7b8d850d121545ef7",
+    "scripts/serve_package_catalog_fixture.py": "6ecdd4bb67e33789be4671c4185d266e4246232de0cdb5427f4241e429994ab4",
+    "scripts/probe_package_catalog_browser.mjs": "f3ed2e890536811988a452334b4927c319953600355e020e3e5082a0e4cc3dbd",
+    "scripts/probe_package_catalog_sdk.py": "556c0d65d4cacb49311a8ca73b9504ccfdbcd554dd3bbbac85c19fdc50862457"
+  },
+  "limits": [
+    "Catalog API is restricted to existing platform-operator credentials; application end users cannot browse global package metadata.",
+    "Admission filters select the latest recorded decision; current evidence validity and execution conditions are separate explicit fields.",
+    "Revision associations use bounded candidate pages; a nonempty continuation requires another request even when a page has no matching items."
+  ],
+  "browser": {
+    "passed": true,
+    "checks": [
+      "real-api-login",
+      "browser-locale-default",
+      "auto-theme-default",
+      "catalog-pagination",
+      "filter-version-normalization",
+      "api-console-parity",
+      "detail-evidence-and-conditions",
+      "language-switch",
+      "dark-theme",
+      "deep-link-reload",
+      "mobile-layout",
+      "invalid-evidence-visible",
+      "empty-state",
+      "error-and-retry",
+      "auto-theme-follows-system",
+      "english-browser-locale-default"
+    ],
+    "pageErrors": []
+  },
+  "sdk": {
+    "passed": true,
+    "filter_comparisons": [
+      {
+        "filters": {},
+        "count": 24
+      },
+      {
+        "filters": {
+          "q": "catalog",
+          "version": "1.0.0",
+          "admission": "admitted"
+        },
+        "count": 1
+      },
+      {
+        "filters": {
+          "kind": "skill"
+        },
+        "count": 12
+      },
+      {
+        "filters": {
+          "admission": "revoked"
+        },
+        "count": 1
+      },
+      {
+        "filters": {
+          "q": "missing"
+        },
+        "count": 0
+      }
+    ],
+    "detail": true,
+    "related_revisions": true,
+    "error_codes": true
+  },
+  "wheel": {
+    "version": "0.1.16",
+    "wheel_sha256": "f7d34a83cf55ef946e261b939a55c8444c3e6592c0e32fc9e3d093d154ca3eb0",
+    "isolated_wheel_install": true,
+    "live_catalog_detail_releases": true
+  },
+  "deployment": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "knowledge_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "package_admission_version": 1,
+      "package_registry_version": 1,
+      "changed": false
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "image": {
+    "image": "sha256:bf39bbe0839e675efa5a1b12dbd8a49a46353059f84613ac731ea654ade91906",
+    "tag": "dios-backend:package-catalog-20261126",
+    "base": "sha256:23cb144baa2aacfd3406c7d6004c32fdf86bd7312309df4ce12da4cde3e9d741",
+    "checks": {
+      "dependencies": "WARNING: The directory '/nonexistent/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nNo broken requirements found.\n",
+      "cli": "usage: cli.py registry [-h]\n                       {catalog,detail,releases,show,lock,register,export,publish-profile}\n                       ...\n\npositional arguments:\n  {catalog,detail,releases,show,lock,register,export,publish-profile}\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "imports": "package runtime loaded\n"
+    }
+  },
+  "frontend": {
+    "url": "http://localhost:13082/dios/#console/registry/packages",
+    "frontend_ready": true,
+    "bundle": "frontend/dist",
+    "preview": true
+  },
+  "deployed_ui": {
+    "passed": true,
+    "checks": [
+      "deployed-api-console-empty-catalog",
+      "registry-route-mcp",
+      "registry-route-skills",
+      "registry-route-plugins",
+      "registry-route-packages"
+    ],
+    "pageErrors": []
+  },
+  "additional_source_sha256": {
+    "sdk/python/pyproject.toml": "87b2dfedc83d23b965dd00e5cf443fa5a3590c5a9226d78f5f29873e712b145b",
+    "sdk/python/src/dios_sdk/__init__.py": "a8a6b029a9f67feaac8653cb5d41985f54462560ed753db544c8f55e8d9b7b71",
+    "sdk/python/README.md": "36481090e9fa376ac5e710c8ea20c865873d9586dbf6558536a72e6c12b80956",
+    "frontend/src/index.css": "7664c03c0222d1936de248f686797d983f66a10cce61d1eaa15e2261c2366772"
+  },
+  "frontend_build": {
+    "passed": true,
+    "index_sha256": "7299fdcea954d046e99d2f1c8c5208cac2bbed8c6568f238e6c86aea688b359e"
+  }
+}

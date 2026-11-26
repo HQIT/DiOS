@@ -51,10 +51,16 @@ async def execute(args):
     db = Database(args.database_url)
     try:
         if args.command == 'registry':
+            from .package_catalog import PackageCatalog
             from .package_registry import PackageRegistry
             from .package_lock import read_json
             from .artifacts import LocalArtifacts
             manager = PackageRegistry(db, args.scope)
+            catalog = PackageCatalog(db, args.scope)
+            if args.registry_command == 'catalog':
+                return await catalog.list(q=args.query,kind=args.kind,version=args.version,admission=args.admission,after=args.after,limit=args.limit)
+            if args.registry_command == 'detail':return await catalog.detail(args.digest)
+            if args.registry_command == 'releases':return await catalog.releases(args.digest,after=args.after,limit=args.limit)
             if args.registry_command == 'show':return await manager.show(args.digest)
             if args.registry_command == 'lock':return await manager.lock(read_json(args.roots))
             provider = LocalArtifacts(Path(args.artifacts))
@@ -380,6 +386,12 @@ def main(argv=None):
         if name!='show':op.add_argument('--limit',type=int,default=50);op.add_argument('--after',type=int if name=='versions' else str,default=0 if name=='versions' else '')
     registry = commands.add_parser('registry', help='trusted scoped package publication; deployment is explicit')
     registry_commands = registry.add_subparsers(dest='registry_command', required=True)
+    registry_catalog = registry_commands.add_parser('catalog')
+    for option in ('query','kind','version','admission','after'):registry_catalog.add_argument('--'+option, default='')
+    registry_catalog.add_argument('--limit',type=int,default=50)
+    registry_detail = registry_commands.add_parser('detail');registry_detail.add_argument('digest')
+    registry_releases = registry_commands.add_parser('releases');registry_releases.add_argument('digest')
+    registry_releases.add_argument('--after',default='');registry_releases.add_argument('--limit',type=int,default=50)
     registry_show = registry_commands.add_parser('show');registry_show.add_argument('digest')
     registry_lock = registry_commands.add_parser('lock');registry_lock.add_argument('--roots', required=True)
     registry_register = registry_commands.add_parser('register')
@@ -564,7 +576,7 @@ def main(argv=None):
     history_run.add_argument('run_id');history_run.add_argument('--limit', type=int, default=50)
     history_run.add_argument('--attempt-cursor');history_run.add_argument('--artifact-cursor')
     args = p.parse_args(argv)
-    if hasattr(args,'limit') and not 1 <= args.limit <= 1000:p.error('limit must be 1..1000')
+    if hasattr(args,'limit') and args.command != 'registry' and not 1 <= args.limit <= 1000:p.error('limit must be 1..1000')
     try:
         value = asyncio.run(execute(args))
         print(json.dumps(value,ensure_ascii=False))

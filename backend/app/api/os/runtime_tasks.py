@@ -423,5 +423,8 @@ async def tool_receipt_recover(run_id:str,invocation_id:str,body:Cancel,s=Depend
 from .runtime_objects import register as register_objects
 register_objects(router, service)
 
+from .runtime_packages import register as register_packages
+register_packages(router, service)
+
 from .runtime_knowledge import register as register_knowledge
 register_knowledge(router, service)

@@ -43,6 +43,15 @@ class TaskClient:
         self._token, self.timeout, self.max_bytes = token, timeout, max_bytes
         self._opener = build_opener(ProxyHandler({}) if local else ProxyHandler(), _NoRedirect())
 
+    def package_catalog(self, *, q='', kind='', version='', admission='', after='', limit=50):
+        return self._request('/packages?'+urlencode(dict(q=q,kind=kind,version=version,admission=admission,after=after,limit=limit)))
+
+    def package_detail(self, digest):
+        return self._request('/packages/'+quote(digest,safe=''))
+
+    def package_releases(self, digest, *, after='', limit=50):
+        return self._request('/packages/'+quote(digest,safe='')+'/releases?'+urlencode(dict(after=after,limit=limit)))
+
     def knowledge_capabilities(self):
         return self._request('/knowledge/capabilities')
 
