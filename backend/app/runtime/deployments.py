@@ -341,6 +341,9 @@ class Deployments:
                     _, _, _, grant = await self._authorize(
                         TransactionView(self.db, c, self.scope), rollout["revision_id"]
                     )
+                    from .package_admission import check_work
+
+                    await check_work(c, probe)
                     from .work_policy import policy_matches
 
                     if not policy_matches(grant, probe["input"]["work_policy_digest"]):

@@ -50,6 +50,22 @@ async def execute(args):
         return await asyncio.to_thread(backup_sqlite,args.database_url,args.artifacts,args.destination,timeout=args.timeout,config_files=args.config_file)
     db = Database(args.database_url)
     try:
+        if args.command == 'registry':
+            from .package_registry import PackageRegistry
+            from .package_lock import read_json
+            from .artifacts import LocalArtifacts
+            manager = PackageRegistry(db, args.scope)
+            if args.registry_command == 'show':return await manager.show(args.digest)
+            if args.registry_command == 'lock':return await manager.lock(read_json(args.roots))
+            provider = LocalArtifacts(Path(args.artifacts))
+            try:
+                if args.registry_command == 'register':
+                    return await manager.register(read_json(args.manifest), args.blobs, provider, key=args.key, actor=args.actor)
+                if args.registry_command == 'export':
+                    return await manager.export(read_json(args.lock), provider, args.destination)
+                return await manager.publish_profile(read_json(args.lock), args.profile, provider, key=args.key, actor=args.actor)
+            finally:
+                provider.close()
         if args.command == 'package-review':
             from .package_admission import PackageAdmission
             from .package_lock import read_json
@@ -362,6 +378,16 @@ def main(argv=None):
         op=object_commands.add_parser(name);op.add_argument('kind',choices=['file','session','artifact']);op.add_argument('object_id')
         op.add_argument('--version',type=int,default=1)
         if name!='show':op.add_argument('--limit',type=int,default=50);op.add_argument('--after',type=int if name=='versions' else str,default=0 if name=='versions' else '')
+    registry = commands.add_parser('registry', help='trusted scoped package publication; deployment is explicit')
+    registry_commands = registry.add_subparsers(dest='registry_command', required=True)
+    registry_show = registry_commands.add_parser('show');registry_show.add_argument('digest')
+    registry_lock = registry_commands.add_parser('lock');registry_lock.add_argument('--roots', required=True)
+    registry_register = registry_commands.add_parser('register')
+    for option in ('manifest','blobs','key','actor','artifacts'):registry_register.add_argument('--'+option, required=True)
+    registry_export = registry_commands.add_parser('export')
+    for option in ('lock','artifacts','destination'):registry_export.add_argument('--'+option, required=True)
+    registry_publish = registry_commands.add_parser('publish-profile')
+    for option in ('lock','profile','key','actor','artifacts'):registry_publish.add_argument('--'+option, required=True)
     package = commands.add_parser('package', help='offline package dependency locking and verification')
     package_commands = package.add_subparsers(dest='package_command', required=True)
     package_lock = package_commands.add_parser('lock')
