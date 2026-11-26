@@ -353,7 +353,10 @@ class RuntimeA2ATests(unittest.IsolatedAsyncioTestCase):
     async def test_unknown_execution_is_observed_without_duplicate_work(self):
         task = await self.submit()
         adapter = FakeAdapter(failure=True)
-        with self.assertRaises(TimeoutError):
+        with (
+            patch.object(self.console.store, 'observe_process', side_effect=TimeoutError('controller unavailable')),
+            self.assertRaises(TimeoutError),
+        ):
             await Worker(
                 self.console.store,
                 adapter,

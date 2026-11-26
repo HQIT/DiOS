@@ -267,7 +267,7 @@ class RemoteRecoveryQualificationTests(unittest.IsolatedAsyncioTestCase):
         containers = await asyncio.to_thread(
             self.adapter.client.containers.list,
             all=True,
-            filters={"label": "dios.runtime.scope=" + self.store.scope},
+            filters={"label": "dios.runtime.scope=" + self.adapter.scope},
         )
         for container in containers:
             await asyncio.to_thread(container.remove, force=True)

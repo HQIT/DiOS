@@ -3,6 +3,7 @@ import asyncio
 import hashlib
 import re
 import docker
+from requests.exceptions import ConnectionError as TransportConnectionError, Timeout as TransportTimeout
 from docker.errors import NotFound, APIError, ImageNotFound
 from docker.types import Mount as DockerMount, LogConfig
 from .adapter import LaunchSpec, Observation, LogSnapshot
@@ -109,7 +110,17 @@ class DockerRuntimeAdapter:
         return await _native_call(launch)
 
     async def observe(self, handle):
-        return await _native_call(lambda: self._observation(handle, self._get(handle)))
+        return await self._read(lambda: self._observation(handle, self._get(handle)))
+
+    async def _read(self, operation):
+        try:
+            return await _native_call(operation)
+        except (TransportConnectionError, TransportTimeout):
+            raise RuntimeErrorCode('RUNTIME_OBSERVATION_UNAVAILABLE') from None
+        except APIError as exc:
+            if exc.status_code == 429 or (exc.status_code is not None and exc.status_code >= 500):
+                raise RuntimeErrorCode('RUNTIME_OBSERVATION_UNAVAILABLE') from None
+            raise
 
     async def inspect_existing(self, native_id):
         from .docker_binding import inspect_existing
@@ -160,7 +171,7 @@ class DockerRuntimeAdapter:
                     stream.close()
                 result.append(bytes(data))
             return LogSnapshot(*result, truncated)
-        return await _native_call(read)
+        return await self._read(read)
 
     async def stop(self, handle, grace_seconds=5):
         if not 0 <= grace_seconds <= 60: raise RuntimeErrorCode('INVALID_STOP_GRACE')

@@ -63,9 +63,9 @@
     },
     {
       "id": "R09",
-      "tests": ["test_runtime_overview.ObservationTests.test_fresh_silent_stale_paused_and_process_evidence", "test_runtime_combined_recovery.CombinedRecoveryTests.test_chunk_ack_loss_restart_observation_timeout_and_stale_reports"],
-      "covered": "等待输出和过期观测分类、查询失败保持会话及单次执行",
-      "gaps": ["需将持续会话事件、观察 API 阻断及独立同步合入同一原生运行场景"],
+      "tests": ["test_reference_observation.ObservationQualificationTests.test_query_timeout_activity_and_report_outage", "test_runtime_observation_authority.ObservationAuthorityTests.test_policy_change_revalidated_during_query_outage", "test_runtime_observation_authority.ObservationAuthorityTests.test_revoke_stops_despite_query_outage", "test_runtime_observation_authority.ObservationAuthorityTests.test_process_deadline_still_enforced", "test_runtime_observation_authority.DockerObservationClassificationTests.test_only_read_transport_failures_are_retryable"],
+      "covered": "原生远程 Worker / ACP 会话持续活动，真实 Docker 查询超时；等待模型、观测过期及报告同步故障独立；原租约和 E2AG 复核继续，恢复后单次执行",
+      "gaps": [],
       "owners": [30, 46]
     },
     {

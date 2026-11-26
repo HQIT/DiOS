@@ -146,15 +146,25 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
     async def test_exit_failure_not_overridden_by_valid_result(self):
         await self.submit();r=await self.worker(FakeAdapter(exit_code=7)).once()
         self.assertEqual(r['state'],'failed');self.assertEqual(r['attempts'][0]['error']['code'],'PROCESS_EXITED')
-    async def test_observer_timeout_keeps_process_and_fences_without_requeue(self):
+    async def test_observer_timeout_keeps_ownership_until_query_recovers(self):
         r=await self.submit();a=FakeAdapter(failure=True)
-        with self.assertRaises(TimeoutError):await self.worker(a).once()
-        saved=await self.store.get(r['id'])
-        self.assertEqual(saved['state'],'reconciliation_required');self.assertTrue(a.running)
-        self.assertFalse(a.stopped);self.assertFalse(a.removed)
-        self.assertEqual((await self.worker(FakeAdapter()).once())['state'],'idle')
-        status=await self.store.runtime_status()
-        self.assertIsNone(status['actual_concurrency']);self.assertEqual(status['unknown_attempts'],1)
+        worker=self.worker(a);task=asyncio.create_task(worker.once())
+        try:
+            async with asyncio.timeout(3):
+                while not a.running:await asyncio.sleep(.01)
+            await asyncio.sleep(.3)
+            self.assertFalse(task.done());self.assertFalse(a.stopped)
+            self.assertEqual((await self.worker(FakeAdapter()).once())['state'],'idle')
+            saved=await self.store.get(r['id'])
+            self.assertEqual(len(saved['attempts']),1)
+            a.failure=False
+            result=await asyncio.wait_for(task,3)
+            self.assertEqual(result['state'],'succeeded')
+            self.assertEqual(result['attempts'][0]['id'],saved['attempts'][0]['id'])
+            self.assertEqual(a.started,1)
+        finally:
+            if not task.done():task.cancel()
+            await asyncio.gather(task,return_exceptions=True)
     async def test_profile_mismatch_cannot_launch_and_other_profiles_not_claimed(self):
         await self.store.submit('other',{'runtime_profile':'other'})
         r=await self.store.submit('mismatch',{'runtime_profile':'test-profile','profile_digest':'changed'})

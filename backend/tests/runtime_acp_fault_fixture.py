@@ -49,6 +49,38 @@ def server():
                     flush=True,
                 )
                 continue
+            if mode == "waiting":
+                ticks = 0
+                emitted = False
+                while not Path("/run/qualification/release").exists():
+                    ticks += 1
+                    output = Path("/run/qualification/emit-output").exists()
+                    print(
+                        json.dumps(
+                            {
+                                "jsonrpc": "2.0",
+                                "method": "session/update",
+                                "params": {
+                                    "sessionId": sid,
+                                    "update": {
+                                        "sessionUpdate": "agent_message_chunk"
+                                        if output
+                                        else "agent_thought_chunk",
+                                        "content": {
+                                            "type": "text",
+                                            "text": (" " if emitted else "{")
+                                            if output
+                                            else "fixture activity",
+                                        },
+                                    },
+                                },
+                            }
+                        ),
+                        flush=True,
+                    )
+                    emitted = emitted or output
+                    Path("/run/qualification/activity").write_text(str(ticks))
+                    time.sleep(0.5)
             if mode == "crash":
                 descendant = subprocess.Popen(
                     [sys.executable, "-c", "import time; time.sleep(60)"]
@@ -58,6 +90,8 @@ def server():
                 value = json.dumps(
                     {"summary": "完成中文审查🙂", "evidence": ["fixture:source"]}
                 )
+            if mode == "waiting" and emitted:
+                value = value[1:]
             print(
                 json.dumps(
                     {
@@ -110,7 +144,9 @@ async def bridge():
                     "command": [sys.executable, __file__, "server"],
                     "cwd": directory,
                     "preflight": {"commands": ["python"]},
-                    "prompt_timeout": 150 if payload.get("mode") == "network" else 30,
+                    "prompt_timeout": 150
+                    if payload.get("mode") in {"network", "waiting"}
+                    else 30,
                 }
             )
         )

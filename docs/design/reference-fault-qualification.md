@@ -1,6 +1,6 @@
 # 故障场景资格与剩余交付
 
-F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R07 完整输出抢救、R10 迟到结果隔离、R11 进度与详情独立同步、R12 指定 UTF-8 分块、R13 运行中升级及 R14 Linux 后台环境恢复已通过；其余九项及六项共同治理场景仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
+F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R07 完整输出抢救、R09 查询与同步故障分离、R10 迟到结果隔离、R11 进度与详情独立同步、R12 指定 UTF-8 分块、R13 运行中升级及 R14 Linux 后台环境恢复已通过；其余八项及六项共同治理场景仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
 
 ## 执行与结果
 
@@ -75,13 +75,21 @@ R06 仍有供应商错误转换缺口。当前打包 Cursor 的 `processPrompt` 
 
 版本切换使用 [Docker Compose 既有服务重建机制](https://docs.docker.com/compose/how-tos/production/)，排空和恢复使用 DiOS 原有版本检查。此证据覆盖所列兼容 schema 镜像对；涉及 schema 变化、其他 Harness 与跨主机恢复的资格继续由对应任务承接。
 
+## 查询超时与同步独立性
+
+[R09 证据](evidence/observation-recovery-20261126.json) 使用独立远程 Worker、mTLS 控制面、生产 ACP bridge 和真实 Docker Unix socket 查询。会话持续发送活动事件但不结束 prompt；阻断查询响应使 SDK 触发读取超时，控制台从等待模型转为观测过期，实际并发显示未知。期间租约续期和 E2AG 复核继续，另一 Worker 领取返回 idle。查询恢复后，原会话恢复可观察状态。
+
+随后单独阻断报告接收，小进度保留在 Worker spool，进程观测和授权继续。恢复后按原序号补报，最终同一 Run、Attempt、Session 成功，一共一次 prompt。撤销、策略改变和执行期限回归均保持停止执行；范围错误和明确权限拒绝不会进入观测重试。
+
+执行使用 `--cases R09` 及 `DIOS_TEST_DOCKER=1 DIOS_TEST_ACP_IMAGE=<当前桥接镜像>`。探测可用性与生命周期的区分参考 [Kubernetes 探针](https://kubernetes.io/docs/concepts/workloads/pods/probes/)，有界读取使用 [Docker SDK 的超时配置](https://docker-py.readthedocs.io/en/stable/client.html)。复用现有租约、E2AG、spool 和控制台状态。
+
 ## 底座与应用职责
 
 R14 使用隔离的 systemd user 服务运行生产 ACP bridge。依次移除 Git PATH、移除代理、配置不可达代理，分别得到依赖、代理配置与网络错误；前三次均未创建模型会话。恢复文件配置后，带认证的代理 HEAD 检查和一次合成 ACP 会话完成，journal 中没有注入凭据。测试入口设置 `DIOS_TEST_SYSTEMD=1 DIOS_TEST_DOCKER=1`，选择 `--cases R14`。预检配置与错误分类见 [Linux 后台配置](../../deploy/linux/README.md)。
 
 | 范围 | 场景与剩余条件 | 承接 |
 | --- | --- | --- |
-| 原生执行故障 | R06 模型 HTTP 错误转换、R09 组合长等待 | #10/#30/#32/#46/#56/#58 |
+| 原生执行故障 | R06 模型 HTTP 错误转换；R09 已通过 | #10/#30/#32/#46/#56/#58 |
 | 节点与交付 | R05 隔离节点重启；R14 Linux 后台环境恢复已通过 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
 | 静态评审应用 | R01 分支 SHA 水位、R08 证据待验证及覆盖账本、R15 只读业务配置、R16 上下文复用、R17 质量与导出统一口径 | #43/#59；底座提供任务、授权、工具、产物与统计接口 |
 | 旧系统接续 | R18 旧控制器兼容回滚、分区独占及历史身份 | #11/#60；需隔离源端和旧系统适配 |
@@ -97,4 +105,4 @@ ACP 使用标准 [stdio JSON-RPC 传输](https://agentclientprotocol.com/protoco
 
 迟到报告采用 [AWS 死信队列](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html) 的隔离与排查思路；进度与详情沿用 [Azure 队列负载调节](https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling) 的生产和消费解耦原则，复用现有 SQLite/Provider、离线 spool 和分块协议。预览网络采用 [Docker Compose 自定义网络](https://docs.docker.com/compose/how-tos/networking/) 的服务分区方式。
 
-下一批将已通过的安装、受控任务和升级回退路径纳入最小交付 CI；R06 继续保留供应商错误来源缺口。节点、应用和旧系统迁移断言按对应责任项推进。
+最小交付 CI 已通过；下一批补齐共同治理组合，R06 继续保留供应商错误来源缺口。节点、应用和旧系统迁移断言按对应责任项推进。

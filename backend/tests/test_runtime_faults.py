@@ -111,14 +111,23 @@ class FaultTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result['state'],'failed');self.assertEqual(result['recovery']['code'],'RESULT_EXIT_CONFLICT')
         self.assertEqual(result['recovery']['reason'],'NON_RETRYABLE')
         self.assertEqual((await self.worker().once())['state'],'idle')
-    async def test_probe_query_timeout_keeps_probe_reserved_until_reconciliation(self):
+    async def test_probe_query_timeout_keeps_probe_reserved_until_recovery(self):
         await self.submit();await self.worker(f.FakeAdapter(failure('PROVIDER_RATE_LIMITED'))).once();await self.due()
         adapter=f.FakeAdapter(failure=True);worker=self.worker(adapter)
-        with self.assertRaises(TimeoutError):await worker.once()
-        await self.submit('queued');self.assertEqual((await self.worker().once())['state'],'idle')
-        self.assertTrue(adapter.stopped)
-        adapter.failure=False;await worker.recover()
-        self.assertEqual((await self.worker().once())['state'],'succeeded')
+        task=asyncio.create_task(worker.once())
+        try:
+            async with asyncio.timeout(3):
+                while not adapter.running:await asyncio.sleep(.01)
+            await asyncio.sleep(.3)
+            await self.submit('queued');self.assertEqual((await self.worker().once())['state'],'idle')
+            self.assertFalse(adapter.stopped)
+            adapter.failure=False
+            self.assertEqual((await asyncio.wait_for(task,3))['state'],'succeeded')
+            self.assertEqual(adapter.started,1)
+            self.assertEqual((await self.worker().once())['state'],'succeeded')
+        finally:
+            if not task.done():task.cancel()
+            await asyncio.gather(task,return_exceptions=True)
     async def test_late_success_does_not_close_an_open_circuit(self):
         a=await self.submit();b=await self.submit('two');w1,w2=self.worker(),self.worker()
         first,second=await self.claim(w1),await self.claim(w2)

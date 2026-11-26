@@ -62,7 +62,8 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_alive_or_absent_without_receipt_remains_unknown(self):
         r=await self.submit();adapter=FakeAdapter(failure=True)
-        with self.assertRaises(TimeoutError):await self.worker(adapter).once()
+        with patch.object(self.store,'observe_process',side_effect=TimeoutError('controller unavailable')):
+            with self.assertRaises(TimeoutError):await self.worker(adapter).once()
         async def alive(handle):return adapter.observation(handle)
         adapter.observe=alive
         result=await self.recover(r,adapter)
@@ -207,7 +208,8 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
         adapter=FakeAdapter(failure=True)
         for i in range(3):
             r=await self.submit(str(i));run_ids.add(r['id'])
-            with self.assertRaises(TimeoutError):await self.worker(adapter).once()
+            with patch.object(self.store,'observe_process',side_effect=TimeoutError('controller unavailable')):
+                with self.assertRaises(TimeoutError):await self.worker(adapter).once()
         async def alive(handle):return adapter.observation(handle)
         adapter.observe=alive
         worker=self.worker(adapter)

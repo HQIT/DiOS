@@ -209,6 +209,16 @@ class Worker:
             phase = next_phase
         async def observe(observation):
             await self.store.observe_process(binding, observation, adapter=self.adapter.name, boot_id=self.boot_id)
+        async def read_runtime(operation):
+            try:
+                return await operation()
+            except (TimeoutError, ConnectionError, RuntimeErrorCode) as exc:
+                if isinstance(exc, RuntimeErrorCode) and exc.code != 'RUNTIME_OBSERVATION_UNAVAILABLE':
+                    raise
+                # A failed read cannot refresh process evidence or release ownership.
+                await relay_reports(self.store, self.spool)
+                await asyncio.sleep(max(.25, self.poll_interval))
+                return None
         async def retain(logs):
             for kind, data in [('stdout',logs.stdout),('stderr',logs.stderr)]:
                 if data:
@@ -248,17 +258,33 @@ class Worker:
                 cancelled = current['cancel_requested']
                 revoked = current['revoked']
                 budget_expired = budget_expired or bool(current.get('execution_budget') and current['execution_budget']['exhausted'])
-                if cancelled or revoked or budget_expired or time.monotonic()-started >= self.timeout:
+                if not code and time.monotonic()-heartbeat_at >= 5:
+                    if run['input'].get('work_authorization_ref'):
+                        try:
+                            await authorized('execute',bridge.session_id)
+                            if self.secret_requests and requested:
+                                await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,requested)
+                        except Exception as exc:
+                            code=exc.code if isinstance(exc,RuntimeErrorCode) else 'WORK_AUTHORIZATION_UNAVAILABLE'
+                            # Offline execution is disabled for governed work. Preserve exit output.
+                            observation=await self.adapter.stop(handle)
+                            await observe(observation)
+                            continue
+                    await self.store.heartbeat(*binding)
+                    heartbeat_at = time.monotonic()
+                if code or cancelled or revoked or budget_expired or time.monotonic()-started >= self.timeout:
                     observation = await self.adapter.stop(handle)
                     await observe(observation)
-                    code = 'AUTH_REVOKED' if revoked else 'RUN_BUDGET_EXHAUSTED' if budget_expired else 'PROCESS_DEADLINE_EXCEEDED'
+                    code = code or ('AUTH_REVOKED' if revoked else 'RUN_BUDGET_EXHAUSTED' if budget_expired else 'PROCESS_DEADLINE_EXCEEDED')
                 else:
-                    observation = await self.adapter.observe(handle)
+                    observation = await read_runtime(lambda: self.adapter.observe(handle))
+                    if observation is None:continue
                     await observe(observation)
                 if observation.state == 'absent':
                     await self.store.mark_unknown(binding,'RUNTIME_DISAPPEARED')
                     return await self.store.get(a['run_id'])
-                logs = await self.adapter.logs(handle,self.output_limit)
+                logs = await read_runtime(lambda: self.adapter.logs(handle,self.output_limit))
+                if logs is None:continue
                 if logs.truncated: code = 'OUTPUT_LIMIT_EXCEEDED'
                 if not cancelled and not revoked and not code:
                     try:
@@ -326,20 +352,6 @@ class Worker:
                     await self.adapter.remove(handle)
                     return await self.store.get(a['run_id'])
                 await relay_reports(self.store, self.spool)
-                if time.monotonic()-heartbeat_at >= 5:
-                    if run['input'].get('work_authorization_ref'):
-                        try:
-                            await authorized('execute',bridge.session_id)
-                            if self.secret_requests and requested:
-                                await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,requested)
-                        except Exception as exc:
-                            code=exc.code if isinstance(exc,RuntimeErrorCode) else 'WORK_AUTHORIZATION_UNAVAILABLE'
-                            # Offline execution is disabled for governed work. Preserve exit output.
-                            observation=await self.adapter.stop(handle)
-                            await observe(observation)
-                            continue
-                    await self.store.heartbeat(*binding)
-                    heartbeat_at = time.monotonic()
                 await asyncio.sleep(self.poll_interval)
         except asyncio.CancelledError:
             # Abrupt Worker loss leaves a discoverable workload; restart must reconcile it.
