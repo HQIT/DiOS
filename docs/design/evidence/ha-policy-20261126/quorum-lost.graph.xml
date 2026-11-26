@@ -1,0 +1,97 @@
+<transition_graph cluster-delay="60s" stonith-timeout="60s" failed-stop-offset="INFINITY" failed-start-offset="INFINITY" batch-limit="0" transition_id="0">
+  <synapse id="0">
+    <action_set>
+      <rsc_op id="5" operation="stop" operation_key="dios-fence_stop_0" on_node="control-a" on_node_uuid="1">
+        <primitive id="dios-fence" class="stonith" type="fence_virsh"/>
+        <attributes CRM_meta_on_node="control-a" CRM_meta_on_node_uuid="1" CRM_meta_timeout="20000" crm_feature_set="3.17.4" identity_file="/etc/dios-ha/fence-key" ipaddr="hypervisor.example.invalid" login="fence-operator" pcmk_host_check="static-list" pcmk_host_list="control-a control-b control-c" pcmk_host_map="control-a:dios-a;control-b:dios-b;control-c:dios-c"/>
+      </rsc_op>
+    </action_set>
+    <inputs/>
+  </synapse>
+  <synapse id="1">
+    <action_set>
+      <pseudo_event id="16" operation="stopped" operation_key="dios-control_stopped_0">
+        <attributes CRM_meta_timeout="20000" crm_feature_set="3.17.4"/>
+      </pseudo_event>
+    </action_set>
+    <inputs>
+      <trigger>
+        <rsc_op id="7" operation="stop" operation_key="dios-volume_stop_0" on_node="control-a" on_node_uuid="1"/>
+      </trigger>
+      <trigger>
+        <rsc_op id="9" operation="stop" operation_key="dios-service_stop_0" on_node="control-a" on_node_uuid="1"/>
+      </trigger>
+      <trigger>
+        <rsc_op id="11" operation="stop" operation_key="dios-address_stop_0" on_node="control-a" on_node_uuid="1"/>
+      </trigger>
+      <trigger>
+        <pseudo_event id="15" operation="stop" operation_key="dios-control_stop_0"/>
+      </trigger>
+    </inputs>
+  </synapse>
+  <synapse id="2">
+    <action_set>
+      <pseudo_event id="15" operation="stop" operation_key="dios-control_stop_0">
+        <attributes CRM_meta_timeout="20000" crm_feature_set="3.17.4"/>
+      </pseudo_event>
+    </action_set>
+    <inputs/>
+  </synapse>
+  <synapse id="3">
+    <action_set>
+      <pseudo_event id="13" operation="start" operation_key="dios-control_start_0">
+        <attributes CRM_meta_timeout="20000" crm_feature_set="3.17.4"/>
+      </pseudo_event>
+    </action_set>
+    <inputs>
+      <trigger>
+        <pseudo_event id="16" operation="stopped" operation_key="dios-control_stopped_0"/>
+      </trigger>
+    </inputs>
+  </synapse>
+  <synapse id="4">
+    <action_set>
+      <rsc_op id="7" operation="stop" operation_key="dios-volume_stop_0" on_node="control-a" on_node_uuid="1">
+        <primitive id="dios-volume" class="ocf" provider="heartbeat" type="Filesystem"/>
+        <attributes CRM_meta_name="stop" CRM_meta_on_fail="fence" CRM_meta_on_node="control-a" CRM_meta_on_node_uuid="1" CRM_meta_timeout="60000" crm_feature_set="3.17.4" device="/dev/disk/by-id/EXAMPLE-dios-ha-volume" directory="/srv/dios-ha" fstype="ext4"/>
+      </rsc_op>
+    </action_set>
+    <inputs>
+      <trigger>
+        <rsc_op id="9" operation="stop" operation_key="dios-service_stop_0" on_node="control-a" on_node_uuid="1"/>
+      </trigger>
+      <trigger>
+        <pseudo_event id="15" operation="stop" operation_key="dios-control_stop_0"/>
+      </trigger>
+    </inputs>
+  </synapse>
+  <synapse id="5">
+    <action_set>
+      <rsc_op id="9" operation="stop" operation_key="dios-service_stop_0" on_node="control-a" on_node_uuid="1">
+        <primitive id="dios-service" class="systemd" type="dios-control"/>
+        <attributes CRM_meta_name="stop" CRM_meta_on_fail="fence" CRM_meta_on_node="control-a" CRM_meta_on_node_uuid="1" CRM_meta_timeout="120000" crm_feature_set="3.17.4"/>
+      </rsc_op>
+    </action_set>
+    <inputs>
+      <trigger>
+        <rsc_op id="11" operation="stop" operation_key="dios-address_stop_0" on_node="control-a" on_node_uuid="1"/>
+      </trigger>
+      <trigger>
+        <pseudo_event id="15" operation="stop" operation_key="dios-control_stop_0"/>
+      </trigger>
+    </inputs>
+  </synapse>
+  <synapse id="6">
+    <action_set>
+      <rsc_op id="11" operation="stop" operation_key="dios-address_stop_0" on_node="control-a" on_node_uuid="1">
+        <primitive id="dios-address" class="ocf" provider="heartbeat" type="IPaddr2"/>
+        <attributes CRM_meta_name="stop" CRM_meta_on_fail="fence" CRM_meta_on_node="control-a" CRM_meta_on_node_uuid="1" CRM_meta_timeout="30000" cidr_netmask="24" crm_feature_set="3.17.4" ip="192.0.2.50"/>
+      </rsc_op>
+    </action_set>
+    <inputs>
+      <trigger>
+        <pseudo_event id="15" operation="stop" operation_key="dios-control_stop_0"/>
+      </trigger>
+    </inputs>
+  </synapse>
+</transition_graph>

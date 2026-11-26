@@ -1,0 +1,103 @@
+{
+  "work_item": "D01-3.01",
+  "passed": true,
+  "qualification": "offline native Pacemaker transition policy",
+  "tools_image": "sha256:df946f38603b62a8fe42640b2652bfcdf13a33d67745cffcb3432fb7923cd962",
+  "package_versions": [
+    "fence-agents-virsh\t4.12.1-2~exp1ubuntu4",
+    "pacemaker-cli-utils\t2.1.6-5ubuntu2",
+    "resource-agents-base\t1:4.13.0-1ubuntu4.2"
+  ],
+  "checks": [
+    "native-schema-and-policy",
+    "ordered-colocated-start",
+    "old-primary-failed-fenced-before-takeover",
+    "service-stop-failed-fenced-before-takeover",
+    "volume-stop-failed-fenced-before-takeover",
+    "quorum-lost-reverse-stop-no-start",
+    "missing-fencing-blocks-takeover"
+  ],
+  "observations": [
+    {
+      "scenario": "old-primary-failed",
+      "fence": "off control-a",
+      "successor": "control-c",
+      "fence_precedes": [
+        "dios-volume",
+        "dios-service",
+        "dios-address"
+      ]
+    },
+    {
+      "scenario": "service-stop-failed",
+      "fence": "off control-a",
+      "successor": "control-c",
+      "fence_precedes": [
+        "dios-volume",
+        "dios-service",
+        "dios-address"
+      ]
+    },
+    {
+      "scenario": "volume-stop-failed",
+      "fence": "off control-a",
+      "successor": "control-c",
+      "fence_precedes": [
+        "dios-volume",
+        "dios-service",
+        "dios-address"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "deploy/ha/pacemaker.example.xml": "90d8cf1bdc55c07bcd672cfb9adcce433560dc4f6cd17953e93d3590fd630377",
+    "scripts/qualify_ha_policy.py": "4108be3933bd96bfa1a09d0175d11735d5b258285e4c553ffa2a3b428a2cd5b2",
+    "deploy/ha/dios-control.service": "c0b10497cc830b13a1bc80ded6210e4de7eb182c9fb64d784a9f8ea2643d991a",
+    "deploy/ha/compose.ha.yaml": "4e95ba99be86d762ffae4bfe36e6420d47007b5d732270469a2bcbe50a99f240"
+  },
+  "artifacts": {
+    "fence-missing.graph.xml": "79093bdb58a38a1dfa99af35c7cb7df4f2fc4900aced858bc435f33855b0e2d1",
+    "volume-stop-failed.xml": "a5b534133382af017f4c6d950a98382ad0395c9297602ba42d540f4b9214940e",
+    "old-primary-failed.graph.xml": "acf4e5d85f79aecb808f5c3e6a927d2ca4da711b01fc5540eecf174616a78763",
+    "fence-missing.dot": "53a790c9d4bf48b9073f1efd5d2e894f7eeef9cee42426da7986b498e1ea6656",
+    "fence-missing.xml": "e5d537e7098c19610058305db2589204ed2a9067b8dff85c01a70f00b13a3155",
+    "service-stop-failed.xml": "82e7e75f57d64f18eabfe1df3176a01e635d2fb0630053ec29e8ac0f99002d6c",
+    "quorum-lost-input.xml": "1a3c6d4b499a0755250a9eea73d46ed8307bfb53ef21fcef35455b75f0622d8e",
+    "started.dot": "f562b4f58375ec39ad91c787f74895e59828ddd40ab2e01d3fabe5b5cbf8615e",
+    "quorum-lost.dot": "9b1c74c376f142290a7ee5aead72ad86a7712904531fdb9cdaf1e8bab54edce6",
+    "quorum-lost.graph.xml": "6ab82fb3a0d1ed28040f0d740f36baabaf19290d8a140291c07e5627ad02e1c3",
+    "volume-stop-failed.dot": "63cda3d7b54782a6638c1bf3230699c53979370a228a777e768b6e7020c48561",
+    "started.xml": "29c56db6a89fe29bbe899e25891c96aed70e72ac05f2efd9f46a25b238822c22",
+    "old-primary-failed.xml": "d13f967675910f55cd0f02c0abdd6b9fb1b64edb50e446fe4e267a22b664b29e",
+    "quorum-lost.xml": "2cfb2c0e32fb22377538139a647e3e6fbe18846838a55d5b660946b9e035a7f7",
+    "volume-stop-failed.graph.xml": "0d020063f952a04b7c20bb2ca1166152c40d1212bceca4305e521d216fe6fe7e",
+    "started.graph.xml": "732afc5c1440421e637edf1ad874602a607969dbb2c3b1f0c4c60e3510b8acca",
+    "service-stop-failed.dot": "63cda3d7b54782a6638c1bf3230699c53979370a228a777e768b6e7020c48561",
+    "fence-missing-input.xml": "8d863ae87fa01ea1273a669235425a9b619e6c048bba477695f85eff7f500bc7",
+    "service-stop-failed.graph.xml": "2feacd10a1a1384776e218aaa601a32ad1ccaa9619df6af56b9ca2aaa819b928",
+    "old-primary-failed.dot": "63cda3d7b54782a6638c1bf3230699c53979370a228a777e768b6e7020c48561"
+  },
+  "physical_fencing_executed": false,
+  "services_started": false,
+  "replication_rpo_verified": false,
+  "complete": false,
+  "artifact_directory": "docs/design/evidence/ha-policy-20261126",
+  "compose_and_systemd_validation": {
+    "passed": true,
+    "services_without_autorestart": [
+      "backend",
+      "frontend",
+      "gateway"
+    ],
+    "fixed_images": true,
+    "single_listener_each": true,
+    "gateway_without_docker_socket": true,
+    "systemd_verify": true
+  },
+  "remaining": [
+    "真实节点资源启动与断电接管",
+    "旧主无法写入任务与授权状态",
+    "存储及数据库复制故障与 RPO/RTO 实测",
+    "物理跨主机独立故障域"
+  ]
+}

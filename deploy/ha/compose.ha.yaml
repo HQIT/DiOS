@@ -1,0 +1,11 @@
+# Apply after Linux and shared-service Compose files. Pacemaker owns restart/placement.
+services:
+  backend:
+    restart: "no"
+    ports: !override ["${DIOS_HA_BIND:?Set the controlled listener address}:${DIOS_API_PORT}:8000"]
+  frontend:
+    restart: "no"
+    ports: !override ["${DIOS_HA_BIND:?Set the controlled listener address}:${DIOS_WEB_PORT}:80"]
+  gateway:
+    restart: "no"
+    ports: !override ["${DIOS_HA_BIND:?Set the controlled listener address}:${DIOS_GATEWAY_PORT}:9443"]

@@ -33,7 +33,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "F03-2.02 累计通过 10/18 故障场景、4/6 共同治理场景（G01—G04）。已有通用控制点组合齐备；剩余条件需要基础设施、供应商或独立应用配合。转入已就绪的 D01-3.01 控制面 HA 与旧主隔离，复用已交付共享后端与存储租约，先按公开成熟方案确定可执行故障模型，再建设跨主机资格环境。"
+    "next_selection_reason": "D01-3.01 的标准主备配置与七项原生调度策略检查已通过，接续隔离虚拟机中的实际资源接管和旧主写入隔离验证。F03-2.02 保留 10/18 故障、4/6 共同治理场景的已通过证据；其余依赖基础设施、供应商或独立应用。"
   },
   "waves": [
     {
@@ -2888,12 +2888,17 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "已有远端 Worker 恢复切片；控制面 HA、仲裁、复制 RPO 和物理跨主机验收尚缺。",
+      "basis": "已提供 Linux Pacemaker/Corosync 主备接入、标准 STONITH/独占卷资源组和 Compose/systemd 配置；原生调度器七项离线策略检查通过。真实节点接管、旧主写入隔离、复制 RPO 与物理跨主机验证待完成。",
       "existing_evidence": [
         "docs/design/evidence/a2a-recovery-20261125.json",
         "docs/design/evidence/worker-reconciliation-regression-20261113.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "progress_evidence": [
+        "deploy/ha/README.md",
+        "scripts/qualify_ha_policy.py",
+        "docs/design/evidence/ha-policy-20261126.json"
+      ]
     },
     {
       "id": "D01-3.02",
