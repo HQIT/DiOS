@@ -1,0 +1,237 @@
+{
+  "work_items": [
+    "S03-1.02",
+    "S03-1.03"
+  ],
+  "complete": true,
+  "requirements": {
+    "S03-1-A01": "Validated diff and immutable request; independent approval; exact configuration/policy/deployment versions; one governed probe; successful activation and failed candidate retention.",
+    "S03-1-A02": "Existing Cursor proposal Run reused through final API; health execution reuses E2AG/Worker/Revision/Deployment; no customer or job model."
+  },
+  "tests": {
+    "passed": 21,
+    "failed": 0,
+    "sqlite_and_api": 17,
+    "postgres_deployment": 4,
+    "postgres_optional_skips_in_sqlite_command": 4,
+    "postgres_executed_separately": true,
+    "sqlite_log_sha256": "c8c0c8e0dea8cee29146ae75da3627e216fa611e220053e3ce6945506ab4ce04",
+    "postgres_log_sha256": "395e2a8426bc9e129010c8cae7b41be8f6899aeae7218520c4fcab54c801460f",
+    "postgres_ledger_migration": {
+      "passed": true,
+      "migration_idempotent": true,
+      "append_only_guard": true,
+      "suite": "test_runtime_deployments.PostgresDeploymentTests",
+      "provider": "PostgreSQL 16",
+      "isolated_database": true
+    }
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "invalid-release-keeps-draft",
+      "repair-and-review-diff",
+      "durable-pending-request",
+      "api-prevents-unapproved-publication",
+      "refresh-recovers-snapshot",
+      "invalid-approver-denied",
+      "independent-approval",
+      "edited-draft-cannot-reuse-approval",
+      "publication-waits-for-worker",
+      "native-worker-activation-and-version-visible",
+      "dark-english-retains-state",
+      "mobile-no-horizontal-overflow",
+      "cli-api-ui-version-match"
+    ],
+    "page_errors": [],
+    "release_id": "release-a0d51864a64d71c051cb692182847289b27ab69b207c44e022af36e73d6aa10e",
+    "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+    "probe_run_id": "0b474552-c1e7-4cfd-bee6-3c35033b6a37"
+  },
+  "browser_final": {
+    "passed": true,
+    "checks": [
+      "cli-request-persisted",
+      "open-request-populates-deployment",
+      "denial-updates-detail-list-and-keeps-draft",
+      "denied-api-cannot-publish",
+      "observation-error-preserves-editor-and-snapshot",
+      "failed-health-shows-retained-active-version",
+      "final-mobile-detail",
+      "light-chinese-preserves-release",
+      "denial-survives-reload"
+    ],
+    "page_errors": [],
+    "denied_release_id": "release-e07fb56ed5ba4e27ba91dee2947e5b8869dfccf3b668672525268544e56178c4"
+  },
+  "browser_diagnostics": {
+    "passed": true,
+    "checks": [
+      "health-root-error-visible",
+      "e2ag-proof-visible",
+      "historical-request-has-own-probe",
+      "diagnostic-mobile-layout"
+    ],
+    "page_errors": []
+  },
+  "final_affected_tests": {
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "log_sha256": "66c32bcaf905aeee2c313351fe56f118b92606e627e8d44a399fe4d36a3a6009"
+  },
+  "browser_checks": 26,
+  "native_failure_and_old_work": {
+    "passed": true,
+    "failed_release_id": "release-f15e5eace0281f181f9b9d03cf19bd5b4d2a67b426c98acd3df89f0ff5292dec",
+    "failed_revision": "rev-99d09503caa4f926068a6e2476a812fe77c75e00847fc291948ac74b6b66c101",
+    "failed_probe": "73f85214-ebf1-426b-b784-7e9bf1550340",
+    "failure": {
+      "code": "PROCESS_EXITED",
+      "category": "process"
+    },
+    "active_revision_retained": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+    "old_run_id": "139080a2-ac5d-43a0-a1a2-5dacc2e6c99f",
+    "old_input_unchanged": true,
+    "old_run_completed": "succeeded",
+    "old_attempt": "6f46b40a-5028-4697-87ae-ba5ec43a17f5"
+  },
+  "successful_health": {
+    "run_id": "0b474552-c1e7-4cfd-bee6-3c35033b6a37",
+    "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+    "attempts": [
+      {
+        "id": "c14f35b8-5e0a-4577-a4bf-0d8eafe54a84",
+        "state": "completed",
+        "session_id": "a6cab6db-3f93-477c-8aa1-4968ec44328e",
+        "worker_id": "579d0d36-6d3d-411c-891a-97a68aabf466",
+        "process_id": 768555,
+        "error": null,
+        "started_at": 1795681948.6689851,
+        "finished_at": 1795681948.7249897
+      }
+    ],
+    "authorization": {
+      "mode": "e2ag",
+      "reference": "wa-47acb417756273e36d79745dfb561d3676032e9531b4938e360d5d8f7852",
+      "subject": "operator:test",
+      "actor": "service:test",
+      "policy_id": "test-policy",
+      "state": "closed",
+      "expires_at": 1795768348.24702,
+      "authorization_epoch": 1,
+      "source_check": null,
+      "source_event": null,
+      "delegation": null,
+      "secret_refs": [],
+      "grant": {
+        "attempt_id": "c14f35b8-5e0a-4577-a4bf-0d8eafe54a84",
+        "session_id": "a6cab6db-3f93-477c-8aa1-4968ec44328e",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "closed",
+        "expires_at": 1795682848.834987
+      },
+      "decisions": [
+        {
+          "id": "c331f0d6-fb32-4e3b-92a1-e85c8019ffb9",
+          "action": "accept_result",
+          "created_at": 1795681950.051999,
+          "outcome": "allow",
+          "reason_codes": [
+            "RESULT_ACCEPTANCE_AUTHORIZED"
+          ]
+        },
+        {
+          "id": "30214f8a-3f22-491e-a9df-09f4d749ace6",
+          "action": "execute",
+          "created_at": 1795681949.4130163,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_SESSION_BOUND"
+          ]
+        },
+        {
+          "id": "2549e8c8-4dbf-4d88-b8b7-071bb680c90f",
+          "action": "execute",
+          "created_at": 1795681948.834987,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_GRANT_CREATED"
+          ]
+        },
+        {
+          "id": "a7a113ba-0b40-465f-aead-90a35c3e01c3",
+          "action": "admit",
+          "created_at": 1795681948.24702,
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ]
+        }
+      ]
+    }
+  },
+  "reused_cursor_proposal": {
+    "evidence": "docs/design/evidence/configuration-studio-20261126.json",
+    "run_id": "1e3aaae4-ac70-41e1-92e0-38503a0dfc37",
+    "final_api_review_valid": true,
+    "patch": [
+      {
+        "op": "replace",
+        "path": "/launch/memory_bytes",
+        "value": 536870912
+      }
+    ]
+  },
+  "history": {
+    "runs": {
+      "before": 86,
+      "after": 89,
+      "all_original_ids_preserved": true,
+      "original_ids_sha256": "b3a9296334914b871f1670328f82993c2314d70ba48c0fd3be97ebbe10c19b95"
+    },
+    "attempts": {
+      "before": 90,
+      "after": 93,
+      "all_original_ids_preserved": true,
+      "original_ids_sha256": "346f16fd14cb73d9b71f3ae8fd0249657658a527a3495f08cd94c2f04fc2c5d9"
+    },
+    "artifacts": {
+      "before": 242,
+      "after": 246,
+      "all_original_ids_preserved": true,
+      "original_ids_sha256": "6c08d22c8d26af56171b0e2175c22e26d752ff3e75252d0e90fec63223b22695"
+    }
+  },
+  "existing_policy_and_approver_grants_preserved": true,
+  "deployment": {
+    "api_pid": 773182,
+    "backend_image": "sha256:ce6e9a1cd082a34c453407f227f364e67ea85e2dfc85e4c4a77deb8f8558c0fc",
+    "health": 200,
+    "existing_workers_restarted": false
+  },
+  "source_sha256": {
+    "backend/app/api/os/configuration_studio.py": "70bd6cf186d35982450d901e35c27d2d722d6f460e4e696356e0a9096260148b",
+    "backend/app/runtime/database.py": "ad41ee88fb6e72d8c7c0a52bead4dde402f6915068133cf0c13cc20bc59b998d",
+    "backend/app/runtime/studio_release_schema.py": "81c44f9e395addd50094837950fac1c07f6578461701a3307bc022d5bd807e4d",
+    "backend/app/services/configuration_studio.py": "267ad7129b70bb4bfeba518972ec6f3c791a29035d228aee58ecfb895ecc92f5",
+    "backend/app/services/studio_release.py": "bcd4a9d708310e9604451a75d53efe03bb68a9df4bfadad51089350d48bfda34",
+    "backend/tests/test_configuration_studio.py": "f6e97a4693a4b108243e7d2ee136214f3b313e4e955afff78778e48583d58e68",
+    "backend/tests/test_studio_release.py": "7aad2769d6edfd39718b1c608b59ac6b2b7b111f8798c6bdfaa5fcda34ce8fd0",
+    "scripts/studio_release.py": "719ec8e00e019b60064b2c1bfb5f1d889a6318abb5059b0201f9dda619805285",
+    "frontend/src/api/runtime.ts": "91b587f8ec2bac62d25d0bc56477eee6fa2746f52706ea7fdd13b946d06a1eb4",
+    "frontend/src/apps/console/components/ConfigurationStudio.tsx": "923a13437c08d430da490b98293aeaa7ed795148b4d3e320be8bfd610517f1c0",
+    "frontend/src/apps/console/components/StudioReleasePanel.tsx": "95fef7218a1c7f7d76a714edafd9326d9215b0f5db50de33aa3841e84c219c26",
+    "frontend/src/apps/console/components/configuration-studio.css": "24fd552c7ba913d3d38ff04ff56d5b53c6276ec1aa8095ad3c60a84f4f536f12"
+  },
+  "frontend_artifacts": {
+    "frontend/dist/assets/index-BsQoYIuw.js": "1275829340f53f71de2f8de025c0912e0d6a3ed91c93ccec1bc88fe0e7de8d91",
+    "frontend/dist/assets/index-BbP3MlGx.css": "ae5789f5e80f0842078fe0926d308e80aac7660ca6f2761778d9fec3b5b60a2c"
+  },
+  "limits": [
+    "Studio HTTP release consumes pinned image/profile and inline input/result contracts; trusted local packaging uses existing Revision CLI.",
+    "Approver eligibility uses existing scoped FileApprovers; E2AG profile admission remains administrator-controlled.",
+    "Product acceptance and high-impact independent review remain separate from this engineering qualification."
+  ]
+}

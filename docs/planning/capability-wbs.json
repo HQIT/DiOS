@@ -7,11 +7,11 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "S03-1.02",
-    "next_delivery": "S03-1.02",
+    "next_work_item": "S03-2.01",
+    "next_delivery": "S03-2.01",
     "next_delivery_order": [
-      "S03-1.02",
-      "S03-1.03",
+      "S03-2.01",
+      "S03-2.02",
       "K04-2.02",
       "K02-3.02",
       "K02-3.03",
@@ -34,7 +34,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "S03-1.01 已完成并部署：编辑、校验、diff、真实 Cursor 建议和草案导出。接续 S03-1.02 的隔离验证、审核与 Revision 发布链，使用现有 E2AG 和版本门禁。"
+    "next_selection_reason": "Studio 三项工程交付全部完成。接续已就绪的 #42 技术评测与环境晋级门禁，复用本批发布审批与 Revision/Deployment。父子容量与源端隔离选择仍待明确，其依赖项保留。"
   },
   "waves": [
     {
@@ -3353,7 +3353,7 @@
       "issue": 41,
       "title": "受控验证与发布接线",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "S03-1-A01",
         "S03-1-A02"
@@ -3366,8 +3366,11 @@
         "K02-1.05"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有配置入口；自然语言建议、可审阅 diff 与受控发布尚未形成完整闭环。",
+      "completion_evidence": [
+        "docs/design/configuration-studio-41.md",
+        "docs/design/evidence/studio-release-20261126.json"
+      ],
+      "basis": "配置差异、独立审批、E2AG 复核、Revision 与健康任务原子提交；21 项 SQLite/API/PostgreSQL 测试和 26 项浏览器检查通过，原生 Worker 成功/失败及旧任务继续完成，API/CLI/界面版本一致。",
       "existing_evidence": [
         "docs/design/evidence/capability-boundary-20261124.json"
       ],
@@ -3379,7 +3382,7 @@
       "issue": 41,
       "title": "Studio 端到端资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "S03-1-A01",
         "S03-1-A02"
@@ -3391,8 +3394,11 @@
         "S03-1.02"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有配置入口；自然语言建议、可审阅 diff 与受控发布尚未形成完整闭环。",
+      "completion_evidence": [
+        "docs/design/configuration-studio-41.md",
+        "docs/design/evidence/studio-release-20261126.json"
+      ],
+      "basis": "配置差异、独立审批、E2AG 复核、Revision 与健康任务原子提交；21 项 SQLite/API/PostgreSQL 测试和 26 项浏览器检查通过，原生 Worker 成功/失败及旧任务继续完成，API/CLI/界面版本一致。",
       "existing_evidence": [
         "docs/design/evidence/capability-boundary-20261124.json"
       ],

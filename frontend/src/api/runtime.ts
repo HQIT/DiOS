@@ -115,6 +115,21 @@ export const revisionApi = {
 };
 export interface ConfigProblem {code: string; path: string; keyword?: string; expected?: unknown; line?: number; column?: number;}
 export interface ConfigReview {valid: boolean; errors: ConfigProblem[]; base_errors: ConfigProblem[]; base_digest: string | null; draft_digest: string | null; patch: unknown[]; changes: Array<{op: string; path: string; from?: string; before?: unknown; after?: unknown}>;}
+export interface StudioRelease {
+  id: string; version: number; state: string; actor: string; created_at: number; expired?: boolean;
+  snapshot: {base: string; draft: string; review: ConfigReview; deployment_id: string; deployment_version: number; expires_at: number; probe: {payload: {sample: Record<string, unknown>}}};
+  detail: {reason?: string; error?: string; revision_ref?: string; deployment_id?: string; probe_run_id?: string};
+}
+export interface StudioReleaseRequest {base: string; draft: string; deployment_id: string; deployment_version: number; idempotency_key: string; sample_id?: string; input_payload?: Record<string, unknown>;}
+export interface StudioProbe {run_id: string; state: string; revision_ref: string; attempts: Array<{id: string; state: string; session_id: string | null; worker_id: string; process_id: number | null; error: {code: string; category?: string} | null}>; authorization: Record<string, unknown>; observed_at: number;}
+export const studioReleaseApi = {
+  list: (after = "", signal?: AbortSignal) => request<{items: Array<Pick<StudioRelease, "id" | "version" | "state"> & {deployment_id: string}>}>(`/studio/releases?after=${encodeURIComponent(after)}`, {signal}),
+  detail: (id: string) => request<StudioRelease>(`/studio/releases/${encodeURIComponent(id)}`),
+  probe: (id: string, signal?: AbortSignal) => request<StudioProbe>(`/studio/releases/${encodeURIComponent(id)}/probe`, {signal}),
+  prepare: (value: StudioReleaseRequest) => request<StudioRelease>("/studio/releases", {method: "POST", body: JSON.stringify(value)}),
+  decide: (value: StudioRelease, decision: "approved" | "denied", token: string, reason: string) => request<StudioRelease>(`/studio/releases/${value.id}/approval`, {method: "POST", headers: {"X-DiOS-Approver-Token": token}, body: JSON.stringify({expected_version: value.version, decision, reason})}),
+  publish: (value: StudioRelease) => request<StudioRelease>(`/studio/releases/${value.id}/publish`, {method: "POST", body: JSON.stringify({expected_version: value.version})}),
+};
 export const studioApi = {
   source: (id: string) => request<{text: string; digest: string; revision_ref: string | null}>(`/studio/profiles/${encodeURIComponent(id)}`),
   compare: (base: string, draft: string) => request<ConfigReview>("/studio/compare", {method: "POST", body: JSON.stringify({base, draft})}),

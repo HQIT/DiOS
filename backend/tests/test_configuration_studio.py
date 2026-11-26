@@ -100,7 +100,11 @@ class StudioTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(denied.status_code, 401)
         response = await self.client.get(path, headers=self.headers)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.json()["text"]), self.profile)
+        expected = copy.deepcopy(self.profile)
+        from app.runtime.execution_revisions import freeze_console
+
+        freeze_console(expected)
+        self.assertEqual(json.loads(response.json()["text"]), expected)
         extra = await self.route(
             "compare", {"base": "{}", "draft": "{}", "publish": True}
         )

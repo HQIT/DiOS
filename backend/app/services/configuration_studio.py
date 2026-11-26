@@ -225,7 +225,7 @@ def compare(base_text, draft_text):
 
 async def source(console, profile_id):
     from app.runtime.deployments import row as deployment_row
-    from app.runtime.execution_revisions import load_profile
+    from app.runtime.execution_revisions import freeze_console, load_profile
 
     for _, raw in await asyncio.to_thread(console._profile_sources):
         if raw.get("id") != profile_id:
@@ -243,6 +243,10 @@ async def source(console, profile_id):
             raw, _, _, _, _ = await load_profile(
                 console.db, console.scope, revision_ref
             )
+        if raw.get("id") != profile_id:
+            raise RuntimeErrorCode("STUDIO_SOURCE_ID_MISMATCH")
+        # Source paths are operator-owned; return a self-contained editable copy.
+        await asyncio.to_thread(freeze_console, raw)
         errors = validate(raw)
         if errors:
             raise RuntimeErrorCode("STUDIO_SOURCE_NOT_EDITABLE")

@@ -3,6 +3,7 @@ import { runtimeApi, studioApi, RuntimeApiError } from "../../../api/runtime";
 import type { ConfigReview, Profile, RunDetail } from "../../../api/runtime";
 import { usePreferences } from "../../../lib/preferences";
 import "./configuration-studio.css";
+import StudioReleasePanel from "./StudioReleasePanel";
 
 const TEMPLATE = JSON.stringify({id: "new-capability", bridge: "jsonl-v1", governance: {mode: "e2ag"}, launch: {image: "dios-worker-fixture:local", command: ["python", "/opt/dios/fixture_agent.py"], network: "none", memory_bytes: 268435456, cpu_count: 1, pids_limit: 64, read_only_root: true}}, null, 2) + "\n";
 const terminal = new Set(["succeeded", "failed", "cancelled"]);
@@ -99,7 +100,7 @@ export default function ConfigurationStudio() {
   }
   const diff = proposal?.review || review;
   return <section className="config-studio">
-    <header><div><h2>{l("配置工作台", "Configuration Studio")}</h2><p>{l("编辑运行配置，校验并审阅改动，导出 JSON 草案。", "Edit runtime configuration, validate changes and export a JSON draft.")}</p></div><span className="studio-badge">{l("草案", "Draft")}</span></header>
+    <header><div><h2>{l("配置工作台", "Configuration Studio")}</h2><p>{l("编辑运行配置，审阅差异，经审批和健康检查后发布。", "Edit runtime configuration, review changes and release after approval and health checks.")}</p></div><span className="studio-badge">{l("草案", "Draft")}</span></header>
     <div className="studio-toolbar">
       <label>{l("现有配置", "Existing profile")}<select value={profile} onChange={e => setProfile(e.target.value)} disabled={busy}><option value="">{l("选择配置", "Select profile")}</option>{profiles.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
       <button disabled={busy || !profile} onClick={() => void load()}>{l("载入副本", "Load copy")}</button>
@@ -126,5 +127,6 @@ export default function ConfigurationStudio() {
       {proposal && <div className="studio-toolbar"><button disabled={busy || proposal.base !== draft} onClick={() => {edit(proposal.text);}}>{l("应用到草案", "Apply to draft")}</button><button onClick={() => setProposal(null)}>{l("放弃建议", "Discard proposal")}</button></div>}
       <details><summary>JSON Patch (RFC 6902)</summary><pre>{JSON.stringify(diff.patch, null, 2)}</pre></details>
     </section>}
+    <StudioReleasePanel base={base} draft={draft} restore={(before, after) => {setBase(before); edit(after); setRun(null);}} />
   </section>;
 }
