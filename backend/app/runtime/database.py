@@ -18,6 +18,13 @@ class RuntimeErrorCode(ValueError):
         super().__init__(code)
 
 
+class DurableRejection(RuntimeErrorCode):
+    """A rejected operation with a terminal security observation to retain."""
+
+    async def persist_after_rollback(self, db, scope):
+        raise NotImplementedError
+
+
 class _BufferedConnection:
     """Finish each buffered DB operation before propagating task cancellation.
 
@@ -112,6 +119,22 @@ class Database:
 
     @asynccontextmanager
     async def transaction(self, scope, *, check=True):
+        try:
+            async with self._transaction(scope, check=check) as c:
+                yield c
+        except DurableRejection as rejection:
+            # The rejected operation has fully rolled back and released its
+            # connection/write slot. Persist only the security observation.
+            task = asyncio.create_task(rejection.persist_after_rollback(self, scope))
+            try:
+                await asyncio.shield(task)
+            except asyncio.CancelledError:
+                await task
+                raise
+            raise
+
+    @asynccontextmanager
+    async def _transaction(self, scope, *, check=True):
         if self._closed:raise RuntimeErrorCode('DATABASE_CLOSED')
         async with self._write_slot(), self.engine.connect() as connection:
             c = _BufferedConnection(connection) if self.write_gate else connection

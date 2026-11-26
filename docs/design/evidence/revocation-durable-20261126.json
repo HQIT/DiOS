@@ -1,0 +1,195 @@
+{
+  "work_item": "K03-3.01",
+  "status": "in_progress",
+  "delivered": "Confirmed issuer revocation survives denied-operation rollback and issuer restoration.",
+  "tests": {
+    "exit_code": 0,
+    "passed": 71,
+    "skipped": 0,
+    "native_before_failures": 2,
+    "native_after_passed": 2,
+    "governance_matrix_passed": 52,
+    "lease_and_queue_regression_passed": 17
+  },
+  "matrix": [
+    {
+      "storage": "sqlite",
+      "policy": "builtin",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 19.941
+    },
+    {
+      "storage": "sqlite",
+      "policy": "opa",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 25.073
+    },
+    {
+      "storage": "postgresql",
+      "policy": "builtin",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 12.628
+    },
+    {
+      "storage": "postgresql",
+      "policy": "opa",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 15.65
+    }
+  ],
+  "rollback_observations": [
+    {
+      "case": "test_source_revocation_survives_rejected_operation_rollback",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "96a24a94-6aa1-47db-ae2b-760639c4c9ce",
+      "attempt_id": "61ee5630-19b9-4802-8c64-883c3db285fd",
+      "session_id": "session-one",
+      "durable_revocation": true,
+      "rejected_operation_rolled_back": true,
+      "single_transition": true
+    },
+    {
+      "case": "test_source_revocation_survives_rejected_operation_rollback",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "eda7a981-9a96-4994-9ccb-bc605a8dc11e",
+      "attempt_id": "f8f370f0-0469-4257-a67c-e8dd7cb5131f",
+      "session_id": "session-one",
+      "durable_revocation": true,
+      "rejected_operation_rolled_back": true,
+      "single_transition": true
+    },
+    {
+      "case": "test_source_revocation_survives_rejected_operation_rollback",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "18f3b32a-8287-4fee-840f-f83e08013632",
+      "attempt_id": "df1ac84a-236f-4022-9e3c-d1e9085d2123",
+      "session_id": "session-one",
+      "durable_revocation": true,
+      "rejected_operation_rolled_back": true,
+      "single_transition": true
+    },
+    {
+      "case": "test_source_revocation_survives_rejected_operation_rollback",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "7c5053e4-1631-4cf6-80da-c4673810fe98",
+      "attempt_id": "a54c3b65-8b2c-4f11-99de-008bae0eca8f",
+      "session_id": "session-one",
+      "durable_revocation": true,
+      "rejected_operation_rolled_back": true,
+      "single_transition": true
+    }
+  ],
+  "postgres": {
+    "image": "sha256:11ea9d908f285359c7ade748db20089bc3025aafde9754298c9e2feecc1c4830",
+    "settings": {
+      "server_version": "16.13 (Debian 16.13-1.pgdg13+1)",
+      "fsync": "on",
+      "synchronous_commit": "on",
+      "full_page_writes": "on"
+    }
+  },
+  "opa": {
+    "image": "sha256:a87f4268abd4b733e3af5381adebd33e0f05039d6f9ef0d316b596c78a51d2ad",
+    "reference": "openpolicyagent/opa:1.17.0@sha256:3c6e9e4d433b6e94df424c3385134312a95042aa991cdfc8e01944115675fb9d",
+    "bundle_revision": "matrix-v1"
+  },
+  "deployment": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "knowledge_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": false
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "image": {
+    "image": "sha256:4f77f2f2e7b5b819ea5c7691ab671db4561bc6a35fc63cc36fcd7272a4131c2a",
+    "base": "sha256:cb0a71adf44006c36baa6c7be2f106843f873369f176fd86879a55e700d4407f",
+    "network": "none",
+    "user": "65534:65534",
+    "summary": "OK: Worker and gateway import"
+  },
+  "logs": {
+    "workspace/qualification-revocation-durable-20261126/development.log": "7e0896f6ece4e82c779d47a690005a74057586f5f1979db4946c530490e1752c",
+    "workspace/qualification-revocation-durable-20261126/postgresql-opa.log": "3d2f69b7e8eca1ebe1d7ea5a7570a1fa22bb8940d0abedd479f12a4b5de0931d",
+    "workspace/qualification-revocation-durable-20261126/sqlite-opa.log": "9756fac81b5771b400e17bc369eb0f0cc11c7d39f9e37da367bab23a2ab37f44",
+    "workspace/qualification-revocation-durable-20261126/sqlite-builtin.log": "f2ddc130b4cf57b7aea9c95202e944a2864fbd44791e46294ba584e6fdc4e91e",
+    "workspace/qualification-revocation-durable-20261126/regression.log": "3017096c9c4ca242a476bcbc83e0bc96d0de5d227a24bef9d2191c33f7b3deac",
+    "workspace/qualification-revocation-durable-20261126/image-contracts.log": "a33f19a05ab64fc31929fb528283c1e74814831d81c872d9972f21eb1e4f03d2",
+    "workspace/qualification-revocation-durable-20261126/after.log": "879204bd8a6b21ebaa6f6dd50228ce201f92d8e49043233df78a6c10071c5bc0",
+    "workspace/qualification-revocation-durable-20261126/before.log": "78cd680c3674bc9d3e8e70c3ae777bf609426a1a320af6e9a20a7cdf5d090bfb",
+    "workspace/qualification-revocation-durable-20261126/postgresql-builtin.log": "f6e220d154fe1b36412df23f92487f58e4b75ad0c25ae786c7ad1e3892ee7cfe"
+  },
+  "limits": [
+    "Confirmed invalidation fences the checked delegation and dependent Work/Grant; unobserved direct file mutations still require source events or a controlled management entry.",
+    "Provider unavailability is retryable and does not permanently revoke the delegation.",
+    "A source status query and a subsequent Runtime commit are not one distributed transaction."
+  ],
+  "remaining": [
+    "Source change/dispatch race and execution-stop acknowledgement qualification.",
+    "Controlled source mutation or event delivery for direct file disable/re-enable windows."
+  ],
+  "guide": "docs/design/revocation-propagation-35.md"
+}

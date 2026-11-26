@@ -25,6 +25,84 @@ class GovernanceContract:
     provider_resume = None
     observations = []
 
+    async def test_source_revocation_survives_rejected_operation_rollback(self):
+        from app.runtime.delegation_identity import SourceRevoked
+        from app.runtime.delegation_schema import links, dependencies, events
+        from app.runtime.work_authorizations import view
+
+        f = self.f
+        ref = "dl-" + f.run["id"]
+        async with f.db.transaction(f.scope) as c:
+            now = await f.db.now(c)
+            row = dict(
+                id=ref,
+                scope=f.scope,
+                request_digest="a" * 64,
+                parent_ref=None,
+                subject_ref="subject",
+                actor_ref="actor",
+                audience="dios-runtime",
+                permissions=[f.permission],
+                expires_at=now + 600,
+                depth=0,
+                authorization_epoch=1,
+                state="active",
+                version=1,
+                policy_evaluator={},
+                created_at=now,
+            )
+            await c.execute(links.insert().values(**row))
+            await c.execute(
+                dependencies.insert().values(
+                    scope=f.scope,
+                    delegation_ref=ref,
+                    authorization_ref=f.run["input"]["work_authorization_ref"],
+                )
+            )
+        rejection = SourceRevoked(f.scope, row, "AUTH_PRINCIPAL_REVOKED")
+        for _ in range(2):
+            with self.assertRaisesRegex(RuntimeErrorCode, "AUTH_PRINCIPAL_REVOKED"):
+                async with f.db.transaction(f.scope) as c:
+                    await c.execute(
+                        events.insert().values(
+                            id="rejected-" + ref,
+                            scope=f.scope,
+                            delegation_ref=ref,
+                            operation="must_rollback",
+                            details={},
+                            created_at=now,
+                        )
+                    )
+                    await rejection.persist(c)
+                    raise rejection
+        other = Database(f.url)
+        self.addAsyncCleanup(other.close)
+        async with other.read(f.scope) as c:
+            saved = (
+                (await c.execute(select(links).where(links.c.id == ref)))
+                .mappings()
+                .one()
+            )
+            history = (
+                (
+                    await c.execute(
+                        select(events.c.operation).where(events.c.delegation_ref == ref)
+                    )
+                )
+                .scalars()
+                .all()
+            )
+        self.assertEqual((saved["state"], saved["authorization_epoch"]), ("revoked", 2))
+        self.assertEqual(history, ["identity_revoked"])
+        authorization = await view(f.store, f.run["id"])
+        self.assertEqual(authorization["state"], "revoked")
+        self.assertEqual(authorization["grant"]["state"], "revoked")
+        self.record(
+            durable_revocation=True,
+            rejected_operation_rolled_back=True,
+            single_transition=True,
+        )
+
     async def asyncSetUp(self):
         self.f = fixtures.ToolInvocationTests()
         self.f.database_url = self.database_url

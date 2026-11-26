@@ -113,13 +113,13 @@ class DelegationIdentityTests(fixtures.DelegationLifecycleTests):
         self.assertEqual(response.status_code, 201, response.text)
         return response.json()
 
-    async def bind_api_work(self, child):
+    async def bind_api_work(self, child, key="api-work"):
         policy = json.loads(self.policy.path.read_text())
         policy["profiles"]["test-profile"]["delegation_ref"] = child["id"]
         self.policy.path.write_text(json.dumps(policy))
         descriptor = self.policy.admission("test-profile", self.spec.fingerprint(), [])
         return await self.store.submit(
-            "api-work",
+            key,
             dict(
                 runtime_profile="test-profile",
                 profile_digest=self.spec.fingerprint(),
@@ -241,17 +241,22 @@ class DelegationIdentityTests(fixtures.DelegationLifecycleTests):
 
     async def test_identity_revocation_and_outage_block_delegated_work(self):
         child = await self.issue_api()
+        self.identity_path.write_text("{broken")
+        with self.assertRaisesRegex(RuntimeErrorCode, "AUTH_PROVIDER_UNAVAILABLE"):
+            await self.bind_api_work(child)
+        self.save_identity()
+        self.assertTrue((await self.manager.show(child['id']))['effective'])
         self.directory["principals"]["issuer"]["revision"] = 2
         self.save_identity()
         with self.assertRaisesRegex(RuntimeErrorCode, "AUTH_PRINCIPAL_REVOKED"):
             await self.bind_api_work(child)
         self.directory["principals"]["issuer"]["revision"] = 1
         self.save_identity()
-        self.identity_path.write_text("{broken")
-        with self.assertRaisesRegex(RuntimeErrorCode, "AUTH_PROVIDER_UNAVAILABLE"):
+        self.assertFalse((await self.manager.show(child['id']))['effective'])
+        with self.assertRaisesRegex(RuntimeErrorCode, "DELEGATION_REVOKED"):
             await self.bind_api_work(child)
-        self.save_identity()
-        self.assertEqual((await self.bind_api_work(child))["state"], "queued")
+        replacement = await self.issue_api(dict(self.body, idempotency_key='replacement-child'))
+        self.assertEqual((await self.bind_api_work(replacement))["state"], "queued")
 
     async def test_logout_fences_issuer_dependency_and_preserves_peer(self):
         child = await self.issue_api()
@@ -334,8 +339,11 @@ class DelegationIdentityTests(fixtures.DelegationLifecycleTests):
         actions.remove('delegation.issue');self.save_identity()
         with self.assertRaisesRegex(RuntimeErrorCode,'AUTH_PRINCIPAL_REVOKED'):await verifier(context,'execute')
         self.assertEqual((await view(self.store,run['id']))['state'],'revoked')
+        self.assertFalse((await self.manager.show(child['id']))['effective'])
         actions.append('delegation.issue');self.save_identity()
         with self.assertRaisesRegex(RuntimeErrorCode,'AUTH_REVOKED'):await verifier(context,'execute')
+        with self.assertRaisesRegex(RuntimeErrorCode,'DELEGATION_REVOKED'):
+            await self.bind_api_work(child, 'new-work-after-restore')
 
     async def test_backup_restores_authenticated_issuer_binding(self):
         import asyncio

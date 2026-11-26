@@ -2,6 +2,8 @@
 
 SQLite/PostgreSQL 与内置权限检查/原生 OPA 的四种组合均通过同一组 12 项治理测试，共 48 项。授权审批、持久意图和 Runtime 撤销顺序保持一致。工程证据见[资格记录](evidence/governance-matrix-20261126.json)。
 
+#35 的持久撤销修复新增“拒绝操作回滚后仍保留撤销”场景；当前复现脚本每组 13 项、合计 52 项，结果见[持久撤销证据](evidence/revocation-durable-20261126.json)。
+
 ## 职责与顺序
 
 内置 E2AG 检查调用者、服务、工作负载、资源四层完整权限元组，并绑定 Run、Attempt、Session、Worker 与授权版本。OPA 提供附加策略决定；两条路径均由 Runtime 负责执行绑定、审批消费和派发提交。
