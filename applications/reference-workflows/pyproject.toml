@@ -4,13 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reference-workflows"
-version = "0.1.0"
+version = "0.1.1"
 description = "Synthetic reference workflows using public DiOS contracts"
 requires-python = ">=3.11"
-dependencies = ["dios-sdk>=0.1.19,<0.2", "knowledge-evidence==0.1.0"]
+dependencies = ["dios-sdk>=0.1.20,<0.2", "knowledge-evidence==0.1.0"]
+
+[project.optional-dependencies]
+acp = ["dios-sdk[acp]>=0.1.20,<0.2"]
 
 [project.scripts]
 dios-reference-workflow = "dios_reference.app:main"
+dios-reference-harness = "dios_reference.harness:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

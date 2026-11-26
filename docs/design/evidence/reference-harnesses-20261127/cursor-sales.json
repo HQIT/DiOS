@@ -1,0 +1,2196 @@
+{
+  "harness": "cursor",
+  "scenario": "sales",
+  "scope": "reference-harness-cd889ab237c2",
+  "image": "sha256:c12437c84f0d388a60f3f62bdd2b230ec8cd6fe2c94a36a0385a4f15c54a0506",
+  "input_digest": "757e2de9e64cd89ad036d367e3d3395c3ff7af10c6578e811fedbb9a8412d1b1",
+  "passed": true,
+  "run_id": "756245b1-605c-4096-9095-d471f49246f5",
+  "revision": "rev-e758cd5e9f1c1e18108b97f40122aad3a51589c5a4622337ece8b9de09749d52",
+  "attempt": {
+    "id": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+    "run_id": "756245b1-605c-4096-9095-d471f49246f5",
+    "worker_id": "d90e6e90-6a98-4d5d-af8a-a7c211282b02",
+    "worker_instance": "c001b758-5913-44ac-8872-86647383b65c",
+    "epoch": 1,
+    "authorization_epoch": 1,
+    "lease_until": 1795711516.4969838,
+    "state": "completed",
+    "session_id": "3df05ce2-63b6-479a-b1ef-103ce6d7333d",
+    "process_id": 1218119,
+    "process_instance": "9faab1ddc195b3b957be9cfaae7e94e26bba2bb18a5d4fa458e8c8e524ee9489:2026-11-26T16:43:51.732359922Z",
+    "last_sequence": 15,
+    "report_digest": "00755d6b26d8eff571052d59076a4c0f66739cd2549163f9f08c20e0c428f151",
+    "remote": {
+      "launch": {
+        "adapter": "local-docker-v1",
+        "handle": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+        "profile_digest": "6d7ea338899e16f1e786c1c3ba7098fd0474436bf5fe6cbbd6e292025a08f1f3",
+        "profile_id": "reference-cursor",
+        "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe"
+      },
+      "runtime": {
+        "handle": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+        "state": "exited",
+        "alive": false,
+        "pid": null,
+        "process_instance": "9faab1ddc195b3b957be9cfaae7e94e26bba2bb18a5d4fa458e8c8e524ee9489:2026-11-26T16:43:51.732359922Z",
+        "exit_code": 2,
+        "health": "not_configured",
+        "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+        "adapter": "local-docker-v1",
+        "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe",
+        "observed_at": 1795711457.49899
+      },
+      "progress": {
+        "text": "先按你的约束只调用一次 governed MCP的 `knowledge_search`。{\"sources\":{\"project_id\":\"demo-sales\",\"query\":\"reference-f03-2\",\"documents\":[{\"id\":\"spec-A\",\"project_id\":\"demo-sales\",\"title\":\"reference-f03-2 spec-A\",\"version\":\"F03-2026-11-12\",\"source\":\"synthetic:reference-scenarios/sales\",\"locator\":\"docs/design/fixtures/reference-scenarios.json#sales/spec-A\",\"updated_at\":\"2026-11-12T00:00:00Z\",\"text\":\"{\\\"battery_hours\\\":5, \\\"id\\\": \\\"spec-A\\\", \\\"location\\\": \\\"indoor\\\"}\",\"active\":true,\"digest\":\"a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5\"},{\"id\":\"spec-B\",\"project_id\":\"demo-sales\",\"title\":\"reference-f03-2 spec-B\",\"version\":\"F03-2026-11-12\",\"source\":\"synthetic:reference-scenarios/sales\",\"locator\":\"docs/design/fixtures/reference-scenarios.json#sales/spec-B\",\"updated_at\":\"2026-11-12T00:00:00Z\",\"text\":\"{\\\"battery_hours\\\":3, \\\"id\\\": \\\"spec-B\\\", \\\"location\\\": \\\"indoor\\\"}\",\"active\":true,\"digest\":\"b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7\"}],\"truncated\":false,\"retrieval\":\"literal-terms-v1\"},\"outcome\":{\"recommended\":[{\"id\":\"spec-A\",\"reasons\":[]}],\"excluded\":[{\"id\":\"spec-B\",\"reasons\":[\"续航低于要求\"]}]}}"
+      }
+    },
+    "error": null,
+    "last_output_at": 1795711455.9347029,
+    "started_at": 1795711431.009011,
+    "finished_at": 1795711457.9170122
+  },
+  "output": {
+    "application_version": "0.1.1",
+    "citations": [
+      {
+        "digest": "a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5",
+        "id": "spec-A",
+        "locator": "docs/design/fixtures/reference-scenarios.json#sales/spec-A",
+        "project_id": "demo-sales",
+        "source": "synthetic:reference-scenarios/sales",
+        "text": "{\"battery_hours\": 5, \"id\": \"spec-A\", \"location\": \"indoor\"}",
+        "title": "reference-f03-2 spec-A",
+        "updated_at": "2026-11-12T00:00:00Z",
+        "version": "F03-2026-11-12"
+      },
+      {
+        "digest": "b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7",
+        "id": "spec-B",
+        "locator": "docs/design/fixtures/reference-scenarios.json#sales/spec-B",
+        "project_id": "demo-sales",
+        "source": "synthetic:reference-scenarios/sales",
+        "text": "{\"battery_hours\": 3, \"id\": \"spec-B\", \"location\": \"indoor\"}",
+        "title": "reference-f03-2 spec-B",
+        "updated_at": "2026-11-12T00:00:00Z",
+        "version": "F03-2026-11-12"
+      }
+    ],
+    "context_id": "demo-sales",
+    "evidence": [
+      "spec-A@a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5",
+      "spec-B@b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7"
+    ],
+    "input_digest": "757e2de9e64cd89ad036d367e3d3395c3ff7af10c6578e811fedbb9a8412d1b1",
+    "markdown": "# 有来源的选型建议\n\n依据授权来源完成参考任务，保留待人工复核状态\n\n状态：待业务复核\n\n## 成果\n\n建议：spec-A\n\nspec-B：续航低于要求\n\n## 来源\n\nspec-A · synthetic:reference-scenarios/sales · docs/design/fixtures/reference-scenarios.json\\#sales/spec-A · F03-2026-11-12\n\nspec-B · synthetic:reference-scenarios/sales · docs/design/fixtures/reference-scenarios.json\\#sales/spec-B · F03-2026-11-12",
+    "outcome": {
+      "excluded": [
+        {
+          "id": "spec-B",
+          "reasons": [
+            "续航低于要求"
+          ]
+        }
+      ],
+      "recommended": [
+        {
+          "id": "spec-A",
+          "reasons": []
+        }
+      ]
+    },
+    "review_status": "pending_review",
+    "scenario": "sales",
+    "summary": "有来源的选型建议",
+    "validation": "model-outcome-and-source-versions-checked"
+  },
+  "invocation": {
+    "id": "a1224f87-d56a-47c0-8bc8-d9642759fe27",
+    "run_id": "756245b1-605c-4096-9095-d471f49246f5",
+    "attempt_id": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+    "tool_id": "reference-source",
+    "permission": {
+      "action": "knowledge.search",
+      "resource_kind": "mcp_tool",
+      "resource_id": "reference-source",
+      "resource_version": "8cf98c6fc5653b72bb25e85280bd4001f8ab844a44f08db243542cdccbbfff78",
+      "constraint_revision": "reference-harness"
+    },
+    "arguments": {
+      "query": "reference-f03-2"
+    },
+    "arguments_digest": "3367da723be725fe5fdecdda7f9007662b3b85d5bc3853520311038d116124da",
+    "state": "succeeded",
+    "version": 4,
+    "approval_state": "consumed",
+    "approver": "operator:qualification-reviewer",
+    "approval_reason": "合成参考场景授权检索",
+    "expires_at": 1795712048.2679799,
+    "created_at": 1795711448.2679799,
+    "updated_at": 1795711449.4940042,
+    "result_key": "d9e809478f3aebe9b67d699f7c2cd0f4a60a7b51023d0c17c4723cffe1577311",
+    "reason": "TOOL_RESULT_VALIDATED",
+    "session_id": "3df05ce2-63b6-479a-b1ef-103ce6d7333d",
+    "expired": false,
+    "dispatch_overdue": false,
+    "evidence": [
+      {
+        "stage": "receipt",
+        "created_at": 1795711449.4940042,
+        "decision": {
+          "stage": "tool-receipt",
+          "decision": "allow",
+          "reason_codes": [
+            "TOOL_RESULT_VALIDATED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {
+            "receipt_key": "7ee63211d54053cde864cd8936c7c79e493a4ec3df4d74373be6731617429431",
+            "result_key": "d9e809478f3aebe9b67d699f7c2cd0f4a60a7b51023d0c17c4723cffe1577311",
+            "binding": {
+              "run_id": "756245b1-605c-4096-9095-d471f49246f5",
+              "attempt_id": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+              "session_id": "3df05ce2-63b6-479a-b1ef-103ce6d7333d",
+              "worker_id": "d90e6e90-6a98-4d5d-af8a-a7c211282b02",
+              "worker_instance": "c001b758-5913-44ac-8872-86647383b65c",
+              "lease_epoch": 1,
+              "authorization_epoch": 1,
+              "authorization_ref": "wa-b16a1d69500b6f535c0d3d46078f504b0f93400b85aba7b6a3735f9fc25f",
+              "policy_digest": "e420792b0584573b1c169fd3ba764779d4f1af1dc4eca2816fa3bdf0ff74141e",
+              "permissions_digest": "0d84faff52c51fc69e10870cb0dc642a294c4051662bf4bcbeb37595709a5782",
+              "subject": "operator:qualification",
+              "actor": "service:reference"
+            },
+            "execution_grant_renewed": false
+          }
+        }
+      },
+      {
+        "stage": "dispatch",
+        "created_at": 1795711449.4149864,
+        "decision": {
+          "stage": "tool-dispatch",
+          "decision": "allow",
+          "reason_codes": [
+            "TOOL_DISPATCH_COMMITTED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {
+            "binding": {
+              "run_id": "756245b1-605c-4096-9095-d471f49246f5",
+              "attempt_id": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+              "session_id": "3df05ce2-63b6-479a-b1ef-103ce6d7333d",
+              "worker_id": "d90e6e90-6a98-4d5d-af8a-a7c211282b02",
+              "worker_instance": "c001b758-5913-44ac-8872-86647383b65c",
+              "lease_epoch": 1,
+              "authorization_epoch": 1,
+              "authorization_ref": "wa-b16a1d69500b6f535c0d3d46078f504b0f93400b85aba7b6a3735f9fc25f",
+              "policy_digest": "e420792b0584573b1c169fd3ba764779d4f1af1dc4eca2816fa3bdf0ff74141e",
+              "permissions_digest": "0d84faff52c51fc69e10870cb0dc642a294c4051662bf4bcbeb37595709a5782",
+              "subject": "operator:qualification",
+              "actor": "service:reference"
+            },
+            "arguments_digest": "3367da723be725fe5fdecdda7f9007662b3b85d5bc3853520311038d116124da",
+            "dispatch_version": 3,
+            "sender": null,
+            "budget": {
+              "maximum": null,
+              "committed_before": 0,
+              "unit": "dispatch_admission"
+            }
+          }
+        }
+      },
+      {
+        "stage": "approval",
+        "created_at": 1795711448.5189943,
+        "decision": {
+          "stage": "tool-approval",
+          "decision": "allow",
+          "reason_codes": [
+            "TOOL_APPROVED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {
+            "approver": "operator:qualification-reviewer"
+          }
+        }
+      },
+      {
+        "stage": "request",
+        "created_at": 1795711448.2679799,
+        "decision": {
+          "stage": "tool-request",
+          "decision": "approval_required",
+          "reason_codes": [
+            "TOOL_APPROVAL_REQUIRED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {
+            "run_id": "756245b1-605c-4096-9095-d471f49246f5",
+            "arguments_digest": "3367da723be725fe5fdecdda7f9007662b3b85d5bc3853520311038d116124da"
+          }
+        }
+      }
+    ],
+    "receipt_available": true
+  },
+  "authorization": {
+    "mode": "e2ag",
+    "reference": "wa-b16a1d69500b6f535c0d3d46078f504b0f93400b85aba7b6a3735f9fc25f",
+    "subject": "operator:qualification",
+    "actor": "service:reference",
+    "policy_id": "reference-harness",
+    "state": "closed",
+    "expires_at": 1795712630.895996,
+    "authorization_epoch": 1,
+    "source_check": null,
+    "source_event": null,
+    "delegation": {
+      "reference": "dl-4a8cd6c88b33532dd478025892b62401a28cf6a08148dca871d1de71fe41",
+      "captured_at": 1795711430.9439943,
+      "chain": [
+        {
+          "id": "dl-4a8cd6c88b33532dd478025892b62401a28cf6a08148dca871d1de71fe41",
+          "parent_ref": null,
+          "subject": "operator:qualification",
+          "actor": "service:reference",
+          "depth": 0,
+          "state": "active",
+          "expires_at": 1795713230.7652628,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        }
+      ]
+    },
+    "secret_refs": [
+      {
+        "ref": "model/cursor",
+        "version": "v1"
+      },
+      {
+        "ref": "qualification/knowledge",
+        "version": "v1"
+      }
+    ],
+    "grant": {
+      "attempt_id": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+      "session_id": "3df05ce2-63b6-479a-b1ef-103ce6d7333d",
+      "lease_epoch": 1,
+      "version": 3,
+      "state": "closed",
+      "expires_at": 1795712331.1690183
+    },
+    "decisions": [
+      {
+        "id": "2fa6d187-24b0-41f5-a362-4d6db949b983",
+        "action": "accept_result",
+        "created_at": 1795711457.780984,
+        "outcome": "allow",
+        "reason_codes": [
+          "RESULT_ACCEPTANCE_AUTHORIZED"
+        ]
+      },
+      {
+        "id": "d63971e1-6a89-42fe-9d84-48b0921f422d",
+        "action": "tool-activity",
+        "created_at": 1795711456.1980114,
+        "outcome": "allow",
+        "reason_codes": [
+          "ACP_TOOL_ACTIVITY_LINKED"
+        ]
+      },
+      {
+        "id": "0aea1bb5-c496-4c6f-a11f-f0429552f866",
+        "action": "proxy-forward",
+        "created_at": 1795711448.194997,
+        "outcome": "allow",
+        "reason_codes": [
+          "ACP_PROXY_FORWARD_ALLOWED"
+        ]
+      },
+      {
+        "id": "e319b157-c8d8-4dfc-a8f7-a73e16309df6",
+        "action": "execute",
+        "created_at": 1795711443.253,
+        "outcome": "allow",
+        "reason_codes": [
+          "EXECUTION_SESSION_BOUND"
+        ]
+      },
+      {
+        "id": "eb384920-493f-4e6c-9179-c6163a300698",
+        "action": "tool-control",
+        "created_at": 1795711443.172011,
+        "outcome": "deny",
+        "reason_codes": [
+          "TOOL_SESSION_NOT_READY"
+        ]
+      },
+      {
+        "id": "2d9cc081-3ade-475e-bf87-d6108a4f2b81",
+        "action": "execute",
+        "created_at": 1795711431.1690183,
+        "outcome": "allow",
+        "reason_codes": [
+          "EXECUTION_GRANT_CREATED"
+        ]
+      },
+      {
+        "id": "c74d5c6d-9822-4d3a-bf08-f8e2b96bf0de",
+        "action": "admit",
+        "created_at": 1795711430.895996,
+        "outcome": "allow",
+        "reason_codes": [
+          "WORK_AUTHORIZATION_CREATED"
+        ]
+      }
+    ]
+  },
+  "frames": [
+    {
+      "session_id": "3df05ce2-63b6-479a-b1ef-103ce6d7333d",
+      "type": "session"
+    },
+    {
+      "text": "先",
+      "type": "output"
+    },
+    {
+      "text": "按",
+      "type": "output"
+    },
+    {
+      "text": "你",
+      "type": "output"
+    },
+    {
+      "text": "的",
+      "type": "output"
+    },
+    {
+      "text": "约束",
+      "type": "output"
+    },
+    {
+      "text": "只",
+      "type": "output"
+    },
+    {
+      "text": "调用",
+      "type": "output"
+    },
+    {
+      "text": "一次",
+      "type": "output"
+    },
+    {
+      "text": " governed",
+      "type": "output"
+    },
+    {
+      "text": " MCP",
+      "type": "output"
+    },
+    {
+      "text": " ",
+      "type": "output"
+    },
+    {
+      "text": "的",
+      "type": "output"
+    },
+    {
+      "text": " `",
+      "type": "output"
+    },
+    {
+      "text": "knowledge",
+      "type": "output"
+    },
+    {
+      "text": "_",
+      "type": "output"
+    },
+    {
+      "text": "search",
+      "type": "output"
+    },
+    {
+      "text": "`",
+      "type": "output"
+    },
+    {
+      "text": "。",
+      "type": "output"
+    },
+    {
+      "text": "{\"",
+      "type": "output"
+    },
+    {
+      "text": "sources",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "{\"",
+      "type": "output"
+    },
+    {
+      "text": "project",
+      "type": "output"
+    },
+    {
+      "text": "_",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "demo",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "sales",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "query",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "reference",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "f",
+      "type": "output"
+    },
+    {
+      "text": "03",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "2",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "documents",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "[{\"",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "A",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "project",
+      "type": "output"
+    },
+    {
+      "text": "_",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "demo",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "sales",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "title",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "reference",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "f",
+      "type": "output"
+    },
+    {
+      "text": "03",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "2",
+      "type": "output"
+    },
+    {
+      "text": " spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "A",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "version",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "F",
+      "type": "output"
+    },
+    {
+      "text": "03",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "202",
+      "type": "output"
+    },
+    {
+      "text": "6",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "11",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "12",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "source",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "synthetic",
+      "type": "output"
+    },
+    {
+      "text": ":",
+      "type": "output"
+    },
+    {
+      "text": "reference",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "scenarios",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "sales",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "locator",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "docs",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "design",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "fixtures",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "reference",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "scenarios",
+      "type": "output"
+    },
+    {
+      "text": ".json",
+      "type": "output"
+    },
+    {
+      "text": "#",
+      "type": "output"
+    },
+    {
+      "text": "sales",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "A",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "updated",
+      "type": "output"
+    },
+    {
+      "text": "_",
+      "type": "output"
+    },
+    {
+      "text": "at",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "202",
+      "type": "output"
+    },
+    {
+      "text": "6",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "11",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "12",
+      "type": "output"
+    },
+    {
+      "text": "T",
+      "type": "output"
+    },
+    {
+      "text": "00",
+      "type": "output"
+    },
+    {
+      "text": ":",
+      "type": "output"
+    },
+    {
+      "text": "00",
+      "type": "output"
+    },
+    {
+      "text": ":",
+      "type": "output"
+    },
+    {
+      "text": "00",
+      "type": "output"
+    },
+    {
+      "text": "Z",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "text",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "{\\\"",
+      "type": "output"
+    },
+    {
+      "text": "battery",
+      "type": "output"
+    },
+    {
+      "text": "_",
+      "type": "output"
+    },
+    {
+      "text": "hours",
+      "type": "output"
+    },
+    {
+      "text": "\\\":",
+      "type": "output"
+    },
+    {
+      "text": " ",
+      "type": "output"
+    },
+    {
+      "text": "5",
+      "type": "output"
+    },
+    {
+      "text": ",",
+      "type": "output"
+    },
+    {
+      "text": " \\\"",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\\\":",
+      "type": "output"
+    },
+    {
+      "text": " \\\"",
+      "type": "output"
+    },
+    {
+      "text": "spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "A",
+      "type": "output"
+    },
+    {
+      "text": "\\\",",
+      "type": "output"
+    },
+    {
+      "text": " \\\"",
+      "type": "output"
+    },
+    {
+      "text": "location",
+      "type": "output"
+    },
+    {
+      "text": "\\\":",
+      "type": "output"
+    },
+    {
+      "text": " \\\"",
+      "type": "output"
+    },
+    {
+      "text": "indoor",
+      "type": "output"
+    },
+    {
+      "text": "\\\"",
+      "type": "output"
+    },
+    {
+      "text": "}",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "active",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "true",
+      "type": "output"
+    },
+    {
+      "text": ",\"",
+      "type": "output"
+    },
+    {
+      "text": "digest",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "a",
+      "type": "output"
+    },
+    {
+      "text": "9",
+      "type": "output"
+    },
+    {
+      "text": "ae",
+      "type": "output"
+    },
+    {
+      "text": "950",
+      "type": "output"
+    },
+    {
+      "text": "d",
+      "type": "output"
+    },
+    {
+      "text": "9",
+      "type": "output"
+    },
+    {
+      "text": "e",
+      "type": "output"
+    },
+    {
+      "text": "ec",
+      "type": "output"
+    },
+    {
+      "text": "38",
+      "type": "output"
+    },
+    {
+      "text": "b",
+      "type": "output"
+    },
+    {
+      "text": "35",
+      "type": "output"
+    },
+    {
+      "text": "eb",
+      "type": "output"
+    },
+    {
+      "text": "348",
+      "type": "output"
+    },
+    {
+      "text": "7",
+      "type": "output"
+    },
+    {
+      "text": "f",
+      "type": "output"
+    },
+    {
+      "text": "0",
+      "type": "output"
+    },
+    {
+      "text": "c",
+      "type": "output"
+    },
+    {
+      "text": "2",
+      "type": "output"
+    },
+    {
+      "text": "cb",
+      "type": "output"
+    },
+    {
+      "text": "d",
+      "type": "output"
+    },
+    {
+      "text": "285",
+      "type": "output"
+    },
+    {
+      "text": "226",
+      "type": "output"
+    },
+    {
+      "text": "91",
+      "type": "output"
+    },
+    {
+      "text": "f",
+      "type": "output"
+    },
+    {
+      "text": "222",
+      "type": "output"
+    },
+    {
+      "text": "c",
+      "type": "output"
+    },
+    {
+      "text": "14",
+      "type": "output"
+    },
+    {
+      "text": "f",
+      "type": "output"
+    },
+    {
+      "text": "5",
+      "type": "output"
+    },
+    {
+      "text": "cef",
+      "type": "output"
+    },
+    {
+      "text": "0",
+      "type": "output"
+    },
+    {
+      "text": "bd",
+      "type": "output"
+    },
+    {
+      "text": "832",
+      "type": "output"
+    },
+    {
+      "text": "3",
+      "type": "output"
+    },
+    {
+      "text": "b",
+      "type": "output"
+    },
+    {
+      "text": "83",
+      "type": "output"
+    },
+    {
+      "text": "d",
+      "type": "output"
+    },
+    {
+      "text": "7",
+      "type": "output"
+    },
+    {
+      "text": "f",
+      "type": "output"
+    },
+    {
+      "text": "5",
+      "type": "output"
+    },
+    {
+      "text": "\"},",
+      "type": "output"
+    },
+    {
+      "text": "{\"",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "B",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "project",
+      "type": "output"
+    },
+    {
+      "text": "_",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "demo",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "sales",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "title",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "reference",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "f",
+      "type": "output"
+    },
+    {
+      "text": "03",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "2",
+      "type": "output"
+    },
+    {
+      "text": " spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "B",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "version",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "F",
+      "type": "output"
+    },
+    {
+      "text": "03",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "202",
+      "type": "output"
+    },
+    {
+      "text": "6",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "11",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "12",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "source",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "synthetic",
+      "type": "output"
+    },
+    {
+      "text": ":",
+      "type": "output"
+    },
+    {
+      "text": "reference",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "scenarios",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "sales",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "locator",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "docs",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "design",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "fixtures",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "reference",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "scenarios",
+      "type": "output"
+    },
+    {
+      "text": ".json",
+      "type": "output"
+    },
+    {
+      "text": "#",
+      "type": "output"
+    },
+    {
+      "text": "sales",
+      "type": "output"
+    },
+    {
+      "text": "/",
+      "type": "output"
+    },
+    {
+      "text": "spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "B",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "updated",
+      "type": "output"
+    },
+    {
+      "text": "_",
+      "type": "output"
+    },
+    {
+      "text": "at",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "202",
+      "type": "output"
+    },
+    {
+      "text": "6",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "11",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "12",
+      "type": "output"
+    },
+    {
+      "text": "T",
+      "type": "output"
+    },
+    {
+      "text": "00",
+      "type": "output"
+    },
+    {
+      "text": ":",
+      "type": "output"
+    },
+    {
+      "text": "00",
+      "type": "output"
+    },
+    {
+      "text": ":",
+      "type": "output"
+    },
+    {
+      "text": "00",
+      "type": "output"
+    },
+    {
+      "text": "Z",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "text",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "{\\\"",
+      "type": "output"
+    },
+    {
+      "text": "battery",
+      "type": "output"
+    },
+    {
+      "text": "_",
+      "type": "output"
+    },
+    {
+      "text": "hours",
+      "type": "output"
+    },
+    {
+      "text": "\\\":",
+      "type": "output"
+    },
+    {
+      "text": " ",
+      "type": "output"
+    },
+    {
+      "text": "3",
+      "type": "output"
+    },
+    {
+      "text": ",",
+      "type": "output"
+    },
+    {
+      "text": " \\\"",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\\\":",
+      "type": "output"
+    },
+    {
+      "text": " \\\"",
+      "type": "output"
+    },
+    {
+      "text": "spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "B",
+      "type": "output"
+    },
+    {
+      "text": "\\\",",
+      "type": "output"
+    },
+    {
+      "text": " \\\"",
+      "type": "output"
+    },
+    {
+      "text": "location",
+      "type": "output"
+    },
+    {
+      "text": "\\\":",
+      "type": "output"
+    },
+    {
+      "text": " \\\"",
+      "type": "output"
+    },
+    {
+      "text": "indoor",
+      "type": "output"
+    },
+    {
+      "text": "\\\"",
+      "type": "output"
+    },
+    {
+      "text": "}",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "active",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "true",
+      "type": "output"
+    },
+    {
+      "text": ",\"",
+      "type": "output"
+    },
+    {
+      "text": "digest",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "b",
+      "type": "output"
+    },
+    {
+      "text": "74",
+      "type": "output"
+    },
+    {
+      "text": "e",
+      "type": "output"
+    },
+    {
+      "text": "476",
+      "type": "output"
+    },
+    {
+      "text": "337",
+      "type": "output"
+    },
+    {
+      "text": "0",
+      "type": "output"
+    },
+    {
+      "text": "e",
+      "type": "output"
+    },
+    {
+      "text": "0",
+      "type": "output"
+    },
+    {
+      "text": "b",
+      "type": "output"
+    },
+    {
+      "text": "2",
+      "type": "output"
+    },
+    {
+      "text": "c",
+      "type": "output"
+    },
+    {
+      "text": "732",
+      "type": "output"
+    },
+    {
+      "text": "88",
+      "type": "output"
+    },
+    {
+      "text": "d",
+      "type": "output"
+    },
+    {
+      "text": "1",
+      "type": "output"
+    },
+    {
+      "text": "a",
+      "type": "output"
+    },
+    {
+      "text": "047",
+      "type": "output"
+    },
+    {
+      "text": "fa",
+      "type": "output"
+    },
+    {
+      "text": "2",
+      "type": "output"
+    },
+    {
+      "text": "d",
+      "type": "output"
+    },
+    {
+      "text": "3",
+      "type": "output"
+    },
+    {
+      "text": "d",
+      "type": "output"
+    },
+    {
+      "text": "9",
+      "type": "output"
+    },
+    {
+      "text": "f",
+      "type": "output"
+    },
+    {
+      "text": "5",
+      "type": "output"
+    },
+    {
+      "text": "ad",
+      "type": "output"
+    },
+    {
+      "text": "83",
+      "type": "output"
+    },
+    {
+      "text": "c",
+      "type": "output"
+    },
+    {
+      "text": "2",
+      "type": "output"
+    },
+    {
+      "text": "cb",
+      "type": "output"
+    },
+    {
+      "text": "8",
+      "type": "output"
+    },
+    {
+      "text": "e",
+      "type": "output"
+    },
+    {
+      "text": "721",
+      "type": "output"
+    },
+    {
+      "text": "cf",
+      "type": "output"
+    },
+    {
+      "text": "2",
+      "type": "output"
+    },
+    {
+      "text": "d",
+      "type": "output"
+    },
+    {
+      "text": "94",
+      "type": "output"
+    },
+    {
+      "text": "e",
+      "type": "output"
+    },
+    {
+      "text": "02",
+      "type": "output"
+    },
+    {
+      "text": "c",
+      "type": "output"
+    },
+    {
+      "text": "57",
+      "type": "output"
+    },
+    {
+      "text": "aa",
+      "type": "output"
+    },
+    {
+      "text": "7",
+      "type": "output"
+    },
+    {
+      "text": "\"}],",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "truncated",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "false",
+      "type": "output"
+    },
+    {
+      "text": ",\"",
+      "type": "output"
+    },
+    {
+      "text": "retrieval",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "literal",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "terms",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "v",
+      "type": "output"
+    },
+    {
+      "text": "1",
+      "type": "output"
+    },
+    {
+      "text": "\"},",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "outcome",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "{\"",
+      "type": "output"
+    },
+    {
+      "text": "recommended",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "[{\"",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "A",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "reasons",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "[]",
+      "type": "output"
+    },
+    {
+      "text": "}],",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "excluded",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "[{\"",
+      "type": "output"
+    },
+    {
+      "text": "id",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "\"",
+      "type": "output"
+    },
+    {
+      "text": "spec",
+      "type": "output"
+    },
+    {
+      "text": "-",
+      "type": "output"
+    },
+    {
+      "text": "B",
+      "type": "output"
+    },
+    {
+      "text": "\",\"",
+      "type": "output"
+    },
+    {
+      "text": "reasons",
+      "type": "output"
+    },
+    {
+      "text": "\":",
+      "type": "output"
+    },
+    {
+      "text": "[\"",
+      "type": "output"
+    },
+    {
+      "text": "续",
+      "type": "output"
+    },
+    {
+      "text": "航",
+      "type": "output"
+    },
+    {
+      "text": "低于",
+      "type": "output"
+    },
+    {
+      "text": "要求",
+      "type": "output"
+    },
+    {
+      "text": "\"]",
+      "type": "output"
+    },
+    {
+      "text": "}]",
+      "type": "output"
+    },
+    {
+      "text": "}}",
+      "type": "output"
+    },
+    {
+      "result": {
+        "application_version": "0.1.1",
+        "citations": [
+          {
+            "digest": "a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5",
+            "id": "spec-A",
+            "locator": "docs/design/fixtures/reference-scenarios.json#sales/spec-A",
+            "project_id": "demo-sales",
+            "source": "synthetic:reference-scenarios/sales",
+            "text": "{\"battery_hours\": 5, \"id\": \"spec-A\", \"location\": \"indoor\"}",
+            "title": "reference-f03-2 spec-A",
+            "updated_at": "2026-11-12T00:00:00Z",
+            "version": "F03-2026-11-12"
+          },
+          {
+            "digest": "b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7",
+            "id": "spec-B",
+            "locator": "docs/design/fixtures/reference-scenarios.json#sales/spec-B",
+            "project_id": "demo-sales",
+            "source": "synthetic:reference-scenarios/sales",
+            "text": "{\"battery_hours\": 3, \"id\": \"spec-B\", \"location\": \"indoor\"}",
+            "title": "reference-f03-2 spec-B",
+            "updated_at": "2026-11-12T00:00:00Z",
+            "version": "F03-2026-11-12"
+          }
+        ],
+        "context_id": "demo-sales",
+        "evidence": [
+          "spec-A@a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5",
+          "spec-B@b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7"
+        ],
+        "input_digest": "757e2de9e64cd89ad036d367e3d3395c3ff7af10c6578e811fedbb9a8412d1b1",
+        "markdown": "# 有来源的选型建议\n\n依据授权来源完成参考任务，保留待人工复核状态\n\n状态：待业务复核\n\n## 成果\n\n建议：spec-A\n\nspec-B：续航低于要求\n\n## 来源\n\nspec-A · synthetic:reference-scenarios/sales · docs/design/fixtures/reference-scenarios.json\\#sales/spec-A · F03-2026-11-12\n\nspec-B · synthetic:reference-scenarios/sales · docs/design/fixtures/reference-scenarios.json\\#sales/spec-B · F03-2026-11-12",
+        "outcome": {
+          "excluded": [
+            {
+              "id": "spec-B",
+              "reasons": [
+                "续航低于要求"
+              ]
+            }
+          ],
+          "recommended": [
+            {
+              "id": "spec-A",
+              "reasons": []
+            }
+          ]
+        },
+        "review_status": "pending_review",
+        "scenario": "sales",
+        "summary": "有来源的选型建议",
+        "validation": "model-outcome-and-source-versions-checked"
+      },
+      "session_id": "3df05ce2-63b6-479a-b1ef-103ce6d7333d",
+      "type": "result"
+    }
+  ],
+  "receipt": {
+    "attempt_id": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+    "authorization_epoch": 1,
+    "epoch": 1,
+    "failure": null,
+    "observation": {
+      "alive": false,
+      "exit_code": 2,
+      "handle": "63d87fe1-f3d0-4d21-aadc-46abcf60681f",
+      "health": "not_configured",
+      "pid": null,
+      "process_instance": "9faab1ddc195b3b957be9cfaae7e94e26bba2bb18a5d4fa458e8c8e524ee9489:2026-11-26T16:43:51.732359922Z",
+      "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+      "state": "exited"
+    },
+    "run_id": "756245b1-605c-4096-9095-d471f49246f5",
+    "scope": "reference-harness-cd889ab237c2",
+    "stderr": "8bd4ab8793a24739f014d99d586b9494ae3b38f64e5672bc510b3b71d8283491",
+    "stdout": "d024732fe927fe23541b56b08a44211a4c4e1a534cd714210db631b9bf7959bc",
+    "truncated": false,
+    "worker_id": "d90e6e90-6a98-4d5d-af8a-a7c211282b02",
+    "worker_instance": "c001b758-5913-44ac-8872-86647383b65c"
+  },
+  "state": "succeeded",
+  "approval_count": 1,
+  "worker_pid": 1217992
+}

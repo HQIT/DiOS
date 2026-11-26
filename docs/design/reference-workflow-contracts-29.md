@@ -1,6 +1,6 @@
 # 三类参考路径的统一接入契约
 
-选型建议、岗位计划汇总和学生导读通过独立应用 `reference-workflows==0.1.0` 接入 DiOS。三条路径共享版本化 Runtime API、E2AG 工具通道、任务状态和产物查询；新增任务类型 `external.reference-workflow/v1` 由管理员登记，内核源码保持不变。
+选型建议、岗位计划汇总和学生导读通过独立应用 `reference-workflows==0.1.1` 接入 DiOS。三条路径共享版本化 Runtime API、E2AG 工具通道、任务状态和产物查询；新增任务类型 `external.reference-workflow/v1` 由管理员登记，内核源码保持不变。
 
 ```mermaid
 flowchart TB
@@ -37,7 +37,7 @@ flowchart TB
 
 输入及预期继续使用 [原始合成场景](fixtures/reference-scenarios.json)。[可登记输入](../../examples/reference-workflows/mapping.json) 保存原始文件摘要和三条路径的关联。持续静态评审使用已有独立 `static-review` 应用及 [A01-1.02 生命周期证据](evidence/application-lifecycle-20261126.json)；其覆盖账本、完整故障场景和业务迁移仍按原责任项推进。
 
-这三条路径使用确定性规则运行合成数据，用于验证应用扩展与公共能力契约。实际 Harness 的模型执行和恢复复用已通过的 Cursor / DSH 证据；六项共同治理场景、十八项故障及跨实现参考资格继续由 F03-2.02/.03 和 K01-5.01 承担。
+三条路径既可使用确定性规则，也可经既有 SDK 由 Cursor / DSH 执行。六条真实模型路径已通过[跨实现参考验证](reference-harness-qualification-29.md)，使用相同合成输入、来源版本与结果要求。共同治理中的人工接管和交接、其余故障及完整跨实现资格继续由 F03-2.02/.03 承担。
 
 ## 新场景扩展
 
