@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "requires_e2ag": true,
+  "inputs": [
+    {
+      "id": "sales-reference",
+      "name": "选型建议",
+      "scenario": "sales",
+      "context_id": "demo-sales",
+      "query": "reference-f03-2",
+      "constraints": {
+        "location": "indoor",
+        "battery_hours_min": 4
+      },
+      "source_refs": {
+        "spec-A": "a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5",
+        "spec-B": "b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7"
+      },
+      "sha256": "757e2de9e64cd89ad036d367e3d3395c3ff7af10c6578e811fedbb9a8412d1b1"
+    }
+  ],
+  "schema": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "context_id",
+      "query",
+      "scenario",
+      "constraints",
+      "source_refs",
+      "sha256"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "context_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "query": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "scenario": {
+        "enum": [
+          "sales",
+          "team",
+          "education"
+        ]
+      },
+      "constraints": {
+        "type": "object"
+      },
+      "source_refs": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 3,
+        "additionalProperties": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "additionalProperties": false
+  },
+  "result_schema": {
+    "type": "object",
+    "required": [
+      "summary",
+      "scenario",
+      "context_id",
+      "input_digest",
+      "application_version",
+      "outcome",
+      "citations",
+      "evidence",
+      "review_status",
+      "markdown"
+    ],
+    "properties": {
+      "scenario": {
+        "enum": [
+          "sales",
+          "team",
+          "education"
+        ]
+      },
+      "outcome": {
+        "type": "object"
+      },
+      "citations": {
+        "type": "array",
+        "minItems": 1
+      },
+      "evidence": {
+        "type": "array",
+        "minItems": 1
+      },
+      "review_status": {
+        "const": "pending_review"
+      },
+      "markdown": {
+        "type": "string",
+        "minLength": 1
+      },
+      "application_version": {
+        "const": "0.1.0"
+      }
+    }
+  }
+}

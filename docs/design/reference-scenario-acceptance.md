@@ -1,6 +1,8 @@
 # 参考场景验收集与扩展准则
 
-任务：[F03-2 #29](https://github.com/HQIT/DiOS/issues/29) · P0 · 设计/合成样例交付，待评审。对应 [工作台原型 #28](workbench-information-architecture.md)。
+任务：[F03-2 #29](https://github.com/HQIT/DiOS/issues/29) · P0 · F03-2.01 三路径与扩展契约已通过工程验证；完整故障和跨实现资格继续按 F03-2.02/.03 推进。对应 [工作台原型 #28](workbench-information-architecture.md)。
+
+接入映射、独立应用包与原生执行证据见 [三类参考路径接入契约](reference-workflow-contracts-29.md)。
 
 ## 统一验收结构
 

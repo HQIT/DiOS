@@ -1,0 +1,727 @@
+{
+  "work_items": [
+    "F03-2.01"
+  ],
+  "complete": true,
+  "requirements": {
+    "F03-2-A01": "Three original synthetic paths use one runtime task kind and the same Revision/Run/Attempt/Session/ToolInvocation/Artifact APIs; Workspace/WorkItem/EmployeeBinding remain external business objects.",
+    "F03-2-A03": "Independent application adds registered external.reference-workflow/v1 with frozen input/result schemas. Source-aware business transforms are in application package; no runtime, API, SDK, CLI or UI source change. Application build discovers new packages from manifests."
+  },
+  "unit_tests": {
+    "passed": 9,
+    "failed": 0,
+    "installed_packages": true
+  },
+  "runtime_checks": [
+    "installed-public-sdk-strict-contract",
+    "new-task-kind-without-kernel-change",
+    "three-independent-workers",
+    "e2ag-approval-and-dispatch",
+    "provider-identity-before-search",
+    "source-digests-and-input-result-linkage",
+    "original-three-scenario-expectations",
+    "student-answer-excluded",
+    "idempotent-submission",
+    "artifact-byte-verification"
+  ],
+  "model_calls": 0,
+  "runs": {
+    "sales": {
+      "run_id": "ee8d56b4-f827-4aed-a1f7-0cb761d0b4e8",
+      "worker_pid": 808819,
+      "revision": "rev-292c06933c0a8bf68bdb675237167e693c444892b86dc7dc4b8c1614e8c09ba8",
+      "input_digest": "757e2de9e64cd89ad036d367e3d3395c3ff7af10c6578e811fedbb9a8412d1b1",
+      "state": "succeeded",
+      "application": {
+        "id": "reference-workflows",
+        "version": "0.1.0",
+        "digest": "sha256:c2fc8fdb124a31a588c3e9d322c1e75801d55015c66d4743d918f0ee901e7222"
+      },
+      "artifacts": [
+        {
+          "id": "55a3c943-92d0-441d-9364-24d3c2b46469",
+          "digest": "25045099d744c3b10f1f4578fd0e9290328a86031f2960daac227382bd825274",
+          "size": 1868
+        },
+        {
+          "id": "6252283f-5aa4-449c-910c-fbdbb7b30d59",
+          "digest": "a74e2f0fc8132dde478b7bf639f6d0d3741ec7f0efae47f83efcd117c790df1e",
+          "size": 2127
+        },
+        {
+          "id": "6f472ee8-a702-4d26-9bd6-ad5a63633973",
+          "digest": "ce0ab5b62592410ce3d8dab6e334fced82426be755c8b084b73154fadcf2450c",
+          "size": 2486
+        },
+        {
+          "id": "a5e29aa3-7f1e-4381-b1cc-bc81ecb20042",
+          "digest": "d9e809478f3aebe9b67d699f7c2cd0f4a60a7b51023d0c17c4723cffe1577311",
+          "size": 1199
+        }
+      ],
+      "result": {
+        "application_version": "0.1.0",
+        "citations": [
+          {
+            "digest": "a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5",
+            "id": "spec-A",
+            "locator": "docs/design/fixtures/reference-scenarios.json#sales/spec-A",
+            "project_id": "demo-sales",
+            "source": "synthetic:reference-scenarios/sales",
+            "text": "{\"battery_hours\": 5, \"id\": \"spec-A\", \"location\": \"indoor\"}",
+            "title": "reference-f03-2 spec-A",
+            "updated_at": "2026-11-12T00:00:00Z",
+            "version": "F03-2026-11-12"
+          },
+          {
+            "digest": "b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7",
+            "id": "spec-B",
+            "locator": "docs/design/fixtures/reference-scenarios.json#sales/spec-B",
+            "project_id": "demo-sales",
+            "source": "synthetic:reference-scenarios/sales",
+            "text": "{\"battery_hours\": 3, \"id\": \"spec-B\", \"location\": \"indoor\"}",
+            "title": "reference-f03-2 spec-B",
+            "updated_at": "2026-11-12T00:00:00Z",
+            "version": "F03-2026-11-12"
+          }
+        ],
+        "context_id": "demo-sales",
+        "evidence": [
+          "spec-A@a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5",
+          "spec-B@b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7"
+        ],
+        "input_digest": "757e2de9e64cd89ad036d367e3d3395c3ff7af10c6578e811fedbb9a8412d1b1",
+        "markdown": "# 有来源的选型建议\n\n执行合成参考路径，保留来源并交业务复核\n\n状态：待业务复核\n\n## 成果\n\n建议：spec-A\n\nspec-B：续航低于要求\n\n## 来源\n\nspec-A · synthetic:reference-scenarios/sales · docs/design/fixtures/reference-scenarios.json\\#sales/spec-A · F03-2026-11-12\n\nspec-B · synthetic:reference-scenarios/sales · docs/design/fixtures/reference-scenarios.json\\#sales/spec-B · F03-2026-11-12",
+        "outcome": {
+          "excluded": [
+            {
+              "id": "spec-B",
+              "reasons": [
+                "续航低于要求"
+              ]
+            }
+          ],
+          "recommended": [
+            {
+              "id": "spec-A",
+              "reasons": []
+            }
+          ]
+        },
+        "review_status": "pending_review",
+        "scenario": "sales",
+        "summary": "有来源的选型建议",
+        "validation": "source-versions-and-reference-rules-checked"
+      },
+      "attempts": [
+        {
+          "id": "d8d2fddb-5396-4196-ae9b-b45265be50f6",
+          "session_id": "reference-0b433762-2a88-4776-89e0-4b96bc4e0a13",
+          "process_id": 808888,
+          "process_instance": null,
+          "worker_id": "f4018e8f-9a74-42a9-a626-41f4daa7199a",
+          "worker_instance": null,
+          "epoch": 1,
+          "state": "completed"
+        }
+      ],
+      "tools": [
+        {
+          "id": "70a7f58d-ceb0-4c77-849d-7318ed656f63",
+          "state": "succeeded",
+          "approval_state": "consumed",
+          "tool_id": "reference-sales-source",
+          "attempt_id": "d8d2fddb-5396-4196-ae9b-b45265be50f6",
+          "session_id": "reference-0b433762-2a88-4776-89e0-4b96bc4e0a13"
+        }
+      ],
+      "authorization": {
+        "mode": "e2ag",
+        "reference": "wa-a11ecfeec80c98748d0f94be99742e0b16970632b47587afeb19c666b67d",
+        "subject": "operator:test",
+        "actor": "service:test",
+        "policy_id": "test-policy",
+        "state": "closed",
+        "expires_at": 1795691210.013011,
+        "authorization_epoch": 1,
+        "source_check": null,
+        "source_event": null,
+        "delegation": null,
+        "secret_refs": [
+          {
+            "ref": "reference/sales",
+            "version": "v1"
+          }
+        ],
+        "grant": {
+          "attempt_id": "d8d2fddb-5396-4196-ae9b-b45265be50f6",
+          "session_id": "reference-0b433762-2a88-4776-89e0-4b96bc4e0a13",
+          "lease_epoch": 1,
+          "version": 3,
+          "state": "closed",
+          "expires_at": 1795688510.7069924
+        },
+        "decisions": [
+          {
+            "id": "8ff412e1-b36e-44b1-a9cb-0803cc47871e",
+            "action": "accept_result",
+            "created_at": 1795687613.7830167,
+            "outcome": "allow",
+            "reason_codes": [
+              "RESULT_ACCEPTANCE_AUTHORIZED"
+            ]
+          },
+          {
+            "id": "a6a8ed4d-e677-48f6-b751-68c98702792c",
+            "action": "tool-control",
+            "created_at": 1795687611.7950172,
+            "outcome": "deny",
+            "reason_codes": [
+              "TOOL_SESSION_NOT_READY"
+            ]
+          },
+          {
+            "id": "b4d3db39-86f3-48ba-9c50-39530d77634d",
+            "action": "execute",
+            "created_at": 1795687611.5909948,
+            "outcome": "allow",
+            "reason_codes": [
+              "EXECUTION_SESSION_BOUND"
+            ]
+          },
+          {
+            "id": "dad08d82-a417-42f0-b440-577712ec4569",
+            "action": "tool-control",
+            "created_at": 1795687611.3920019,
+            "outcome": "deny",
+            "reason_codes": [
+              "TOOL_SESSION_NOT_READY"
+            ]
+          },
+          {
+            "id": "e1f5886f-bd9b-458e-8994-9ec9892b5af2",
+            "action": "execute",
+            "created_at": 1795687610.7069924,
+            "outcome": "allow",
+            "reason_codes": [
+              "EXECUTION_GRANT_CREATED"
+            ]
+          },
+          {
+            "id": "ca74ec33-dce8-462f-922d-60350f58584f",
+            "action": "admit",
+            "created_at": 1795687610.013011,
+            "outcome": "allow",
+            "reason_codes": [
+              "WORK_AUTHORIZATION_CREATED"
+            ]
+          }
+        ]
+      }
+    },
+    "team": {
+      "run_id": "10b852ea-c23b-4efe-972a-4713ec392dfe",
+      "worker_pid": 808831,
+      "revision": "rev-7f52dbfee2ffb60dd5a1865574fe6b0d6245f1c4da99181504552c240733458d",
+      "input_digest": "7004e8539720dfcdddb04964513405db893f09578055145643a1a47ec0217d99",
+      "state": "succeeded",
+      "application": {
+        "id": "reference-workflows",
+        "version": "0.1.0",
+        "digest": "sha256:c2fc8fdb124a31a588c3e9d322c1e75801d55015c66d4743d918f0ee901e7222"
+      },
+      "artifacts": [
+        {
+          "id": "ed7ebb8d-92dc-43cd-b6cc-ea996e0e6952",
+          "digest": "09288ea78ea21d09df8f2cacfa4b8f53dbf7cbd1ae5691052c9cf24c6c1c1661",
+          "size": 2725
+        },
+        {
+          "id": "ffc046a1-4eff-4953-bbc8-505fae2f8a60",
+          "digest": "18079c3fb6109f4f62d131b74fb4fa3250479d5d8419fd6201660f135d468db1",
+          "size": 2984
+        },
+        {
+          "id": "038b61f7-bcc2-4e87-8081-a1fbb1aeeaa3",
+          "digest": "3c423cc61375a1ceccebac2d8c6e77178ed50cf1543ff96fa361a3c1b28927fa",
+          "size": 2482
+        },
+        {
+          "id": "58d21b2d-91a2-40ff-8932-f8828d76a27c",
+          "digest": "af109e931d11b95ce2da18ece90add6b2a7783f1f29943488a854eecf264d2d1",
+          "size": 1718
+        }
+      ],
+      "result": {
+        "application_version": "0.1.0",
+        "citations": [
+          {
+            "digest": "3ae6a14a51a39b4c0f9f102b4615ada579bad95daf673c0714b88322c7df6e04",
+            "id": "role-A",
+            "locator": "docs/design/fixtures/reference-scenarios.json#team/role-A",
+            "project_id": "demo-team",
+            "source": "synthetic:reference-scenarios/team",
+            "text": "{\"owner\": \"person-A\", \"source\": \"role-A\", \"work\": \"准备方案\"}",
+            "title": "reference-f03-2 role-A",
+            "updated_at": "2026-11-12T00:00:00Z",
+            "version": "F03-2026-11-12"
+          },
+          {
+            "digest": "d7fdb8701cbbc2fff32a8160468ae8548eafaa179711ccd27796a0194db96ace",
+            "id": "role-B",
+            "locator": "docs/design/fixtures/reference-scenarios.json#team/role-B",
+            "project_id": "demo-team",
+            "source": "synthetic:reference-scenarios/team",
+            "text": "{\"owner\": null, \"source\": \"role-B\", \"work\": \"复核材料\"}",
+            "title": "reference-f03-2 role-B",
+            "updated_at": "2026-11-12T00:00:00Z",
+            "version": "F03-2026-11-12"
+          },
+          {
+            "digest": "0789e7f084f4d95c4af6477cbd472e7f54116aee4158c268cda3d790064f4b56",
+            "id": "role-C",
+            "locator": "docs/design/fixtures/reference-scenarios.json#team/role-C",
+            "project_id": "demo-team",
+            "source": "synthetic:reference-scenarios/team",
+            "text": "{\"owner\": \"person-C\", \"source\": \"role-C\", \"work\": \"汇总交付\"}",
+            "title": "reference-f03-2 role-C",
+            "updated_at": "2026-11-12T00:00:00Z",
+            "version": "F03-2026-11-12"
+          }
+        ],
+        "context_id": "demo-team",
+        "evidence": [
+          "role-A@3ae6a14a51a39b4c0f9f102b4615ada579bad95daf673c0714b88322c7df6e04",
+          "role-B@d7fdb8701cbbc2fff32a8160468ae8548eafaa179711ccd27796a0194db96ace",
+          "role-C@0789e7f084f4d95c4af6477cbd472e7f54116aee4158c268cda3d790064f4b56"
+        ],
+        "input_digest": "7004e8539720dfcdddb04964513405db893f09578055145643a1a47ec0217d99",
+        "markdown": "# 岗位计划汇总与待补事项\n\n执行合成参考路径，保留来源并交业务复核\n\n状态：待业务复核\n\n## 成果\n\nrole-A：准备方案；负责人：person-A\n\nrole-B：复核材料；负责人：待指定\n\nrole-C：汇总交付；负责人：person-C\n\n## 来源\n\nrole-A · synthetic:reference-scenarios/team · docs/design/fixtures/reference-scenarios.json\\#team/role-A · F03-2026-11-12\n\nrole-B · synthetic:reference-scenarios/team · docs/design/fixtures/reference-scenarios.json\\#team/role-B · F03-2026-11-12\n\nrole-C · synthetic:reference-scenarios/team · docs/design/fixtures/reference-scenarios.json\\#team/role-C · F03-2026-11-12",
+        "outcome": {
+          "needs_owner": [
+            "role-B"
+          ],
+          "plans": [
+            {
+              "owner": "person-A",
+              "source": "role-A",
+              "work": "准备方案"
+            },
+            {
+              "owner": null,
+              "source": "role-B",
+              "work": "复核材料"
+            },
+            {
+              "owner": "person-C",
+              "source": "role-C",
+              "work": "汇总交付"
+            }
+          ],
+          "sources_preserved": 3
+        },
+        "review_status": "pending_review",
+        "scenario": "team",
+        "summary": "岗位计划汇总与待补事项",
+        "validation": "source-versions-and-reference-rules-checked"
+      },
+      "attempts": [
+        {
+          "id": "96fdb17f-3017-412c-807b-233c36216706",
+          "session_id": "reference-1bcabc9c-1500-48df-b5e0-5eec39a83668",
+          "process_id": 808942,
+          "process_instance": null,
+          "worker_id": "d3683500-c8b6-4457-81b8-f96a69e590fe",
+          "worker_instance": null,
+          "epoch": 1,
+          "state": "completed"
+        }
+      ],
+      "tools": [
+        {
+          "id": "7b312e7b-66f6-42ea-9245-deb0f3016eb0",
+          "state": "succeeded",
+          "approval_state": "consumed",
+          "tool_id": "reference-team-source",
+          "attempt_id": "96fdb17f-3017-412c-807b-233c36216706",
+          "session_id": "reference-1bcabc9c-1500-48df-b5e0-5eec39a83668"
+        }
+      ],
+      "authorization": {
+        "mode": "e2ag",
+        "reference": "wa-7b91d5604ec4404fafd5de49e9bc1063d980c83c178abbb4e94659df9d50",
+        "subject": "operator:test",
+        "actor": "service:test",
+        "policy_id": "test-policy",
+        "state": "closed",
+        "expires_at": 1795691210.3269906,
+        "authorization_epoch": 1,
+        "source_check": null,
+        "source_event": null,
+        "delegation": null,
+        "secret_refs": [
+          {
+            "ref": "reference/team",
+            "version": "v1"
+          }
+        ],
+        "grant": {
+          "attempt_id": "96fdb17f-3017-412c-807b-233c36216706",
+          "session_id": "reference-1bcabc9c-1500-48df-b5e0-5eec39a83668",
+          "lease_epoch": 1,
+          "version": 3,
+          "state": "closed",
+          "expires_at": 1795688511.4710197
+        },
+        "decisions": [
+          {
+            "id": "7fffcf1f-fa7b-4f24-bce0-f07963a294ce",
+            "action": "accept_result",
+            "created_at": 1795687620.1410189,
+            "outcome": "allow",
+            "reason_codes": [
+              "RESULT_ACCEPTANCE_AUTHORIZED"
+            ]
+          },
+          {
+            "id": "1268341b-570e-47f1-8741-8b8f872baae8",
+            "action": "tool-control",
+            "created_at": 1795687612.955019,
+            "outcome": "deny",
+            "reason_codes": [
+              "TOOL_SESSION_NOT_READY"
+            ]
+          },
+          {
+            "id": "76246712-dcab-4795-8ca3-2f362dbd67ff",
+            "action": "execute",
+            "created_at": 1795687612.823014,
+            "outcome": "allow",
+            "reason_codes": [
+              "EXECUTION_SESSION_BOUND"
+            ]
+          },
+          {
+            "id": "cc87b394-9608-4c72-9a29-3d283aa8fffe",
+            "action": "tool-control",
+            "created_at": 1795687612.6519828,
+            "outcome": "deny",
+            "reason_codes": [
+              "TOOL_SESSION_NOT_READY"
+            ]
+          },
+          {
+            "id": "7c7240b1-43e5-4cb4-988c-bb338ad5d947",
+            "action": "execute",
+            "created_at": 1795687611.4710197,
+            "outcome": "allow",
+            "reason_codes": [
+              "EXECUTION_GRANT_CREATED"
+            ]
+          },
+          {
+            "id": "eb5378ed-d273-4c34-b445-a55fa80275fd",
+            "action": "admit",
+            "created_at": 1795687610.3269906,
+            "outcome": "allow",
+            "reason_codes": [
+              "WORK_AUTHORIZATION_CREATED"
+            ]
+          }
+        ]
+      }
+    },
+    "education": {
+      "run_id": "87a14de6-04e4-4744-b1e1-2bcbc7e1c990",
+      "worker_pid": 808833,
+      "revision": "rev-7f5ea4d9d2b130385450538ca3c821592bc0381b8362d9b737dce21ccfebe03b",
+      "input_digest": "841c3f2371c8eba9181a742e9e50ca28615a2ff4590d9728dfec4f9dc814ed45",
+      "state": "succeeded",
+      "application": {
+        "id": "reference-workflows",
+        "version": "0.1.0",
+        "digest": "sha256:c2fc8fdb124a31a588c3e9d322c1e75801d55015c66d4743d918f0ee901e7222"
+      },
+      "artifacts": [
+        {
+          "id": "b67191aa-c28b-4045-a6e2-ab9cf02f2dd6",
+          "digest": "06f66d317190b762d953b5a37a066e0d5038b598dc01b829403e791539a2e1ed",
+          "size": 1346
+        },
+        {
+          "id": "8b1b3cc3-568a-430e-9c5c-94a2e99156aa",
+          "digest": "ba76025784059c1327eb196e4f6d8c47b83fb768a9f233e4dde1287711cc2182",
+          "size": 1605
+        },
+        {
+          "id": "0fea198b-72a1-437d-8af0-dd87d15509cb",
+          "digest": "74cc665aec2293bb06eed3692c76cd42b2d938fbae092f4afb47c8c7f14291fe",
+          "size": 2501
+        },
+        {
+          "id": "9f8329d7-0ff5-4b39-a73d-4ac6d938b663",
+          "digest": "7252a46f07b2a172128641d4c063f8c4b700b10cd371d5ea4785c21368d402e0",
+          "size": 788
+        }
+      ],
+      "result": {
+        "application_version": "0.1.0",
+        "citations": [
+          {
+            "digest": "d654c867094557dbf9b25aac7f6d016082fca7a944a8961d013932e0ea212b3d",
+            "id": "lecture-1",
+            "locator": "docs/design/fixtures/reference-scenarios.json#education/lecture-1",
+            "project_id": "demo-education",
+            "source": "synthetic:reference-scenarios/education",
+            "text": "{\"audience\": [\"teacher\", \"student\"], \"id\": \"lecture-1\", \"text\": \"匀速运动的位置随时间线性变化。\"}",
+            "title": "reference-f03-2 lecture-1",
+            "updated_at": "2026-11-12T00:00:00Z",
+            "version": "F03-2026-11-12"
+          }
+        ],
+        "context_id": "demo-education",
+        "evidence": [
+          "lecture-1@d654c867094557dbf9b25aac7f6d016082fca7a944a8961d013932e0ea212b3d"
+        ],
+        "input_digest": "841c3f2371c8eba9181a742e9e50ca28615a2ff4590d9728dfec4f9dc814ed45",
+        "markdown": "# 学生导读\n\n执行合成参考路径，保留来源并交业务复核\n\n状态：待业务复核\n\n## 成果\n\n匀速运动的位置随时间线性变化。\n\n## 来源\n\nlecture-1 · synthetic:reference-scenarios/education · docs/design/fixtures/reference-scenarios.json\\#education/lecture-1 · F03-2026-11-12",
+        "outcome": {
+          "sections": [
+            {
+              "source_id": "lecture-1",
+              "text": "匀速运动的位置随时间线性变化。"
+            }
+          ],
+          "source_ids": [
+            "lecture-1"
+          ]
+        },
+        "review_status": "pending_review",
+        "scenario": "education",
+        "summary": "学生导读",
+        "validation": "source-versions-and-reference-rules-checked"
+      },
+      "attempts": [
+        {
+          "id": "5db27c7c-4a33-48f3-b777-e6f92850cfb5",
+          "session_id": "reference-45b89175-9aac-4587-b0d0-19b1352156a3",
+          "process_id": 809021,
+          "process_instance": null,
+          "worker_id": "bfbf1f6d-7e82-447f-a352-8a1006134cd4",
+          "worker_instance": null,
+          "epoch": 1,
+          "state": "completed"
+        }
+      ],
+      "tools": [
+        {
+          "id": "12bce798-e7f9-4725-b861-d8f81f6e9609",
+          "state": "succeeded",
+          "approval_state": "consumed",
+          "tool_id": "reference-education-source",
+          "attempt_id": "5db27c7c-4a33-48f3-b777-e6f92850cfb5",
+          "session_id": "reference-45b89175-9aac-4587-b0d0-19b1352156a3"
+        }
+      ],
+      "authorization": {
+        "mode": "e2ag",
+        "reference": "wa-5d5cd4c00b0a1ec83a881d83a1dfc8219303d7e0701b65df0bd34d7ea5a1",
+        "subject": "operator:test",
+        "actor": "service:test",
+        "policy_id": "test-policy",
+        "state": "closed",
+        "expires_at": 1795691210.665995,
+        "authorization_epoch": 1,
+        "source_check": null,
+        "source_event": null,
+        "delegation": null,
+        "secret_refs": [
+          {
+            "ref": "reference/education",
+            "version": "v1"
+          }
+        ],
+        "grant": {
+          "attempt_id": "5db27c7c-4a33-48f3-b777-e6f92850cfb5",
+          "session_id": "reference-45b89175-9aac-4587-b0d0-19b1352156a3",
+          "lease_epoch": 1,
+          "version": 3,
+          "state": "closed",
+          "expires_at": 1795688512.579
+        },
+        "decisions": [
+          {
+            "id": "a5f0169f-82c1-4fc1-ad3f-e84acf8f9874",
+            "action": "accept_result",
+            "created_at": 1795687620.4189897,
+            "outcome": "allow",
+            "reason_codes": [
+              "RESULT_ACCEPTANCE_AUTHORIZED"
+            ]
+          },
+          {
+            "id": "96fe2fa2-2b34-4ac0-8643-36f633857612",
+            "action": "execute",
+            "created_at": 1795687614.3480108,
+            "outcome": "allow",
+            "reason_codes": [
+              "EXECUTION_SESSION_BOUND"
+            ]
+          },
+          {
+            "id": "32c13d0a-69ec-4e96-9d50-25586bd4adf5",
+            "action": "tool-control",
+            "created_at": 1795687614.327009,
+            "outcome": "deny",
+            "reason_codes": [
+              "TOOL_SESSION_NOT_READY"
+            ]
+          },
+          {
+            "id": "ddd8a474-7e3b-455b-ae2c-b61b47e61e0b",
+            "action": "execute",
+            "created_at": 1795687612.579,
+            "outcome": "allow",
+            "reason_codes": [
+              "EXECUTION_GRANT_CREATED"
+            ]
+          },
+          {
+            "id": "878b0352-514f-4f6a-b7ec-3240dfebc6d1",
+            "action": "admit",
+            "created_at": 1795687610.665995,
+            "outcome": "allow",
+            "reason_codes": [
+              "WORK_AUTHORIZATION_CREATED"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "sales-version-history-and-exact-report",
+      "team-version-history-and-exact-report",
+      "education-version-history-and-exact-report",
+      "persisted-report-after-reload",
+      "mobile-report-layout"
+    ],
+    "page_errors": []
+  },
+  "browser_submission": {
+    "passed": true,
+    "run_id": "c05d28ef-d034-4815-8239-85547d429836",
+    "application": {
+      "id": "reference-workflows",
+      "version": "0.1.0",
+      "digest": "sha256:c2fc8fdb124a31a588c3e9d322c1e75801d55015c66d4743d918f0ee901e7222"
+    },
+    "attempt_id": "bf3437d0-a1a3-4431-ad1b-7a535d5acdc6",
+    "session_id": "reference-f1f17cc3-60c2-4820-b286-b998965bee20",
+    "checks": [
+      "browser-submission",
+      "resident-worker-auto-claim",
+      "independent-tool-approval",
+      "completed-report"
+    ]
+  },
+  "packaging": {
+    "passed": true,
+    "cli_same_runs": [
+      "sales",
+      "team",
+      "education"
+    ],
+    "resident_workers_alive": 3,
+    "bundles_checked": 4,
+    "bundle_image": "sha256:9e987eccc29a63c45bf4abc87317686e7d05201cb758e3d83da7bb7b543c8e44",
+    "offline_bundle_imports": true
+  },
+  "deployment": {
+    "image": {
+      "image": "sha256:ee3582f8c5ea505590c0449462539d103e9ddd84d22c36b3191daaf3429b6faa",
+      "versions": {
+        "reference-workflows": "0.1.0",
+        "knowledge-evidence": "0.1.0",
+        "dios-sdk": "0.1.19"
+      },
+      "backend_absent": true
+    },
+    "provider_pid": 808578,
+    "resident_worker_pids": {
+      "sales": 811897,
+      "team": 811898,
+      "education": 811899
+    },
+    "api_restarted": false,
+    "existing_grants_preserved": true,
+    "history": {
+      "runs": {
+        "before": 99,
+        "after": 103,
+        "original_ids_preserved": true
+      },
+      "attempts": {
+        "before": 103,
+        "after": 107,
+        "original_ids_preserved": true
+      },
+      "artifacts": {
+        "before": 266,
+        "after": 282,
+        "original_ids_preserved": true
+      }
+    }
+  },
+  "original_fixture_sha256": "95fe3b4327fa0a69eb25f41ce71144a933bc2343bf7b5ce990e6749b31ee4f41",
+  "source_sha256": {
+    "scripts/build_application_packages.py": "3e6bb74feb911cec06f78d80c97626f83470efb33c835451a120a06e5f652ee3",
+    "applications/reference-workflows/Dockerfile": "4a9bd35e8d9ffec25cd4e54356447bcf29509b52785715a106edfe334475f871",
+    "applications/reference-workflows/README.md": "1a10d051c7f44aff0edcb2f615a6f8561194f63252876d95ec2eb30e26104b9d",
+    "applications/reference-workflows/application.json": "b176be5ff7d536b3b322fcbcbc6620e396bf13e2976a0b17c19372ef04b147f2",
+    "applications/reference-workflows/pyproject.toml": "d5e508bd30b82534444f2750d036e53be8ba37be7c406d7dde2fdf32913cf603",
+    "applications/reference-workflows/src/dios_reference/__init__.py": "91447944015cec709e8aa7655f7e9d64e1e4508e7023a57fe3746911c0fc6fed",
+    "applications/reference-workflows/src/dios_reference/app.py": "9bf51427b857bf0fb8baf8c47f9b08b53ff5510ffdb404372acedb09f45b44a9",
+    "applications/reference-workflows/tests/test_reference_workflows.py": "71a0dd890eac636e3d446715ea554716d4851ab3588292806dd7f9850e1e1a68",
+    "examples/reference-workflows/README.md": "c2e0c35d8d4abc451c7bc75cdd9ab4f6039972d28a9b0cac98dec6557ddbf41a",
+    "examples/reference-workflows/catalog.json": "00a732c873e5fb5a32d074eea27e718a598d031c6d989accaae54dab5ec8c562",
+    "examples/reference-workflows/education-inputs.json": "31c8097d9d08075528eff649feed99d19faad53fa399292f59951a753be5747e",
+    "examples/reference-workflows/mapping.json": "4591043ce9e0c0e3a58ab03b12630148aa0198e0a7f1af6cc8f59e3b4a1c424d",
+    "examples/reference-workflows/sales-inputs.json": "d76ab7faee95e532e2ef28d355e7dfc450bd99ece69a5103416268e236c1cd03",
+    "examples/reference-workflows/team-inputs.json": "40a28bd1b1f4caff3a04c878e52b5b53e0c0d1899f91b75de994cc2740f54ab4"
+  },
+  "distribution_sha256": {
+    "dios_sdk-0.1.19-py3-none-any.whl": "a750b1c576fe8ca1fb7699d39f3343162fcd122ddc0392b3a9b856680bcdeda3",
+    "knowledge-source-bundle.zip": "efa3b5beffa98b97d51f07c816513ad28d7754d1a1313fc939366af0501e70a0",
+    "reference_workflows-0.1.0-py3-none-any.whl": "fe0f97ef3c04e0c8af73d495855a65142f7a4473cd034d8a795687199b0927d3",
+    "knowledge_source-0.1.0-py3-none-any.whl": "58f55570e0fcbd2aed71306085ce5da6af4b30de0e2bcf0d1fd2d68bcfa139f1",
+    "static-review-bundle.zip": "edb59e41793ad4fd79cbea0eaa288bd15d5c3e7ed79cb15388956e3a096a4aa7",
+    "knowledge_evidence-0.1.0.tar.gz": "7d7569a579246424b5a70fd4c80a21fd9e518b6a91d7f513733fffba992e28f9",
+    "knowledge_evidence-0.1.0-py3-none-any.whl": "4630705089a375c7ad656a477954df2d36610215920df20f4fd9fbc08bb1e3c2",
+    "reference_workflows-0.1.0.tar.gz": "d08c61712f64fce9572c2b497ef7927b5a1aca43480fdd29d9553e0564bba65f",
+    "static_review-0.1.4.tar.gz": "3b328fed9aa3b0da07361a7cc295c52c026890253e41820d70fc2de06c492b3c",
+    "knowledge-evidence-bundle.zip": "511ac5596d1c039efa2b24c892552ac587bfbd85b07d72541beae8263ecc845c",
+    "knowledge_source-0.1.0.tar.gz": "548846d7d6b5a49cc016cd400e418f3c27a36b3ff950c1228fabbc1165b6c5a5",
+    "checksums.json": "bca573c60d5e3d7f704430daa9b1c7ef8c5dee4d31750820d9c913c55ab829ca",
+    "reference-workflows-bundle.zip": "103dcdad14e580b2c13842c56e9d818a1f4b61cff8a8560f191511bee7e5579a",
+    "static_review-0.1.4-py3-none-any.whl": "edcbfbd10fdb62ce2a34426cdbbe8d30bcf010c76561c543ca80dd5a98b4bcfe",
+    "dios_sdk-0.1.19.tar.gz": "7e54508c49e686e019435f0b530aca52c170ae86018fe1ec8395225791af0b95"
+  },
+  "evidence_sha256": {
+    "native.json": "0e56b66d25b9c94d2b3c278fb153a199ee719f922af5de878ceb3fa99c111be4",
+    "tests.log": "f07894fb3712fffb459e1fa8e3762c4af6ea1d464065d18875d00163cc5f80d5",
+    "browser.json": "456fde73d2507e19ec196b78a08b2b3128eb5e33a5c152114e4d85b525294219",
+    "browser-submission.json": "a1408a1a7e25ddbb896e0edbfa7cfd51dfc7fc2fb59684742da4282b9dfc0069",
+    "education-console.png": "fc12ff0f8d9cc0b7d31cc64ff5359eff2d28f9df6832b557d70d933f840757db",
+    "mobile.png": "0db59314004bdafe50bea815971e72037a2d893285f6b52b06a13dbb6e678212",
+    "native.py": "3e861d7e7bc396f8c7c3b6502d37d5029eab808f24ea7e5d6e9ca98f16cfa7c0",
+    "reference-workflows-setup.py": "09def2760b1fbca83525eeb7d3b478fb1b40427858342ace37bf5b95ed08531d"
+  },
+  "remaining": [
+    "F03-2.02: complete eighteen fault scenarios and common governance assertions; existing component evidence is retained.",
+    "F03-2.03/K01-5.01: full cross-implementation reference and native tool qualification.",
+    "Customer systems, business acceptance and production data remain separate deliveries."
+  ]
+}

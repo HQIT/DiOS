@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "requires_e2ag": true,
+  "inputs": [
+    {
+      "id": "education-reference",
+      "name": "学生导读",
+      "scenario": "education",
+      "context_id": "demo-education",
+      "query": "reference-f03-2",
+      "constraints": {},
+      "source_refs": {
+        "lecture-1": "d654c867094557dbf9b25aac7f6d016082fca7a944a8961d013932e0ea212b3d"
+      },
+      "sha256": "841c3f2371c8eba9181a742e9e50ca28615a2ff4590d9728dfec4f9dc814ed45"
+    }
+  ],
+  "schema": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "context_id",
+      "query",
+      "scenario",
+      "constraints",
+      "source_refs",
+      "sha256"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "context_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "query": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "scenario": {
+        "enum": [
+          "sales",
+          "team",
+          "education"
+        ]
+      },
+      "constraints": {
+        "type": "object"
+      },
+      "source_refs": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 3,
+        "additionalProperties": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "additionalProperties": false
+  },
+  "result_schema": {
+    "type": "object",
+    "required": [
+      "summary",
+      "scenario",
+      "context_id",
+      "input_digest",
+      "application_version",
+      "outcome",
+      "citations",
+      "evidence",
+      "review_status",
+      "markdown"
+    ],
+    "properties": {
+      "scenario": {
+        "enum": [
+          "sales",
+          "team",
+          "education"
+        ]
+      },
+      "outcome": {
+        "type": "object"
+      },
+      "citations": {
+        "type": "array",
+        "minItems": 1
+      },
+      "evidence": {
+        "type": "array",
+        "minItems": 1
+      },
+      "review_status": {
+        "const": "pending_review"
+      },
+      "markdown": {
+        "type": "string",
+        "minLength": 1
+      },
+      "application_version": {
+        "const": "0.1.0"
+      }
+    }
+  }
+}

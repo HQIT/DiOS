@@ -1,0 +1,56 @@
+{
+  "fixture": "docs/design/fixtures/reference-scenarios.json",
+  "fixture_sha256": "95fe3b4327fa0a69eb25f41ce71144a933bc2343bf7b5ce990e6749b31ee4f41",
+  "task_kind": "external.reference-workflow/v1",
+  "scenarios": [
+    {
+      "scenario": "sales",
+      "input_id": "sales-reference",
+      "input_digest": "757e2de9e64cd89ad036d367e3d3395c3ff7af10c6578e811fedbb9a8412d1b1",
+      "source_refs": {
+        "spec-A": "a9ae950d9eec38b35eb3487f0c2cbd28522691f222c14f5cef0bd8323b83d7f5",
+        "spec-B": "b74e4763370e0b2c73288d1a047fa2d3d9f5ad83c2cb8e721cf2d94e02c57aa7"
+      },
+      "expected": {
+        "recommended": "spec-A",
+        "excluded": "spec-B",
+        "citation_required": true,
+        "external_send_requires_approval": true
+      }
+    },
+    {
+      "scenario": "team",
+      "input_id": "team-reference",
+      "input_digest": "7004e8539720dfcdddb04964513405db893f09578055145643a1a47ec0217d99",
+      "source_refs": {
+        "role-A": "3ae6a14a51a39b4c0f9f102b4615ada579bad95daf673c0714b88322c7df6e04",
+        "role-B": "d7fdb8701cbbc2fff32a8160468ae8548eafaa179711ccd27796a0194db96ace",
+        "role-C": "0789e7f084f4d95c4af6477cbd472e7f54116aee4158c268cda3d790064f4b56"
+      },
+      "expected": {
+        "sources_preserved": 3,
+        "needs_owner": [
+          "role-B"
+        ],
+        "delegation_must_not_expand_scope": true
+      }
+    },
+    {
+      "scenario": "education",
+      "input_id": "education-reference",
+      "input_digest": "841c3f2371c8eba9181a742e9e50ca28615a2ff4590d9728dfec4f9dc814ed45",
+      "source_refs": {
+        "lecture-1": "d654c867094557dbf9b25aac7f6d016082fca7a944a8961d013932e0ea212b3d"
+      },
+      "expected": {
+        "student_artifact_sources": [
+          "lecture-1"
+        ],
+        "excluded_sources": [
+          "answer-1"
+        ],
+        "revocation_blocks_read": true
+      }
+    }
+  ]
+}

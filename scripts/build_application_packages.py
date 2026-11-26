@@ -3,12 +3,12 @@
 import argparse
 import hashlib
 import json
-from pathlib import Path
 import subprocess
 import sys
-import zipfile
-import tomllib
 import tempfile
+import tomllib
+import zipfile
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,11 +24,11 @@ def main():
     a = p.parse_args()
     out = Path(a.output).resolve()
     out.mkdir(parents=True, exist_ok=True)
-    projects = [
-        "sdk/python",
-        "applications/knowledge-evidence",
-        "applications/knowledge-source",
-        "applications/static-review",
+    projects = ["sdk/python"] + [
+        str(directory.relative_to(ROOT))
+        for directory in sorted((ROOT / "applications").iterdir())
+        if (directory / "application.json").is_file()
+        and (directory / "pyproject.toml").is_file()
     ]
     for source in projects:
         subprocess.run(
@@ -91,6 +91,8 @@ def main():
                         "cp312",
                         "--dest",
                         deps,
+                        "--find-links",
+                        str(out),
                         str(sdk),
                         str(app),
                     ],
@@ -99,11 +101,11 @@ def main():
                 for wheel in sorted(Path(deps).glob("*.whl")):
                     bundle.write(wheel, "wheels/" + wheel.name)
     files = [
-        dict(
-            name=x.name,
-            sha256=hashlib.sha256(x.read_bytes()).hexdigest(),
-            size=x.stat().st_size,
-        )
+        {
+            "name": x.name,
+            "sha256": hashlib.sha256(x.read_bytes()).hexdigest(),
+            "size": x.stat().st_size,
+        }
         for x in sorted(out.iterdir())
         if x.suffix in {".whl", ".gz", ".zip"}
     ]
