@@ -1,4 +1,5 @@
-"""Real Cursor probe over synthetic files; decisions use the installed public SDK."""
+"""Real Harness probe over synthetic files; decisions use the installed public SDK."""
+import argparse
 import asyncio
 import json
 from pathlib import Path
@@ -38,6 +39,13 @@ class ProbeClient(BaseClient):
 
 
 async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--harness', choices=('cursor', 'dsh'), default='cursor')
+    args = parser.parse_args()
+    execute = cursor_execute
+    if args.harness == 'dsh':
+        from dios_sdk.dsh import dsh_execute
+        execute = dsh_execute
     acp.AcpClient = ProbeClient
     value = work_input()['sample']
     prompt = (
@@ -51,7 +59,7 @@ async def main():
         'Finish with JSON {"summary":"native permission outcomes"}.'
     )
     try:
-        return await cursor_execute('/opt/dios/acp.json', prompt, lambda value: value,
+        return await execute('/opt/dios/acp.json', prompt, lambda value: value,
             required_tools=[{'tool':'repository_search','arguments':{'query':value['sha256']}}])
     except WorkloadError as exc:
         record('failure', {'code': exc.code})

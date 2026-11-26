@@ -86,6 +86,8 @@ class DockerRuntimeAdapter:
             try:
                 c = self.client.containers.create(image.id, command=list(spec.command) if spec.command is not None else None,
                     name=self._name(handle), environment=spec.environment,
+                    # Host Docker client defaults are outside the authorized launch digest.
+                    use_config_proxy=False,
                     working_dir=spec.working_dir, user=spec.user, network=spec.network,
                     mounts=mounts,
                     mem_limit=spec.memory_bytes, nano_cpus=int(spec.cpu_count*1_000_000_000),

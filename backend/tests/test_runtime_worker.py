@@ -216,6 +216,25 @@ class DockerWorkerTests(WorkerTests):
         if once:args.append('--once')
         p=await asyncio.create_subprocess_exec(*args,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)
         self.children.append(p);return p
+    async def test_docker_host_proxy_is_not_injected_into_authorized_environment(self):
+        from docker.utils.proxy import ProxyConfig
+        prior=self.adapter.client.api._proxy_configs
+        self.adapter.client.api._proxy_configs=ProxyConfig.from_dict({
+            'httpProxy':'http://unapproved.invalid:3128',
+            'httpsProxy':'http://unapproved.invalid:3128',
+            'noProxy':'unapproved.invalid'})
+        try:
+            handle='proxy-'+uuid4().hex
+            spec=replace(self.spec,command=('python','-c','import time; time.sleep(30)'),
+                environment={'HTTPS_PROXY':'http://approved.invalid:3128'})
+            await self.adapter.start(handle,spec)
+            container=self.adapter.client.containers.get(self.adapter._name(handle))
+            actual=dict(item.split('=',1) for item in container.attrs['Config']['Env'])
+            self.assertEqual(actual['HTTPS_PROXY'],'http://approved.invalid:3128')
+            self.assertFalse(any('unapproved.invalid' in value for value in actual.values()))
+            self.assertNotIn('https_proxy',actual)
+        finally:
+            self.adapter.client.api._proxy_configs=prior
     async def wait_state(self,predicate,timeout=20):
         deadline=time.monotonic()+timeout
         while time.monotonic()<deadline:

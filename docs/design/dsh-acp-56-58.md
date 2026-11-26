@@ -1,6 +1,6 @@
 # DeepSeek Harness 接入与 E2AG 执行资格
 
-同一个独立静态评审应用已通过 Cursor 和 DeepSeek Harness 两种 ACP Harness 执行。DSH 使用 ECNU Max 的 OpenAI 兼容服务；模型、Harness、业务应用和 DiOS 治理分别配置。SDK 0.1.3 的 DSH 适配只转换工具元数据，执行授权沿用 Runtime/E2AG。
+同一个独立静态评审应用已通过 Cursor 和 DeepSeek Harness 两种 ACP Harness 执行。DSH 使用 ECNU Max 的 OpenAI 兼容服务；模型、Harness、业务应用和 DiOS 治理分别配置。SDK 0.1.19 的 DSH 适配只转换工具元数据，执行授权沿用 Runtime/E2AG。
 
 ## 官方接口与分层
 
@@ -41,3 +41,7 @@ SDK 在 peer 声明 `sessionCapabilities.close` 后，于取消处理和进程�
 ## 后续验收
 
 #56/#58 保持进行中。Cursor、DSH、Codex 与标准 A2A 均已有实际接入证据；三种 ACP Harness 的跨进程检查见 [会话恢复契约](acp-session-recovery-56-58.md)。三种 Harness 的续期、三层委派与旧 epoch 联合验证已通过，见[授权与工具收尾](harness-governance-56-58.md)。下一段推进额外原生工具路径与 Agent 自主子任务的认证委派入口。活动请求续接、跨物理主机、原生工具额外路径、企业网络与凭据、G2 独立评审及用户验收继续沿用既定门槛。
+
+## 原生执行控制
+
+K01-5.01 两来源工程资格已完成。DSH 使用官方单调 guard 拦截原生工具，并以启动依赖、固定镜像、限定模型出口和显式凭据挂载完成交付。见[控制、真实拒绝与运行边界](dsh-native-controls-58.md)。K01-5.03 联合评审仍待接受。

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "checks": {
+    "example.org:443": {
+      "status": 403,
+      "denied": true
+    },
+    "chat.ecnu.edu.cn.evil.invalid:443": {
+      "status": 403,
+      "denied": true
+    },
+    "127.0.0.1:443": {
+      "status": 403,
+      "denied": true
+    },
+    "169.254.169.254:443": {
+      "status": 403,
+      "denied": true
+    },
+    "chat.ecnu.edu.cn:80": {
+      "status": 403,
+      "denied": true
+    },
+    "non_connect": {
+      "status": 403,
+      "denied": true
+    },
+    "model_connect": {
+      "status": 200,
+      "allowed": true
+    },
+    "direct:1.1.1.1": {
+      "blocked": true,
+      "errno": 101
+    },
+    "direct:172.17.0.1": {
+      "blocked": true,
+      "errno": 101
+    },
+    "/probe-source/sample.py": {
+      "write_blocked": true,
+      "errno": 13,
+      "control": "filesystem_permissions"
+    },
+    "/opt/dios/should-not-write": {
+      "write_blocked": true,
+      "errno": 30,
+      "control": "read_only_mount"
+    }
+  },
+  "network": "dios-dsh-controlled-workloads",
+  "internal": true,
+  "gateway_mode": "isolated",
+  "image": "sha256:9c2699485d7bae25119476a76674adfea04b75b3c9a3a2180a6ce633dc8b6e09",
+  "log_sha256": "a4a48f490577812515d5075e17b53844a36870213c2962c8f956c7fc42d3e26e"
+}

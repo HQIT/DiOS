@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K01-5.01",
-    "next_delivery": "K01-5.01",
+    "next_work_item": "K01-5.03",
+    "next_delivery": "K01-5.03",
     "next_delivery_order": [
-      "K01-5.01",
+      "K01-5.03",
       "D01-3.02",
       "K04-2.02",
       "K02-3.02",
@@ -33,7 +33,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "D01-3.01 控制面 HA 集成完成；D01-3.02 的第二台 Linux 物理主机与故障注入权限尚待确认。先推进已就绪 K01-5.01，复用 Cursor ACP 主路径与现有另一来源 Harness 完成真实治理矩阵，不新增 Harness SDK 或重新测试已有合格切片。"
+    "next_selection_reason": "K01-5.01 两来源真实执行治理资格完成；下一步整理 K01-5.03 联合评审证据包，评审结论由指定责任人接受。物理跨主机环境、父子容量语义及恢复源端隔离仍等待既有决策，继续保留依赖。"
   },
   "waves": [
     {
@@ -3088,7 +3088,7 @@
       "issue": 58,
       "title": "两来源真实执行治理资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K01-5-A01",
         "K01-5-A02",
@@ -3102,7 +3102,10 @@
         "K03-2.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
+      "completion_evidence": [
+        "docs/design/evidence/dsh-native-controls-20261126.json",
+        "docs/design/dsh-native-controls-58.md"
+      ],
       "basis": "已有三种真实 Harness 和治理切片；完整版本矩阵及联合资格待闭环。",
       "existing_evidence": [
         "docs/design/evidence/harness-governance-20261125.json",
