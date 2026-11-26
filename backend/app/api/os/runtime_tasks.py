@@ -288,12 +288,27 @@ async def scheduler_health(s=Depends(service)):
     from app.runtime.monitor import snapshot
     return await snapshot(s.db,s.scope)
 
+async def monitor_service(request:Request):
+    from app.services.monitor_access import accepts
+    auth=request.headers.get('authorization','')
+    token=auth[7:].strip() if auth.lower().startswith('bearer ') else ''
+    if not settings.runtime_console_enabled:raise HTTPException(503,detail='RUNTIME_CONSOLE_DISABLED')
+    # The independent credential is accepted only by this fixed metrics route.
+    if await asyncio.to_thread(accepts,token,settings.access_token):
+        value=getattr(request.app.state,'runtime_console',None)
+        if value is None:raise HTTPException(503,detail='RUNTIME_CONFIGURATION_REQUIRED')
+        return value
+    principal=await operator(request)
+    if principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
+    return await service(request,principal)
+
+
 @router.get('/scheduler-metrics')
-async def scheduler_metrics(s=Depends(service)):
-    if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
-    from fastapi.responses import Response
+async def scheduler_metrics(request:Request,s=Depends(monitor_service)):
     from app.runtime.monitor import snapshot, prometheus
-    return Response(prometheus(await snapshot(s.db,s.scope)),media_type='text/plain; version=0.0.4; charset=utf-8')
+    value=prometheus(await snapshot(s.db,s.scope))
+    await monitor_service(request)
+    return Response(value,media_type='text/plain; version=0.0.4; charset=utf-8')
 
 
 class CapacityUpdate(BaseModel):

@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K04-3.03",
-    "next_delivery": "K04-3.03",
+    "next_work_item": "K04-3.04",
+    "next_delivery": "K04-3.04",
     "next_delivery_order": [
-      "K04-3.03",
+      "K04-3.04",
       "K04-2.02",
       "K02-3.02",
       "K02-3.03",
@@ -33,7 +33,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "K04-3.01/.02 已完成。继续 #46 最小权限监测、指标留存和本地告警配置。K04-2.02 等待容量语义选择，K02-3.02 等待源端隔离选择；其下游资格保留依赖。"
+    "next_selection_reason": "K04-3.01/.02/.03 已完成，继续已就绪的 #46 证据完整性与瓶颈报告，复用既有成本结算和阶段证据。身份资格补查开发 Provider 配置。K04-2.02 等待容量语义选择，K02-3.02 等待源端隔离选择；其下游资格保留依赖。"
   },
   "waves": [
     {
@@ -1895,7 +1895,8 @@
         "docs/design/evidence/backchannel-logout-live-20261124.json",
         "docs/design/evidence/managed-secrets-20261124.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "qualification_followup": "开发实例对不匹配 Bearer 返回 AUTH_PROVIDER_UNAVAILABLE，操作员正常；需在身份资格中定位目录/Provider 配置原因。监测凭据仅固定指标接口可用，测试身份源下越权请求均拒绝。"
     },
     {
       "id": "K03-1.04",
@@ -2559,7 +2560,7 @@
       "issue": 46,
       "title": "监测部署与运维配置",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "K04-3-A02",
         "K04-3-A03",
@@ -2570,8 +2571,11 @@
       "verification": "已有健康规则持续生效，读身份不能派发/改配置；不默认向外部渠道发消息",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有阶段、真实并发、吞吐、用量及调度健康；版本/来源全链关联和诊断交付待补。",
+      "completion_evidence": [
+        "docs/design/monitoring-deployment-46.md",
+        "docs/design/evidence/monitoring-deployment-20261126.json"
+      ],
+      "basis": "专用只读指标凭据、固定镜像的本地 Prometheus 与 15 天/1 GB 留存配置已部署；29 项运行回归、3 项部署配置测试、标准规则及真实采集/告警/重启留存通过。无外部通知配置。",
       "existing_evidence": [
         "docs/design/evidence/runtime-diagnostics-20261125.json",
         "docs/design/evidence/runtime-overview-20261125.json",

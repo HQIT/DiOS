@@ -37,7 +37,7 @@ GET /api/os/runtime/scheduler-health
 GET /api/os/runtime/scheduler-metrics
 ```
 
-应用身份调用返回 403，无凭据返回 401。指标仅使用固定服务名及状态标签，不包含用户、任务、实例身份、错误文本或凭据。JSON 仅保留规范化错误码；未分类异常统一标记 `SCHEDULER_ERROR`。
+应用身份调用返回 403，无凭据返回 401。指标接口另支持仅采集用途的专用凭据，配置见[本地监测部署](monitoring-deployment-46.md)。指标仅使用固定服务名及状态标签，不包含用户、任务、实例身份、错误文本或凭据。JSON 仅保留规范化错误码；未分类异常统一标记 `SCHEDULER_ERROR`。
 
 可信本地管理 CLI：
 
@@ -53,7 +53,7 @@ Console 同步中英文、桌面和手机展示。10 秒请求超时后保留旧
 
 [四条告警规则](../../deploy/observability/scheduler-alerts.yml)覆盖观测不可用、持续周期失败、周期耗时过长和指标采集失败。[规则测试](../../deploy/observability/scheduler-alerts.test.yml)验证延迟触发、恢复消警及正常／禁用状态不触发。
 
-现有 Prometheus 可增加以下采集任务，并加载规则文件。凭据文件由部署环境提供，权限与当前操作员接口一致；跨主机采集使用 HTTPS。
+现有 Prometheus 可增加以下采集任务，并加载规则文件。凭据文件使用独立的只读监测凭据；跨主机采集使用 HTTPS。
 
 ```yaml
 scrape_configs:
@@ -69,10 +69,10 @@ rule_files:
   - /etc/prometheus/rules/scheduler-alerts.yml
 ```
 
-规则包和采集链路已验证；持续运行的 Prometheus、Alertmanager 路由及通知渠道由部署配置管理，当前开发部署未配置外部通知。控制面或数据库整体不可用时，外部采集失败告警提供观测；同一控制面无法独立证明自身网络或进程故障。
+规则包和采集链路已验证；开发部署已持续运行 Prometheus，提供本地告警和时间序列留存，未配置外部通知。控制面或数据库整体不可用时，外部采集失败告警提供观测；同一控制面无法独立证明自身网络或进程故障。
 
 ## 验证与后续
 
 [验证记录](evidence/scheduler-health-20261125.json)包含 SQLite/PostgreSQL、慢周期不重复执行、失败后恢复、观测写入失败、进程崩溃与重启、权限隔离、备份、标准 Prometheus 规则测试、真实采集及中英文界面验证。
 
-后续完善有界脱敏诊断包、端到端 Trace、告警路由的部署与留存、独立只读监控身份，以及物理多主机和大规模历史性能验收。
+[有界脱敏诊断包](diagnostic-export-46.md)和[只读监测部署](monitoring-deployment-46.md)已交付；后续按 #46 推进治理性能与证据完整性报告，物理多主机及大规模容量验收沿既定 WBS 进行。
