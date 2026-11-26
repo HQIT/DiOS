@@ -317,7 +317,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           </p>}
           {detail.state === "reconciliation_required" && <p className="tr-notice">{translateUI("正在等待原执行结果对账，任务身份与已有输出已保留。")}</p>}
           {active?.error && <p className="tr-error">{translateUI("失败原因：")}{translateUI(active.error.code)}</p>}
-          {detail.recovery && <p className="tr-notice" role="status">{translateUI("故障分类：")}{translateUI(({ network: "网络故障", rate_limit: "服务限流", quota: "额度不足", session: "会话创建失败", process: "进程退出", format: "结果格式", evidence: "证据不足", authorization: "授权限制" } as Record<string,string>)[detail.recovery.category] || detail.recovery.category)}
+          {detail.recovery && <p className="tr-notice" role="status">{translateUI("故障分类：")}{translateUI(({ network: "网络故障", secret_service: "凭据服务不可用", rate_limit: "服务限流", quota: "额度不足", session: "会话创建失败", process: "进程退出", format: "结果格式", evidence: "证据不足", authorization: "授权限制" } as Record<string,string>)[detail.recovery.category] || detail.recovery.category)}
             {detail.state === "retry_wait" && detail.recovery.retry_at && <>{translateUI("· 下次重试")}{translateUI(time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0)))}{translateUI("，继续原任务")}</>}
             {detail.recovery.state === "observing" && detail.recovery.retry_at && <>{translateUI("· 下次查询原任务：")}{translateUI(time(Math.max(detail.recovery.retry_at, detail.recovery.circuit?.retry_at || 0)))}</>}
             {detail.recovery.state === "observed" && <>{translateUI("· 远端查询已恢复")}</>}

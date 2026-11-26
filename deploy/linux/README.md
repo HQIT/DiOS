@@ -68,6 +68,8 @@ sudo systemctl daemon-reload
 
 使用工具通道的 profile 通过 `tool_channel.worker_secret_refs` 显式列出 Agent 需要的模型凭据。本地和远程执行均遵循此列表；省略表示不向容器挂载凭据。工具网关使用的 `credential_ref` 留在网关侧，与执行端列表互斥。修改列表后重新固定 profile 和 E2AG 工作授权，排空旧任务后切换；不要通过固定目录挂载暴露整个 Secret 目录。
 
+Secret 文件权限、OpenBao 原生 Agent 后台配置、固定版本注入和轮换操作见 [Linux Secret 交付](secrets.md)。
+
 采用 [Cursor 原生控制配置](../../docs/design/cursor-native-controls.md)和已验证镜像。每个服务实例运行一个 Worker，实际并发以 Runtime 进程、Attempt 与 Session 观测为准。计划升级或停止前先用 Runtime `upgrade drain`、`upgrade wait` 排空；systemd 配置不以超时强杀代替排空。
 
 ## 交付验证

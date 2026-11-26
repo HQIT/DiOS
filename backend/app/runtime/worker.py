@@ -158,6 +158,8 @@ class Worker:
                 if requested:
                     if self.secret_resolver is None:raise RuntimeErrorCode('SECRET_AUTHORIZATION_REQUIRED')
                     resolved=await asyncio.to_thread(self.secret_resolver.resolve,self.profile_id,requested)
+                    from .secret_provider import validate_worker_mounts
+                    await asyncio.to_thread(validate_worker_mounts,resolved,self.spec.user)
                     if channel and any(m.target==MOUNT_PATH or m.target.startswith(MOUNT_PATH+'/') or MOUNT_PATH.startswith(m.target.rstrip('/')+'/') for m in resolved):
                         raise RuntimeErrorCode('SECRET_TARGET_CONFLICT')
                     secret_mounts=secret_mounts+resolved

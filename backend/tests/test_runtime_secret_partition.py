@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import unittest
+from unittest.mock import patch
 
 import test_runtime_worker as fixtures
 from test_runtime_tool_invocations import RecordingTransport
@@ -31,12 +32,12 @@ class SecretPartitionTests(unittest.IsolatedAsyncioTestCase):
     asyncSetUp=fixtures.WorkerTests.asyncSetUp
     asyncTearDown=fixtures.WorkerTests.asyncTearDown
 
-    async def prepare(self,worker_refs=None,*,channel=True,spec=None):
-        refs=[{'ref':name,'version':'v1','target':'/run/secrets/'+name} for name in ('model','gateway')]
+    async def prepare(self,worker_refs=None,*,channel=True,spec=None,version='v1'):
+        refs=[{'ref':name,'version':version,'target':'/run/secrets/'+name} for name in ('model','gateway')]
         channel_policy={'tools':{'search':'search'}}
         if worker_refs is not None:channel_policy['worker_secret_refs']=worker_refs
         self.spec=spec or LaunchSpec('test-image',('test-command',),user=str(os.getuid())+':'+str(os.getgid()))
-        if channel:self.spec=replace(self.spec,environment={POLICY_ENV:json.dumps(channel_policy)})
+        if channel:self.spec=replace(self.spec,environment={**self.spec.environment,POLICY_ENV:json.dumps(channel_policy)})
         self.policy,_=policy_fixture(self.root,'test-profile',self.spec,refs)
         reg=dict(enabled=True,transport='mcp-http',url='http://127.0.0.1:19999/mcp',name='search',
             approval_required=True,input_schema={'type':'object'},result_schema={'type':'object'},credential_ref=refs[1])
@@ -50,7 +51,7 @@ class SecretPartitionTests(unittest.IsolatedAsyncioTestCase):
         self.values={name:'synthetic-'+name+'-private-value' for name in ('model','gateway')}
         for name,value in self.values.items():
             path=self.root/name;path.write_text(value);path.chmod(0o600)
-            secrets[name]=dict(state='active',scope=self.scope,profiles=['test-profile'],version='v1',
+            secrets[name]=dict(state='active',scope=self.scope,profiles=['test-profile'],version=version,
                 path=str(path),sha256=hashlib.sha256(value.encode()).hexdigest())
         secret_file=self.root/'secrets.json';secret_file.write_text(json.dumps({'version':1,'secrets':secrets}))
         self.resolver=FileSecretMounts(secret_file,self.scope)
@@ -97,6 +98,26 @@ class SecretPartitionTests(unittest.IsolatedAsyncioTestCase):
         result=await self.worker(adapter).once()
         self.assertEqual(result['state'],'succeeded')
         self.assertEqual({m.target for m in adapter.spec.mounts},{r['target'] for r in self.refs})
+
+    async def test_secret_service_recovers_original_run_without_replaying_launched_work(self):
+        from app.runtime.database import RuntimeErrorCode
+        from app.runtime.fault_schema import plans,circuits
+        from app.runtime.faults import POLICY_ENV as RECOVERY_ENV
+        recovery=dict(resource='model:fixture',replay_safe=False,max_attempts=2,base_delay=1,max_delay=2,quota_delay=2)
+        spec=LaunchSpec('test-image',('test-command',),user=f'{os.getuid()}:{os.getgid()}',environment={RECOVERY_ENV:json.dumps(recovery)})
+        await self.prepare(['model'],spec=spec);adapter=CapturingAdapter();worker=self.worker(adapter)
+        with patch.object(self.resolver,'resolve',side_effect=RuntimeErrorCode('SECRET_PROVIDER_UNAVAILABLE')):
+            first=await worker.once()
+        self.assertEqual(first['state'],'retry_wait',first.get('recovery'));self.assertEqual(adapter.started,0)
+        self.assertEqual(first['recovery']['category'],'secret_service')
+        self.assertEqual(first['recovery']['reason'],'RETRY_UNLAUNCHED')
+        async with self.db.transaction(self.scope) as connection:
+            await connection.execute(plans.update().where(plans.c.scope==self.scope).values(retry_at=0))
+            await connection.execute(circuits.update().where(circuits.c.scope==self.scope).values(retry_at=0))
+        result=await worker.once()
+        self.assertEqual(result['state'],'succeeded');self.assertEqual(result['id'],first['id'])
+        self.assertEqual(len(result['attempts']),2);self.assertEqual(adapter.started,1)
+        self.assertEqual(result['recovery']['circuit']['state'],'closed')
 
     @unittest.skipUnless(os.environ.get('DIOS_TEST_SECRET_DOCKER')=='1','explicit Docker secret isolation qualification')
     async def test_real_container_reads_only_model_secret(self):

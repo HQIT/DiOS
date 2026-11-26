@@ -44,6 +44,16 @@ def validate_reference(value):
 class OpenBaoSecrets:
     def __init__(self,config,*,transport=None):self.config=config;self.transport=transport
     def read(self,reference):return asyncio.run(self.read_async(reference))
+    async def read_bytes_async(self,reference):
+        """Exact UTF-8 field bytes for a native Agent-rendered, versioned file."""
+        try:
+            value=(await self.read_record_async(reference))[reference['field']]
+            if not isinstance(value,str):raise ValueError('secret value')
+            raw=value.encode('utf-8')
+            if not 1<=len(raw)<=16384:raise ValueError('secret size')
+            return raw
+        except RuntimeErrorCode:raise
+        except (ValueError,TypeError,KeyError,UnicodeError):raise RuntimeErrorCode('AUTH_PROVIDER_UNAVAILABLE') from None
     async def read_async(self,reference):
         try:
             result=(await self.read_record_async(reference))[reference['field']]

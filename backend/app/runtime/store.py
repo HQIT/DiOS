@@ -538,7 +538,7 @@ class RuntimeStore:
             if a['state']!='claimed' or a['process_instance'] or a['process_id'] or a['session_id'] or a['remote']:
                 raise RuntimeErrorCode('LAUNCH_ALREADY_STARTED')
             state,error='failed',{'code':code}
-            if retry_unlaunched:
+            if retry_unlaunched or code=='SECRET_PROVIDER_UNAVAILABLE':
                 from .faults import failed
                 state,error=await failed(c,self,run,a,code,now,retry_unlaunched=True,retry_after=retry_after)
             await c.execute(attempts.update().where(attempts.c.id==a['id']).values(

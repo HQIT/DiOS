@@ -526,6 +526,7 @@ export const messages: Record<string, string> = {
   "失败原因：": "Failure reason:",
   "故障分类：": "Fault category:",
   "网络故障": "Network failure",
+  "凭据服务不可用": "Secret service unavailable",
   "服务限流": "Rate limited",
   "额度不足": "Quota exhausted",
   "会话创建失败": "Session creation failed",

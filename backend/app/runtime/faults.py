@@ -20,8 +20,8 @@ CATEGORIES={
     'ACP_REQUEST_FAILED':'unknown','ACP_FRAME_INVALID':'format','ACP_FRAME_TOO_LARGE':'format',
     'WORKER_GATEWAY_OBSERVATION_UNAVAILABLE':'control_connection','WORK_PREFLIGHT_UNAVAILABLE':'configuration',
 }
-TRANSIENT={'network','rate_limit','quota','session','process'}
-SHARED={'network','rate_limit','quota','session'}
+TRANSIENT={'network','rate_limit','quota','session','process','secret_service'}
+SHARED={'network','rate_limit','quota','session','secret_service'}
 
 def policy(value):
     if value is None:return None
@@ -39,6 +39,7 @@ def policy(value):
 
 def from_spec(spec):return policy(json.loads(spec.environment[POLICY_ENV])) if POLICY_ENV in spec.environment else None
 def category(code):
+    if code=='SECRET_PROVIDER_UNAVAILABLE':return 'secret_service'
     if code.startswith('COMPATIBILITY_'):return 'configuration'
     if code.startswith(('AUTH_','WORK_AUTHORIZATION','EXECUTION_GRANT','WORK_POLICY','TOOL_','SECRET_')):return 'authorization'
     return CATEGORIES.get(code,'unknown')

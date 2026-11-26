@@ -1312,10 +1312,12 @@
       },
       "secret_delivery": {
         "work_item": "K03-1.02",
-        "status": "in_progress",
-        "evidence": "docs/design/evidence/secret-partition-20261126.json",
-        "delivered": "本地/远程 Worker 凭据分区已统一并部署，网关凭据不进入 Agent 容器。",
-        "remaining": "Linux Secret 文件属主/权限、固定版本服务注入与轮换交付。"
+        "status": "engineering_verified_and_development_deployed",
+        "evidence": "docs/design/evidence/secret-service-delivery-20261126.json",
+        "remaining": [
+          "K03-1.03",
+          "K03-1.04"
+        ]
       }
     },
     {
@@ -3151,10 +3153,11 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K03-1.02",
-    "next_delivery": "K03-1.02",
+    "next_work_item": "K03-2.02",
+    "next_delivery": "K03-2.02",
     "next_delivery_order": [
-      "K03-1.02",
+      "K03-2.02",
+      "K03-3.01",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -3176,6 +3179,6 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "K03-1.01 已补齐默认期限和原生轮换资格；按 W2 身份能力顺序补齐 Linux Secret 服务交付。W1 源端隔离决策仍待定，继续已就绪能力工作。"
+    "next_selection_reason": "身份续期与 Linux Secret 交付已完成，继续就绪的 K03-2.02 E2AG 策略/存储替换及故障资格，复用 Cursor 首条路径证据；源端隔离决策仍待定。"
   }
 }
