@@ -152,6 +152,67 @@ class ApplicationContractTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual((await self.console.list())["items"], [])
 
+    async def test_confirmed_cancellation_is_an_execution_requirement(self):
+        await self.setup_contract()
+        required = copy.deepcopy(self.contract)
+        required["requires"]["confirmed-cancellation"] = ">=1,<2"
+        managed = compatibility(self.raw, required)
+        self.assertTrue(managed["compatible"])
+        self.assertEqual(managed["interfaces"]["confirmed-cancellation"], "1.0")
+        discovery = await self.client.get(
+            "/api/os/runtime/contracts", headers=self.headers
+        )
+        capabilities = discovery.json()["execution_interfaces"]
+        self.assertIn("confirmed-cancellation", capabilities["jsonl-v1"])
+        self.assertNotIn("confirmed-cancellation", capabilities["a2a-0.3-jsonrpc"])
+        remote = copy.deepcopy(self.raw)
+        remote.pop("launch")
+        remote.update(
+            bridge="a2a-0.3-jsonrpc",
+            remote={
+                "endpoint": "https://endpoint.example/rpc",
+                "card_url": "https://endpoint.example/card",
+                "skill_id": "work",
+                "artifact_prefix": "https://endpoint.example/artifacts/",
+            },
+        )
+        remote["application_contract"]["requires"].pop("worker-jsonl")
+        remote["application_contract"]["requires"]["a2a-jsonrpc"] = ">=0.3,<0.4"
+        baseline = (
+            await Revisions(self.db, "one").create(
+                "remote-app", compile_profile(remote), actor="operator"
+            )
+        )["revision"]["id"]
+        remote_required = copy.deepcopy(remote["application_contract"])
+        remote_required["requires"]["confirmed-cancellation"] = ">=1,<2"
+        response = await self.client.post(
+            "/api/os/runtime/applications/compatibility",
+            headers=self.headers,
+            json={"revision_ref": baseline, "contract": remote_required},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertFalse(response.json()["compatible"])
+        self.assertEqual(
+            response.json()["issues"],
+            [
+                {
+                    "code": "APPLICATION_INTERFACE_UNSUPPORTED",
+                    "interface": "confirmed-cancellation",
+                    "required": ">=1,<2",
+                    "available": None,
+                }
+            ],
+        )
+        remote["application_contract"] = remote_required
+        # Neither absent support nor an unverified self-declaration can grant it.
+        for declared in (False, True, None):
+            remote["capabilities"] = {"cancel": declared}
+            with self.assertRaisesRegex(
+                RuntimeErrorCode, "APPLICATION_INTERFACE_UNSUPPORTED"
+            ):
+                compile_profile(remote)
+        self.assertEqual((await self.console.list())["items"], [])
+
     async def test_version_and_requirement_errors_are_bounded(self):
         await self.setup_contract()
         for field, value in [

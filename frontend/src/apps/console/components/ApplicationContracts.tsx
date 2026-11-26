@@ -7,6 +7,7 @@ import "./configuration-studio.css";
 export default function ApplicationContracts() {
   const {locale} = usePreferences(); const l = (zh: string, en: string) => locale === "zh" ? zh : en;
   const [rows, setRows] = useState<ApplicationProfile[]>([]), [platform, setPlatform] = useState<Record<string, string>>({});
+  const [executionInterfaces, setExecutionInterfaces] = useState<Record<string, Record<string, string>>>({});
   const [refresh, setRefresh] = useState(0), [error, setError] = useState("");
   const [revision, setRevision] = useState(""), [draft, setDraft] = useState("");
   const [report, setReport] = useState<ApplicationCompatibility | null>(null), [busy, setBusy] = useState(false);
@@ -14,7 +15,7 @@ export default function ApplicationContracts() {
   useEffect(() => {
     const controller = new AbortController();
     Promise.all([applicationApi.list(controller.signal), applicationApi.platform(controller.signal)]).then(([page, contract]) => {
-      if (!controller.signal.aborted) {setRows(page.items); setPlatform(contract.interfaces); setError("");}
+      if (!controller.signal.aborted) {setRows(page.items); setPlatform(contract.interfaces); setExecutionInterfaces(contract.execution_interfaces ?? {}); setError("");}
     }).catch(err => {if (!controller.signal.aborted) setError(err instanceof RuntimeApiError ? err.code : "APPLICATION_CATALOG_UNAVAILABLE");});
     return () => controller.abort();
   }, [refresh]);
@@ -37,6 +38,10 @@ export default function ApplicationContracts() {
     <header><div><h2>{l("独立应用接入", "Independent applications")}</h2><p>{l("应用声明所需接口与输入、结果契约；DiOS 执行通用兼容校验和治理。", "Applications declare interface, input and result requirements; DiOS validates compatibility and governance.")}</p></div><button onClick={() => setRefresh(x => x + 1)}>{l("刷新登记", "Refresh registrations")}</button></header>
     {error && <p role="alert" className="studio-error">{error}</p>}
     <section className="studio-assistant"><h3>{l("平台接口版本", "Platform interfaces")}</h3><div className="studio-toolbar">{Object.entries(platform).map(([name, version]) => <span key={name}><code>{name}</code> · {version}</span>)}</div></section>
+    <section className="studio-assistant"><h3>{l("执行能力", "Execution capabilities")}</h3>
+      {Object.entries(executionInterfaces).map(([bridge, interfaces]) => <div key={bridge}><h4><code>{bridge}</code></h4><div className="studio-toolbar">{Object.entries(interfaces).map(([name, version]) => <span key={name}><code>{name}</code> · {version}</span>)}</div></div>)}
+      <p>{l("需要可确认取消的应用声明 confirmed-cancellation。托管执行依据进程退出确认取消；当前远端 A2A 接入提供取消请求，尚未具备这项保障。", "Applications requiring confirmed cancellation declare confirmed-cancellation. Managed execution confirms process exit; current remote A2A integration offers cancellation requests without this assurance.")}</p>
+    </section>
     <section className="studio-assistant"><h3>{l("已启用的应用登记", "Enabled application registrations")}</h3>{!rows.length && <p>{l("当前没有声明应用契约的启用版本。", "No enabled revision declares an application contract.")}</p>}
       {rows.map(row => <article className="studio-release-detail" key={row.id}><h4>{row.application.id} · {row.application.version}</h4><p>{row.name} · {row.id} · {row.governance}</p><p>{l("输入类型", "Input kind")}: <code>{row.input_kind}</code></p><p>Revision: <code>{row.revision_ref}</code></p><p>{l("部署", "Deployment")}: {row.deployment_id || "—"} · {row.deployment_state || "—"}</p><button disabled={busy} onClick={() => {setRevision(row.revision_ref); setDraft(""); check(row.revision_ref);}}>{l("检查登记兼容性", "Check registered compatibility")}</button></article>)}
     </section>

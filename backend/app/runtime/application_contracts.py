@@ -17,6 +17,10 @@ INTERFACES = {
     "e2ag-work": "1.0",
     "revision-deployment": "1.0",
 }
+EXECUTION_INTERFACES = {
+    "jsonl-v1": {"worker-jsonl": "1.0", "confirmed-cancellation": "1.0"},
+    "a2a-0.3-jsonrpc": {"a2a-jsonrpc": "0.3"},
+}
 NAME = re.compile(r"[a-z0-9][a-z0-9.-]{0,79}\Z")
 SHA = re.compile(r"sha256:[0-9a-f]{64}\Z")
 
@@ -25,6 +29,7 @@ def description():
     return {
         "contract_version": API_VERSION,
         "interfaces": dict(INTERFACES),
+        "execution_interfaces": {k: dict(v) for k, v in EXECUTION_INTERFACES.items()},
         "events": {
             "version": "1.0",
             "transport": "task-history",
@@ -112,13 +117,9 @@ def compatibility(raw, contract=None):
         raw.get("application_contract") if contract is None else contract
     )
     registered = registration(raw.get("console", {}))
-    actual = dict(INTERFACES)
-    if raw.get("bridge") == "jsonl-v1":
-        actual["worker-jsonl"] = "1.0"
-        if raw.get("tool_channel") is not None:
-            actual["governed-tool-channel"] = "1.0"
-    elif raw.get("bridge") == "a2a-0.3-jsonrpc":
-        actual["a2a-jsonrpc"] = "0.3"
+    actual = dict(INTERFACES) | EXECUTION_INTERFACES.get(raw.get("bridge"), {})
+    if raw.get("bridge") == "jsonl-v1" and raw.get("tool_channel") is not None:
+        actual["governed-tool-channel"] = "1.0"
     if raw.get("governance", {}).get("mode") != "e2ag":
         actual.pop("e2ag-work")
     issues = []

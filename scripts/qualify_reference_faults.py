@@ -133,8 +133,16 @@ def main():
         "--list", action="store_true", help="validate selectors without execution"
     )
     parser.add_argument(
-        "--cases", nargs="+", choices=[f"R{i:02}" for i in range(1, 19)],
+        "--cases",
+        nargs="+",
+        choices=[f"R{i:02}" for i in range(1, 19)],
         help="run only affected scenarios; unselected cases remain not run in this report",
+    )
+    parser.add_argument(
+        "--governance",
+        nargs="+",
+        choices=[f"G{i:02}" for i in range(1, 7)],
+        help="select shared governance scenarios independently of fault cases",
     )
     args = parser.parse_args()
     manifest = json.loads(MANIFEST.read_text())
@@ -149,9 +157,17 @@ def main():
     for case in manifest["cases"]:
         row = rows[case["id"]]
         case.update(title=row[1], injection=row[2], assertions=row[3])
-    selected = [c for c in manifest["cases"] if not args.cases or c["id"] in args.cases]
+    governance = manifest["governance_cases"]
+    assert [c["id"] for c in governance] == [f"G{i:02}" for i in range(1, 7)]
+    all_cases = not args.cases and not args.governance
+    selected = [
+        c for c in manifest["cases"] if all_cases or c["id"] in (args.cases or [])
+    ]
+    selected_governance = [
+        c for c in governance if all_cases or c["id"] in (args.governance or [])
+    ]
     selectors = sorted(
-        {s for c in selected for s in c["tests"]}
+        {s for c in selected + selected_governance for s in c["tests"]}
         | set(manifest["harness_tests"])
     )
     loader = unittest.TestLoader()
@@ -164,6 +180,7 @@ def main():
                 {
                     "scenarios": len(rows),
                     "selected_cases": [c["id"] for c in selected],
+                    "selected_governance": [c["id"] for c in selected_governance],
                     "unique_tests": len(selectors),
                     "selectors": selectors,
                 },
@@ -200,6 +217,9 @@ def main():
     cases = [
         dict(c, status=scenario_status(c, result.outcomes)) for c in manifest["cases"]
     ]
+    governance_results = [
+        dict(c, status=scenario_status(c, result.outcomes)) for c in governance
+    ]
     components_passed = (
         result.wasSuccessful()
         and stable
@@ -218,17 +238,33 @@ def main():
         "materialized_review": materialized,
         "tests_run": result.testsRun,
         "selected_cases": [c["id"] for c in selected],
+        "selected_governance": [c["id"] for c in selected_governance],
         "outcomes": result.outcomes,
         "test_seconds": result.elapsed,
         "components_passed": components_passed,
         "cases": cases,
         "scenario_counts": dict(Counter(c["status"] for c in cases)),
-        "cross_agent_remaining": manifest["cross_agent_remaining"],
+        "governance_cases": governance_results,
+        "cross_agent_remaining": [
+            c for c in governance_results if c["status"] != "passed"
+        ],
         "complete": components_passed
         and all(c["status"] == "passed" for c in cases)
-        and not manifest["cross_agent_remaining"],
-        "observations": [row for name in ("test_reference_faults", "test_reference_native_acp", "test_reference_remote_consistency", "test_reference_network", "test_reference_upgrade", "test_reference_unattended", "test_reference_observation")
-                         if name in sys.modules for row in sys.modules[name].OBSERVATIONS],
+        and all(c["status"] == "passed" for c in governance_results),
+        "observations": [
+            row
+            for name in (
+                "test_reference_faults",
+                "test_reference_native_acp",
+                "test_reference_remote_consistency",
+                "test_reference_network",
+                "test_reference_upgrade",
+                "test_reference_unattended",
+                "test_reference_observation",
+            )
+            if name in sys.modules
+            for row in sys.modules[name].OBSERVATIONS
+        ],
     }
     target = args.output / "result.json"
     target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")

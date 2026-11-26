@@ -1,0 +1,241 @@
+{
+  "work_item": "F03-2.02",
+  "governance_passed": [
+    "G01",
+    "G02",
+    "G04"
+  ],
+  "governance_remaining": [
+    "G03",
+    "G05",
+    "G06"
+  ],
+  "new_qualification": {
+    "base_commit": "2f4d532a6a6a477be5939620c9e801c87881b598",
+    "finished_at": "2026-11-26T13:03:37.476818+00:00",
+    "tests_run": 4,
+    "test_seconds": {
+      "test_application_contracts.ApplicationContractTests.test_confirmed_cancellation_is_an_execution_requirement": 0.8048586619988782,
+      "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": 0.003149740005028434,
+      "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt": 11.963524727994809,
+      "test_runtime_worker.DockerWorkerTests.test_docker_cancel_confirms_exit_and_retains_logs": 1.9727151820115978
+    },
+    "components_passed": true,
+    "sources_unchanged": true,
+    "selected_governance": [
+      "G01",
+      "G04"
+    ],
+    "outcomes": {
+      "test_application_contracts.ApplicationContractTests.test_confirmed_cancellation_is_an_execution_requirement": "passed",
+      "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": "passed",
+      "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt": "passed",
+      "test_runtime_worker.DockerWorkerTests.test_docker_cancel_confirms_exit_and_retains_logs": "passed"
+    }
+  },
+  "new_governance_results": [
+    {
+      "case": "cancel=false",
+      "owners": [
+        56,
+        58
+      ],
+      "required": "需要可靠取消的工作按探测能力拒绝准入",
+      "id": "G01",
+      "tests": [
+        "test_application_contracts.ApplicationContractTests.test_confirmed_cancellation_is_an_execution_requirement",
+        "test_runtime_worker.DockerWorkerTests.test_docker_cancel_confirms_exit_and_retains_logs"
+      ],
+      "gaps": [],
+      "status": "passed"
+    },
+    {
+      "case": "callback-replay",
+      "owners": [
+        30,
+        32,
+        56
+      ],
+      "required": "同 callback id 十次乱序重放，一次推进及旧版本隔离",
+      "id": "G04",
+      "tests": [
+        "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt"
+      ],
+      "gaps": [],
+      "status": "passed"
+    }
+  ],
+  "observations": [
+    {
+      "case": "R10",
+      "governance_case": "callback-replay",
+      "callback_id": "32130a43cfa7bda00fe453e6b62a5ed1cb456b7ea828ecb7c37f5935c857f426",
+      "callback_sequence": 4,
+      "identical_callback_replays": 10,
+      "older_callback_deliveries": 10,
+      "original_phase_events": 1,
+      "active_version_unchanged": true,
+      "run_id": "04cc93c4-88d2-4294-b6cd-3b9b4f8cda68",
+      "old_attempt": "bf63b5f8-e7d9-4e54-85bd-1d8d9f3d54db",
+      "current_attempt": "9f7e5218-ee36-4ef2-90d3-52f163401408",
+      "epochs": [
+        1,
+        2
+      ],
+      "replays": 10,
+      "quarantined_records": 2,
+      "quarantine_page": {
+        "schema_version": 1,
+        "root": {
+          "id": "04cc93c4-88d2-4294-b6cd-3b9b4f8cda68",
+          "state": "succeeded",
+          "version": 21,
+          "work_authorization_ref": "wa-62881f2c8e2a285685e189991436ffc435ec0d27b63fab3f838be728130b",
+          "execution": {
+            "profile_id": "account-a",
+            "profile_digest": "b304171e7b693961b4bc3835ebe760db50b8cc6aec0435dc7aee0974e90f5087",
+            "revision_ref": null,
+            "deployment_id": null,
+            "status": "not_recorded",
+            "dependencies": {}
+          }
+        },
+        "section": "quarantine",
+        "observed_at": 1795698215.4769912,
+        "items": [
+          {
+            "id": "8605ad753e4de6004af42d8d861d63c4c43165714f47ef73b5b878777bc60be8",
+            "attempt_id": "bf63b5f8-e7d9-4e54-85bd-1d8d9f3d54db",
+            "state": "quarantined",
+            "kind": "quarantine",
+            "reason": "STALE_OWNER",
+            "epoch": 1,
+            "evidence_level": "remote_reported",
+            "values": {
+              "method": "report",
+              "message_digest": "8b1d656092c83d8e3418ff1e6cf875468aa7d54ebc174784b96c7cafcbfb8a99",
+              "epoch": 1,
+              "current_epoch": 2,
+              "current_attempt_id": "9f7e5218-ee36-4ef2-90d3-52f163401408",
+              "payload": {
+                "output": true,
+                "output_excerpt": "旧所有者迟到输出🙂",
+                "output_observed_at": 1795698213.0948431,
+                "phase": "streaming",
+                "sequence": 99,
+                "session_id": "cee48b4d-8a05-42c8-9762-b4384f2660e5"
+              },
+              "accepted_as_result": false
+            },
+            "created_at": 1795698213.1070182
+          },
+          {
+            "id": "1e61a28f04095ee8f5c15ebd235dda14244cc1da040801ee1e14e3569ae98c1d",
+            "attempt_id": "bf63b5f8-e7d9-4e54-85bd-1d8d9f3d54db",
+            "state": "quarantined",
+            "kind": "quarantine",
+            "reason": "STALE_OWNER",
+            "epoch": 1,
+            "evidence_level": "remote_reported",
+            "values": {
+              "method": "complete",
+              "message_digest": "f223450bdae37a8f35649b1257aabbd3e27225826e137d6c254813ad5cf1271b",
+              "epoch": 1,
+              "current_epoch": 2,
+              "current_attempt_id": "9f7e5218-ee36-4ef2-90d3-52f163401408",
+              "payload": {
+                "key": "dd2ed0ab61565b0c55b9869efb604116beb849b09da038a8036797983060e64c",
+                "size": 142,
+                "upload_id": "1379cc8ef433ac55bfacc3d821bf6615cf86913a2a5ce395d7401feda6c0bd00"
+              },
+              "accepted_as_result": false
+            },
+            "created_at": 1795698213.661994
+          }
+        ],
+        "next_cursor": null,
+        "access": "granted",
+        "coverage": {
+          "scope": "persisted_platform_relations",
+          "agent_internal": "not_observed",
+          "page": "end",
+          "records": "present",
+          "source_usage": "explicit_relations_only",
+          "estimates": "not_synthesized"
+        }
+      },
+      "run_unchanged_on_late_write": true,
+      "distinct_worker_ids": [
+        "qualified:b884238bc92945e0943feb8e5884723c",
+        "qualified:f502f8661e7f432e9267123fe7b3f0f6"
+      ],
+      "forged_sender_rejected": true,
+      "final_state": "succeeded"
+    }
+  ],
+  "source_sha256": {
+    "backend/app/runtime/application_contracts.py": "4a70f9649b3907855f4180b09850b0df8688eaa24f3d26b1b0d09d6872894a6d",
+    "backend/tests/test_application_contracts.py": "8d77bd6b4196f25d55b09539943e8f40849cd7855084543baa192bf19c19e51d",
+    "backend/tests/test_reference_remote_consistency.py": "6dd8ba182587a08822cf39c818628180df5868c1bf3b07260fbaccb374b9b8f8",
+    "backend/tests/test_runtime_worker.py": "3cadf539acb33d3c2e642118e4d4f8a16c4c50b6e1305e3fe61651b103d21302",
+    "scripts/qualify_reference_faults.py": "ea5b24b23032373269a754996a1cb2bf3d6ae9622dd282fc82145bb308206cc9",
+    "docs/design/fixtures/reference-faults.json": "6e0b5aa87a005d99bb233b4c8e14f5a037f30bab87c89ebcdfec5eb6c6933c70"
+  },
+  "reused_G02": {
+    "source": "docs/design/evidence/observation-recovery-20261126.json",
+    "sha256": "5e7b343535a3246cb6b628b48f718ee6de3dc8d15df5e2eac14247b3f2ff800b",
+    "unchanged_sources": [
+      "backend/app/runtime/docker_adapter.py",
+      "backend/app/runtime/worker.py",
+      "backend/tests/test_reference_observation.py"
+    ],
+    "test": "test_reference_observation.ObservationQualificationTests.test_query_timeout_activity_and_report_outage",
+    "executed_this_batch": false
+  },
+  "deployment": {
+    "frontend_image": "sha256:c2b7ea8b9c82ef1dc845e721ef18bd6fcf230139a3a60b1f1a5b078e84342c8c",
+    "previous_frontend_image": "sha256:01757c01be32994a99db928fef7f709db098eeb18518c0f881107681f9819e56",
+    "backend_image": "sha256:eb90dc0e2e647aa596a80a042805bbf28873857a427d34149d62f10a2013f867",
+    "previous_backend_image": "sha256:7d5c24ea94f4fd4c05a22e4fcbd3f62bd4db8b0197b34af100f4e5da63f96bf5",
+    "api": "http://localhost:13481",
+    "console": "http://localhost:13482/dios/",
+    "health": "ok",
+    "mode": "restore_hold",
+    "cli_default_reads_configured_scope": true,
+    "source_deployments_unchanged": true
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "live-execution-interface-discovery-and-render",
+      "Chinese-locale",
+      "mobile-no-overflow",
+      "older-api-optional-field",
+      "discovery-error-visible",
+      "live-refresh-recovers"
+    ],
+    "page_errors": []
+  },
+  "cli": {
+    "passed": true,
+    "command": "application_contract.py platform",
+    "execution_interfaces": {
+      "jsonl-v1": {
+        "worker-jsonl": "1.0",
+        "confirmed-cancellation": "1.0"
+      },
+      "a2a-0.3-jsonrpc": {
+        "a2a-jsonrpc": "0.3"
+      }
+    }
+  },
+  "cumulative": {
+    "fault_scenarios_passed": 10,
+    "fault_scenarios_total": 18,
+    "governance_scenarios_passed": 3,
+    "governance_scenarios_total": 6,
+    "wbs_completed": 52,
+    "wbs_total": 79,
+    "complete": false
+  }
+}

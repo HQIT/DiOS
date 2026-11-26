@@ -83,6 +83,21 @@ R06 仍有供应商错误转换缺口。当前打包 Cursor 的 `processPrompt` 
 
 执行使用 `--cases R09` 及 `DIOS_TEST_DOCKER=1 DIOS_TEST_ACP_IMAGE=<当前桥接镜像>`。探测可用性与生命周期的区分参考 [Kubernetes 探针](https://kubernetes.io/docs/concepts/workloads/pods/probes/)，有界读取使用 [Docker SDK 的超时配置](https://docker-py.readthedocs.io/en/stable/client.html)。复用现有租约、E2AG、spool 和控制台状态。
 
+## 共同治理资格
+
+六项原共同治理要求以 G01—G06 固定编号，记录在 `reference-faults.json` 的 `governance_cases`。入口支持单独选择：
+
+```bash
+DIOS_TEST_DOCKER=1 backend/.venv/bin/python scripts/qualify_reference_faults.py \
+  --governance G01 G04 --output workspace/reference-governance-run
+```
+
+[共同治理证据](evidence/common-governance-20261126.json) 累计覆盖三项：G01 通过已有应用契约声明可确认取消要求，远端缺失能力时在准入前拒绝；G02 复用源码未变化的 R09 原生观测恢复证据；G04 重放同一真实远程回调十次，穿插十次旧阶段回调，Run 版本、Attempt 序号不重复推进，对应阶段事件仅一条。所有权切换后原有迟到结果隔离和来源审计仍通过。
+
+G03 待补齐撤权后实际检索与外发控制点组合；G05/G06 的 WorkItem、人工决定、复核和业务交接属于上层平台，底座提供稳定任务身份、取消、授权及结果关联。完整资格继续保留这些条件。
+
+每次报告分别记录本次结果和未满足条件；未选择的场景不计为本次通过。累计结果引用已有证据并校验其相关源码摘要。全量入口同时选择十八项故障与六项共同治理，退出码 0 要求全部满足。
+
 ## 底座与应用职责
 
 R14 使用隔离的 systemd user 服务运行生产 ACP bridge。依次移除 Git PATH、移除代理、配置不可达代理，分别得到依赖、代理配置与网络错误；前三次均未创建模型会话。恢复文件配置后，带认证的代理 HEAD 检查和一次合成 ACP 会话完成，journal 中没有注入凭据。测试入口设置 `DIOS_TEST_SYSTEMD=1 DIOS_TEST_DOCKER=1`，选择 `--cases R14`。预检配置与错误分类见 [Linux 后台配置](../../deploy/linux/README.md)。
@@ -93,7 +108,7 @@ R14 使用隔离的 systemd user 服务运行生产 ACP bridge。依次移除 Gi
 | 节点与交付 | R05 隔离节点重启；R14 Linux 后台环境恢复已通过 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
 | 静态评审应用 | R01 分支 SHA 水位、R08 证据待验证及覆盖账本、R15 只读业务配置、R16 上下文复用、R17 质量与导出统一口径 | #43/#59；底座提供任务、授权、工具、产物与统计接口 |
 | 旧系统接续 | R18 旧控制器兼容回滚、分区独占及历史身份 | #11/#60；需隔离源端和旧系统适配 |
-| 共同治理 | 能力缺失、断连、撤销、乱序回调、人工接管复核及实现交接 | 原验收列出的 #30/#34/#35/#37/#38/#40/#56/#58 |
+| 共同治理 | G01 能力缺失、G02 断连、G04 回调已通过；G03 撤销组合、G05 人工接管复核、G06 实现交接待补齐 | 原验收列出的 #30/#34/#35/#37/#38/#40/#56/#58；平台承接 WorkItem 语义 |
 
 客户业务语义由独立应用承接；DiOS 提供通用能力。原生进程证据与物理跨主机证据分别记录。现有生产评审调度、历史和活跃任务保持运行。
 
@@ -105,4 +120,4 @@ ACP 使用标准 [stdio JSON-RPC 传输](https://agentclientprotocol.com/protoco
 
 迟到报告采用 [AWS 死信队列](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html) 的隔离与排查思路；进度与详情沿用 [Azure 队列负载调节](https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling) 的生产和消费解耦原则，复用现有 SQLite/Provider、离线 spool 和分块协议。预览网络采用 [Docker Compose 自定义网络](https://docs.docker.com/compose/how-tos/networking/) 的服务分区方式。
 
-最小交付 CI 已通过；下一批补齐共同治理组合，R06 继续保留供应商错误来源缺口。节点、应用和旧系统迁移断言按对应责任项推进。
+最小交付 CI 已通过；下一批补齐 G03 撤权后的实际检索与外发组合，R06 继续保留供应商错误来源缺口。节点、应用和旧系统迁移断言按对应责任项推进。

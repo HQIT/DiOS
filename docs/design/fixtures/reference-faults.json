@@ -3,141 +3,340 @@
   "requirements": "docs/design/reference-scenario-acceptance.md",
   "input": "docs/design/fixtures/reference-scenarios.json",
   "scope": "Linux/WSL, isolated synthetic fixtures; full scenarios require every original assertion",
-  "harness_tests": ["test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario"],
+  "harness_tests": [
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario"
+  ],
   "cases": [
     {
       "id": "R01",
-      "tests": ["test_run_schedules.RunScheduleTests.test_multiple_instances_and_restart_preserve_one_run", "test_run_schedules.RunScheduleTests.test_expired_owner_is_fenced_at_actual_submission", "test_run_schedules.RunScheduleTests.test_unknown_and_queued_runs_coalesce_without_replacement"],
+      "tests": [
+        "test_run_schedules.RunScheduleTests.test_multiple_instances_and_restart_preserve_one_run",
+        "test_run_schedules.RunScheduleTests.test_expired_owner_is_fenced_at_actual_submission",
+        "test_run_schedules.RunScheduleTests.test_unknown_and_queued_runs_coalesce_without_replacement"
+      ],
       "covered": "持久调度幂等、过期规划者隔离、未结束工作合并",
-      "gaps": ["需以仓库/分支/真实 SHA 连续提交十次及新 SHA，验证业务待处理水位"],
-      "owners": [30, 59]
+      "gaps": [
+        "需以仓库/分支/真实 SHA 连续提交十次及新 SHA，验证业务待处理水位"
+      ],
+      "owners": [
+        30,
+        59
+      ]
     },
     {
       "id": "R02",
-      "tests": ["test_reference_faults.NativeReferenceFaults.test_three_live_workers_then_one_stops"],
+      "tests": [
+        "test_reference_faults.NativeReferenceFaults.test_three_live_workers_then_one_stops"
+      ],
       "covered": "三个 Linux Worker PID、boot_id、容器进程与会话绑定；停止一路，实测并发从三降二",
       "gaps": [],
-      "owners": [10, 30, 58]
+      "owners": [
+        10,
+        30,
+        58
+      ]
     },
     {
       "id": "R03",
-      "tests": ["test_reference_network.NativeNetworkTests.test_proxy_disconnected_for_sixty_seconds_preserves_attempt_and_output"],
+      "tests": [
+        "test_reference_network.NativeNetworkTests.test_proxy_disconnected_for_sixty_seconds_preserves_attempt_and_output"
+      ],
       "covered": "原生 Worker、生产 ACP Bridge 与合成 HTTP 模型流；Toxiproxy 首段后实际断开六十秒，持续续租、对账后不重派，原会话完成且部分输出留存",
       "gaps": [],
-      "owners": [30, 56]
+      "owners": [
+        30,
+        56
+      ]
     },
     {
       "id": "R04",
-      "tests": ["test_reference_native_acp.NativeAcpReferenceTests.test_pending_rpc_sigkill_retains_output_and_same_worker_continues"],
+      "tests": [
+        "test_reference_native_acp.NativeAcpReferenceTests.test_pending_rpc_sigkill_retains_output_and_same_worker_continues"
+      ],
       "covered": "原生 ACP session/prompt 未完成时 SIGKILL；后代继承管道，独立退出监测有界回收；保留部分输出、原 Attempt/E2AG Grant，同一 Worker 继续下一项",
       "gaps": [],
-      "owners": [10, 30, 56]
+      "owners": [
+        10,
+        30,
+        56
+      ]
     },
     {
       "id": "R05",
-      "tests": ["test_runtime_worker.DockerWorkerTests.test_docker_worker_loss_retains_live_container_and_never_double_dispatches", "test_runtime_remote_control.RemoteControlTests.test_fenced_epoch_never_accepts_old_report"],
+      "tests": [
+        "test_runtime_worker.DockerWorkerTests.test_docker_worker_loss_retains_live_container_and_never_double_dispatches",
+        "test_runtime_remote_control.RemoteControlTests.test_fenced_epoch_never_accepts_old_report"
+      ],
       "covered": "实际 Worker 进程丢失时保留存活容器并对账；旧租约写入隔离",
-      "gaps": ["需可重启隔离节点，验证真实 boot_id 变化与每项任务恢复；进程重启不覆盖此断言"],
-      "owners": [30, 32, 58]
+      "gaps": [
+        "需可重启隔离节点，验证真实 boot_id 变化与每项任务恢复；进程重启不覆盖此断言"
+      ],
+      "owners": [
+        30,
+        32,
+        58
+      ]
     },
     {
       "id": "R06",
-      "tests": ["test_remote_recovery_qualification.RemoteRecoveryQualificationTests.test_rate_limit_probe_then_three_remote_workers", "test_remote_recovery_qualification.RemoteRecoveryQualificationTests.test_quota_probe_then_three_remote_workers"],
+      "tests": [
+        "test_remote_recovery_qualification.RemoteRecoveryQualificationTests.test_rate_limit_probe_then_three_remote_workers",
+        "test_remote_recovery_qualification.RemoteRecoveryQualificationTests.test_quota_probe_then_three_remote_workers"
+      ],
       "covered": "真实 mTLS、独立 Worker 和容器上的分类故障、冷却、单路探测及三路恢复；故障由合成协议事件产生",
-      "gaps": ["需模型协议端点实际返回 HTTP 429/额度响应，覆盖供应商错误到统一分类的转换；当前打包 Cursor ACP 会将部分上游错误降为普通输出并返回 end_turn，需可核验的机器可读错误来源，普通文本不作为自动重试分类依据"],
-      "owners": [30, 56]
+      "gaps": [
+        "需模型协议端点实际返回 HTTP 429/额度响应，覆盖供应商错误到统一分类的转换；当前打包 Cursor ACP 会将部分上游错误降为普通输出并返回 end_turn，需可核验的机器可读错误来源，普通文本不作为自动重试分类依据"
+      ],
+      "owners": [
+        30,
+        56
+      ]
     },
     {
       "id": "R07",
-      "tests": ["test_reference_native_acp.NativeAcpReferenceTests.test_worker_sigkill_after_durable_result_recovers_without_prompt_replay"],
+      "tests": [
+        "test_reference_native_acp.NativeAcpReferenceTests.test_worker_sigkill_after_durable_result_recovers_without_prompt_replay"
+      ],
       "covered": "完整 ACP JSON 与退出收据持久化后、状态提交前 SIGKILL 独立 Worker；原 Run/Attempt/Session 经 E2AG 重新校验后恢复，协议端点 prompt 计数保持 1",
       "gaps": [],
-      "owners": [30, 32]
+      "owners": [
+        30,
+        32
+      ]
     },
     {
       "id": "R08",
-      "tests": ["test_runtime_combined_recovery.CombinedRecoveryTests.test_incomplete_output_after_chunk_loss_remains_failed", "test_application_results.ResultContractTests.test_missing_application_field_is_not_success_and_raw_output_retained"],
+      "tests": [
+        "test_runtime_combined_recovery.CombinedRecoveryTests.test_incomplete_output_after_chunk_loss_remains_failed",
+        "test_application_results.ResultContractTests.test_missing_application_field_is_not_success_and_raw_output_retained"
+      ],
       "covered": "截断与应用必填字段缺失不记成功，原始产物保留",
-      "gaps": ["评审应用须实现位置、可达条件缺失的待验证状态及覆盖账本断言"],
-      "owners": [30, 59]
+      "gaps": [
+        "评审应用须实现位置、可达条件缺失的待验证状态及覆盖账本断言"
+      ],
+      "owners": [
+        30,
+        59
+      ]
     },
     {
       "id": "R09",
-      "tests": ["test_reference_observation.ObservationQualificationTests.test_query_timeout_activity_and_report_outage", "test_runtime_observation_authority.ObservationAuthorityTests.test_policy_change_revalidated_during_query_outage", "test_runtime_observation_authority.ObservationAuthorityTests.test_revoke_stops_despite_query_outage", "test_runtime_observation_authority.ObservationAuthorityTests.test_process_deadline_still_enforced", "test_runtime_observation_authority.DockerObservationClassificationTests.test_only_read_transport_failures_are_retryable"],
+      "tests": [
+        "test_reference_observation.ObservationQualificationTests.test_query_timeout_activity_and_report_outage",
+        "test_runtime_observation_authority.ObservationAuthorityTests.test_policy_change_revalidated_during_query_outage",
+        "test_runtime_observation_authority.ObservationAuthorityTests.test_revoke_stops_despite_query_outage",
+        "test_runtime_observation_authority.ObservationAuthorityTests.test_process_deadline_still_enforced",
+        "test_runtime_observation_authority.DockerObservationClassificationTests.test_only_read_transport_failures_are_retryable"
+      ],
       "covered": "原生远程 Worker / ACP 会话持续活动，真实 Docker 查询超时；等待模型、观测过期及报告同步故障独立；原租约和 E2AG 复核继续，恢复后单次执行",
       "gaps": [],
-      "owners": [30, 46]
+      "owners": [
+        30,
+        46
+      ]
     },
     {
       "id": "R10",
-      "tests": ["test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt"],
+      "tests": [
+        "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt"
+      ],
       "covered": "原生 mTLS Worker 从 epoch=1 切换至 epoch=2；旧进度十次重放及旧结果保留到隔离审计，当前状态和水位不变；冒用旧 Worker 身份被拒绝",
       "gaps": [],
-      "owners": [30, 32]
+      "owners": [
+        30,
+        32
+      ]
     },
     {
       "id": "R11",
-      "tests": ["test_reference_remote_consistency.NativeRemoteConsistencyTests.test_detail_outage_preserves_independent_progress_watermark_and_resumes"],
+      "tests": [
+        "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_detail_outage_preserves_independent_progress_watermark_and_resumes"
+      ],
       "covered": "原生 Worker 同任务大详情停在 64 KB 时，小进度重复倒序投递保持高水位；详情确认字节与校验状态独立；故障恢复后续传并校验，原 Attempt/Session 保留",
       "gaps": [],
-      "owners": [32, 46]
+      "owners": [
+        32,
+        46
+      ]
     },
     {
       "id": "R12",
-      "tests": ["test_reference_faults.ByteReferenceFaults.test_exact_chunk_sizes_resume_after_lost_ack"],
+      "tests": [
+        "test_reference_faults.ByteReferenceFaults.test_exact_chunk_sizes_resume_after_lost_ack"
+      ],
       "covered": "原输入中文与表情按 1/2/3/7 字节传输，丢失确认后重建客户端，从服务端确认偏移续传；原始/压缩摘要独立",
       "gaps": [],
-      "owners": [32, 59]
+      "owners": [
+        32,
+        59
+      ]
     },
     {
       "id": "R13",
-      "tests": ["test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities", "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate"],
+      "tests": [
+        "test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities",
+        "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate"
+      ],
       "covered": "干净 Compose 实例中三路实际 ACP 会话自然排空；排空期间新提交明确拒绝，原排队任务保留；实际镜像切换与失败候选回退、备份校验、历史及产物保持，后台 Worker 使用安装 scope",
       "gaps": [],
-      "owners": [10, 30, 51]
+      "owners": [
+        10,
+        30,
+        51
+      ]
     },
     {
       "id": "R14",
-      "tests": ["test_runtime_process.SupervisorTests.test_missing_path_is_preflight_failure", "test_reference_unattended.PreflightSpecificationTests.test_invalid_specifications_fail_before_any_network", "test_reference_unattended.NativeUnattendedTests.test_service_dependency_proxy_repair_and_no_credential_logs"],
+      "tests": [
+        "test_runtime_process.SupervisorTests.test_missing_path_is_preflight_failure",
+        "test_reference_unattended.PreflightSpecificationTests.test_invalid_specifications_fail_before_any_network",
+        "test_reference_unattended.NativeUnattendedTests.test_service_dependency_proxy_repair_and_no_credential_logs"
+      ],
       "covered": "隔离 Linux systemd 服务中移除 Git PATH、移除代理及注入不可达代理；实际 ACP 启动链路在会话创建前明确拒绝，修复配置后单次执行成功，日志检查凭据无泄漏",
       "gaps": [],
-      "owners": [10, 51]
+      "owners": [
+        10,
+        51
+      ]
     },
     {
       "id": "R15",
-      "tests": ["test_runtime_execution_isolation.ProfileIsolationTests.test_native_escape_configurations_are_rejected", "test_runtime_tool_invocations.ToolInvocationTests.test_revoke_during_initialization_blocks_actual_tool_call"],
+      "tests": [
+        "test_runtime_execution_isolation.ProfileIsolationTests.test_native_escape_configurations_are_rejected",
+        "test_runtime_tool_invocations.ToolInvocationTests.test_revoke_during_initialization_blocks_actual_tool_call"
+      ],
       "covered": "执行配置拒绝逃逸；工具初始化期间撤销在实际控制点阻断",
-      "gaps": ["评审只读配置需逐项注入写源码、编译、包脚本、越权外发，并保存源码摘要与 Attempt 授权证据"],
-      "owners": [34, 58, 59]
+      "gaps": [
+        "评审只读配置需逐项注入写源码、编译、包脚本、越权外发，并保存源码摘要与 Attempt 授权证据"
+      ],
+      "owners": [
+        34,
+        58,
+        59
+      ]
     },
     {
       "id": "R16",
       "tests": [],
       "covered": "合成输入已包含相同代码不同调用上下文、手动包含过期分支及修复版本",
-      "gaps": ["评审应用的上下文复用、范围覆盖分母和分支版本账本尚需实现与联调"],
-      "owners": [59]
+      "gaps": [
+        "评审应用的上下文复用、范围覆盖分母和分支版本账本尚需实现与联调"
+      ],
+      "owners": [
+        59
+      ]
     },
     {
       "id": "R17",
       "tests": [],
       "covered": "合成缺陷/修复及调用上下文输入已固定；底座耗时报告按 #46 提供",
-      "gaps": ["应用混淆矩阵、覆盖率及统一 QuerySpec/水位的 UI、Excel、Markdown 尚需联调"],
-      "owners": [43, 59]
+      "gaps": [
+        "应用混淆矩阵、覆盖率及统一 QuerySpec/水位的 UI、Excel、Markdown 尚需联调"
+      ],
+      "owners": [
+        43,
+        59
+      ]
     },
     {
       "id": "R18",
-      "tests": ["test_installation_readiness.ReadinessTests.test_no_local_work_does_not_prove_source_isolation"],
+      "tests": [
+        "test_installation_readiness.ReadinessTests.test_no_local_work_does_not_prove_source_isolation"
+      ],
       "covered": "空本地队列不推断源端已隔离；保持恢复后的领取保护",
-      "gaps": ["需旧控制器适配和隔离测试分区，验证兼容/不兼容回滚、单所有者与历史身份"],
-      "owners": [11, 60]
+      "gaps": [
+        "需旧控制器适配和隔离测试分区，验证兼容/不兼容回滚、单所有者与历史身份"
+      ],
+      "owners": [
+        11,
+        60
+      ]
     }
   ],
-  "cross_agent_remaining": [
-    {"case": "cancel=false", "owners": [56, 58], "required": "需要可靠取消的工作按探测能力拒绝准入"},
-    {"case": "disconnect", "owners": [30, 56], "required": "按 R03 的原生路径验证"},
-    {"case": "revoke", "owners": [34, 35, 58], "required": "跨场景读取和外发的运行中撤销证据"},
-    {"case": "callback-replay", "owners": [30, 32, 56], "required": "同 callback id 十次乱序重放，一次推进及旧版本隔离"},
-    {"case": "human-takeover", "owners": [40, 58], "required": "人工决定与取消独立记录，迟到结果进入复核"},
-    {"case": "implementation-handoff", "owners": [37, 38, 58], "required": "交接 WorkItem/会话/成果身份连续且权限不扩大；首轮 Cursor 闭环后安排"}
+  "governance_cases": [
+    {
+      "case": "cancel=false",
+      "owners": [
+        56,
+        58
+      ],
+      "required": "需要可靠取消的工作按探测能力拒绝准入",
+      "id": "G01",
+      "tests": [
+        "test_application_contracts.ApplicationContractTests.test_confirmed_cancellation_is_an_execution_requirement",
+        "test_runtime_worker.DockerWorkerTests.test_docker_cancel_confirms_exit_and_retains_logs"
+      ],
+      "gaps": []
+    },
+    {
+      "case": "disconnect",
+      "owners": [
+        30,
+        56
+      ],
+      "required": "按 R03 的原生路径验证",
+      "id": "G02",
+      "tests": [
+        "test_reference_observation.ObservationQualificationTests.test_query_timeout_activity_and_report_outage"
+      ],
+      "gaps": []
+    },
+    {
+      "case": "revoke",
+      "owners": [
+        34,
+        35,
+        58
+      ],
+      "required": "跨场景读取和外发的运行中撤销证据",
+      "id": "G03",
+      "tests": [
+        "test_runtime_tool_invocations.ToolInvocationTests.test_revoke_during_initialization_blocks_actual_tool_call"
+      ],
+      "gaps": [
+        "需组合运行中读取与外发撤销，绑定原 Attempt/epoch，并证明实际工具未执行"
+      ]
+    },
+    {
+      "case": "callback-replay",
+      "owners": [
+        30,
+        32,
+        56
+      ],
+      "required": "同 callback id 十次乱序重放，一次推进及旧版本隔离",
+      "id": "G04",
+      "tests": [
+        "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt"
+      ],
+      "gaps": []
+    },
+    {
+      "case": "human-takeover",
+      "owners": [
+        40,
+        58
+      ],
+      "required": "人工决定与取消独立记录，迟到结果进入复核",
+      "id": "G05",
+      "tests": [],
+      "gaps": [
+        "外部平台 WorkItem 接管决定、独立取消记录和迟到成果复核仍待集成"
+      ]
+    },
+    {
+      "case": "implementation-handoff",
+      "owners": [
+        37,
+        38,
+        58
+      ],
+      "required": "交接 WorkItem/会话/成果身份连续且权限不扩大；首轮 Cursor 闭环后安排",
+      "id": "G06",
+      "tests": [],
+      "gaps": [
+        "外部平台交接 WorkItem、会话和成果关联，验证权限不扩大和远端引用连续"
+      ]
+    }
   ]
 }

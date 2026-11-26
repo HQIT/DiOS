@@ -13,7 +13,7 @@ import test_remote_recovery_qualification as recovery_fixtures
 from app.runtime.database import RuntimeErrorCode
 from app.runtime.remote_runtime import RemoteRuntimeStore
 from app.runtime.remote_tool_channel import RemoteToolProvider
-from app.runtime.schema import artifacts
+from app.runtime.schema import artifacts, events
 from app.runtime.worker import read_profile
 from app.services.run_evidence import RunEvidence
 from app.services.task_console import TaskConsole
@@ -68,9 +68,52 @@ class NativeRemoteConsistencyTests(unittest.IsolatedAsyncioTestCase):
     async def test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt(
         self,
     ):
-        (self.f.control / "outage").write_text("PROCESS_EXITED")
         run = await self.f.submit("old-owner")
-        first = await self.f.collect(await self.f.launch())
+        first_process = await self.f.launch()
+        live = await self.wait_run(
+            run["id"],
+            lambda r: r["attempts"] and r["attempts"][0]["state"] == "streaming",
+        )
+        reports = [
+            copy.deepcopy(e)
+            for e in self.messages
+            if e["message"]["method"] == "runtime.report"
+        ]
+        callback = next(
+            e
+            for e in reports
+            if e["message"]["params"]["report"]["phase"] == "streaming"
+        )
+        sequence = callback["message"]["params"]["report"]["sequence"]
+        transport = self.transport()
+        # Exact request identity is replayed ten times, interleaved with older phases.
+        for n in range(10):
+            self.assertFalse(await transport.exchange(callback))
+            self.assertFalse(await transport.exchange(reports[n % (len(reports) - 1)]))
+        replayed = await self.f.store.get(run["id"])
+        self.assertEqual(
+            (replayed["version"], replayed["attempts"][0]["last_sequence"]),
+            (live["version"], sequence),
+        )
+        async with self.f.fixture.db.read(self.f.store.scope) as connection:
+            journal = (
+                (
+                    await connection.execute(
+                        select(events).where(events.c.run_id == run["id"])
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        original = [
+            row
+            for row in journal
+            if row["type"] == "attempt.phase"
+            and row["payload"]["detail"]["sequence"] == sequence
+        ]
+        self.assertEqual(len(original), 1)
+        await self.f.adapter.stop(live["attempts"][0]["id"])
+        first = await self.f.collect(first_process)
         self.assertEqual(first["state"], "retry_wait")
         old_attempt = first["attempts"][0]
         self.assertEqual(old_attempt["epoch"], 1)
@@ -82,7 +125,6 @@ class NativeRemoteConsistencyTests(unittest.IsolatedAsyncioTestCase):
             for e in self.messages
             if e["message"]["method"] == "runtime.retain"
         )
-        (self.f.control / "outage").unlink()
         await asyncio.sleep(1.1)
         next_worker = await self.f.launch()
         current = await self.wait_run(
@@ -158,6 +200,13 @@ class NativeRemoteConsistencyTests(unittest.IsolatedAsyncioTestCase):
         OBSERVATIONS.append(
             {
                 "case": "R10",
+                "governance_case": "callback-replay",
+                "callback_id": callback["request_id"],
+                "callback_sequence": sequence,
+                "identical_callback_replays": 10,
+                "older_callback_deliveries": 10,
+                "original_phase_events": len(original),
+                "active_version_unchanged": True,
                 "run_id": run["id"],
                 "old_attempt": old_attempt["id"],
                 "current_attempt": new_attempt["id"],

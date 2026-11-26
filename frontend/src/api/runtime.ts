@@ -20,7 +20,7 @@ export interface ApplicationRef {id: string; version: string; digest: string;}
 export interface ApplicationProfile extends Profile {application: ApplicationRef; revision_ref: string; deployment_id: string | null; deployment_state: string | null;}
 export interface ApplicationCompatibility {compatible: boolean; issues: Array<{code: string; interface?: string; required?: string; available?: string | null}>; application: Record<string, unknown>; contract_digest: string; revision_ref: string; registered_contract: boolean; interfaces: Record<string, string>;}
 export const applicationApi = {
-  platform: (signal?: AbortSignal) => request<{contract_version: string; interfaces: Record<string, string>}>("/contracts", {signal}),
+  platform: (signal?: AbortSignal) => request<{contract_version: string; interfaces: Record<string, string>; execution_interfaces?: Record<string, Record<string, string>>}>("/contracts", {signal}),
   list: (signal?: AbortSignal) => request<{items: ApplicationProfile[]}>("/applications", {signal}),
   check: (revision_ref: string, contract?: Record<string, unknown>, signal?: AbortSignal) => request<ApplicationCompatibility>("/applications/compatibility", {method: "POST", signal, body: JSON.stringify({revision_ref, ...(contract ? {contract} : {})})}),
 };

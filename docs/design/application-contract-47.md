@@ -53,6 +53,16 @@ flowchart LR
 
 Profile 同时固定 `console.input_catalog_data`，提供输入和结果 Schema，并启用 E2AG。JSONL 执行暴露 `worker-jsonl=1.0`，配置受控工具通道后可声明 `governed-tool-channel=1.0`；远端 A2A 执行暴露 `a2a-jsonrpc=0.3`。未知能力或不满足的版本范围直接拒绝。Harness 内部能力须由对应适配与资格证明，应用声明本身不授予权限。
 
+### 可确认取消
+
+需要取消完成确认的应用，在 `requires` 中增加 `"confirmed-cancellation": ">=1,<2"`。托管 `jsonl-v1` 执行以原生进程退出作为确认条件；只发送取消请求不会产生取消成功。执行节点不可观察时仍需对账，能力声明不承诺网络分区期间的固定完成时限。
+
+当前远端 `a2a-0.3-jsonrpc` 执行不提供这项保证，兼容预览返回 `APPLICATION_INTERFACE_UNSUPPORTED`，要求此能力的 Revision 无法发布或准入。Endpoint 自报 `capabilities.cancel` 不会改变结果。已有应用未声明此要求时维持原兼容规则。
+
+`GET /api/os/runtime/contracts` 的可选新增字段 `execution_interfaces` 按执行桥接类型公布能力与版本；CLI `application_contract.py platform`、SDK `runtime_contract()` 和 Console“应用接入”读取同一数据。
+
+依据 [A2A 0.3 规范](https://a2a-protocol.org/v0.3.0/specification/) §5.5.2/§7.4，AgentCapabilities 没有标准取消保证字段，`tasks/cancel` 可返回 `TaskNotCancelableError`；[ACP Prompt Turn](https://github.com/agentclientprotocol/agent-client-protocol/blob/main/docs/protocol/v1/prompt-turn.mdx) 同样区分取消通知与 prompt 取消结束。`confirmed-cancellation` 是 DiOS 应用兼容接口，复用现有取消及退出确认实现。
+
 ## 固定版本和登记
 
 应用契约通过现有 Revision 发布器创建不可变版本。已有能力包仍经 Registry 的文件摘要、依赖锁、来源/许可准入进入发布路径；`application_contract` 随执行配置一并固定。无需新增应用数据库或修改历史 Schema。
