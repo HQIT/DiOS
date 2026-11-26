@@ -7,10 +7,12 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "F03-2.02",
-    "next_delivery": "F03-2.02",
+    "next_work_item": "S03-1.01",
+    "next_delivery": "S03-1.01",
     "next_delivery_order": [
-      "F03-2.02",
+      "S03-1.01",
+      "S03-1.02",
+      "S03-1.03",
       "K04-2.02",
       "K02-3.02",
       "K02-3.03",
@@ -25,14 +27,15 @@
     "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
-      "K02-3.02 等待源端隔离方式选择；当前先推进 W1 已就绪的 Harness 恢复与治理资格，原恢复验收保留。"
+      "K02-3.02 等待源端隔离方式选择；当前先推进 W1 已就绪的 Harness 恢复与治理资格，原恢复验收保留。",
+      "F03-2.02 保留 16 项完整场景缺口和六项共同治理场景；不得以组件通过计结项。逐项责任见 docs/design/fixtures/reference-faults.json。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "K04-3 四项均已完成。继续已就绪的 F03-2.02 十八项故障验收夹具，复用 Cursor ACP、E2AG、恢复与观测实现。父子容量和源端隔离两项继续等待用户选择，其余功能按依赖推进。"
+    "next_selection_reason": "F03-2.02 已交付完整场景映射、25 项组件测试和两项完整场景证据；其余原生故障、物理节点、应用与迁移断言继续按原责任项保留。接续无前置阻断的 S03-1.01 配置编辑和可审阅 diff，再推进受控验证发布。"
   },
   "waves": [
     {
@@ -1179,7 +1182,7 @@
       "issue": 29,
       "title": "十八项故障验收夹具",
       "kind": "I",
-      "state": "todo",
+      "state": "verification_pending",
       "requirements": [
         "F03-2-A02",
         "F03-2-A04",
@@ -1193,12 +1196,20 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "已有合成资料与跨 Harness 切片；三参考路径和十八场景的完整追踪尚未闭环。",
+      "basis": "十八项原要求已映射；25 项去重组件测试通过，R02/R12 完整场景通过，其余 16 项保留原生故障、节点、应用及迁移断言；共同治理六项仍待整体验证，未计完成。",
       "existing_evidence": [
         "docs/design/evidence/business-evidence-20261123.json",
-        "docs/design/evidence/harness-governance-20261125.json"
+        "docs/design/evidence/harness-governance-20261125.json",
+        "docs/design/evidence/reference-faults-20261126.json",
+        "docs/design/reference-fault-qualification.md",
+        "docs/design/fixtures/reference-faults.json"
       ],
-      "wave": "W3"
+      "wave": "W3",
+      "qualification_followup": "详见 reference-faults.json 的逐项 gaps/owners；复用通过证据，只补齐原断言。生产评审保持运行，不启动 #60 迁移。",
+      "progress_evidence": [
+        "docs/design/reference-fault-qualification.md",
+        "docs/design/evidence/reference-faults-20261126.json"
+      ]
     },
     {
       "id": "F03-2.03",
