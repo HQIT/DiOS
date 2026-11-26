@@ -1,6 +1,6 @@
 # 故障场景资格与剩余交付
 
-F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R05 节点重启、R07 完整输出抢救、R09 查询与同步故障分离、R10 迟到结果隔离、R11 进度与详情独立同步、R12 指定 UTF-8 分块、R13 运行中升级、R14 Linux 后台环境恢复及 R15 只读控制已通过；其余六项和 G05/G06 仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
+F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R05 节点重启、R06 限流与额度恢复、R07 完整输出抢救、R09 查询与同步故障分离、R10 迟到结果隔离、R11 进度与详情独立同步、R12 指定 UTF-8 分块、R13 运行中升级、R14 Linux 后台环境恢复及 R15 只读控制已通过；其余五项和 G05/G06 仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
 
 ## 执行与结果
 
@@ -63,7 +63,7 @@ DIOS_TEST_DOCKER=1 DIOS_TEST_ACP_IMAGE=dios-cursor:acp-exit-20261126 \
   --cases R03 --output workspace/reference-network-run
 ```
 
-R06 仍有供应商错误转换缺口。当前打包 Cursor 的 `processPrompt` 会捕获部分上游异常并输出普通文本，随后 `handlePrompt` 返回 `end_turn`；具体镜像与模块摘要记录在 R03 证据中的 `cursor_R06_gap`。代码检查尚未覆盖供应商真实 429/额度响应。DiOS 已有分类退避、单路探测和成功恢复并发，接入这些机制需要可核验的机器可读错误来源；普通模型输出不作为自动重试分类依据。后续采用供应商明确支持的错误通道或经过资格验证的上游修复。
+R06 已通过固定 DSH、摘要锁定 ACP 兼容补丁和 SDK 0.1.20 的[实际 HTTP 故障恢复验证](dsh-provider-errors-30.md)：限流与额度分别分类，冷却后单路探测，成功恢复三路独立 Worker，新 Attempt 重新经过 E2AG。普通文本和未知错误保持待诊断；Cursor 的文本错误来源仍未获该项资格。
 
 ## 固定版本升级与回退
 
@@ -126,7 +126,7 @@ R14 使用隔离的 systemd user 服务运行生产 ACP bridge。依次移除 Gi
 
 | 范围 | 场景与剩余条件 | 承接 |
 | --- | --- | --- |
-| 原生执行故障 | R06 模型 HTTP 错误转换；R09 已通过 | #10/#30/#32/#46/#56/#58 |
+| 原生执行故障 | R06 固定 DSH HTTP 错误转换与 R09 已通过；其他供应商按适配资格接入 | #10/#30/#32/#46/#56/#58 |
 | 节点与交付 | R05 隔离节点重启与 R14 Linux 后台环境恢复已通过 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
 | 静态评审应用 | R01 分支 SHA 水位、R08 证据待验证及覆盖账本、R16 上下文复用、R17 质量与导出统一口径 | #43/#59；底座提供任务、授权、工具、产物与统计接口 |
 | 旧系统接续 | R18 旧控制器兼容回滚、分区独占及历史身份 | #11/#60；需隔离源端和旧系统适配 |
@@ -142,4 +142,4 @@ ACP 使用标准 [stdio JSON-RPC 传输](https://agentclientprotocol.com/protoco
 
 迟到报告采用 [AWS 死信队列](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html) 的隔离与排查思路；进度与详情沿用 [Azure 队列负载调节](https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling) 的生产和消费解耦原则，复用现有 SQLite/Provider、离线 spool 和分块协议。预览网络采用 [Docker Compose 自定义网络](https://docs.docker.com/compose/how-tos/networking/) 的服务分区方式。
 
-控制面 HA、旧主隔离及 R05 隔离节点重启已具备验证证据；R06 保留供应商错误来源缺口，应用和旧系统迁移断言按对应责任项推进。
+控制面 HA、旧主隔离及 R05 隔离节点重启已具备验证证据；R06 固定 DSH 分类恢复已通过，应用和旧系统迁移断言按对应责任项推进。

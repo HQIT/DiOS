@@ -7,6 +7,22 @@ from .acp_result import final_object
 from .protocol import WorkloadError
 
 
+def provider_error(error):
+    """Decode the pinned DSH ACP error.data extension; never classify prose."""
+    if error.code != -32603 or not isinstance(error.data, dict):
+        return None
+    code = error.data.get("code")
+    if not isinstance(code, str):
+        return None
+    return {
+        "RATE_LIMIT": "PROVIDER_RATE_LIMITED",
+        "QUOTA": "PROVIDER_QUOTA_EXHAUSTED",
+        "ACCOUNT_QUOTA": "PROVIDER_QUOTA_EXHAUSTED",
+        "TIMEOUT": "PROVIDER_TIMEOUT",
+        "TRANSPORT": "PROVIDER_NETWORK_ERROR",
+    }.get(code)
+
+
 def proxy_permission(call):
     name, arguments = call.get("title"), call.get("rawInput")
     if (
@@ -33,5 +49,6 @@ async def dsh_execute(path, prompt, decode_result, **kwargs):
         activity_decoder=tool_activity,
         output_decoder=final_object,
         permission_decoder=proxy_permission,
+        error_decoder=provider_error,
         **kwargs,
     )

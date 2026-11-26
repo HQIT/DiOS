@@ -264,6 +264,7 @@ def main():
                 "test_reference_revocation",
                 "test_reference_readonly",
                 "test_reference_reboot",
+                "test_reference_provider_errors",
             )
             if name in sys.modules
             for row in sys.modules[name].OBSERVATIONS

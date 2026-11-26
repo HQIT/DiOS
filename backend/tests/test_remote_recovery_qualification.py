@@ -47,7 +47,8 @@ class RemoteRecoveryQualificationTests(unittest.IsolatedAsyncioTestCase):
         self.control = self.root / "control"
         self.control.mkdir(mode=0o755)
         image = await asyncio.to_thread(
-            self.adapter.client.images.get, "dios-worker-fixture:local"
+            self.adapter.client.images.get,
+            getattr(self, "workload_image", "dios-worker-fixture:local"),
         )
         self.image_id = image.id
         self.profiles = {}
@@ -89,6 +90,7 @@ class RemoteRecoveryQualificationTests(unittest.IsolatedAsyncioTestCase):
                     }
                 ],
             )
+            self.configure_launch(profile, value)
             path = self.root / (profile + ".json")
             path.write_text(json.dumps(value))
             _, spec = read_profile(path)
@@ -257,6 +259,9 @@ class RemoteRecoveryQualificationTests(unittest.IsolatedAsyncioTestCase):
                 "-extfile",
                 name + ".ext",
             )
+
+    def configure_launch(self, profile, value):
+        """Let a native Harness qualification reuse the same recovery assertions."""
 
     async def cleanup_native(self):
         for process in self.children:

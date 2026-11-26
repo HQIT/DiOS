@@ -77,13 +77,11 @@
     {
       "id": "R06",
       "tests": [
-        "test_remote_recovery_qualification.RemoteRecoveryQualificationTests.test_rate_limit_probe_then_three_remote_workers",
-        "test_remote_recovery_qualification.RemoteRecoveryQualificationTests.test_quota_probe_then_three_remote_workers"
+        "test_reference_provider_errors.ProviderFailureQualificationTests.test_rate_limit_probe_then_three_remote_workers",
+        "test_reference_provider_errors.ProviderFailureQualificationTests.test_quota_probe_then_three_remote_workers"
       ],
-      "covered": "真实 mTLS、独立 Worker 和容器上的分类故障、冷却、单路探测及三路恢复；故障由合成协议事件产生",
-      "gaps": [
-        "需模型协议端点实际返回 HTTP 429/额度响应，覆盖供应商错误到统一分类的转换；当前打包 Cursor ACP 会将部分上游错误降为普通输出并返回 end_turn，需可核验的机器可读错误来源，普通文本不作为自动重试分类依据"
-      ],
+      "covered": "固定 DSH 0.2.2-rc.5 加摘要锁定的 ACP error.data 补丁、SDK 0.1.20；真实 HTTP 429/insufficient_quota 经供应商适配转为统一错误，mTLS Worker 冷却、单路探测及三路恢复，独立账号隔离和新 Attempt E2AG 授权通过；Cursor 文本错误来源仍未获此资格",
+      "gaps": [],
       "owners": [
         30,
         56

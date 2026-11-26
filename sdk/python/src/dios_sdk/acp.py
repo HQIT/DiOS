@@ -52,6 +52,7 @@ class AcpClient:
         tool_client=None,
         client_read_tool=None,
         permission_decoder=None,
+        error_decoder=None,
     ):
         self.process = process
         self.emit = emit_event
@@ -67,6 +68,7 @@ class AcpClient:
         self.transport = BoundedTransport(self)
         self.connection = Connection(self.handle, self.transport, listening=False)
         self.permission_decoder = permission_decoder
+        self.error_decoder = error_decoder
         self.tool_client = tool_client
         self.client_read_tool = client_read_tool
         self.tool_activity = {}
@@ -317,8 +319,12 @@ class AcpClient:
     async def _request(self, method, params):
         try:
             result = await self.connection.send_request(method, params)
-        except RequestError:
+        except RequestError as error:
             diagnostic("ACP_REMOTE_ERROR")
+            if method == "session/prompt" and self.error_decoder:
+                code = self.error_decoder(error)
+                if code:
+                    raise RuntimeErrorCode(code) from None
             raise RuntimeErrorCode(
                 "ACP_AUTH_FAILED" if method == "authenticate" else "ACP_REQUEST_FAILED"
             ) from None
@@ -473,6 +479,7 @@ async def execute(
     activity_decoder=None,
     output_decoder=None,
     permission_decoder=None,
+    error_decoder=None,
 ):
     """Map one ACP turn through a sync or async application-owned result validator."""
     config, command, cwd, env = configuration(path)
@@ -500,6 +507,7 @@ async def execute(
         tool_client=tool_client,
         client_read_tool=read_tool,
         permission_decoder=permission_decoder,
+        error_decoder=error_decoder,
     )
     peer.reader = asyncio.create_task(peer.read())
     peer.stderr = asyncio.create_task(peer.discard_stderr())

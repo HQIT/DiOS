@@ -136,6 +136,15 @@ Diagnostic support ZIP: `client.diagnostic_export(run_id)` returns bounded, perm
 
 ## Application interface compatibility
 
+`dsh_execute` in SDK 0.1.20 maps structured DSH provider failures from prompt
+JSON-RPC `error.data` to the existing runtime recovery codes. It requires the
+qualified [DSH ACP compatibility patch](../../scripts/patch_dsh_acp_errors.py).
+Rate limit, quota, timeout and transport remain distinct. Unpatched releases,
+unknown codes and prose-only errors retain `ACP_REQUEST_FAILED`; authentication
+and session-creation failures are not reclassified. The
+[HTTP recovery qualification](../../docs/design/dsh-provider-errors-30.md)
+records the fixed composition and its limits.
+
 Version 0.1.19 adds explicit Runtime contract negotiation and application inspection:
 
 ```python

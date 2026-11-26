@@ -7,9 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "F03-2.02",
-    "next_delivery": "F03-2.02",
+    "next_work_item": "F03-2.03",
+    "next_delivery": "F03-2.03",
     "next_delivery_order": [
+      "F03-2.03",
       "F03-2.02",
       "K01-5.03",
       "D01-3.02",
@@ -27,14 +28,14 @@
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
       "K02-3.02 等待源端隔离方式选择；当前先推进 W1 已就绪的 Harness 恢复与治理资格，原恢复验收保留。",
-      "F03-2.02 保留 6 项完整场景及 G05/G06：R06 依赖供应商明确错误通道，R01/R08/R16/R17 和 G05/G06 由独立上层平台/应用联验，R18 依赖旧系统隔离适配；原资格要求保留。"
+      "F03-2.02 保留 5 项完整场景及 G05/G06：R01/R08/R16/R17 和 G05/G06 由独立上层平台/应用联验，R18 依赖旧系统隔离适配；原资格要求保留。R06 固定 DSH 真实 HTTP 分类与恢复已通过。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "R05/R15 已补齐。接续 R06，核验已固定 Harness 的机器可读供应商错误通道，复用现有分类恢复链路；无官方可用通道则保留该缺口并提交具体选择。五项 G2 接受人、物理跨主机环境、K04-2.02 容量语义及 K02-3.02 源端隔离选择仍待定。"
+    "next_selection_reason": "R06 已完成固定 DSH HTTP 错误转换及真实 Worker 恢复。接续 F03-2.03，复用已有两来源执行证据，核对同一任务契约、技术失败与人工交接条款，明确独立上层平台待联验项；不向 DiOS 增加客户业务语义。五项 G2 接受人、物理跨主机环境、容量语义及源端隔离选择仍待定。"
   },
   "waves": [
     {
@@ -1198,7 +1199,7 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "十八项原要求保留；R02/R03/R04/R05/R07/R09/R10/R11/R12/R13/R14/R15 已通过，剩余 6 项。共同治理 G01—G04 已通过，G05/G06 待上层平台联验。G03 以独立 MCP HTTP 服务执行真实文件读取与回环外发：撤权前成功，撤权后已审批调用及新请求均拒绝，初始化期间撤权同样拒绝，原 Attempt/epoch/权限证据保留。 R15 固定 DSH 实际工具请求在执行前拒绝写源码、编译、npm 包脚本和越权外发；源码摘要不变、正向执行控制和 E2AG Attempt 关联已核验。 R05 隔离 Linux VM 真实硬重启及自动 Worker 恢复通过，四类任务身份、E2AG 复核与旧租约隔离有完整证据。",
+      "basis": "十八项原要求保留；R02/R03/R04/R05/R06/R07/R09/R10/R11/R12/R13/R14/R15 已通过，剩余 5 项。共同治理 G01—G04 已通过，G05/G06 待上层平台联验。G03 以独立 MCP HTTP 服务执行真实文件读取与回环外发：撤权前成功，撤权后已审批调用及新请求均拒绝，初始化期间撤权同样拒绝，原 Attempt/epoch/权限证据保留。 R15 固定 DSH 实际工具请求在执行前拒绝写源码、编译、npm 包脚本和越权外发；源码摘要不变、正向执行控制和 E2AG Attempt 关联已核验。 R05 隔离 Linux VM 真实硬重启及自动 Worker 恢复通过，四类任务身份、E2AG 复核与旧租约隔离有完整证据。 R06 固定 DSH 的实际 HTTP 429/额度响应、单路探测、三路独立恢复与 E2AG 新尝试授权已通过。",
       "existing_evidence": [
         "docs/design/evidence/business-evidence-20261123.json",
         "docs/design/evidence/harness-governance-20261125.json",
@@ -1214,7 +1215,8 @@
         "docs/design/evidence/common-governance-20261126.json",
         "docs/design/evidence/tool-revocation-20261126.json",
         "docs/design/evidence/readonly-review-20261126.json",
-        "docs/design/evidence/node-reboot-20261126.json"
+        "docs/design/evidence/node-reboot-20261126.json",
+        "docs/design/evidence/provider-errors-20261127.json"
       ],
       "wave": "W3",
       "qualification_followup": "详见 reference-faults.json 的逐项 gaps/owners；复用通过证据，只补齐原断言。生产评审保持运行，不启动 #60 迁移。",
@@ -1230,7 +1232,8 @@
         "docs/design/evidence/common-governance-20261126.json",
         "docs/design/evidence/tool-revocation-20261126.json",
         "docs/design/evidence/readonly-review-20261126.json",
-        "docs/design/evidence/node-reboot-20261126.json"
+        "docs/design/evidence/node-reboot-20261126.json",
+        "docs/design/evidence/provider-errors-20261127.json"
       ]
     },
     {

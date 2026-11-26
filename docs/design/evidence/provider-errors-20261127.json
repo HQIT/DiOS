@@ -1,0 +1,89 @@
+{
+  "work_item": "F03-2.02",
+  "case": "R06",
+  "status": "engineering_verified",
+  "complete_work_item": false,
+  "source_commit": "35e73b4d3071c11455c97060f91d5d2bf5444505",
+  "composition": {
+    "dsh": "0.2.2-rc.5",
+    "sdk": "0.1.20",
+    "image": "sha256:eb9230fc46275d1ae55683b7b4b442b0ce8ac72a1ef061f186e259b79a70c55f",
+    "upstream_patch": "scripts/patch_dsh_acp_errors.py",
+    "base_image": "sha256:39c9ab375eb421ab31aec60aa5a9f45cd6d6e3d752b0636c47ca1e0d56e80151",
+    "network": "none",
+    "external_model_calls": 0,
+    "provider": "isolated loopback HTTP OpenAI-compatible synthetic endpoint"
+  },
+  "tests": {
+    "test_reference_provider_errors.ProviderFailureQualificationTests.test_rate_limit_probe_then_three_remote_workers": "passed",
+    "test_reference_provider_errors.ProviderFailureQualificationTests.test_quota_probe_then_three_remote_workers": "passed"
+  },
+  "test_run": {
+    "tests": 2,
+    "seconds": 59.953,
+    "exit_code": 0
+  },
+  "regression": {
+    "acp_tests": 34,
+    "dsh_tests": 9,
+    "failed": 0
+  },
+  "checks": {
+    "actual_http_429_rate_limit": true,
+    "actual_http_429_quota": true,
+    "distinct_harness_sessions": 12,
+    "single_probe": true,
+    "three_independent_workers_restored": true,
+    "other_account_independent": true,
+    "same_run_new_attempt_and_epoch": true,
+    "separate_e2ag_grants": true,
+    "old_owner_rejected": true,
+    "raw_output_sha256_verified": true
+  },
+  "sources": {
+    "sdk/python/src/dios_sdk/acp.py": "7cc57b5c9bb4958e8f16a587583847d2637099cb21a2d7f960858f8f582b9407",
+    "sdk/python/src/dios_sdk/dsh.py": "f65608ba80c083986ac17cf4092cdb6be5e2da318f7ea8114ec4ec4ed128461c",
+    "sdk/python/tests/test_dsh_errors.py": "c694359bc31a505078ebd6dbd90d8a6fc46d5e58d9fafadc48a84997233e4897",
+    "scripts/patch_dsh_acp_errors.py": "43242959a6a695b29c2b14a3c442fdb38ede27e46fdbb18d8502ae01c6ee3436",
+    "scripts/fixtures/dsh_provider_failure_probe.py": "1319f74c29c3a4bb46fc1230726ac6d715c8cebf40ba9c9e1607d5f1099e91b1",
+    "backend/tests/test_reference_provider_errors.py": "b025687f530d86bcea91bfea3e7d33211266886d53d9e6d87d1b0c19998bdb4f",
+    "backend/tests/test_remote_recovery_qualification.py": "bdaad0e1525cb8bdb130a8806a34b87f42148325ebc5ee6c4bda8b39182307f7",
+    "backend/app/runtime/faults.py": "df8caf92833bbc0a298ee70ca72ca43283e8ad5f0ef4570dbbd0202784aaa52e",
+    "backend/app/runtime/worker.py": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12",
+    "backend/app/runtime/work_policy.py": "94f969595dec31058111630c5dcc1ee77516c5108f68ab0cd0c51c0b530ba44a"
+  },
+  "artifacts": [
+    {
+      "path": "docs/design/evidence/provider-errors-20261127/baseline-fixed-quota.json",
+      "sha256": "2d8b433eb92c478b724d5dc55e88341b310b52a657e151edb6e3d8e017cc702d"
+    },
+    {
+      "path": "docs/design/evidence/provider-errors-20261127/baseline-fixed-rate.json",
+      "sha256": "fa483c31e0208062ca023bc2768da39d83b91fb8e45fdb2ddc03750bcfac91e3"
+    },
+    {
+      "path": "docs/design/evidence/provider-errors-20261127/patched-quota.json",
+      "sha256": "f8f2f2c9a6ef97260f5e01cdff9cc65ce1e6cdb013cf910cd84532ddf4c5bf2c"
+    },
+    {
+      "path": "docs/design/evidence/provider-errors-20261127/patched-rate.json",
+      "sha256": "6c6074c8d7fff105d45f5b56a5d10efdf20ec5b560b223de9e807effb8ca8b7a"
+    },
+    {
+      "path": "docs/design/evidence/provider-errors-20261127/native-PROVIDER_QUOTA_EXHAUSTED.json",
+      "sha256": "257e147d71201b3ae3213d8ba1022584cbd5cd714ed766db2adce75947d92a89"
+    },
+    {
+      "path": "docs/design/evidence/provider-errors-20261127/native-PROVIDER_RATE_LIMITED.json",
+      "sha256": "b2f73379510617f8e3dcf596005f2c076e20e8a8eb14789d3a70f5e8e9a72ac2"
+    }
+  ],
+  "wheel_sha256": "ab97a1ed19b9e02bd3e3372837ab97c8526d2e7834d307a72184ecff0bf35a03",
+  "limits": [
+    "DSH fixed composition uses a local compatibility patch; not an unmodified upstream release.",
+    "Pinned Pi-AI classifies provider error text internally; DiOS consumes its structured code, never model output text.",
+    "Retry-After is not propagated by this chain; existing bounded profile policy controls cooldown.",
+    "Cursor provider classification remains unqualified; timeout/transport mapping has contract tests only.",
+    "One Linux/WSL host; physical cross-host qualification remains separate."
+  ]
+}

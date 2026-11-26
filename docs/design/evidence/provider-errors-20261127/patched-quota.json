@@ -1,0 +1,92 @@
+{
+  "case": "quota",
+  "http_requests": [
+    {
+      "path": "/v1/chat/completions",
+      "status": 429,
+      "code": "insufficient_quota"
+    }
+  ],
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "error": {
+      "code": -32603,
+      "message": "Internal error: turn failed: 429: {\"code\":\"insufficient_quota\",\"type\":\"insufficient_quota\",\"message\":\"Synthetic provider refusal\"}",
+      "data": {
+        "message": "429: {\"code\":\"insufficient_quota\",\"type\":\"insufficient_quota\",\"message\":\"Synthetic provider refusal\"}",
+        "code": "QUOTA"
+      }
+    }
+  },
+  "session_id": "9dabc7cb-4994-44ba-a0dd-13096d585efa",
+  "notifications": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": 1,
+        "agentInfo": {
+          "name": "deepseek-harness-acp",
+          "version": "0.0.1"
+        },
+        "agentCapabilities": {
+          "mcpCapabilities": {
+            "http": true
+          },
+          "promptCapabilities": {
+            "image": false,
+            "audio": false,
+            "embeddedContext": false
+          },
+          "sessionCapabilities": {
+            "close": {},
+            "list": {},
+            "resume": {}
+          }
+        },
+        "authMethods": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "sessionId": "9dabc7cb-4994-44ba-a0dd-13096d585efa",
+        "configOptions": [
+          {
+            "id": "model",
+            "name": "Model",
+            "category": "model",
+            "type": "select",
+            "currentValue": "[\"ecnu\",\"ecnu-max\"]",
+            "options": [
+              {
+                "group": "ecnu",
+                "name": "ecnu",
+                "options": [
+                  {
+                    "value": "[\"ecnu\",\"ecnu-max\"]",
+                    "name": "ECNU Max"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "error": {
+        "code": -32603,
+        "message": "Internal error: turn failed: 429: {\"code\":\"insufficient_quota\",\"type\":\"insufficient_quota\",\"message\":\"Synthetic provider refusal\"}",
+        "data": {
+          "message": "429: {\"code\":\"insufficient_quota\",\"type\":\"insufficient_quota\",\"message\":\"Synthetic provider refusal\"}",
+          "code": "QUOTA"
+        }
+      }
+    }
+  ]
+}
