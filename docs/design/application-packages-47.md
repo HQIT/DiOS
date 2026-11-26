@@ -22,7 +22,7 @@ python scripts/build_application_packages.py --output /absolute/releases
 pip install --no-index --find-links=/absolute/releases dios-sdk knowledge-evidence
 ```
 
-输出四组 wheel/sdist、三个 bundle.zip 和 checksums.json。每个 bundle 包含应用清单、Dockerfile、适用的输入目录、SDK/应用及完整依赖 wheel；解压后可用 docker build 离线安装依赖。依赖解析需要可访问配置的包索引，默认目标为 Linux x86_64 / Python 3.12；ARM64 构建传入 `--platform manylinux2014_aarch64`，在对应架构执行镜像验证。checksums.json 保存目标平台及构建物摘要。记录实际镜像 digest，再登记到执行 profile。application.json 描述版本和协议；Registry 自动安装及兼容认证仍由 #44/#47 接续。
+输出四组 wheel/sdist、三个 bundle.zip 和 checksums.json。每个 bundle 包含应用清单、Dockerfile、适用的输入目录、SDK/应用及完整依赖 wheel；解压后可用 docker build 离线安装依赖。依赖解析需要可访问配置的包索引，默认目标为 Linux x86_64 / Python 3.12；ARM64 构建传入 `--platform manylinux2014_aarch64`，在对应架构执行镜像验证。checksums.json 保存目标平台及构建物摘要。记录实际镜像 digest，再登记到执行 profile。application.json 描述版本和协议；Registry 固定包发布见[发布与回滚](package-registry-release-44.md)；应用接口要求与兼容门禁见[应用契约](application-contract-47.md)。
 
 ## 输入、任务与成果
 

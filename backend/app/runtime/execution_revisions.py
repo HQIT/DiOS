@@ -49,6 +49,9 @@ def compile_profile(raw):
     from .package_payloads import validate_binding
 
     package_lock = validate_binding(raw)
+    from .application_contracts import require as require_application
+
+    require_application(raw)
     profile_id, spec = read_profile("immutable-profile", value=raw, package_revision=True)
     mode, refs = security_profile("immutable-profile", raw=raw)
     dependencies = {kind: [] for kind in sorted(DEPENDENCY_KINDS)}
@@ -208,6 +211,11 @@ async def bind_input(c, scope, revision_ref, value, *, authorized):
         value = dict(
             value, package_admissions=await require_lock(c, scope, raw["package_lock"])
         )
+    from .application_contracts import require as require_application
+
+    application = require_application(raw)
+    if application is not None:
+        value = dict(value, application=application)
     return dict(
         value,
         revision_ref=revision_ref,

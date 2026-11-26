@@ -28,6 +28,8 @@ def read_profile(path, *, value=None, allow_unfrozen_packages=False, package_rev
         validate_binding(value)
         if 'package_lock' in value and not package_revision:
             raise RuntimeErrorCode('PACKAGE_REVISION_REQUIRED')
+    if 'application_contract' in value and not (package_revision or allow_unfrozen_packages):
+        raise RuntimeErrorCode('APPLICATION_REVISION_REQUIRED')
     identifier(value['id'])
     if value.get('bridge') == 'a2a-0.3-jsonrpc':
         if value.get('isolation') is not None:raise RuntimeErrorCode('EXECUTION_ISOLATION_UNSUPPORTED')

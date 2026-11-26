@@ -16,6 +16,14 @@ export const technicalApi = {
   decide: (row: TechnicalRecord, decision: "approved" | "denied", token: string, reason: string) => request<TechnicalRecord>(`/technical/promotions/${encodeURIComponent(row.id)}/approval`, {method: "POST", headers: {"X-DiOS-Approver-Token": token}, body: JSON.stringify({expected_version: row.version, decision, reason})}),
   publish: (row: TechnicalRecord) => request<TechnicalRecord>(`/technical/promotions/${encodeURIComponent(row.id)}/publish`, {method: "POST", body: JSON.stringify({expected_version: row.version})}),
 };
+export interface ApplicationRef {id: string; version: string; digest: string;}
+export interface ApplicationProfile extends Profile {application: ApplicationRef; revision_ref: string; deployment_id: string | null; deployment_state: string | null;}
+export interface ApplicationCompatibility {compatible: boolean; issues: Array<{code: string; interface?: string; required?: string; available?: string | null}>; application: Record<string, unknown>; contract_digest: string; revision_ref: string; registered_contract: boolean; interfaces: Record<string, string>;}
+export const applicationApi = {
+  platform: (signal?: AbortSignal) => request<{contract_version: string; interfaces: Record<string, string>}>("/contracts", {signal}),
+  list: (signal?: AbortSignal) => request<{items: ApplicationProfile[]}>("/applications", {signal}),
+  check: (revision_ref: string, contract?: Record<string, unknown>, signal?: AbortSignal) => request<ApplicationCompatibility>("/applications/compatibility", {method: "POST", signal, body: JSON.stringify({revision_ref, ...(contract ? {contract} : {})})}),
+};
 export class RuntimeApiError extends Error {
   code: string;
   status: number;
@@ -41,6 +49,7 @@ export const packageApi = {
 export interface Profile { dynamic_inputs?: boolean; input_schema?: Record<string, unknown> | boolean | null; input_kind?: string; input_ids?: string[]; id: string; name: string; description: string; implementation: string; synthetic: boolean; governance: string; policy_configured: boolean; isolation?: {version: number; network: string; workspace: string} | null; }
 export interface Sample { [key: string]: unknown; id: string; name: string; filename?: string; source?: string; sha256: string; }
 export interface RunSummary {
+  application?: ApplicationRef | null;
   revision_ref?: string | null; deployment_id?: string | null;
   id: string; state: string; version: number; attempt_id: string | null;
   goal: string; profile_id: string; created_at: number; updated_at: number; cancel_requested: boolean;

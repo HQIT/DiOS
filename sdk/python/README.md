@@ -133,3 +133,16 @@ source relations. Object sources can be followed with `object_relations`; every
 request checks current Run and object access.
 
 Diagnostic support ZIP: `client.diagnostic_export(run_id)` returns bounded, permission-filtered bytes (SDK 0.1.18). The archive manifest records file hashes, redaction, permissions and truncation. Raw model/tool/artifact contents are excluded; complete artifacts retain their separate download API.
+
+## Application interface compatibility
+
+Version 0.1.19 adds explicit Runtime contract negotiation and application inspection:
+
+```python
+client = TaskClient(url, token, required_contract="1")
+platform = client.runtime_contract()
+applications = client.applications()
+report = client.application_compatibility(revision_ref)
+```
+
+Strict clients verify the server before their first mutating request and validate the version header on every successful response. `ContractMismatch` retains `ambiguous` and the original `idempotency_key` if a write might have been accepted. Keep the same logical identity and inspect its receipt before retrying. Omitting `required_contract` preserves legacy behavior. Application discovery and compatibility previews require platform operator access; task and object access retain their existing permissions.

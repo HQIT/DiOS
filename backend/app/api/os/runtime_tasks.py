@@ -17,7 +17,12 @@ class RuntimeRoute(APIRoute):
         original=super().get_route_handler()
         async def handler(request):
             try:
+                from app.runtime.application_contracts import HEADER, API_VERSION
+                requested=request.headers.get(HEADER)
+                if requested is not None and requested != API_VERSION:
+                    raise HTTPException(409,detail="RUNTIME_CONTRACT_UNSUPPORTED",headers={HEADER:API_VERSION})
                 response=await original(request)
+                response.headers[HEADER]=API_VERSION
                 response.headers["Cache-Control"]="no-store"
                 response.headers["X-Content-Type-Options"]="nosniff"
                 return response

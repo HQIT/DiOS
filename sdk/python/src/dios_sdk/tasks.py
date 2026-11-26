@@ -19,6 +19,11 @@ class TransportError(WorkloadError):
         self.idempotency_key = idempotency_key
         super().__init__('TASK_TRANSPORT_UNAVAILABLE')
 
+class ContractMismatch(WorkloadError):
+    def __init__(self, *, ambiguous=False, idempotency_key=None):
+        self.ambiguous, self.idempotency_key = ambiguous, idempotency_key
+        super().__init__('RUNTIME_CONTRACT_UNSUPPORTED')
+
 class ObservationTimeout(WorkloadError):
     def __init__(self, run_id, last_observation):
         self.run_id, self.last_observation = run_id, last_observation
@@ -29,7 +34,7 @@ class _NoRedirect(HTTPRedirectHandler):
         return None
 
 class TaskClient:
-    def __init__(self, base_url, token, *, timeout=30, max_bytes=16*1024*1024):
+    def __init__(self, base_url, token, *, timeout=30, max_bytes=16*1024*1024, required_contract=None):
         u = urlsplit(base_url)
         local = u.hostname in {'localhost', '127.0.0.1', '::1'}
         if (u.scheme not in {'http', 'https'} or not u.hostname or u.username or u.password
@@ -39,9 +44,22 @@ class TaskClient:
             raise ValueError('A nonempty access token is required')
         if not 0 < timeout <= 300 or not 1024 <= max_bytes <= 128*1024*1024:
             raise ValueError('Invalid request limits')
+        if required_contract not in (None, '1'): raise ValueError('Unsupported runtime contract')
+        self.required_contract = required_contract
+        self._contract_verified = False
         self.base_url = base_url.rstrip('/') + '/api/os/runtime'
         self._token, self.timeout, self.max_bytes = token, timeout, max_bytes
         self._opener = build_opener(ProxyHandler({}) if local else ProxyHandler(), _NoRedirect())
+
+    def runtime_contract(self):
+        return self._request('/contracts')
+
+    def applications(self):
+        return self._request('/applications')
+
+    def application_compatibility(self, revision_ref, *, contract=None):
+        return self._request('/applications/compatibility',method='POST',
+            body={'revision_ref':revision_ref, **({'contract':contract} if contract is not None else {})})
 
     def diagnostic_export(self, run_id):
         return self._request('/runs/'+quote(run_id,safe='')+'/diagnostic-export',raw=True)
@@ -119,12 +137,20 @@ class TaskClient:
         return self._request('/objects/'+quote(kind,safe='')+'/'+quote(object_id,safe='')+'/versions/'+str(version)+'/relations?'+urlencode({'after':after,'limit':limit}))
 
     def _request(self, suffix, *, method='GET', body=None, raw=False, timeout=None):
+        if self.required_contract is not None and method != 'GET' and not self._contract_verified:
+            contract = self.runtime_contract()
+            if contract.get('contract_version') != self.required_contract:
+                raise ContractMismatch()
+            self._contract_verified = True
         headers = {'Authorization': 'Bearer ' + self._token, 'Accept': 'application/json'}
+        if self.required_contract is not None: headers['X-DiOS-Runtime-Contract'] = self.required_contract
         data = encoded(body) if body is not None else None
         if data is not None: headers['Content-Type'] = 'application/json'
         request = Request(self.base_url + suffix, data=data, headers=headers, method=method)
         try:
             with self._opener.open(request, timeout=timeout or self.timeout) as response:
+                if self.required_contract is not None and response.headers.get('X-DiOS-Runtime-Contract') != self.required_contract:
+                    raise ContractMismatch(ambiguous=method!='GET', idempotency_key=(body or {}).get('idempotency_key'))
                 value = response.read(self.max_bytes + 1)
                 if len(value) > self.max_bytes: raise WorkloadError('TASK_RESPONSE_TOO_LARGE')
         except HTTPError as exc:

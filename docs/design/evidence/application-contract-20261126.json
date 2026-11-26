@@ -1,0 +1,254 @@
+{
+  "work_items": [
+    "A01-1.01"
+  ],
+  "complete": true,
+  "requirements": {
+    "A01-1-A01": "New opaque task kind and independent application contract accepted without importing application code; immutable input/result schemas and app version preserved.",
+    "A01-1-A02": "SDK/CLI/API/UI share exact compatibility declaration. Application contract is fixed by Revision; existing registration activation and E2AG gate preserved. Combined lifecycle qualification remains A01-1.02."
+  },
+  "tests": {
+    "passed": 49,
+    "backend": 30,
+    "postgres_revision": 5,
+    "installed_sdk": 14,
+    "failed": 0,
+    "final_discovery_auth_recheck": {
+      "passed": 4,
+      "reason": "Authenticated principals may discover protocol versions; application catalog and preview remain operator-only. These 4 repeat the affected subset and are not added to the unique total."
+    }
+  },
+  "postgres": {
+    "passed": true,
+    "migration_idempotent": true,
+    "append_only_guard": true,
+    "suite": "test_execution_revisions.PostgresBindingTests",
+    "provider": "PostgreSQL 16",
+    "isolated_database": true
+  },
+  "native": {
+    "passed": true,
+    "sdk_version": "0.1.19",
+    "installed_sdk_path": "/home/xu/workspace/NANA-OS/workspace/qualification-application-contract-20261126/client/lib/python3.12/site-packages/dios_sdk/__init__.py",
+    "checks": [
+      "strict-contract-negotiation",
+      "registered-revision-compatible",
+      "application-version-frozen",
+      "idempotent-submission",
+      "native-worker-e2ag-success",
+      "artifact-download-digest",
+      "cli-sdk-api-same-contract"
+    ],
+    "run_id": "f10f0d74-67e3-44e6-8699-b8d7db115621",
+    "revision_ref": "rev-779e791acecf61c2bd13e7912f78752ec81240e77ce695cb5b1aeeed15139d65",
+    "application": {
+      "id": "independent-reference",
+      "version": "1.0.0",
+      "digest": "sha256:1eee9388e39c73514fc93c0c228a8ea2990168e4387caf805e0fdb5ee2d0d596"
+    },
+    "attempts": [
+      {
+        "id": "7fd990f8-c756-461f-9d61-a9670fc92190",
+        "epoch": 1,
+        "state": "completed",
+        "session_id": "74bbb536-b26b-4a14-a1d3-1649c4a57870",
+        "worker_id": "0d714883-8f89-4a0e-8aa8-2b9c44155348",
+        "process_id": 790235,
+        "started_at": 1795685118.9569995,
+        "finished_at": 1795685120.5299945,
+        "last_output_at": 1795685119.7095623,
+        "error": null,
+        "object_ref": {
+          "kind": "session",
+          "id": "7fd990f8-c756-461f-9d61-a9670fc92190",
+          "version": 1
+        },
+        "freshness": "final",
+        "runtime_state": "exited",
+        "confirmed_running": false,
+        "output_excerpt": "正在核验合成输入：中文🙂"
+      }
+    ],
+    "authorization": {
+      "mode": "e2ag",
+      "reference": "wa-cbd4ca513a68030f773dacebc595efb42935e82d366b59d9c2b6f0f961d4",
+      "subject": "operator:test",
+      "actor": "service:test",
+      "policy_id": "test-policy",
+      "state": "closed",
+      "expires_at": 1795771518.4750066,
+      "authorization_epoch": 1,
+      "source_check": null,
+      "source_event": null,
+      "delegation": null,
+      "secret_refs": [],
+      "grant": {
+        "attempt_id": "7fd990f8-c756-461f-9d61-a9670fc92190",
+        "session_id": "74bbb536-b26b-4a14-a1d3-1649c4a57870",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "closed",
+        "expires_at": 1795686019.0900102
+      },
+      "decisions": [
+        {
+          "id": "746121b2-1941-4f1d-a149-5e65410ee47e",
+          "action": "accept_result",
+          "created_at": 1795685120.419997,
+          "outcome": "allow",
+          "reason_codes": [
+            "RESULT_ACCEPTANCE_AUTHORIZED"
+          ]
+        },
+        {
+          "id": "13d6cbbc-3e74-46a4-a607-c8a7a81116e8",
+          "action": "execute",
+          "created_at": 1795685119.588016,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_SESSION_BOUND"
+          ]
+        },
+        {
+          "id": "5e60ffb1-174d-4969-9ea3-d67c7e35e731",
+          "action": "execute",
+          "created_at": 1795685119.0900102,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_GRANT_CREATED"
+          ]
+        },
+        {
+          "id": "d10ded16-2a6f-4db5-a2ed-55c3f3f0e5e3",
+          "action": "admit",
+          "created_at": 1795685118.4750066,
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ]
+        }
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "b69ba2a8-54b2-43e5-a398-efa273a4b741",
+        "digest": "8877e54e460ed9761191889f9daeda6f11f5cfe222de856efe575e2f59ab66ae",
+        "size": 155
+      },
+      {
+        "id": "6fd899c0-7a67-412e-8e50-0754ec07e991",
+        "digest": "5f8629a0db32e6ffcc83e91d04d8ac0233519e06b352b3d7260fb578d4766856",
+        "size": 389
+      }
+    ],
+    "contract": {
+      "compatible": true,
+      "issues": [],
+      "application": {
+        "deployment": "independent",
+        "id": "independent-reference",
+        "input": {
+          "kind": "external.reference/v1",
+          "result_schema_digest": "sha256:a377fdcfe339b9313f347e42ac403a17eac57c94ad5b18cebaa81be2d80246e2",
+          "schema_digest": "sha256:a2c799262a3ce3c19ef5cdd983bf3d12b43ab3c426227091b909dcb7054738c0"
+        },
+        "requires": {
+          "e2ag-work": ">=1,<2",
+          "input-result-schema": ">=1,<2",
+          "revision-deployment": ">=1,<2",
+          "runtime-api": ">=1,<2",
+          "runtime-events": ">=1,<2",
+          "worker-jsonl": ">=1,<2"
+        },
+        "schema_version": 1,
+        "version": "1.0.0"
+      },
+      "contract_digest": "sha256:1eee9388e39c73514fc93c0c228a8ea2990168e4387caf805e0fdb5ee2d0d596",
+      "interfaces": {
+        "runtime-api": "1.0",
+        "runtime-events": "1.0",
+        "input-result-schema": "1.0",
+        "e2ag-work": "1.0",
+        "revision-deployment": "1.0",
+        "worker-jsonl": "1.0"
+      },
+      "revision_ref": "rev-779e791acecf61c2bd13e7912f78752ec81240e77ce695cb5b1aeeed15139d65",
+      "registered_contract": true
+    }
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "enabled-application-and-platform-contract",
+      "pinned-revision-compatibility",
+      "incompatible-preview-clears-old-success-and-keeps-input",
+      "malformed-json-preserved",
+      "query-error-keeps-selected-revision-and-recovers",
+      "english-dark-preserves-report",
+      "mobile-layout",
+      "task-history-application-version"
+    ],
+    "page_errors": []
+  },
+  "history": {
+    "runs": {
+      "before": 98,
+      "after": 99,
+      "all_original_ids_preserved": true
+    },
+    "attempts": {
+      "before": 102,
+      "after": 103,
+      "all_original_ids_preserved": true
+    },
+    "artifacts": {
+      "before": 264,
+      "after": 266,
+      "all_original_ids_preserved": true
+    }
+  },
+  "existing_policy_grants_preserved": true,
+  "deployment": {
+    "api_pid": 791989,
+    "backend_image": "sha256:268bb0db681333c2f97ac272e857dff7ef4bebd450ebae41263ceec81f1f5a37",
+    "health": 200,
+    "existing_workers_restarted": false
+  },
+  "source_sha256": {
+    "backend/app/api/os/runtime_tasks.py": "bc351226921be886c2359d3577999f05de5a6eb6553be87fedbab82ffb1c558a",
+    "backend/app/runtime/execution_revisions.py": "31f0a6c074798ee53fa0cd5c83267250dab0f33a6740e65ee89d14045befc03e",
+    "backend/app/runtime/worker.py": "4e181d6274d441206de7b846724846f57e6d7dbecfd5292245a70803bd9790a9",
+    "backend/app/services/task_console.py": "6072f0a93cd21a2357350b6beb392763ba46a4e837377082a1aacd87344eecd1",
+    "backend/main.py": "39a085bc80ad8889d6e17dd2122e29cf6e5796fcd735b7d6a3c3c7e8802d8c68",
+    "frontend/src/api/runtime.ts": "9c214c1572b7fb77231a7acdb58b42b2a334c6c5cd5412eae2d8397af1e5d41e",
+    "frontend/src/apps/console/ConsolePage.tsx": "21a79518436f591db46f95bf0a0192cf492dc1dceb276f411f07eb6ed8f49b95",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "51162c13740b9020420b1c8dc9d749dbd6125fbb6be2645ea077694e58e0b498",
+    "frontend/src/lib/messages.ts": "9410cae556ac0628899e33da237f6302459c209985b305c50a1ebe67c0c16812",
+    "sdk/python/README.md": "d030f445eee0e922a4ed36571b61ab39a644e30d5047e9f18f333f465f844e46",
+    "sdk/python/pyproject.toml": "1064d561692298b05b69efe23aa09b131d8c802999a4046973bbc5e1565860b6",
+    "sdk/python/src/dios_sdk/__init__.py": "64671c111cfb20cc4b04ba1ddd5758db05e2a345ce955aec6082fce26827f4e8",
+    "sdk/python/src/dios_sdk/tasks.py": "7f53c787e058efd46f3d32c35b8feac4a2a76e70ed9a8b3b168b308fe8dfc623",
+    "backend/app/api/os/application_contracts.py": "dd334701b47193d4697b122eac5f55df1b48eba11c4e80b579d4ea92c0477377",
+    "backend/app/runtime/application_contracts.py": "ef3a67da1a188071d66fed6d5f6ed23d24293c179326904aaf0cb11ea1596977",
+    "backend/tests/test_application_contracts.py": "5ca0a473eb83622b4ea77ae9dc6f8322931cfe0a101ddcfc54ee95c91a1e4b79",
+    "frontend/src/apps/console/components/ApplicationContracts.tsx": "2ce986e6e40647191853a7ede642d1d1032d917610301a731cd75e2495593020",
+    "scripts/application_contract.py": "c1d17a53742381d43b6f776179ff28a0c1ff1bc9f03cd5058b7628976e623259",
+    "sdk/python/tests/test_application_contracts.py": "f4a6a45a614f45a16e0de3a18709277d74745b52bacb718a19d30a4b71b24f22"
+  },
+  "evidence_sha256": {
+    "tests.log": "09103d5e9aa5c91eebf45c4de80331511d62e02566ae6a0ed30f5b6ecc18aad5",
+    "sdk-tests.log": "9b5db90c2b785e60a8e6cc6dadf3b474cbeec3fa8ca81ca785fc64d0aa8c3491",
+    "postgres-tests.log": "da2f9ea82fc103e2b58894317aeb0198c42f26e76c354962c7df8c3047654108",
+    "applications-zh-light.png": "ce4d0e349116b3c68bd89648b5deef443cfbd0bd7749e345794b3d8d0c7fccac",
+    "applications-en-dark.png": "dc98d7f17f99d7ba785cefd8fa57ea753d0e70a11d514f25e3cbe72e299dfa55",
+    "applications-mobile.png": "88f294191583e0e3e0b5147112e12ac9acc51782ba7c6ae0fa32437dd0fbc84b"
+  },
+  "sdk_distributions": {
+    "dios_sdk-0.1.19-py3-none-any.whl": "ddfdda6274f1c6eb28177ec491a1b7f2057bb73a95e8e373c059112e6daa15ee",
+    "dios_sdk-0.1.19.tar.gz": "fa65ae81d7907100d2ee1d5b8297e8658e8bccc415e05951eadfec58c2c8ada0"
+  },
+  "remaining_qualification": [
+    "A01-1.02: independent application upgrade/disable/rollback and two compatible execution implementations, including authorization and recovery.",
+    "Physical multi-host qualification remains W4; this delivery uses Linux/WSL native Docker execution."
+  ]
+}

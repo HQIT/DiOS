@@ -154,6 +154,8 @@ class TaskConsole:
             profiles[-1]['view']['deployment_id']=deployment_id
             profiles[-1]['view']['deployment_state']=deployment_state
             profiles[-1]['view']['isolation']=raw.get('isolation')
+            from app.runtime.application_contracts import require as require_application
+            profiles[-1]['view']['application']=require_application(raw)
         return profiles
 
     async def catalog(self):
@@ -268,7 +270,8 @@ class TaskConsole:
         return {**{k:run[k] for k in ('id','state','version','attempt_id','created_at','updated_at','cancel_requested')},
             'goal':payload.get('goal',''), 'sample_id':payload.get('sample',{}).get('id'),
             'task_kind':value.get('task_kind'),'profile_id':value.get('runtime_profile'), 'display':value.get('display',{}),
-            'revision_ref':value.get('revision_ref'),'deployment_id':value.get('deployment_id')}
+            'revision_ref':value.get('revision_ref'),'deployment_id':value.get('deployment_id'),
+            'application':value.get('application')}
 
     async def overview(self, *, period='hour',buckets=24,profile_id=None):
         from app.runtime.overview import view
