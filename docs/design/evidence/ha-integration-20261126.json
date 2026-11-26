@@ -1,0 +1,69 @@
+{
+  "work_item": "D01-3.01",
+  "kind": "implementation_integration",
+  "complete": true,
+  "scope": "Linux control-plane HA integration on shared authoritative services",
+  "completion_audit": [
+    {
+      "requirement": "旧主不能提交授权或任务状态",
+      "evidence": [
+        "ha-live-20261126.json: real fencing before successor",
+        "ha-recovery-20261126.json: stop timeout fencing",
+        "ha-policy-20261126.json: ordering/quorum/fence-required graphs"
+      ],
+      "result": "passed"
+    },
+    {
+      "requirement": "故障模型/RPO 可配置且符合已接受契约",
+      "evidence": [
+        "deploy/ha/contract.md: failure model, capacity targets and infrastructure persistence preconditions",
+        "pacemaker.example.xml: configurable nodes, fencing, volume, quorum and timeouts",
+        "ha-live/ha-recovery/ha-stall: control-node and dependency fault samples"
+      ],
+      "result": "implementation integrated; physical/replicated qualification remains D01-3.02/.03"
+    },
+    {
+      "requirement": "未知副作用先对账",
+      "evidence": [
+        "ha-stall-20261126.json: ambiguous request remains idempotent; original attempt reconciled before retry",
+        "ha-recovery-20261126.json: governed retry and complete-output recovery",
+        "backend/tests/test_runtime_faults.py:test_unknown_tool_effects_prevent_automatic_retry (included in 47 passing regression tests at bbbf143)"
+      ],
+      "result": "passed"
+    }
+  ],
+  "remaining_original_work": [
+    "D01-3.02 physical cross-host environment",
+    "D01-3.03 replicated recovery, authorization/budget/audit and enterprise SLO qualification",
+    "D01-3.04 delivery acceptance"
+  ],
+  "reused_validation": {
+    "source_commit": "bbbf143167a41cbc51af25919f0a039fac3577fe",
+    "ci": "https://github.com/HQIT/DiOS/actions/runs/45841943361",
+    "runtime_source_unchanged": true,
+    "deployment": "same pinned candidate previously deployed in the qualification cluster"
+  },
+  "source_sha256": {
+    "deploy/ha/contract.md": "49dfc2d398db048f7d3e2b31ecf79ecfadf076fe02ac8ada86868a123e3f3fa6",
+    "deploy/ha/pacemaker.example.xml": "a7ba2f38bd405c4863829c54151aece92c42770cfa4351f32c175902f5211f38",
+    "deploy/ha/dios-control.service": "c0b10497cc830b13a1bc80ded6210e4de7eb182c9fb64d784a9f8ea2643d991a",
+    "deploy/ha/compose.ha.yaml": "4e95ba99be86d762ffae4bfe36e6420d47007b5d732270469a2bcbe50a99f240",
+    "docs/design/evidence/ha-policy-20261126.json": "8b15a1c397796d0ebf18dc7fbd2e2a13eb29d63e2670495e95fc262954eb758a",
+    "docs/design/evidence/ha-live-20261126.json": "9e4306fe11c297828ecbb0d2710ac4529a0800f82b90d42ba5250cfb8beae4ad",
+    "docs/design/evidence/ha-recovery-20261126.json": "5320adc218dcbd6cfabbaf575f5ef0a3636df1ecb02ce78f71fb80396f9b90e3",
+    "docs/design/evidence/ha-stall-20261126.json": "cea641dd44b5703eca338eb7f2e1ecff19e1409457b9fe6e6f52688852b5bd7f"
+  },
+  "cleanup": {
+    "vm_states": {
+      "dios-ha-control-a": "shut off",
+      "dios-ha-control-b": "shut off",
+      "dios-ha-control-c": "shut off"
+    },
+    "database_stopped": true,
+    "network_stopped": true,
+    "fence_login_disabled": true,
+    "temporary_fence_block_removed": true,
+    "disks_and_configuration_retained": true,
+    "checked_at": 1795704894.549449
+  }
+}

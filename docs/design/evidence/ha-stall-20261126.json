@@ -1,0 +1,44 @@
+{
+  "work_item": "D01-3.01",
+  "passed": true,
+  "qualification": "PostgreSQL process suspension with existing TCP connections; original real Worker, E2AG and production API",
+  "source_commit": "bbbf143167a41cbc51af25919f0a039fac3577fe",
+  "synthetic_agent": true,
+  "pause_seconds": 128.73415899276733,
+  "task_recovery_observed_upper_bound_seconds": 4.933437824249268,
+  "checks": {
+    "query_timeout_does_not_immediately_kill_or_duplicate_attempt": true,
+    "governed_worker_stops_after_control_observation_timeout": true,
+    "same_run_reconciled_before_new_attempt_and_grant": true,
+    "same_work_authorization_preserved": true,
+    "ambiguous_submission_idempotent": true,
+    "ambiguous_submission_one_acceptance_one_attempt": true,
+    "grants_closed": true,
+    "artifact_digests_verified": true
+  },
+  "source_sha256": {
+    "backend/app/runtime/database.py": "383f6ae64c99da0d7d05d135a57c9a44bf36e183997e895e2fcef1731c6c455e",
+    "backend/app/runtime/worker.py": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12",
+    "backend/app/runtime/faults.py": "df8caf92833bbc0a298ee70ca72ca43283e8ad5f0ef4570dbbd0202784aaa52e",
+    "backend/app/runtime/reconciliation.py": "a508d432e1fee9e3e3a7b0b44faa5af5ed5782d1058dd3ee76d84aac2ea36626",
+    "backend/app/runtime/remote_tool_channel.py": "9836b6f0bb3c14be0dd799fc77ed54bcc94aef98f521708f5592f21b05a8ea78",
+    "deploy/ha/pacemaker.example.xml": "a7ba2f38bd405c4863829c54151aece92c42770cfa4351f32c175902f5211f38"
+  },
+  "evidence_directory": "docs/design/evidence/ha-stall-20261126",
+  "evidence_sha256": {
+    "after.json": "9fe926bd93b2ad76f47ea69512733949bc4a4718d1daf0b616c51f7a53f2c977",
+    "ambiguous-completed.json": "7ac979188fc26d9e2d85859ae20ebb7cf8a0e2f783ea6c7b47bcdf3f94ac43de",
+    "ambiguous-resolved.json": "5ad0c5be3de568302f1d6d8980c7bc8bdef5e2c2a0fd4af59542bf504695f425",
+    "artifact-previews.json": "c9b5bb826d8d2536f0456b5d08bcfc16ff869f742ba29c0d61bb61133e63a438",
+    "db-before.json": "6554ee4ff0ba31b9a6e21e5b5f91ace706ddfbfa3b239135a86eb84e5f0fc0ab",
+    "fault.json": "0a8c1fb5b3a926bc703fb8247eb497f49abfb7911d84f0206e518557340d898b",
+    "final-workers.json": "3e2af21ecc954baa58a420b2797d6f9ee7785a60df34d80459871cbd90f6b7a1",
+    "original-process-observations.json": "963d5eb20aa0f1871de4d47e667c4cc87688d0ebc595b2261b2db95b9a6c9dea",
+    "timeout-probes.json": "fdc84003e38a410d049ac413743da2cfc89a7907e14b9a05bc7ac8b9600bbe91"
+  },
+  "limitations": [
+    "one physical host",
+    "single PostgreSQL instance and shared test disk; replica loss and physical host failure remain D01-3.02/.03",
+    "no steady-state throughput or availability percentile claim"
+  ]
+}

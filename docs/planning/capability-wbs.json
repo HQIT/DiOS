@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "D01-3.01",
-    "next_delivery": "D01-3.01",
+    "next_work_item": "K01-5.01",
+    "next_delivery": "K01-5.01",
     "next_delivery_order": [
-      "D01-3.01",
+      "K01-5.01",
       "D01-3.02",
       "K04-2.02",
       "K02-3.02",
@@ -33,7 +33,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "D01-3.01 的真实停止超时隔离和数据库断连恢复已通过；修复控制面故障错误分类与安全重试。下一步验证数据库进程/网络无响应及完整隔离契约，再推进 D01-3.02/.03 物理跨主机和复制 RPO/RTO。"
+    "next_selection_reason": "D01-3.01 控制面 HA 集成完成；D01-3.02 的第二台 Linux 物理主机与故障注入权限尚待确认。先推进已就绪 K01-5.01，复用 Cursor ACP 主路径与现有另一来源 Harness 完成真实治理矩阵，不新增 Harness SDK 或重新测试已有合格切片。"
   },
   "waves": [
     {
@@ -2873,7 +2873,7 @@
       "issue": 53,
       "title": "控制面 HA 与旧主隔离",
       "kind": "I",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "D01-3-A01",
         "D01-3-A02",
@@ -2887,8 +2887,10 @@
         "D01-2.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "三节点已验证真实旧主隔离、仲裁丢失、隔离设备自动恢复和服务停止超时隔离。数据库断连暴露受控停止被误判为格式错误的问题，已修复并实测原 Run 对账后通过新 E2AG Grant 安全重试成功；完整结果优先恢复，撤权及非重放保护通过。数据库进程/网络无响应与完整隔离契约继续验证；物理跨主机及复制 RPO 由后续资格承接。",
+      "completion_evidence": [
+        "docs/design/evidence/ha-integration-20261126.json"
+      ],
+      "basis": "标准 Pacemaker/Corosync/STONITH 与单活 DiOS 资源组完成集成；真实旧主隔离、停止超时、仲裁丢失、隔离设备恢复、数据库断连及 TCP 存续时暂停均通过。旧主返回不自启动；原任务、E2AG 授权和证据保持，安全重试先对账并签发新 Grant；不确定提交按原幂等键恢复。隔离/持久契约已明确。物理跨主机、数据复制与企业 SLO 的完整资格仍由 D01-3.02/.03/.04 承接。",
       "existing_evidence": [
         "docs/design/evidence/a2a-recovery-20261125.json",
         "docs/design/evidence/worker-reconciliation-regression-20261113.json"
@@ -2900,7 +2902,10 @@
         "docs/design/evidence/ha-policy-20261126.json",
         "deploy/ha/qualification.md",
         "docs/design/evidence/ha-live-20261126.json",
-        "docs/design/evidence/ha-recovery-20261126.json"
+        "docs/design/evidence/ha-recovery-20261126.json",
+        "deploy/ha/contract.md",
+        "docs/design/evidence/ha-stall-20261126.json",
+        "docs/design/evidence/ha-integration-20261126.json"
       ]
     },
     {

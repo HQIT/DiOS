@@ -60,7 +60,7 @@ Pacemaker 的服务监测观察 systemd/Compose 进程；应用请求、模型�
 
 ## 资格与完成条件
 
-`crm_verify` 与 `crm_simulate` 验证配置结构及 Pacemaker 的动作依赖；它们不执行断电、挂载或真实数据库复制。[三节点 Linux 虚拟机验证](../../docs/design/evidence/ha-live-20261126.json)已覆盖真实旧主断电接管、原任务/会话恢复、E2AG 撤权保留、旧主重新入群及无仲裁停服。D01-3.01 继续核验完整故障模型及数据库/卷的隔离契约；D01-3.02/.03 负责物理跨主机、复制恢复及 RPO/RTO 实测。
+`crm_verify` 与 `crm_simulate` 验证配置结构及 Pacemaker 的动作依赖；它们不执行断电、挂载或真实数据库复制。[三节点 Linux 虚拟机验证](../../docs/design/evidence/ha-live-20261126.json)已覆盖真实旧主断电接管、原任务/会话恢复、E2AG 撤权保留、旧主重新入群及无仲裁停服。D01-3.01 已完成控制面集成与[隔离/持久契约](contract.md)；[停止超时及数据库断连](../../docs/design/evidence/ha-recovery-20261126.json)、[数据库暂停](../../docs/design/evidence/ha-stall-20261126.json)补齐恢复路径。D01-3.02/.03 负责物理跨主机、复制恢复及 RPO/RTO 实测。
 
 ### 可复现的离线策略检查
 

@@ -1,0 +1,137 @@
+{
+  "body": {
+    "profile_id": "ha-fixture",
+    "goal": "Ambiguous submission remains idempotent after database stall",
+    "input_payload": {
+      "id": "stall-submit",
+      "name": "stall-submit"
+    },
+    "idempotency_key": "ha-stall-ambiguous-20261126"
+  },
+  "run": {
+    "id": "95052eb3-951a-4960-98a3-d00fdff9a60d",
+    "state": "queued",
+    "version": 1,
+    "attempt_id": null,
+    "created_at": 1795704707.536042,
+    "updated_at": 1795704707.536042,
+    "cancel_requested": false,
+    "goal": "Ambiguous submission remains idempotent after database stall",
+    "sample_id": "stall-submit",
+    "task_kind": "ha-qualification",
+    "profile_id": "ha-fixture",
+    "display": {
+      "name": "HA qualification",
+      "implementation": "Synthetic JSONL fixture",
+      "synthetic": true
+    },
+    "revision_ref": null,
+    "deployment_id": null,
+    "application": null,
+    "access": [
+      "run.read",
+      "run.cancel",
+      "run.revoke",
+      "artifact.read",
+      "tool.read",
+      "tool.approve"
+    ],
+    "observed_at": 1795704707.550485,
+    "attempts": [],
+    "authorization": {
+      "mode": "e2ag",
+      "reference": "wa-b54bf8960a06d4cf924d26887d074a5717100cdd4c5d021d3a5b049f6f49",
+      "subject": "operator:qualification",
+      "actor": "service:qualification",
+      "policy_id": "ha-qualification",
+      "state": "active",
+      "expires_at": 1795791107.536042,
+      "authorization_epoch": 1,
+      "source_check": null,
+      "source_event": null,
+      "delegation": null,
+      "secret_refs": [],
+      "grant": null,
+      "decisions": [
+        {
+          "id": "74838cf0-5061-4c88-84bb-f2568bc3cc13",
+          "action": "admit",
+          "created_at": 1795704707.536042,
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ]
+        }
+      ]
+    },
+    "recovery": null,
+    "family": null,
+    "capacity": {
+      "blocked": false,
+      "reason": null,
+      "limits": []
+    },
+    "execution_budget": null,
+    "tool_budget": null,
+    "model_usage": {
+      "evidence_level": "agent_reported",
+      "settlement": "unreconciled",
+      "at_limit": false,
+      "items": []
+    },
+    "consumption_budget": {
+      "provider_hard_cap": "unsupported",
+      "blocked_reasons": [],
+      "at_limit": false,
+      "items": []
+    },
+    "diagnostics": {
+      "time_basis": "control_plane_received",
+      "observed_at": 1795704707.550485,
+      "last_event_at": 1795704707.536042,
+      "last_output_at": null,
+      "freshness": "no_worker",
+      "stages": [],
+      "attempts_has_more": false,
+      "governance": [
+        {
+          "id": "74838cf0-5061-4c88-84bb-f2568bc3cc13",
+          "kind": "work",
+          "attempt_id": null,
+          "action": "admit",
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ],
+          "created_at": 1795704707.536042,
+          "timing": null
+        }
+      ],
+      "governance_has_more": false,
+      "coverage": {
+        "phases": "persisted_runtime_reports",
+        "governance": "audited_checkpoints",
+        "persistence_commit_seconds": null,
+        "agent_internal_stages": "not_observed"
+      }
+    },
+    "sample": {
+      "id": "stall-submit",
+      "name": "stall-submit",
+      "sha256": "dfbae8841930372ef0684e3893fe77b0a3de98e60a59243327f53eef3cf9c6ab"
+    },
+    "artifacts": [],
+    "events": [
+      {
+        "id": "e4490be1-7a6a-43d7-ba3d-87489b7a814a",
+        "version": 1,
+        "type": "run.accepted",
+        "state": "queued",
+        "created_at": 1795704707.536042
+      }
+    ],
+    "attempts_has_more": false,
+    "artifacts_at_limit": false
+  },
+  "repeat_id": "95052eb3-951a-4960-98a3-d00fdff9a60d"
+}
