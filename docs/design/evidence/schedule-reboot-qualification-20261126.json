@@ -1,0 +1,282 @@
+{
+  "work_item": "K01-2.03",
+  "passed": true,
+  "implementation_commit": "76e86e106c20ff102b8bd168f454ba06f9708701",
+  "contracts": {
+    "suite": "test_run_schedules.RunScheduleTests",
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 22.708,
+    "log": "workspace/qualification-schedule-reboot-20261126/contracts.log"
+  },
+  "native": {
+    "passed": true,
+    "checks": [
+      "three-independent-scheduler-processes-create-one-run-and-work",
+      "overlapping-ticks-buffer-without-replacing-active-run",
+      "drain-keeps-original-process-and-blocks-new-work",
+      "natural-exit-retains-original-attempt-session-and-verified-artifacts",
+      "kernel-reboot-preserves-drain-cursor-run-work-and-artifact-identities",
+      "resume-delivers-buffered-occurrence-once-with-new-work"
+    ],
+    "boot_before": "73bc33df-e475-4c86-afd6-f0f4588521ea",
+    "boot_after": "b83ff9db-8c19-49c5-91dc-d03bce1409b8",
+    "run_ids": [
+      "2a9ed750-f643-4657-92c1-112a762013be",
+      "25019901-fcf5-490a-8936-95a831059e32"
+    ],
+    "attempt_ids": [
+      "a530ffee-79ab-4629-8b71-995e94865626",
+      "89df4304-8e4b-42e4-8a8d-08262efb45d5"
+    ],
+    "artifact_count": 4,
+    "kernel": "6.8.0-151-generic",
+    "backend_image": "sha256:31b0f1b209513d03e0a1615f11539041157b15ecd06ea9d366701f07975f16c0"
+  },
+  "cloud_image": {
+    "source": "https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img",
+    "sha256": "d80fe50055e780901549d0dfab203551d79e31cb0fa9ac2b4d45efa1e8a51052",
+    "signature": "gpgv verified SHA256SUMS with Ubuntu cloud image keyring"
+  },
+  "image_equivalence": {
+    "backend": {
+      "source_id": "sha256:33e695d7d8d542fe9e257bf95926958065f48500fcd7637f2df06fba53c36751",
+      "guest_id": "sha256:31b0f1b209513d03e0a1615f11539041157b15ecd06ea9d366701f07975f16c0",
+      "runtime_configuration_equal": true,
+      "rootfs_layers_equal": true,
+      "layer_count": 39
+    },
+    "fixture": {
+      "source_id": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+      "guest_id": "sha256:9c905a0c6d796f48abd26a79775315996d024cb36e9151ad4e1fb9e5493b2977",
+      "runtime_configuration_equal": true,
+      "rootfs_layers_equal": true,
+      "layer_count": 9
+    }
+  },
+  "controller_before": {
+    "id": "65f9ef47fe287f63308e5dfe0a98e8df9e926d3fcc4533b025c7f15fab61d141",
+    "image": "sha256:31b0f1b209513d03e0a1615f11539041157b15ecd06ea9d366701f07975f16c0",
+    "started_at": "2026-11-26T03:11:19.733197476Z"
+  },
+  "controller_after": {
+    "id": "65f9ef47fe287f63308e5dfe0a98e8df9e926d3fcc4533b025c7f15fab61d141",
+    "image": "sha256:31b0f1b209513d03e0a1615f11539041157b15ecd06ea9d366701f07975f16c0",
+    "started_at": "2026-11-26T03:18:13.819728115Z"
+  },
+  "schedule_before": {
+    "items": [
+      {
+        "id": "cd7474e3fd5f41ff839542ccc0227df2",
+        "template": {
+          "profile_id": "scheduled",
+          "sample_id": "sample",
+          "input_payload": null,
+          "goal": "Scheduled restart qualification"
+        },
+        "binding": {
+          "source": "service-policy",
+          "submission_digest": "53f4e504b75c0baccc10b1a144e827215a611abb043967ebe92e4dc0d8568d4c",
+          "profile_digest": "d37fb854d7aaa8eb3821acea0d76899b35c1b5f92a64594655231d5f20928fa6",
+          "subject": "operator:qualification",
+          "actor": "service:qualification",
+          "policy_id": "qualification",
+          "policy_digest": "8cfba9b1731036d04d3e87130325c49b3d28849c9c7b4e965f533d53656d488e"
+        },
+        "expression": "* * * * *",
+        "enabled": true,
+        "version": 1,
+        "next_due": 1795663140.0,
+        "created_at": 1795662762.8049955,
+        "updated_at": 1795663083.0939844,
+        "timezone": "UTC",
+        "overlap": "buffer_one",
+        "catchup_seconds": 86400,
+        "active": {
+          "id": "c6cc2a772fca4ff989ab6225a8c04303",
+          "schedule_id": "cd7474e3fd5f41ff839542ccc0227df2",
+          "revision": 1,
+          "first_due": 1795662707.994077,
+          "last_due": 1795662720.0,
+          "trigger_count": 2,
+          "state": "pending",
+          "run_id": null,
+          "failures": 0,
+          "retry_at": null,
+          "error": "",
+          "created_at": 1795662770.3019977,
+          "updated_at": 1795662770.3019977
+        },
+        "buffered": {
+          "id": "e76a8b168b26404c8834f9f4d328c8a9",
+          "schedule_id": "cd7474e3fd5f41ff839542ccc0227df2",
+          "revision": 1,
+          "first_due": 1795662780.0,
+          "last_due": 1795663080.0,
+          "trigger_count": 6,
+          "state": "buffered",
+          "run_id": null,
+          "failures": 0,
+          "retry_at": null,
+          "error": "",
+          "created_at": 1795662780.6730137,
+          "updated_at": 1795663082.0200012
+        }
+      }
+    ],
+    "next_cursor": null,
+    "observed_at": 1795663083.9009807
+  },
+  "schedule_after": {
+    "items": [
+      {
+        "id": "cd7474e3fd5f41ff839542ccc0227df2",
+        "template": {
+          "profile_id": "scheduled",
+          "sample_id": "sample",
+          "input_payload": null,
+          "goal": "Scheduled restart qualification"
+        },
+        "binding": {
+          "source": "service-policy",
+          "submission_digest": "53f4e504b75c0baccc10b1a144e827215a611abb043967ebe92e4dc0d8568d4c",
+          "profile_digest": "d37fb854d7aaa8eb3821acea0d76899b35c1b5f92a64594655231d5f20928fa6",
+          "subject": "operator:qualification",
+          "actor": "service:qualification",
+          "policy_id": "qualification",
+          "policy_digest": "8cfba9b1731036d04d3e87130325c49b3d28849c9c7b4e965f533d53656d488e"
+        },
+        "expression": "* * * * *",
+        "enabled": true,
+        "version": 1,
+        "next_due": 1795663140.0,
+        "created_at": 1795662762.8049955,
+        "updated_at": 1795663083.0939844,
+        "timezone": "UTC",
+        "overlap": "buffer_one",
+        "catchup_seconds": 86400,
+        "active": {
+          "id": "c6cc2a772fca4ff989ab6225a8c04303",
+          "schedule_id": "cd7474e3fd5f41ff839542ccc0227df2",
+          "revision": 1,
+          "first_due": 1795662707.994077,
+          "last_due": 1795662720.0,
+          "trigger_count": 2,
+          "state": "pending",
+          "run_id": null,
+          "failures": 0,
+          "retry_at": null,
+          "error": "",
+          "created_at": 1795662770.3019977,
+          "updated_at": 1795662770.3019977
+        },
+        "buffered": {
+          "id": "e76a8b168b26404c8834f9f4d328c8a9",
+          "schedule_id": "cd7474e3fd5f41ff839542ccc0227df2",
+          "revision": 1,
+          "first_due": 1795662780.0,
+          "last_due": 1795663080.0,
+          "trigger_count": 6,
+          "state": "buffered",
+          "run_id": null,
+          "failures": 0,
+          "retry_at": null,
+          "error": "",
+          "created_at": 1795662780.6730137,
+          "updated_at": 1795663082.0200012
+        }
+      }
+    ],
+    "next_cursor": null,
+    "observed_at": 1795663095.0210168
+  },
+  "artifacts_before": [
+    {
+      "id": "10327f1d-2111-4696-aee5-1969410cc60e",
+      "run_id": "2a9ed750-f643-4657-92c1-112a762013be",
+      "attempt_id": "a530ffee-79ab-4629-8b71-995e94865626",
+      "digest": "b7955a625dd5a0116a909e3f6e57bea181a1b260fb8e2797f9e7286182acfda4",
+      "size": 380,
+      "provider": "local-content-addressed-v1",
+      "storage_key": "b7955a625dd5a0116a909e3f6e57bea181a1b260fb8e2797f9e7286182acfda4",
+      "created_at": 1795662777.0360186,
+      "verified_sha256": "b7955a625dd5a0116a909e3f6e57bea181a1b260fb8e2797f9e7286182acfda4"
+    },
+    {
+      "id": "7e12cce4-cdbd-42d3-9308-0634c0d4a8d5",
+      "run_id": "2a9ed750-f643-4657-92c1-112a762013be",
+      "attempt_id": "a530ffee-79ab-4629-8b71-995e94865626",
+      "digest": "0064ea694be280908e9464c7ab1373717ad071a28479f1d95ee44a4d49b1eb29",
+      "size": 113,
+      "provider": "local-content-addressed-v1",
+      "storage_key": "0064ea694be280908e9464c7ab1373717ad071a28479f1d95ee44a4d49b1eb29",
+      "created_at": 1795662777.2779808,
+      "verified_sha256": "0064ea694be280908e9464c7ab1373717ad071a28479f1d95ee44a4d49b1eb29"
+    }
+  ],
+  "artifacts_after": [
+    {
+      "id": "10327f1d-2111-4696-aee5-1969410cc60e",
+      "run_id": "2a9ed750-f643-4657-92c1-112a762013be",
+      "attempt_id": "a530ffee-79ab-4629-8b71-995e94865626",
+      "digest": "b7955a625dd5a0116a909e3f6e57bea181a1b260fb8e2797f9e7286182acfda4",
+      "size": 380,
+      "provider": "local-content-addressed-v1",
+      "storage_key": "b7955a625dd5a0116a909e3f6e57bea181a1b260fb8e2797f9e7286182acfda4",
+      "created_at": 1795662777.0360186,
+      "verified_sha256": "b7955a625dd5a0116a909e3f6e57bea181a1b260fb8e2797f9e7286182acfda4"
+    },
+    {
+      "id": "7e12cce4-cdbd-42d3-9308-0634c0d4a8d5",
+      "run_id": "2a9ed750-f643-4657-92c1-112a762013be",
+      "attempt_id": "a530ffee-79ab-4629-8b71-995e94865626",
+      "digest": "0064ea694be280908e9464c7ab1373717ad071a28479f1d95ee44a4d49b1eb29",
+      "size": 113,
+      "provider": "local-content-addressed-v1",
+      "storage_key": "0064ea694be280908e9464c7ab1373717ad071a28479f1d95ee44a4d49b1eb29",
+      "created_at": 1795662777.2779808,
+      "verified_sha256": "0064ea694be280908e9464c7ab1373717ad071a28479f1d95ee44a4d49b1eb29"
+    }
+  ],
+  "runs": [
+    {
+      "id": "2a9ed750-f643-4657-92c1-112a762013be",
+      "state": "succeeded",
+      "work_ref": "wa-9b1fd87d58f580640dabfddbcfb2a05967d264780e1c499f7681eca35096",
+      "attempts": [
+        {
+          "id": "a530ffee-79ab-4629-8b71-995e94865626",
+          "session_id": "0bb63267-fd66-44e9-9f57-e18b6a1dd05b",
+          "state": "completed"
+        }
+      ]
+    },
+    {
+      "id": "25019901-fcf5-490a-8936-95a831059e32",
+      "state": "succeeded",
+      "work_ref": "wa-2f67a3b1a30a8e1d016f0ac81184e0a09bd10aef4b9b479d7e3419409390",
+      "attempts": [
+        {
+          "id": "89df4304-8e4b-42e4-8a8d-08262efb45d5",
+          "session_id": "e8cc4acc-9670-468d-8dbc-dcfff4184b01",
+          "state": "completed"
+        }
+      ]
+    }
+  ],
+  "evidence_directory": "workspace/qualification-schedule-reboot-20261126",
+  "limits": [
+    "Dedicated Linux VM on one physical WSL host; physical multihost loss is K01-2.04.",
+    "Synthetic native task, E2AG enforced, no model service invoked.",
+    "Drain followed by kernel reboot; different-version upgrade and rollback evidence remains K02-1.03 and K02-3.03."
+  ],
+  "source_sha256": {
+    "scripts/qualification_schedule_guest.py": "91fea56c6c38f1add192b16885c8632b3fde1f620c1c52d579a313fa395b6e79",
+    "scripts/qualify_schedule_reboot.py": "c13a043f5c4efffedc804338675cad73eddec6139e1fa699968b840e3852d11a",
+    "backend/app/services/run_schedules.py": "e244e6f434d1990be28e3515cd0e868270fb042b3fb1659e43d3a0dd5bde0cfc",
+    "backend/app/runtime/lifecycle.py": "1263ea10a9873cbf6544c990edfda1a4bc7bdceb900447d08f09a6ca3d186062",
+    "backend/app/runtime/store.py": "9c3bb536eb96020ed164a8c92e2a239e11d4af6e540ad0a1f0cba39c21288dce",
+    "backend/tests/test_run_schedules.py": "ff0f01f6fbd9fd3987023061f7465eb14d606fbeecf3461c0c7a293f0826925d"
+  }
+}
