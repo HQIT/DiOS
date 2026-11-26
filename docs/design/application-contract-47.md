@@ -101,4 +101,4 @@ run = client.submit_input(profile_id, application_input, goal,
 
 CLI 使用已安装的公开 SDK 和 `DIOS_ACCESS_TOKEN`，`--url` 指定 HTTPS 或本地开发端点。Console → **应用接入** 展示平台接口、应用版本、登记 Revision 和兼容差异。候选预览不会修改登记、批准能力或启动 Worker。
 
-工程证据见 [应用契约验证](evidence/application-contract-20261126.json)。升级停用、两执行实现替代和跨实现恢复的联合资格继续由 A01-1.02 承担。
+工程证据见 [应用契约验证](evidence/application-contract-20261126.json)。升级停用、两执行实现替代与各自原输出恢复见 [独立应用生命周期](application-lifecycle-47.md)。
