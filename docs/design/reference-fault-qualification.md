@@ -1,6 +1,6 @@
 # 故障场景资格与剩余交付
 
-F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R07 完整输出抢救、R09 查询与同步故障分离、R10 迟到结果隔离、R11 进度与详情独立同步、R12 指定 UTF-8 分块、R13 运行中升级、R14 Linux 后台环境恢复及 R15 只读控制已通过；其余七项和 G05/G06 仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
+F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R05 节点重启、R07 完整输出抢救、R09 查询与同步故障分离、R10 迟到结果隔离、R11 进度与详情独立同步、R12 指定 UTF-8 分块、R13 运行中升级、R14 Linux 后台环境恢复及 R15 只读控制已通过；其余六项和 G05/G06 仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
 
 ## 执行与结果
 
@@ -102,6 +102,16 @@ DIOS_TEST_DOCKER=1 backend/.venv/bin/python scripts/qualify_reference_faults.py 
 
 每次报告分别记录本次结果和未满足条件；未选择的场景不计为本次通过。累计结果引用已有证据并校验其相关源码摘要。全量入口同时选择十八项故障与六项共同治理，退出码 0 要求全部满足。
 
+## 隔离节点真实重启
+
+[R05 证据](evidence/node-reboot-20261126.json)使用既有隔离 Linux VM、生产远程 Worker、真实 mTLS 控制面和 E2AG。持久任务运行时执行 [libvirt 硬重启](https://www.libvirt.org/manpages/virsh.html#reset)，确认内核 `boot_id` 改变。systemd 自动启动两路 Worker，按服务端原有租约到期与对账流程处理任务。
+
+已完成任务的身份、状态和产物保持原记录；执行中的部分输出保留为 `RESULT_INCOMPLETE`，释放执行槽位；已产生完整输出但尚未确认的任务沿原 Attempt/Session 经 E2AG 复核后恢复成功；排队任务沿原 Run 身份在新启动周期执行。四项任务各保留一次尝试。旧 Worker 的心跳和报告重放均返回 `STALE_OWNER`，最终实际并发为零。
+
+运行前准备独立测试 VM、已加载的固定后端和合成执行镜像、当前 `backend/app` 归档、mTLS 测试网络及 SSH 身份，按 [节点配置示例](fixtures/node-reboot.example.json)填写。入口为 `DIOS_TEST_DOCKER=1 DIOS_TEST_REBOOT_CONFIG=<配置文件> --cases R05`。配置中的 `allow_reset` 明确选择测试节点；夹具核对 domain UUID、无运行中容器、HA 服务停止和共享卷未挂载，再执行故障。缺少配置时跳过测试，场景不计通过。
+
+本次全部 248 个运行时 Python 文件与执行节点内容一致，约 66.7 秒内完成租约到期及任务对账，精确耗时见证据。测试服务及所属容器已清理，VM 和隔离网络恢复关闭。单宿主 VM 资格与 D01-3.02/.03 的物理故障域、复制及 RPO/RTO 资格分别记录。
+
 ## 只读评审控制
 
 [R15 证据](evidence/readonly-review-20261126.json)覆盖固定 DSH 配置上的四类实际请求：写源码、Python 编译、npm 包脚本和越权外发。沿用 [DSH 原生控制](dsh-native-controls-58.md) 的执行前 guard，四类请求均在工具执行前拒绝。编译及包脚本在同镜像、同非 root 身份的独立正向控制容器中成功，网络关闭；真实 Harness 的副作用目录未生成对应文件，源码摘要保持不变。
@@ -117,7 +127,7 @@ R14 使用隔离的 systemd user 服务运行生产 ACP bridge。依次移除 Gi
 | 范围 | 场景与剩余条件 | 承接 |
 | --- | --- | --- |
 | 原生执行故障 | R06 模型 HTTP 错误转换；R09 已通过 | #10/#30/#32/#46/#56/#58 |
-| 节点与交付 | R05 隔离节点重启；R14 Linux 后台环境恢复已通过 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
+| 节点与交付 | R05 隔离节点重启与 R14 Linux 后台环境恢复已通过 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
 | 静态评审应用 | R01 分支 SHA 水位、R08 证据待验证及覆盖账本、R16 上下文复用、R17 质量与导出统一口径 | #43/#59；底座提供任务、授权、工具、产物与统计接口 |
 | 旧系统接续 | R18 旧控制器兼容回滚、分区独占及历史身份 | #11/#60；需隔离源端和旧系统适配 |
 | 共同治理 | G01 能力缺失、G02 断连、G03 撤销组合、G04 回调已通过；G05 人工接管复核、G06 实现交接待补齐 | 原验收列出的 #30/#34/#35/#37/#38/#40/#56/#58；平台承接 WorkItem 语义 |
@@ -132,4 +142,4 @@ ACP 使用标准 [stdio JSON-RPC 传输](https://agentclientprotocol.com/protoco
 
 迟到报告采用 [AWS 死信队列](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html) 的隔离与排查思路；进度与详情沿用 [Azure 队列负载调节](https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling) 的生产和消费解耦原则，复用现有 SQLite/Provider、离线 spool 和分块协议。预览网络采用 [Docker Compose 自定义网络](https://docs.docker.com/compose/how-tos/networking/) 的服务分区方式。
 
-控制面 HA 与旧主隔离已具备，R05 继续补齐隔离节点真实重启资格；R06 保留供应商错误来源缺口，应用和旧系统迁移断言按对应责任项推进。
+控制面 HA、旧主隔离及 R05 隔离节点重启已具备验证证据；R06 保留供应商错误来源缺口，应用和旧系统迁移断言按对应责任项推进。

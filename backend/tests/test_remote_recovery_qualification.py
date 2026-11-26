@@ -173,7 +173,9 @@ class RemoteRecoveryQualificationTests(unittest.IsolatedAsyncioTestCase):
             server=True,
         )
         self.gateway_task = asyncio.create_task(
-            self.gateway.serve("127.0.0.1", 0, context, self.stop)
+            self.gateway.serve(
+                getattr(self, "gateway_host", "127.0.0.1"), 0, context, self.stop
+            )
         )
         async with asyncio.timeout(5):
             while self.gateway.server is None:
@@ -186,7 +188,7 @@ class RemoteRecoveryQualificationTests(unittest.IsolatedAsyncioTestCase):
                     "enabled": True,
                     "worker_id": "qualified",
                     "audience": "qualification",
-                    "host": "127.0.0.1",
+                    "host": getattr(self, "gateway_host", "127.0.0.1"),
                     "server_name": "localhost",
                     "port": self.gateway.server.sockets[0].getsockname()[1],
                     "ca_file": str(self.root / "ca.pem"),

@@ -1,0 +1,145 @@
+{
+  "work_item": "F03-2.02",
+  "case": "R05",
+  "status": "engineering_verified",
+  "complete_work_item": false,
+  "source_commit": "60d205b7d82cfffac41f76057a0d76f224b7c48f",
+  "environment": "one isolated Linux VM on the existing WSL host; production remote Worker, mTLS control and E2AG; synthetic JSONL workload",
+  "fault": "libvirt virsh reset; persistent guest disk and Docker state retained; no graceful guest shutdown",
+  "tests": {
+    "test_reference_reboot.NativeNodeRebootTests.test_boot_change_reconciles_each_task_and_rejects_old_lease": "passed"
+  },
+  "checks": {
+    "boot_id_changed": true,
+    "systemd_restarted_both_workers": true,
+    "completed_task_unchanged": true,
+    "partial_output_failed_and_retained": true,
+    "complete_output_revalidated_under_original_attempt_and_session": true,
+    "queued_identity_executed_after_boot": true,
+    "one_attempt_per_original_run": true,
+    "e2ag_result_acceptance_rechecked": true,
+    "old_heartbeat_and_report_rejected": true,
+    "no_permanent_slot_occupation": true,
+    "guest_runtime_sources_match": true,
+    "raw_outputs_reassembled_and_sha256_verified": true
+  },
+  "boot_ids": [
+    "9c84cf14-54a0-4d82-a3c2-f38755916b5c",
+    "63d2d06f-3109-4383-a769-c90a5647426f"
+  ],
+  "seconds_to_all_reconciled": 66.7494285890134,
+  "tasks": {
+    "completed": {
+      "run_id": "711e5120-0f7c-4546-b503-987829fe3667",
+      "state": "succeeded",
+      "epoch": 1,
+      "attempt_id": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+      "session_id": "77c8876c-88b6-461c-b4af-cdd3390a21d7",
+      "error": null
+    },
+    "partial": {
+      "run_id": "0cc5ae13-f3f2-4588-b4ec-4e9503b7b908",
+      "state": "failed",
+      "epoch": 2,
+      "attempt_id": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+      "session_id": "334b968d-6d46-495d-88f8-e6f4b7b43da3",
+      "error": {
+        "code": "RESULT_INCOMPLETE",
+        "category": "format",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      }
+    },
+    "complete-output": {
+      "run_id": "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+      "state": "succeeded",
+      "epoch": 2,
+      "attempt_id": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+      "session_id": "394255a3-7814-4e64-b435-7b32cc63a8f3",
+      "error": null
+    },
+    "queued": {
+      "run_id": "220d7e29-71d0-478c-afd0-3f551e4380c2",
+      "state": "succeeded",
+      "epoch": 1,
+      "attempt_id": "eb856bfc-a207-4afe-8857-5b6e5d6611dd",
+      "session_id": "bc45a737-4cf9-42f4-8504-9de7b87c3e93",
+      "error": null
+    }
+  },
+  "recovery_authorization_requests": [
+    {
+      "action": "accept_result",
+      "binding": [
+        "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+        "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+        "qualified:75f751b39a834c41882b93262a03f2b6",
+        "8ea80a83-6f70-4e8a-8295-6038ad60d41b",
+        1
+      ],
+      "session_id": "394255a3-7814-4e64-b435-7b32cc63a8f3"
+    },
+    {
+      "action": "accept_result",
+      "binding": [
+        "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+        "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+        "qualified:75f751b39a834c41882b93262a03f2b6",
+        "8ea80a83-6f70-4e8a-8295-6038ad60d41b",
+        1
+      ],
+      "session_id": "394255a3-7814-4e64-b435-7b32cc63a8f3"
+    }
+  ],
+  "work_authorization_ref": "wa-6ce204f9b769b3b9c85ca40e64b2d42f767e25d6f2428cabb29d6f9a9060",
+  "cleanup": {
+    "units_disabled": [
+      "dios-r05-30d9c88a31.service",
+      "dios-r05-63e0b0b29c.service"
+    ],
+    "containers_removed_by_scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+    "guest_evidence_retained": "/home/ubuntu/dios-r05-cde1b268",
+    "vm_state": "shut off",
+    "network_stopped": true,
+    "ha_services_inactive": true,
+    "guest_source_matches": true,
+    "runtime_python_files": 248,
+    "runtime_source_sha256": "dbc2dbe094beace07b522b3fe7f86d1d5674673d434950c47a3fdf726f224469"
+  },
+  "retained_sha256": {
+    "docs/design/evidence/node-reboot-20261126/cleanup.json": "3063445308eedd5c7eef579ce9b8461d94201586308c89ab7f8dc0479a90aa11",
+    "docs/design/evidence/node-reboot-20261126/dios-r05-30d9c88a31.service": "1510b8274ff3145510e454f4d1dcfc2bf9c61a8cd67b5d2a6eaa9fc3f72e421c",
+    "docs/design/evidence/node-reboot-20261126/dios-r05-63e0b0b29c.service": "663bf946f41accbff2570723ed08ff10fd6f0dc3d53b2976bd08ffc97d1f8115",
+    "docs/design/evidence/node-reboot-20261126/result.json": "a17b89b76bb7d3e44dee527e6238550aa08e076c41ca427b27e0dea23a03bfa6",
+    "docs/design/evidence/node-reboot-20261126/source_sha256.json": "9d22a400b33afcfcb1de101c5b4903eb4fb121ab30806d360699340bcad1726d",
+    "docs/design/evidence/node-reboot-20261126/tests.log": "92161264500c1e98a3aea2de57ca4db85c570f57276f8fd83b40dbd21c150d93",
+    "docs/design/evidence/node-reboot-20261126/partial-stdout.jsonl": "09a36d80e8d39fa331d56f2e403276fe3f8e09c239ce89aae363973e2b9a4dd8",
+    "docs/design/evidence/node-reboot-20261126/complete-output-stdout.jsonl": "64d2cff87af31dbe50eaa85aabd6a92f9f7bb5352971d57b69ccec85ccc42867"
+  },
+  "source_sha256": {
+    "backend/tests/test_reference_reboot.py": "4575d3a453323a7df9039deb724c7d38207f6a12d1b81fd0200e5c1d27c475d3",
+    "backend/tests/test_remote_recovery_qualification.py": "e642c660a21c6b8beeeabb95b6329af23f51cb3a90fae45a8e3e672880498474"
+  },
+  "limits": [
+    "Physical hosts: 1. This verifies a real guest kernel restart, not independent physical failure domains or HA replication RPO/RTO.",
+    "Synthetic workloads exercise the production Worker and E2AG. No provider model continuation claim is made.",
+    "Incomplete output is retained as RESULT_INCOMPLETE and frees the slot; it is not automatically counted as success or replayed.",
+    "Six reference fault scenarios and G05/G06 remain; the full WBS item is not complete."
+  ],
+  "output_receipts": {
+    "partial": {
+      "attempt_id": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+      "stdout_sha256": "09a36d80e8d39fa331d56f2e403276fe3f8e09c239ce89aae363973e2b9a4dd8",
+      "receipt_digest": "24b8d4bdde6f0acdb058b255d076f24d7ab01789364bc41d08eee2728c68efe3",
+      "frames": 2,
+      "partial_output_verified": true
+    },
+    "complete-output": {
+      "attempt_id": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+      "stdout_sha256": "64d2cff87af31dbe50eaa85aabd6a92f9f7bb5352971d57b69ccec85ccc42867",
+      "receipt_digest": "f115d26d77c6166cfc4f7f7a72d140777a781c6a3c4789ccf7fcdf26639a4f9b",
+      "frames": 3,
+      "partial_output_verified": true
+    }
+  }
+}

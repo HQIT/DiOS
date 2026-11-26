@@ -1,0 +1,875 @@
+{
+  "case": "R05",
+  "domain": "dios-ha-control-c",
+  "domain_uuid": "4ec27f8e-7ca4-46ac-aeff-d2549c17acd5",
+  "boot_before": "9c84cf14-54a0-4d82-a3c2-f38755916b5c",
+  "boot_after": "63d2d06f-3109-4383-a769-c90a5647426f",
+  "fault": "virsh reset",
+  "automatic_restart": "systemd enabled remote Worker services",
+  "seconds_to_all_reconciled": 66.7494285890134,
+  "final_runs": {
+    "completed": {
+      "id": "711e5120-0f7c-4546-b503-987829fe3667",
+      "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+      "idempotency_key": "reboot-completed",
+      "input_digest": "55936a7f5191fec6d2cd8ce6c8463b1783bafe575e2aa52af79b672115a615a1",
+      "input": {
+        "runtime_profile": "account-a",
+        "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+        "secret_refs": [],
+        "payload": {
+          "barrier": false
+        },
+        "work_authorization_ref": "wa-c36e1c8b4e917419adc86e097774a52a4b41e3425388808e82b4898ca183",
+        "work_policy_digest": "6877518e12e7edf93bd674e2b6aa00a1dd299b51fcfcebad13180b75b527e111"
+      },
+      "state": "succeeded",
+      "version": 11,
+      "epoch": 1,
+      "attempt_id": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+      "authorization_epoch": 1,
+      "revoked": false,
+      "cancel_requested": false,
+      "created_at": 1795709155.1799953,
+      "updated_at": 1795709159.1100082,
+      "attempts": [
+        {
+          "id": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+          "run_id": "711e5120-0f7c-4546-b503-987829fe3667",
+          "worker_id": "qualified:fe18f9d73bbe4f5299388c3349ca8fc8",
+          "worker_instance": "4273af59-e161-4aa6-beb0-6ce4940d9bdd",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795709217.2769866,
+          "state": "completed",
+          "session_id": "77c8876c-88b6-461c-b4af-cdd3390a21d7",
+          "process_id": 2414,
+          "process_instance": "63491e296bb2df6b8622a3facd56e8f7eda2e2068790b0aecd95331ec7b651f2:2026-11-26T16:05:56.266809181Z",
+          "last_sequence": 5,
+          "report_digest": "bcacd30403a856bfedc2b6736c2eacb9da910803e4f3b8b8becd0a4c687d5686",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+              "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+              "profile_id": "account-a",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c"
+            },
+            "runtime": {
+              "handle": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+              "state": "exited",
+              "alive": false,
+              "pid": null,
+              "process_instance": "63491e296bb2df6b8622a3facd56e8f7eda2e2068790b0aecd95331ec7b651f2:2026-11-26T16:05:56.266809181Z",
+              "exit_code": 0,
+              "health": "not_configured",
+              "runtime_host": "82df6034-bbcc-487d-a70d-7fd75ada10ae",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c",
+              "observed_at": 1795709157.758014
+            },
+            "progress": {
+              "text": "节点重启合成任务🙂"
+            }
+          },
+          "error": null,
+          "last_output_at": 1795709156.8165321,
+          "started_at": 1795709156.5780163,
+          "finished_at": 1795709159.1100082
+        }
+      ],
+      "recovery": null,
+      "recovery_policy": {
+        "accept_complete_on_error": false,
+        "base_delay": 1,
+        "max_attempts": 3,
+        "max_delay": 2,
+        "quota_delay": 2,
+        "replay_safe": true,
+        "resource": "model:account-a"
+      },
+      "observed_at": 1795709174.1780014,
+      "execution_budget": null,
+      "tool_budget": {
+        "committed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "maximum": null,
+        "remaining": null,
+        "exhausted": false,
+        "inherited": false,
+        "accounting_scope": "run_tree"
+      },
+      "model_usage": {
+        "evidence_level": "agent_reported",
+        "settlement": "unreconciled",
+        "at_limit": false,
+        "items": []
+      },
+      "consumption_budget": {
+        "provider_hard_cap": "unsupported",
+        "blocked_reasons": [],
+        "at_limit": false,
+        "items": []
+      },
+      "family": null
+    },
+    "partial": {
+      "id": "0cc5ae13-f3f2-4588-b4ec-4e9503b7b908",
+      "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+      "idempotency_key": "reboot-partial",
+      "input_digest": "543558918e19ad39ea5c597ad41d4fecfcb25de2a6961558e08085ed6993673d",
+      "input": {
+        "runtime_profile": "account-a",
+        "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+        "secret_refs": [],
+        "payload": {
+          "barrier": true
+        },
+        "work_authorization_ref": "wa-c7117d98556554ddb64e8b6d08d9eaad6a66ec0c1c3d4a71671720fea26d",
+        "work_policy_digest": "6877518e12e7edf93bd674e2b6aa00a1dd299b51fcfcebad13180b75b527e111"
+      },
+      "state": "failed",
+      "version": 9,
+      "epoch": 2,
+      "attempt_id": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+      "authorization_epoch": 1,
+      "revoked": false,
+      "cancel_requested": false,
+      "created_at": 1795709159.5019996,
+      "updated_at": 1795709228.1050072,
+      "attempts": [
+        {
+          "id": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+          "run_id": "0cc5ae13-f3f2-4588-b4ec-4e9503b7b908",
+          "worker_id": "qualified:6bc56d469abd4967adc3f25a2d5e6a33",
+          "worker_instance": "a98a0968-030a-4a41-ad5e-351db2463ed6",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795709226.5959864,
+          "state": "failed",
+          "session_id": "334b968d-6d46-495d-88f8-e6f4b7b43da3",
+          "process_id": 2735,
+          "process_instance": "f16d92efa416b12f2b549dad09011bcb92320468859c6832b0e285fc3b8541b1:2026-11-26T16:06:00.864064506Z",
+          "last_sequence": 4,
+          "report_digest": "1bf6badd98f6008436b583ddd1096ecb2eee91792458f35aeeec4dd1eef66a6f",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+              "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+              "profile_id": "account-a",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c"
+            },
+            "runtime": {
+              "alive": false,
+              "exit_code": 255,
+              "handle": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+              "health": "not_configured",
+              "pid": null,
+              "process_instance": "f16d92efa416b12f2b549dad09011bcb92320468859c6832b0e285fc3b8541b1:2026-11-26T16:06:00.864064506Z",
+              "runtime_host": "82df6034-bbcc-487d-a70d-7fd75ada10ae",
+              "state": "exited",
+              "adapter": "local-docker-v1",
+              "observed_at": 1795709228.1050072
+            },
+            "progress": {
+              "text": "节点重启合成任务🙂"
+            },
+            "reconciliation": {
+              "receipt_digest": "24b8d4bdde6f0acdb058b255d076f24d7ab01789364bc41d08eee2728c68efe3",
+              "original_epoch": 1,
+              "authorization_epoch": 1
+            }
+          },
+          "error": {
+            "code": "RESULT_INCOMPLETE",
+            "category": "format",
+            "retry_at": null,
+            "retry_blocked": "NON_RETRYABLE"
+          },
+          "last_output_at": 1795709161.4905012,
+          "started_at": 1795709161.3820136,
+          "finished_at": 1795709228.1050072
+        }
+      ],
+      "recovery": {
+        "run_id": "0cc5ae13-f3f2-4588-b4ec-4e9503b7b908",
+        "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+        "attempt_id": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+        "resource": "model:account-a",
+        "state": "failed",
+        "category": "format",
+        "code": "RESULT_INCOMPLETE",
+        "retry_at": null,
+        "reason": "NON_RETRYABLE",
+        "updated_at": 1795709228.1050072,
+        "circuit": {
+          "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+          "resource": "model:account-a",
+          "state": "closed",
+          "failures": 0,
+          "retry_at": 0.0,
+          "probe_attempt": null,
+          "reason": null,
+          "updated_at": 1795709156.5780163
+        }
+      },
+      "recovery_policy": {
+        "accept_complete_on_error": false,
+        "base_delay": 1,
+        "max_attempts": 3,
+        "max_delay": 2,
+        "quota_delay": 2,
+        "replay_safe": true,
+        "resource": "model:account-a"
+      },
+      "observed_at": 1795709228.2510133,
+      "execution_budget": null,
+      "tool_budget": {
+        "committed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "maximum": null,
+        "remaining": null,
+        "exhausted": false,
+        "inherited": false,
+        "accounting_scope": "run_tree"
+      },
+      "model_usage": {
+        "evidence_level": "agent_reported",
+        "settlement": "unreconciled",
+        "at_limit": false,
+        "items": []
+      },
+      "consumption_budget": {
+        "provider_hard_cap": "unsupported",
+        "blocked_reasons": [],
+        "at_limit": false,
+        "items": []
+      },
+      "family": null
+    },
+    "complete-output": {
+      "id": "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+      "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+      "idempotency_key": "reboot-complete-output",
+      "input_digest": "b083e4f913a8fb33d74b30e1c1ee2902e495b12731f95e246a2a9fc6a6a15083",
+      "input": {
+        "runtime_profile": "account-a",
+        "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+        "secret_refs": [],
+        "payload": {
+          "barrier": false
+        },
+        "work_authorization_ref": "wa-6ce204f9b769b3b9c85ca40e64b2d42f767e25d6f2428cabb29d6f9a9060",
+        "work_policy_digest": "6877518e12e7edf93bd674e2b6aa00a1dd299b51fcfcebad13180b75b527e111"
+      },
+      "state": "succeeded",
+      "version": 12,
+      "epoch": 2,
+      "attempt_id": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+      "authorization_epoch": 1,
+      "revoked": false,
+      "cancel_requested": false,
+      "created_at": 1795709163.1869926,
+      "updated_at": 1795709229.2469845,
+      "attempts": [
+        {
+          "id": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+          "run_id": "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+          "worker_id": "qualified:75f751b39a834c41882b93262a03f2b6",
+          "worker_instance": "8ea80a83-6f70-4e8a-8295-6038ad60d41b",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795709225.7829955,
+          "state": "completed",
+          "session_id": "394255a3-7814-4e64-b435-7b32cc63a8f3",
+          "process_id": 3011,
+          "process_instance": "efc941dc4dce1e88599d7bc3ece1f68959bfa90943cfc64866e1faae857dd721:2026-11-26T16:06:04.392014459Z",
+          "last_sequence": 5,
+          "report_digest": "f608c61cba905490641a7a614520eefd01a1a8c359a53ee28b269c01e0c9db85",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+              "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+              "profile_id": "account-a",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c"
+            },
+            "runtime": {
+              "alive": false,
+              "exit_code": 0,
+              "handle": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+              "health": "not_configured",
+              "pid": null,
+              "process_instance": "efc941dc4dce1e88599d7bc3ece1f68959bfa90943cfc64866e1faae857dd721:2026-11-26T16:06:04.392014459Z",
+              "runtime_host": "82df6034-bbcc-487d-a70d-7fd75ada10ae",
+              "state": "exited",
+              "adapter": "local-docker-v1",
+              "observed_at": 1795709229.2469845
+            },
+            "progress": {
+              "text": "节点重启合成任务🙂"
+            },
+            "reconciliation": {
+              "receipt_digest": "f115d26d77c6166cfc4f7f7a72d140777a781c6a3c4789ccf7fcdf26639a4f9b",
+              "original_epoch": 1,
+              "authorization_epoch": 1
+            }
+          },
+          "error": null,
+          "last_output_at": 1795709165.1219323,
+          "started_at": 1795709165.0369928,
+          "finished_at": 1795709229.2469845
+        }
+      ],
+      "recovery": null,
+      "recovery_policy": {
+        "accept_complete_on_error": false,
+        "base_delay": 1,
+        "max_attempts": 3,
+        "max_delay": 2,
+        "quota_delay": 2,
+        "replay_safe": true,
+        "resource": "model:account-a"
+      },
+      "observed_at": 1795709229.3439865,
+      "execution_budget": null,
+      "tool_budget": {
+        "committed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "maximum": null,
+        "remaining": null,
+        "exhausted": false,
+        "inherited": false,
+        "accounting_scope": "run_tree"
+      },
+      "model_usage": {
+        "evidence_level": "agent_reported",
+        "settlement": "unreconciled",
+        "at_limit": false,
+        "items": []
+      },
+      "consumption_budget": {
+        "provider_hard_cap": "unsupported",
+        "blocked_reasons": [],
+        "at_limit": false,
+        "items": []
+      },
+      "family": null
+    },
+    "queued": {
+      "id": "220d7e29-71d0-478c-afd0-3f551e4380c2",
+      "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+      "idempotency_key": "reboot-queued",
+      "input_digest": "19050e2726deb0d576cd6302ad30254a381f0d4ce5e15601d2fb0fc511457011",
+      "input": {
+        "runtime_profile": "account-a",
+        "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+        "secret_refs": [],
+        "payload": {
+          "barrier": false
+        },
+        "work_authorization_ref": "wa-0289a30df8260f1e2aafa93907b2ae07aec0f02b419117d03bd5c5b29c5d",
+        "work_policy_digest": "6877518e12e7edf93bd674e2b6aa00a1dd299b51fcfcebad13180b75b527e111"
+      },
+      "state": "succeeded",
+      "version": 11,
+      "epoch": 1,
+      "attempt_id": "eb856bfc-a207-4afe-8857-5b6e5d6611dd",
+      "authorization_epoch": 1,
+      "revoked": false,
+      "cancel_requested": false,
+      "created_at": 1795709166.2599995,
+      "updated_at": 1795709179.0450037,
+      "attempts": [
+        {
+          "id": "eb856bfc-a207-4afe-8857-5b6e5d6611dd",
+          "run_id": "220d7e29-71d0-478c-afd0-3f551e4380c2",
+          "worker_id": "qualified:e2ba571024a44851bb38a8a7d5f7181f",
+          "worker_instance": "4ab1bf6c-58c5-43ce-899a-d8c086604675",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795709236.6899972,
+          "state": "completed",
+          "session_id": "bc45a737-4cf9-42f4-8504-9de7b87c3e93",
+          "process_id": 1212,
+          "process_instance": "ae093d552d7a03543b086399f49029f74378d240ba0405597996e8822eb8dadc:2026-11-26T16:06:15.79573858Z",
+          "last_sequence": 5,
+          "report_digest": "ce7c3b63197c48fd92dd4219c2d140d6047c68bcfd88579764af19abac310aab",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "eb856bfc-a207-4afe-8857-5b6e5d6611dd",
+              "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+              "profile_id": "account-a",
+              "worker_boot_id": "63d2d06f-3109-4383-a769-c90a5647426f"
+            },
+            "runtime": {
+              "handle": "eb856bfc-a207-4afe-8857-5b6e5d6611dd",
+              "state": "exited",
+              "alive": false,
+              "pid": null,
+              "process_instance": "ae093d552d7a03543b086399f49029f74378d240ba0405597996e8822eb8dadc:2026-11-26T16:06:15.79573858Z",
+              "exit_code": 0,
+              "health": "not_configured",
+              "runtime_host": "82df6034-bbcc-487d-a70d-7fd75ada10ae",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "63d2d06f-3109-4383-a769-c90a5647426f",
+              "observed_at": 1795709177.391985
+            },
+            "progress": {
+              "text": "节点重启合成任务🙂"
+            }
+          },
+          "error": null,
+          "last_output_at": 1795709176.5195215,
+          "started_at": 1795709175.8319855,
+          "finished_at": 1795709179.0450037
+        }
+      ],
+      "recovery": null,
+      "recovery_policy": {
+        "accept_complete_on_error": false,
+        "base_delay": 1,
+        "max_attempts": 3,
+        "max_delay": 2,
+        "quota_delay": 2,
+        "replay_safe": true,
+        "resource": "model:account-a"
+      },
+      "observed_at": 1795709229.4430003,
+      "execution_budget": null,
+      "tool_budget": {
+        "committed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "maximum": null,
+        "remaining": null,
+        "exhausted": false,
+        "inherited": false,
+        "accounting_scope": "run_tree"
+      },
+      "model_usage": {
+        "evidence_level": "agent_reported",
+        "settlement": "unreconciled",
+        "at_limit": false,
+        "items": []
+      },
+      "consumption_budget": {
+        "provider_hard_cap": "unsupported",
+        "blocked_reasons": [],
+        "at_limit": false,
+        "items": []
+      },
+      "family": null
+    }
+  },
+  "before_runs": {
+    "completed": {
+      "id": "711e5120-0f7c-4546-b503-987829fe3667",
+      "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+      "idempotency_key": "reboot-completed",
+      "input_digest": "55936a7f5191fec6d2cd8ce6c8463b1783bafe575e2aa52af79b672115a615a1",
+      "input": {
+        "runtime_profile": "account-a",
+        "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+        "secret_refs": [],
+        "payload": {
+          "barrier": false
+        },
+        "work_authorization_ref": "wa-c36e1c8b4e917419adc86e097774a52a4b41e3425388808e82b4898ca183",
+        "work_policy_digest": "6877518e12e7edf93bd674e2b6aa00a1dd299b51fcfcebad13180b75b527e111"
+      },
+      "state": "succeeded",
+      "version": 11,
+      "epoch": 1,
+      "attempt_id": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+      "authorization_epoch": 1,
+      "revoked": false,
+      "cancel_requested": false,
+      "created_at": 1795709155.1799953,
+      "updated_at": 1795709159.1100082,
+      "attempts": [
+        {
+          "id": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+          "run_id": "711e5120-0f7c-4546-b503-987829fe3667",
+          "worker_id": "qualified:fe18f9d73bbe4f5299388c3349ca8fc8",
+          "worker_instance": "4273af59-e161-4aa6-beb0-6ce4940d9bdd",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795709217.2769866,
+          "state": "completed",
+          "session_id": "77c8876c-88b6-461c-b4af-cdd3390a21d7",
+          "process_id": 2414,
+          "process_instance": "63491e296bb2df6b8622a3facd56e8f7eda2e2068790b0aecd95331ec7b651f2:2026-11-26T16:05:56.266809181Z",
+          "last_sequence": 5,
+          "report_digest": "bcacd30403a856bfedc2b6736c2eacb9da910803e4f3b8b8becd0a4c687d5686",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+              "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+              "profile_id": "account-a",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c"
+            },
+            "runtime": {
+              "handle": "bc40ec7e-b5fb-41db-904b-ae6eca48c13c",
+              "state": "exited",
+              "alive": false,
+              "pid": null,
+              "process_instance": "63491e296bb2df6b8622a3facd56e8f7eda2e2068790b0aecd95331ec7b651f2:2026-11-26T16:05:56.266809181Z",
+              "exit_code": 0,
+              "health": "not_configured",
+              "runtime_host": "82df6034-bbcc-487d-a70d-7fd75ada10ae",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c",
+              "observed_at": 1795709157.758014
+            },
+            "progress": {
+              "text": "节点重启合成任务🙂"
+            }
+          },
+          "error": null,
+          "last_output_at": 1795709156.8165321,
+          "started_at": 1795709156.5780163,
+          "finished_at": 1795709159.1100082
+        }
+      ],
+      "recovery": null,
+      "recovery_policy": {
+        "accept_complete_on_error": false,
+        "base_delay": 1,
+        "max_attempts": 3,
+        "max_delay": 2,
+        "quota_delay": 2,
+        "replay_safe": true,
+        "resource": "model:account-a"
+      },
+      "observed_at": 1795709159.465991,
+      "execution_budget": null,
+      "tool_budget": {
+        "committed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "maximum": null,
+        "remaining": null,
+        "exhausted": false,
+        "inherited": false,
+        "accounting_scope": "run_tree"
+      },
+      "model_usage": {
+        "evidence_level": "agent_reported",
+        "settlement": "unreconciled",
+        "at_limit": false,
+        "items": []
+      },
+      "consumption_budget": {
+        "provider_hard_cap": "unsupported",
+        "blocked_reasons": [],
+        "at_limit": false,
+        "items": []
+      },
+      "family": null
+    },
+    "partial": {
+      "id": "0cc5ae13-f3f2-4588-b4ec-4e9503b7b908",
+      "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+      "idempotency_key": "reboot-partial",
+      "input_digest": "543558918e19ad39ea5c597ad41d4fecfcb25de2a6961558e08085ed6993673d",
+      "input": {
+        "runtime_profile": "account-a",
+        "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+        "secret_refs": [],
+        "payload": {
+          "barrier": true
+        },
+        "work_authorization_ref": "wa-c7117d98556554ddb64e8b6d08d9eaad6a66ec0c1c3d4a71671720fea26d",
+        "work_policy_digest": "6877518e12e7edf93bd674e2b6aa00a1dd299b51fcfcebad13180b75b527e111"
+      },
+      "state": "executing",
+      "version": 7,
+      "epoch": 1,
+      "attempt_id": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+      "authorization_epoch": 1,
+      "revoked": false,
+      "cancel_requested": false,
+      "created_at": 1795709159.5019996,
+      "updated_at": 1795709163.1019802,
+      "attempts": [
+        {
+          "id": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+          "run_id": "0cc5ae13-f3f2-4588-b4ec-4e9503b7b908",
+          "worker_id": "qualified:6bc56d469abd4967adc3f25a2d5e6a33",
+          "worker_instance": "a98a0968-030a-4a41-ad5e-351db2463ed6",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795709222.0879843,
+          "state": "streaming",
+          "session_id": "334b968d-6d46-495d-88f8-e6f4b7b43da3",
+          "process_id": 2735,
+          "process_instance": "f16d92efa416b12f2b549dad09011bcb92320468859c6832b0e285fc3b8541b1:2026-11-26T16:06:00.864064506Z",
+          "last_sequence": 4,
+          "report_digest": "1bf6badd98f6008436b583ddd1096ecb2eee91792458f35aeeec4dd1eef66a6f",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+              "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+              "profile_id": "account-a",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c"
+            },
+            "runtime": {
+              "handle": "d1974ed9-9cbe-4878-aab2-84e45d8588b8",
+              "state": "running",
+              "alive": true,
+              "pid": 2735,
+              "process_instance": "f16d92efa416b12f2b549dad09011bcb92320468859c6832b0e285fc3b8541b1:2026-11-26T16:06:00.864064506Z",
+              "exit_code": null,
+              "health": "not_configured",
+              "runtime_host": "82df6034-bbcc-487d-a70d-7fd75ada10ae",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c",
+              "observed_at": 1795709162.6370058
+            },
+            "progress": {
+              "text": "节点重启合成任务🙂"
+            }
+          },
+          "error": null,
+          "last_output_at": 1795709161.4905012,
+          "started_at": 1795709161.3820136,
+          "finished_at": null
+        }
+      ],
+      "recovery": null,
+      "recovery_policy": {
+        "accept_complete_on_error": false,
+        "base_delay": 1,
+        "max_attempts": 3,
+        "max_delay": 2,
+        "quota_delay": 2,
+        "replay_safe": true,
+        "resource": "model:account-a"
+      },
+      "observed_at": 1795709163.15199,
+      "execution_budget": null,
+      "tool_budget": {
+        "committed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "maximum": null,
+        "remaining": null,
+        "exhausted": false,
+        "inherited": false,
+        "accounting_scope": "run_tree"
+      },
+      "model_usage": {
+        "evidence_level": "agent_reported",
+        "settlement": "unreconciled",
+        "at_limit": false,
+        "items": []
+      },
+      "consumption_budget": {
+        "provider_hard_cap": "unsupported",
+        "blocked_reasons": [],
+        "at_limit": false,
+        "items": []
+      },
+      "family": null
+    },
+    "complete-output": {
+      "id": "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+      "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+      "idempotency_key": "reboot-complete-output",
+      "input_digest": "b083e4f913a8fb33d74b30e1c1ee2902e495b12731f95e246a2a9fc6a6a15083",
+      "input": {
+        "runtime_profile": "account-a",
+        "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+        "secret_refs": [],
+        "payload": {
+          "barrier": false
+        },
+        "work_authorization_ref": "wa-6ce204f9b769b3b9c85ca40e64b2d42f767e25d6f2428cabb29d6f9a9060",
+        "work_policy_digest": "6877518e12e7edf93bd674e2b6aa00a1dd299b51fcfcebad13180b75b527e111"
+      },
+      "state": "validating",
+      "version": 10,
+      "epoch": 1,
+      "attempt_id": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+      "authorization_epoch": 1,
+      "revoked": false,
+      "cancel_requested": false,
+      "created_at": 1795709163.1869926,
+      "updated_at": 1795709165.8140154,
+      "attempts": [
+        {
+          "id": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+          "run_id": "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+          "worker_id": "qualified:75f751b39a834c41882b93262a03f2b6",
+          "worker_instance": "8ea80a83-6f70-4e8a-8295-6038ad60d41b",
+          "epoch": 1,
+          "authorization_epoch": 1,
+          "lease_until": 1795709225.7829955,
+          "state": "validating",
+          "session_id": "394255a3-7814-4e64-b435-7b32cc63a8f3",
+          "process_id": 3011,
+          "process_instance": "efc941dc4dce1e88599d7bc3ece1f68959bfa90943cfc64866e1faae857dd721:2026-11-26T16:06:04.392014459Z",
+          "last_sequence": 5,
+          "report_digest": "f608c61cba905490641a7a614520eefd01a1a8c359a53ee28b269c01e0c9db85",
+          "remote": {
+            "launch": {
+              "adapter": "local-docker-v1",
+              "handle": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+              "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+              "profile_id": "account-a",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c"
+            },
+            "runtime": {
+              "handle": "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+              "state": "exited",
+              "alive": false,
+              "pid": null,
+              "process_instance": "efc941dc4dce1e88599d7bc3ece1f68959bfa90943cfc64866e1faae857dd721:2026-11-26T16:06:04.392014459Z",
+              "exit_code": 0,
+              "health": "not_configured",
+              "runtime_host": "82df6034-bbcc-487d-a70d-7fd75ada10ae",
+              "adapter": "local-docker-v1",
+              "worker_boot_id": "9c84cf14-54a0-4d82-a3c2-f38755916b5c",
+              "observed_at": 1795709166.449015
+            },
+            "progress": {
+              "text": "节点重启合成任务🙂"
+            }
+          },
+          "error": null,
+          "last_output_at": 1795709165.1219323,
+          "started_at": 1795709165.0369928,
+          "finished_at": null
+        }
+      ],
+      "recovery": null,
+      "recovery_policy": {
+        "accept_complete_on_error": false,
+        "base_delay": 1,
+        "max_attempts": 3,
+        "max_delay": 2,
+        "quota_delay": 2,
+        "replay_safe": true,
+        "resource": "model:account-a"
+      },
+      "observed_at": 1795709166.215019,
+      "execution_budget": null,
+      "tool_budget": {
+        "committed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "maximum": null,
+        "remaining": null,
+        "exhausted": false,
+        "inherited": false,
+        "accounting_scope": "run_tree"
+      },
+      "model_usage": {
+        "evidence_level": "agent_reported",
+        "settlement": "unreconciled",
+        "at_limit": false,
+        "items": []
+      },
+      "consumption_budget": {
+        "provider_hard_cap": "unsupported",
+        "blocked_reasons": [],
+        "at_limit": false,
+        "items": []
+      },
+      "family": null
+    },
+    "queued": {
+      "id": "220d7e29-71d0-478c-afd0-3f551e4380c2",
+      "scope": "worker-test-5125309d-710a-4db9-8dc1-84e276d1bf87",
+      "idempotency_key": "reboot-queued",
+      "input_digest": "19050e2726deb0d576cd6302ad30254a381f0d4ce5e15601d2fb0fc511457011",
+      "input": {
+        "runtime_profile": "account-a",
+        "profile_digest": "c076dc13e26edbd13daf47b69ce8630a000f00e7b01802a61047c0b45d7ea5d3",
+        "secret_refs": [],
+        "payload": {
+          "barrier": false
+        },
+        "work_authorization_ref": "wa-0289a30df8260f1e2aafa93907b2ae07aec0f02b419117d03bd5c5b29c5d",
+        "work_policy_digest": "6877518e12e7edf93bd674e2b6aa00a1dd299b51fcfcebad13180b75b527e111"
+      },
+      "state": "queued",
+      "version": 1,
+      "epoch": 0,
+      "attempt_id": null,
+      "authorization_epoch": 1,
+      "revoked": false,
+      "cancel_requested": false,
+      "created_at": 1795709166.2599995,
+      "updated_at": 1795709166.2599995,
+      "attempts": [],
+      "recovery": null,
+      "recovery_policy": null,
+      "observed_at": 1795709166.3780034,
+      "execution_budget": null,
+      "tool_budget": null,
+      "model_usage": {
+        "evidence_level": "agent_reported",
+        "settlement": "unreconciled",
+        "at_limit": false,
+        "items": []
+      },
+      "consumption_budget": {
+        "provider_hard_cap": "unsupported",
+        "blocked_reasons": [],
+        "at_limit": false,
+        "items": []
+      },
+      "family": null
+    }
+  },
+  "old_lease_rejected": [
+    "heartbeat",
+    "report"
+  ],
+  "recovery_authorization_requests": [
+    {
+      "action": "accept_result",
+      "binding": [
+        "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+        "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+        "qualified:75f751b39a834c41882b93262a03f2b6",
+        "8ea80a83-6f70-4e8a-8295-6038ad60d41b",
+        1
+      ],
+      "session_id": "394255a3-7814-4e64-b435-7b32cc63a8f3"
+    },
+    {
+      "action": "accept_result",
+      "binding": [
+        "ecc39c35-15af-44b9-9806-3a59b09f7bb3",
+        "4e48be77-ab0b-4db5-b425-fde86a1c4380",
+        "qualified:75f751b39a834c41882b93262a03f2b6",
+        "8ea80a83-6f70-4e8a-8295-6038ad60d41b",
+        1
+      ],
+      "session_id": "394255a3-7814-4e64-b435-7b32cc63a8f3"
+    }
+  ],
+  "work_authorization_ref": "wa-6ce204f9b769b3b9c85ca40e64b2d42f767e25d6f2428cabb29d6f9a9060",
+  "actual_concurrency_after": 0,
+  "worker_image": "sha256:a2600743af2dfbe49bd0ce2fb34e0b0901d413d953b1b6f803b19ef62c47a5af",
+  "runtime_code": "current backend/app mounted read-only",
+  "model": "synthetic JSONL endpoint; no model calls",
+  "physical_hosts": 1
+}

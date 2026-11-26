@@ -14,7 +14,7 @@ DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现�
 
 每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。
 
-**下一项：K01-5.03 开放 Harness 联合评审证据包。** K01-5.01 已完成[两来源真实治理资格](../design/dsh-native-controls-58.md)，D01-3.01 已完成[控制面 HA 与旧主隔离](../design/evidence/ha-integration-20261126.json)。D01-3.02 等待第二台 Linux 主机；父子容量语义与源端隔离仍待既有决策。
+**下一项：F03-2.02 的 R06 供应商错误转换资格。** 五项 G2 评审材料已就绪，接受人待认领。 K01-5.01 已完成[两来源真实治理资格](../design/dsh-native-controls-58.md)，D01-3.01 已完成[控制面 HA 与旧主隔离](../design/evidence/ha-integration-20261126.json)。D01-3.02 等待第二台 Linux 主机；父子容量语义与源端隔离仍待既有决策。
 
 同一时间只推进一个实现结果。批次按依赖推进，必要的前置资格随首批完成；多节点专属验收统一放在 W4。已通过的证据只在受影响范围复核，原验收通过后停止追加优化。#46 监测部署与证据报告已完成；F03-2.02 的原生故障、节点及应用断言按责任项保留，共享部署与副本迁移已交付，接续参考路径的完整场景缺口。
 
@@ -83,7 +83,7 @@ DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现�
 
 **F03-2.02 十八项故障验收夹具** · 实现/集成 · W3 · Codex 工程 · 待完整资格
 
-[故障资格与剩余交付](../design/reference-fault-qualification.md)：R02/R03/R04/R07/R09/R10/R11/R12/R13/R14/R15 场景通过，其余 7 项保留；共同治理 G01—G04 已通过，G05/G06 保留。[只读控制证据](../design/evidence/readonly-review-20261126.json)、[共同治理证据](../design/evidence/common-governance-20261126.json)、[撤权控制点证据](../design/evidence/tool-revocation-20261126.json)。
+[故障资格与剩余交付](../design/reference-fault-qualification.md)：R02/R03/R04/R05/R07/R09/R10/R11/R12/R13/R14/R15 场景通过，其余 6 项保留；共同治理 G01—G04 已通过，G05/G06 保留。[节点重启证据](../design/evidence/node-reboot-20261126.json)、[只读控制证据](../design/evidence/readonly-review-20261126.json)、[共同治理证据](../design/evidence/common-governance-20261126.json)、[撤权控制点证据](../design/evidence/tool-revocation-20261126.json)。
 
 - 交付：逐场景可执行输入、预期状态和断言，复用通用故障夹具。
 - 完成验证：十八场景逐项执行；含不支持能力、断连、撤销、重复回调、人工接管和复核；生产运行无变更。

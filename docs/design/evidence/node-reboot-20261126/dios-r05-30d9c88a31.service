@@ -1,0 +1,12 @@
+[Unit]
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+[Service]
+ExecStart=/usr/bin/docker start -a dios-r05-30d9c88a31
+ExecStop=/usr/bin/docker stop --time 30 dios-r05-30d9c88a31
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=45
+[Install]
+WantedBy=multi-user.target

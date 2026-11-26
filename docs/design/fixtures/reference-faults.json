@@ -64,13 +64,10 @@
     {
       "id": "R05",
       "tests": [
-        "test_runtime_worker.DockerWorkerTests.test_docker_worker_loss_retains_live_container_and_never_double_dispatches",
-        "test_runtime_remote_control.RemoteControlTests.test_fenced_epoch_never_accepts_old_report"
+        "test_reference_reboot.NativeNodeRebootTests.test_boot_change_reconciles_each_task_and_rejects_old_lease"
       ],
-      "covered": "实际 Worker 进程丢失时保留存活容器并对账；旧租约写入隔离",
-      "gaps": [
-        "需可重启隔离节点，验证真实 boot_id 变化与每项任务恢复；进程重启不覆盖此断言"
-      ],
+      "covered": "隔离 Linux VM 硬重启且 boot_id 改变；systemd 自动启动独立远程 Worker，已完成任务保持原记录，部分输出失败并留存，完整输出经 E2AG 复核恢复，排队任务沿原身份执行；旧租约心跳与报告拒绝，全部槽位释放",
+      "gaps": [],
       "owners": [
         30,
         32,
