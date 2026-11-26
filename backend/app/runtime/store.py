@@ -225,6 +225,8 @@ class RuntimeStore:
             from .capacity import admit_query
             query = await admit_query(c, self.scope, query)
             query = await budget_query(c, self.scope, query, now)
+            from .consumption import admit_query as consumption_query, bind as reserve_consumption
+            query = await consumption_query(c, self.scope, query)
             row = (await c.execute(query.order_by(runs.c.created_at, runs.c.id).limit(1))).mappings().first()
             if not row: return None
             run = dict(row)
@@ -238,6 +240,7 @@ class RuntimeStore:
                 state='claimed', session_id=None, process_id=None, process_instance=None, last_sequence=0,
                 report_digest=None, remote={}, error=None, last_output_at=None, started_at=now, finished_at=None)
             await c.execute(attempts.insert().values(**record))
+            await reserve_consumption(c,self.scope,run,aid,now)
             await claimed(c,self.scope,record,recovery_policy,now)
             await c.execute(workers.update().where(workers.c.id == worker_id).values(heartbeat_at=now))
             await self._event(c, run, 'attempt.claimed', {'attempt_id': aid, 'epoch': epoch}, now,
@@ -435,6 +438,8 @@ class RuntimeStore:
             run['tool_budget']=await tool_budget_view(c,self.scope,run_id)
             from .usage import view as usage_view
             run['model_usage']=await usage_view(c,self.scope,run_id)
+            from .consumption import run_view as consumption_view
+            run['consumption_budget']=await consumption_view(c,self.scope,run)
             if diagnostics:
                 from .diagnostics import view as diagnostics_view
                 run['diagnostics']=await diagnostics_view(c,self.scope,run,await self.db.now(c))

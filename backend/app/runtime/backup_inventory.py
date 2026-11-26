@@ -109,6 +109,12 @@ def inventory(snapshot, budget=lambda: None):
             extra=" AND s.run_id=t.run_id",
         )
         edge("runtime_tool_evidence", "invocation_id", "runtime_tool_invocations")
+        edge("runtime_consumption_reservations", "run_id", "runtime_runs")
+        edge("runtime_consumption_reservations", "account_id", "runtime_consumption_accounts")
+        edge("runtime_consumption_reservations", "attempt_id", "runtime_attempts",
+             scope=False, extra=" AND s.run_id=t.run_id")
+        edge("runtime_consumption_settlements", "attempt_id", "runtime_consumption_reservations",
+             key="attempt_id", extra=" AND s.account_id=t.account_id")
         edge("runtime_delegations", "parent_ref", "runtime_delegations")
         edge(
             "runtime_delegation_receipts",

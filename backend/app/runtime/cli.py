@@ -180,6 +180,19 @@ async def execute(args):
                 raise RuntimeErrorCode('INVALID_DEPLOYMENT_REQUEST')
             return await manager.request(value['id'],value.get('revision_ref'),value['key'],value['expected_version'],
                 value['actor'],value['probe_input'],timeout=value.get('timeout',300),rollback=value.get('rollback',False))
+        if args.command == 'consumption':
+            from .consumption import Consumption
+            from .consumption_contract import AccountUpdate, Settlement
+            from pydantic import ValidationError
+            manager=Consumption(db,args.scope)
+            if args.consumption_command=='status':return await manager.status()
+            with Path(args.file).open('rb') as source:raw=source.read(16385)
+            if len(raw)>16384:raise RuntimeErrorCode('METADATA_TOO_LARGE')
+            try:
+                model=AccountUpdate if args.consumption_command=='set' else Settlement
+                value=model.model_validate(json.loads(raw)).model_dump()
+            except ValidationError:raise RuntimeErrorCode('INVALID_CONSUMPTION_REQUEST') from None
+            return await (manager.put(**value) if args.consumption_command=='set' else manager.settle(**value))
         if args.command == 'capacity':
             from .capacity import Capacity
             manager = Capacity(store)
@@ -521,6 +534,11 @@ def main(argv=None):
     credential_revoke=credential_commands.add_parser('revoke');credential_revoke.add_argument('credential_id')
     credential_revoke.add_argument('--revision',type=int,required=True)
     commands.add_parser('circuits',help='inspect persisted endpoint/account cooldown and single-probe ownership')
+    consumption=commands.add_parser('consumption',help='trusted operator token and monetary reservations and evidence-backed settlement')
+    consumption_commands=consumption.add_subparsers(dest='consumption_command',required=True)
+    consumption_commands.add_parser('status')
+    consumption_commands.add_parser('set').add_argument('--file',required=True)
+    consumption_commands.add_parser('settle').add_argument('--file',required=True)
     capacity=commands.add_parser('capacity',help='trusted local shared execution concurrency administration')
     capacity_commands=capacity.add_subparsers(dest='capacity_command',required=True)
     capacity_commands.add_parser('status',help='reserved Attempts and unresolved work; not observed running processes')

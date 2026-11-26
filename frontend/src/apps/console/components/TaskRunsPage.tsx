@@ -292,7 +292,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           <p className="tr-muted">{detail.display.name || detail.profile_id} · {translateUI(detail.display.synthetic ? "合成端点" : detail.display.implementation)}</p>
           <RunRevision revision={detail.revision_ref} deployment={detail.deployment_id} operator={operatorMode} />
           <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : active?.runtime_state === "paused" && !terminal(detail.state) ? "执行已暂停" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>
-            <div><span>{translateUI(active?.remote_agent || preflightWaiting ? "远端任务观测" : "进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : preflightWaiting ? "尚未派发" : active?.remote_agent ? active.remote_agent.freshness === "stale" ? "观测过期" : ({ submitted: "远端已受理", working: "远端报告运行中", completed: "远端报告完成", canceled: "远端确认取消", failed: "远端报告失败", rejected: "远端拒绝", "input-required": "远端等待输入", "auth-required": "远端等待认证" } as Record<string,string>)[active.remote_agent.observed_state || ""] || "远端状态待确认" : !active ? "等待 Worker" : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.runtime_state === "paused" ? "执行已暂停" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
+            <div><span>{translateUI(active?.remote_agent || preflightWaiting ? "远端任务观测" : "进程观测")}</span><strong>{translateUI(detailError ? "更新中断" : preflightWaiting ? "尚未派发" : active?.remote_agent ? active.remote_agent.freshness === "stale" ? "观测过期" : ({ submitted: "远端已受理", working: "远端报告运行中", completed: "远端报告完成", canceled: "远端确认取消", failed: "远端报告失败", rejected: "远端拒绝", "input-required": "远端等待输入", "auth-required": "远端等待认证" } as Record<string,string>)[active.remote_agent.observed_state || ""] || "远端状态待确认" : !active ? (detail.consumption_budget?.blocked_reasons.length ? "尚未派发" : "等待 Worker") : active.freshness === "final" ? "已结束" : active.freshness === "stale" ? "观测过期" : active.runtime_state === "paused" ? "执行已暂停" : active.confirmed_running ? "确认运行中" : "尚未确认运行")}</strong></div>
             <div><span>{translateUI("最近有效输出")}</span><strong>{translateUI(time(active?.last_output_at))}</strong></div>
           </div>
           {active?.remote_agent && <div className="tr-notice" data-testid="remote-agent-observation">
@@ -302,6 +302,16 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             {active.remote_agent.cancel_requested_at && !terminal(detail.state) && <p>{translateUI("取消请求已保存，等待远端确认。")}</p>}
           </div>}
           <RunDiagnostics value={detail.diagnostics} />
+          {detail.consumption_budget && (detail.consumption_budget.items.length > 0 || detail.consumption_budget.blocked_reasons.length > 0) && <section className="tr-notice tr-usage" aria-label={translateUI("用量预算与结算")}>
+            <strong>{translateUI("用量预算与结算")}</strong>
+            <p>{translateUI("预留控制平台派发额度；供应商费用硬上限尚未验证。")}</p>
+            {detail.consumption_budget.blocked_reasons.map(reason => <p key={reason}>{translateUI(reason === "PROVIDER_COST_CAP_UNSUPPORTED" ? "当前通道不支持费用硬上限，任务暂不派发。" : "预留预算不足，等待结算或调整额度。")}</p>)}
+            {detail.consumption_budget.items.map(row => <div key={`${row.account_id}-${row.attempt_id}`}>
+              <small>{row.account_id} · {row.attempt_id.slice(0,8)} · {row.unit}</small>
+              <p>{translateUI("预留")}: {row.reserved} · {translateUI("结算")}: {row.actual ?? translateUI("待对账")}</p>
+            </div>)}
+            {detail.consumption_budget.at_limit && <p>{translateUI("仅显示最近 100 项预算记录。")}</p>}
+          </section>}
           {detail.model_usage && <section className="tr-notice tr-usage" aria-label={translateUI("模型用量")}>
             <strong>{translateUI("模型用量")}</strong><p>{translateUI("Agent 报告值，尚未与服务商账单核销。上下文占用不计作输入消耗；不同会话与单位不合计。")}</p>
             {!detail.model_usage.items.length && <p>{translateUI("尚无用量报告，消耗与费用未知。")}</p>}
@@ -312,7 +322,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           </section>}
           {detail.tool_budget && <p className="tr-notice">{translateUI("工具派发用量")}: {detail.tool_budget.committed}/{detail.tool_budget.maximum ?? translateUI("不限")} · {translateUI("成功")}: {detail.tool_budget.succeeded} · {translateUI("失败")}: {detail.tool_budget.failed} · {translateUI("待确认")}: {detail.tool_budget.unresolved}{detail.tool_budget.exhausted && ` · ${translateUI("工具预算已耗尽")}`}</p>}
           {detail.execution_budget && <p className="tr-notice">{translateUI("执行预算截止时间")}: {time(detail.execution_budget.deadline_at)}{!terminal(detail.state) && detail.execution_budget.exhausted && ` · ${translateUI("执行预算已到期，等待停止或恢复对账。")}`}</p>}
-          {detail.state === "queued" && <p className="tr-notice" role="status">{translateUI(detail.capacity?.reason === "DISPATCH_RATE_LIMITED" ? "任务领取频率已达上限，等待时间窗口释放。" : detail.capacity?.blocked ? "共享执行额度暂满，等待已有任务结束或管理员调整。" : "任务已入队，等待对应 Agent 的 Worker 领取。")}
+          {detail.state === "queued" && <p className="tr-notice" role="status">{translateUI(detail.consumption_budget?.blocked_reasons.length ? "预算准入未通过，任务尚未派发。" : detail.capacity?.reason === "DISPATCH_RATE_LIMITED" ? "任务领取频率已达上限，等待时间窗口释放。" : detail.capacity?.blocked ? "共享执行额度暂满，等待已有任务结束或管理员调整。" : "任务已入队，等待对应 Agent 的 Worker 领取。")}
             {detail.capacity?.available_at && <> · {translateUI("最早可再次领取")}: {time(detail.capacity.available_at)}</>}
             {detail.capacity?.limits.map((row, index) => <span className="tr-capacity-block" key={`${row.id}-${index}`}>{row.id} · {row.reason === "DISPATCH_RATE_LIMITED" ? translateUI("任务领取频率已达上限，等待时间窗口释放。") : `${translateUI("占位")}: ${row.reserved_attempts}/${row.max_concurrent}`}{row.unresolved_attempts > 0 && ` · ${translateUI("待确认")}: ${row.unresolved_attempts}`}</span>)}
           </p>}

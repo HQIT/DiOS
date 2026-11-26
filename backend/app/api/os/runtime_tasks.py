@@ -426,5 +426,8 @@ register_objects(router, service)
 from .runtime_packages import register as register_packages
 register_packages(router, service)
 
+from .runtime_consumption import register as register_consumption
+register_consumption(router, service)
+
 from .runtime_knowledge import register as register_knowledge
 register_knowledge(router, service)

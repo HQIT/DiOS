@@ -18,6 +18,7 @@ from .capacity_schema import metadata as capacity_metadata, CHECKSUM as CAPACITY
 from .execution_budget_schema import metadata as execution_budget_metadata, CHECKSUM as EXECUTION_BUDGET_CHECKSUM
 from .tool_budget_schema import metadata as tool_budget_metadata, CHECKSUM as TOOL_BUDGET_CHECKSUM
 from .usage_schema import metadata as usage_metadata, CHECKSUM as USAGE_CHECKSUM
+from .consumption_schema import metadata as consumption_metadata, CHECKSUM as CONSUMPTION_CHECKSUM
 from .outcome_schema import metadata as outcome_metadata, CHECKSUM as OUTCOME_CHECKSUM
 from .monitor_schema import metadata as monitor_metadata, CHECKSUM as MONITOR_CHECKSUM
 from .revision_schema import metadata as revision_metadata, CHECKSUM as REVISION_CHECKSUM, GUARDS as REVISION_GUARDS
@@ -116,6 +117,7 @@ def _database_info(path):
             ('runtime_execution_budget_schema',execution_budget_metadata,EXECUTION_BUDGET_CHECKSUM),
             ('runtime_tool_budget_schema',tool_budget_metadata,TOOL_BUDGET_CHECKSUM),
             ('runtime_usage_schema',usage_metadata,USAGE_CHECKSUM),
+            ('runtime_consumption_schema',consumption_metadata,CONSUMPTION_CHECKSUM),
             ('runtime_monitor_schema',monitor_metadata,MONITOR_CHECKSUM),
             ('runtime_revision_schema',revision_metadata,REVISION_CHECKSUM),
             ('runtime_deployment_schema',deployment_metadata,DEPLOYMENT_CHECKSUM),
