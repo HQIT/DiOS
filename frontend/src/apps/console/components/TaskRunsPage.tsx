@@ -12,6 +12,7 @@ import CapacityPanel from "./CapacityPanel";
 import DeploymentsPanel from "./DeploymentsPanel";
 import RunRevision from "./RunRevision";
 import RunDiagnostics from "./RunDiagnostics";
+import RunEvidencePanel from "./RunEvidencePanel";
 import RuntimeOverviewPanel from "./RuntimeOverviewPanel";
 import ToolActions from "./ToolActions";
 import DelegationEvidence from "./DelegationEvidence";
@@ -303,6 +304,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
             {active.remote_agent.cancel_requested_at && !terminal(detail.state) && <p>{translateUI("取消请求已保存，等待远端确认。")}</p>}
           </div>}
           <RunDiagnostics value={detail.diagnostics} />
+          <RunEvidencePanel key={detail.id} runId={detail.id} />
           {detail.consumption_budget && (detail.consumption_budget.items.length > 0 || detail.consumption_budget.blocked_reasons.length > 0) && <section className="tr-notice tr-usage" aria-label={translateUI("用量预算与结算")}>
             <strong>{translateUI("用量预算与结算")}</strong>
             <p>{translateUI("预留控制平台派发额度；供应商费用硬上限尚未验证。")}</p>

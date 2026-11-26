@@ -350,6 +350,11 @@ async def execute(args):
             return {'run_id':args.run_id,'removed':True}
         if args.command == 'submit':
             return await store.submit(args.key, json.loads(Path(args.file).read_text(encoding='utf-8')))
+        if args.command == 'evidence':
+            from app.services.task_console import TaskConsole
+            from app.services.run_evidence import RunEvidence
+            console=TaskConsole(db,args.scope,Path('.'),Path(args.artifacts))
+            return await RunEvidence(console).view(args.run_id,section=args.section,limit=args.limit,cursor=args.cursor)
         if args.command == 'show': return await store.get(args.run_id,diagnostics=True)
         if args.command == 'events': return await store.pending_events(args.consumer, args.limit)
         if args.command == 'drain':
@@ -481,6 +486,10 @@ def main(argv=None):
     submit = commands.add_parser('submit',help='queue metadata only; does not launch an Agent')
     submit.add_argument('--key',required=True);submit.add_argument('--file',required=True)
     show = commands.add_parser('show');show.add_argument('run_id')
+    provenance=commands.add_parser('evidence',help='permission-aware execution and source associations')
+    provenance.add_argument('run_id');provenance.add_argument('--artifacts',required=True)
+    provenance.add_argument('--section',choices=['attempts','tools','artifacts','sources','usage'],default='attempts')
+    provenance.add_argument('--limit',type=int,default=50);provenance.add_argument('--cursor')
     delegation=commands.add_parser('delegation',help='trusted local administration of immutable delegation records')
     delegation_commands=delegation.add_subparsers(dest='delegation_command',required=True)
     issue=delegation_commands.add_parser('issue');issue.add_argument('--file',required=True)

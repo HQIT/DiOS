@@ -123,3 +123,11 @@ decisions and current evidence validity match the Console and CLI. Follow
 `next_after` on revision candidate pages even when `items` is empty. These read
 operations do not register, approve or launch a package. See the
 [package catalog contract](../../docs/design/package-catalog-44.md).
+
+SDK 0.1.17 adds `evidence(run_id, section="attempts", limit=50, cursor=None)`.
+Sections are `attempts`, `tools`, `artifacts`, `sources`, and `usage`. Results retain
+the original Run, Attempt, Worker, Revision and object-version identities. Follow
+`next_cursor` even when permissions produce an empty page. Evidence grades separate
+platform records, Worker observations, remote/Agent reports and operator-declared
+source relations. Object sources can be followed with `object_relations`; every
+request checks current Run and object access.

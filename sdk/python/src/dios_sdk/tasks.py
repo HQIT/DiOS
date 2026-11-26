@@ -172,6 +172,8 @@ class TaskClient:
             **({'parent_run_id':parent_run_id} if parent_run_id is not None else {})))
     def get(self, run_id, *, timeout=None):
         return self._request('/runs/'+quote(run_id,safe=''), timeout=timeout)
+    def evidence(self, run_id, *, section='attempts', limit=50, cursor=None):
+        return self._request('/runs/'+quote(run_id,safe='')+'/evidence?'+urlencode(dict(section=section,limit=limit,**({'cursor':cursor} if cursor else {}))))
     def list(self, *, limit=30, cursor=None):
         return self._request('/runs?'+urlencode(dict(limit=limit, **({'cursor':cursor} if cursor else {}))))
     def cancel(self, run_id, *, expected_version):

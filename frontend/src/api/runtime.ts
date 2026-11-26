@@ -33,6 +33,23 @@ export interface RunSummary {
   display: { name?: string; implementation?: string; synthetic?: boolean };
 }
 export interface ObjectReference { kind: "file" | "session" | "artifact"; id: string; version: number; }
+export interface EvidenceRecord {
+  id?: string; attempt_id?: string; worker_id?: string; worker_instance?: string; state?: string;
+  tool_id?: string; approval_state?: string; reason?: string | null; result_evidence?: string;
+  evidence_level: string; epoch?: number; sequence?: number; kind?: string;
+  session?: {session_id: string} | null; object_ref?: ObjectReference; source?: ObjectReference;
+  target?: ObjectReference | {namespace: string; key: string; version: string}; relation?: string;
+  descriptor?: {digest: string; size: number} | null; values?: Record<string, unknown>;
+}
+export interface EvidencePage {
+  root: {id: string; state: string; execution: {status: string; profile_id: string; profile_digest: string;
+    revision_ref: string | null; digest?: string; dependencies: Record<string, Array<{name: string; version: string | null; digest: string | null; visibility: string}>>}};
+  section: string; items: EvidenceRecord[]; next_cursor: string | null; access: string; observed_at: number;
+}
+export const evidenceApi = {
+  page: (run: string, section: string, cursor: string, signal?: AbortSignal) => request<EvidencePage>(`/runs/${encodeURIComponent(run)}/evidence?${new URLSearchParams({section,limit:"20",...(cursor?{cursor}:{})})}`,{signal}),
+  sources: (ref: ObjectReference, after: string, signal?: AbortSignal) => request<{items: Array<{id: string; relation: string; target: EvidenceRecord["target"]}>; next_after: string | null}>(`/objects/${ref.kind}/${encodeURIComponent(ref.id)}/versions/${ref.version}/relations?${new URLSearchParams({after,limit:"20"})}`,{signal}),
+};
 export interface Attempt {
   object_ref?: ObjectReference | null;
   id: string; epoch: number; state: string; session_id: string | null; worker_id: string;

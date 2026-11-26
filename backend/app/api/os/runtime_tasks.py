@@ -329,6 +329,11 @@ async def submit(body:Submit,s=Depends(service)):
 async def detail(run_id:str,s=Depends(service)):
     return await s.detail(run_id)
 
+@router.get('/runs/{run_id}/evidence')
+async def evidence(run_id:str,section:str='attempts',limit:int=50,cursor:str|None=None,s=Depends(service)):
+    from app.services.run_evidence import RunEvidence
+    return await RunEvidence(s).view(run_id,section=section,limit=limit,cursor=cursor)
+
 @router.post('/runs/{run_id}/cancel')
 async def cancel(run_id:str,body:Cancel,s=Depends(service)):
     await s.detail(run_id)
