@@ -1,0 +1,89 @@
+{
+  "work_item": "F03-2.02",
+  "complete": false,
+  "qualified_cases": [
+    "R03"
+  ],
+  "base_commit": "26f226c243e067d164c97adc38903721dbb34034",
+  "test": {
+    "selector": "test_reference_network.NativeNetworkTests.test_proxy_disconnected_for_sixty_seconds_preserves_attempt_and_output",
+    "command": "DIOS_TEST_DOCKER=1 DIOS_TEST_ACP_IMAGE=dios-cursor:acp-exit-20261126 PYTHONPATH=.:tests .venv/bin/python -m unittest test_reference_network",
+    "cwd": "backend",
+    "tests": 1,
+    "passed": 1,
+    "seconds": 64.818,
+    "tool_session": 52832,
+    "output": "Ran 1 test in 64.818s; OK",
+    "result_source": "unittest result; assertions executed; not a qualification-runner replay"
+  },
+  "assertions": {
+    "proxy_disabled_after_first_chunk": true,
+    "actual_outage_seconds_at_least": 60,
+    "ongoing_checks_every_seconds": 10,
+    "worker_process_alive": true,
+    "lease_fresh_throughout": true,
+    "attempts": 1,
+    "prompt_calls": 1,
+    "same_session_worker_epoch_and_process": true,
+    "reconciled_before_claim": true,
+    "competing_worker_claim": "idle",
+    "partial_utf8_output_retained": true,
+    "e2ag_grants_bound_to_original_attempt": true,
+    "final_state": "succeeded"
+  },
+  "source_sha256": {
+    "backend/tests/test_reference_network.py": "fc9c9a527f27fd557997ff45663cc733d196328971831ff5ba7a2274deea76ed",
+    "backend/tests/runtime_model_network_fixture.py": "6f77b077abf5d773b07b8c9dbda9b008f6ff8861dd609b1e613ff32db9aa84d0",
+    "backend/tests/runtime_acp_fault_fixture.py": "c591e45d61662bbb53d7a77b914d532d80a475a60f99893724f4d16d87b25da1",
+    "backend/app/runtime/acp_bridge.py": "4385a3a4a9fe9440304a23f441f7481a98f60105be77df7e5cb05879b8801c79",
+    "backend/app/runtime/worker.py": "180ca81ec949b2f5a220aed33d77c10886c3860f289f24c375a19b629a6d1252",
+    "backend/app/runtime/reconciliation.py": "ae22276d1110df32720bee55af2b5d62301220f492aad5a2676971361ab80822",
+    "docs/design/reference-scenario-acceptance.md": "693a8f60a50d2e12bc1435b2cf42a6163fd76e4bae15220072a1ae377f160bb5"
+  },
+  "images": {
+    "acp_bridge": "sha256:4d21718674c5cfd795de957429a2828702dae4e845ae63a27cfed01f5260cb3f",
+    "toxiproxy": "ghcr.io/shopify/toxiproxy@sha256:5d3dae09bc185dcc5ff6cf43abf6062a4a720aff0c4306a471e773acdcd107aa"
+  },
+  "provider": "synthetic HTTP stream with read-only reconnect support; production ACP Bridge and independent Worker/Docker processes",
+  "vendor_cursor_reconnect_qualification": false,
+  "model_calls": 0,
+  "production_tasks_changed": false,
+  "runtime_code_changed": false,
+  "cumulative_qualified_cases": [
+    "R02",
+    "R03",
+    "R04",
+    "R07",
+    "R10",
+    "R11",
+    "R12"
+  ],
+  "remaining_cases": [
+    "R01",
+    "R05",
+    "R06",
+    "R08",
+    "R09",
+    "R13",
+    "R14",
+    "R15",
+    "R16",
+    "R17",
+    "R18"
+  ],
+  "cursor_R06_gap": {
+    "evidence_type": "installed package inspection, not native provider failure injection",
+    "package": "@anysphere/agent-cli-runtime",
+    "module": "6136.index.js",
+    "module_sha256": "c128bec4d2c61ed3470ccb3c1f9eb582df5305b72b9c7699bb8d2edabf405663",
+    "finding": "processPrompt catches some provider errors, emits textual agent messages, and handlePrompt returns end_turn. Structured model error details are not guaranteed to reach the ACP client.",
+    "classification": "R06 remains unqualified; no classification from free text",
+    "required": "verified machine-readable provider error path or qualified upstream fix"
+  },
+  "references": [
+    "https://github.com/Shopify/toxiproxy",
+    "https://agentclientprotocol.com/protocol/v1/prompt-turn",
+    "https://prod.cursor.com/docs/cli/acp",
+    "https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/circuit-breaker.html"
+  ]
+}

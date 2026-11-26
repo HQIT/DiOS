@@ -21,9 +21,9 @@
     },
     {
       "id": "R03",
-      "tests": ["test_runtime_combined_recovery.CombinedRecoveryTests.test_chunk_ack_loss_restart_observation_timeout_and_stale_reports"],
-      "covered": "传输响应丢失、客户端重建与查询超时后的同会话恢复；使用进程内故障注入",
-      "gaps": ["需真实 ACP 首段输出后断开隔离代理六十秒，恢复后验证无重派及部分输出"],
+      "tests": ["test_reference_network.NativeNetworkTests.test_proxy_disconnected_for_sixty_seconds_preserves_attempt_and_output"],
+      "covered": "原生 Worker、生产 ACP Bridge 与合成 HTTP 模型流；Toxiproxy 首段后实际断开六十秒，持续续租、对账后不重派，原会话完成且部分输出留存",
+      "gaps": [],
       "owners": [30, 56]
     },
     {
@@ -44,7 +44,7 @@
       "id": "R06",
       "tests": ["test_remote_recovery_qualification.RemoteRecoveryQualificationTests.test_rate_limit_probe_then_three_remote_workers", "test_remote_recovery_qualification.RemoteRecoveryQualificationTests.test_quota_probe_then_three_remote_workers"],
       "covered": "真实 mTLS、独立 Worker 和容器上的分类故障、冷却、单路探测及三路恢复；故障由合成协议事件产生",
-      "gaps": ["需模型协议端点实际返回 HTTP 429/额度响应，覆盖供应商错误到统一分类的转换"],
+      "gaps": ["需模型协议端点实际返回 HTTP 429/额度响应，覆盖供应商错误到统一分类的转换；当前打包 Cursor ACP 会将部分上游错误降为普通输出并返回 end_turn，需可核验的机器可读错误来源，普通文本不作为自动重试分类依据"],
       "owners": [30, 56]
     },
     {

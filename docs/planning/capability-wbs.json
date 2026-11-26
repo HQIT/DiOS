@@ -26,14 +26,14 @@
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
       "K02-3.02 等待源端隔离方式选择；当前先推进 W1 已就绪的 Harness 恢复与治理资格，原恢复验收保留。",
-      "F03-2.02 保留 12 项完整场景缺口和六项共同治理场景；不得以组件通过计结项。逐项责任见 docs/design/fixtures/reference-faults.json。"
+      "F03-2.02 保留 11 项完整场景缺口和六项共同治理场景；不得以组件通过计结项。逐项责任见 docs/design/fixtures/reference-faults.json。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "F03-2.02 已通过 R02/R04/R07/R10/R11/R12；接续 R03 原生网络断连与 R06 模型限流错误转换，复用独立 Worker、恢复和 E2AG 链路。节点、应用和旧系统迁移断言按责任项保留；不重复已通过场景。"
+    "next_selection_reason": "F03-2.02 已通过七项场景；下一批接续 R13 运行中真实版本切换，复用排空、安装及历史查询，为 D01-1.02/.03 提供交付依据。R06 需可核验的 Cursor 机器可读错误来源；保留缺口，不以普通输出分类、不阻塞其他就绪工作。"
   },
   "waves": [
     {
@@ -1197,7 +1197,7 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "十八项原要求已映射；R02/R04/R07/R10/R11/R12 完整场景通过，其余 12 项及六项共同治理场景保留。旧 epoch 认证报告隔离、重放去重、详情故障下独立进度与断点续传已通过原生验证，API/CLI/控制台已接入。",
+      "basis": "十八项原要求保留；R02/R03/R04/R07/R10/R11/R12 已通过，剩余 11 项及六项共同治理场景。原生代理断连六十秒通过；R06 当前 Cursor 错误元数据缺口已定位，保持未通过。",
       "existing_evidence": [
         "docs/design/evidence/business-evidence-20261123.json",
         "docs/design/evidence/harness-governance-20261125.json",
@@ -1205,7 +1205,8 @@
         "docs/design/reference-fault-qualification.md",
         "docs/design/fixtures/reference-faults.json",
         "docs/design/evidence/native-acp-faults-20261126.json",
-        "docs/design/evidence/remote-consistency-20261126.json"
+        "docs/design/evidence/remote-consistency-20261126.json",
+        "docs/design/evidence/network-outage-20261126.json"
       ],
       "wave": "W3",
       "qualification_followup": "详见 reference-faults.json 的逐项 gaps/owners；复用通过证据，只补齐原断言。生产评审保持运行，不启动 #60 迁移。",
@@ -1213,7 +1214,8 @@
         "docs/design/reference-fault-qualification.md",
         "docs/design/evidence/reference-faults-20261126.json",
         "docs/design/evidence/native-acp-faults-20261126.json",
-        "docs/design/evidence/remote-consistency-20261126.json"
+        "docs/design/evidence/remote-consistency-20261126.json",
+        "docs/design/evidence/network-outage-20261126.json"
       ]
     },
     {

@@ -34,6 +34,21 @@ def server():
                     )
                     stream.flush()
                     os.fsync(stream.fileno())
+            if mode == "network":
+                from runtime_model_network_fixture import stream
+
+                stream(sid)
+                print(
+                    json.dumps(
+                        {
+                            "jsonrpc": "2.0",
+                            "id": request["id"],
+                            "result": {"stopReason": "end_turn"},
+                        }
+                    ),
+                    flush=True,
+                )
+                continue
             if mode == "crash":
                 descendant = subprocess.Popen(
                     [sys.executable, "-c", "import time; time.sleep(60)"]
@@ -91,7 +106,7 @@ async def bridge():
                 {
                     "command": [sys.executable, __file__, "server"],
                     "cwd": directory,
-                    "prompt_timeout": 30,
+                    "prompt_timeout": 150 if payload.get("mode") == "network" else 30,
                 }
             )
         )

@@ -1,6 +1,6 @@
 # 故障场景资格与剩余交付
 
-F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R04 ACP 进程崩溃、R07 完整输出抢救、R10 迟到结果隔离、R11 进度与详情独立同步及 R12 指定 UTF-8 分块已通过；其余十二项及六项共同治理场景仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
+F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R07 完整输出抢救、R10 迟到结果隔离、R11 进度与详情独立同步及 R12 指定 UTF-8 分块已通过；其余十一项及六项共同治理场景仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
 
 ## 执行与结果
 
@@ -50,11 +50,26 @@ DIOS_TEST_DOCKER=1 backend/.venv/bin/python scripts/qualify_reference_faults.py 
 
 预览环境 `13481/13482` 保持 `restore_hold`。前端与后端使用独立项目网络，后端另接存储 Provider 网络，防止共享网络中的同名服务使请求路由至其他实例。浏览器验证包含实际 API、原生测试响应的展示、权限受限、空态、失败刷新恢复和移动布局。
 
+## 模型链路断连与错误分类
+
+[R03 证据](evidence/network-outage-20261126.json) 使用 Toxiproxy 2.13.0、独立 Worker 和 Docker 进程。合成 HTTP 模型流经生产 ACP Bridge 输出首段后，代理实际关闭至少六十秒；每十秒检查原 Attempt、Worker、Session、epoch、执行进程和租约。另一 Worker 先对账再领取，领取结果为空。代理恢复后原任务完成，prompt 计数为一次，部分中文输出及原 E2AG 授权关联保留。
+
+测试采用支持只读流续接的合成 Harness；Cursor 自有网络重连策略需要单独的供应商验证。固定 Toxiproxy 镜像摘要用于故障注入，管理端口只绑定主机回环地址，各次测试创建独立网络并清理自身资源。其 [HTTP API](https://github.com/Shopify/toxiproxy#http-api) 提供 `enabled=false/true` 的连接关闭和恢复操作。
+
+```bash
+docker pull ghcr.io/shopify/toxiproxy@sha256:5d3dae09bc185dcc5ff6cf43abf6062a4a720aff0c4306a471e773acdcd107aa
+DIOS_TEST_DOCKER=1 DIOS_TEST_ACP_IMAGE=dios-cursor:acp-exit-20261126 \
+  backend/.venv/bin/python scripts/qualify_reference_faults.py \
+  --cases R03 --output workspace/reference-network-run
+```
+
+R06 仍有供应商错误转换缺口。当前打包 Cursor 的 `processPrompt` 会捕获部分上游异常并输出普通文本，随后 `handlePrompt` 返回 `end_turn`；具体镜像与模块摘要记录在 R03 证据中的 `cursor_R06_gap`。代码检查尚未覆盖供应商真实 429/额度响应。DiOS 已有分类退避、单路探测和成功恢复并发，接入这些机制需要可核验的机器可读错误来源；普通模型输出不作为自动重试分类依据。后续采用供应商明确支持的错误通道或经过资格验证的上游修复。
+
 ## 底座与应用职责
 
 | 范围 | 场景与剩余条件 | 承接 |
 | --- | --- | --- |
-| 原生执行故障 | R03 真实代理断连、R06 模型 HTTP 错误转换、R09 组合长等待 | #10/#30/#32/#46/#56/#58 |
+| 原生执行故障 | R06 模型 HTTP 错误转换、R09 组合长等待 | #10/#30/#32/#46/#56/#58 |
 | 节点与交付 | R05 隔离节点重启、R13 实际版本切换、R14 Linux 无人值守依赖与代理恢复 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
 | 静态评审应用 | R01 分支 SHA 水位、R08 证据待验证及覆盖账本、R15 只读业务配置、R16 上下文复用、R17 质量与导出统一口径 | #43/#59；底座提供任务、授权、工具、产物与统计接口 |
 | 旧系统接续 | R18 旧控制器兼容回滚、分区独占及历史身份 | #11/#60；需隔离源端和旧系统适配 |
@@ -70,4 +85,4 @@ ACP 使用标准 [stdio JSON-RPC 传输](https://agentclientprotocol.com/protoco
 
 迟到报告采用 [AWS 死信队列](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html) 的隔离与排查思路；进度与详情沿用 [Azure 队列负载调节](https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling) 的生产和消费解耦原则，复用现有 SQLite/Provider、离线 spool 和分块协议。预览网络采用 [Docker Compose 自定义网络](https://docs.docker.com/compose/how-tos/networking/) 的服务分区方式。
 
-下一批补齐 R03 原生网络断连和 R06 模型限流错误转换；节点、应用和旧系统迁移断言按对应责任项继续推进。
+下一批补齐 R13 运行中真实版本切换，衔接安装与交付资格；R06 继续保留供应商错误来源缺口。节点、应用和旧系统迁移断言按对应责任项推进。
