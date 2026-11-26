@@ -1,0 +1,433 @@
+{
+  "work_item": "K01-5.03",
+  "status": "review_pending",
+  "candidate_commit": "30cb9cdec45a74dd571e3e4d187b49be128f3f6f",
+  "responsible_reviewer": null,
+  "decision": null,
+  "requirements": [
+    {
+      "id": "K01-5-A01",
+      "requirement": "同一平台契约可驱动两个不同来源 Agent，业务/运行标识和成果关联完整",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+          "pointer": "/cases/approve-run"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/cases/release-approve"
+        }
+      ],
+      "acceptance": "awaiting_designated_review"
+    },
+    {
+      "id": "K01-5-A02",
+      "requirement": "未授权和审批拒绝在声明控制点阻止动作；远端内部不可见部分明确记录并限制任务准入",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/dsh-acp-20261124.json",
+          "pointer": "/runs"
+        },
+        {
+          "path": "docs/design/evidence/acp-cancellation-20261124.json",
+          "pointer": "/runs"
+        },
+        {
+          "path": "docs/design/evidence/protocol-control-mapping-20261126.json",
+          "pointer": "/tests"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/native_guard"
+        }
+      ],
+      "acceptance": "awaiting_designated_review"
+    },
+    {
+      "id": "K01-5-A03",
+      "requirement": "托管恢复、远端取消待确认、重复事件及结果未知均有证据；固定版本、环境和兼容矩阵",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/cursor-recovery-upgrade-20261126.json",
+          "pointer": "/crash_recovery"
+        },
+        {
+          "path": "docs/design/evidence/protocol-recovery-closure-20261125.json",
+          "pointer": "/qualification"
+        },
+        {
+          "path": "docs/design/evidence/recipient-harnesses-20261125.json",
+          "pointer": "/cases"
+        },
+        {
+          "path": "docs/design/evidence/release-qualification-20261125.json",
+          "pointer": "/native"
+        }
+      ],
+      "acceptance": "awaiting_designated_review"
+    },
+    {
+      "id": "K01-5-A04",
+      "requirement": "证据不足不成功、完整结果抢救不重复调用模型、观察超时不重派、旧 epoch 拒写和真实并发均有端到端证据",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/cursor-recovery-upgrade-20261126.json",
+          "pointer": "/native_concurrency"
+        },
+        {
+          "path": "docs/design/evidence/cursor-recovery-upgrade-20261126.json",
+          "pointer": "/crash_recovery"
+        },
+        {
+          "path": "docs/design/evidence/combined-recovery-20261126.json",
+          "pointer": "/qualification"
+        }
+      ],
+      "acceptance": "awaiting_designated_review"
+    },
+    {
+      "id": "K01-5-A05",
+      "requirement": "允许动作有完整证据；拒绝不触发执行，执行后断连保留未知结果，不凭单元测试宣称第三方完整受控",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/cases"
+        },
+        {
+          "path": "docs/design/evidence/recipient-harnesses-20261125.json",
+          "pointer": "/cases"
+        },
+        {
+          "path": "docs/design/evidence/a2a-recovery-20261125.json",
+          "pointer": "/network_cases"
+        }
+      ],
+      "acceptance": "awaiting_designated_review"
+    },
+    {
+      "id": "K01-5-A06",
+      "requirement": "两来源 Agent 的审批重放、旧 epoch、源码写入、原生执行、未授权外发和撤销均有实际拒绝证据",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+          "pointer": "/native_effects"
+        },
+        {
+          "path": "docs/design/evidence/harness-governance-20261125.json",
+          "pointer": "/cases"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/cases"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/native_guard"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/boundary"
+        }
+      ],
+      "acceptance": "awaiting_designated_review"
+    }
+  ],
+  "evidence_index": {
+    "cursor-native-controls-20261126": {
+      "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+      "sha256": "04f8bd16c8fd79709c2783d422bfd27fde2f5e7a53e2c788d2a1463b16912a98",
+      "source_changed": [],
+      "nested_evidence": [],
+      "source_hash_count": 0,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "dsh-native-controls-20261126": {
+      "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+      "sha256": "40b9f734fc96b62b1496f7032aefb2a9e761e0f280260d63f6c25d2535305e15",
+      "source_changed": [],
+      "nested_evidence": [],
+      "source_hash_count": 0,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "cursor-recovery-upgrade-20261126": {
+      "path": "docs/design/evidence/cursor-recovery-upgrade-20261126.json",
+      "sha256": "af7cab892aac677d28ca4158a6cbf562ba8dc7680a284170d254f8ba4139b89c",
+      "source_changed": [
+        {
+          "path": "backend/app/runtime/worker.py",
+          "qualified_sha256": "2b2915f52df5a0e35dc7aa5943134ef5f5f1555924e321b784b70bfa32533251",
+          "current_sha256": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12"
+        },
+        {
+          "path": "backend/app/runtime/reconciliation.py",
+          "qualified_sha256": "ae22276d1110df32720bee55af2b5d62301220f492aad5a2676971361ab80822",
+          "current_sha256": "a508d432e1fee9e3e3a7b0b44faa5af5ed5782d1058dd3ee76d84aac2ea36626"
+        }
+      ],
+      "nested_evidence": [
+        {
+          "path": "docs/design/evidence/combined-recovery-20261126.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/release-qualification-20261125.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/protocol-recovery-closure-20261125.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/acp-cancellation-20261124.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/recipient-harnesses-20261125.json",
+          "digest_matches": true
+        }
+      ],
+      "source_hash_count": 5,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "protocol-control-mapping-20261126": {
+      "path": "docs/design/evidence/protocol-control-mapping-20261126.json",
+      "sha256": "af93b9cf27fad4dd8c6abe5a209a5d24fe4dade6e99c43b50ccb231e1a1ca78d",
+      "source_changed": [
+        {
+          "path": "backend/app/runtime/worker_tool_channel.py",
+          "qualified_sha256": "a48b3127b72810c2baec8d8b9c60e57fcd9fd577fed5379990e7b699edb28c4b",
+          "current_sha256": "3ab924cec08b0eece8d4f0ae1397b7024018bef2e3025cb7dc956f9b5fc50ff6"
+        },
+        {
+          "path": "backend/app/services/task_console.py",
+          "qualified_sha256": "8ceec87fb1486e247eb802de20422e2d841a3aa998e70f468d2b610f6fb1bf67",
+          "current_sha256": "6072f0a93cd21a2357350b6beb392763ba46a4e837377082a1aacd87344eecd1"
+        }
+      ],
+      "nested_evidence": [],
+      "source_hash_count": 7,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "harness-governance-20261125": {
+      "path": "docs/design/evidence/harness-governance-20261125.json",
+      "sha256": "c327a05fc23219c75be94e3dd9a0a58bb4bb557281ee790130411f7526ad3165",
+      "source_changed": [
+        {
+          "path": "backend/app/runtime/store.py",
+          "qualified_sha256": "72d225f884c6bae6ef347ccd52ebcb23a0046d8d799fb1457a8f5ce052d8fec6",
+          "current_sha256": "a85158c9fe8857062d7e3d57854adcf0ad59604be721e373b4623079a673f9f4"
+        },
+        {
+          "path": "backend/app/runtime/tool_invocations.py",
+          "qualified_sha256": "dcb1c9913fb31e65596031cd5a050b750843c9779cfe3e7b1fb330fdca527065",
+          "current_sha256": "665bd79e72465f3e11fe15a9e582b9539f4a2598f6f6b75c3f79989e282bdf9b"
+        },
+        {
+          "path": "scripts/qualify_harness_governance.py",
+          "qualified_sha256": "e69c55694a6d716205f4974991b03132c95e65533290e33a2f8f6545e19166bd",
+          "current_sha256": "682b1c401942d9739d8edb45ac2c7f57d1600c9a55ab39d6dd96ccd21428aede"
+        },
+        {
+          "path": "frontend/src/lib/messages.ts",
+          "qualified_sha256": "9ca9ea3bb1455191e5a4a969a79bf4cb821868d2a3a851529297a599d8c86327",
+          "current_sha256": "ffeb0990dc3e2cb550039cec29025f05a44c3a1f397b9b4ead2b657f77578dfe"
+        }
+      ],
+      "nested_evidence": [],
+      "source_hash_count": 6,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "acp-cancellation-20261124": {
+      "path": "docs/design/evidence/acp-cancellation-20261124.json",
+      "sha256": "a5966c1a70432f9048c420cfb1208377a157ab79315da8a46cf51386786d2edc",
+      "source_changed": [
+        {
+          "path": "sdk/python/src/dios_sdk/acp.py",
+          "qualified_sha256": "85d1e885ffa56c7773f9cee6350770faaf15a7eaa89614a3af131dd298425e68",
+          "current_sha256": "3c3a7a9795d3652329092aa753ecfe56920901a0f2a3fa427e1ef682b46586d1"
+        },
+        {
+          "path": "sdk/python/src/dios_sdk/cursor.py",
+          "qualified_sha256": "0b0646c6cac4baa552ca6be6da951c5da56de741d0ce309e8eccf1c8e41e556e",
+          "current_sha256": "4f5465e9aa1d013b5840ca6dd539f1d43e26d204b6d031da7f631c94afab0b85"
+        },
+        {
+          "path": "scripts/build_application_packages.py",
+          "qualified_sha256": "20a5064bcca5c06098a8197153d17ecb240d9ba6e1462020295922df475aa23d",
+          "current_sha256": "3e6bb74feb911cec06f78d80c97626f83470efb33c835451a120a06e5f652ee3"
+        }
+      ],
+      "nested_evidence": [],
+      "source_hash_count": 5,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "dsh-acp-20261124": {
+      "path": "docs/design/evidence/dsh-acp-20261124.json",
+      "sha256": "849435ddb36676a006d3e99cc252ef479964e6ad41ba5673d29873333878edf1",
+      "source_changed": [
+        {
+          "path": "sdk/python/src/dios_sdk/acp.py",
+          "qualified_sha256": "42e8a7cc91fe8397b792758e804ab0dc994b5ef1fb54b05cb5a2c082f7a89653",
+          "current_sha256": "3c3a7a9795d3652329092aa753ecfe56920901a0f2a3fa427e1ef682b46586d1"
+        }
+      ],
+      "nested_evidence": [],
+      "source_hash_count": 5,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "recipient-harnesses-20261125": {
+      "path": "docs/design/evidence/recipient-harnesses-20261125.json",
+      "sha256": "6d8819f742ee1efbac2756abe5a319529b81d008e697ec81a6413f56246cae27",
+      "source_changed": [
+        {
+          "path": "backend/app/runtime/worker_tool_channel.py",
+          "qualified_sha256": "a48b3127b72810c2baec8d8b9c60e57fcd9fd577fed5379990e7b699edb28c4b",
+          "current_sha256": "3ab924cec08b0eece8d4f0ae1397b7024018bef2e3025cb7dc956f9b5fc50ff6"
+        },
+        {
+          "path": "backend/app/services/child_tasks.py",
+          "qualified_sha256": "9571e308e3878a8e8f95f73b35ef00c3bb7904ddd2a4b7f903f4009925563e22",
+          "current_sha256": "098173a22381575f6136a85573e6513d7ea92c28f9e7d705b91890a239ac955e"
+        },
+        {
+          "path": "backend/tests/test_runtime_child_channel.py",
+          "qualified_sha256": "784baea7b72bb8de83c367390172828a832fecc39a122be7dc8f43cc07720252",
+          "current_sha256": "871246475d712a0f47e23be34c455cae523e7b2863e1231cb9fe113ba65ac159"
+        },
+        {
+          "path": "sdk/python/pyproject.toml",
+          "qualified_sha256": "f7e122eabc3ff2df99d2e80c6a2bf0cba5128f49ffb1bc766c68fcff4b29e54d",
+          "current_sha256": "1064d561692298b05b69efe23aa09b131d8c802999a4046973bbc5e1565860b6"
+        },
+        {
+          "path": "sdk/python/src/dios_sdk/__init__.py",
+          "qualified_sha256": "07a744ff3e66748e869dce8fe61064ce0817e888b56a076f302483cb4f80eded",
+          "current_sha256": "64671c111cfb20cc4b04ba1ddd5758db05e2a345ce955aec6082fce26827f4e8"
+        }
+      ],
+      "nested_evidence": [],
+      "source_hash_count": 14,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "protocol-recovery-closure-20261125": {
+      "path": "docs/design/evidence/protocol-recovery-closure-20261125.json",
+      "sha256": "7244eef563b67b5f7177330ca9d2f4b764f1db22b3ed0ecc6c52af53b07b1881",
+      "source_changed": [],
+      "nested_evidence": [
+        {
+          "path": "docs/design/evidence/acp-sessions-20261125.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/a2a-runtime-20261125.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/a2a-outbound-20261125.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/a2a-recovery-20261125.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/a2a-preflight-20261125.json",
+          "digest_matches": true
+        }
+      ],
+      "source_hash_count": 7,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "combined-recovery-20261126": {
+      "path": "docs/design/evidence/combined-recovery-20261126.json",
+      "sha256": "bc67ba4c0636b84b660fd0bd580d33a74e6f02df7560e78ad5f4c252f8d5dbdf",
+      "source_changed": [
+        {
+          "path": "backend/app/runtime/remote_control.py",
+          "qualified_sha256": "b4ec3ee1592f981926d5916e81934167668aa6d72274881c4b9b44061caf789b",
+          "current_sha256": "d3b4a6f0ab5ec185f3f8250277830bbbb18a4b157c7f021cea62812475e09ca4"
+        },
+        {
+          "path": "backend/app/runtime/worker.py",
+          "qualified_sha256": "2b2915f52df5a0e35dc7aa5943134ef5f5f1555924e321b784b70bfa32533251",
+          "current_sha256": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12"
+        },
+        {
+          "path": "backend/app/runtime/reconciliation.py",
+          "qualified_sha256": "ae22276d1110df32720bee55af2b5d62301220f492aad5a2676971361ab80822",
+          "current_sha256": "a508d432e1fee9e3e3a7b0b44faa5af5ed5782d1058dd3ee76d84aac2ea36626"
+        },
+        {
+          "path": "backend/app/runtime/faults.py",
+          "qualified_sha256": "d72e8b839bbdaa859fd02c1de13fe980fb73638ed922be2dcd2509b0eb22b1e6",
+          "current_sha256": "df8caf92833bbc0a298ee70ca72ca43283e8ad5f0ef4570dbbd0202784aaa52e"
+        }
+      ],
+      "nested_evidence": [
+        {
+          "path": "docs/design/evidence/fault-recovery-development-20261119.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/durable-run-schedules-20261124.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/durable-subscription-schedules-20261124.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/protocol-recovery-closure-20261125.json",
+          "digest_matches": true
+        },
+        {
+          "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+          "digest_matches": true
+        }
+      ],
+      "source_hash_count": 12,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "release-qualification-20261125": {
+      "path": "docs/design/evidence/release-qualification-20261125.json",
+      "sha256": "228fe6d0e364a693def6b1e9f0549f3bd11af619db2a3a047b9488d686469631",
+      "source_changed": [],
+      "nested_evidence": [],
+      "source_hash_count": 4,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "a2a-recovery-20261125": {
+      "path": "docs/design/evidence/a2a-recovery-20261125.json",
+      "sha256": "fa9d88601eaa07faebca770311187124d6a156db285e73eba57912a0742ee970",
+      "source_changed": [],
+      "nested_evidence": [],
+      "source_hash_count": 0,
+      "source_comparison_scope": "Only explicitly recorded source hashes; zero entries do not establish source equality."
+    },
+    "ha-recovery-20261126": {
+      "path": "docs/design/evidence/ha-recovery-20261126.json",
+      "sha256": "5320adc218dcbd6cfabbaf575f5ef0a3636df1ecb02ce78f71fb80396f9b90e3",
+      "source_hash_count": 6,
+      "source_changed": []
+    },
+    "ha-stall-20261126": {
+      "path": "docs/design/evidence/ha-stall-20261126.json",
+      "sha256": "cea641dd44b5703eca338eb7f2e1ecff19e1409457b9fe6e6f52688852b5bd7f",
+      "source_hash_count": 6,
+      "source_changed": []
+    }
+  },
+  "retained_dsh_artifacts_verified": 10,
+  "new_model_calls": 0,
+  "new_execution_tests": 0,
+  "engineering_submissions": [
+    "K01-5.01",
+    "K01-5.02",
+    "K01-4.03"
+  ],
+  "review_scope": "Fixed qualified compositions and declared controls; not blanket qualification of the latest source or every Harness version."
+}
