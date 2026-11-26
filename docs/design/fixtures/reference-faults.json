@@ -291,11 +291,10 @@
       "required": "跨场景读取和外发的运行中撤销证据",
       "id": "G03",
       "tests": [
-        "test_runtime_tool_invocations.ToolInvocationTests.test_revoke_during_initialization_blocks_actual_tool_call"
+        "test_reference_revocation.NativeRevocationTests.test_revoked_work_blocks_prepared_and_new_read_and_outbound",
+        "test_reference_revocation.NativeRevocationTests.test_revoke_during_mcp_initialize_blocks_read_and_outbound"
       ],
-      "gaps": [
-        "需组合运行中读取与外发撤销，绑定原 Attempt/epoch，并证明实际工具未执行"
-      ]
+      "gaps": []
     },
     {
       "case": "callback-replay",

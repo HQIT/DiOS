@@ -3191,10 +3191,11 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "F03-2.02",
-    "next_delivery": "F03-2.02",
+    "next_work_item": "D01-3.01",
+    "next_delivery": "D01-3.01",
     "next_delivery_order": [
-      "F03-2.02",
+      "D01-3.01",
+      "D01-3.02",
       "K04-2.02",
       "K02-3.02",
       "K02-3.03",
@@ -3209,13 +3210,13 @@
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
       "K02-3.02 等待源端隔离方式选择；当前先推进 W1 已就绪的 Harness 恢复与治理资格，原恢复验收保留。",
-      "F03-2.02 保留 8 项完整场景缺口及 G03/G05/G06 三项共同治理场景；逐项条件与责任见 docs/design/fixtures/reference-faults.json。"
+      "F03-2.02 保留 8 项完整场景及 G05/G06：R05 依赖 D01-3 跨主机环境，R06 依赖供应商明确错误通道，R01/R08/R15/R16/R17 和 G05/G06 由独立上层平台/应用联验，R18 依赖旧系统隔离适配；原资格要求保留。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "F03-2.02 累计通过 10/18 故障场景、3/6 共同治理场景（G01/G02/G04）。下一项补齐 G03：授权撤销后的实际只读检索与外发控制点组合；G05/G06 由上层平台任务接管、复核与实现交接承接。节点、供应商和应用责任项保持独立。"
+    "next_selection_reason": "F03-2.02 累计通过 10/18 故障场景、4/6 共同治理场景（G01—G04）。已有通用控制点组合齐备；剩余条件需要基础设施、供应商或独立应用配合。转入已就绪的 D01-3.01 控制面 HA 与旧主隔离，复用已交付共享后端与存储租约，先按公开成熟方案确定可执行故障模型，再建设跨主机资格环境。"
   }
 }

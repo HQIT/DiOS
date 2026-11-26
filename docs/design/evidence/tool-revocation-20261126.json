@@ -1,0 +1,275 @@
+{
+  "work_item": "F03-2.02",
+  "cases": [
+    "G03"
+  ],
+  "qualification": {
+    "base_commit": "0dfbeb90afb2b63d0606ad891544c08b4e8760a5",
+    "finished_at": "2026-11-26T13:17:13.457300+00:00",
+    "tests_run": 3,
+    "test_seconds": {
+      "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": 0.0030936480034142733,
+      "test_reference_revocation.NativeRevocationTests.test_revoke_during_mcp_initialize_blocks_read_and_outbound": 3.456842930012499,
+      "test_reference_revocation.NativeRevocationTests.test_revoked_work_blocks_prepared_and_new_read_and_outbound": 3.0682128289918182
+    },
+    "components_passed": true,
+    "sources_unchanged": true,
+    "outcomes": {
+      "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": "passed",
+      "test_reference_revocation.NativeRevocationTests.test_revoke_during_mcp_initialize_blocks_read_and_outbound": "passed",
+      "test_reference_revocation.NativeRevocationTests.test_revoked_work_blocks_prepared_and_new_read_and_outbound": "passed"
+    }
+  },
+  "source_sha256": {
+    "backend/app/runtime/tool_invocations.py": "665bd79e72465f3e11fe15a9e582b9539f4a2598f6f6b75c3f79989e282bdf9b",
+    "backend/app/runtime/mcp_tool_transport.py": "3b2105324ca45106c9ee5b32cdc67107f477577596fbbaf368ce24aa4d34d526",
+    "backend/app/runtime/work_authorizations.py": "7939e67985184e64bbecde6e365b1d6fe7cec18537741de744df1aabaaf63494",
+    "backend/app/runtime/store.py": "a85158c9fe8857062d7e3d57854adcf0ad59604be721e373b4623079a673f9f4",
+    "backend/tests/runtime_mcp_revocation_fixture.py": "d23f3af38351cd058d273a470a084f3ec5b1758a781dfc0ceba35da28cae7d8a",
+    "backend/tests/test_reference_revocation.py": "74e88a34b8e879be9fa7b93469eeb3fcef8f8656567a3e24565b6e9eb0acedfe",
+    "scripts/qualify_reference_faults.py": "9910f69aa898bdd0b38d27452191795cc5ba2a72621fce078a24ea48973d625e",
+    "docs/design/fixtures/reference-faults.json": "b8b32cbb248a472e413493e37b527939815b4c20901596aad334e54c1ce6e37f"
+  },
+  "observations": [
+    {
+      "case": "G03",
+      "injection": "during-initialize",
+      "endpoint_pid": 1002703,
+      "transport": "production McpHttpTransport over loopback TCP",
+      "harness_execution": "task/attempt/session entered through production store APIs; no model invoked",
+      "allowed_tools": [
+        "read",
+        "send"
+      ],
+      "allowed_effects": [
+        "read",
+        "outbound"
+      ],
+      "calls_after_revoke": 0,
+      "new_requests_denied": 2,
+      "initialization_barriers": 2,
+      "run_id": "361bc736-84fa-44ae-b927-478f43a63012",
+      "attempt_id": "acade394-cb05-47eb-b717-54b33320082d",
+      "revoked_run_version": 6,
+      "source_sha256": "67577530ea4ec0f6f84209b53fa16d0051fcac60d2755b01fc37d541b0c89502",
+      "denied": [
+        {
+          "invocation_id": "b311e89c-9e80-436c-9493-0217c77e5faf",
+          "tool_id": "read",
+          "binding": {
+            "run_id": "361bc736-84fa-44ae-b927-478f43a63012",
+            "attempt_id": "acade394-cb05-47eb-b717-54b33320082d",
+            "session_id": "session-one",
+            "worker_id": "worker",
+            "worker_instance": "instance",
+            "lease_epoch": 1,
+            "authorization_epoch": 1,
+            "authorization_ref": "wa-431d5d9ec6a5e19ebdddd4a6e94d9872bc142126ed86ed6b6056f45afd23",
+            "policy_digest": "9778406b7bce61cb5ce776411158c665e0e7dc834b51a7875b2533b999fbe518",
+            "permissions_digest": "a4263ec5bec6d4e9287f13571bba1b6b41a59584af8b3f994f5a7fd39fbc8ec3",
+            "subject": "operator:test",
+            "actor": "service:test"
+          },
+          "permission": {
+            "action": "repository.read",
+            "resource_kind": "mcp_tool",
+            "resource_id": "fixture/read",
+            "resource_version": "e00411b0643ebc23c41baa67b0bede929af832aea6223b62c20077e58caa6764",
+            "constraint_revision": "test-policy"
+          },
+          "denials": [
+            {
+              "stage": "dispatch",
+              "created_at": 1795699030.131997,
+              "decision": {
+                "stage": "tool-dispatch",
+                "decision": "deny",
+                "reason_codes": [
+                  "AUTH_REVOKED"
+                ],
+                "policy_version": "e2ag-2026-08-12.1",
+                "contract_type": "",
+                "latency_us": 0,
+                "evidence": {}
+              }
+            }
+          ]
+        },
+        {
+          "invocation_id": "470f93a3-3f4b-4ed7-bdee-8ed4826b8f38",
+          "tool_id": "send",
+          "binding": {
+            "run_id": "361bc736-84fa-44ae-b927-478f43a63012",
+            "attempt_id": "acade394-cb05-47eb-b717-54b33320082d",
+            "session_id": "session-one",
+            "worker_id": "worker",
+            "worker_instance": "instance",
+            "lease_epoch": 1,
+            "authorization_epoch": 1,
+            "authorization_ref": "wa-431d5d9ec6a5e19ebdddd4a6e94d9872bc142126ed86ed6b6056f45afd23",
+            "policy_digest": "9778406b7bce61cb5ce776411158c665e0e7dc834b51a7875b2533b999fbe518",
+            "permissions_digest": "a4263ec5bec6d4e9287f13571bba1b6b41a59584af8b3f994f5a7fd39fbc8ec3",
+            "subject": "operator:test",
+            "actor": "service:test"
+          },
+          "permission": {
+            "action": "artifact.publish",
+            "resource_kind": "mcp_tool",
+            "resource_id": "fixture/send",
+            "resource_version": "7609a676e3ebe72978853621781c5c0012504bc297628f6eb0a9649c80fc5f8f",
+            "constraint_revision": "test-policy"
+          },
+          "denials": [
+            {
+              "stage": "dispatch",
+              "created_at": 1795699030.1649883,
+              "decision": {
+                "stage": "tool-dispatch",
+                "decision": "deny",
+                "reason_codes": [
+                  "AUTH_REVOKED"
+                ],
+                "policy_version": "e2ag-2026-08-12.1",
+                "contract_type": "",
+                "latency_us": 0,
+                "evidence": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "G03",
+      "injection": "before-dispatch",
+      "endpoint_pid": 1002779,
+      "transport": "production McpHttpTransport over loopback TCP",
+      "harness_execution": "task/attempt/session entered through production store APIs; no model invoked",
+      "allowed_tools": [
+        "read",
+        "send"
+      ],
+      "allowed_effects": [
+        "read",
+        "outbound"
+      ],
+      "calls_after_revoke": 0,
+      "new_requests_denied": 2,
+      "initialization_barriers": 0,
+      "run_id": "9f0e8b52-8307-4cd2-a8ae-553e09174aed",
+      "attempt_id": "4381b9ed-b659-4c61-8078-5f8268ac5ece",
+      "revoked_run_version": 6,
+      "source_sha256": "67577530ea4ec0f6f84209b53fa16d0051fcac60d2755b01fc37d541b0c89502",
+      "denied": [
+        {
+          "invocation_id": "fc1882d5-cc70-4c49-9cc1-afe42cfff9c8",
+          "tool_id": "read",
+          "binding": {
+            "run_id": "9f0e8b52-8307-4cd2-a8ae-553e09174aed",
+            "attempt_id": "4381b9ed-b659-4c61-8078-5f8268ac5ece",
+            "session_id": "session-one",
+            "worker_id": "worker",
+            "worker_instance": "instance",
+            "lease_epoch": 1,
+            "authorization_epoch": 1,
+            "authorization_ref": "wa-17cefcc4af10487d8175c3e6a323178fbe57b4a059b624e188fdb2cdfc23",
+            "policy_digest": "1f0d82f767f20b0417a5ed8efd0eb21b4508f0aa258bc5b5079bfdda031dd5ed",
+            "permissions_digest": "729cb8ad44abd69b2ef398abb655f63e10330e78c8e665d4f452dc2518dbb1cf",
+            "subject": "operator:test",
+            "actor": "service:test"
+          },
+          "permission": {
+            "action": "repository.read",
+            "resource_kind": "mcp_tool",
+            "resource_id": "fixture/read",
+            "resource_version": "4233f5b5e509344dfbafe8fab95238054edbae63c010eb438ec710206cdf0d17",
+            "constraint_revision": "test-policy"
+          },
+          "denials": [
+            {
+              "stage": "preflight",
+              "created_at": 1795699033.2070158,
+              "decision": {
+                "stage": "tool-preflight",
+                "decision": "deny",
+                "reason_codes": [
+                  "AUTH_REVOKED"
+                ],
+                "policy_version": "e2ag-2026-08-12.1",
+                "contract_type": "",
+                "latency_us": 0,
+                "evidence": {}
+              }
+            }
+          ]
+        },
+        {
+          "invocation_id": "7d18c602-cab0-428b-81bc-577f49200188",
+          "tool_id": "send",
+          "binding": {
+            "run_id": "9f0e8b52-8307-4cd2-a8ae-553e09174aed",
+            "attempt_id": "4381b9ed-b659-4c61-8078-5f8268ac5ece",
+            "session_id": "session-one",
+            "worker_id": "worker",
+            "worker_instance": "instance",
+            "lease_epoch": 1,
+            "authorization_epoch": 1,
+            "authorization_ref": "wa-17cefcc4af10487d8175c3e6a323178fbe57b4a059b624e188fdb2cdfc23",
+            "policy_digest": "1f0d82f767f20b0417a5ed8efd0eb21b4508f0aa258bc5b5079bfdda031dd5ed",
+            "permissions_digest": "729cb8ad44abd69b2ef398abb655f63e10330e78c8e665d4f452dc2518dbb1cf",
+            "subject": "operator:test",
+            "actor": "service:test"
+          },
+          "permission": {
+            "action": "artifact.publish",
+            "resource_kind": "mcp_tool",
+            "resource_id": "fixture/send",
+            "resource_version": "a438ea7dd9e5de57bb9c1a8f1e0df2235dd457b424ccfda15e6a91d6f7084712",
+            "constraint_revision": "test-policy"
+          },
+          "denials": [
+            {
+              "stage": "preflight",
+              "created_at": 1795699033.240007,
+              "decision": {
+                "stage": "tool-preflight",
+                "decision": "deny",
+                "reason_codes": [
+                  "AUTH_REVOKED"
+                ],
+                "policy_version": "e2ag-2026-08-12.1",
+                "contract_type": "",
+                "latency_us": 0,
+                "evidence": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "runtime_source_unchanged": true,
+  "deployment_reused": {
+    "evidence": "docs/design/evidence/common-governance-20261126.json",
+    "backend_image": "sha256:eb90dc0e2e647aa596a80a042805bbf28873857a427d34149d62f10a2013f867",
+    "frontend_image": "sha256:c2b7ea8b9c82ef1dc845e721ef18bd6fcf230139a3a60b1f1a5b078e84342c8c",
+    "reason": "Only isolated fixtures, qualification mapping, evidence and plan changed; no runtime rollout required."
+  },
+  "cumulative": {
+    "governance_passed": [
+      "G01",
+      "G02",
+      "G03",
+      "G04"
+    ],
+    "governance_remaining": [
+      "G05",
+      "G06"
+    ],
+    "fault_scenarios_passed": 10,
+    "fault_scenarios_total": 18,
+    "wbs_completed": 52,
+    "wbs_total": 79,
+    "complete": false
+  }
+}

@@ -261,6 +261,7 @@ def main():
                 "test_reference_upgrade",
                 "test_reference_unattended",
                 "test_reference_observation",
+                "test_reference_revocation",
             )
             if name in sys.modules
             for row in sys.modules[name].OBSERVATIONS
