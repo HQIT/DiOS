@@ -1,0 +1,75 @@
+name: Linux delivery qualification
+
+on:
+  push:
+    branches: [feat/lightweight-runtime-32]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'deploy/**'
+      - 'scripts/**'
+      - 'docs/design/fixtures/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      export_images:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  delivery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install qualification dependencies
+        run: pip install -r backend/requirements.txt
+      - name: Build, install, run governed tasks, upgrade and roll back
+        env:
+          EXPORT_IMAGES: ${{ inputs.export_images }}
+        run: |
+          args=()
+          if [ "$EXPORT_IMAGES" = true ]; then args+=(--export-images); fi
+          python scripts/qualify_delivery.py --output "$RUNNER_TEMP/dios-delivery" "${args[@]}"
+      - name: Retain tested backend image
+        if: inputs.export_images
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-backend-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/dios-delivery/backend.tar
+            ${{ runner.temp }}/dios-delivery/summary.json
+          compression-level: 0
+          retention-days: 1
+      - name: Retain tested frontend image
+        if: inputs.export_images
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-frontend-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/dios-delivery/frontend.tar
+            ${{ runner.temp }}/dios-delivery/summary.json
+          compression-level: 0
+          retention-days: 1
+      - name: Retain qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-delivery-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/dios-delivery/summary.json
+            ${{ runner.temp }}/dios-delivery/tests.log
+            ${{ runner.temp }}/dios-delivery/qualification/result.json
+          if-no-files-found: error
+          retention-days: 14
