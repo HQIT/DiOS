@@ -46,6 +46,62 @@ class FaultTests(unittest.IsolatedAsyncioTestCase):
         for invalid in ([],{},None,429):
             with self.assertRaisesRegex(RuntimeErrorCode,'RESULT_FORMAT_INVALID'):
                 f.JsonlBridge().feed((json.dumps({'type':'error','code':invalid})+'\n').encode())
+    async def interrupted_control(self, *, complete=False):
+        from unittest.mock import patch
+        from app.runtime.reconciliation import reconcile_run, ExitReceipts
+        run=await self.submit()
+        adapter=f.FakeAdapter(f.protocol(complete=complete))
+        worker=self.worker(adapter)
+        with patch.object(self.store,'observe_process',side_effect=ConnectionError('control unavailable')):
+            with self.assertRaises(ConnectionError):await worker.once()
+        current=await self.store.get(run['id'])
+        self.assertEqual(current['state'],'reconciliation_required')
+        self.assertTrue(adapter.stopped)
+        receipt=ExitReceipts(self.f.provider,self.store.scope).load(current['attempts'][0])
+        self.assertEqual(receipt['failure'],'CONTROL_PLANE_UNAVAILABLE')
+        return await reconcile_run(self.store,adapter,self.f.provider,run['id'],
+            verifier=WorkAuthorizationVerifier(self.store,self.policy))
+
+    async def test_control_outage_reconciles_before_retry_and_reissues_grant(self):
+        first=await self.interrupted_control()
+        self.assertEqual(first['state'],'retry_wait')
+        self.assertEqual(first['recovery']['category'],'control_service')
+        self.assertEqual(first['recovery']['circuit']['state'],'closed')
+        self.assertEqual(len(first['attempts']),1)
+        self.assertEqual((await self.worker().once())['state'],'idle')
+        await self.due()
+        final=await self.worker().once()
+        self.assertEqual(final['id'],first['id'])
+        self.assertEqual(final['state'],'succeeded')
+        self.assertEqual(len(final['attempts']),2)
+        async with self.db.read(self.store.scope) as c:
+            rows=(await c.execute(select(grants).where(grants.c.run_id==first['id']))).mappings().all()
+        self.assertEqual(len(rows),2)
+        self.assertNotEqual(rows[0]['attempt_id'],rows[1]['attempt_id'])
+        self.assertTrue(all(row['state']=='closed' for row in rows))
+
+    async def test_control_outage_complete_output_recovers_without_retry(self):
+        final=await self.interrupted_control(complete=True)
+        self.assertEqual(final['state'],'succeeded')
+        self.assertEqual(len(final['attempts']),1)
+
+    async def test_control_outage_does_not_replay_unsafe_work(self):
+        self.p['replay_safe']=False
+        self.spec=replace(self.spec,environment={POLICY_ENV:json.dumps(self.p)})
+        self.policy,self.descriptor=policy_fixture(self.f.root,'test-profile',self.spec)
+        final=await self.interrupted_control()
+        self.assertEqual(final['state'],'failed')
+        self.assertEqual(final['recovery']['reason'],'REPLAY_DISABLED')
+        await self.due()
+        self.assertEqual((await self.worker().once())['state'],'idle')
+
+    async def test_control_outage_recovery_still_honors_revocation(self):
+        first=await self.interrupted_control()
+        await self.store.revoke(first['id'],first['version'])
+        await self.due()
+        self.assertEqual((await self.worker().once())['state'],'idle')
+        self.assertEqual(len((await self.store.get(first['id']))['attempts']),1)
+
     async def test_backoff_retains_attempt_then_new_attempt_gets_new_grant(self):
         run=await self.submit();bad=self.worker(f.FakeAdapter(failure('PROVIDER_NETWORK_ERROR')))
         first=await bad.once();self.assertEqual(first['state'],'retry_wait')

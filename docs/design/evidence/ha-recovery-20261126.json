@@ -1,0 +1,103 @@
+{
+  "work_item": "D01-3.01",
+  "passed": true,
+  "complete": false,
+  "environment": {
+    "physical_hosts": 1,
+    "control_vms": 3,
+    "database_instances": 1,
+    "agent": "synthetic governed JSONL fixture",
+    "base_commit": "a3abb977e0140e68185f161600c0ef2bc95df9cd",
+    "guest_backend_image": "sha256:a2600743af2dfbe49bd0ce2fb34e0b0901d413d953b1b6f803b19ef62c47a5af",
+    "host_backend_image": "sha256:46e5843d44e646e392b4906fcb7b8b9b3100285f515463cbca5409ff7f04d194"
+  },
+  "checks": {
+    "stop_timeout_fences_before_successor_mount": true,
+    "old_primary_containers_alive_during_pending_stop": true,
+    "old_primary_reboot_does_not_start_services": true,
+    "historical_run_authorization_and_artifacts_preserved": true,
+    "database_unavailable_rejects_admission_with_503": true,
+    "original_attempt_evidence_retained": true,
+    "same_run_retries_after_reconciliation_with_new_grant": true,
+    "complete_output_recovers_without_replay_unit_test": true,
+    "unsafe_replay_and_revocation_blocked_unit_tests": true,
+    "same_worker_accepts_new_work_after_recovery": true,
+    "artifact_sha256_verified": true
+  },
+  "stop_failure": {
+    "native_stop_timeout_seconds": 120,
+    "recovery_observed_upper_bound_seconds": 140.82289385795593,
+    "events": "stop-ordered-events.json"
+  },
+  "database_failure": {
+    "before_fix": {
+      "run_id": "038821ec-8330-4ac0-ba9c-67420546ae6b",
+      "state": "failed",
+      "code": "RESULT_INCOMPLETE",
+      "retry_blocked": "NON_RETRYABLE"
+    },
+    "after_fix": {
+      "run_id": "531efd25-c8d8-4d7e-8d30-9ff8e0dbd51b",
+      "state": "succeeded",
+      "attempt_count": 2,
+      "original_attempt": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+      "original_failure": "CONTROL_PLANE_UNAVAILABLE",
+      "authorization_reference_preserved": true,
+      "recovery_observed_upper_bound_seconds": 43.96383595466614
+    }
+  },
+  "tests": {
+    "command": "python -m pytest tests/test_runtime_faults.py tests/test_runtime_reconciliation.py tests/test_runtime_worker.py -q",
+    "passed": 47,
+    "skipped": 51,
+    "skip_reason": "isolated PostgreSQL test URL not configured; live PostgreSQL interruption qualified separately",
+    "seconds": 120.29,
+    "critical_lint": "E9,F63,F7,F82 passed",
+    "full_lint": "existing baseline findings plus local test style; not a clean full lint claim"
+  },
+  "remaining": [
+    "database process/network stall without disconnect",
+    "full isolation and accepted fault/RPO contract",
+    "physical host failure and replicated database/volume qualification remain D01-3.02/.03"
+  ],
+  "source_sha256": {
+    "backend/app/runtime/worker.py": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12",
+    "backend/app/runtime/faults.py": "df8caf92833bbc0a298ee70ca72ca43283e8ad5f0ef4570dbbd0202784aaa52e",
+    "backend/app/runtime/reconciliation.py": "a508d432e1fee9e3e3a7b0b44faa5af5ed5782d1058dd3ee76d84aac2ea36626",
+    "backend/tests/test_runtime_faults.py": "5819e48c7b745b5c87e014a92be4f270f13d8d24c91a22344db1f6923d0a0098",
+    "deploy/ha/pacemaker.example.xml": "a7ba2f38bd405c4863829c54151aece92c42770cfa4351f32c175902f5211f38",
+    "deploy/ha/dios-control.service": "c0b10497cc830b13a1bc80ded6210e4de7eb182c9fb64d784a9f8ea2643d991a"
+  },
+  "evidence_directory": "docs/design/evidence/ha-recovery-20261126",
+  "evidence_sha256": {
+    "artifact-previews.json": "44019ac372f2286ab82144e46c1b4ad84776c1e375fc566d9856239684298211",
+    "db-after.json": "1c76a5bba6e2e37b1e436c83faa76900a7f8c532d38719f6331db4f0018c438e",
+    "db-before.json": "530f75f16e288205fbc1ad9d9f9579feb25a7f6397361acbb4c1328223a68179",
+    "db-fault.json": "38feb801c9272c280cde29f068a67ac4171d8ad66460020128d9ee7611ea5d0c",
+    "db-unavailable-probes.json": "714b1bf2462b766fe57634608ff272fe741b7c46fa51fc7bb4308aab2cb81f3c",
+    "deployed-image.json": "9e095f1068425df79abcc176a328704a0ebb62a9b9d1dac644b64a9bc430bdba",
+    "new-work-after-recovery.json": "0a0fc68377896f989bd2e3b5f6c49509d1d7f2cfd89efc6e284f71a71fb3c1de",
+    "revoked-preserved.json": "e2c7fbdef5f51179f5f07b9f09be274ee24e85ef7c91da75548c9c3ee3b7ae27",
+    "stop-after-cluster.xml": "d2392a53b30c42f39198ef537830c46fce6cb26f4b02e78f523e4a6500dab968",
+    "stop-fault-unit.txt": "a49648633d640887b259bc48465b07a7a1c8b17e9a57e9b39a3daa5ff1d3b914",
+    "stop-fault.json": "64429bceb7e0d2156951992df8a129c9d275d7d235cabe64380df9b8fce3ebda",
+    "stop-observations.json": "a08407dde9d2c2d1d354267240388dff43a96a388a139ab2a5edf27025c81bed",
+    "stop-old-boot.txt": "1d6cc3cd3d6dfb06ba9dda0bbd64892da6d08c8ce69368ee180a746c21916bbc",
+    "stop-ordered-events.json": "2d6ee0ed54583a9651e82a90d2f48bd1ce99967c150326280230b1e163629c2e",
+    "stop-pending-cluster.xml": "ba238affb09a70aa7835cd6c23e741625a438c37e346efd918090ac7d2a5ee27",
+    "stop-pending-unit.txt": "c1caaffb066be8e83ae0f877f6a39516c35198cea382379220c62b599ea6c21b"
+  },
+  "cleanup": {
+    "vm_states": {
+      "dios-ha-control-a": "shut off",
+      "dios-ha-control-b": "shut off",
+      "dios-ha-control-c": "shut off"
+    },
+    "database_stopped": true,
+    "network_stopped": true,
+    "fence_login_disabled": true,
+    "temporary_fence_block_removed": true,
+    "disks_and_configuration_retained": true,
+    "checked_at": 1795704171.7680953
+  }
+}

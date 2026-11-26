@@ -359,16 +359,18 @@ class Worker:
         except Exception as exc:
             # Best effort local evidence, independent of controller availability.
             # A live workload stays discoverable; a read error never proves its death.
-            exception_code = exc.code if isinstance(exc,RuntimeErrorCode) else 'RUNTIME_OBSERVATION_UNAVAILABLE'
+            exception_code = exc.code if isinstance(exc,RuntimeErrorCode) else (
+                'CONTROL_PLANE_UNAVAILABLE' if isinstance(exc,(ConnectionError,TimeoutError,OperationalError,InterfaceError))
+                else 'RUNTIME_OBSERVATION_UNAVAILABLE')
             try:
                 observed = await self.adapter.stop(handle) if run['input'].get('work_authorization_ref') or budget else await self.adapter.observe(handle)
                 if not observed.alive and observed.state in {'exited','dead'}:
                     saved_logs = await self.adapter.logs(handle,self.output_limit)
                     await asyncio.to_thread(self.receipts.save,a,observed,saved_logs,
-                        failure=exception_code if exception_code=='RUN_BUDGET_EXHAUSTED' else code)
+                        failure=code or (exception_code if exception_code in {'RUN_BUDGET_EXHAUSTED','CONTROL_PLANE_UNAVAILABLE'} else None))
             except Exception:
                 pass
-            code = exc.code if isinstance(exc,RuntimeErrorCode) else 'RUNTIME_OBSERVATION_UNAVAILABLE'
+            code = exception_code
             try:
                 await self.store.mark_unknown(binding,code)
             except Exception:

@@ -1,0 +1,40 @@
+# /etc/systemd/system/dios-control.service
+# Cluster-managed only: do not enable at boot or start through another supervisor.
+[Unit]
+Description=DiOS active control services
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+WorkingDirectory=/srv/dios-ha/install
+ExecStartPre=/usr/bin/mountpoint -q /srv/dios-ha
+ExecStartPre=/usr/bin/docker compose --project-name dios-ha --project-directory /srv/dios-ha/install -f compose.yaml -f compose.shared.yaml -f /etc/dios-ha/compose.ha.yaml config --quiet
+ExecStartPre=/usr/bin/docker compose --project-name dios-ha --project-directory /srv/dios-ha/install -f compose.yaml -f compose.shared.yaml -f /etc/dios-ha/compose.ha.yaml up --no-build --pull never --wait --wait-timeout 60 backend frontend gateway
+ExecStart=/usr/bin/docker compose --project-name dios-ha --project-directory /srv/dios-ha/install -f compose.yaml -f compose.shared.yaml -f /etc/dios-ha/compose.ha.yaml up --no-build --pull never --no-recreate --abort-on-container-exit backend frontend gateway
+ExecStop=/usr/bin/docker compose --project-name dios-ha --project-directory /srv/dios-ha/install -f compose.yaml -f compose.shared.yaml -f /etc/dios-ha/compose.ha.yaml stop --timeout 60 backend frontend gateway
+ExecStopPost=/usr/bin/docker compose --project-name dios-ha --project-directory /srv/dios-ha/install -f compose.yaml -f compose.shared.yaml -f /etc/dios-ha/compose.ha.yaml stop --timeout 60 backend frontend gateway
+Restart=no
+TimeoutStartSec=90
+TimeoutStopSec=90
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal
+
+# /run/systemd/system/dios-control.service.d/50-pacemaker.conf
+[Unit]
+Description=Cluster Controlled dios-control
+Before=pacemaker.service pacemaker_remote.service
+
+[Service]
+Restart=no
+
+
+# /etc/systemd/system/dios-control.service.d/qualification-stop-hang.conf
+[Service]
+ExecStop=
+ExecStop=/usr/bin/sleep 300
+TimeoutStopSec=300
+TimeoutStopUSec=5min
+MainPID=2009

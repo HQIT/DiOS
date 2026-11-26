@@ -1,0 +1,57 @@
+<pacemaker-result api-version="2.30" request="crm_mon -1 --output-as=xml --inactive">
+  <summary>
+    <stack type="corosync" pacemakerd-state="running"/>
+    <current_dc present="true" version="2.1.6-6fdc9deea29" name="control-a" id="1" with_quorum="true" mixed_version="false"/>
+    <last_update time="Thu Nov 26 14:31:33 2026" origin="control-b"/>
+    <last_change time="Thu Nov 26 14:31:08 2026" user="root" client="crm_attribute" origin="control-a"/>
+    <nodes_configured number="3"/>
+    <resources_configured number="4" disabled="0" blocked="0"/>
+    <cluster_options stonith-enabled="true" symmetric-cluster="false" no-quorum-policy="stop" maintenance-mode="false" stop-all-resources="false" stonith-timeout-ms="60000" priority-fencing-delay-ms="0"/>
+  </summary>
+  <nodes>
+    <node name="control-a" id="1" online="true" standby="true" standby_onfail="false" maintenance="false" pending="false" unclean="false" health="green" feature_set="3.17.4" shutdown="false" expected_up="true" is_dc="true" resources_running="2" type="member"/>
+    <node name="control-b" id="2" online="true" standby="false" standby_onfail="false" maintenance="false" pending="false" unclean="false" health="green" feature_set="3.17.4" shutdown="false" expected_up="true" is_dc="false" resources_running="1" type="member"/>
+    <node name="control-c" id="3" online="true" standby="false" standby_onfail="false" maintenance="false" pending="false" unclean="false" health="green" feature_set="3.17.4" shutdown="false" expected_up="true" is_dc="false" resources_running="0" type="member"/>
+  </nodes>
+  <resources>
+    <resource id="dios-fence" resource_agent="stonith:fence_virsh" role="Started" active="true" orphaned="false" blocked="false" maintenance="false" managed="true" failed="false" failure_ignored="false" nodes_running_on="1">
+      <node name="control-b" id="2" cached="true"/>
+    </resource>
+    <group id="dios-control" number_resources="3" maintenance="false" managed="true" disabled="false">
+      <resource id="dios-volume" resource_agent="ocf:heartbeat:Filesystem" role="Started" target_role="Started" active="true" orphaned="false" blocked="false" maintenance="false" managed="true" failed="false" failure_ignored="false" nodes_running_on="1">
+        <node name="control-a" id="1" cached="true"/>
+      </resource>
+      <resource id="dios-service" resource_agent="systemd:dios-control" role="Stopping" target_role="Started" active="true" orphaned="false" blocked="false" maintenance="false" managed="true" failed="false" failure_ignored="false" nodes_running_on="1">
+        <node name="control-a" id="1" cached="true"/>
+      </resource>
+      <resource id="dios-address" resource_agent="ocf:heartbeat:IPaddr2" role="Stopped" target_role="Started" active="false" orphaned="false" blocked="false" maintenance="false" managed="true" failed="false" failure_ignored="false" nodes_running_on="0"/>
+    </group>
+  </resources>
+  <node_history>
+    <node name="control-a">
+      <resource_history id="dios-volume" orphan="false" migration-threshold="1">
+        <operation_history call="18" task="start" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:30:54 2026" exec-time="59ms" queue-time="0ms"/>
+        <operation_history call="20" task="monitor" rc="0" rc_text="ok" interval="20000ms" last-rc-change="Thu Nov 26 14:30:54 2026" exec-time="47ms" queue-time="0ms"/>
+      </resource_history>
+      <resource_history id="dios-fence" orphan="false" migration-threshold="1">
+        <operation_history call="22" task="monitor" rc="0" rc_text="ok" interval="60000ms" last-rc-change="Thu Nov 26 14:30:55 2026" exec-time="497ms" queue-time="0ms"/>
+        <operation_history call="27" task="stop" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:31:09 2026" exec-time="0ms" queue-time="0ms"/>
+      </resource_history>
+      <resource_history id="dios-service" orphan="false" migration-threshold="1">
+        <operation_history call="23" task="monitor" rc="0" rc_text="ok" interval="10000ms" last-rc-change="Thu Nov 26 14:31:02 2026" exec-time="0ms" queue-time="0ms"/>
+        <operation_history call="-1" task="stop" rc="193" rc_text="unknown" last-rc-change="Thu Nov 26 14:31:09 2026" exec-time="0ms" queue-time="0ms"/>
+      </resource_history>
+      <resource_history id="dios-address" orphan="false" migration-threshold="1">
+        <operation_history call="25" task="monitor" rc="0" rc_text="ok" interval="10000ms" last-rc-change="Thu Nov 26 14:31:02 2026" exec-time="29ms" queue-time="0ms"/>
+        <operation_history call="29" task="stop" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:31:09 2026" exec-time="40ms" queue-time="0ms"/>
+      </resource_history>
+    </node>
+    <node name="control-b">
+      <resource_history id="dios-fence" orphan="false" migration-threshold="1">
+        <operation_history call="18" task="start" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:31:09 2026" exec-time="614ms" queue-time="0ms"/>
+        <operation_history call="19" task="monitor" rc="0" rc_text="ok" interval="60000ms" last-rc-change="Thu Nov 26 14:31:09 2026" exec-time="481ms" queue-time="0ms"/>
+      </resource_history>
+    </node>
+  </node_history>
+  <status code="0" message="OK"/>
+</pacemaker-result>

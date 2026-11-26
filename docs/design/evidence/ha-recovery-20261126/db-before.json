@@ -1,0 +1,401 @@
+{
+  "run": {
+    "id": "531efd25-c8d8-4d7e-8d30-9ff8e0dbd51b",
+    "state": "executing",
+    "version": 7,
+    "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+    "created_at": 1795703975.202102,
+    "updated_at": 1795703976.956991,
+    "cancel_requested": false,
+    "goal": "Verify database interruption and E2AG recovery",
+    "sample_id": "db-outage",
+    "task_kind": "ha-qualification",
+    "profile_id": "ha-fixture",
+    "display": {
+      "name": "HA qualification",
+      "implementation": "Synthetic JSONL fixture",
+      "synthetic": true
+    },
+    "revision_ref": null,
+    "deployment_id": null,
+    "application": null,
+    "access": [
+      "run.read",
+      "run.cancel",
+      "run.revoke",
+      "artifact.read",
+      "tool.read",
+      "tool.approve"
+    ],
+    "observed_at": 1795703977.51393,
+    "attempts": [
+      {
+        "id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+        "epoch": 1,
+        "state": "streaming",
+        "session_id": "57642c44-d3e7-4ded-9992-6904ce5a3828",
+        "worker_id": "ha-worker:9ce1edd4e2994e3094666a388c288ba0",
+        "process_id": 1091986,
+        "started_at": 1795703975.736271,
+        "finished_at": null,
+        "last_output_at": 1795703976.8783283,
+        "error": null,
+        "object_ref": {
+          "kind": "session",
+          "id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "version": 1
+        },
+        "freshness": "fresh",
+        "runtime_state": "running",
+        "confirmed_running": true,
+        "output_excerpt": "HA qualification: authorized synthetic task active"
+      }
+    ],
+    "authorization": {
+      "mode": "e2ag",
+      "reference": "wa-4489a0b09ccbd4bf4e6eaa98621bc4b04fb68f632b2d6eadb7a3fb6e0db5",
+      "subject": "operator:qualification",
+      "actor": "service:qualification",
+      "policy_id": "ha-qualification",
+      "state": "active",
+      "expires_at": 1795790375.202102,
+      "authorization_epoch": 1,
+      "source_check": null,
+      "source_event": null,
+      "delegation": null,
+      "secret_refs": [],
+      "grant": {
+        "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+        "session_id": "57642c44-d3e7-4ded-9992-6904ce5a3828",
+        "lease_epoch": 1,
+        "version": 2,
+        "state": "active",
+        "expires_at": 1795704875.876722
+      },
+      "decisions": [
+        {
+          "id": "e42efa47-07f0-4768-876d-a4c1825f53b8",
+          "action": "execute",
+          "created_at": 1795703976.776456,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_SESSION_BOUND"
+          ]
+        },
+        {
+          "id": "c4255a46-7b8b-4839-9a55-564367f0eebe",
+          "action": "execute",
+          "created_at": 1795703975.876722,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_GRANT_CREATED"
+          ]
+        },
+        {
+          "id": "b7cb080e-7e1b-4e4e-ad82-a806f1083570",
+          "action": "admit",
+          "created_at": 1795703975.202102,
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ]
+        }
+      ]
+    },
+    "recovery": null,
+    "family": null,
+    "capacity": null,
+    "execution_budget": null,
+    "tool_budget": {
+      "committed": 0,
+      "succeeded": 0,
+      "failed": 0,
+      "unresolved": 0,
+      "maximum": null,
+      "remaining": null,
+      "exhausted": false,
+      "inherited": false,
+      "accounting_scope": "run_tree"
+    },
+    "model_usage": {
+      "evidence_level": "agent_reported",
+      "settlement": "unreconciled",
+      "at_limit": false,
+      "items": []
+    },
+    "consumption_budget": {
+      "provider_hard_cap": "unsupported",
+      "blocked_reasons": [],
+      "at_limit": false,
+      "items": []
+    },
+    "diagnostics": {
+      "time_basis": "control_plane_received",
+      "observed_at": 1795703977.51393,
+      "last_event_at": 1795703976.956991,
+      "last_output_at": 1795703976.8783283,
+      "freshness": "fresh",
+      "stages": [
+        {
+          "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "epoch": 1,
+          "phase": "claimed",
+          "event_id": null,
+          "started_at": 1795703975.736271,
+          "ended_at": 1795703976.124742,
+          "duration_seconds": 0.3884711265563965,
+          "elapsed_seconds": null,
+          "clock_anomaly": false,
+          "end_reason": "next_phase"
+        },
+        {
+          "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "epoch": 1,
+          "phase": "preparing",
+          "event_id": "3ca244e3-afd0-4bbc-a922-99d9966d8e99",
+          "started_at": 1795703976.124742,
+          "ended_at": 1795703976.206325,
+          "duration_seconds": 0.08158302307128906,
+          "elapsed_seconds": null,
+          "clock_anomaly": false,
+          "end_reason": "next_phase"
+        },
+        {
+          "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "epoch": 1,
+          "phase": "creating_session",
+          "event_id": "cbcddc48-118a-4c7c-9ef9-e0f8998a3566",
+          "started_at": 1795703976.206325,
+          "ended_at": 1795703976.851909,
+          "duration_seconds": 0.6455838680267334,
+          "elapsed_seconds": null,
+          "clock_anomaly": false,
+          "end_reason": "next_phase"
+        },
+        {
+          "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "epoch": 1,
+          "phase": "waiting_model",
+          "event_id": "974d0e7d-60a9-4aee-91e1-ca4d25c0ff63",
+          "started_at": 1795703976.851909,
+          "ended_at": 1795703976.956991,
+          "duration_seconds": 0.10508203506469727,
+          "elapsed_seconds": null,
+          "clock_anomaly": false,
+          "end_reason": "next_phase"
+        },
+        {
+          "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "epoch": 1,
+          "phase": "streaming",
+          "event_id": "61ca8704-cc91-4e29-9127-fbac4c5f9c16",
+          "started_at": 1795703976.956991,
+          "ended_at": null,
+          "duration_seconds": null,
+          "elapsed_seconds": 0.5569391250610352,
+          "clock_anomaly": false,
+          "end_reason": "open"
+        }
+      ],
+      "attempts_has_more": false,
+      "governance": [
+        {
+          "id": "e42efa47-07f0-4768-876d-a4c1825f53b8",
+          "kind": "work",
+          "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "action": "execute",
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_SESSION_BOUND"
+          ],
+          "created_at": 1795703976.776456,
+          "timing": {
+            "clock": "monotonic",
+            "lookup_seconds": 0.0026857290000066314,
+            "policy_refresh_seconds": 0.000589394000030552,
+            "transaction_wait_seconds": 6.263999978273205e-06,
+            "authorization_seconds": 0.015075862000003326,
+            "before_audit_seconds": 0.018357249000018783
+          }
+        },
+        {
+          "id": "c4255a46-7b8b-4839-9a55-564367f0eebe",
+          "kind": "work",
+          "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "action": "execute",
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_GRANT_CREATED"
+          ],
+          "created_at": 1795703975.876722,
+          "timing": {
+            "clock": "monotonic",
+            "lookup_seconds": 0.0052488569999695756,
+            "policy_refresh_seconds": 0.0007585800000242671,
+            "transaction_wait_seconds": 6.4609999981257715e-06,
+            "authorization_seconds": 0.037283290000004854,
+            "before_audit_seconds": 0.04329718799999682
+          }
+        },
+        {
+          "id": "b7cb080e-7e1b-4e4e-ad82-a806f1083570",
+          "kind": "work",
+          "attempt_id": null,
+          "action": "admit",
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ],
+          "created_at": 1795703975.202102,
+          "timing": null
+        }
+      ],
+      "governance_has_more": false,
+      "coverage": {
+        "phases": "persisted_runtime_reports",
+        "governance": "audited_checkpoints",
+        "persistence_commit_seconds": null,
+        "agent_internal_stages": "not_observed"
+      }
+    },
+    "sample": {
+      "id": "db-outage",
+      "name": "db-outage",
+      "sha256": "0955cde8101e6d80caef3d0dd9edeef7a355c378bcd42b986ec51899e5b29605"
+    },
+    "artifacts": [],
+    "events": [
+      {
+        "id": "61ca8704-cc91-4e29-9127-fbac4c5f9c16",
+        "version": 7,
+        "type": "attempt.phase",
+        "state": "executing",
+        "created_at": 1795703976.956991
+      },
+      {
+        "id": "974d0e7d-60a9-4aee-91e1-ca4d25c0ff63",
+        "version": 6,
+        "type": "attempt.phase",
+        "state": "executing",
+        "created_at": 1795703976.851909
+      },
+      {
+        "id": "c6ea4558-f104-41e9-9020-6d6173d1a29c",
+        "version": 5,
+        "type": "runtime.observed",
+        "state": "executing",
+        "created_at": 1795703976.604254
+      },
+      {
+        "id": "cbcddc48-118a-4c7c-9ef9-e0f8998a3566",
+        "version": 4,
+        "type": "attempt.phase",
+        "state": "executing",
+        "created_at": 1795703976.206325
+      },
+      {
+        "id": "3ca244e3-afd0-4bbc-a922-99d9966d8e99",
+        "version": 3,
+        "type": "attempt.phase",
+        "state": "executing",
+        "created_at": 1795703976.124742
+      },
+      {
+        "id": "e0e0936c-dac2-48fd-8ad7-3ba7f04146aa",
+        "version": 2,
+        "type": "attempt.claimed",
+        "state": "executing",
+        "created_at": 1795703975.736271
+      },
+      {
+        "id": "a5bb8ab6-2de9-4a66-934a-657d72614532",
+        "version": 1,
+        "type": "run.accepted",
+        "state": "queued",
+        "created_at": 1795703975.202102
+      }
+    ],
+    "attempts_has_more": false,
+    "artifacts_at_limit": false
+  },
+  "workers": {
+    "scope": "dios-ha-qualification",
+    "observed_at": 1795703977.661848,
+    "registered_slots": 3,
+    "confirmed_running_processes": 1,
+    "confirmed_running_sessions": 1,
+    "confirmed_paused_processes": 0,
+    "actual_concurrency": 1,
+    "unknown_attempts": 0,
+    "workers": [
+      {
+        "id": "ha-worker:9ce1edd4e2994e3094666a388c288ba0",
+        "scope": "dios-ha-qualification",
+        "instance": "e8b2d626-5a84-48bb-a480-382354e06b5e",
+        "host": "Gang-Laptop",
+        "pid": 1091939,
+        "slots": 1,
+        "draining": false,
+        "heartbeat_at": 1795703976.277902
+      },
+      {
+        "id": "ha-worker:6ce933c6388547459f362e30fceac153",
+        "scope": "dios-ha-qualification",
+        "instance": "e406cece-0472-488c-844b-b585c30b2080",
+        "host": "Gang-Laptop",
+        "pid": 1053399,
+        "slots": 1,
+        "draining": true,
+        "heartbeat_at": 1795701904.575463
+      },
+      {
+        "id": "ha-worker:b5c17d62d1ed4d41ab6a04dbc6dc62db",
+        "scope": "dios-ha-qualification",
+        "instance": "462b430a-4d3f-4061-8509-66f952c0f345",
+        "host": "Gang-Laptop",
+        "pid": 1085525,
+        "slots": 1,
+        "draining": true,
+        "heartbeat_at": 1795703850.762601
+      }
+    ],
+    "attempts": [
+      {
+        "run_id": "531efd25-c8d8-4d7e-8d30-9ff8e0dbd51b",
+        "attempt_id": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+        "phase": "streaming",
+        "worker_id": "ha-worker:9ce1edd4e2994e3094666a388c288ba0",
+        "session_id": "57642c44-d3e7-4ded-9992-6904ce5a3828",
+        "process_id": 1091986,
+        "process_instance": "35a92c2fc4dbc57e849bfd079dd3dd353b31c39cf0cdede98b971d0e63dd05f0:2026-11-26T14:39:36.439343387Z",
+        "last_output_at": 1795703976.8783283,
+        "freshness": "fresh",
+        "runtime": {
+          "handle": "c4b08202-4ccf-4aff-bb6f-0ce7b9708787",
+          "state": "running",
+          "alive": true,
+          "pid": 1091986,
+          "process_instance": "35a92c2fc4dbc57e849bfd079dd3dd353b31c39cf0cdede98b971d0e63dd05f0:2026-11-26T14:39:36.439343387Z",
+          "exit_code": null,
+          "health": "not_configured",
+          "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+          "adapter": "local-docker-v1",
+          "worker_boot_id": "5dbdb147-dd0a-4b44-80d6-d7ec5194e9fe",
+          "observed_at": 1795703977.575081
+        }
+      }
+    ],
+    "circuits": [
+      {
+        "scope": "dios-ha-qualification",
+        "resource": "model:ha-synthetic",
+        "state": "closed",
+        "failures": 0,
+        "retry_at": 0.0,
+        "probe_attempt": null,
+        "reason": null,
+        "updated_at": 1795701731.811968
+      }
+    ]
+  }
+}

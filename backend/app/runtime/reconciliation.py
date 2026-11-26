@@ -108,6 +108,9 @@ async def reconcile_run(store, adapter, provider, run_id, *, output_limit=1024*1
         bridge.feed(data, final=True)
         from .result_contract import validate_result
         validate_result(run['input'],bridge.result)
+        # A transport failure cannot invalidate already complete, validated output.
+        if failure == 'CONTROL_PLANE_UNAVAILABLE' and not receipt['truncated']:
+            failure = None
     except RuntimeErrorCode as exc:
         failure = failure or exc.code
     if not failure and obs['exit_code'] != 0 and not (bridge.result is not None and (run.get('recovery_policy') or {}).get('accept_complete_on_error')):

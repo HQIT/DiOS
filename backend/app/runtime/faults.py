@@ -8,6 +8,7 @@ from .schema import runs,attempts
 POLICY_ENV='DIOS_RECOVERY_POLICY'
 # Wrappers normalize provider errors; stderr text is evidence, never executable policy.
 CATEGORIES={
+    'CONTROL_PLANE_UNAVAILABLE':'control_service',
     'PROVIDER_NETWORK_ERROR':'network','PROVIDER_TIMEOUT':'network','PROVIDER_RATE_LIMITED':'rate_limit',
     'PROVIDER_QUOTA_EXHAUSTED':'quota','SESSION_CREATE_FAILED':'session',
     'PROCESS_EXITED':'process','RESULT_FORMAT_INVALID':'format','RESULT_INCOMPLETE':'format',
@@ -20,7 +21,7 @@ CATEGORIES={
     'ACP_REQUEST_FAILED':'unknown','ACP_FRAME_INVALID':'format','ACP_FRAME_TOO_LARGE':'format',
     'WORKER_GATEWAY_OBSERVATION_UNAVAILABLE':'control_connection','WORK_PREFLIGHT_UNAVAILABLE':'configuration',
 }
-TRANSIENT={'network','rate_limit','quota','session','process','secret_service'}
+TRANSIENT={'network','rate_limit','quota','session','process','secret_service','control_service'}
 SHARED={'network','rate_limit','quota','session','secret_service'}
 
 def policy(value):

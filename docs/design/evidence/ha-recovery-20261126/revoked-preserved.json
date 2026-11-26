@@ -1,0 +1,153 @@
+{
+  "id": "f8c1a1c8-5039-409a-b915-2399a4597d8c",
+  "state": "queued",
+  "version": 2,
+  "attempt_id": null,
+  "created_at": 1795701731.061622,
+  "updated_at": 1795701731.219343,
+  "cancel_requested": false,
+  "goal": "Verify HA task and authorization continuity",
+  "sample_id": "revoked",
+  "task_kind": "ha-qualification",
+  "profile_id": "ha-fixture",
+  "display": {
+    "name": "HA qualification",
+    "implementation": "Synthetic JSONL fixture",
+    "synthetic": true
+  },
+  "revision_ref": null,
+  "deployment_id": null,
+  "application": null,
+  "access": [
+    "run.read",
+    "run.cancel",
+    "run.revoke",
+    "artifact.read",
+    "tool.read",
+    "tool.approve"
+  ],
+  "observed_at": 1795704090.620504,
+  "attempts": [],
+  "authorization": {
+    "mode": "e2ag",
+    "reference": "wa-0de172ebb4948bc3bf8c51231f2d1493bdca6c1133f0bcb7718cac4072e2",
+    "subject": "operator:qualification",
+    "actor": "service:qualification",
+    "policy_id": "ha-qualification",
+    "state": "revoked",
+    "expires_at": 1795788131.061622,
+    "authorization_epoch": 2,
+    "source_check": null,
+    "source_event": null,
+    "delegation": null,
+    "secret_refs": [],
+    "grant": null,
+    "decisions": [
+      {
+        "id": "7d7b01fc-e52e-41f9-8ba6-722395f445d8",
+        "action": "revoke",
+        "created_at": 1795701731.219343,
+        "outcome": "deny",
+        "reason_codes": [
+          "AUTH_REVOKED"
+        ]
+      },
+      {
+        "id": "9be0d4d7-2987-415c-bcf3-0c791da90a9d",
+        "action": "admit",
+        "created_at": 1795701731.061622,
+        "outcome": "allow",
+        "reason_codes": [
+          "WORK_AUTHORIZATION_CREATED"
+        ]
+      }
+    ]
+  },
+  "recovery": null,
+  "family": null,
+  "capacity": {
+    "blocked": false,
+    "reason": null,
+    "limits": []
+  },
+  "execution_budget": null,
+  "tool_budget": null,
+  "model_usage": {
+    "evidence_level": "agent_reported",
+    "settlement": "unreconciled",
+    "at_limit": false,
+    "items": []
+  },
+  "consumption_budget": {
+    "provider_hard_cap": "unsupported",
+    "blocked_reasons": [],
+    "at_limit": false,
+    "items": []
+  },
+  "diagnostics": {
+    "time_basis": "control_plane_received",
+    "observed_at": 1795704090.620504,
+    "last_event_at": 1795701731.219343,
+    "last_output_at": null,
+    "freshness": "no_worker",
+    "stages": [],
+    "attempts_has_more": false,
+    "governance": [
+      {
+        "id": "7d7b01fc-e52e-41f9-8ba6-722395f445d8",
+        "kind": "work",
+        "attempt_id": null,
+        "action": "revoke",
+        "outcome": "deny",
+        "reason_codes": [
+          "AUTH_REVOKED"
+        ],
+        "created_at": 1795701731.219343,
+        "timing": null
+      },
+      {
+        "id": "9be0d4d7-2987-415c-bcf3-0c791da90a9d",
+        "kind": "work",
+        "attempt_id": null,
+        "action": "admit",
+        "outcome": "allow",
+        "reason_codes": [
+          "WORK_AUTHORIZATION_CREATED"
+        ],
+        "created_at": 1795701731.061622,
+        "timing": null
+      }
+    ],
+    "governance_has_more": false,
+    "coverage": {
+      "phases": "persisted_runtime_reports",
+      "governance": "audited_checkpoints",
+      "persistence_commit_seconds": null,
+      "agent_internal_stages": "not_observed"
+    }
+  },
+  "sample": {
+    "id": "revoked",
+    "name": "revoked",
+    "sha256": "a991bfda2b21cc064adc485d12fa2cdb5d16cf6992e4e665d73b92fa39b3470b"
+  },
+  "artifacts": [],
+  "events": [
+    {
+      "id": "01fc180e-c6c1-4230-8383-53e372ebeadc",
+      "version": 2,
+      "type": "authorization.revoked",
+      "state": "queued",
+      "created_at": 1795701731.219343
+    },
+    {
+      "id": "d7d26265-0232-4dcc-af1d-d93d72f2f63a",
+      "version": 1,
+      "type": "run.accepted",
+      "state": "queued",
+      "created_at": 1795701731.061622
+    }
+  ],
+  "attempts_has_more": false,
+  "artifacts_at_limit": false
+}
