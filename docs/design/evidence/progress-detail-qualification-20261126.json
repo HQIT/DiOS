@@ -1,0 +1,66 @@
+{
+  "work_item": "K02-2.02",
+  "passed": true,
+  "tests": 25,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 25.167,
+  "selected_suites": [
+    "test_progress_detail_qualification.ProgressDetailQualification",
+    "test_runtime_spool.SpoolTests",
+    "test_runtime_persistence.SQLitePersistence.test_outbox_retry_ack_and_stale_projection",
+    "test_runtime_persistence.ArtifactScenarios",
+    "test_runtime_remote_control.RemoteControlTests.test_disconnected_result_recovers_after_worker_restart_without_relaunch",
+    "test_runtime_remote_control.RemoteControlTests.test_completed_response_loss_is_recovered_without_duplicate_artifacts",
+    "test_runtime_remote_control.RemoteControlTests.test_backup_contains_incomplete_upload_and_resumes",
+    "test_runtime_remote_control.RemoteControlTests.test_e2ag_revocation_and_machine_revocation_reject_execution",
+    "test_runtime_remote_control.RemoteControlTests.test_fenced_epoch_never_accepts_old_report"
+  ],
+  "implementation_commit": "332efaeb79646eb68cf30cb23e944e1e4dfec24e",
+  "observations": [
+    {
+      "case": "mtls-independent-progress-detail",
+      "bytes": 3000014,
+      "sha256": "45ec6eeae0058b95e54e773f3d8adab724f8f4e2ddf25f952015677c4151a561",
+      "chunk_count": 46,
+      "utf8_split_chunks": 37,
+      "progress_during_stall_seconds": 0.466,
+      "progress_event_bytes": 490,
+      "run_id": "8eb62626-3984-4520-9c79-06024489cc02",
+      "attempt_id": "3fce08d3-02fe-463c-be9d-dbd9188da44b",
+      "session_id": "session-original",
+      "artifact_id": "f3ebc1a5-b3a4-4ceb-8dde-78ec1495191d",
+      "resumed_offset": 65536,
+      "stale_projection_rejected": true,
+      "duplicate_chunks_reused": true,
+      "conflicting_chunk_rejected": true,
+      "incomplete_download_rejected": true
+    }
+  ],
+  "source_sha256": {
+    "backend/tests/test_progress_detail_qualification.py": "96a632978cc2b705d7b44133fba179712073dd2be1be8a1f4dd2de1e000e594f",
+    "backend/tests/test_runtime_spool.py": "e02811e704abde0e31e51cfa4d6cc5ed093144cba082951d07781f4682f9fbdc",
+    "backend/tests/test_runtime_persistence.py": "f441f6716660b960a674c444793e1610d9d9edda2f77374f5100afbc1b5f3f9d",
+    "backend/tests/test_runtime_remote_control.py": "b89a3e2f4544214aa861ecccff726d33721ac718c0ba998b4f8f6d4238d12bef",
+    "backend/app/runtime/remote_control.py": "23313c247db0f53d2878d8f441145c0cf288cc53a1cccfe8e6f7359d34bb5806",
+    "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+    "backend/app/runtime/remote_tool_channel.py": "9836b6f0bb3c14be0dd799fc77ed54bcc94aef98f521708f5592f21b05a8ea78",
+    "backend/app/runtime/spool.py": "6f15a0ee7cba5bb67c21eb5d2dbc53fcee98ca4e84283c770dde2360fe4bac07",
+    "backend/app/runtime/reporting.py": "55bad5424b2b290a74e13c5df4f2645f002fb6288a449aca87d1b88cdb8f6e86",
+    "backend/app/runtime/store.py": "9c3bb536eb96020ed164a8c92e2a239e11d4af6e540ad0a1f0cba39c21288dce",
+    "backend/app/runtime/artifacts.py": "e350152d58138914c793c0f989659f03fa2c5c4eddfd3307281255980d864f9f",
+    "scripts/qualify_progress_detail.py": "1391e8fa97978c14509900874e7c0557070ad3f79c3c511f0d3ab1f389d5fef6"
+  },
+  "failure_cases": [],
+  "limits": [
+    "Real loopback mTLS with synthetic payload and authenticated E2AG-bound Attempt; no physical network partition or model service.",
+    "Detail request stall is injected before its control transaction; independent progress does not imply availability during shared database or disk failure.",
+    "3 MB individual artifact tested; current remote per-artifact limit is 8 MiB and per-attempt total 32 MiB. Larger business archives require bounded artifact partitioning.",
+    "Run progress uses versioned events; remote snapshot dashboard replacement remains application work."
+  ],
+  "references": [
+    "https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html",
+    "https://docs.python.org/3/library/codecs.html"
+  ]
+}

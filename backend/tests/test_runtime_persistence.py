@@ -227,6 +227,7 @@ class ArtifactScenarios(unittest.TestCase):
     def test_size_digest_path_and_interrupted_upload(self):
         with tempfile.TemporaryDirectory() as d:
             p=LocalArtifacts(Path(d),max_bytes=4)
+            baseline=set(Path(d).iterdir())
             with self.assertRaisesRegex(RuntimeErrorCode,'ARTIFACT_TOO_LARGE'):p.put([b'12345'])
             with self.assertRaisesRegex(RuntimeErrorCode,'ARTIFACT_DIGEST_MISMATCH'):p.put([b'1'],expected_digest='0'*64)
             with self.assertRaisesRegex(RuntimeErrorCode,'INVALID_ARTIFACT_KEY'):p.verify('../outside')
@@ -234,6 +235,6 @@ class ArtifactScenarios(unittest.TestCase):
                 yield b'1'
                 raise OSError('network lost')
             with self.assertRaises(OSError):p.put(broken())
-            self.assertEqual(list(Path(d).iterdir()),[])
+            self.assertEqual(set(Path(d).iterdir()),baseline)
 
 if __name__=='__main__':unittest.main()
