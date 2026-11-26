@@ -227,7 +227,7 @@ def main():
         "complete": components_passed
         and all(c["status"] == "passed" for c in cases)
         and not manifest["cross_agent_remaining"],
-        "observations": [row for name in ("test_reference_faults", "test_reference_native_acp")
+        "observations": [row for name in ("test_reference_faults", "test_reference_native_acp", "test_reference_remote_consistency")
                          if name in sys.modules for row in sys.modules[name].OBSERVATIONS],
     }
     target = args.output / "result.json"

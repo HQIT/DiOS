@@ -500,7 +500,7 @@ def main(argv=None):
     show = commands.add_parser('show');show.add_argument('run_id')
     provenance=commands.add_parser('evidence',help='permission-aware execution and source associations')
     provenance.add_argument('run_id');provenance.add_argument('--artifacts',required=True)
-    provenance.add_argument('--section',choices=['attempts','tools','artifacts','sources','usage'],default='attempts')
+    provenance.add_argument('--section',choices=['attempts','tools','artifacts','sources','usage','quarantine','transfers'],default='attempts')
     provenance.add_argument('--limit',type=int,default=50);provenance.add_argument('--cursor')
     delegation=commands.add_parser('delegation',help='trusted local administration of immutable delegation records')
     delegation_commands=delegation.add_subparsers(dest='delegation_command',required=True)

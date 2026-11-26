@@ -81,7 +81,7 @@ class RemoteControl:
             except RuntimeErrorCode as exc:
                 failure=exc
                 # Preserve denial evidence after rolling back a partial claim or result write.
-                target=None;aid=None
+                target=None;aid=None;quarantined=False
                 if method=='claim':
                     revision_column=runs.c.input['revision_ref'].as_string()
                     target=(await c.execute(select(runs.c.id).where(runs.c.scope==bound.scope,runs.c.state=='queued',
@@ -89,16 +89,20 @@ class RemoteControl:
                         revision_column==e['revision_ref'] if 'revision_ref' in e else revision_column.is_(None)).order_by(runs.c.created_at,runs.c.id).limit(1))).scalar_one_or_none()
                 elif isinstance(p.get('binding'),list):
                     try:
-                        denied_run,denied_attempt=await self.binding(c,bound,e,p['binding'],recovery=True)
+                        historical=exc.code=='STALE_OWNER' and method in {'report','complete'}
+                        denied_run,denied_attempt=await self.binding(c,bound,e,p['binding'],recovery=not historical,historical=historical)
                         target,aid=denied_run['id'],denied_attempt['id']
+                        if historical:
+                            from .remote_quarantine import retain
+                            quarantined=await retain(c,bound.scope,dict(e,certificate=certificate),denied_run,denied_attempt,method,p,now)
                     except RuntimeErrorCode:pass
-                if target:
+                if target and not quarantined:
                     await audit(c,bound.scope,target,aid,'remote-control',Decision('remote-control','deny',(exc.code,),
                         evidence={'certificate_sha256':certificate,'worker_id':e['worker_id'],'method':method}),now)
         if failure:raise failure
         return value
 
-    async def binding(self,c,store,e,binding,*,recovery=False):
+    async def binding(self,c,store,e,binding,*,recovery=False,historical=False):
         if not isinstance(binding,list) or len(binding)!=5 or type(binding[4]) is not int:raise RuntimeErrorCode('INVALID_BINDING')
         for x in binding[:4]:identifier(x)
         run=await store._run(c,binding[0])
@@ -108,7 +112,7 @@ class RemoteControl:
         caller=(await c.execute(select(peers).where(peers.c.id==e['worker_id']))).mappings().one()
         if not peer or any(peer[k]!=caller[k] for k in ('certificate','machine_id','profile')):raise RuntimeErrorCode('WORKER_IDENTITY_SCOPE_DENIED')
         if not recovery and (binding[2],binding[3])!=(e['worker_id'],e['instance']):raise RuntimeErrorCode('STALE_OWNER')
-        if run['attempt_id']!=a['id'] or run['input'].get('runtime_profile')!=e['profile'] or run['input'].get('profile_digest')!=e['profile_digest'] or run['input'].get('revision_ref')!=e.get('revision_ref'):
+        if (not historical and run['attempt_id']!=a['id']) or run['input'].get('runtime_profile')!=e['profile'] or run['input'].get('profile_digest')!=e['profile_digest'] or run['input'].get('revision_ref')!=e.get('revision_ref'):
             raise RuntimeErrorCode('STALE_OWNER')
         return run,dict(a)
 

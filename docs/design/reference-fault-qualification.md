@@ -1,6 +1,6 @@
 # 故障场景资格与剩余交付
 
-F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R04 ACP 进程崩溃、R07 完整输出抢救与 R12 指定 UTF-8 分块已通过；其余十四项及六项共同治理场景仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
+F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R04 ACP 进程崩溃、R07 完整输出抢救、R10 迟到结果隔离、R11 进度与详情独立同步及 R12 指定 UTF-8 分块已通过；其余十二项及六项共同治理场景仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
 
 ## 执行与结果
 
@@ -35,11 +35,26 @@ R04 在 `session/prompt` 未结束时向 ACP 进程发出 SIGKILL，后代进程
 
 R07 在完整输出与退出收据持久化之后、终态提交之前 SIGKILL 独立 Worker。另一 Worker 对账并重新通过 E2AG 结果接收授权后，完成原 Run/Attempt/Session；协议请求计数保持一次。原任务数据和生产评审未参与故障注入。
 
+## 迟到报告与详情同步
+
+[R10/R11 证据](evidence/remote-consistency-20261126.json) 使用独立 Worker 进程、Docker 执行实例和真实 mTLS 网关。R10 将旧 epoch 的报告重复发送十次，并提交原 Attempt 已校验的产物引用；报告按内容去重隔离，原身份、中文输出和来源关系保留，当前 Attempt 的状态、版本及所有权保持不变。另一 Worker 冒用旧绑定会被拒绝。隔离记录使用现有 E2AG 决策账本，不进入成功结果。
+
+R11 在详情接收达到 65,536 字节后注入故障，同任务的小进度仍可更新；重复和倒序序号不会使进度回退。恢复 Worker 从已确认偏移续传，最终产物完成校验，Run、Attempt、模型会话及执行进程保持原关联。模型完整输出到达后先确认 `validating` 阶段，再传输大详情。
+
+API `GET /api/os/runtime/runs/{run_id}/evidence?section=quarantine|transfers`、CLI `evidence --section quarantine|transfers` 和控制台“迟到报告 / 详情同步”使用同一查询。两类记录仅供运营身份读取，应用身份返回受限空页。详情水位包含已接收字节、总量及校验状态；进度水位包含序号和最近有效输出时间。现有表未记录每次分块接收时间，`last_chunk_at` 返回空值。
+
+```bash
+DIOS_TEST_DOCKER=1 backend/.venv/bin/python scripts/qualify_reference_faults.py \
+  --cases R10 R11 --output workspace/reference-remote-consistency-run
+```
+
+预览环境 `13481/13482` 保持 `restore_hold`。前端与后端使用独立项目网络，后端另接存储 Provider 网络，防止共享网络中的同名服务使请求路由至其他实例。浏览器验证包含实际 API、原生测试响应的展示、权限受限、空态、失败刷新恢复和移动布局。
+
 ## 底座与应用职责
 
 | 范围 | 场景与剩余条件 | 承接 |
 | --- | --- | --- |
-| 原生执行故障 | R03 真实代理断连、R06 模型 HTTP 错误转换、R09 组合长等待、R10 隔离审计、R11 同任务详情与进度分离 | #10/#30/#32/#46/#56/#58 |
+| 原生执行故障 | R03 真实代理断连、R06 模型 HTTP 错误转换、R09 组合长等待 | #10/#30/#32/#46/#56/#58 |
 | 节点与交付 | R05 隔离节点重启、R13 实际版本切换、R14 Linux 无人值守依赖与代理恢复 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
 | 静态评审应用 | R01 分支 SHA 水位、R08 证据待验证及覆盖账本、R15 只读业务配置、R16 上下文复用、R17 质量与导出统一口径 | #43/#59；底座提供任务、授权、工具、产物与统计接口 |
 | 旧系统接续 | R18 旧控制器兼容回滚、分区独占及历史身份 | #11/#60；需隔离源端和旧系统适配 |
@@ -53,4 +68,6 @@ R07 在完整输出与退出收据持久化之后、终态提交之前 SIGKILL �
 
 ACP 使用标准 [stdio JSON-RPC 传输](https://agentclientprotocol.com/protocol/v1/transports)。进程退出监测与管道读取分别运行，沿用仓库 `process.py` 的进程组隔离及有界清理方式；[Python subprocess 文档](https://docs.python.org/3/library/asyncio-subprocess.html) 说明了管道读写与退出等待的不同生命周期。仅确认操作系统进程退出后结束待决 RPC；查询超时仍保留原分类。
 
-下一批补齐 R10 旧 epoch 迟到输出的隔离审计，以及 R11 同任务进度与详情上传的独立水位；原生网络、节点和应用业务断言按对应责任项继续推进。
+迟到报告采用 [AWS 死信队列](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html) 的隔离与排查思路；进度与详情沿用 [Azure 队列负载调节](https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling) 的生产和消费解耦原则，复用现有 SQLite/Provider、离线 spool 和分块协议。预览网络采用 [Docker Compose 自定义网络](https://docs.docker.com/compose/how-tos/networking/) 的服务分区方式。
+
+下一批补齐 R03 原生网络断连和 R06 模型限流错误转换；节点、应用和旧系统迁移断言按对应责任项继续推进。

@@ -3,9 +3,9 @@ import {t} from "../../../lib/i18n";
 import {evidenceApi} from "../../../api/runtime";
 import type {EvidencePage, EvidenceRecord, ObjectReference} from "../../../api/runtime";
 
-const sections: Record<string,string> = {attempts:"执行与会话",tools:"工具与审批",artifacts:"成果对象",sources:"知识与来源",usage:"用量报告"};
+const sections: Record<string,string> = {attempts:"执行与会话",tools:"工具与审批",artifacts:"成果对象",sources:"知识与来源",usage:"用量报告",quarantine:"迟到报告",transfers:"详情同步"};
 const levels: Record<string,string> = {platform_recorded:"平台记录",worker_observed:"Worker 实测",remote_reported:"远端报告",agent_reported:"Agent 报告",operator_declared:"人工登记",estimated:"估算",unknown:"未知"};
-const states: Record<string,string> = {succeeded:"成功",failed:"失败",awaiting_approval:"等待审批",prepared:"准备完成",result_unknown:"结果未知",approved:"已批准",consumed:"审批已消费",not_required:"无需审批",denied:"已拒绝",invalidated:"已失效"};
+const states: Record<string,string> = {succeeded:"成功",failed:"失败",awaiting_approval:"等待审批",prepared:"准备完成",result_unknown:"结果未知",approved:"已批准",consumed:"审批已消费",not_required:"无需审批",denied:"已拒绝",invalidated:"已失效",quarantined:"已隔离",verified:"校验完成",pending:"等待同步"};
 function refText(ref: EvidenceRecord["target"]): string {
   if (!ref) return "";
   return "kind" in ref ? `${ref.kind}/${ref.id} · v${ref.version}` : `${ref.namespace}/${ref.key} · ${ref.version}`;
@@ -53,7 +53,7 @@ export default function RunEvidencePanel({runId}: {runId: string}) {
       {!loading&&!error&&(!data||data.access!=="restricted"||target)&&items.length===0&&<p>{t("本页没有可见记录；无记录不代表活动未发生。")}</p>}
       {items.map((row,index)=><article className="tr-attempt" key={row.id||`${row.attempt_id}-${row.sequence}-${index}`}>
         <span className="tr-badge">{t(levels[row.evidence_level]||"未知")}</span>
-        <strong>{row.tool_id||t(row.object_ref?"成果对象":row.relation?"来源关联":row.kind?"用量报告":"执行尝试")}</strong>
+        <strong>{row.tool_id||t(row.kind==="quarantine"?"迟到报告":row.kind==="transfer"?"详情同步":row.object_ref?"成果对象":row.relation?"来源关联":row.kind?"用量报告":"执行尝试")}</strong>
         <code className="tr-source">{row.id||row.attempt_id}</code>
         {row.state&&<span>{t(states[row.state]||row.state)}</span>}
         {row.attempt_id&&<small>{t("尝试")}: {row.attempt_id}</small>}

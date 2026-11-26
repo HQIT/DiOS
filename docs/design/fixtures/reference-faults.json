@@ -70,16 +70,16 @@
     },
     {
       "id": "R10",
-      "tests": ["test_runtime_remote_control.RemoteControlTests.test_fenced_epoch_never_accepts_old_report", "test_runtime_combined_recovery.CombinedRecoveryTests.test_chunk_ack_loss_restart_observation_timeout_and_stale_reports"],
-      "covered": "旧 epoch 报告不能写入当前状态；本地迟到补报保留",
-      "gaps": ["需验证 epoch=1 转移至 epoch=2 的完整场景，以及迟到输出的可查询隔离审计关联"],
+      "tests": ["test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt"],
+      "covered": "原生 mTLS Worker 从 epoch=1 切换至 epoch=2；旧进度十次重放及旧结果保留到隔离审计，当前状态和水位不变；冒用旧 Worker 身份被拒绝",
+      "gaps": [],
       "owners": [30, 32]
     },
     {
       "id": "R11",
-      "tests": ["test_runtime_spool.SpoolTests.test_throttle_backoff_and_independent_attempt_progress", "test_runtime_combined_recovery.CombinedRecoveryTests.test_chunk_ack_loss_restart_observation_timeout_and_stale_reports"],
-      "covered": "补报退避、其他任务进展及断点续传",
-      "gaps": ["需同一任务的大详情被拒与小进度乱序并存，验证独立水位和详情新鲜度"],
+      "tests": ["test_reference_remote_consistency.NativeRemoteConsistencyTests.test_detail_outage_preserves_independent_progress_watermark_and_resumes"],
+      "covered": "原生 Worker 同任务大详情停在 64 KB 时，小进度重复倒序投递保持高水位；详情确认字节与校验状态独立；故障恢复后续传并校验，原 Attempt/Session 保留",
+      "gaps": [],
       "owners": [32, 46]
     },
     {

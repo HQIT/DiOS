@@ -291,6 +291,11 @@ class Worker:
                         return await self.store.get(a['run_id'])
                     # Persist original bytes and exit evidence before controller writes.
                     await asyncio.to_thread(self.receipts.save, a, observation, logs, failure=code)
+                    # Publish the small validation phase before transferring retained output.
+                    # A slow/unavailable detail channel must not leave the UI at "streaming".
+                    if not cancelled and not revoked and not code and bridge.result is not None and phase != 'creating_session':
+                        await report('validating')
+                        await confirm_report(self.store,self.spool,last_receipt)
                     await retain(logs)
                     if cancelled:
                         await self.store.confirm_cancel(*binding,'runtime-exit:'+observation.process_instance)
@@ -312,7 +317,7 @@ class Worker:
                                 if run['input'].get('work_authorization_ref'):
                                     await authorized('execute',bridge.session_id)
                                 await report('waiting_model')
-                            await report('validating')
+                            if phase != 'validating':await report('validating')
                             await confirm_report(self.store,self.spool,last_receipt)
                             await authorized('accept_result',bridge.session_id)
                             blob = await asyncio.to_thread(self.artifacts.put,[encoded(bridge.result)])

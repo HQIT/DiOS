@@ -375,7 +375,7 @@ class EvidenceAccessTests(unittest.IsolatedAsyncioTestCase):
         await self.finish()
         self.directory["principals"]["b"]["objects"][run["id"]] = ["run.read"]
         self.save()
-        for section in ["tools", "artifacts", "sources"]:
+        for section in ["tools", "artifacts", "sources", "quarantine", "transfers"]:
             value = await self.get("b", f"runs/{run['id']}/evidence?section={section}")
             self.assertEqual(value.status_code, 200, value.text)
             self.assertEqual(value.json()["access"], "restricted")

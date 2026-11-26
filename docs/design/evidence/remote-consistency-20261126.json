@@ -1,0 +1,247 @@
+{
+  "work_item": "F03-2.02",
+  "complete": false,
+  "qualified_cases": [
+    "R10",
+    "R11"
+  ],
+  "environment": "Linux/WSL; SQLite; synthetic processes and Docker; no real model",
+  "base_commit": "2d4412873930074eeb7e6602e1d3276ca8cb5ca4",
+  "outcomes": {
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": "passed",
+    "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_detail_outage_preserves_independent_progress_watermark_and_resumes": "passed",
+    "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt": "passed"
+  },
+  "observations": [
+    {
+      "case": "R11",
+      "run_id": "d0e1faf5-0f34-4f25-9b96-1fda5472994f",
+      "attempt_id": "657fcce3-326e-4999-abb2-68c33ec117f2",
+      "epoch": 1,
+      "session_id": "d2f7a453-9d3d-4093-b4cb-4bdbc910c9de",
+      "process_instance": "10ad0ca29122840bfa083ee8c632a6912d363c4803414f305db5a42f8674b6f0:2026-11-26T11:32:44.72964904Z",
+      "pending_detail": {
+        "id": "a4b21d6fe40b2af674258715c10539c746953341d5b28a8952a1a7d179b5fad8",
+        "attempt_id": "657fcce3-326e-4999-abb2-68c33ec117f2",
+        "epoch": 1,
+        "state": "pending",
+        "kind": "transfer",
+        "evidence_level": "platform_recorded",
+        "descriptor": {
+          "digest": "fee41637db2ab7047b4e2da6bd361e44753baecaa5ebc0b8a0b59d3b7c7723ee",
+          "size": 194698
+        },
+        "values": {
+          "received_bytes": 65536,
+          "total_bytes": 194698,
+          "content_verified": false,
+          "created_at": 1795692766.0299852,
+          "last_chunk_at": null,
+          "progress_sequence": 7,
+          "last_output_at": 1795692766.14353
+        }
+      },
+      "resumed_offsets": [
+        0,
+        65536,
+        0,
+        0
+      ],
+      "artifacts_verified": 3,
+      "attempts_after_recovery": 1,
+      "final_state": "succeeded"
+    },
+    {
+      "case": "R10",
+      "run_id": "a19e4664-1e25-46a5-8026-8766817b50e4",
+      "old_attempt": "6a896e5e-09f6-499d-a9c9-7beccdd6346a",
+      "current_attempt": "9aaca837-af48-4d65-a7db-a48b6337776b",
+      "epochs": [
+        1,
+        2
+      ],
+      "replays": 10,
+      "quarantined_records": 2,
+      "run_unchanged_on_late_write": true,
+      "distinct_worker_ids": [
+        "qualified:87bf5d30c33d4f17be3ee3d6dc0167f7",
+        "qualified:f4fdfd1f13714fe0bb052b8eb8bea077"
+      ],
+      "forged_sender_rejected": true,
+      "final_state": "succeeded"
+    }
+  ],
+  "cases": [
+    {
+      "id": "R10",
+      "tests": [
+        "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt"
+      ],
+      "covered": "原生 mTLS Worker 从 epoch=1 切换至 epoch=2；旧进度十次重放及旧结果保留到隔离审计，当前状态和水位不变；冒用旧 Worker 身份被拒绝",
+      "gaps": [],
+      "owners": [
+        30,
+        32
+      ],
+      "title": "R10 僵尸所有者",
+      "injection": "epoch=1 暂停后转移至 epoch=2，再回传 epoch=1 结果",
+      "assertions": "旧 epoch 不写新状态；迟到输出保留在隔离审计",
+      "status": "passed"
+    },
+    {
+      "id": "R11",
+      "tests": [
+        "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_detail_outage_preserves_independent_progress_watermark_and_resumes"
+      ],
+      "covered": "原生 Worker 同任务大详情停在 64 KB 时，小进度重复倒序投递保持高水位；详情确认字节与校验状态独立；故障恢复后续传并校验，原 Attempt/Session 保留",
+      "gaps": [],
+      "owners": [
+        32,
+        46
+      ],
+      "title": "R11 详情上传失败",
+      "injection": "拒绝大产物上传，进度事件重复且倒序投递，然后恢复",
+      "assertions": "小进度继续、按水位去重；详情新鲜度独立；续传校验一致",
+      "status": "passed"
+    }
+  ],
+  "source_sha256": {
+    "backend/app/runtime/remote_control.py": "d3b4a6f0ab5ec185f3f8250277830bbbb18a4b157c7f021cea62812475e09ca4",
+    "backend/app/runtime/remote_profiles.py": "478043f378e9e7582970da505aef900a6d9a6167cb1c0a573f3b0dfdd7d5af16",
+    "backend/app/runtime/remote_quarantine.py": "e3c783969abb6fe4d313a13898241789c4177a0c8e2a2a23c019c3cb0f06056c",
+    "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+    "backend/app/runtime/remote_schema.py": "7140e06551520451c937edf670b9b3427c7f0bc0dfe6fcfc09ba02008bf09235",
+    "backend/app/runtime/remote_tool_channel.py": "9836b6f0bb3c14be0dd799fc77ed54bcc94aef98f521708f5592f21b05a8ea78",
+    "backend/app/runtime/remote_tool_gateway.py": "3f63363de4dede6276e89ff7bfde6b7da177fcecea08d4535e8cd688b13fc3b0",
+    "backend/app/runtime/worker.py": "180ca81ec949b2f5a220aed33d77c10886c3860f289f24c375a19b629a6d1252",
+    "backend/app/services/run_evidence.py": "7ec8ee10814f514fe767ebc4fd6cba3eddc167805de064c81c655a67b3b8c24d",
+    "backend/tests/test_reference_remote_consistency.py": "51d7317a280f223e30aaa9406ed4e1b2e9a5feee8d9f93f02e1ce2bbe9bed498",
+    "scripts/qualify_reference_faults.py": "fde04fc57eef49f681c8f3a847b9863cc448add74d4295b3e300e6621eaeebdd"
+  },
+  "original_requirements_sha256": "693a8f60a50d2e12bc1435b2cf42a6163fd76e4bae15220072a1ae377f160bb5",
+  "private_report_sha256": "56210e0301d1ff873cbaf6c6069104d7f616ccbf6cb89f200c46469c4ef4689e",
+  "regression": {
+    "worker_and_remote_targeted_tests_passed": 15,
+    "identity_timing_test": "initial IDENTITY_EXPIRED_OR_REVOKED instead of IDENTITY_BINDING_CHANGED; unchanged isolated rerun passed",
+    "http_application_permission_test_passed": true,
+    "frontend_build": "tsc and vite passed",
+    "new_modules_lint": "passed"
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "live-preview-new-sections-return-200",
+      "native-result-fixture-quarantine-rendered",
+      "native-result-fixture-independent-watermarks",
+      "mobile-no-page-overflow",
+      "fixture-restricted",
+      "fixture-empty",
+      "fixture-error",
+      "refresh-recovers-from-error"
+    ],
+    "page_errors": [],
+    "populated_data": "captured native R10/R11 API service responses; browser route fixtures"
+  },
+  "deployment": {
+    "previous_images": {
+      "DIOS_BACKEND_IMAGE": "sha256:54455133e2352311327bdbfadb24233bead1fa2b96cc1701d71e1a33963fee91",
+      "DIOS_FRONTEND_IMAGE": "sha256:823bc7d5dc742a22f018dfa3c7bb700866bbcf565430129321071347f29699f0"
+    },
+    "images": {
+      "DIOS_BACKEND_IMAGE": "sha256:d141cc995b4fbb7b5aab656cdcd97acd0e1c30365a23f42f2fc90714c2acbffd",
+      "DIOS_FRONTEND_IMAGE": "sha256:01757c01be32994a99db928fef7f709db098eeb18518c0f881107681f9819e56"
+    },
+    "api": "http://localhost:13481",
+    "console": "http://localhost:13482/dios/",
+    "health": "ok",
+    "mode": "restore_hold",
+    "existing_source_deployments_unchanged": true,
+    "network": "preview frontend and backend share a project network; only backend also joins provider network"
+  },
+  "model_calls": 0,
+  "production_tasks_changed": false,
+  "cumulative_qualified_cases": [
+    "R02",
+    "R04",
+    "R07",
+    "R10",
+    "R11",
+    "R12"
+  ],
+  "reused_evidence": [
+    "docs/design/evidence/reference-faults-20261126.json",
+    "docs/design/evidence/native-acp-faults-20261126.json"
+  ],
+  "remaining_cases": [
+    "R01",
+    "R03",
+    "R05",
+    "R06",
+    "R08",
+    "R09",
+    "R13",
+    "R14",
+    "R15",
+    "R16",
+    "R17",
+    "R18"
+  ],
+  "cross_agent_remaining": [
+    {
+      "case": "cancel=false",
+      "owners": [
+        56,
+        58
+      ],
+      "required": "需要可靠取消的工作按探测能力拒绝准入"
+    },
+    {
+      "case": "disconnect",
+      "owners": [
+        30,
+        56
+      ],
+      "required": "按 R03 的原生路径验证"
+    },
+    {
+      "case": "revoke",
+      "owners": [
+        34,
+        35,
+        58
+      ],
+      "required": "跨场景读取和外发的运行中撤销证据"
+    },
+    {
+      "case": "callback-replay",
+      "owners": [
+        30,
+        32,
+        56
+      ],
+      "required": "同 callback id 十次乱序重放，一次推进及旧版本隔离"
+    },
+    {
+      "case": "human-takeover",
+      "owners": [
+        40,
+        58
+      ],
+      "required": "人工决定与取消独立记录，迟到结果进入复核"
+    },
+    {
+      "case": "implementation-handoff",
+      "owners": [
+        37,
+        38,
+        58
+      ],
+      "required": "交接 WorkItem/会话/成果身份连续且权限不扩大；首轮 Cursor 闭环后安排"
+    }
+  ],
+  "references": [
+    "https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling",
+    "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html",
+    "https://docs.docker.com/compose/how-tos/networking/"
+  ]
+}

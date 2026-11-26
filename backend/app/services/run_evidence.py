@@ -12,14 +12,17 @@ from app.runtime.database import RuntimeErrorCode
 from app.runtime.history import page, page_args
 from app.runtime.object_schema import links
 from app.runtime.objects import reference
+from app.runtime.remote_quarantine import ACTION as QUARANTINE_ACTION
+from app.runtime.remote_schema import uploads
 from app.runtime.revision_schema import revisions
 from app.runtime.revisions import representation
 from app.runtime.schema import artifacts, attempts
 from app.runtime.tool_schema import invocations
 from app.runtime.usage_schema import observations
+from app.runtime.work_auth_schema import decisions
 from app.services.object_access import ObjectReader
 
-SECTIONS = ("attempts", "tools", "artifacts", "sources", "usage")
+SECTIONS = ("attempts", "tools", "artifacts", "sources", "usage", "quarantine", "transfers")
 
 
 class RunEvidence:
@@ -91,6 +94,16 @@ class RunEvidence:
 
     def query(self, run_id, section):
         scope = self.console.scope
+        if section == "quarantine":
+            return (select(decisions).where(decisions.c.scope == scope,
+                    decisions.c.run_id == run_id, decisions.c.action == QUARANTINE_ACTION),
+                    (decisions.c.created_at, decisions.c.id), [float, str])
+        if section == "transfers":
+            return (select(uploads, attempts.c.epoch,
+                           attempts.c.last_sequence.label("progress_sequence"),
+                           attempts.c.last_output_at).join(attempts, attempts.c.id == uploads.c.attempt_id)
+                    .where(uploads.c.scope == scope, attempts.c.run_id == run_id),
+                    (uploads.c.id,), [str])
         if section == "attempts":
             return (
                 select(attempts).where(attempts.c.run_id == run_id),
@@ -140,6 +153,24 @@ class RunEvidence:
         return query, (links.c.id,), [str]
 
     async def project(self, section, row):
+        if section == "quarantine":
+            evidence = row["decision"]["evidence"]
+            return dict(id=row["id"], attempt_id=row["attempt_id"],
+                        state="quarantined", kind="quarantine", reason="STALE_OWNER",
+                        epoch=evidence["epoch"], evidence_level="remote_reported",
+                        values={key: evidence[key] for key in
+                                ("method", "message_digest", "epoch", "current_epoch",
+                                 "current_attempt_id", "payload", "accepted_as_result")},
+                        created_at=row["created_at"])
+        if section == "transfers":
+            return dict(id=row["id"], attempt_id=row["attempt_id"], epoch=row["epoch"],
+                        state="verified" if row["complete"] else "pending",
+                        kind="transfer", evidence_level="platform_recorded",
+                        descriptor={"digest": row["key"], "size": row["size"]},
+                        values={"received_bytes": row["received"], "total_bytes": row["size"],
+                                "content_verified": row["complete"], "created_at": row["created_at"],
+                                "last_chunk_at": None, "progress_sequence": row["progress_sequence"],
+                                "last_output_at": row["last_output_at"]})
         if section == "attempts":
             value = {
                 key: row[key]
@@ -283,6 +314,9 @@ class RunEvidence:
         if after:
             query = query.where(tuple_(*order) > tuple(after))
         permitted = section != "tools" or await self.allowed(run, "tool.read")
+        if section in {"quarantine", "transfers"}:
+            # Rejected payloads and content addresses are operational evidence.
+            permitted = s.principal is None
         if section in {"artifacts", "sources"}:
             permitted = permitted and await self.allowed(run, "artifact.read")
         async with s.db.read(s.scope) as c:
@@ -314,6 +348,8 @@ class RunEvidence:
         if refresh:
             await refresh()
         await s.authorize(run_id, "run.read")
+        if section in {"quarantine", "transfers"} and s.principal is not None:
+            visible=[];permitted=False;raw["next_cursor"]=None
         if permitted and section == "tools":
             await s.authorize(run_id, "tool.read")
         if permitted and section in {"artifacts", "sources"}:
