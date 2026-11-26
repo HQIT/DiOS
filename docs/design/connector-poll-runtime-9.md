@@ -55,7 +55,7 @@ flowchart LR
 | `DIOS_CONNECTOR_POLL_ENABLED` | 默认 true；设为 false 停用本进程的轮询服务 |
 | `DIOS_CONNECTOR_POLL_LOCK_DIR` | 同一安装的所有轮询进程共享的本机持久目录；默认 `workspace_root/connector-poll-locks` |
 
-多个 API 进程或同主机容器必须共享同一个本地锁目录。每个 Connector ID 一个锁，采集及冷却期间持续持有。禁止删除正在使用的锁文件目录。开发验收覆盖 Linux/WSL；Windows 文件锁后端尚待实机验收。
+多个 API 进程或同主机容器必须共享同一个本地锁目录。每个 Connector ID 一个锁，采集及冷却期间持续持有。禁止删除正在使用的锁文件目录。开发与交付资格覆盖 Linux/WSL；新增操作系统支持须另有明确需求。
 
 多主机部署先将采集限定在指定主机，其余主机设置 `DIOS_CONNECTOR_POLL_ENABLED=false`。后续远程所有权 Provider 必须同时提供事件写入与外部确认的 fencing；仅设置分布式 TTL 租约不足以阻止迟到采集。相关资格归 #30 与部署任务，不将本机锁宣称为多主机互斥。
 

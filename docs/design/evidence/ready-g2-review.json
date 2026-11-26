@@ -1,0 +1,607 @@
+{
+  "status": "review_pending",
+  "candidate_commit": "72fac6d3c806b3a712718667520bc5959c541964",
+  "work_items": [
+    "K01-1.02",
+    "K01-3.01",
+    "K03-2.03",
+    "K03-3.03"
+  ],
+  "requirements": [
+    {
+      "work_item": "K01-1.02",
+      "id": "K01-1-A01",
+      "text": "通用 OS 服务不依赖 Docker 类型分支",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/lifecycle-closure-20261126.json",
+          "pointer": "/requirements/K01-1-A01"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K01-1.02",
+      "id": "K01-1-A02",
+      "text": "service/task 生命周期、取消、故障和资源回收通过回归",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/lifecycle-closure-20261126.json",
+          "pointer": "/requirements/K01-1-A02"
+        },
+        {
+          "path": "docs/design/evidence/managed-lifecycle-20261124.json",
+          "pointer": "/tests"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K01-1.02",
+      "id": "K01-1-A03",
+      "text": "backend 测试和镜像构建通过；后续拓扑不依赖单机路径假设",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/lifecycle-closure-20261126.json",
+          "pointer": "/tests"
+        },
+        {
+          "path": "docs/design/evidence/lifecycle-closure-20261126.json",
+          "pointer": "/image"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K01-1.02",
+      "id": "K01-1-A04",
+      "text": "至少一种第三方本地 Harness 的启动配置可表达，厂商交互逻辑不进入容器生命周期服务",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/lifecycle-closure-20261126.json",
+          "pointer": "/requirements/K01-1-A04"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/cases/release-approve"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K01-3.01",
+      "id": "K01-3-A01",
+      "text": "测试 Connector 无需修改通用服务即可被调用",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/connector-poll-20261124.json",
+          "pointer": "/tests/final_connector_regression"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K01-3.01",
+      "id": "K01-3-A02",
+      "text": "通用 Poll Runtime 无类型判断；单实例失败不阻塞其他 Connector",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/connector-poll-20261124.json",
+          "pointer": "/ownership"
+        },
+        {
+          "path": "docs/design/evidence/connector-poll-20261124.json",
+          "pointer": "/tests/final_connector_regression"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K01-3.01",
+      "id": "K01-3-A03",
+      "text": "IMAP 回归、后端测试和镜像构建通过",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/connector-poll-20261124.json",
+          "pointer": "/protocol_fixture"
+        },
+        {
+          "path": "docs/design/evidence/connector-poll-20261124.json",
+          "pointer": "/image"
+        },
+        {
+          "path": "docs/design/evidence/connector-poll-20261124.json",
+          "pointer": "/tests/backend"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-2.03",
+      "id": "K03-2-A01",
+      "text": "未授予工具及审批前副作用在执行边界被阻止",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/approval-qualification-20261124.json",
+          "pointer": "/"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/native_guard"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-2.03",
+      "id": "K03-2-A02",
+      "text": "参数变化、审批过期和结果未知有明确处理",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/cases/final-approval-expired"
+        },
+        {
+          "path": "docs/design/evidence/governance-matrix-20261126.json",
+          "pointer": "/observations"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-2.03",
+      "id": "K03-2-A03",
+      "text": "受管工作负载必须声明治理配置；兼容路径显式标记；API/CLI/Console 回归通过",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/protocol-control-mapping-20261126.json",
+          "pointer": "/tests"
+        },
+        {
+          "path": "docs/design/evidence/approval-qualification-20261124.json",
+          "pointer": "/"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-2.03",
+      "id": "K03-2-A04",
+      "text": "工具通知与强制执行证据分开记录；能力不足的端点被拒绝承接相应风险工作",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/protocol-control-mapping-20261126.json",
+          "pointer": "/tests"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/native_guard"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-2.03",
+      "id": "K03-2-A05",
+      "text": "真实 Agent 无法写源码、运行业务构建/脚本或越权外发；拒绝事件和实际文件/网络证据一致",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+          "pointer": "/native_effects"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/native_guard"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/boundary"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-2.03",
+      "id": "K03-2-A06",
+      "text": "缺少治理声明的受管任务拒绝准入；MCP/原生 Shell/文件/网络分别验证实际拒绝，兼容路径明确标识",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/protocol-control-mapping-20261126.json",
+          "pointer": "/tests"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "pointer": "/startup"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-2.03",
+      "id": "K03-2-A07",
+      "text": "审批单次消费、撤销/派发事务竞争、原生工具拒绝和授权/审计故障暂停通过；恢复保留原任务身份",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/governance-matrix-20261126.json",
+          "pointer": "/observations"
+        },
+        {
+          "path": "docs/design/evidence/revocation-durable-20261126.json",
+          "pointer": "/rollback_observations"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-2.03",
+      "id": "K03-2-A08",
+      "text": "采用不同策略及存储机制时保持授权结果、审批单次消费、意图先持久化与撤销顺序；不降低治理保证获取性能",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/governance-matrix-20261126.json",
+          "pointer": "/arms"
+        },
+        {
+          "path": "docs/design/evidence/revocation-durable-20261126.json",
+          "pointer": "/matrix"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-3.03",
+      "id": "K03-3-A01",
+      "text": "跨部门与跨工作越权、委派提权被拒绝",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/delegation-combinations-20261126.json",
+          "pointer": "/requirements/K03-3-A01"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-3.03",
+      "id": "K03-3-A02",
+      "text": "停用身份后新的受限动作无法执行，在途结果可解释",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/delegation-combinations-20261126.json",
+          "pointer": "/requirements/K03-3-A02"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-3.03",
+      "id": "K03-3-A03",
+      "text": "状态事件重复/乱序不破坏上层工作状态",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/delegation-combinations-20261126.json",
+          "pointer": "/requirements/K03-3-A03"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-3.03",
+      "id": "K03-3-A04",
+      "text": "撤销时限与可控制范围可追踪，界面和 API 不把取消请求等同于已停止",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/delegation-combinations-20261126.json",
+          "pointer": "/requirements/K03-3-A04"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-3.03",
+      "id": "K03-3-A05",
+      "text": "参数变化、会话替换、委派和并发不能扩大权限；不足有版本化扩展及回归证据",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/delegation-combinations-20261126.json",
+          "pointer": "/requirements/K03-3-A05"
+        }
+      ],
+      "decision": null
+    },
+    {
+      "work_item": "K03-3.03",
+      "id": "K03-3-A06",
+      "text": "三层委托收窄、上游主体撤销传播、审批人资格变化及自审批拒绝通过",
+      "evidence": [
+        {
+          "path": "docs/design/evidence/delegation-combinations-20261126.json",
+          "pointer": "/requirements/K03-3-A06"
+        }
+      ],
+      "decision": null
+    }
+  ],
+  "evidence_index": {
+    "lifecycle-closure-20261126": {
+      "path": "docs/design/evidence/lifecycle-closure-20261126.json",
+      "sha256": "a574eaa04cdc5748c2f91a223301906556a0b7b25ca7f6da5cad9fcd4a0ac0a6",
+      "source_hashes_compared": 9,
+      "source_changes": [
+        {
+          "path": "backend/app/runtime/docker_adapter.py",
+          "qualified_sha256": "51045e73d675a3cebe125f57df890f52f1ad714d1e105e6bd514c1389d23b08c",
+          "current_sha256": "473685a152855088ff305c6363b5c70c287f4ea1439b27701850e2a12ddbcac5"
+        }
+      ]
+    },
+    "managed-lifecycle-20261124": {
+      "path": "docs/design/evidence/managed-lifecycle-20261124.json",
+      "sha256": "b864194efa9f7273aaedbb55602e22da48a5451ad31c57a76865eb91506522a4",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "managed-service-recovery-20261124": {
+      "path": "docs/design/evidence/managed-service-recovery-20261124.json",
+      "sha256": "04da6ef4404143c20f864b91bbb219a9be379a818ffff334b93b04d987cffa6f",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "dsh-native-controls-20261126": {
+      "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+      "sha256": "40b9f734fc96b62b1496f7032aefb2a9e761e0f280260d63f6c25d2535305e15",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "connector-poll-20261124": {
+      "path": "docs/design/evidence/connector-poll-20261124.json",
+      "sha256": "04e7976cb2b80232ab0d1d449a613f5bd31c1dcd7360d96adcbbdfd23b654b54",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "approval-qualification-20261124": {
+      "path": "docs/design/evidence/approval-qualification-20261124.json",
+      "sha256": "21ce8700ce6099110639bfdd78593b965ee6730e42df8342ea6751f560760fd2",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "authorization-providers-20261124": {
+      "path": "docs/design/evidence/authorization-providers-20261124.json",
+      "sha256": "dfa3ec7b159ece2b42b3aa4b0c18d291a2cb5974f7992e94159b402618cd7865",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "governance-matrix-20261126": {
+      "path": "docs/design/evidence/governance-matrix-20261126.json",
+      "sha256": "2120e5b7a4e8a0cb140f38c635c49f85a1e285628fa30156fa0155e2a897c04a",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "revocation-durable-20261126": {
+      "path": "docs/design/evidence/revocation-durable-20261126.json",
+      "sha256": "2c40457b4418420917b8dce8daf7d125b613b483001fe6e36cb29995cd511236",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "protocol-control-mapping-20261126": {
+      "path": "docs/design/evidence/protocol-control-mapping-20261126.json",
+      "sha256": "af93b9cf27fad4dd8c6abe5a209a5d24fe4dade6e99c43b50ccb231e1a1ca78d",
+      "source_hashes_compared": 7,
+      "source_changes": [
+        {
+          "path": "backend/app/runtime/worker_tool_channel.py",
+          "qualified_sha256": "a48b3127b72810c2baec8d8b9c60e57fcd9fd577fed5379990e7b699edb28c4b",
+          "current_sha256": "3ab924cec08b0eece8d4f0ae1397b7024018bef2e3025cb7dc956f9b5fc50ff6"
+        },
+        {
+          "path": "backend/app/services/task_console.py",
+          "qualified_sha256": "8ceec87fb1486e247eb802de20422e2d841a3aa998e70f468d2b610f6fb1bf67",
+          "current_sha256": "6072f0a93cd21a2357350b6beb392763ba46a4e837377082a1aacd87344eecd1"
+        }
+      ]
+    },
+    "cursor-native-controls-20261126": {
+      "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+      "sha256": "04f8bd16c8fd79709c2783d422bfd27fde2f5e7a53e2c788d2a1463b16912a98",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "delegation-combinations-20261126": {
+      "path": "docs/design/evidence/delegation-combinations-20261126.json",
+      "sha256": "3b84aa3dc94c7028c310cbbef1c150c98c4946cea9def931673b59140e228fe9",
+      "source_hashes_compared": 123,
+      "source_changes": [
+        {
+          "path": "backend/app/runtime/acp_bridge.py",
+          "qualified_sha256": "f7b16c35788f4e28b482340002fd891883f5c7d1b3360aafb468f581c0767a06",
+          "current_sha256": "ded4300d8ae7e8f6088dcc19544dda51e7ee40083c10f36d409d27c16ea470fc"
+        },
+        {
+          "path": "backend/app/runtime/backup_inventory.py",
+          "qualified_sha256": "cd998e4d74f3d4f88895dc9b0d8035afcfea5f266963e6039aa521708ebe1a4c",
+          "current_sha256": "be1a259b926e598c9db17ef790ed30e12b7e191c8d50ff5588829e78bb4262b5"
+        },
+        {
+          "path": "backend/app/runtime/capacity.py",
+          "qualified_sha256": "cfe8115bb4141490a96e5cc39def5b40110cf4aa060954a3f2a647515254c965",
+          "current_sha256": "a7beb6f2f2556e445236100335eb65551f4a307034164e5957d9dc8b5682f6fc"
+        },
+        {
+          "path": "backend/app/runtime/cli.py",
+          "qualified_sha256": "77c8d2d6b34f87594d05ffd82f682cdd3051242ff68a7ffa0064783f6d500cf2",
+          "current_sha256": "6375a69d5823dddfdbef7315801bae25a97a3424a46518987a3311ef7738612f"
+        },
+        {
+          "path": "backend/app/runtime/database.py",
+          "qualified_sha256": "959164cf52be1597fbe9ca239fcd9d7887268f345f528c34bc663373b0af43a9",
+          "current_sha256": "383f6ae64c99da0d7d05d135a57c9a44bf36e183997e895e2fcef1731c6c455e"
+        },
+        {
+          "path": "backend/app/runtime/deployments.py",
+          "qualified_sha256": "21b66948e8cb11d435d46be367ae2948814ac85fcb667c049f7ed41837dd48d4",
+          "current_sha256": "67218fe4b9e7868814e694c732d5bf77f62c32842425fa9e5a3b62b4d24c5345"
+        },
+        {
+          "path": "backend/app/runtime/docker_adapter.py",
+          "qualified_sha256": "51045e73d675a3cebe125f57df890f52f1ad714d1e105e6bd514c1389d23b08c",
+          "current_sha256": "473685a152855088ff305c6363b5c70c287f4ea1439b27701850e2a12ddbcac5"
+        },
+        {
+          "path": "backend/app/runtime/execution_budgets.py",
+          "qualified_sha256": "9ba12157430d2cadd9a2e159a470cdb8885b818d7ffe3d12058277fc7ca7858a",
+          "current_sha256": "f6899546d873be8dad2ac984c6f936c2d1508ce9ee35ed8416dc3c2bb7b0d533"
+        },
+        {
+          "path": "backend/app/runtime/execution_revisions.py",
+          "qualified_sha256": "f776dbd2a190e63a9bb3b304ed9175df74d75df9ceb9c68e44029d5e619bd911",
+          "current_sha256": "31f0a6c074798ee53fa0cd5c83267250dab0f33a6740e65ee89d14045befc03e"
+        },
+        {
+          "path": "backend/app/runtime/faults.py",
+          "qualified_sha256": "f48fe1b4bc81d66f412b50d5d6daec82e59ddca86fd70c67e4907ab38da4d248",
+          "current_sha256": "df8caf92833bbc0a298ee70ca72ca43283e8ad5f0ef4570dbbd0202784aaa52e"
+        },
+        {
+          "path": "backend/app/runtime/lifecycle.py",
+          "qualified_sha256": "1263ea10a9873cbf6544c990edfda1a4bc7bdceb900447d08f09a6ca3d186062",
+          "current_sha256": "bc6320b669151fcfada16b7f6af04a0d311b4cb5c9dc7a2f8e0b2a344c2b6ece"
+        },
+        {
+          "path": "backend/app/runtime/reconciliation.py",
+          "qualified_sha256": "ae22276d1110df32720bee55af2b5d62301220f492aad5a2676971361ab80822",
+          "current_sha256": "a508d432e1fee9e3e3a7b0b44faa5af5ed5782d1058dd3ee76d84aac2ea36626"
+        },
+        {
+          "path": "backend/app/runtime/recovery.py",
+          "qualified_sha256": "df273ad626f5b8a28a36fd6ade76900b3c1488c96df42a0ea817779fecd8fe3f",
+          "current_sha256": "37f0844c858426351b9c1957f2142872364edae98df57ba252c51c5a558bb0c1"
+        },
+        {
+          "path": "backend/app/runtime/remote_control.py",
+          "qualified_sha256": "23313c247db0f53d2878d8f441145c0cf288cc53a1cccfe8e6f7359d34bb5806",
+          "current_sha256": "d3b4a6f0ab5ec185f3f8250277830bbbb18a4b157c7f021cea62812475e09ca4"
+        },
+        {
+          "path": "backend/app/runtime/store.py",
+          "qualified_sha256": "9c3bb536eb96020ed164a8c92e2a239e11d4af6e540ad0a1f0cba39c21288dce",
+          "current_sha256": "a85158c9fe8857062d7e3d57854adcf0ad59604be721e373b4623079a673f9f4"
+        },
+        {
+          "path": "backend/app/runtime/tool_budgets.py",
+          "qualified_sha256": "167fea1bfa0bc49be6b6dbff65952547e7f71109d2005d4f1896d85f912a4177",
+          "current_sha256": "dc65f287584455c6cb8bfa18077c56fe60d6732e36dc5e90596adcc6fa057e6b"
+        },
+        {
+          "path": "backend/app/runtime/work_authorizations.py",
+          "qualified_sha256": "9a2a99531d670ee6453af63bdd24f29af5cc45625f01edba76d3bf8796042e3a",
+          "current_sha256": "7939e67985184e64bbecde6e365b1d6fe7cec18537741de744df1aabaaf63494"
+        },
+        {
+          "path": "backend/app/runtime/worker.py",
+          "qualified_sha256": "5655217229e847f009ab970afbaf6bbcb0df113f2b8d88146b105c492c2a82f1",
+          "current_sha256": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12"
+        }
+      ]
+    },
+    "revocation-observation-20261126": {
+      "path": "docs/design/evidence/revocation-observation-20261126.json",
+      "sha256": "56932eed3d83a69ba8d55977bf2133bfcc139167b93bc560becf5433155b5b35",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "principal-updates-20261126": {
+      "path": "docs/design/evidence/principal-updates-20261126.json",
+      "sha256": "232d80e74a708e9303b7d6655fc329128147e16bb66cc4379c1e07a2f6ee57d5",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "delegation-policy-20261124": {
+      "path": "docs/design/evidence/delegation-policy-20261124.json",
+      "sha256": "4b1c9fc295db33cbdf96de961b6c4af97c1a2546009484bebe2f4c1d222c0eae",
+      "source_hashes_compared": 0,
+      "source_changes": []
+    },
+    "child-task-channel-20261125": {
+      "path": "docs/design/evidence/child-task-channel-20261125.json",
+      "sha256": "101fab3bed124950a34829404195022723b6e3ee7ced8c6ae14956986edab159",
+      "source_hashes_compared": 11,
+      "source_changes": [
+        {
+          "path": "backend/app/runtime/child_authorizations.py",
+          "qualified_sha256": "bbabe9275a642e05ce3dd3079f6eda467198fe27102c144c9ca2ac2884a727c1",
+          "current_sha256": "f6da4bea0b875f7f3afdd5560dacbeb84cecdbe9fa5daf7417ef24e0c0f55294"
+        },
+        {
+          "path": "backend/app/runtime/worker.py",
+          "qualified_sha256": "cfad3d6ec10fd3a1bff7dcc5c3ed3eabd12e5d91bf17210b338b661076b0d1eb",
+          "current_sha256": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12"
+        },
+        {
+          "path": "backend/app/runtime/store.py",
+          "qualified_sha256": "c84fdec300c0241a81185ce92ca11d6e63719799f0afc6f598fb3f1c951c110d",
+          "current_sha256": "a85158c9fe8857062d7e3d57854adcf0ad59604be721e373b4623079a673f9f4"
+        },
+        {
+          "path": "backend/app/runtime/worker_tool_channel.py",
+          "qualified_sha256": "460b5ba4047e61f30ae8f3ea6c436429d7c6305987f2ea57e6280568a97bd739",
+          "current_sha256": "3ab924cec08b0eece8d4f0ae1397b7024018bef2e3025cb7dc956f9b5fc50ff6"
+        },
+        {
+          "path": "backend/app/services/child_tasks.py",
+          "qualified_sha256": "e2db56d6b064fe2c14d6153d5e32a3e416811fa248b34e61ed5107a3ecb8e0df",
+          "current_sha256": "098173a22381575f6136a85573e6513d7ea92c28f9e7d705b91890a239ac955e"
+        },
+        {
+          "path": "backend/app/services/task_console.py",
+          "qualified_sha256": "45f85814a2844e80d60d27334cafec9e32036328fe8c8911c6cce24665809503",
+          "current_sha256": "6072f0a93cd21a2357350b6beb392763ba46a4e837377082a1aacd87344eecd1"
+        },
+        {
+          "path": "sdk/python/src/dios_sdk/mcp.py",
+          "qualified_sha256": "fa1b8fc5a66e496f64b1940ec14f5ad1d43ef4a13a4cd76228d304bbcd834ae3",
+          "current_sha256": "7549a8efb840fbc18d36b130827e99973152cfe6e3b44b052cf53e464f2d1b9b"
+        },
+        {
+          "path": "sdk/python/src/dios_sdk/tools.py",
+          "qualified_sha256": "c97c7f239dfdd51687ce775b8b13d6714db3f2fe22c95f9b6820bfa75ceea6a2",
+          "current_sha256": "a320bcb6a5a97e4543bf7f6e1c3410c1ab35a543249931a1ee149162f82fb5cb"
+        },
+        {
+          "path": "frontend/src/apps/console/components/TaskRunsPage.tsx",
+          "qualified_sha256": "5c7910939939c94dbe47ab801cfe7cc486d7e58cfef3703b101432362969e1e7",
+          "current_sha256": "51162c13740b9020420b1c8dc9d749dbd6125fbb6be2645ea077694e58e0b498"
+        }
+      ]
+    },
+    "mixed-harness-children-20261125": {
+      "path": "docs/design/evidence/mixed-harness-children-20261125.json",
+      "sha256": "a163d5de30218536ff8b468c5180228b58318f17f041c471e8dbaa3d319186fd",
+      "source_hashes_compared": 6,
+      "source_changes": [
+        {
+          "path": "sdk/python/src/dios_sdk/acp.py",
+          "qualified_sha256": "364b5479e591965dd999524b0b64d8244b91f3114b5eca350fd5e8f8f42f6e12",
+          "current_sha256": "3c3a7a9795d3652329092aa753ecfe56920901a0f2a3fa427e1ef682b46586d1"
+        },
+        {
+          "path": "examples/runtime/acp_child_coordinator.py",
+          "qualified_sha256": "5a59132069e7dbe8ea07a108f70b51276ea3562b466d2a9c2386630fceb58ce5",
+          "current_sha256": "f5ee566bb6a8f1d6f2671c9cabcedb0faaf30cd2588590e55e6061cebae9c2ec"
+        },
+        {
+          "path": "scripts/qualify_child_harnesses.py",
+          "qualified_sha256": "eb4466b48717f37939877649137a945f766fcaed33b037c76fbb43e82dd2d930",
+          "current_sha256": "0a3d006bf472fb768a24f0713bddd306c6065ad2af1d1a8452990e2cc84c234e"
+        }
+      ]
+    }
+  },
+  "decisions": {
+    "K01-1.02": null,
+    "K01-3.01": null,
+    "K03-2.03": null,
+    "K03-3.03": null
+  },
+  "new_model_calls": 0,
+  "new_runtime_tests": 0,
+  "scope": "Review of fixed qualified compositions and original clauses; source differences are disclosed, not automatically requalified."
+}
