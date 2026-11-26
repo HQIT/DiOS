@@ -1,0 +1,331 @@
+{
+  "work_item": "K01-2.02",
+  "passed": true,
+  "tests": 31,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "duration_seconds": 77.481,
+  "selected_suites": [
+    "test_remote_recovery_qualification.RemoteRecoveryQualificationTests",
+    "test_runtime_faults.FaultTests",
+    "test_runtime_write_queue.WriteGateTests",
+    "test_runtime_write_queue.RuntimeWriteTests",
+    "test_runtime_remote_control.RemoteControlTests.test_disconnected_result_recovers_after_worker_restart_without_relaunch",
+    "test_runtime_remote_control.RemoteControlTests.test_completed_response_loss_is_recovered_without_duplicate_artifacts",
+    "test_runtime_remote_control.RemoteControlTests.test_remote_retry_uses_server_profile_and_same_work_identity",
+    "test_runtime_remote_control.RemoteControlTests.test_e2ag_revocation_and_machine_revocation_reject_execution"
+  ],
+  "implementation_commit": "fc95439bc75ce95c2acf547fb803836a1e315751",
+  "native": [
+    {
+      "code": "PROVIDER_QUOTA_EXHAUSTED",
+      "image": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+      "run_id": "1bc824e5-b601-4fe9-9501-223a364e1c91",
+      "original_attempt": "aa7399f8-0cb7-4fbe-ba1e-2f491723a2bc",
+      "recovery_attempt": "abf545da-b809-40f4-91a5-58f6f159597d",
+      "probe": {
+        "actual_concurrency": 1,
+        "observed_at": 1795661751.6219869,
+        "workers": [
+          {
+            "id": "qualified:4e712370a04f475db5fe7b11ac65abb6",
+            "pid": 599200,
+            "instance": "ea45b883-905f-4bd9-9319-9fa398cf322d"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "1bc824e5-b601-4fe9-9501-223a364e1c91",
+            "attempt_id": "abf545da-b809-40f4-91a5-58f6f159597d",
+            "worker_id": "qualified:4e712370a04f475db5fe7b11ac65abb6",
+            "session_id": "4bf35c28-6c96-4a42-bb61-b9ca92cc5a34",
+            "process_id": 599271,
+            "process_instance": "b2f2593cc802899baa7b3203982ca0bd162653a18aec0169b6616389c0715b4f:2026-11-26T02:55:50.939754858Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "independent": {
+        "actual_concurrency": 2,
+        "observed_at": 1795661753.8249924,
+        "workers": [
+          {
+            "id": "qualified:4e712370a04f475db5fe7b11ac65abb6",
+            "pid": 599200,
+            "instance": "ea45b883-905f-4bd9-9319-9fa398cf322d"
+          },
+          {
+            "id": "qualified:9b9c7e91859746cab01f7b3e22698bf5",
+            "pid": 599303,
+            "instance": "6b34a15f-31c1-4e80-a0f5-6eb7503c32b3"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "1bc824e5-b601-4fe9-9501-223a364e1c91",
+            "attempt_id": "abf545da-b809-40f4-91a5-58f6f159597d",
+            "worker_id": "qualified:4e712370a04f475db5fe7b11ac65abb6",
+            "session_id": "4bf35c28-6c96-4a42-bb61-b9ca92cc5a34",
+            "process_id": 599271,
+            "process_instance": "b2f2593cc802899baa7b3203982ca0bd162653a18aec0169b6616389c0715b4f:2026-11-26T02:55:50.939754858Z",
+            "freshness": "fresh"
+          },
+          {
+            "run_id": "96cef497-3659-48c1-940c-5b9daa2f9a98",
+            "attempt_id": "39a273b9-b6ab-44f8-99ff-6a6307b121ed",
+            "worker_id": "qualified:9b9c7e91859746cab01f7b3e22698bf5",
+            "session_id": "e5d5c04a-72d3-465b-af6d-4aed5f033537",
+            "process_id": 599355,
+            "process_instance": "03c12eff1cea999b308788b87f6f6a3e13e5631539b5209588d1cb943d51c28f:2026-11-26T02:55:53.102176823Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "restored": {
+        "actual_concurrency": 3,
+        "observed_at": 1795661759.9150016,
+        "workers": [
+          {
+            "id": "qualified:ccb8aa1f61334f48bd4b6c161fd6824f",
+            "pid": 599414,
+            "instance": "5c1b5b1f-10be-43e3-b7eb-212586abf9b2"
+          },
+          {
+            "id": "qualified:24e8a87ed46c4787bcf21490cc951b40",
+            "pid": 599415,
+            "instance": "75145454-3b91-4c91-9bc1-b87174e3ad5c"
+          },
+          {
+            "id": "qualified:3f5618aa31694343a26ffb53d342bcd8",
+            "pid": 599416,
+            "instance": "dddd61b1-6b32-475f-ae34-f5d86f715047"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "fee301cf-d809-435d-b6c4-ea58292c07b8",
+            "attempt_id": "bac8264f-ff6e-49e2-8d50-56829ba01164",
+            "worker_id": "qualified:ccb8aa1f61334f48bd4b6c161fd6824f",
+            "session_id": "5bf3bced-dea4-4c9a-84c9-e6ff82521a50",
+            "process_id": 599512,
+            "process_instance": "174fe11a6a9d7c4b347ed6aff7fbbe80e925d21e78bacfb3d6faa5c4adedc3d0:2026-11-26T02:55:58.4575671Z",
+            "freshness": "fresh"
+          },
+          {
+            "run_id": "3bd8f426-650c-48b6-8ed7-a350778af322",
+            "attempt_id": "4ee1694d-2340-4b69-a88b-5c08bf10a33e",
+            "worker_id": "qualified:24e8a87ed46c4787bcf21490cc951b40",
+            "session_id": "9b75ccd1-3fb6-467b-89cd-cdc327087021",
+            "process_id": 599558,
+            "process_instance": "cce83e23bd808d81d7ac674ab88e23f4acae3ff0a248bb2c71578ee8b56a7c79:2026-11-26T02:55:58.556582634Z",
+            "freshness": "fresh"
+          },
+          {
+            "run_id": "1515755c-827a-495e-9fa6-26776eb510f1",
+            "attempt_id": "3b41f0a9-617c-49e0-8e16-f1295a4971ed",
+            "worker_id": "qualified:3f5618aa31694343a26ffb53d342bcd8",
+            "session_id": "f47ce704-5ae3-44a9-a87f-508b9c29059a",
+            "process_id": 599602,
+            "process_instance": "cf0358682e945fd4137bedaf5be3137578622fe4c8df6c7789642506835ba202:2026-11-26T02:55:58.646221574Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "old_epoch_rejected": true,
+      "original_work_retained": true,
+      "distinct_grants": 2,
+      "final_states": [
+        "succeeded",
+        "succeeded",
+        "succeeded"
+      ]
+    },
+    {
+      "code": "PROVIDER_RATE_LIMITED",
+      "image": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+      "run_id": "17f1ab04-ca98-41d0-b539-3d342383bc16",
+      "original_attempt": "01a32113-a358-45bf-a672-694159cdd257",
+      "recovery_attempt": "ade4f12b-13fe-477e-bb67-cb08f2aedde2",
+      "probe": {
+        "actual_concurrency": 1,
+        "observed_at": 1795661767.4359827,
+        "workers": [
+          {
+            "id": "qualified:2e33aaf7146b4af8abcd22b946caa5cf",
+            "pid": 599849,
+            "instance": "0a822d43-b131-4f79-a863-2a6abb0a5def"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "17f1ab04-ca98-41d0-b539-3d342383bc16",
+            "attempt_id": "ade4f12b-13fe-477e-bb67-cb08f2aedde2",
+            "worker_id": "qualified:2e33aaf7146b4af8abcd22b946caa5cf",
+            "session_id": "30820cf8-df44-4c2f-96f3-cb045d05fac4",
+            "process_id": 599982,
+            "process_instance": "c8af10331626c36f6bc85e9e17c3835b242fc9cd775876b21049c4df42506e52:2026-11-26T02:56:06.857941943Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "independent": {
+        "actual_concurrency": 2,
+        "observed_at": 1795661769.7110057,
+        "workers": [
+          {
+            "id": "qualified:2e33aaf7146b4af8abcd22b946caa5cf",
+            "pid": 599849,
+            "instance": "0a822d43-b131-4f79-a863-2a6abb0a5def"
+          },
+          {
+            "id": "qualified:70adfaa4e4984f3c8a07ff2a51fabf08",
+            "pid": 599997,
+            "instance": "def0a0c9-f656-4858-9c38-7598a7c1a588"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "17f1ab04-ca98-41d0-b539-3d342383bc16",
+            "attempt_id": "ade4f12b-13fe-477e-bb67-cb08f2aedde2",
+            "worker_id": "qualified:2e33aaf7146b4af8abcd22b946caa5cf",
+            "session_id": "30820cf8-df44-4c2f-96f3-cb045d05fac4",
+            "process_id": 599982,
+            "process_instance": "c8af10331626c36f6bc85e9e17c3835b242fc9cd775876b21049c4df42506e52:2026-11-26T02:56:06.857941943Z",
+            "freshness": "fresh"
+          },
+          {
+            "run_id": "03aa4267-088a-413f-bc09-5253e940d6af",
+            "attempt_id": "66bbdc88-5b19-4742-a87f-092d33eea1c1",
+            "worker_id": "qualified:70adfaa4e4984f3c8a07ff2a51fabf08",
+            "session_id": "e086ae71-fd3c-4079-b259-e8499af36f4c",
+            "process_id": 600045,
+            "process_instance": "87d24254349e548fb7e8dce25303191d28a84233a6ef82671fcf3841b432a701:2026-11-26T02:56:09.003431792Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "restored": {
+        "actual_concurrency": 3,
+        "observed_at": 1795661776.120989,
+        "workers": [
+          {
+            "id": "qualified:924da1082ba942ea9940860927dfda5e",
+            "pid": 600120,
+            "instance": "38106786-73a3-4dd9-9522-dd31fce8f9db"
+          },
+          {
+            "id": "qualified:2baef86544e74b11b4cfcbed915e24d0",
+            "pid": 600118,
+            "instance": "46f7a6ea-46ab-4b11-9d92-4eaf4d500250"
+          },
+          {
+            "id": "qualified:e162a1ebe7cc4ecdab09b94db3ed9321",
+            "pid": 600119,
+            "instance": "b16fa2e8-5141-4b4c-b3f9-edb44ca30da5"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "b4d04455-24ac-4179-b043-a074dd539985",
+            "attempt_id": "b9f80d88-e557-4e23-8e34-595ccdd15504",
+            "worker_id": "qualified:924da1082ba942ea9940860927dfda5e",
+            "session_id": "0d1f18ae-0527-459c-a760-b293c20641ec",
+            "process_id": 600198,
+            "process_instance": "4ad93e089780bfd27ee77e7fdc56079ff367af22eb6a57a74b0f3b64e96e22b8:2026-11-26T02:56:14.513646697Z",
+            "freshness": "fresh"
+          },
+          {
+            "run_id": "116bec22-7767-460e-9560-954d5fa6fb7c",
+            "attempt_id": "8c25f907-c500-4bf8-af8a-ff021ea3389b",
+            "worker_id": "qualified:2baef86544e74b11b4cfcbed915e24d0",
+            "session_id": "98d9f898-c52a-487d-a936-617d10d8f730",
+            "process_id": 600249,
+            "process_instance": "feebae3b09f90b57d85162ab615e02041238c65397608efde8989950a68d525f:2026-11-26T02:56:14.643691512Z",
+            "freshness": "fresh"
+          },
+          {
+            "run_id": "da3d389e-7145-4c6a-8e4c-d785f03b3a5a",
+            "attempt_id": "609c8930-c32a-42cd-9920-621a98648f07",
+            "worker_id": "qualified:e162a1ebe7cc4ecdab09b94db3ed9321",
+            "session_id": "ff09e943-b3aa-4915-a16e-857f1b2a32bd",
+            "process_id": 600287,
+            "process_instance": "cda0b3691b458f25f3cd1a3baafddaa1cddb1c44de355db70c1536e13b1438ed:2026-11-26T02:56:14.728078613Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "old_epoch_rejected": true,
+      "original_work_retained": true,
+      "distinct_grants": 2,
+      "final_states": [
+        "succeeded",
+        "succeeded",
+        "succeeded"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "backend/tests/test_remote_recovery_qualification.py": "0f64d9503b1ff4d1bce5dbafca4dd62553910341b98948d7c2c0c0cce83e0b66",
+    "backend/tests/test_runtime_faults.py": "17e435003faf2ad495d38d72353ed61b792e26939b8f26f1cf9cc2057747be6c",
+    "backend/tests/test_runtime_remote_control.py": "b89a3e2f4544214aa861ecccff726d33721ac718c0ba998b4f8f6d4238d12bef",
+    "backend/tests/test_runtime_write_queue.py": "50009696f7986df5610a6333d4b75ea6865e3c65056b5d76934bd9c35b546146",
+    "backend/app/runtime/faults.py": "f48fe1b4bc81d66f412b50d5d6daec82e59ddca86fd70c67e4907ab38da4d248",
+    "backend/app/runtime/remote_control.py": "23313c247db0f53d2878d8f441145c0cf288cc53a1cccfe8e6f7359d34bb5806",
+    "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+    "backend/app/runtime/store.py": "9c3bb536eb96020ed164a8c92e2a239e11d4af6e540ad0a1f0cba39c21288dce",
+    "backend/app/runtime/database.py": "959164cf52be1597fbe9ca239fcd9d7887268f345f528c34bc663373b0af43a9",
+    "backend/app/runtime/write_queue.py": "150c51f98863b326ffb4ad39bad7bf84e360a2f917c99e9c73475b177a130dc4",
+    "scripts/qualify_remote_recovery.py": "4cb9cc3ec3001123ac71c220fcb27096006a022b28d0e31d52762e2d1eeeef8c"
+  },
+  "failure_cases": [],
+  "limits": [
+    "One Linux/WSL host, SQLite controller, independent remote Worker processes over mTLS and native Docker tasks.",
+    "Provider outages are explicit synthetic protocol errors; no actual model quota is consumed.",
+    "FIFO fairness applies to one controller's bounded write queue; cross-controller/global scheduling fairness is not asserted.",
+    "Physical multi-host loss and production capacity remain dedicated W4 qualifications."
+  ],
+  "status": "engineering_verified",
+  "guide": "docs/design/remote-recovery-qualification-30.md",
+  "requirements": {
+    "K01-2-A02": "Original result and attempt reconciliation, completion response replay and unknown-effect retry denial.",
+    "K01-2-A05": "Native rate-limit/quota recovery and old epoch mTLS rejection; restart/cooldown/revocation and existing bounded process/RPC evidence.",
+    "K01-2-A07": "Native one-probe recovery; both revoke/dispatch commit orders reuse unchanged SQLite/PostgreSQL builtin/OPA matrix.",
+    "K01-2-A08": "Independent account executes alongside probe; three independent remote Worker processes restored; bounded FIFO write queue contracts."
+  },
+  "reused_evidence": {
+    "docs/design/evidence/revocation-durable-20261126.json": "2c40457b4418420917b8dce8daf7d125b613b483001fe6e36cb29995cd511236",
+    "docs/design/evidence/governance-matrix-20261126.json": "2120e5b7a4e8a0cb140f38c635c49f85a1e285628fa30156fa0155e2a897c04a",
+    "docs/design/evidence/combined-recovery-20261126.json": "bc67ba4c0636b84b660fd0bd580d33a74e6f02df7560e78ad5f4c252f8d5dbdf"
+  },
+  "matrix_reuse_check": {
+    "verified_commit": "784120e",
+    "unchanged_through": "fc95439bc75ce95c2acf547fb803836a1e315751",
+    "source_sha256": {
+      "backend/app/runtime/database.py": "959164cf52be1597fbe9ca239fcd9d7887268f345f528c34bc663373b0af43a9",
+      "backend/app/runtime/tool_invocations.py": "665bd79e72465f3e11fe15a9e582b9539f4a2598f6f6b75c3f79989e282bdf9b",
+      "backend/app/runtime/work_authorizations.py": "9a2a99531d670ee6453af63bdd24f29af5cc45625f01edba76d3bf8796042e3a",
+      "backend/app/runtime/write_queue.py": "150c51f98863b326ffb4ad39bad7bf84e360a2f917c99e9c73475b177a130dc4",
+      "backend/app/runtime/store.py": "9c3bb536eb96020ed164a8c92e2a239e11d4af6e540ad0a1f0cba39c21288dce",
+      "backend/app/runtime/policy_evaluator.py": "01d289f62d4464c3d461051a5cc642a141df896ce6fa5114681bcab60d6b1526",
+      "backend/tests/test_runtime_governance_matrix.py": "b2b39067b963c15da684944399f9bc3df1c6f8aeca576eb6d6dff010631a68d1"
+    },
+    "cases_per_arm": 13,
+    "arms": 4
+  },
+  "fixture_corrections": [
+    "Initial native fixture omitted machine slots, so the existing single-slot default correctly blocked a second workload. Explicit three-slot machine configuration passed both native cases.",
+    "Attempt lists are ordered by epoch; recovery observation uses the latest attempt."
+  ],
+  "references": [
+    "https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker",
+    "https://resilience4j.readme.io/docs/circuitbreaker"
+  ],
+  "logs": {
+    "workspace/qualification-remote-recovery-20261126/contracts.log": "8b8cc4f5a53da3e5a89ef433d9127635f63d4ba27c3dbe56ac3dc7b6c28ccf08",
+    "workspace/qualification-remote-recovery-20261126/diagnostic.log": "572c961fbce3dfb8f5805093199ff01bade377d8352207aba3fa141749f2d611",
+    "workspace/qualification-remote-recovery-20261126/initial.log": "ebe1010cf42598a7a0a567fd5ecf2c6cdbd9cc883891f87ceb9d1382be767bf0"
+  },
+  "deployment": "Tests and engineering evidence only; deployed runtime implementation unchanged.",
+  "reproduce": "backend/.venv/bin/python scripts/qualify_remote_recovery.py --output workspace/remote-recovery-qualification.json"
+}

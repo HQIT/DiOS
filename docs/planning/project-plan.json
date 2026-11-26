@@ -828,6 +828,18 @@
           "K01-2.04",
           "K01-2.05"
         ]
+      },
+      "concurrent_recovery_qualification": {
+        "state": "engineering_verified",
+        "work_item": "K01-2.02",
+        "evidence": "docs/design/evidence/remote-recovery-qualification-20261126.json",
+        "guide": "docs/design/remote-recovery-qualification-30.md",
+        "passed": 31,
+        "remaining": [
+          "K01-2.03 scheduling and drain qualification",
+          "K01-2.04 physical multi-host fencing",
+          "K01-2.05 acceptance"
+        ]
       }
     },
     {
@@ -3180,10 +3192,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K01-2.02",
-    "next_delivery": "K01-2.02",
+    "next_work_item": "K01-2.03",
+    "next_delivery": "K01-2.03",
     "next_delivery_order": [
-      "K01-2.02",
       "K01-2.03",
       "K02-3.02",
       "K02-3.03",
@@ -3206,6 +3217,6 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "三层委派资格完成；源端隔离选择仍待定，先推进既定 W2 远程恢复与 E2AG 并发资格，随后定时重叠与排空升级资格。"
+    "next_selection_reason": "远程 Worker 限流/额度并发恢复与 E2AG 裁决资格完成，继续既定定时重叠与排空升级资格；恢复启用的源端隔离选择仍待定。"
   }
 }
