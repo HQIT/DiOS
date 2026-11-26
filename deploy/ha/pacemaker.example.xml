@@ -6,6 +6,7 @@
         <nvpair id="dios-startup-fencing" name="startup-fencing" value="true"/>
         <nvpair id="dios-fence-action" name="stonith-action" value="off"/>
         <nvpair id="dios-quorum" name="no-quorum-policy" value="stop"/>
+        <nvpair id="dios-recheck" name="cluster-recheck-interval" value="15s"/>
         <nvpair id="dios-symmetric" name="symmetric-cluster" value="false"/>
       </cluster_property_set>
     </crm_config>
@@ -25,6 +26,7 @@
           <nvpair id="fence-host-list" name="pcmk_host_list" value="control-a control-b control-c"/>
           <nvpair id="fence-host-map" name="pcmk_host_map" value="control-a:dios-a;control-b:dios-b;control-c:dios-c"/>
         </instance_attributes>
+        <meta_attributes id="dios-fence-recovery"><nvpair id="dios-fence-failure-timeout" name="failure-timeout" value="180s"/></meta_attributes>
         <operations><op id="dios-fence-monitor" name="monitor" interval="60s" timeout="30s"/></operations>
       </primitive>
       <group id="dios-control">

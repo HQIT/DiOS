@@ -101,8 +101,26 @@ def main():
         "-W",
         "pacemaker-cli-utils",
         "resource-agents-base",
+        "resource-agents-extra",
         "fence-agents-virsh",
     )
+    agent_metadata = {}
+    for agent in (
+        "ocf:heartbeat:Filesystem",
+        "ocf:heartbeat:IPaddr2",
+        "stonith:fence_virsh",
+    ):
+        metadata = run(
+            "metadata-" + agent.rsplit(":", 1)[-1],
+            "crm_resource",
+            "--show-metadata",
+            agent,
+        )
+        document = ET.fromstring(metadata)
+        assert document.tag == "resource-agent"
+        if agent.startswith("ocf:"):
+            assert document.find("actions/action[@name='start']") is not None
+        agent_metadata[agent] = hashlib.sha256(metadata.encode()).hexdigest()
     actions, ancestors = simulate(
         "started",
         "/input/pacemaker.example.xml",
@@ -198,6 +216,7 @@ def main():
         "tools_image": image,
         "package_versions": versions.splitlines(),
         "checks": checks,
+        "agent_metadata_sha256": agent_metadata,
         "observations": observations,
         "source_sha256": {
             str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()

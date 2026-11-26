@@ -6,6 +6,7 @@
         <nvpair id="dios-startup-fencing" name="startup-fencing" value="true"/>
         <nvpair id="dios-fence-action" name="stonith-action" value="off"/>
         <nvpair id="dios-quorum" name="no-quorum-policy" value="stop"/>
+        <nvpair id="dios-recheck" name="cluster-recheck-interval" value="15s"/>
         <nvpair id="dios-symmetric" name="symmetric-cluster" value="false"/>
       </cluster_property_set>
     </crm_config>
@@ -24,6 +25,9 @@
           <nvpair id="fence-host-list" name="pcmk_host_list" value="control-a control-b control-c"/>
           <nvpair id="fence-host-map" name="pcmk_host_map" value="control-a:dios-a;control-b:dios-b;control-c:dios-c"/>
         </instance_attributes>
+        <meta_attributes id="dios-fence-recovery">
+          <nvpair id="dios-fence-failure-timeout" name="failure-timeout" value="180s"/>
+        </meta_attributes>
         <operations>
           <op id="dios-fence-monitor" name="monitor" interval="60s" timeout="30s"/>
         </operations>
@@ -86,20 +90,20 @@
       <lrm id="1">
         <lrm_resources>
           <lrm_resource id="dios-fence" class="stonith" type="fence_virsh">
-            <lrm_rsc_op id="dios-fence_last_0" operation_key="dios-fence_stop_0" operation="stop" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="4" rc-code="0" op-status="0" interval="0" last-rc-change="1795700634" exec-time="0" queue-time="0" op-digest="944aadb8c29f3e14afee46d84d2c086b"/>
-            <lrm_rsc_op id="dios-fence_monitor_60000" operation_key="dios-fence_monitor_60000" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="3" rc-code="0" op-status="0" interval="60000" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="e7a2d367cf0b2585afd7667a0cd20a74"/>
+            <lrm_rsc_op id="dios-fence_last_0" operation_key="dios-fence_stop_0" operation="stop" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="4" rc-code="0" op-status="0" interval="0" last-rc-change="1795702403" exec-time="0" queue-time="0" op-digest="944aadb8c29f3e14afee46d84d2c086b"/>
+            <lrm_rsc_op id="dios-fence_monitor_60000" operation_key="dios-fence_monitor_60000" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="3" rc-code="0" op-status="0" interval="60000" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="e7a2d367cf0b2585afd7667a0cd20a74"/>
           </lrm_resource>
           <lrm_resource id="dios-volume" class="ocf" provider="heartbeat" type="Filesystem">
-            <lrm_rsc_op id="dios-volume_last_0" operation_key="dios-volume_stop_0" operation="stop" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="4" rc-code="0" op-status="0" interval="0" last-rc-change="1795700634" exec-time="0" queue-time="0" op-digest="53545e8a99643ca8a98d2024ca582826"/>
-            <lrm_rsc_op id="dios-volume_monitor_20000" operation_key="dios-volume_monitor_20000" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="3" rc-code="0" op-status="0" interval="20000" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="07bd51b39f55953e6fe5eae79670d0c1"/>
+            <lrm_rsc_op id="dios-volume_last_0" operation_key="dios-volume_stop_0" operation="stop" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="4" rc-code="0" op-status="0" interval="0" last-rc-change="1795702403" exec-time="0" queue-time="0" op-digest="53545e8a99643ca8a98d2024ca582826"/>
+            <lrm_rsc_op id="dios-volume_monitor_20000" operation_key="dios-volume_monitor_20000" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="3" rc-code="0" op-status="0" interval="20000" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="07bd51b39f55953e6fe5eae79670d0c1"/>
           </lrm_resource>
           <lrm_resource id="dios-service" class="systemd" type="dios-control">
-            <lrm_rsc_op id="dios-service_last_0" operation_key="dios-service_stop_0" operation="stop" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="4" rc-code="0" op-status="0" interval="0" last-rc-change="1795700634" exec-time="0" queue-time="0" op-digest="f2317cad3d54cec5d7d7aa7d0bf35cf8"/>
-            <lrm_rsc_op id="dios-service_monitor_10000" operation_key="dios-service_monitor_10000" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="3" rc-code="0" op-status="0" interval="10000" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="4811cef7f7f94e3a35a70be7916cb2fd"/>
+            <lrm_rsc_op id="dios-service_last_0" operation_key="dios-service_stop_0" operation="stop" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="4" rc-code="0" op-status="0" interval="0" last-rc-change="1795702403" exec-time="0" queue-time="0" op-digest="f2317cad3d54cec5d7d7aa7d0bf35cf8"/>
+            <lrm_rsc_op id="dios-service_monitor_10000" operation_key="dios-service_monitor_10000" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="3" rc-code="0" op-status="0" interval="10000" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="4811cef7f7f94e3a35a70be7916cb2fd"/>
           </lrm_resource>
           <lrm_resource id="dios-address" class="ocf" provider="heartbeat" type="IPaddr2">
-            <lrm_rsc_op id="dios-address_last_0" operation_key="dios-address_stop_0" operation="stop" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="4" rc-code="0" op-status="0" interval="0" last-rc-change="1795700634" exec-time="0" queue-time="0" op-digest="33f5844000b9d6a28615f777b19ab268"/>
-            <lrm_rsc_op id="dios-address_monitor_10000" operation_key="dios-address_monitor_10000" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="3" rc-code="0" op-status="0" interval="10000" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="57a61d3f7cd29fb67a5039ed5f9fc8e8"/>
+            <lrm_rsc_op id="dios-address_last_0" operation_key="dios-address_stop_0" operation="stop" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;4:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="4" rc-code="0" op-status="0" interval="0" last-rc-change="1795702403" exec-time="0" queue-time="0" op-digest="33f5844000b9d6a28615f777b19ab268"/>
+            <lrm_rsc_op id="dios-address_monitor_10000" operation_key="dios-address_monitor_10000" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:0;3:-1:0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="3" rc-code="0" op-status="0" interval="10000" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="57a61d3f7cd29fb67a5039ed5f9fc8e8"/>
           </lrm_resource>
         </lrm_resources>
       </lrm>
@@ -108,16 +112,16 @@
       <lrm id="2">
         <lrm_resources>
           <lrm_resource id="dios-fence" class="stonith" type="fence_virsh">
-            <lrm_rsc_op id="dios-fence_last_0" operation_key="dios-fence_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="944aadb8c29f3e14afee46d84d2c086b"/>
+            <lrm_rsc_op id="dios-fence_last_0" operation_key="dios-fence_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="944aadb8c29f3e14afee46d84d2c086b"/>
           </lrm_resource>
           <lrm_resource id="dios-volume" class="ocf" provider="heartbeat" type="Filesystem">
-            <lrm_rsc_op id="dios-volume_last_0" operation_key="dios-volume_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="53545e8a99643ca8a98d2024ca582826"/>
+            <lrm_rsc_op id="dios-volume_last_0" operation_key="dios-volume_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="53545e8a99643ca8a98d2024ca582826"/>
           </lrm_resource>
           <lrm_resource id="dios-service" class="systemd" type="dios-control">
-            <lrm_rsc_op id="dios-service_last_0" operation_key="dios-service_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="f2317cad3d54cec5d7d7aa7d0bf35cf8"/>
+            <lrm_rsc_op id="dios-service_last_0" operation_key="dios-service_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="f2317cad3d54cec5d7d7aa7d0bf35cf8"/>
           </lrm_resource>
           <lrm_resource id="dios-address" class="ocf" provider="heartbeat" type="IPaddr2">
-            <lrm_rsc_op id="dios-address_last_0" operation_key="dios-address_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="33f5844000b9d6a28615f777b19ab268"/>
+            <lrm_rsc_op id="dios-address_last_0" operation_key="dios-address_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="33f5844000b9d6a28615f777b19ab268"/>
           </lrm_resource>
         </lrm_resources>
       </lrm>
@@ -126,16 +130,16 @@
       <lrm id="3">
         <lrm_resources>
           <lrm_resource id="dios-fence" class="stonith" type="fence_virsh">
-            <lrm_rsc_op id="dios-fence_last_0" operation_key="dios-fence_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="944aadb8c29f3e14afee46d84d2c086b"/>
+            <lrm_rsc_op id="dios-fence_last_0" operation_key="dios-fence_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="944aadb8c29f3e14afee46d84d2c086b"/>
           </lrm_resource>
           <lrm_resource id="dios-volume" class="ocf" provider="heartbeat" type="Filesystem">
-            <lrm_rsc_op id="dios-volume_last_0" operation_key="dios-volume_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="53545e8a99643ca8a98d2024ca582826"/>
+            <lrm_rsc_op id="dios-volume_last_0" operation_key="dios-volume_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="53545e8a99643ca8a98d2024ca582826"/>
           </lrm_resource>
           <lrm_resource id="dios-service" class="systemd" type="dios-control">
-            <lrm_rsc_op id="dios-service_last_0" operation_key="dios-service_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="f2317cad3d54cec5d7d7aa7d0bf35cf8"/>
+            <lrm_rsc_op id="dios-service_last_0" operation_key="dios-service_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="f2317cad3d54cec5d7d7aa7d0bf35cf8"/>
           </lrm_resource>
           <lrm_resource id="dios-address" class="ocf" provider="heartbeat" type="IPaddr2">
-            <lrm_rsc_op id="dios-address_last_0" operation_key="dios-address_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795700632" exec-time="0" queue-time="0" op-digest="33f5844000b9d6a28615f777b19ab268"/>
+            <lrm_rsc_op id="dios-address_last_0" operation_key="dios-address_monitor_0" operation="monitor" crm-debug-origin="crm_simulate" crm_feature_set="3.17.4" transition-key="1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" transition-magic="0:7;1:-1:7:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" exit-reason="" call-id="1" rc-code="7" op-status="0" interval="0" last-rc-change="1795702399" exec-time="0" queue-time="0" op-digest="33f5844000b9d6a28615f777b19ab268"/>
           </lrm_resource>
         </lrm_resources>
       </lrm>

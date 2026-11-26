@@ -1,0 +1,281 @@
+{
+  "work_item": "D01-3.01",
+  "qualification": "three Linux VMs with native Pacemaker fencing and production DiOS API/Worker/E2AG",
+  "passed": true,
+  "complete": false,
+  "environment": {
+    "physical_hosts": 1,
+    "control_vms": 3,
+    "vcpus_each": 2,
+    "memory_mib_each": 2048,
+    "postgres_instances": 1,
+    "storage": "exclusive ext4 on libvirt shared raw test volume; cache=none",
+    "agent": "synthetic JSONL fixture; no model calls",
+    "source_commit": "449d11ee5eeda4aec72dff2afd3182e5ee111984"
+  },
+  "checks": {
+    "real_fencing_before_successor_volume_service_vip": true,
+    "original_run_attempt_session_process_and_lease_preserved": true,
+    "e2ag_result_acceptance_and_grant_closed": true,
+    "revoked_task_unexecuted": true,
+    "idempotent_resubmission_returns_original_run": true,
+    "stale_observation_does_not_claim_actual_concurrency": true,
+    "fresh_concurrency_recovered": true,
+    "old_primary_boot_does_not_autostart_services": true,
+    "old_primary_rejoin_does_not_preempt": true,
+    "quorum_loss_stops_vip_service_and_unmounts_volume": true,
+    "quorum_restore_preserves_history_and_artifacts": true,
+    "fence_unavailable_blocks_successor_mount_and_service": true,
+    "fencing_retry_after_exhaustion_recovers_without_manual_cluster_action": true
+  },
+  "control_failure": {
+    "fault": "hypervisor pause active control-a",
+    "injected_at": 1795701748.9170754,
+    "api_recovery_observed_upper_bound_seconds": 22.441909551620483,
+    "successor": "control-c",
+    "ordered_events": [
+      {
+        "timestamp_us": 1795701757907652,
+        "node": "control-c",
+        "message": " notice: Operation 'off' targeting control-a by control-b for pacemaker-controld.4228@control-c: OK (complete)"
+      },
+      {
+        "timestamp_us": 1795701757909621,
+        "node": "control-c",
+        "message": " notice: Initiating start operation dios-volume_start_0 locally on control-c"
+      },
+      {
+        "timestamp_us": 1795701758029856,
+        "node": "control-c",
+        "message": " notice: Initiating start operation dios-service_start_0 locally on control-c"
+      },
+      {
+        "timestamp_us": 1795701768208003,
+        "node": "control-c",
+        "message": " notice: Initiating start operation dios-address_start_0 locally on control-c"
+      }
+    ]
+  },
+  "identity": {
+    "run_id": "ad894fdc-e607-4bf5-8e73-86dbe222ada2",
+    "attempt": {
+      "id": "cfce1652-7a0a-457d-a58d-b6be986f212c",
+      "epoch": 1,
+      "session_id": "225f81e6-5bf5-4c7a-944a-ffab8cf73a0f",
+      "worker_id": "ha-worker:6ce933c6388547459f362e30fceac153",
+      "process_id": 1053448,
+      "state": "completed"
+    },
+    "attempt_count": 1,
+    "state": "succeeded",
+    "authorization": {
+      "mode": "e2ag",
+      "reference": "wa-d5435a9431e346250926b71063d6350465ba30e3bb4bb7d9a3bcfbd24bba",
+      "subject": "operator:qualification",
+      "actor": "service:qualification",
+      "policy_id": "ha-qualification",
+      "state": "closed",
+      "expires_at": 1795788130.859677,
+      "authorization_epoch": 1,
+      "source_check": null,
+      "source_event": null,
+      "delegation": null,
+      "secret_refs": [],
+      "grant": {
+        "attempt_id": "cfce1652-7a0a-457d-a58d-b6be986f212c",
+        "session_id": "225f81e6-5bf5-4c7a-944a-ffab8cf73a0f",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "closed",
+        "expires_at": 1795702631.966388
+      },
+      "decisions": [
+        {
+          "id": "0b0013bd-2b06-4316-8808-03c0d755d2dd",
+          "action": "accept_result",
+          "created_at": 1795701810.058872,
+          "outcome": "allow",
+          "reason_codes": [
+            "RESULT_ACCEPTANCE_AUTHORIZED"
+          ]
+        },
+        {
+          "id": "0d962a94-c851-4377-8a2c-7c34027b080c",
+          "action": "remote-result",
+          "created_at": 1795701810.045377,
+          "outcome": "allow",
+          "reason_codes": [
+            "REMOTE_RESULT_ACCEPTED"
+          ]
+        },
+        {
+          "id": "03e28458-7400-4c1d-99e3-f7cb4903a570",
+          "action": "accept_result",
+          "created_at": 1795701809.708387,
+          "outcome": "allow",
+          "reason_codes": [
+            "RESULT_ACCEPTANCE_AUTHORIZED"
+          ]
+        },
+        {
+          "id": "3fc94039-0721-4494-a94d-c7c09f9f4aec",
+          "action": "execute",
+          "created_at": 1795701733.07832,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_SESSION_BOUND"
+          ]
+        },
+        {
+          "id": "cdfc535b-c241-4036-ae70-34f38c1e5da3",
+          "action": "execute",
+          "created_at": 1795701731.966388,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_GRANT_CREATED"
+          ]
+        },
+        {
+          "id": "4b52e3f0-fc26-49eb-aeb1-5de683321cc6",
+          "action": "admit",
+          "created_at": 1795701730.859677,
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ]
+        }
+      ]
+    }
+  },
+  "revoked_task": {
+    "id": "f8c1a1c8-5039-409a-b915-2399a4597d8c",
+    "attempt_count": 0,
+    "authorization_state": "revoked",
+    "authorization_epoch": 2
+  },
+  "artifacts": [
+    {
+      "id": "7f4be112-e64f-4bf2-aed3-f03ae1921d6c",
+      "digest": "5e6f46818a0faa9f70b79bf1e479651b0255c690ea3297a09ad76487e5a407bf",
+      "bytes": 161,
+      "verified": true
+    },
+    {
+      "id": "653c63da-2a10-4ced-9c73-f3718025fedd",
+      "digest": "fdaa4548192bcb4efbbad1ebd1b88c4b081bd2489e64edc9ea249a6cc4b860d6",
+      "bytes": 408,
+      "verified": true
+    }
+  ],
+  "fencing_recovery": {
+    "failure_limit": {
+      "observed_at": 1795702588.6712627,
+      "immediate_attempts_exhausted": true,
+      "fence_resource_stopped": true,
+      "no_successor_started": true,
+      "old_primary_paused": true
+    },
+    "recovery": {
+      "observed_at": 1795702632.0742035,
+      "recovered_after_connectivity_seconds": 43.38782262802124,
+      "successor": "control-a",
+      "history_and_revocation_preserved": true,
+      "manual_resource_restart": false,
+      "failure_cleanup": false,
+      "configuration_change_after_fault": false
+    },
+    "policy": {
+      "cluster-recheck-interval": "15s",
+      "fence-failure-timeout": "180s",
+      "native_fencing_attempts": 10,
+      "longest_resource_action_timeout": "120s"
+    },
+    "finding": "default zero failure-timeout retains failed device placement; explicit expiry and native rechecks permit bounded recovery"
+  },
+  "images": {
+    "backend": {
+      "source_id": "sha256:eb90dc0e2e647aa596a80a042805bbf28873857a427d34149d62f10a2013f867",
+      "guests": {
+        "11": {
+          "id": "sha256:70ab8cefb80bbaf4deeabaf9d587093c0b19956e8b5a0fa8a4c9df6cacd6eabc",
+          "runtime_configuration_equal": true,
+          "rootfs_layers_equal": true
+        },
+        "12": {
+          "id": "sha256:70ab8cefb80bbaf4deeabaf9d587093c0b19956e8b5a0fa8a4c9df6cacd6eabc",
+          "runtime_configuration_equal": true,
+          "rootfs_layers_equal": true
+        },
+        "13": {
+          "id": "sha256:70ab8cefb80bbaf4deeabaf9d587093c0b19956e8b5a0fa8a4c9df6cacd6eabc",
+          "runtime_configuration_equal": true,
+          "rootfs_layers_equal": true
+        }
+      }
+    },
+    "frontend": {
+      "source_id": "sha256:c2b7ea8b9c82ef1dc845e721ef18bd6fcf230139a3a60b1f1a5b078e84342c8c",
+      "guests": {
+        "11": {
+          "id": "sha256:e1add4c1ad2f25063c23cbab62beaefaa0f9ff86dfef94428f8f3d746ebf3cb4",
+          "runtime_configuration_equal": true,
+          "rootfs_layers_equal": true
+        },
+        "12": {
+          "id": "sha256:e1add4c1ad2f25063c23cbab62beaefaa0f9ff86dfef94428f8f3d746ebf3cb4",
+          "runtime_configuration_equal": true,
+          "rootfs_layers_equal": true
+        },
+        "13": {
+          "id": "sha256:e1add4c1ad2f25063c23cbab62beaefaa0f9ff86dfef94428f8f3d746ebf3cb4",
+          "runtime_configuration_equal": true,
+          "rootfs_layers_equal": true
+        }
+      }
+    }
+  },
+  "source_sha256": {
+    "deploy/ha/pacemaker.example.xml": "a7ba2f38bd405c4863829c54151aece92c42770cfa4351f32c175902f5211f38",
+    "deploy/ha/dios-control.service": "c0b10497cc830b13a1bc80ded6210e4de7eb182c9fb64d784a9f8ea2643d991a",
+    "deploy/ha/compose.ha.yaml": "4e95ba99be86d762ffae4bfe36e6420d47007b5d732270469a2bcbe50a99f240",
+    "scripts/qualify_ha_policy.py": "e9b9939577b203345e59954f33bfaba4c770fb51c7e4a02b412faac13dee1c65"
+  },
+  "evidence_directory": "docs/design/evidence/ha-live-20261126",
+  "evidence_sha256": {
+    "candidate-configuration.xml": "2c97427ed39c8216ce5b00f41451d06de09ef50252ab4e31b8729a5e1f49ebc2",
+    "retry-failed-cluster.xml": "c44e02598f113a8d7831a0a8cdde9f6560bf519dc8774ed60d882b4a9c56245d",
+    "no-quorum-cluster.xml": "6b7cb3cbc699b974fdca856dc52ea8c3ca1075c554bc93a201b96423bbeb4511",
+    "rejoined-cluster.xml": "2a307cf48e9c54a41aa793e5f5223afbd99ff809f6b8dbe857ebebc990ed92fe",
+    "restored-cluster.xml": "9aadd1a5abdf13bcf204a1a8363132c4f3181c82b2ea22d640652fccfc5ee956",
+    "node-12-packages.txt": "e91da3497cb3dde560ace125103b2141e494127aee999653ab944639f8c6e470",
+    "ordered-events.json": "5e3c35dc98f39accf94a3e543738e8cdf8dfca8e2664a324cb2760d0faf2218d",
+    "node-11-packages.txt": "e91da3497cb3dde560ace125103b2141e494127aee999653ab944639f8c6e470",
+    "fence-unavailable-cluster.xml": "8a938da611d2ab2e2dd7e2b6c25dabd6c4b252d42f40fc3139bae7874563e0d3",
+    "retry-success-cluster.xml": "f881011e9bfd33ccfbb42fc55762d4d1dc23705ed2885729f06db7a44b5354a5",
+    "after-cluster.xml": "15f886d1f14efe923000ac6f9727f1e5140edfbd4f4e38582c6b20b41d3621ad"
+  },
+  "not_qualified": [
+    "physical host fault independence",
+    "database and volume replication RPO",
+    "enterprise capacity and availability SLO",
+    "service stop failure and database interruption joint qualification"
+  ],
+  "remaining_work_items": [
+    "D01-3.01",
+    "D01-3.02",
+    "D01-3.03"
+  ],
+  "cleanup": {
+    "vm_states": {
+      "dios-ha-control-a": "shut off",
+      "dios-ha-control-b": "shut off",
+      "dios-ha-control-c": "shut off"
+    },
+    "database_stopped": true,
+    "network_stopped": true,
+    "fence_login_disabled": true,
+    "temporary_fence_block_removed": true,
+    "disks_and_configuration_retained": true,
+    "checked_at": 1795702808.5384033
+  }
+}

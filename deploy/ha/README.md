@@ -27,9 +27,19 @@ flowchart TB
 
 轻量部署继续使用 SQLite。该主备配置复用 [共享部署](../shared/README.md)，不向 DiOS 增加数据库复制或共识实现。产物卷同时包含旧服务库、工具回执、配置和共享安装目录，挂载点固定为 `/srv/dios-ha`。各节点上的 Docker 镜像须提前按相同摘要加载。
 
+## 节点依赖
+
+Ubuntu 24.04 的示例安装命令：
+
+```sh
+sudo apt-get install --no-install-recommends pacemaker corosync resource-agents-base resource-agents-extra fence-agents-virsh docker.io docker-compose-v2
+```
+
+`Filesystem` 由 `resource-agents-extra` 提供，`IPaddr2` 由 `resource-agents-base` 提供。接入前用 `crm_resource --show-metadata ocf:heartbeat:Filesystem`、`crm_resource --show-metadata ocf:heartbeat:IPaddr2` 和 `crm_resource --show-metadata stonith:fence_virsh` 检查每个候选节点；只通过 CIB 校验不能证明节点已安装代理。包名、服务权限和 firewall 管理由目标发行版的 Infrastructure 安装清单固定。
+
 ## 配置文件
 
-- `pacemaker.example.xml`：标准 CIB 范本。资源按卷、控制服务、虚拟地址顺序启动，反序停止。卷或控制服务停止失败触发 fencing。未获允许的节点不放置资源。
+- `pacemaker.example.xml`：标准 CIB 范本。资源按卷、控制服务、虚拟地址顺序启动，反序停止。卷或控制服务停止失败触发 fencing。未获允许的节点不放置资源。隔离设备失败记录在 180 秒后过期，集群每 15 秒重算；重试仍必须获得真实隔离成功回执。180 秒高于本范本最长资源操作超时 120 秒，调整操作超时时须同步调整该值。
 - `dios-control.service`：集群管理的 systemd 服务。启动先核验挂载并等待 Compose 启动条件满足，再持续监视容器进程；任一容器退出结束服务。启动失败和停止均清理本组容器。服务不设置开机启用入口。
 - `compose.ha.yaml`：叠加 Linux 与共享部署配置，关闭 Docker 自行重启，声明受控监听地址。需要支持 `!override` 的 Docker Compose 2.24.4 及以上版本。
 
@@ -50,7 +60,7 @@ Pacemaker 的服务监测观察 systemd/Compose 进程；应用请求、模型�
 
 ## 资格与完成条件
 
-`crm_verify` 与 `crm_simulate` 验证配置结构及 Pacemaker 的动作依赖；它们不执行断电、挂载或真实数据库复制。D01-3.01 还需隔离虚拟机中的真实资源启动、停止、故障接管和原任务/授权写入检查；D01-3.02/.03 负责物理跨主机、复制恢复及 RPO/RTO 实测。
+`crm_verify` 与 `crm_simulate` 验证配置结构及 Pacemaker 的动作依赖；它们不执行断电、挂载或真实数据库复制。[三节点 Linux 虚拟机验证](../../docs/design/evidence/ha-live-20261126.json)已覆盖真实旧主断电接管、原任务/会话恢复、E2AG 撤权保留、旧主重新入群及无仲裁停服。D01-3.01 继续核验完整故障模型及数据库/卷的隔离契约；D01-3.02/.03 负责物理跨主机、复制恢复及 RPO/RTO 实测。
 
 ### 可复现的离线策略检查
 
@@ -64,7 +74,11 @@ backend/.venv/bin/python scripts/qualify_ha_policy.py \
 
 [已记录的策略结果](../../docs/design/evidence/ha-policy-20261126.json)包含七项通过检查及原生动作图：配置合法、顺序同节点启动、旧主失联、服务停止失败、卷停止失败、无仲裁反序停止、缺少隔离设备时禁止接管。缺少设备场景同时删除配置和节点执行器的设备登记；仅删除配置仍可能留下可用的孤立设备。
 
-企业档权威元数据的已确认提交目标 RPO 为 0、单控制节点或数据库主节点失效目标 RTO 不超过五分钟，沿用 [容量契约](../../docs/design/capacity-slo-v1.md)。本范本尚无该 SLO 的实测结论。
+企业档权威元数据的已确认提交目标 RPO 为 0、单控制节点或数据库主节点失效目标 RTO 不超过五分钟，沿用 [容量契约](../../docs/design/capacity-slo-v1.md)。单宿主三虚拟机的一次旧主暂停故障中，API 在约 22 秒后恢复，原任务、尝试和会话保持一致；该样本用于控制接管验证，企业档复制及物理故障 SLO 由 D01-3.02/.03 实测。
+
+## 故障验证
+
+[实机资格步骤](qualification.md)包含旧主失联、隔离设备不可达、仲裁丢失、重新入群与任务/产物一致性。保留默认有限即时隔离重试次数，通过原生 `failure-timeout` 和 `cluster-recheck-interval` 恢复设备探测；不把故障记录清理或人工重启计为自动恢复。
 
 ## 方案依据
 
@@ -73,3 +87,5 @@ backend/.venv/bin/python scripts/qualify_ha_policy.py \
 PostgreSQL HA 可由已有托管服务或经过资格验证的成熟实现承接。[Patroni 同步模式](https://patroni.readthedocs.io/en/latest/replication_modes.html)说明严格同步与可用性的取舍，并指出等待同步提交时取消连接可能暴露尚未复制的本地事务；[Watchdog 文档](https://patroni.readthedocs.io/en/latest/watchdog.html)说明进程暂停时需要独立隔离保障。因此复制、取消提交、权限/预算提交及外部动作必须共同进入故障资格，单纯配置同步参数不足以签署 E2AG 的完整持久保证。
 
 Pacemaker、Corosync、资源代理和 fencing 代理通过 Infrastructure 的发行版软件包安装；许可证及支持条件随部署清单登记。DiOS 保留与集群产品独立的业务无关 API，不复制上游实现。
+
+[Pacemaker 资源失败过期规则](https://clusterlabs.org/projects/pacemaker/doc/2.1/Pacemaker_Explained/html/resources.html)规定 `failure-timeout=0` 表示失败记录不自动过期，并要求过期时间高于最长资源操作超时；[2.1.6 隔离实现](https://github.com/ClusterLabs/pacemaker/blob/Pacemaker-2.1.6/daemons/controld/controld_fencing.c)保留有限即时重试和成功后的失败计数重置。

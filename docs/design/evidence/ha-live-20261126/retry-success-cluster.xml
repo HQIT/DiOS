@@ -1,0 +1,89 @@
+<pacemaker-result api-version="2.30" request="crm_mon --output-as=xml --inactive">
+  <summary>
+    <stack type="corosync" pacemakerd-state="running"/>
+    <current_dc present="true" version="2.1.6-6fdc9deea29" name="control-b" id="2" with_quorum="true" mixed_version="false"/>
+    <last_update time="Thu Nov 26 14:17:10 2026" origin="control-b"/>
+    <last_change time="Thu Nov 26 14:13:15 2026" user="root" client="crm_resource" origin="control-c"/>
+    <nodes_configured number="3"/>
+    <resources_configured number="4" disabled="0" blocked="0"/>
+    <cluster_options stonith-enabled="true" symmetric-cluster="false" no-quorum-policy="stop" maintenance-mode="false" stop-all-resources="false" stonith-timeout-ms="60000" priority-fencing-delay-ms="0"/>
+  </summary>
+  <nodes>
+    <node name="control-a" id="1" online="true" standby="false" standby_onfail="false" maintenance="false" pending="false" unclean="false" health="green" feature_set="3.17.4" shutdown="false" expected_up="true" is_dc="false" resources_running="3" type="member"/>
+    <node name="control-b" id="2" online="true" standby="false" standby_onfail="false" maintenance="false" pending="false" unclean="false" health="green" feature_set="3.17.4" shutdown="false" expected_up="true" is_dc="true" resources_running="0" type="member"/>
+    <node name="control-c" id="3" online="false" standby="false" standby_onfail="false" maintenance="false" pending="false" unclean="false" health="green" shutdown="false" expected_up="false" is_dc="false" resources_running="0" type="member"/>
+  </nodes>
+  <resources>
+    <resource id="dios-fence" resource_agent="stonith:fence_virsh" role="Stopped" active="false" orphaned="false" blocked="false" maintenance="false" managed="true" failed="false" failure_ignored="false" nodes_running_on="0"/>
+    <group id="dios-control" number_resources="3" maintenance="false" managed="true" disabled="false">
+      <resource id="dios-volume" resource_agent="ocf:heartbeat:Filesystem" role="Started" active="true" orphaned="false" blocked="false" maintenance="false" managed="true" failed="false" failure_ignored="false" nodes_running_on="1">
+        <node name="control-a" id="1" cached="true"/>
+      </resource>
+      <resource id="dios-service" resource_agent="systemd:dios-control" role="Started" active="true" orphaned="false" blocked="false" maintenance="false" managed="true" failed="false" failure_ignored="false" nodes_running_on="1">
+        <node name="control-a" id="1" cached="true"/>
+      </resource>
+      <resource id="dios-address" resource_agent="ocf:heartbeat:IPaddr2" role="Started" active="true" orphaned="false" blocked="false" maintenance="false" managed="true" failed="false" failure_ignored="false" nodes_running_on="1">
+        <node name="control-a" id="1" cached="true"/>
+      </resource>
+    </group>
+  </resources>
+  <node_history>
+    <node name="control-b">
+      <resource_history id="dios-fence" orphan="false" migration-threshold="1" fail-count="1" last-failure="Thu Nov 26 14:16:22 2026">
+        <operation_history call="28" task="monitor" rc="0" rc_text="ok" interval="60000ms" last-rc-change="Thu Nov 26 14:13:17 2026" exec-time="528ms" queue-time="0ms"/>
+        <operation_history call="28" task="monitor" rc="1" rc_text="error" interval="60000ms" last-rc-change="Thu Nov 26 14:16:20 2026" exec-time="1311ms" queue-time="0ms"/>
+        <operation_history call="30" task="stop" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:16:22 2026" exec-time="0ms" queue-time="0ms"/>
+      </resource_history>
+    </node>
+    <node name="control-a">
+      <resource_history id="dios-fence" orphan="false" migration-threshold="1" fail-count="1000000" last-failure="Thu Nov 26 14:16:23 2026">
+        <operation_history call="18" task="start" rc="1" rc_text="error" last-rc-change="Thu Nov 26 14:16:22 2026" exec-time="1296ms" queue-time="0ms"/>
+        <operation_history call="19" task="stop" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:16:24 2026" exec-time="1ms" queue-time="0ms"/>
+      </resource_history>
+      <resource_history id="dios-address" orphan="false" migration-threshold="1">
+        <operation_history call="24" task="start" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:16:52 2026" exec-time="51ms" queue-time="0ms"/>
+        <operation_history call="25" task="monitor" rc="0" rc_text="ok" interval="10000ms" last-rc-change="Thu Nov 26 14:16:52 2026" exec-time="28ms" queue-time="0ms"/>
+      </resource_history>
+      <resource_history id="dios-volume" orphan="false" migration-threshold="1">
+        <operation_history call="20" task="start" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:16:43 2026" exec-time="48ms" queue-time="0ms"/>
+        <operation_history call="21" task="monitor" rc="0" rc_text="ok" interval="20000ms" last-rc-change="Thu Nov 26 14:16:43 2026" exec-time="39ms" queue-time="0ms"/>
+      </resource_history>
+      <resource_history id="dios-service" orphan="false" migration-threshold="1">
+        <operation_history call="22" task="start" rc="0" rc_text="ok" last-rc-change="Thu Nov 26 14:16:51 2026" exec-time="8126ms" queue-time="0ms"/>
+        <operation_history call="23" task="monitor" rc="0" rc_text="ok" interval="10000ms" last-rc-change="Thu Nov 26 14:16:51 2026" exec-time="1ms" queue-time="0ms"/>
+      </resource_history>
+    </node>
+  </node_history>
+  <failures>
+    <failure op_key="dios-fence_monitor_60000" node="control-b" exitstatus="error" exitreason="" exitcode="1" call="28" status="complete" last-rc-change="2026-11-26 14:16:20Z" queued="0" exec="1311" interval="60000" task="monitor"/>
+    <failure op_key="dios-fence_start_0" node="control-a" exitstatus="error" exitreason="" exitcode="1" call="18" status="complete" last-rc-change="2026-11-26 14:16:22Z" queued="0" exec="1296" interval="0" task="start"/>
+  </failures>
+  <fence_history>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="success" delegate="control-a" completed="2026-11-26 14:16:43.809642Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:16:27.440404Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:16:24.782354Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:16:07.756949Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:16:05.140871Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:16:02.517789Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:15:59.886701Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:15:57.261609Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:15:54.641512Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:15:52.018410Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:15:49.427303Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:15:46.783188Z"/>
+    <fence_event action="off" target="control-c" client="pacemaker-controld.4224" origin="control-b" status="failed" delegate="control-b" completed="2026-11-26 14:15:44.152068Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="success" delegate="control-b" completed="2026-11-26 14:13:16.919739Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:23.041049Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:20.362334Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:17.643677Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:14.921085Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:11.149782Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:08.474390Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:05.795110Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:03.062983Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:10:00.378009Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="failed" delegate="control-c" completed="2026-11-26 14:09:57.639014Z"/>
+    <fence_event action="off" target="control-a" client="pacemaker-controld.4228" origin="control-c" status="success" delegate="control-b" completed="2026-11-26 14:02:37.909051Z"/>
+  </fence_history>
+  <status code="0" message="OK"/>
+</pacemaker-result>
