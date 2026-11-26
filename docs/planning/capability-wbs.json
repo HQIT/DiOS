@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "D01-2.01",
-    "next_delivery": "D01-2.01",
+    "next_work_item": "D01-2.02",
+    "next_delivery": "D01-2.02",
     "next_delivery_order": [
-      "D01-2.01",
+      "D01-2.02",
       "F03-2.02",
       "K04-2.02",
       "K02-3.02",
@@ -34,7 +34,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "三参考路径及扩展契约已收口。推进 W4 已就绪的共享持久服务部署，复用现有后端与成熟组件，不重开无界选型或重复模型资格；F03-2.02 的完整场景缺口、父子容量和源控制面隔离选择继续保留。"
+    "next_selection_reason": "共享持久服务部署已收口，接续在隔离副本上验证起步历史、任务身份、产物引用及权限迁移，复用既有 PG/Worker 证据。现有开发实例和外部 Codeup 评审保持运行；整套恢复及物理 HA 仍按各自工作项推进。"
   },
   "waves": [
     {
@@ -2756,7 +2756,7 @@
       "issue": 52,
       "title": "共享持久服务部署方案",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "D01-2-A01",
         "D01-2-A03"
@@ -2766,8 +2766,11 @@
       "verification": "多 Worker 共享状态和对象；凭据/权限/备份明确；选型优先成熟组件并记录许可，不重新无界跑分",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有 Provider 契约与局部数据库验证；生产共享存储部署与迁移尚未交付。",
+      "completion_evidence": [
+        "deploy/shared/README.md",
+        "docs/design/evidence/shared-services-20261126.json"
+      ],
+      "basis": "PostgreSQL TLS/SCRAM、迁移/运行/备份角色、Compose mTLS 网关与单控制面持久产物配置交付；两路原生 Worker 并发、独立进程/会话、E2AG 与产物校验通过；部署后的 API 任务、重复提交和报告下载通过，备份账号完成 custom dump。数据副本迁移、整套干净恢复和物理多主机资格仍归后续项。",
       "existing_evidence": [
         "docs/design/evidence/provider-correctness-20261111.json",
         "docs/design/evidence/recovery-drill-20261111.json"

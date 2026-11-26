@@ -1,0 +1,190 @@
+{
+  "work_item": "D01-2.01",
+  "passed": true,
+  "tests": 1,
+  "postgres_image": "sha256:108b27c919e6e7bc124350fb265deea9adac58e118eade428c6d1ad44b90debe",
+  "observations": {
+    "scope": "shared-c3d9e7ec7f21433b90b3506c61273313",
+    "postgres_tls": true,
+    "runtime_ddl_denied": true,
+    "backup_mutation_denied": true,
+    "idempotent_submit": true,
+    "remote_gateway_pid": 824310,
+    "worker_database_credentials": false,
+    "native": {
+      "actual_concurrency": 2,
+      "observed_at": 1795688945.62616,
+      "workers": [
+        {
+          "id": "qualified:0ae7523ecc1b4b558229173d8231a01c",
+          "pid": 824316,
+          "instance": "9ebc77d4-4b7e-41e6-ad32-4a0081308e96"
+        },
+        {
+          "id": "qualified:6d933d3bd6c741d183992920e9900938",
+          "pid": 824315,
+          "instance": "f3dd8647-5b0a-46c8-a70b-944014569d02"
+        }
+      ],
+      "attempts": [
+        {
+          "run_id": "473df210-1482-4024-959e-c415a7a9a2a1",
+          "attempt_id": "1c067dcf-82e5-4d91-96d8-8fc2afeb9f0a",
+          "worker_id": "qualified:0ae7523ecc1b4b558229173d8231a01c",
+          "session_id": "9396fbaa-a8f0-4128-bc32-7d81fe19fbed",
+          "process_id": 824432,
+          "process_instance": "df8071ffd98ee9d96b2631f873393345dc2d79adfadd3568517fce749af0e277:2026-11-26T10:29:05.121577973Z",
+          "freshness": "fresh"
+        },
+        {
+          "run_id": "4319c644-047a-4af6-8c6c-8ad8543fe653",
+          "attempt_id": "a2ac1a52-5fca-470d-89aa-f442e4c9ceb6",
+          "worker_id": "qualified:6d933d3bd6c741d183992920e9900938",
+          "session_id": "aaa1a8e3-427b-4447-b5c3-e73db4e93990",
+          "process_id": 824439,
+          "process_instance": "f8bc0b06afbfc04bc8c37cbc41b91f01287293477802dcf0733585574cb1437d:2026-11-26T10:29:05.136144053Z",
+          "freshness": "fresh"
+        }
+      ]
+    },
+    "runs": [
+      {
+        "id": "4319c644-047a-4af6-8c6c-8ad8543fe653",
+        "state": "succeeded",
+        "attempt_id": "a2ac1a52-5fca-470d-89aa-f442e4c9ceb6"
+      },
+      {
+        "id": "473df210-1482-4024-959e-c415a7a9a2a1",
+        "state": "succeeded",
+        "attempt_id": "1c067dcf-82e5-4d91-96d8-8fc2afeb9f0a"
+      }
+    ],
+    "verified_artifact_references": 4,
+    "e2ag_grants": 2,
+    "wrong_tls_hostname_rejected": true,
+    "database_backup": {
+      "role": "dios_backup",
+      "format": "pg_dump/custom",
+      "bytes": 224192,
+      "sha256": "ad6ae80fbd67b3a9bd0a130a22fa756a031158ffceff97108fd2448078d1854a",
+      "clean_restore_qualified": false
+    }
+  },
+  "limits": [
+    "One Linux host; independent CLI gateway and two remote Worker processes.",
+    "Single authoritative POSIX artifact owner; no RWX filesystem or S3 adapter qualification.",
+    "Data migration, clean restore and physical multi-host failover retain separate WBS acceptance."
+  ],
+  "deployment": {
+    "api": "http://localhost:13381",
+    "console": "http://localhost:13382/dios/",
+    "gateway": "localhost:13383",
+    "backend_image": "sha256:268bb0db681333c2f97ac272e857dff7ef4bebd450ebae41263ceec81f1f5a37",
+    "frontend_image": "sha256:823bc7d5dc742a22f018dfa3c7bb700866bbcf565430129321071347f29699f0",
+    "compose_started": true,
+    "migration_role_isolated": true,
+    "gateway_docker_socket": false,
+    "api_task_id": "60a88891-8206-42ec-8471-c665f2a6c0fb",
+    "api_task_state": "succeeded",
+    "api_idempotency": true,
+    "console_http_status": 200,
+    "remote_worker_completed": true,
+    "downloaded_verified_artifacts": 2,
+    "authorization": {
+      "mode": "e2ag",
+      "reference": "wa-3e0e2c03f3e64b4e56a4007cac145a2955085275a9177b0100e4f21eb0a8",
+      "subject": "operator:test",
+      "actor": "service:test",
+      "policy_id": "recovery-qualification",
+      "state": "closed",
+      "expires_at": 1795775673.798087,
+      "authorization_epoch": 1,
+      "source_check": null,
+      "source_event": null,
+      "delegation": null,
+      "secret_refs": [],
+      "grant": {
+        "attempt_id": "7c15a9b2-0a33-4a52-91dc-c0c1690ee4a1",
+        "session_id": "77b94306-e8b5-4d08-9da2-44afb6b3722a",
+        "lease_epoch": 1,
+        "version": 3,
+        "state": "closed",
+        "expires_at": 1795690217.744025
+      },
+      "decisions": [
+        {
+          "id": "9704631b-bee9-4b1f-a9c9-8ae7b315be4d",
+          "action": "accept_result",
+          "created_at": 1795689319.302235,
+          "outcome": "allow",
+          "reason_codes": [
+            "RESULT_ACCEPTANCE_AUTHORIZED"
+          ]
+        },
+        {
+          "id": "a53ad564-1846-4256-bea1-d38644b4101f",
+          "action": "remote-result",
+          "created_at": 1795689319.292371,
+          "outcome": "allow",
+          "reason_codes": [
+            "REMOTE_RESULT_ACCEPTED"
+          ]
+        },
+        {
+          "id": "48172e62-d4cd-4371-8c1c-df5e8da178d7",
+          "action": "accept_result",
+          "created_at": 1795689319.171872,
+          "outcome": "allow",
+          "reason_codes": [
+            "RESULT_ACCEPTANCE_AUTHORIZED"
+          ]
+        },
+        {
+          "id": "62817235-51a0-4487-81db-2f2326d8787b",
+          "action": "execute",
+          "created_at": 1795689318.394074,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_SESSION_BOUND"
+          ]
+        },
+        {
+          "id": "5b37bd87-c92e-4f71-9571-caa6d8ffce1b",
+          "action": "execute",
+          "created_at": 1795689317.744025,
+          "outcome": "allow",
+          "reason_codes": [
+            "EXECUTION_GRANT_CREATED"
+          ]
+        },
+        {
+          "id": "fe7a6da5-328d-41b3-8406-c5a8a7d9d02b",
+          "action": "admit",
+          "created_at": 1795689273.798087,
+          "outcome": "allow",
+          "reason_codes": [
+            "WORK_AUTHORIZATION_CREATED"
+          ]
+        }
+      ]
+    }
+  },
+  "existing_development_counts": {
+    "runtime_runs": 103,
+    "runtime_attempts": 107,
+    "runtime_artifacts": 282
+  },
+  "implementation_base": "1ecff2d9f023c471f6d55e71a5f451d7f45b9832",
+  "source_sha256": {
+    "scripts/qualify_shared_services.py": "a05039468862aed65fdbbeba067e9d346e064e48e51c270f1197dd79000b3941",
+    "deploy/shared/roles.sql": "791bfb168902711a8363900f6c8e7e89fa84a7e0746cd7f88e66f4014c939961",
+    "deploy/shared/compose.shared.yaml": "abcef46c9a8e1fdd68d4f2fb429a7ad3365331efa4d0d1396af84c784ff3795e",
+    "backend/tests/test_remote_recovery_qualification.py": "93570d5537084afcf2874b641eebd284efb59d7e709ad24704ff0708c63820cf"
+  },
+  "qualification_notes": [
+    "The initial disposable database trial used a stale dynamically assigned port after restart; fixed before execution qualification.",
+    "The second trial completed both Workers but expected six artifacts; native empty stderr correctly produces four references. Assertions now match stdout/result for each Attempt.",
+    "TLS hostname rejection and backup dump were checked additionally against the successful database, without repeating the Worker tasks.",
+    "Compose gateway scope is explicitly bound to the same scope as API; a rejected mismatched-scope connection did not start an Attempt."
+  ]
+}

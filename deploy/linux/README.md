@@ -2,6 +2,8 @@
 
 DiOS 控制面使用 Docker Compose，默认存储为 SQLite 与本地对象目录。Worker 独立运行，通过已登记配置接入 Cursor 等 Harness；客户应用独立部署。
 
+多 Worker 共享状态的 PostgreSQL、mTLS 网关、持久产物及备份配置见 [共享持久服务部署](../shared/README.md)。
+
 ## 环境
 
 - Linux 主机，或已经运行的 WSL Linux；Python 3.10+、Docker Engine、Compose v2。安装账户可访问 `/var/run/docker.sock`。

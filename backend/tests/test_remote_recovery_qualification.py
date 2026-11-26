@@ -31,8 +31,10 @@ OBSERVATIONS = []
     os.environ.get("DIOS_TEST_DOCKER") == "1", "isolated Docker required"
 )
 class RemoteRecoveryQualificationTests(unittest.IsolatedAsyncioTestCase):
+    fixture_type = WorkerTests
+
     async def asyncSetUp(self):
-        self.fixture = WorkerTests()
+        self.fixture = self.fixture_type()
         await self.fixture.asyncSetUp()
         self.addAsyncCleanup(self.fixture.asyncTearDown)
         self.root = self.fixture.root

@@ -1,0 +1,54 @@
+# Apply after deploy/linux/compose.yaml. All paths belong to the same installation.
+# PostgreSQL is an Infrastructure service. Only migrate receives the DDL credential.
+services:
+  backend:
+    environment:
+      DIOS_RUNTIME_SCOPE: ${DIOS_RUNTIME_SCOPE:?Set shared scope in .env}
+
+  migrate:
+    env_file: [migration.env]
+
+  gateway:
+    image: ${DIOS_BACKEND_IMAGE:?Fixed backend image required}
+    pull_policy: never
+    user: ${DIOS_UID}:${DIOS_GID}
+    env_file: [service.env]
+    environment:
+      PATH: /usr/local/bin:/usr/bin:/bin
+      PYTHONDONTWRITEBYTECODE: "1"
+    working_dir: /app
+    entrypoint: [/usr/local/bin/python, -m, app.runtime.cli]
+    command:
+      - --scope
+      - ${DIOS_RUNTIME_SCOPE:?Set shared scope in .env}
+      - tool-gateway
+      - --config
+      - ${DIOS_ROOT}/config/gateway.json
+      - --artifacts
+      - ${DIOS_ROOT}/data/objects
+      - --policy-file
+      - ${DIOS_ROOT}/config/work-policy.json
+      - --tools-file
+      - ${DIOS_ROOT}/config/tools.json
+      - --identities-file
+      - ${DIOS_ROOT}/config/machines.json
+      - --profiles-file
+      - ${DIOS_ROOT}/config/remote-profiles.json
+      - --approvers-file
+      - ${DIOS_ROOT}/config/approvers.json
+      - --secrets-file
+      - ${DIOS_ROOT}/config/secrets.json
+    volumes:
+      - ${DIOS_ROOT}/data:${DIOS_ROOT}/data
+      - ${DIOS_ROOT}/config:${DIOS_ROOT}/config:ro
+    ports: ["${DIOS_GATEWAY_BIND:-127.0.0.1}:${DIOS_GATEWAY_PORT:?mTLS gateway port required}:9443"]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    init: true
+    restart: unless-stopped
+    depends_on:
+      backend: {condition: service_healthy}
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
