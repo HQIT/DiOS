@@ -7,11 +7,11 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "S03-2.01",
-    "next_delivery": "S03-2.01",
+    "next_work_item": "A01-1.01",
+    "next_delivery": "A01-1.01",
     "next_delivery_order": [
-      "S03-2.01",
-      "S03-2.02",
+      "A01-1.01",
+      "A01-1.02",
       "K04-2.02",
       "K02-3.02",
       "K02-3.03",
@@ -34,7 +34,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "Studio 三项工程交付全部完成。接续已就绪的 #42 技术评测与环境晋级门禁，复用本批发布审批与 Revision/Deployment。父子容量与源端隔离选择仍待明确，其依赖项保留。"
+    "next_selection_reason": "评测与环境晋级两项完成。接续 #47 已就绪的开放包和 SDK 契约收口，围绕主路径 Cursor ACP 和独立应用边界；其他 Harness 保持兼容，不扩大首轮 SDK 交付。父子容量和恢复隔离两项选择仍保留。"
   },
   "waves": [
     {
@@ -3410,7 +3410,7 @@
       "issue": 42,
       "title": "技术评测与环境晋级门禁",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "S03-2-A01",
         "S03-2-A02"
@@ -3423,8 +3423,11 @@
         "K04-1.02"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有应用包契约；通用技术评测、环境晋级与发布证据尚未闭环。",
+      "completion_evidence": [
+        "docs/design/technical-release-42.md",
+        "docs/design/evidence/technical-release-20261126.json"
+      ],
+      "basis": "版本化技术评测、独立审批、E2AG 与环境派发/激活门禁接通；20 项 SQLite/API/PostgreSQL 测试、11 项浏览器检查和原生 Worker 双环境升级、回滚、撤权失败保留旧版本通过。",
       "existing_evidence": [
         "docs/design/evidence/application-packages-20261124.json"
       ],
@@ -3436,7 +3439,7 @@
       "issue": 42,
       "title": "晋级回滚联合资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "S03-2-A01",
         "S03-2-A02"
@@ -3448,8 +3451,11 @@
         "S03-2.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有应用包契约；通用技术评测、环境晋级与发布证据尚未闭环。",
+      "completion_evidence": [
+        "docs/design/technical-release-42.md",
+        "docs/design/evidence/technical-release-20261126.json"
+      ],
+      "basis": "版本化技术评测、独立审批、E2AG 与环境派发/激活门禁接通；20 项 SQLite/API/PostgreSQL 测试、11 项浏览器检查和原生 Worker 双环境升级、回滚、撤权失败保留旧版本通过。",
       "existing_evidence": [
         "docs/design/evidence/application-packages-20261124.json"
       ],

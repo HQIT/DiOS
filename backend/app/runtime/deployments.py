@@ -83,8 +83,8 @@ def representation(value):
 
 
 class Deployments:
-    def __init__(self, db, scope, policy=None):
-        self.db, self.scope, self.policy = db, scope, policy
+    def __init__(self, db, scope, policy=None, approvers=None):
+        self.db, self.scope, self.policy, self.approvers = db, scope, policy, approvers
         self.store = RuntimeStore(db, scope)
 
     async def _event(self, c, current, kind, actor, now, detail, **changes):
@@ -223,6 +223,19 @@ class Deployments:
                     raise RuntimeErrorCode("DEPLOYMENT_ROLLBACK_UNAVAILABLE")
                 revision_ref = current["previous_revision_id"]
             bound_db = TransactionView(self.db, c, self.scope)
+            from .environment_promotions import require_promotion
+
+            await require_promotion(
+                c,
+                self.db,
+                self.scope,
+                deployment_id,
+                revision_ref,
+                key,
+                probe_input,
+                self.policy,
+                self.approvers,
+            )
             profile, spec, refs, grant = await self._authorize(bound_db, revision_ref)
             if current and current["definition_id"] != profile:
                 raise RuntimeErrorCode("DEPLOYMENT_DEFINITION_CHANGED")
@@ -338,6 +351,31 @@ class Deployments:
                     return representation(current)
             if not failure:
                 try:
+                    from .environment_promotions import require_promotion
+
+                    release_key = (
+                        await c.execute(
+                            select(receipts.c.key).where(
+                                receipts.c.scope == self.scope,
+                                receipts.c.rollout_id == rollout["id"],
+                            )
+                        )
+                    ).scalar_one()
+                    await require_promotion(
+                        c,
+                        self.db,
+                        self.scope,
+                        deployment_id,
+                        rollout["revision_id"],
+                        release_key,
+                        {
+                            k: probe["input"][k]
+                            for k in ("payload", "input_registration", "task_kind")
+                            if k in probe["input"]
+                        },
+                        self.policy,
+                        self.approvers,
+                    )
                     _, _, _, grant = await self._authorize(
                         TransactionView(self.db, c, self.scope), rollout["revision_id"]
                     )

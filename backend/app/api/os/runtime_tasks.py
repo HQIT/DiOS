@@ -211,7 +211,9 @@ class DeploymentRequest(BaseModel):
 def deployment_manager(s):
     if s.principal is not None:raise HTTPException(403,detail='AUTH_ACTION_DENIED')
     from app.runtime.deployments import Deployments
-    return Deployments(s.db,s.scope,s.policy)
+    from app.runtime.tool_catalog import FileApprovers
+    approvers=FileApprovers(settings.runtime_approvers_file) if settings.runtime_approvers_file else None
+    return Deployments(s.db,s.scope,s.policy,approvers)
 
 
 def compatibility_manager(s):

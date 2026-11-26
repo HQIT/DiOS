@@ -1,0 +1,1211 @@
+{
+  "work_items": [
+    "S03-2.01",
+    "S03-2.02"
+  ],
+  "complete": true,
+  "requirements": {
+    "S03-2-A01": "Versioned suite and fixed Revision/input, durable evaluated Runs, independent promotion approval and external business approval reference, request/activation gates.",
+    "S03-2-A02": "Two logical environments; failed evidence, invalidated approval, failed upgrade retaining active version, known-version rollback; original attempts, sessions, artifacts and version associations preserved."
+  },
+  "tests": {
+    "passed": 20,
+    "failed": 0,
+    "sqlite_api": 16,
+    "postgres": 4,
+    "optional_postgres_skipped_in_sqlite_command": 4,
+    "postgres_run_separately": true
+  },
+  "postgres": {
+    "passed": true,
+    "migration_idempotent": true,
+    "append_only_guard": true,
+    "suite": "test_runtime_deployments.PostgresDeploymentTests",
+    "provider": "PostgreSQL 16",
+    "isolated_database": true
+  },
+  "native": {
+    "passed": true,
+    "checks": [
+      "same_conditions_revision_comparison",
+      "test_to_production",
+      "upgrade",
+      "known_revision_rollback",
+      "failed_upgrade_preserves_active_revision",
+      "cli_same_api_comparison"
+    ],
+    "evaluations": [
+      {
+        "scope": "validation",
+        "kind": "evaluation",
+        "id": "eval-5ed3bd28bd15f84bba563cf3de232bcce57f512b06858cf4fc7b46613b395f1b",
+        "version": 3,
+        "document": {
+          "state": "passed",
+          "request": {
+            "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "suite_ref": {
+              "id": "native-contract",
+              "version": 1,
+              "digest": "bf59b02b4f0ebf96d134c882c219ea8ac50829e3fa27ddc1afad6f9c649ee2f5"
+            },
+            "actor": "operator:console"
+          },
+          "cases": [
+            {
+              "case_id": "health",
+              "run_id": "6c48a7fa-0c7b-4371-8a67-ef61693902ce",
+              "input_digest": "b8e864ea217c6eb262ab1ad5af7a65ee23e9eb5979d6cf14e43d7a45760cd8f3"
+            }
+          ],
+          "profile_digest": "bb7ff35fc94ffeae443f3843f70c74470e677ad0fbc08d59f24c007d3cbc84cf",
+          "policy_digest": "963ee29424ec38b355db56c19df66cba94dcf3382ce029554aa1344ea6741d6d",
+          "measurements": [
+            {
+              "case_id": "health",
+              "run_id": "6c48a7fa-0c7b-4371-8a67-ef61693902ce",
+              "state": "passed",
+              "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+              "attempt_id": "5338772f-094a-466d-bc38-17adb3aa1fb0",
+              "session_id": "63da303c-5a5b-45ad-9f57-b8c1a0aa00e8",
+              "artifact": {
+                "kind": "artifact",
+                "id": "84ebb77b-691c-4434-aee5-07cac89941ce",
+                "version": 1
+              },
+              "artifact_digest": "af253fd6a97635cda59baaa75faa5620b1a5c23ffcd2e63674dba6557c47bd1e",
+              "endpoint_digest": null,
+              "elapsed_seconds": 1.8990039825439453,
+              "schema_errors": [],
+              "max_seconds": 60,
+              "reason": null
+            }
+          ],
+          "completed_at": 1795684192.5450058
+        },
+        "actor": "evaluation-controller",
+        "created_at": 1795684192.547983
+      },
+      {
+        "scope": "validation",
+        "kind": "evaluation",
+        "id": "eval-417fd556f9eb9fd53469b3919cd55cc90de5c5e0606c938ae5971b47b0f17130",
+        "version": 3,
+        "document": {
+          "state": "passed",
+          "request": {
+            "revision_ref": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+            "suite_ref": {
+              "id": "native-contract",
+              "version": 1,
+              "digest": "bf59b02b4f0ebf96d134c882c219ea8ac50829e3fa27ddc1afad6f9c649ee2f5"
+            },
+            "actor": "operator:console"
+          },
+          "cases": [
+            {
+              "case_id": "health",
+              "run_id": "9406da1e-ddae-4db0-ab1f-30c2e429d9fb",
+              "input_digest": "b8e864ea217c6eb262ab1ad5af7a65ee23e9eb5979d6cf14e43d7a45760cd8f3"
+            }
+          ],
+          "profile_digest": "bb7ff35fc94ffeae443f3843f70c74470e677ad0fbc08d59f24c007d3cbc84cf",
+          "policy_digest": "963ee29424ec38b355db56c19df66cba94dcf3382ce029554aa1344ea6741d6d",
+          "measurements": [
+            {
+              "case_id": "health",
+              "run_id": "9406da1e-ddae-4db0-ab1f-30c2e429d9fb",
+              "state": "passed",
+              "revision_ref": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+              "attempt_id": "e73b0233-1275-4880-99a8-d646ff951771",
+              "session_id": "f9ce3725-2dc9-4c88-b0ac-157f49f00400",
+              "artifact": {
+                "kind": "artifact",
+                "id": "04056672-1043-4dc8-909b-9fd426c80733",
+                "version": 1
+              },
+              "artifact_digest": "57dfd63979159daf88cc01246c26c9d3253eac50e83c8ff85d512b794140a15b",
+              "endpoint_digest": null,
+              "elapsed_seconds": 1.558028221130371,
+              "schema_errors": [],
+              "max_seconds": 60,
+              "reason": null
+            }
+          ],
+          "completed_at": 1795684194.723992
+        },
+        "actor": "evaluation-controller",
+        "created_at": 1795684194.7270095
+      }
+    ],
+    "promotions": [
+      {
+        "scope": "validation",
+        "kind": "promotion",
+        "id": "promotion-fa1c5f2ebbcd6079bf232948636d80cb30d4a74eee6a369fa715168a4de6d86e",
+        "version": 3,
+        "document": {
+          "deployment_id": "technical-test",
+          "evaluation_id": "eval-5ed3bd28bd15f84bba563cf3de232bcce57f512b06858cf4fc7b46613b395f1b",
+          "deployment_version": 0,
+          "source_deployment": null,
+          "external_approval": null,
+          "rollback": false,
+          "actor": "operator:console",
+          "state": "published",
+          "request_digest": "438be0fbf423d646949ea07fd25c9137b55dbfc7560775c9ccf146effd288f1e",
+          "environment_ref": {
+            "id": "qualification-test",
+            "version": 1,
+            "digest": "c5b6a395e697900b5df154c00413c4c1ea0a6882933b09b47681054bb7b167e7"
+          },
+          "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+          "approved_by": "technical-release-reviewer",
+          "probe": {
+            "payload": {
+              "goal": "Run the registered technical evaluation case",
+              "sample": {
+                "id": "health",
+                "name": "合成健康检查",
+                "sha256": "0927758bb46b77901adc81a6e53b2577aafcc80a8961b2dc079e800695acb4ac"
+              }
+            },
+            "input_registration": {
+              "digest": "4bf6c001d1f84f80d6a9ad97c02d96a21490c827bee8796fb45aab1840f29614",
+              "result_schema": {
+                "properties": {
+                  "evidence": {
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "pid": {
+                    "type": "integer"
+                  },
+                  "session_id": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "summary",
+                  "evidence",
+                  "session_id",
+                  "pid"
+                ],
+                "type": "object"
+              }
+            },
+            "task_kind": "studio-release-health"
+          },
+          "reason": "独立技术核验",
+          "deployment": {
+            "deployment": {
+              "id": "technical-test",
+              "version": 1,
+              "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+              "state": "pending",
+              "resource_scope_ref": "validation"
+            },
+            "status": {
+              "definition_id": "studio-release-fixture",
+              "active_revision_id": null,
+              "previous_revision_id": null,
+              "rollout_id": "83afe6d1-4719-46b3-94c6-306177560982",
+              "error": null,
+              "created_at": 1795684194.9509873,
+              "updated_at": 1795684194.9509873
+            },
+            "receipt": {
+              "scope": "validation",
+              "key": "promotion-fa1c5f2ebbcd6079bf232948636d80cb30d4a74eee6a369fa715168a4de6d86e",
+              "request_digest": "418cd4ea38b1a11bfcf9e1c0129caa8961c91a5daec81d8356067564d514f0f0",
+              "deployment_id": "technical-test",
+              "rollout_id": "83afe6d1-4719-46b3-94c6-306177560982"
+            },
+            "probe_run_id": "764e1217-3567-471c-9244-01fe47dc96ca"
+          }
+        },
+        "actor": "operator:console",
+        "created_at": 1795684194.9670002
+      },
+      {
+        "scope": "validation",
+        "kind": "promotion",
+        "id": "promotion-1e553e9250c88ec357b0a02d4ed603be51bf34bc5ccb9e39a172b51837787409",
+        "version": 3,
+        "document": {
+          "deployment_id": "technical-prod",
+          "evaluation_id": "eval-5ed3bd28bd15f84bba563cf3de232bcce57f512b06858cf4fc7b46613b395f1b",
+          "deployment_version": 0,
+          "source_deployment": "technical-test",
+          "external_approval": {
+            "uri": "urn:dios:qualification:business-approval:synthetic",
+            "version": "1",
+            "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "rollback": false,
+          "actor": "operator:console",
+          "state": "published",
+          "request_digest": "fadfedc0968bf0e597c159a5265745c3e7a5a0264dcbbdab992af96edc5a242e",
+          "environment_ref": {
+            "id": "qualification-prod",
+            "version": 1,
+            "digest": "ecfb9c240c67d43e7b1a37b0b092080ebe4a5734968f9b2e0319f59aa9a2b771"
+          },
+          "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+          "approved_by": "technical-release-reviewer",
+          "probe": {
+            "payload": {
+              "goal": "Run the registered technical evaluation case",
+              "sample": {
+                "id": "health",
+                "name": "合成健康检查",
+                "sha256": "0927758bb46b77901adc81a6e53b2577aafcc80a8961b2dc079e800695acb4ac"
+              }
+            },
+            "input_registration": {
+              "digest": "4bf6c001d1f84f80d6a9ad97c02d96a21490c827bee8796fb45aab1840f29614",
+              "result_schema": {
+                "properties": {
+                  "evidence": {
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "pid": {
+                    "type": "integer"
+                  },
+                  "session_id": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "summary",
+                  "evidence",
+                  "session_id",
+                  "pid"
+                ],
+                "type": "object"
+              }
+            },
+            "task_kind": "studio-release-health"
+          },
+          "reason": "独立技术核验",
+          "deployment": {
+            "deployment": {
+              "id": "technical-prod",
+              "version": 1,
+              "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+              "state": "pending",
+              "resource_scope_ref": "validation"
+            },
+            "status": {
+              "definition_id": "studio-release-fixture",
+              "active_revision_id": null,
+              "previous_revision_id": null,
+              "rollout_id": "dddf8991-849d-49df-9ad8-69ce856e845a",
+              "error": null,
+              "created_at": 1795684197.5450187,
+              "updated_at": 1795684197.5450187
+            },
+            "receipt": {
+              "scope": "validation",
+              "key": "promotion-1e553e9250c88ec357b0a02d4ed603be51bf34bc5ccb9e39a172b51837787409",
+              "request_digest": "2dc26689cf48c1d64ba0326828ee4e0d363071dcce01ab94b862f72ab7d1522e",
+              "deployment_id": "technical-prod",
+              "rollout_id": "dddf8991-849d-49df-9ad8-69ce856e845a"
+            },
+            "probe_run_id": "7317830f-bdc9-4278-932c-4e05efb3ad05"
+          }
+        },
+        "actor": "operator:console",
+        "created_at": 1795684197.5580142
+      },
+      {
+        "scope": "validation",
+        "kind": "promotion",
+        "id": "promotion-ac77d132fe7f9ba8208a33466c9f316dd34947f46d712b14ca5ca867b5eb82c9",
+        "version": 3,
+        "document": {
+          "deployment_id": "technical-test",
+          "evaluation_id": "eval-417fd556f9eb9fd53469b3919cd55cc90de5c5e0606c938ae5971b47b0f17130",
+          "deployment_version": 3,
+          "source_deployment": null,
+          "external_approval": null,
+          "rollback": false,
+          "actor": "operator:console",
+          "state": "published",
+          "request_digest": "3b8f8fc1fe418d15c2eb5465c0c65ca7cfd28fab89a924ae00b7501dadc35975",
+          "environment_ref": {
+            "id": "qualification-test",
+            "version": 1,
+            "digest": "c5b6a395e697900b5df154c00413c4c1ea0a6882933b09b47681054bb7b167e7"
+          },
+          "revision_ref": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+          "approved_by": "technical-release-reviewer",
+          "probe": {
+            "payload": {
+              "goal": "Run the registered technical evaluation case",
+              "sample": {
+                "id": "health",
+                "name": "合成健康检查",
+                "sha256": "0927758bb46b77901adc81a6e53b2577aafcc80a8961b2dc079e800695acb4ac"
+              }
+            },
+            "input_registration": {
+              "digest": "4bf6c001d1f84f80d6a9ad97c02d96a21490c827bee8796fb45aab1840f29614",
+              "result_schema": {
+                "properties": {
+                  "evidence": {
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "pid": {
+                    "type": "integer"
+                  },
+                  "session_id": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "summary",
+                  "evidence",
+                  "session_id",
+                  "pid"
+                ],
+                "type": "object"
+              }
+            },
+            "task_kind": "studio-release-health"
+          },
+          "reason": "独立技术核验",
+          "deployment": {
+            "deployment": {
+              "id": "technical-test",
+              "version": 4,
+              "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+              "state": "pending",
+              "resource_scope_ref": "validation"
+            },
+            "status": {
+              "definition_id": "studio-release-fixture",
+              "active_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+              "previous_revision_id": null,
+              "rollout_id": "fcfc703a-82c5-4e9a-b6c1-ddd52c2d5424",
+              "error": null,
+              "created_at": 1795684194.9509873,
+              "updated_at": 1795684201.4609904
+            },
+            "receipt": {
+              "scope": "validation",
+              "key": "promotion-ac77d132fe7f9ba8208a33466c9f316dd34947f46d712b14ca5ca867b5eb82c9",
+              "request_digest": "e95814c6b31bf6ff30fc13066e71d03a17b6a5be0373d7199051b9c4841ee3ea",
+              "deployment_id": "technical-test",
+              "rollout_id": "fcfc703a-82c5-4e9a-b6c1-ddd52c2d5424"
+            },
+            "probe_run_id": "4290b411-2ca2-4883-8745-2afbb7276871"
+          }
+        },
+        "actor": "operator:console",
+        "created_at": 1795684201.4899983
+      },
+      {
+        "scope": "validation",
+        "kind": "promotion",
+        "id": "promotion-a9b583b82a94f090a3773f4c48178d6a9ac8ae26ea343f1d0d0f63c7aa1bf209",
+        "version": 3,
+        "document": {
+          "deployment_id": "technical-prod",
+          "evaluation_id": "eval-417fd556f9eb9fd53469b3919cd55cc90de5c5e0606c938ae5971b47b0f17130",
+          "deployment_version": 3,
+          "source_deployment": "technical-test",
+          "external_approval": {
+            "uri": "urn:dios:qualification:business-approval:synthetic",
+            "version": "1",
+            "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "rollback": false,
+          "actor": "operator:console",
+          "state": "published",
+          "request_digest": "3555ea080ac3a5b67adcc9efd65f4a9c89f99553c1583e3a087dff22c513c0fe",
+          "environment_ref": {
+            "id": "qualification-prod",
+            "version": 1,
+            "digest": "ecfb9c240c67d43e7b1a37b0b092080ebe4a5734968f9b2e0319f59aa9a2b771"
+          },
+          "revision_ref": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+          "approved_by": "technical-release-reviewer",
+          "probe": {
+            "payload": {
+              "goal": "Run the registered technical evaluation case",
+              "sample": {
+                "id": "health",
+                "name": "合成健康检查",
+                "sha256": "0927758bb46b77901adc81a6e53b2577aafcc80a8961b2dc079e800695acb4ac"
+              }
+            },
+            "input_registration": {
+              "digest": "4bf6c001d1f84f80d6a9ad97c02d96a21490c827bee8796fb45aab1840f29614",
+              "result_schema": {
+                "properties": {
+                  "evidence": {
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "pid": {
+                    "type": "integer"
+                  },
+                  "session_id": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "summary",
+                  "evidence",
+                  "session_id",
+                  "pid"
+                ],
+                "type": "object"
+              }
+            },
+            "task_kind": "studio-release-health"
+          },
+          "reason": "独立技术核验",
+          "deployment": {
+            "deployment": {
+              "id": "technical-prod",
+              "version": 4,
+              "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+              "state": "pending",
+              "resource_scope_ref": "validation"
+            },
+            "status": {
+              "definition_id": "studio-release-fixture",
+              "active_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+              "previous_revision_id": null,
+              "rollout_id": "dff23b74-d034-4b60-9064-e79f67a11244",
+              "error": null,
+              "created_at": 1795684197.5450187,
+              "updated_at": 1795684205.524014
+            },
+            "receipt": {
+              "scope": "validation",
+              "key": "promotion-a9b583b82a94f090a3773f4c48178d6a9ac8ae26ea343f1d0d0f63c7aa1bf209",
+              "request_digest": "86f290de5ddcef29e5e15a654b8d48170dc1a6f7dfa75bc09f621e290c82b765",
+              "deployment_id": "technical-prod",
+              "rollout_id": "dff23b74-d034-4b60-9064-e79f67a11244"
+            },
+            "probe_run_id": "2abbf2f5-2a88-4c88-b4a2-cace8c609b11"
+          }
+        },
+        "actor": "operator:console",
+        "created_at": 1795684205.5399866
+      },
+      {
+        "scope": "validation",
+        "kind": "promotion",
+        "id": "promotion-0658112ea965e5e3a4daa0745f4dc3e59438835bfe3d263368ec7e62d743b9c4",
+        "version": 3,
+        "document": {
+          "deployment_id": "technical-prod",
+          "evaluation_id": "eval-5ed3bd28bd15f84bba563cf3de232bcce57f512b06858cf4fc7b46613b395f1b",
+          "deployment_version": 6,
+          "source_deployment": "technical-test",
+          "external_approval": {
+            "uri": "urn:dios:qualification:business-approval:synthetic",
+            "version": "1",
+            "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "rollback": true,
+          "actor": "operator:console",
+          "state": "published",
+          "request_digest": "6c29aebc35f723181b9697845367efecd778d7a174c3f0a4f0f00f06c7167a8c",
+          "environment_ref": {
+            "id": "qualification-prod",
+            "version": 1,
+            "digest": "ecfb9c240c67d43e7b1a37b0b092080ebe4a5734968f9b2e0319f59aa9a2b771"
+          },
+          "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+          "approved_by": "technical-release-reviewer",
+          "probe": {
+            "payload": {
+              "goal": "Run the registered technical evaluation case",
+              "sample": {
+                "id": "health",
+                "name": "合成健康检查",
+                "sha256": "0927758bb46b77901adc81a6e53b2577aafcc80a8961b2dc079e800695acb4ac"
+              }
+            },
+            "input_registration": {
+              "digest": "4bf6c001d1f84f80d6a9ad97c02d96a21490c827bee8796fb45aab1840f29614",
+              "result_schema": {
+                "properties": {
+                  "evidence": {
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "pid": {
+                    "type": "integer"
+                  },
+                  "session_id": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "summary",
+                  "evidence",
+                  "session_id",
+                  "pid"
+                ],
+                "type": "object"
+              }
+            },
+            "task_kind": "studio-release-health"
+          },
+          "reason": "独立技术核验",
+          "deployment": {
+            "deployment": {
+              "id": "technical-prod",
+              "version": 7,
+              "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+              "state": "pending",
+              "resource_scope_ref": "validation"
+            },
+            "status": {
+              "definition_id": "studio-release-fixture",
+              "active_revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+              "previous_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+              "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+              "error": null,
+              "created_at": 1795684197.5450187,
+              "updated_at": 1795684207.8840091
+            },
+            "receipt": {
+              "scope": "validation",
+              "key": "promotion-0658112ea965e5e3a4daa0745f4dc3e59438835bfe3d263368ec7e62d743b9c4",
+              "request_digest": "d367f0a9abf136216d5f1ad37f378a7506aa050edc881e683ba16d2326f3d984",
+              "deployment_id": "technical-prod",
+              "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab"
+            },
+            "probe_run_id": "83c8d763-0261-48ff-b6c9-c1dfae7af964"
+          }
+        },
+        "actor": "operator:console",
+        "created_at": 1795684207.8999817
+      }
+    ],
+    "comparison": {
+      "baseline": {
+        "state": "passed",
+        "request": {
+          "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+          "suite_ref": {
+            "id": "native-contract",
+            "version": 1,
+            "digest": "bf59b02b4f0ebf96d134c882c219ea8ac50829e3fa27ddc1afad6f9c649ee2f5"
+          },
+          "actor": "operator:console"
+        },
+        "cases": [
+          {
+            "case_id": "health",
+            "run_id": "6c48a7fa-0c7b-4371-8a67-ef61693902ce",
+            "input_digest": "b8e864ea217c6eb262ab1ad5af7a65ee23e9eb5979d6cf14e43d7a45760cd8f3"
+          }
+        ],
+        "profile_digest": "bb7ff35fc94ffeae443f3843f70c74470e677ad0fbc08d59f24c007d3cbc84cf",
+        "policy_digest": "963ee29424ec38b355db56c19df66cba94dcf3382ce029554aa1344ea6741d6d",
+        "measurements": [
+          {
+            "case_id": "health",
+            "run_id": "6c48a7fa-0c7b-4371-8a67-ef61693902ce",
+            "state": "passed",
+            "revision_ref": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "attempt_id": "5338772f-094a-466d-bc38-17adb3aa1fb0",
+            "session_id": "63da303c-5a5b-45ad-9f57-b8c1a0aa00e8",
+            "artifact": {
+              "kind": "artifact",
+              "id": "84ebb77b-691c-4434-aee5-07cac89941ce",
+              "version": 1
+            },
+            "artifact_digest": "af253fd6a97635cda59baaa75faa5620b1a5c23ffcd2e63674dba6557c47bd1e",
+            "endpoint_digest": null,
+            "elapsed_seconds": 1.8990039825439453,
+            "schema_errors": [],
+            "max_seconds": 60,
+            "reason": null
+          }
+        ],
+        "completed_at": 1795684192.5450058
+      },
+      "candidate": {
+        "state": "passed",
+        "request": {
+          "revision_ref": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+          "suite_ref": {
+            "id": "native-contract",
+            "version": 1,
+            "digest": "bf59b02b4f0ebf96d134c882c219ea8ac50829e3fa27ddc1afad6f9c649ee2f5"
+          },
+          "actor": "operator:console"
+        },
+        "cases": [
+          {
+            "case_id": "health",
+            "run_id": "9406da1e-ddae-4db0-ab1f-30c2e429d9fb",
+            "input_digest": "b8e864ea217c6eb262ab1ad5af7a65ee23e9eb5979d6cf14e43d7a45760cd8f3"
+          }
+        ],
+        "profile_digest": "bb7ff35fc94ffeae443f3843f70c74470e677ad0fbc08d59f24c007d3cbc84cf",
+        "policy_digest": "963ee29424ec38b355db56c19df66cba94dcf3382ce029554aa1344ea6741d6d",
+        "measurements": [
+          {
+            "case_id": "health",
+            "run_id": "9406da1e-ddae-4db0-ab1f-30c2e429d9fb",
+            "state": "passed",
+            "revision_ref": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+            "attempt_id": "e73b0233-1275-4880-99a8-d646ff951771",
+            "session_id": "f9ce3725-2dc9-4c88-b0ac-157f49f00400",
+            "artifact": {
+              "kind": "artifact",
+              "id": "04056672-1043-4dc8-909b-9fd426c80733",
+              "version": 1
+            },
+            "artifact_digest": "57dfd63979159daf88cc01246c26c9d3253eac50e83c8ff85d512b794140a15b",
+            "endpoint_digest": null,
+            "elapsed_seconds": 1.558028221130371,
+            "schema_errors": [],
+            "max_seconds": 60,
+            "reason": null
+          }
+        ],
+        "completed_at": 1795684194.723992
+      },
+      "same_suite_and_inputs": true,
+      "changes": [
+        {
+          "case_id": "health",
+          "before": "passed",
+          "after": "passed",
+          "elapsed_seconds_delta": -0.3409757614135742
+        }
+      ]
+    },
+    "rollback": {
+      "deployment": {
+        "id": "technical-prod",
+        "version": 9,
+        "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+        "state": "ready",
+        "resource_scope_ref": "validation"
+      },
+      "status": {
+        "definition_id": "studio-release-fixture",
+        "active_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+        "previous_revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+        "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+        "error": null,
+        "created_at": 1795684197.5450187,
+        "updated_at": 1795684209.735015
+      },
+      "rollout": {
+        "id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+        "scope": "validation",
+        "deployment_id": "technical-prod",
+        "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+        "previous_revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+        "state": "succeeded",
+        "probe_run_id": "83c8d763-0261-48ff-b6c9-c1dfae7af964",
+        "probe_key": "deployment-probe:f1365668-b32e-4b58-9651-a3eab0b97dab",
+        "actor": "operator:console",
+        "operation": "rollback",
+        "deadline": 1795684807.8840091,
+        "error": null,
+        "created_at": 1795684207.8840091,
+        "updated_at": 1795684209.735015
+      },
+      "probe": {
+        "id": "83c8d763-0261-48ff-b6c9-c1dfae7af964",
+        "state": "succeeded",
+        "attempt_id": "de67292d-e459-4b48-a1e0-070fbed0cc78",
+        "updated_at": 1795684209.7019837
+      },
+      "events": [
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 9,
+          "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+          "type": "deployment.activated",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "83c8d763-0261-48ff-b6c9-c1dfae7af964",
+            "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "previous_revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2"
+          },
+          "created_at": 1795684209.735015
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 8,
+          "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+          "type": "deployment.draining",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "83c8d763-0261-48ff-b6c9-c1dfae7af964"
+          },
+          "created_at": 1795684209.735015
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 7,
+          "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+          "type": "deployment.requested",
+          "actor": "operator:console",
+          "detail": {
+            "operation": "rollback",
+            "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "previous_revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2"
+          },
+          "created_at": 1795684207.8840091
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 6,
+          "rollout_id": "dff23b74-d034-4b60-9064-e79f67a11244",
+          "type": "deployment.activated",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "2abbf2f5-2a88-4c88-b4a2-cace8c609b11",
+            "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+            "previous_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1"
+          },
+          "created_at": 1795684207.5680182
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 5,
+          "rollout_id": "dff23b74-d034-4b60-9064-e79f67a11244",
+          "type": "deployment.draining",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "2abbf2f5-2a88-4c88-b4a2-cace8c609b11"
+          },
+          "created_at": 1795684207.5680182
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 4,
+          "rollout_id": "dff23b74-d034-4b60-9064-e79f67a11244",
+          "type": "deployment.requested",
+          "actor": "operator:console",
+          "detail": {
+            "operation": "deploy",
+            "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+            "previous_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1"
+          },
+          "created_at": 1795684205.524014
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 3,
+          "rollout_id": "dddf8991-849d-49df-9ad8-69ce856e845a",
+          "type": "deployment.activated",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "7317830f-bdc9-4278-932c-4e05efb3ad05",
+            "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "previous_revision_id": null
+          },
+          "created_at": 1795684201.1690185
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 2,
+          "rollout_id": "dddf8991-849d-49df-9ad8-69ce856e845a",
+          "type": "deployment.draining",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "7317830f-bdc9-4278-932c-4e05efb3ad05"
+          },
+          "created_at": 1795684201.1690185
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 1,
+          "rollout_id": "dddf8991-849d-49df-9ad8-69ce856e845a",
+          "type": "deployment.requested",
+          "actor": "operator:console",
+          "detail": {
+            "operation": "deploy",
+            "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "previous_revision_id": null
+          },
+          "created_at": 1795684197.5450187
+        }
+      ],
+      "observed_at": 1795684209.9519923
+    },
+    "failed_upgrade": {
+      "deployment": {
+        "id": "technical-prod",
+        "version": 11,
+        "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+        "state": "ready",
+        "resource_scope_ref": "validation"
+      },
+      "status": {
+        "definition_id": "studio-release-fixture",
+        "active_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+        "previous_revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+        "rollout_id": "ff90b309-311f-4f6b-8c3a-b0010bc969bc",
+        "error": "APPROVER_FORBIDDEN",
+        "created_at": 1795684197.5450187,
+        "updated_at": 1795684213.8060048
+      },
+      "rollout": {
+        "id": "ff90b309-311f-4f6b-8c3a-b0010bc969bc",
+        "scope": "validation",
+        "deployment_id": "technical-prod",
+        "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+        "previous_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+        "state": "failed",
+        "probe_run_id": "fe5da592-c351-43ec-b37c-1ebc1de658c1",
+        "probe_key": "deployment-probe:ff90b309-311f-4f6b-8c3a-b0010bc969bc",
+        "actor": "operator:console",
+        "operation": "deploy",
+        "deadline": 1795684810.074985,
+        "error": "APPROVER_FORBIDDEN",
+        "created_at": 1795684210.074985,
+        "updated_at": 1795684213.8060048
+      },
+      "probe": {
+        "id": "fe5da592-c351-43ec-b37c-1ebc1de658c1",
+        "state": "succeeded",
+        "attempt_id": "87c8b3df-c891-459b-8efc-d085b542fabd",
+        "updated_at": 1795684211.9920135
+      },
+      "events": [
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 11,
+          "rollout_id": "ff90b309-311f-4f6b-8c3a-b0010bc969bc",
+          "type": "deployment.rejected",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "fe5da592-c351-43ec-b37c-1ebc1de658c1",
+            "error": "APPROVER_FORBIDDEN",
+            "retained_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1"
+          },
+          "created_at": 1795684213.8060048
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 10,
+          "rollout_id": "ff90b309-311f-4f6b-8c3a-b0010bc969bc",
+          "type": "deployment.requested",
+          "actor": "operator:console",
+          "detail": {
+            "operation": "deploy",
+            "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+            "previous_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1"
+          },
+          "created_at": 1795684210.074985
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 9,
+          "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+          "type": "deployment.activated",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "83c8d763-0261-48ff-b6c9-c1dfae7af964",
+            "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "previous_revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2"
+          },
+          "created_at": 1795684209.735015
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 8,
+          "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+          "type": "deployment.draining",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "83c8d763-0261-48ff-b6c9-c1dfae7af964"
+          },
+          "created_at": 1795684209.735015
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 7,
+          "rollout_id": "f1365668-b32e-4b58-9651-a3eab0b97dab",
+          "type": "deployment.requested",
+          "actor": "operator:console",
+          "detail": {
+            "operation": "rollback",
+            "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "previous_revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2"
+          },
+          "created_at": 1795684207.8840091
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 6,
+          "rollout_id": "dff23b74-d034-4b60-9064-e79f67a11244",
+          "type": "deployment.activated",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "2abbf2f5-2a88-4c88-b4a2-cace8c609b11",
+            "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+            "previous_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1"
+          },
+          "created_at": 1795684207.5680182
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 5,
+          "rollout_id": "dff23b74-d034-4b60-9064-e79f67a11244",
+          "type": "deployment.draining",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "2abbf2f5-2a88-4c88-b4a2-cace8c609b11"
+          },
+          "created_at": 1795684207.5680182
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 4,
+          "rollout_id": "dff23b74-d034-4b60-9064-e79f67a11244",
+          "type": "deployment.requested",
+          "actor": "operator:console",
+          "detail": {
+            "operation": "deploy",
+            "revision_id": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+            "previous_revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1"
+          },
+          "created_at": 1795684205.524014
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 3,
+          "rollout_id": "dddf8991-849d-49df-9ad8-69ce856e845a",
+          "type": "deployment.activated",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "7317830f-bdc9-4278-932c-4e05efb3ad05",
+            "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "previous_revision_id": null
+          },
+          "created_at": 1795684201.1690185
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 2,
+          "rollout_id": "dddf8991-849d-49df-9ad8-69ce856e845a",
+          "type": "deployment.draining",
+          "actor": "deployment-controller",
+          "detail": {
+            "probe_run_id": "7317830f-bdc9-4278-932c-4e05efb3ad05"
+          },
+          "created_at": 1795684201.1690185
+        },
+        {
+          "scope": "validation",
+          "deployment_id": "technical-prod",
+          "version": 1,
+          "rollout_id": "dddf8991-849d-49df-9ad8-69ce856e845a",
+          "type": "deployment.requested",
+          "actor": "operator:console",
+          "detail": {
+            "operation": "deploy",
+            "revision_id": "rev-4982c9477fc78eb1ac6fee844dbb83b1bcb03faf61967e57cc65914325e45ce1",
+            "previous_revision_id": null
+          },
+          "created_at": 1795684197.5450187
+        }
+      ],
+      "observed_at": 1795684213.8459966
+    },
+    "pending_browser": {
+      "scope": "validation",
+      "kind": "promotion",
+      "id": "promotion-bfd6ec9141c346d3b000a74c051d90994c094fa59141d1436794b21b7b052552",
+      "version": 1,
+      "document": {
+        "deployment_id": "technical-prod",
+        "evaluation_id": "eval-417fd556f9eb9fd53469b3919cd55cc90de5c5e0606c938ae5971b47b0f17130",
+        "deployment_version": 11,
+        "source_deployment": "technical-test",
+        "external_approval": {
+          "uri": "urn:dios:qualification:business-approval:synthetic",
+          "version": "1",
+          "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "rollback": false,
+        "actor": "operator:console",
+        "state": "pending",
+        "request_digest": "537659a1385430e613a828f551d5c0b8df6246c59f919ae465ae1b0b25354373",
+        "environment_ref": {
+          "id": "qualification-prod",
+          "version": 1,
+          "digest": "ecfb9c240c67d43e7b1a37b0b092080ebe4a5734968f9b2e0319f59aa9a2b771"
+        },
+        "revision_ref": "rev-36cda274aafbbb3ead0892ccdd8b476bfd720d027d4dff8ff62d52a83a037de2",
+        "approved_by": null,
+        "probe": {
+          "payload": {
+            "goal": "Run the registered technical evaluation case",
+            "sample": {
+              "id": "health",
+              "name": "合成健康检查",
+              "sha256": "0927758bb46b77901adc81a6e53b2577aafcc80a8961b2dc079e800695acb4ac"
+            }
+          },
+          "input_registration": {
+            "digest": "4bf6c001d1f84f80d6a9ad97c02d96a21490c827bee8796fb45aab1840f29614",
+            "result_schema": {
+              "properties": {
+                "evidence": {
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "pid": {
+                  "type": "integer"
+                },
+                "session_id": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "summary",
+                "evidence",
+                "session_id",
+                "pid"
+              ],
+              "type": "object"
+            }
+          },
+          "task_kind": "studio-release-health"
+        }
+      },
+      "actor": "operator:console",
+      "created_at": 1795684213.8789878
+    }
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "chinese_locale_route",
+      "bad_approver_rejected",
+      "independent_ui_approval",
+      "publication_waits_worker",
+      "native_worker_activation_visible",
+      "same_condition_comparison_visible",
+      "stale_observation_preserves_evidence_and_recovers",
+      "english_dark_retains_record",
+      "mobile_no_horizontal_overflow",
+      "reload_recovers_published_record",
+      "cli_ui_api_same_revision"
+    ],
+    "page_errors": [],
+    "promotion_id": "promotion-bfd6ec9141c346d3b000a74c051d90994c094fa59141d1436794b21b7b052552",
+    "worker": {
+      "run_id": "a82cfe6f-e2b1-4975-83bc-e6f0bcbd68b9",
+      "attempt_id": "796638f9-1c3c-4eee-9950-7cb3362c2258",
+      "state": "succeeded"
+    }
+  },
+  "history": {
+    "runs": {
+      "before": 89,
+      "after": 98,
+      "all_original_ids_preserved": true
+    },
+    "attempts": {
+      "before": 93,
+      "after": 102,
+      "all_original_ids_preserved": true
+    },
+    "artifacts": {
+      "before": 246,
+      "after": 264,
+      "all_original_ids_preserved": true
+    }
+  },
+  "existing_approver_rights_preserved": true,
+  "deployment": {
+    "api_pid": 783342,
+    "backend_image": "sha256:b7cbed8180479155ea3ab0310295ca31e24c0f7c412272645c5372e33dae0af6",
+    "health": 200,
+    "existing_workers_restarted": false
+  },
+  "source_sha256": {
+    "backend/app/api/os/runtime_tasks.py": "fd53b0444edfea6e4a6941c3f9d374df51b6aa45911b6f1a83eefcdddd29da2e",
+    "backend/app/runtime/cli.py": "cfe34f975817175b1f9fe077fb0ee546300f8f041639de86a8799f5fcac09051",
+    "backend/app/runtime/database.py": "383f6ae64c99da0d7d05d135a57c9a44bf36e183997e895e2fcef1731c6c455e",
+    "backend/app/runtime/deployments.py": "67218fe4b9e7868814e694c732d5bf77f62c32842425fa9e5a3b62b4d24c5345",
+    "backend/app/services/deployment_worker.py": "60d748d3171fd8e7afcfecf82dbe42a340d5970677f3294a5babadc681873e23",
+    "backend/app/services/studio_release.py": "640c9e2e78bb6ab02c32f0104f134a574e5f326bffb1ae6a1264b879777cb0f6",
+    "backend/main.py": "ff8c63bcb739540bf478fd473fceb05d62ecbb6c6bd4ef7a6ea7c68614f4e2fd",
+    "frontend/src/api/runtime.ts": "5b0ccbf8c2cf457b27bbd0b1a124b44dfadbec48a11441ded4459bec04cfd544",
+    "frontend/src/apps/console/ConsolePage.tsx": "f2d59fee75895eb8de171dd894bee8def93beab80d05e92f00262b39ddd4516e",
+    "frontend/src/apps/console/components/configuration-studio.css": "52cd78669999607c21d2e7fd154d884e78016ffff8db38a934d24c11b6dc7aaf",
+    "frontend/src/lib/messages.ts": "97d57486b95992e1d4d10ec888e6c66d8759fe3f523f36160bedc59db9b9f9a4",
+    "backend/app/api/os/technical_releases.py": "b48ec521b6e1c627ae795358da9e3871cebbeb782eaecaa28c39342d7c1298f7",
+    "backend/app/runtime/environment_promotions.py": "f8cd2556f845fa19aeb33a493562d537cf6d302fbab1b3c83c0a05dc1863bac5",
+    "backend/app/runtime/technical_evaluations.py": "95af11d459d7b6eccacd66aa82893e83eaff2c31e4d0fed030f89cfe42d8d30a",
+    "backend/app/runtime/technical_records.py": "60d01c06211f3d186d9009f0ad223acf49171d10ff5d318eac041f5f2ca09e6d",
+    "backend/app/runtime/technical_release_schema.py": "db93e8dd59d54b2990b63e058b1d1dcfc0593ab92c063217099b67b89f177c60",
+    "backend/tests/test_technical_releases.py": "f08aaaab7a0e4af1133d6cd0f94a96ef54c24baddcd4112cf938ce9892c96f6e",
+    "frontend/src/apps/console/components/TechnicalReleases.tsx": "55220b7f4a768b56c388952c87b429a1ac2785c7408eefecf05192107c7c6745",
+    "scripts/technical_release.py": "f0697b35c64fa9996f4c1bd4ac50b93251e429e57c0b5101daa53ef38ca4befb"
+  },
+  "log_sha256": {
+    "tests.log": "169e4ffa0b3012b1d195ea46a2defaef770fc858566f00c40c29b18f3e8667ea",
+    "postgres-tests.log": "f5ac58402f18d52585caf0862293c86c732d6fc7e07344e3fd2e8b0acdb2ab90",
+    "technical-light.png": "33923f407e6dfd9d04c34a6f6adc5f9f5e0002d9c658a55b25dbf205424a3220",
+    "technical-dark-en.png": "c1dd86e8446e346013a3838eab155785ad4062fd19ad0da488d154c0e469b06d",
+    "technical-mobile.png": "e458e1a0126c708c22dc46fcd8b5b87c1554bcd35b9d31b9c3d748f17a192f65"
+  },
+  "qualification_conditions": {
+    "harness": "Pinned synthetic JSONL container through native Docker Worker; no new model run required for generic release gates. Existing Cursor/E2AG qualification remains separate.",
+    "environments": "Logical test and production scopes within the WSL development control plane. Physical HA and cross-host qualification remain W4.",
+    "result_validation": "Schema, fixed inputs, original result bytes/digest and elapsed threshold; business scoring belongs to upper applications.",
+    "acceptance": "Engineering qualification complete; user product acceptance and assigned independent release review remain separate."
+  }
+}

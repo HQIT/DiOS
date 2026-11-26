@@ -14,7 +14,7 @@ from app.services.connector_poller import connector_poller
 from app.services.event_retry_worker import retry_worker
 from app.services.managed_recovery import controller as managed_recovery
 from app.middleware.access_token import AccessTokenMiddleware
-from app.api.os import upgrade, runtime_adoption, runtime_schedules, run_schedules, runtime_a2a, configuration_studio
+from app.api.os import upgrade, runtime_adoption, runtime_schedules, run_schedules, runtime_a2a, configuration_studio, technical_releases
 from app.config import settings
 
 
@@ -70,6 +70,7 @@ os_router.include_router(runtime_adoption.router)
 os_router.include_router(runtime_schedules.router)
 os_router.include_router(run_schedules.router)
 os_router.include_router(configuration_studio.router)
+os_router.include_router(technical_releases.router)
 app.include_router(os_router)
 app.include_router(e2ag_mcp.router, prefix="/api")
 

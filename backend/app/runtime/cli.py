@@ -168,7 +168,9 @@ async def execute(args):
         if args.command == 'deployment':
             from .deployments import Deployments
             from .work_policy import FileWorkPolicy
-            manager=Deployments(db,args.scope,FileWorkPolicy(args.policy_file) if args.policy_file else None)
+            from .tool_catalog import FileApprovers
+            approvers=FileApprovers(os.environ['DIOS_RUNTIME_APPROVERS_FILE']) if os.environ.get('DIOS_RUNTIME_APPROVERS_FILE') else None
+            manager=Deployments(db,args.scope,FileWorkPolicy(args.policy_file) if args.policy_file else None,approvers)
             if args.deployment_command=='list':return {'items':await manager.list(after=args.after,limit=args.limit)}
             if args.deployment_command=='show':return await manager.show(args.id)
             if args.deployment_command=='reconcile':return await manager.reconcile(args.id)

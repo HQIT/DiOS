@@ -2,6 +2,20 @@ import { apiPrefix } from "../lib/apiBase";
 import { authHeaders, sessionExpired } from "../lib/auth";
 
 const BASE = `${apiPrefix()}/os/runtime`;
+export interface TechnicalRef {id: string; version: number; digest: string;}
+export interface TechnicalRecord {id: string; kind: string; version: number; document: Record<string, unknown>; actor: string; created_at: number; ref?: TechnicalRef;}
+export const technicalApi = {
+  list: (kind: string, after = "", signal?: AbortSignal) => request<{items: TechnicalRecord[]; next_after: string | null}>(`/technical/records/${encodeURIComponent(kind)}?after=${encodeURIComponent(after)}`, {signal}),
+  detail: (kind: string, id: string) => request<TechnicalRecord>(`/technical/records/${encodeURIComponent(kind)}/${encodeURIComponent(id)}`),
+  put: (kind: "suites" | "environments", id: string, document: Record<string, unknown>, expected_version: number) => request<TechnicalRecord>(`/technical/${kind}/${encodeURIComponent(id)}`, {method: "PUT", body: JSON.stringify({document, expected_version})}),
+  bind: (id: string, environment_id: string, definition_id: string) => request<TechnicalRecord>(`/technical/bindings/${encodeURIComponent(id)}`, {method: "PUT", body: JSON.stringify({environment_id, definition_id})}),
+  evaluate: (revision_ref: string, suite_ref: TechnicalRef, idempotency_key: string) => request<TechnicalRecord>("/technical/evaluations", {method: "POST", body: JSON.stringify({revision_ref, suite_ref, idempotency_key})}),
+  reconcile: (id: string) => request<TechnicalRecord>(`/technical/evaluations/${encodeURIComponent(id)}/reconcile`, {method: "POST"}),
+  compare: (baseline: string, candidate: string) => request<Record<string, unknown>>(`/technical/comparison?${new URLSearchParams({baseline, candidate})}`),
+  promote: (body: Record<string, unknown>) => request<TechnicalRecord>("/technical/promotions", {method: "POST", body: JSON.stringify(body)}),
+  decide: (row: TechnicalRecord, decision: "approved" | "denied", token: string, reason: string) => request<TechnicalRecord>(`/technical/promotions/${encodeURIComponent(row.id)}/approval`, {method: "POST", headers: {"X-DiOS-Approver-Token": token}, body: JSON.stringify({expected_version: row.version, decision, reason})}),
+  publish: (row: TechnicalRecord) => request<TechnicalRecord>(`/technical/promotions/${encodeURIComponent(row.id)}/publish`, {method: "POST", body: JSON.stringify({expected_version: row.version})}),
+};
 export class RuntimeApiError extends Error {
   code: string;
   status: number;

@@ -9,8 +9,9 @@ import RegistryPage from "./components/RegistryPage";
 import TopologyPage from "./components/TopologyPage";
 import TaskRunsPage from "./components/TaskRunsPage";
 import ConfigurationStudio from "./components/ConfigurationStudio";
+import TechnicalReleases from "./components/TechnicalReleases";
 
-type ConsoleTab = "tasks" | "agents" | "models" | "events" | "connectors" | "registry" | "topology" | "studio";
+type ConsoleTab = "tasks" | "agents" | "models" | "events" | "connectors" | "registry" | "topology" | "studio" | "releases";
 const TABS: { key: ConsoleTab; label: string }[] = [
   { key: "tasks", label: "任务与成果" },
   { key: "agents", label: "Agents" },
@@ -19,6 +20,7 @@ const TABS: { key: ConsoleTab; label: string }[] = [
   { key: "connectors", label: "Connectors" },
   { key: "registry", label: "Registry" },
   { key: "studio", label: "Studio" },
+  { key: "releases", label: "评测与晋级" },
   { key: "topology", label: "Topology" },
 ];
 
@@ -71,6 +73,7 @@ function Content({ sub }: { sub: string }) {
       {tab === "connectors" && <ConnectorsPage />}
       {tab === "registry" && <RegistryPage sub={rest} />}
       {tab === "studio" && <ConfigurationStudio />}
+      {tab === "releases" && <TechnicalReleases />}
       {tab === "topology" && <TopologyPage />}
     </div>
   );

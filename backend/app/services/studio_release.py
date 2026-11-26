@@ -299,7 +299,9 @@ class StudioReleases:
                 revision = await Revisions(bound, self.scope).create(
                     release_id, snapshot["manifest"], actor=actor
                 )
-                deployment = await Deployments(bound, self.scope, self.policy).request(
+                deployment = await Deployments(
+                    bound, self.scope, self.policy, self.approvers
+                ).request(
                     snapshot["deployment_id"],
                     revision["revision"]["id"],
                     release_id,

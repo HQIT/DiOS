@@ -1,5 +1,6 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "评测与晋级": "Evaluation & promotion",
   "执行与来源证据": "Execution and source evidence",
   "按任务关联版本、执行、工具和成果来源。仅展示已记录关系，Agent 内部活动覆盖未知。": "Follow versions, execution, tools and artifact sources for this task. Only recorded relations are shown; coverage of internal agent activity is unknown.",
   "执行与会话": "Execution and sessions",
