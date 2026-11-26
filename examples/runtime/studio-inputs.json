@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "requires_e2ag": true,
+  "dynamic_inputs": true,
+  "inputs": [],
+  "schema": {
+    "type": "object", "additionalProperties": false,
+    "required": ["id", "name", "sha256", "configuration", "base_digest", "instruction"],
+    "properties": {
+      "id": {"type": "string"}, "name": {"type": "string"}, "sha256": {"type": "string"},
+      "configuration": {"type": "object"},
+      "base_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+      "instruction": {"type": "string", "minLength": 1, "maxLength": 4000}
+    }
+  },
+  "result_schema": {
+    "type": "object", "required": ["summary", "evidence", "configuration_proposal", "review_status"],
+    "properties": {
+      "summary": {"type": "string", "minLength": 1},
+      "evidence": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+      "review_status": {"const": "pending_review"},
+      "configuration_proposal": {
+        "type": "object", "additionalProperties": false, "required": ["base_digest", "configuration"],
+        "properties": {"base_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "configuration": {"type": "object"}}
+      }
+    }
+  }
+}

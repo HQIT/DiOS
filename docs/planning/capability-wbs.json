@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "S03-1.01",
-    "next_delivery": "S03-1.01",
+    "next_work_item": "S03-1.02",
+    "next_delivery": "S03-1.02",
     "next_delivery_order": [
-      "S03-1.01",
       "S03-1.02",
       "S03-1.03",
       "K04-2.02",
@@ -35,7 +34,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "F03-2.02 已交付完整场景映射、25 项组件测试和两项完整场景证据；其余原生故障、物理节点、应用与迁移断言继续按原责任项保留。接续无前置阻断的 S03-1.01 配置编辑和可审阅 diff，再推进受控验证发布。"
+    "next_selection_reason": "S03-1.01 已完成并部署：编辑、校验、diff、真实 Cursor 建议和草案导出。接续 S03-1.02 的隔离验证、审核与 Revision 发布链，使用现有 E2AG 和版本门禁。"
   },
   "waves": [
     {
@@ -3329,7 +3328,7 @@
       "issue": 41,
       "title": "配置编辑与可审阅 diff",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "S03-1-A01"
       ],
@@ -3338,8 +3337,11 @@
       "verification": "人工可核验改动；Schema 错误定位明确，不引入岗位/客户流程表",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有配置入口；自然语言建议、可审阅 diff 与受控发布尚未形成完整闭环。",
+      "completion_evidence": [
+        "docs/design/configuration-studio-41.md",
+        "docs/design/evidence/configuration-studio-20261126.json"
+      ],
+      "basis": "6 项 API/CLI 校验与 E2AG 测试、19 项浏览器检查及真实 Cursor 建议任务通过；手工审阅后应用草案，JSON 导出导入一致。发布接线由 S03-1.02 承接。",
       "existing_evidence": [
         "docs/design/evidence/capability-boundary-20261124.json"
       ],

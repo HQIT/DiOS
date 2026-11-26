@@ -113,6 +113,14 @@ export interface RevisionCompatibility {
 export const revisionApi = {
   compatibility: (ref: string, signal?: AbortSignal) => request<RevisionCompatibility>(`/revisions/${encodeURIComponent(ref)}/compatibility`, {signal}),
 };
+export interface ConfigProblem {code: string; path: string; keyword?: string; expected?: unknown; line?: number; column?: number;}
+export interface ConfigReview {valid: boolean; errors: ConfigProblem[]; base_errors: ConfigProblem[]; base_digest: string | null; draft_digest: string | null; patch: unknown[]; changes: Array<{op: string; path: string; from?: string; before?: unknown; after?: unknown}>;}
+export const studioApi = {
+  source: (id: string) => request<{text: string; digest: string; revision_ref: string | null}>(`/studio/profiles/${encodeURIComponent(id)}`),
+  compare: (base: string, draft: string) => request<ConfigReview>("/studio/compare", {method: "POST", body: JSON.stringify({base, draft})}),
+  suggest: (profile_id: string, text: string, instruction: string, idempotency_key: string) => request<RunDetail>("/studio/suggestions", {method: "POST", body: JSON.stringify({profile_id, text, instruction, idempotency_key})}),
+  proposal: (id: string, text: string) => request<{text: string | null; review: ConfigReview}>(`/studio/suggestions/${encodeURIComponent(id)}/review`, {method: "POST", body: JSON.stringify({text})}),
+};
 export type CapacitySelector = {kind: "scope"} | {kind: "subject"; subject: string} | {kind: "profiles"; profiles: string[]};
 export interface CapacityLimit {
   id: string; selector: CapacitySelector; max_concurrent: number; enabled: boolean; revision: number;
