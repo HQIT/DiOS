@@ -1,0 +1,108 @@
+{
+  "work_item": "K03-3.01",
+  "status": "in_progress",
+  "delivered": "Monotonic observed source-time bound and delegated revocation provenance",
+  "contracts": {
+    "exit_code": 0,
+    "passed": 10,
+    "skipped": 0,
+    "initial": {
+      "passed": 9,
+      "fixture_errors": 1
+    },
+    "corrected_fixture": "separate Worker for fresh session; targeted rerun passed",
+    "native_opa": "issuer logout dependency and API provenance passed"
+  },
+  "ui": {
+    "passed": true,
+    "url": "http://127.0.0.1:13082/dios/#console/tasks/c1d03cff-e5cb-4bdb-af8d-55988805f2d9",
+    "title": "DiOS",
+    "browser": "Playwright; Browser plugin not available",
+    "data": "Presentation fixture intercept over live development UI; backend behavior tested separately",
+    "checks": [
+      "Chinese source times and delegated provenance",
+      "revoked authority remains distinct from stop acknowledgement",
+      "English labels and event count",
+      "390px no horizontal overflow",
+      "no framework overlay or page errors",
+      "expand direct and delegated evidence"
+    ],
+    "errors": []
+  },
+  "deployment": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "knowledge_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": false
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "image": {
+    "image": "sha256:edba54a334b54017faf6b1c1ed0fc437e078fc0d43e87cba95c1eb67ce77365f",
+    "base": "sha256:cb0a71adf44006c36baa6c7be2f106843f873369f176fd86879a55e700d4407f",
+    "network": "none",
+    "user": "65534:65534",
+    "summary": "OK: Worker and gateway import"
+  },
+  "remaining": [
+    "File identity source changes and durable issuer invalidation across subsequent delegation use.",
+    "Source-change/dispatch race and execution-stop acknowledgement propagation qualification."
+  ],
+  "limits": [
+    "Observed source timestamp is not a complete-stream watermark or an upper bound on network delay.",
+    "UI checks use presentation fixtures over the development UI; native OPA/database behavior is covered separately.",
+    "OIDC source delivery before Runtime receipt is outside the Runtime transaction."
+  ],
+  "references": [
+    "https://openid.net/specs/openid-connect-backchannel-1_0.html",
+    "https://www.rfc-editor.org/rfc/rfc8935.html"
+  ],
+  "guide": "docs/design/revocation-propagation-35.md"
+}

@@ -1,5 +1,12 @@
 // UI messages only. Business content and source artifacts retain their original language.
 export const messages: Record<string, string> = {
+  "身份来源撤销记录": "Identity source revocation",
+  "已观测来源事件时间：": "Latest observed source event: ",
+  "首次记录：": "First recorded: ",
+  "最近接收：": "Last received: ",
+  "已记录 {0} 个事件": "{0} recorded events",
+  "时间范围仅包含已收到的事件；执行停止状态见任务记录。": "Times cover received events. See the task record for execution stop status.",
+  "委派撤销记录：": "Delegation revocation recorded: ",
   "版本部署": "Version deployments",
   "执行版本": "Execution revision",
   "任务固定版本": "Pinned task revision",

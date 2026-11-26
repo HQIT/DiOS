@@ -294,6 +294,23 @@ class DelegationIdentityTests(fixtures.DelegationLifecycleTests):
         self.assertTrue((await receive(self.store, event, "a" * 64))["duplicate"])
         self.assertEqual((await view(self.store, run["id"]))["state"], "revoked")
         self.assertEqual((await view(self.store, self.run["id"]))["state"], "active")
+        described = await view(self.store, run["id"])
+        leaf = described["delegation"]["chain"][-1]
+        self.assertEqual(leaf["source_event"]["id"], result["event_id"])
+        self.assertEqual(leaf["source_event"]["event_count"], 1)
+        self.assertEqual(leaf["revocation"]["details"]["logout_event_id"], result["event_id"])
+        self.assertEqual(leaf["revocation"]["operation"], "identity_revoked")
+        # An older delivery adds provenance without another authority transition.
+        older = dict(event, event_id="issuer-delayed", issued_at=event["issued_at"] - 1)
+        await receive(self.store, older, "b" * 64)
+        after = (await view(self.store, run["id"]))["delegation"]["chain"][-1]
+        self.assertEqual(after["source_event"]["id"], result["event_id"])
+        self.assertEqual(after["source_event"]["event_count"], 2)
+        self.assertEqual(after["revocation"], leaf["revocation"])
+        response = await self.http.get("/api/os/runtime/delegations/" + child["id"], headers=self.headers())
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertFalse(response.json()["effective"])
+        self.assertEqual(response.json()["chain"][-1]["source_event"], after["source_event"])
         async with self.db.read(self.scope) as c:
             row = (
                 (await c.execute(select(links).where(links.c.id == child["id"])))

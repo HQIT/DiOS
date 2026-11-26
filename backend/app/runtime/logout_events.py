@@ -1,6 +1,6 @@
 """Verified events fence present and future Work within the existing scope transaction."""
 
-from sqlalchemy import select, and_, or_, update, union
+from sqlalchemy import select, and_, or_, update, union, func
 from .database import RuntimeErrorCode
 from .store import digest
 from .schema import runs
@@ -31,6 +31,9 @@ async def observation(c, scope, binding):
                     events.c.issued_at,
                     events.c.received_at,
                     events.c.revoked_work_count,
+                    func.min(events.c.received_at).over().label("first_received_at"),
+                    func.max(events.c.received_at).over().label("last_received_at"),
+                    func.count().over().label("event_count"),
                 )
                 .where(
                     events.c.scope == scope,
@@ -38,7 +41,9 @@ async def observation(c, scope, binding):
                     events.c.client_id == source.get("client_id"),
                     or_(session, subject),
                 )
-                .order_by(events.c.received_at.desc(), events.c.id)
+                # Receipt order is not source order. A delayed older event must
+                # not move the observed source-time watermark backwards.
+                .order_by(events.c.issued_at.desc(), events.c.received_at, events.c.id)
                 .limit(1)
             )
         )

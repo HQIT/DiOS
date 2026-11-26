@@ -29,9 +29,9 @@ export interface Attempt {
 }
 export interface Artifact { id: string; attempt_id: string; kind: string; size: number; digest: string; created_at: number; object_ref?: ObjectReference; }
 export interface WorkAuthorization {
-  delegation?: { reference: string; captured_at: number; chain: { id: string; parent_ref: string | null; subject: string; actor: string; depth: number; state: string; expires_at: number; authorization_epoch: number; captured_epoch: number; source_check?: WorkAuthorization["source_check"] }[] } | null;
+  delegation?: { reference: string; captured_at: number; chain: { id: string; parent_ref: string | null; subject: string; actor: string; depth: number; state: string; expires_at: number; authorization_epoch: number; captured_epoch: number; source_check?: WorkAuthorization["source_check"]; source_event?: WorkAuthorization["source_event"]; revocation?: { id: string; operation: string; created_at: number; details: Record<string, unknown> } | null }[] } | null;
   source_check?: { outcome: "pending" | "valid" | "unavailable" | "revoked"; reason: string | null; checked_at: number | null; last_success_at: number | null; next_check_at: number; failures: number; checking: boolean; stale: boolean } | null;
-  source_event?: { id: string; issued_at: number; received_at: number; revoked_work_count: number } | null;
+  source_event?: { id: string; issued_at: number; received_at: number; revoked_work_count: number; first_received_at?: number; last_received_at?: number; event_count?: number } | null;
   mode: string; reference?: string; subject?: string; actor?: string; policy_id?: string;
   state?: string; expires_at?: number; authorization_epoch?: number;
   secret_refs?: { ref: string; version: string }[];

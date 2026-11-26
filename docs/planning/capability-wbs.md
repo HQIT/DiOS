@@ -354,7 +354,9 @@ Cursor 正常审批、过期与原生工具拒绝三个真实场景通过；11 �
 
 已有依据：[delegation-policy-20261124](../design/evidence/delegation-policy-20261124.json)、[child-task-channel-20261125](../design/evidence/child-task-channel-20261125.json)、[mixed-harness-children-20261125](../design/evidence/mixed-harness-children-20261125.json)。
 
-**K03-3.01 跨来源撤销顺序与传播补齐** · 实现/集成 · W2 · Codex 工程
+**K03-3.01 跨来源撤销顺序与传播补齐** · 实现/集成 · W2 · Codex 工程 · 进行中
+
+[已部署来源事件与委派追溯](../design/revocation-propagation-35.md)：乱序事件保持已观测来源时间单调，API/CLI/Console 可追溯委派来源及撤销记录。10 项专项通过；剩余文件身份源变更与持久撤销衔接、派发竞争及执行退出确认资格。
 
 - 交付：身份源/委派链事件收敛及可追踪撤销水位。
 - 完成验证：重复乱序事件不复活权限；撤销提交后的新动作拒绝，在途动作和取消待确认可解释。

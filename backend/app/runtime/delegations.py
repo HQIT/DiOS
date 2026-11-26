@@ -373,10 +373,12 @@ class Delegations:
                 .all()
             )
             from .delegation_reconciliation import observation
+            from .delegation_identity import revocation_evidence
+            revocations = await revocation_evidence(c, self.store.scope, chain)
 
             return {
                 "source_check": await observation(c, self.store.scope, ref, now),
-                "chain": [self.public(x) for x in chain],
+                "chain": [self.public(x) | revocations[x["id"]] for x in chain],
                 "effective": all(
                     x["state"] == "active" and x["expires_at"] > now for x in chain
                 ),
@@ -505,8 +507,10 @@ async def describe_work(c, run):
     chain = await lineage(c, run["scope"], saved["leaf_ref"])
     from .delegation_reconciliation import observation
     from .database import Database
+    from .delegation_identity import revocation_evidence
 
     now = await Database.now(c)
+    revocations = await revocation_evidence(c, run["scope"], chain)
     return {
         "reference": saved["leaf_ref"],
         "captured_at": saved["created_at"],
@@ -522,6 +526,7 @@ async def describe_work(c, run):
                 authorization_epoch=x["authorization_epoch"],
                 captured_epoch=saved["binding"]["epochs"][x["id"]],
                 source_check=await observation(c, run["scope"], x["id"], now),
+                **revocations[x["id"]],
             )
             for x in chain
         ],

@@ -98,6 +98,55 @@ class LogoutTests(fixtures.SourceFixture, unittest.IsolatedAsyncioTestCase):
             await receive(self.console.store, changed, "b" * 64)
         self.assertEqual(await self.count(), 1)
 
+    async def test_out_of_order_events_keep_monotonic_source_watermark(self):
+        run = await self.submit_as("a")
+        newer = self.event()
+        newer["issued_at"] -= 2
+        first = await receive(self.console.store, newer, "a" * 64)
+        before = (await view(self.console.store, run["id"]))["source_event"]
+        older = dict(newer, event_id="delayed-older", issued_at=newer["issued_at"] - 10)
+        delayed = await receive(self.console.store, older, "b" * 64)
+        await receive(self.console.store, older, "b" * 64)
+        after = (await view(self.console.store, run["id"]))["source_event"]
+        self.assertEqual(after["id"], first["event_id"])
+        self.assertNotEqual(after["id"], delayed["event_id"])
+        self.assertEqual(after["issued_at"], newer["issued_at"])
+        self.assertEqual(after["event_count"], 2)
+        self.assertEqual(after["first_received_at"], before["received_at"])
+        self.assertGreaterEqual(after["last_received_at"], before["received_at"])
+        self.assertEqual((await view(self.console.store, run["id"]))["state"], "revoked")
+        # A watermark is scoped to matching source/session tombstones.
+        other = dict(newer, event_id="other-issuer", issuer="https://other.example", issued_at=newer["issued_at"] + 1)
+        await receive(self.console.store, other, "c" * 64)
+        self.assertEqual((await view(self.console.store, run["id"]))["source_event"], after)
+
+    async def test_older_subject_event_does_not_regress_new_session_authority(self):
+        old = await self.submit_as("a")
+        await self.context(old)
+        cutoff = int(time.time()) - 20
+        self.directory["oauth_sources"]["peer"]["session_started_at"] = cutoff + 10
+        self.claims[self.tokens["peer"]]["auth_time"] = cutoff + 10
+        self.save()
+        fresh = await self.submit_as("peer", "fresh-session")
+        newer = self.event()
+        newer.update(session_id="", issued_at=cutoff)
+        await receive(self.console.store, newer, "a" * 64)
+        older = dict(newer, event_id="older-subject", issued_at=cutoff - 5)
+        await receive(self.console.store, older, "b" * 64)
+        self.assertEqual((await view(self.console.store, old["id"]))["state"], "revoked")
+        after = await view(self.console.store, fresh["id"])
+        self.assertEqual(after["state"], "active")
+        self.assertIsNone(after["source_event"])
+        from app.runtime.authorization import WorkAuthorizationContext
+        store = self.console.store
+        await store.register_worker("fresh-worker", "fresh-boot", "host", 124)
+        attempt = await store.claim("fresh-worker", "fresh-boot")
+        self.assertEqual(attempt["run_id"], fresh["id"])
+        context = WorkAuthorizationContext("one", fresh["id"], attempt["id"],
+            "fresh-worker", "fresh-boot", attempt["epoch"], attempt["authorization_epoch"],
+            None, after["reference"])
+        await self.verifier(context, "execute")
+
     async def test_concurrent_admission_cannot_escape_committed_logout(self):
         async def submit():
             return await self.client.post(

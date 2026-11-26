@@ -15,6 +15,7 @@ import RunDiagnostics from "./RunDiagnostics";
 import RuntimeOverviewPanel from "./RuntimeOverviewPanel";
 import ToolActions from "./ToolActions";
 import DelegationEvidence from "./DelegationEvidence";
+import SourceRevocation from "./SourceRevocation";
 import RunSchedulesPanel from "./RunSchedulesPanel";
 
 const LABELS: Record<string, string> = {
@@ -335,11 +336,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
               <div><span>{translateUI("策略")}</span><strong>{translateUI(detail.authorization.policy_id)}</strong></div><div><span>{translateUI("工作期限")}</span><strong>{translateUI(time(detail.authorization.expires_at))}</strong></div></div>
             {detail.authorization.grant && <p className="tr-muted">{translateUI("执行授权版本")}{translateUI(detail.authorization.grant.version)}{translateUI("· 到期")}{translateUI(time(detail.authorization.grant.expires_at))} · {translateUI(detail.authorization.grant.session_id ? "已绑定会话" : "等待会话绑定")}</p>}
             {detail.authorization.state === "revoked" && !terminal(detail.state) && <p className="tr-notice">{translateUI("工作授权已撤销，等待执行端退出确认。")}</p>}
-            {detail.authorization.source_event && <p className="tr-notice" data-testid="source-logout">
-              {translateUI("身份来源已注销，相关工作授权已撤销。")}
-              <> · {translateUI("事件接收：")}{translateUI(time(detail.authorization.source_event.received_at))}</>
-              <> · <code title={detail.authorization.source_event.id}>{detail.authorization.source_event.id.slice(0, 12)}</code></>
-            </p>}
+            <SourceRevocation event={detail.authorization.source_event} />
             {detail.authorization.source_check && !detail.authorization.source_event && <p className="tr-notice" data-testid="source-check">
               {translateUI("身份对账：")}{translateUI(({pending:"等待检查",valid:"来源有效",unavailable:"身份服务暂不可用",revoked:"来源已失效"})[detail.authorization.source_check.outcome])}
               {detail.authorization.source_check.checking && <> · {translateUI("检查中")}</>}

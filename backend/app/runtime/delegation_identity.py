@@ -62,3 +62,32 @@ async def bind_issuer(c, scope, ref, source):
     if not await check(c):
         raise RuntimeErrorCode("DELEGATION_IDENTITY_MIGRATION_REQUIRED")
     await c.execute(issuers.insert().values(delegation_ref=ref, scope=scope, **source))
+
+
+async def revocation_evidence(c, scope, chain):
+    """Expose committed source tombstones and local link revocations together."""
+    from .logout_events import observation
+    from .delegation_schema import events
+
+    refs = [link["id"] for link in chain]
+    result = {ref: {"source_event": None, "revocation": None} for ref in refs}
+    if await check(c):
+        sources = (await c.execute(select(issuers).where(
+            issuers.c.scope == scope, issuers.c.delegation_ref.in_(refs)
+        ))).mappings().all()
+        for source in sources:
+            result[source["delegation_ref"]]["source_event"] = await observation(
+                c, scope, source["principal"]
+            )
+    # Each link has one terminal transition. Read its most recent audit event
+    # without treating an execution cancellation request as a stop receipt.
+    for ref in refs:
+        event = (await c.execute(select(events).where(
+            events.c.scope == scope, events.c.delegation_ref == ref,
+            events.c.operation.in_(("revoked", "identity_revoked"))
+        ).order_by(events.c.created_at.desc(), events.c.id).limit(1))).mappings().first()
+        if event:
+            result[ref]["revocation"] = {
+                key: event[key] for key in ("id", "operation", "created_at", "details")
+            }
+    return result
