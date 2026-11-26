@@ -176,6 +176,11 @@ async def execute(args):
                 rows=(await c.execute(select(events.c.id,events.c.issuer,events.c.client_id,events.c.issued_at,events.c.received_at,events.c.revoked_work_count)
                     .where(events.c.scope==args.scope).order_by(events.c.received_at.desc(),events.c.id).limit(args.limit))).mappings().all()
                 return {'items':[dict(x) for x in rows]}
+        if args.command == 'identity-update':
+            from .principal_updates import update
+            with Path(args.file).open('rb') as source:raw=source.read(262145)
+            if len(raw)>262144:raise RuntimeErrorCode('METADATA_TOO_LARGE')
+            return await update(store,args.catalog,args.principal,args.revision,json.loads(raw))
         if args.command == 'delegation-reconcile':
             from .delegation_reconciliation import DelegationReconciler
             return await DelegationReconciler(store,interval=args.interval,
@@ -460,6 +465,11 @@ def main(argv=None):
     delegation_check.add_argument('--retry-max',type=float,default=300)
     events=commands.add_parser('identity-events',help='read verified logout receipts in the selected scope')
     events.add_argument('--limit',type=int,default=20)
+    update_identity=commands.add_parser('identity-update',help='trusted Linux catalog update; increments identity revision and fences older authority')
+    update_identity.add_argument('--catalog',required=True)
+    update_identity.add_argument('--principal',required=True)
+    update_identity.add_argument('--revision',type=int,required=True)
+    update_identity.add_argument('--file',required=True,help='private JSON changes: enabled, expires_at, tokens, profiles or objects')
     identity.add_argument('--policy-file',default=os.environ.get('DIOS_RUNTIME_POLICY_FILE'))
     identity.add_argument('--limit',type=int,default=20)
     identity.add_argument('--interval',type=float,default=60)

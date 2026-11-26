@@ -1957,9 +1957,12 @@
       ],
       "revocation_propagation": {
         "work_item": "K03-3.01",
-        "status": "in_progress",
-        "evidence": "docs/design/evidence/revocation-observation-20261126.json",
-        "remaining": "已部署来源追溯及已确认签发者失效的持久撤销。剩余来源变更/派发竞争、执行退出确认资格，以及直接文件停用再启用窗口的受控入口或事件衔接。",
+        "status": "engineering_verified_and_development_deployed",
+        "evidence": "docs/design/evidence/principal-updates-20261126.json",
+        "remaining": [
+          "K03-3.02",
+          "K03-3.03"
+        ],
         "durable_evidence": "docs/design/evidence/revocation-durable-20261126.json"
       }
     },
@@ -3169,10 +3172,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K03-3.01",
-    "next_delivery": "K03-3.01",
+    "next_work_item": "K03-3.02",
+    "next_delivery": "K03-3.02",
     "next_delivery_order": [
-      "K03-3.01",
       "K03-3.02",
       "K02-3.02",
       "K02-3.03",
@@ -3195,6 +3197,6 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "E2AG 四组策略/存储及故障资格已通过；继续跨来源撤销传播与水位，之后验证三层委派。源端隔离决策仍待定。"
+    "next_selection_reason": "跨来源撤销实现与 Linux 受控变更已部署，继续三层委派及子任务组合资格；复用 Cursor 和既有原生控制证据。源端隔离决策仍待定。"
   }
 }

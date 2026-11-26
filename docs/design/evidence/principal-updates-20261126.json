@@ -1,0 +1,126 @@
+{
+  "work_item": "K03-3.01",
+  "status": "engineering_verified_and_development_deployed",
+  "delivery": "Version-checked Linux identity administration fences old direct and delegated authority, including disable/re-enable.",
+  "tests": {
+    "exit_code": 0,
+    "passed": 16,
+    "skipped": 0,
+    "catalog_and_reconciliation": 15,
+    "native_worker": 1,
+    "initial_fixture_corrections": [
+      "CLI test invokes actual module entrypoint",
+      "Native artifact assertion uses artifact ledger"
+    ]
+  },
+  "native_worker": {
+    "passed": true,
+    "observations": [
+      {
+        "run_id": "f6043355-7a02-4c49-9de3-ffab808bd433",
+        "attempt_id": "121ca092-932d-4b73-b8ec-127dfa3d5fa6",
+        "session_id": "48a6e8b6-5721-4470-9953-754b066a1b7f",
+        "process_id": 587290,
+        "stop_requested_after_seconds": 3.241,
+        "exit_confirmed_after_seconds": 4.623,
+        "pending_stop_kept_nonterminal": true,
+        "confirmed_exit": true,
+        "history_preserved": true,
+        "artifact_ids": [
+          "3defbe47-c16f-49fb-89ce-4e949a37b816"
+        ]
+      }
+    ]
+  },
+  "deployment": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "knowledge_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": false
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "image": {
+    "image": "sha256:33e695d7d8d542fe9e257bf95926958065f48500fcd7637f2df06fba53c36751",
+    "base": "sha256:cb0a71adf44006c36baa6c7be2f106843f873369f176fd86879a55e700d4407f",
+    "network": "none",
+    "user": "65534:65534",
+    "summary": "OK: Worker and gateway import"
+  },
+  "requirements": {
+    "K03-3-A02": "Managed source update revokes prior Work/Grant and issuer links; native Worker confirms exit and retains original identity.",
+    "K03-3-A03": "Monotonic source observation, duplicate deliveries and revision-checked replay preserve old revocations.",
+    "K03-3-A04": "Source times and revocation provenance exposed; blocked stop remains nonterminal; measured native stop/exit evidence.",
+    "K03-3-A05": "Versioned source mutation and Runtime transaction serialization fence old authority; broader session/concurrency qualification remains K03-3.02.",
+    "K03-3-A06": "Issuer dependencies fenced atomically; approval eligibility evidence reused; three-level combination qualification remains K03-3.02."
+  },
+  "reused_evidence": [
+    "docs/design/evidence/revocation-observation-20261126.json",
+    "docs/design/evidence/revocation-durable-20261126.json",
+    "docs/design/evidence/governance-matrix-20261126.json",
+    "docs/design/evidence/approval-qualification-20261124.json"
+  ],
+  "limits": [
+    "Managed Linux catalog writer or verified source events required; arbitrary direct file overwrite is outside ordered mutation guarantees.",
+    "File publication and database commit are separate durability boundaries; published higher revision fails old bindings closed and identical retry reconciles database.",
+    "Local advisory file lock is single-host; shared source administration requires a centralized identity service.",
+    "Worker observations use one synthetic native container; no new Cursor model run or performance SLA inferred."
+  ],
+  "logs": {
+    "workspace/qualification-principal-updates-20261126/cli.log": "8f9aa2f4d756fb70e06fd9caca5b0d099b7b7e6a37f9a8c10d11e5896bc7fdbd",
+    "workspace/qualification-principal-updates-20261126/development.log": "7e0896f6ece4e82c779d47a690005a74057586f5f1979db4946c530490e1752c",
+    "workspace/qualification-principal-updates-20261126/tests.log": "c808fa0d18184969d80b17f588f8589f2761e62ff81a8d6bebe1e894496b5d66",
+    "workspace/qualification-principal-updates-20261126/ordering.log": "3768f59a64559d731e064a8c49e06b35d573d53ec9465db7fb9581fe54af5489",
+    "workspace/qualification-principal-updates-20261126/image-contracts.log": "a33f19a05ab64fc31929fb528283c1e74814831d81c872d9972f21eb1e4f03d2",
+    "workspace/qualification-principal-updates-20261126/native.log": "7435fb11b65dfcd2d417532d7bb14aad475c1007193619952f3789e6effaa4ab",
+    "workspace/qualification-principal-updates-20261126/native-final.log": "ef5d7d67f6d73dd1ecb5c490fd86d922fbefe719d23bb4ba07c609bec9341f7d"
+  },
+  "guide": "docs/design/revocation-propagation-35.md"
+}
