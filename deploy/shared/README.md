@@ -33,7 +33,7 @@ flowchart TB
 
 ## 新实例配置
 
-先按 [Linux 安装](../linux/README.md) 初始化**全新安装目录**，暂不运行默认迁移或启动服务。既有 SQLite 实例继续运行；副本迁移由 D01-2.02 承接。
+先按 [Linux 安装](../linux/README.md) 初始化**全新安装目录**，暂不运行默认迁移或启动服务。既有 SQLite 实例继续运行；副本迁移见 [D01-2.02 完整迁移](../../docs/design/provider-transfer-52.md)。
 
 1. Infrastructure 创建专用空数据库 `dios`，提供带正确 DNS SAN 的服务器证书和 CA。只开放受控来源的 `hostssl ... scram-sha-256`，拒绝明文。数据库跨信任域连接必须校验证书链和主机名。[PostgreSQL TLS](https://www.postgresql.org/docs/current/libpq-ssl.html)
 2. 在受保护环境中提供 `DIOS_PG_OWNER_PASSWORD`、`DIOS_PG_RUNTIME_PASSWORD`、`DIOS_PG_BACKUP_PASSWORD`，以数据库配置管理员运行 `psql -X -v ON_ERROR_STOP=1 -d dios -f deploy/shared/roles.sql`。该脚本面向专用实例，角色名固定，重名时失败。后续迁移必须以 `dios_owner` 创建对象，才能继承默认权限。

@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "D01-2.02",
-    "next_delivery": "D01-2.02",
+    "next_work_item": "F03-2.02",
+    "next_delivery": "F03-2.02",
     "next_delivery_order": [
-      "D01-2.02",
       "F03-2.02",
       "K04-2.02",
       "K02-3.02",
@@ -34,7 +33,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "共享持久服务部署已收口，接续在隔离副本上验证起步历史、任务身份、产物引用及权限迁移，复用既有 PG/Worker 证据。现有开发实例和外部 Codeup 评审保持运行；整套恢复及物理 HA 仍按各自工作项推进。"
+    "next_selection_reason": "共享服务及完整副本迁移已交付。接续 F03-2.02 已登记的参考路径故障与人工复核场景，复用现有 Harness/E2AG 证据，补齐实际缺口；整套共享恢复依赖源端隔离与恢复组合资格，按原工作项保留。"
   },
   "waves": [
     {
@@ -2783,7 +2782,7 @@
       "issue": 52,
       "title": "起步数据与引用迁移资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "D01-2-A01",
         "D01-2-A02"
@@ -2797,8 +2796,11 @@
         "S02-1.04"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有 Provider 契约与局部数据库验证；生产共享存储部署与迁移尚未交付。",
+      "completion_evidence": [
+        "docs/design/provider-transfer-52.md",
+        "docs/design/evidence/provider-transfer-20261126.json"
+      ],
+      "basis": "完整开发副本的 112 表、241844 行、214 个内容对象迁移与重复校验通过；原 103 Run/107 Attempt/282 Artifact 身份保留，E2AG/ACL/历史引用一致。5 项真实 PG 专项和 8 项备份恢复回归通过；SIGKILL 回滚、损坏/冲突拒绝、两主体权限与旧凭据撤销覆盖；隔离 Console 读取三条既有任务并校验 12 份产物，零模型调用，目标保持 restore_hold。",
       "existing_evidence": [
         "docs/design/evidence/provider-correctness-20261111.json",
         "docs/design/evidence/recovery-drill-20261111.json"

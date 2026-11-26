@@ -47,6 +47,8 @@ from .object_collection_schema import metadata as object_collection_metadata, CH
 from .knowledge_schema import metadata as knowledge_metadata, CHECKSUM as KNOWLEDGE_CHECKSUM
 from .package_registry_schema import metadata as package_registry_metadata, CHECKSUM as PACKAGE_REGISTRY_CHECKSUM, GUARDS as PACKAGE_REGISTRY_GUARDS
 from .package_admission_schema import metadata as package_admission_metadata, CHECKSUM as PACKAGE_ADMISSION_CHECKSUM, GUARDS as PACKAGE_ADMISSION_GUARDS
+from .studio_release_schema import metadata as studio_metadata, CHECKSUM as STUDIO_CHECKSUM, GUARDS as STUDIO_GUARDS
+from .technical_release_schema import metadata as technical_metadata, CHECKSUM as TECHNICAL_CHECKSUM, GUARDS as TECHNICAL_GUARDS
 
 
 def sqlite_path(url):
@@ -129,7 +131,9 @@ def _database_info(path):
             ('runtime_knowledge_schema',knowledge_metadata,KNOWLEDGE_CHECKSUM),
             ('runtime_package_admission_schema',package_admission_metadata,PACKAGE_ADMISSION_CHECKSUM),
             ('runtime_package_registry_schema',package_registry_metadata,PACKAGE_REGISTRY_CHECKSUM),
-            ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM)]
+            ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM),
+            ('runtime_studio_release_schema',studio_metadata,STUDIO_CHECKSUM),
+            ('runtime_technical_release_schema',technical_metadata,TECHNICAL_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
             raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
@@ -145,6 +149,14 @@ def _database_info(path):
                 if not set(table.columns.keys()).issubset(actual): raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
             schemas[version_table]={'version':1,'checksum':checksum}
         objects={}
+        for version_table, expected_guards in (
+            ('runtime_studio_release_schema', STUDIO_GUARDS),
+            ('runtime_technical_release_schema', TECHNICAL_GUARDS),
+        ):
+            if version_table in tables:
+                guards={row[0] for row in c.execute("SELECT name FROM sqlite_master WHERE type='trigger'")}
+                if not set(expected_guards).issubset(guards):
+                    raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
         if 'runtime_package_registry_schema' in tables:
             guards={row[0] for row in c.execute("SELECT name FROM sqlite_master WHERE type='trigger'")}
             if not set(PACKAGE_REGISTRY_GUARDS).issubset(guards):

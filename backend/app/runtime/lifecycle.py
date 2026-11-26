@@ -62,12 +62,16 @@ class Lifecycle:
     async def hold_restored(self):
         """Only on a private, unpublished restore target; no automatic release API."""
         async with self.db.transaction('__restore__') as c:
-            await self._set(c, 'global', 'restore_hold')
-            from .credential_schema import check as check_credentials, credentials
-            if await check_credentials(c):
-                await c.execute(credentials.update().where(credentials.c.state=='active').values(
-                    state='revoked',version=credentials.c.version+1,previous_until=None,
-                    updated_at=await self.db.now(c)))
+            await self.hold_restored_in_transaction(c)
+
+    async def hold_restored_in_transaction(self, c):
+        """Publish a transferred database and its recovery hold in one transaction."""
+        await self._set(c, 'global', 'restore_hold')
+        from .credential_schema import check as check_credentials, credentials
+        if await check_credentials(c):
+            await c.execute(credentials.update().where(credentials.c.state=='active').values(
+                state='revoked',version=credentials.c.version+1,previous_until=None,
+                updated_at=await self.db.now(c)))
 
     async def status(self):
         from .store import ACTIVE_ATTEMPTS
