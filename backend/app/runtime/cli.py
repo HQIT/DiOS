@@ -14,6 +14,11 @@ from .lifecycle import Lifecycle
 from .recovery import backup_sqlite, verify_backup, restore_sqlite
 
 async def execute(args):
+    if args.command == 'package':
+        from .package_lock import read_json, resolve, verify
+        if args.package_command == 'lock':
+            return resolve(read_json(args.catalog), read_json(args.roots))
+        return verify(read_json(args.lock))
     if args.command == 'spool-status':
         return await asyncio.to_thread(ReportSpool.inspect, args.file)
     if args.command == 'backup-verify': return await asyncio.to_thread(verify_backup,args.bundle)
@@ -348,6 +353,13 @@ def main(argv=None):
         op=object_commands.add_parser(name);op.add_argument('kind',choices=['file','session','artifact']);op.add_argument('object_id')
         op.add_argument('--version',type=int,default=1)
         if name!='show':op.add_argument('--limit',type=int,default=50);op.add_argument('--after',type=int if name=='versions' else str,default=0 if name=='versions' else '')
+    package = commands.add_parser('package', help='offline package dependency locking and verification')
+    package_commands = package.add_subparsers(dest='package_command', required=True)
+    package_lock = package_commands.add_parser('lock')
+    package_lock.add_argument('--catalog', required=True)
+    package_lock.add_argument('--roots', required=True)
+    package_verify = package_commands.add_parser('verify')
+    package_verify.add_argument('--lock', required=True)
     revision = commands.add_parser('revision', help='immutable configuration snapshots; does not launch or authorize tasks')
     revision_commands = revision.add_subparsers(dest='revision_command', required=True)
     revision_create = revision_commands.add_parser('create')

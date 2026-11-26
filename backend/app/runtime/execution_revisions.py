@@ -46,9 +46,24 @@ def compile_profile(raw):
 
     # Copy before stripping Secret descriptors from the public configuration.
     raw = json.loads(json.dumps(raw, allow_nan=False))
+    from .package_payloads import validate_binding
+
+    package_lock = validate_binding(raw)
     profile_id, spec = read_profile("immutable-profile", value=raw)
     mode, refs = security_profile("immutable-profile", raw=raw)
     dependencies = {kind: [] for kind in sorted(DEPENDENCY_KINDS)}
+    if package_lock:
+        for row in package_lock["packages"]:
+            item = row["manifest"]
+            dependencies[item["kind"]].append(
+                {
+                    "name": "package-" + item["name"],
+                    "reference": "urn:dios:package:" + item["name"],
+                    "version": item["version"],
+                    "digest": row["digest"],
+                    "visibility": "pinned",
+                }
+            )
     dependencies["adapter"] = [adapter_descriptor(raw["bridge"])]
     if raw["bridge"] == "jsonl-v1":
         inputs = raw.get("input_mount_targets", [])
@@ -204,7 +219,7 @@ async def publish_profile(db, scope, path, key, actor):
     from .work_policy import security_profile
     from .worker import read_profile
 
-    read_profile(path, value=raw)
+    read_profile(path, value=raw, allow_unfrozen_packages=True)
     security_profile(path, raw=raw)
     freeze_console(raw)
     if raw.get("bridge") == "jsonl-v1":
@@ -212,16 +227,21 @@ async def publish_profile(db, scope, path, key, actor):
         from docker.errors import ImageNotFound
 
         def resolve():
-            client = docker.from_env(timeout=5)
-            try:
-                raw["launch"]["image"] = client.images.get(raw["launch"]["image"]).id
-                from .revision_mounts import package
+            from .package_payloads import prepare
 
-                package(client, raw)
-            except ImageNotFound:
-                raise RuntimeErrorCode("RUNTIME_IMAGE_MISSING") from None
-            finally:
-                client.close()
+            with prepare(raw, path):
+                client = docker.from_env(timeout=5)
+                try:
+                    raw["launch"]["image"] = client.images.get(
+                        raw["launch"]["image"]
+                    ).id
+                    from .revision_mounts import package
+
+                    package(client, raw)
+                except ImageNotFound:
+                    raise RuntimeErrorCode("RUNTIME_IMAGE_MISSING") from None
+                finally:
+                    client.close()
 
         await asyncio.to_thread(resolve)
     return await Revisions(db, scope).create(key, compile_profile(raw), actor=actor)

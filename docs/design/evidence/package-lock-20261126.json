@@ -1,0 +1,117 @@
+{
+  "work_item": "K04-1.01",
+  "passed": true,
+  "tests": 52,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 44.905,
+  "suites": [
+    "test_package_lock",
+    "test_execution_revisions.SQLiteBindingTests",
+    "test_runtime_revisions.SQLiteRevisionTests",
+    "test_runtime_revisions.ManifestTests",
+    "test_runtime_deployments.SQLiteDeploymentTests",
+    "test_revision_mounts",
+    "test_runtime_worker.WorkerTests",
+    "test_runtime_worker.BridgeTests"
+  ],
+  "native_execution": [
+    {
+      "revision": "rev-6aebc1468b98aa2a5203119bbaaced83887b8aafa7e9d9c81c7c822c63333d22",
+      "image": "sha256:cae62784a9f88c01a7f2caa5f33c7126482485e0d204fe4303b3de84c7309943",
+      "expected": "原始版本",
+      "session": "原始版本",
+      "state": "succeeded"
+    },
+    {
+      "revision": "rev-9f108dc420d2049d84d4e4be6dabd2cdb25784f7baf0fdd9b600f49ebc4fe83a",
+      "image": "sha256:e8468fba29a19687a75eb74a720bc378db7a416c0e0bb3ff67fe365b8c7e7069",
+      "expected": "升级版本",
+      "session": "升级版本",
+      "state": "succeeded"
+    }
+  ],
+  "source_sha256": {
+    "backend/app/runtime/package_lock.py": "3262d7f7cd168f47df5fee984e1d685886adf2cb6e13b008fa317c561fbde71f",
+    "backend/app/runtime/package_payloads.py": "5eb985078f8f8492f008f2b9fb846eef418760da888355513e7ea89057194f08",
+    "backend/app/runtime/execution_revisions.py": "156328a3a699b770f259963cfa5ac79bf4dc2c68cbed445a0deb66422ba9cb01",
+    "backend/app/runtime/worker.py": "216120ec91584130ae1475575a82a506ce49c6dc3b61acdb0e90c2fdbef97fbd",
+    "backend/app/runtime/cli.py": "13b19a27d65842ad81e4d5ebfc00488413758fe98f67034042a88f03889c853a",
+    "backend/app/runtime/revision_mounts.py": "df60e3d39a432a4713332efd12bb33b67cdf0f9b6d0781ce64deb4063669cece",
+    "backend/app/runtime/deployments.py": "21b66948e8cb11d435d46be367ae2948814ac85fcb667c049f7ed41837dd48d4",
+    "backend/tests/test_package_lock.py": "a980bb2eebc18c647b7820ab170a6ae61620f6829dd0f37c885e9e15b8cdb5a9",
+    "backend/requirements.txt": "179ab359652609a1720d31c156c28af9f96aea66dd9238f3d49c4940b8df42a4",
+    "scripts/qualify_package_lock.py": "ad2a1eaa77d421f7ad272487b78822cbdbe4ebfaa3ca2e89838af597bc407ba7"
+  },
+  "limits": [
+    "Local Linux OCI publication; package sources are supplied by a trusted publisher.",
+    "PEP 440 versions for DiOS package metadata; native ecosystem installation belongs to package producers.",
+    "Source/licence admission and Registry catalog UI are subsequent K04-1.02/.03/.04 deliveries."
+  ],
+  "deployment": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "knowledge_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "changed": false
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "image": {
+    "image": "sha256:f7937405e5c2a3b778637ad4f13ce2f2528e41c2cfe25aa0dfc64c482d7dfc63",
+    "tag": "dios-backend:package-lock-20261126",
+    "base": "sha256:33e695d7d8d542fe9e257bf95926958065f48500fcd7637f2df06fba53c36751",
+    "checks": {
+      "dependencies": "WARNING: The directory '/nonexistent/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nNo broken requirements found.\n",
+      "cli": "usage: cli.py package [-h] {lock,verify} ...\n\npositional arguments:\n  {lock,verify}\n\noptions:\n  -h, --help     show this help message and exit\n",
+      "imports": "package runtime loaded\n"
+    }
+  }
+}
