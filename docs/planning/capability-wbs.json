@@ -7,17 +7,24 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "F03-2.03",
-    "next_delivery": "F03-2.03",
+    "next_work_item": "K02-3.02",
+    "next_delivery": "K02-3.02",
     "next_delivery_order": [
-      "F03-2.03",
-      "F03-2.02",
-      "K01-5.03",
-      "D01-3.02",
-      "K04-2.02",
       "K02-3.02",
       "K02-3.03",
-      "D01-1.02"
+      "D01-1.02",
+      "D01-2.03",
+      "K04-2.02",
+      "D01-3.02",
+      "K03-1.03",
+      "K04-2.04",
+      "D01-3.03",
+      "K01-2.04",
+      "K02-2.03",
+      "D01-4.01",
+      "D01-4.02",
+      "F03-2.02",
+      "F03-2.03"
     ],
     "progress_rule": "按工作项报告待实现、待验证、待评审及阻断；不按 Issue 勾选数计算产品百分比。工程验证与责任人接受分别记录。",
     "change_rule": "新增项先绑定原验收；超出原范围单列变更影响和顺序，须经用户确认，不静默扩项。拆分保留旧 ID 与父子关系，统计叶项，分母变化单列。",
@@ -27,15 +34,18 @@
     "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
-      "K02-3.02 等待源端隔离方式选择；当前先推进 W1 已就绪的 Harness 恢复与治理资格，原恢复验收保留。",
-      "F03-2.02 保留 5 项完整场景及 G05/G06：R01/R08/R16/R17 和 G05/G06 由独立上层平台/应用联验，R18 依赖旧系统隔离适配；原资格要求保留。R06 固定 DSH 真实 HTTP 分类与恢复已通过。"
+      "K02-3.02 等待源控制面隔离方式选择；恢复冻结保持，当前无自动解锁授权。",
+      "K04-2.02 等待父子等待容量语义选择；D01-3.02 等待第二物理 Linux 主机及故障范围。",
+      "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
+      "五项评审包已就绪；指定接受人未确定，评审结论保持待认领。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "F03-2.03 的三路径两来源真实执行已通过，工程进展见 reference-harness-qualification-29.md。接续核验独立平台的 G05 人工接管与 G06 跨实现工作项交接入口；已有执行证据复用，业务对象不进入 DiOS。完整故障、五项 G2 接受人、物理跨主机环境、容量语义及源端隔离选择仍待定。"
+    "next_selection_reason": "优先解锁 K02-3.02 源控制面隔离选择后完成恢复链；当前保持 blocked 和 restore_hold。父子容量、独立物理主机及指定评审人各有明确前置。F03-2.02/.03 保留跨层联验，#40/#59 仅消费 F03-2.01 的已验证契约，消除等待 #29 全部关闭的循环。完整依赖见 remaining-delivery-dependencies.md。",
+    "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
   },
   "waves": [
     {
@@ -1219,7 +1229,7 @@
         "docs/design/evidence/provider-errors-20261127.json"
       ],
       "wave": "W3",
-      "qualification_followup": "详见 reference-faults.json 的逐项 gaps/owners；复用通过证据，只补齐原断言。生产评审保持运行，不启动 #60 迁移。",
+      "qualification_followup": "保留原要求、状态与全部未通过断言；技术工程证据独立积累，应用相关断言在独立平台/应用就绪后联验，不作为上层应用开工的反向前置。",
       "progress_evidence": [
         "docs/design/reference-fault-qualification.md",
         "docs/design/evidence/reference-faults-20261126.json",
@@ -1234,6 +1244,12 @@
         "docs/design/evidence/readonly-review-20261126.json",
         "docs/design/evidence/node-reboot-20261126.json",
         "docs/design/evidence/provider-errors-20261127.json"
+      ],
+      "acceptance_stage": "cross_layer_joint_qualification",
+      "external_acceptance_dependencies": [
+        "S02-3",
+        "A01-5",
+        "D01-5"
       ]
     },
     {
@@ -1270,7 +1286,14 @@
       "progress_evidence": [
         "docs/design/reference-harness-qualification-29.md",
         "docs/design/evidence/reference-harnesses-20261127.json"
-      ]
+      ],
+      "acceptance_stage": "cross_layer_joint_qualification",
+      "external_acceptance_dependencies": [
+        "S02-3",
+        "A01-5",
+        "D01-5"
+      ],
+      "qualification_followup": "保留原要求、状态与全部未通过断言；技术工程证据独立积累，应用相关断言在独立平台/应用就绪后联验，不作为上层应用开工的反向前置。"
     },
     {
       "id": "K01-1.01",

@@ -59,6 +59,36 @@ def main():
 
     for item_id in items:
         visit(item_id)
+    # A task can consume a ready contract before the later joint acceptance.
+    # Expand task and work-item edges together so cross-layer cycles are visible.
+    joint = {key: list(item['dependencies']) + item.get('external_acceptance_dependencies', [])
+             for key, item in items.items()}
+    for key, task in tasks.items():
+        gates = task.get('dependency_gates', {})
+        assert set(gates) <= set(task['deps']), f'unknown gate dependency: {key}'
+        for parent, gate in gates.items():
+            assert gate['work_items'] and gate['purpose'], f'empty gate: {key}/{parent}'
+            assert all(ref in items and items[ref]['parent'] == parent
+                       for ref in gate['work_items']), f'invalid gate: {key}/{parent}'
+        joint[key] = task.get('closure_work_items', []) or [
+            ref for dep in task['deps']
+            for ref in gates.get(dep, {}).get('work_items', [dep])
+        ]
+    checked, checking = set(), set()
+
+    def visit_joint(key):
+        assert key in joint, f'unknown joint dependency: {key}'
+        assert key not in checking, f'cross-layer dependency cycle at {key}'
+        if key in checked:
+            return
+        checking.add(key)
+        for dep in joint[key]:
+            visit_joint(dep)
+        checking.remove(key)
+        checked.add(key)
+
+    for key in joint:
+        visit_joint(key)
     assert plan['execution_control'] == wbs['control'], 'control drift'
     assert wbs['control']['next_work_item'] in items
     active = [i for i in rows if i['kind'] == 'I' and i['state'] == 'in_progress']
@@ -68,7 +98,7 @@ def main():
     print(json.dumps({'result': 'PASS', 'work_items': len(rows), 'requirements': len(requirements),
                       'by_kind': dict(Counter(i['kind'] for i in rows)),
                       'by_state': dict(Counter(i['state'] for i in rows)),
-                      'dependency_graph': 'acyclic'}, ensure_ascii=False))
+                      'dependency_graph': 'acyclic', 'cross_layer_dependency_graph': 'acyclic'}, ensure_ascii=False))
 
 
 if __name__ == '__main__':
