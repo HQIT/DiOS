@@ -83,7 +83,7 @@ DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现�
 
 **F03-2.02 十八项故障验收夹具** · 实现/集成 · W3 · Codex 工程 · 待完整资格
 
-[故障资格与剩余交付](../design/reference-fault-qualification.md)：R02/R03/R04/R07/R09/R10/R11/R12/R13/R14 场景通过，其余 8 项保留；共同治理 G01—G04 已通过，G05/G06 保留。[共同治理证据](../design/evidence/common-governance-20261126.json)、[撤权控制点证据](../design/evidence/tool-revocation-20261126.json)。
+[故障资格与剩余交付](../design/reference-fault-qualification.md)：R02/R03/R04/R07/R09/R10/R11/R12/R13/R14/R15 场景通过，其余 7 项保留；共同治理 G01—G04 已通过，G05/G06 保留。[只读控制证据](../design/evidence/readonly-review-20261126.json)、[共同治理证据](../design/evidence/common-governance-20261126.json)、[撤权控制点证据](../design/evidence/tool-revocation-20261126.json)。
 
 - 交付：逐场景可执行输入、预期状态和断言，复用通用故障夹具。
 - 完成验证：十八场景逐项执行；含不支持能力、断连、撤销、重复回调、人工接管和复核；生产运行无变更。

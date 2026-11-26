@@ -1,0 +1,163 @@
+{
+  "started_at": "2026-11-26T15:44:29.762556+00:00",
+  "finished_at": "2026-11-26T15:44:31.115979+00:00",
+  "base_commit": "ea97ea4384957c2b4327f30c64a458f15684c05f",
+  "tests_run": 4,
+  "outcomes": {
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": "passed",
+    "test_reference_readonly.ReadonlyEvidenceTests.test_native_write_compile_package_and_egress_are_denied": "passed",
+    "test_runtime_execution_isolation.ProfileIsolationTests.test_native_escape_configurations_are_rejected": "passed",
+    "test_runtime_tool_invocations.ToolInvocationTests.test_revoke_during_initialization_blocks_actual_tool_call": "passed"
+  },
+  "test_seconds": {
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": 0.004128648986807093,
+    "test_reference_readonly.ReadonlyEvidenceTests.test_native_write_compile_package_and_egress_are_denied": 0.0007767270144540817,
+    "test_runtime_execution_isolation.ProfileIsolationTests.test_native_escape_configurations_are_rejected": 0.0005872470210306346,
+    "test_runtime_tool_invocations.ToolInvocationTests.test_revoke_during_initialization_blocks_actual_tool_call": 1.339314192009624
+  },
+  "components_passed": true,
+  "sources_unchanged": true,
+  "observations": [
+    {
+      "case": "R15",
+      "runs": {
+        "write_egress": {
+          "run_id": "d49fd272-3cbe-407f-9a7b-86e17afb4246",
+          "attempt_id": "8d13a016-d411-4de9-8dd8-0701e1689f1a",
+          "session_id": "264e967a-5370-4692-b687-c60bbb0d076c",
+          "process_id": 1135730,
+          "image": "sha256:9c2699485d7bae25119476a76674adfea04b75b3c9a3a2180a6ce633dc8b6e09",
+          "exit_receipt_sha256": "a38203fa5900250e3c6b2b1f2615b1415eb2a9a6de554d8008d736f812bc0afe",
+          "bindings": {
+            "dispatch": {
+              "run_id": "d49fd272-3cbe-407f-9a7b-86e17afb4246",
+              "attempt_id": "8d13a016-d411-4de9-8dd8-0701e1689f1a",
+              "session_id": "264e967a-5370-4692-b687-c60bbb0d076c",
+              "worker_id": "c484c409-3a4a-43cd-bf33-084895a69712",
+              "worker_instance": "a5249f05-b117-4e79-8953-e1fd568e1aa3",
+              "lease_epoch": 1,
+              "authorization_epoch": 1,
+              "authorization_ref": "wa-5998746d182409e20f267a1d975437222e32365fd7fa35c1e024c4617c25",
+              "policy_digest": "6210dfa80b7bef24d47fabfe0ca33ff9236b9bb4722255e2cce35bcedb158466",
+              "permissions_digest": "ec6c847e08dde85c9fc260fb27e4a4478a6a497348543bebb2a4a04c2a14e827",
+              "subject": "operator:qualification",
+              "actor": "service:harness"
+            },
+            "receipt": {
+              "run_id": "d49fd272-3cbe-407f-9a7b-86e17afb4246",
+              "attempt_id": "8d13a016-d411-4de9-8dd8-0701e1689f1a",
+              "session_id": "264e967a-5370-4692-b687-c60bbb0d076c",
+              "worker_id": "c484c409-3a4a-43cd-bf33-084895a69712",
+              "worker_instance": "a5249f05-b117-4e79-8953-e1fd568e1aa3",
+              "lease_epoch": 1,
+              "authorization_epoch": 1,
+              "authorization_ref": "wa-5998746d182409e20f267a1d975437222e32365fd7fa35c1e024c4617c25",
+              "policy_digest": "6210dfa80b7bef24d47fabfe0ca33ff9236b9bb4722255e2cce35bcedb158466",
+              "permissions_digest": "ec6c847e08dde85c9fc260fb27e4a4478a6a497348543bebb2a4a04c2a14e827",
+              "subject": "operator:qualification",
+              "actor": "service:harness"
+            }
+          }
+        },
+        "compile_package": {
+          "run_id": "58576006-5344-4c22-84b7-3f19015bc7bc",
+          "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+          "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+          "process_id": 1156336,
+          "image": "sha256:3d3f61fea596d5c2bf9cc309958a85ddbf548058aa3f2f0573f51514f3ee9026",
+          "exit_receipt_sha256": "d90002eb5aa4b60decc652163f6c19cbc65bb941a9fe5affb86091bf71955c4c",
+          "bindings": {
+            "dispatch": {
+              "run_id": "58576006-5344-4c22-84b7-3f19015bc7bc",
+              "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+              "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+              "worker_id": "3c9f8202-aa4f-473e-8241-decc72105442",
+              "worker_instance": "1be11636-4b9c-4bd0-9bc5-d39aa65feb57",
+              "lease_epoch": 1,
+              "authorization_epoch": 1,
+              "authorization_ref": "wa-4787b6a9ee73779662b8e8298f7d246c273358e71228a9ef1d89674d06fa",
+              "policy_digest": "a3667203c2a9f97fa9318a07d5c4d16b35eb2432e419269b77eb196138c9687a",
+              "permissions_digest": "6a04e889f001af38cc923ebeee0215f9004796c3303269adef7187e814098eb7",
+              "subject": "operator:qualification",
+              "actor": "service:harness"
+            },
+            "receipt": {
+              "run_id": "58576006-5344-4c22-84b7-3f19015bc7bc",
+              "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+              "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+              "worker_id": "3c9f8202-aa4f-473e-8241-decc72105442",
+              "worker_instance": "1be11636-4b9c-4bd0-9bc5-d39aa65feb57",
+              "lease_epoch": 1,
+              "authorization_epoch": 1,
+              "authorization_ref": "wa-4787b6a9ee73779662b8e8298f7d246c273358e71228a9ef1d89674d06fa",
+              "policy_digest": "a3667203c2a9f97fa9318a07d5c4d16b35eb2432e419269b77eb196138c9687a",
+              "permissions_digest": "6a04e889f001af38cc923ebeee0215f9004796c3303269adef7187e814098eb7",
+              "subject": "operator:qualification",
+              "actor": "service:harness"
+            }
+          }
+        }
+      },
+      "source_before": {
+        "package.json": "e1f75a9f092b29139e1b9afa99a00d2fb5a9cfe04f6315690bad043582f7a2f3",
+        "build.mjs": "7ef50ed0ac2ab49763cd5a16ee3d62b3ffaadadfdbd69d497b10250dba41dfc8",
+        "sample.py": "c9f28bea98a2738fd61db45b1a927b35357a4a9a22303e1343450814dea7c632"
+      },
+      "source_after": {
+        "package.json": "e1f75a9f092b29139e1b9afa99a00d2fb5a9cfe04f6315690bad043582f7a2f3",
+        "build.mjs": "7ef50ed0ac2ab49763cd5a16ee3d62b3ffaadadfdbd69d497b10250dba41dfc8",
+        "sample.py": "c9f28bea98a2738fd61db45b1a927b35357a4a9a22303e1343450814dea7c632"
+      },
+      "positive_controls": {
+        "package-ran": "cb4201fb097db0fff2d57ef7b1e3966ef886adb6ea533af9461eb0fe864b53aa",
+        "sample.pyc": "95348089167578b0aaef6d7a2a560ad3abba352be32fefaa99a4aec67e20f15e"
+      },
+      "denied": {
+        "write": "call_c1a74e7a9a2746b49ce7759a",
+        "compile": "call_14bf5b9c245d4b7eaf28723a",
+        "package": "call_36986941935e472db2538bb7",
+        "egress": "call_30381fe740314b9e861a7abf"
+      },
+      "side_effect_markers_absent": true,
+      "qualification": "pinned DSH guard composition; retained real traces, no new model calls"
+    }
+  ],
+  "work_item": "F03-2.02",
+  "case": "R15",
+  "status": "engineering_verified",
+  "complete_work_item": false,
+  "retained_sha256": {
+    "docs/design/evidence/readonly-review-20261126/Dockerfile": "87df2ba3d2f49af985b3b69caca59d565c40c3c941faee89531754d336bcde80",
+    "docs/design/evidence/readonly-review-20261126/build-tools-result.json": "b864d0d12c6ee34d1e08b91745eb14208d7deb315c79a11e79cfa91d0c766a24",
+    "docs/design/evidence/readonly-review-20261126/build-tools.jsonl": "4c0604d89437fe0d78a7b998347f9c1927d979e046330967098482958a220858",
+    "docs/design/evidence/readonly-review-20261126/build.mjs": "7ef50ed0ac2ab49763cd5a16ee3d62b3ffaadadfdbd69d497b10250dba41dfc8",
+    "docs/design/evidence/readonly-review-20261126/inputs.json": "3953932ca23bf0a759e3eafefed21cbdedbaced24899e53740f6184b42ede9a4",
+    "docs/design/evidence/readonly-review-20261126/package.json": "e1f75a9f092b29139e1b9afa99a00d2fb5a9cfe04f6315690bad043582f7a2f3",
+    "docs/design/evidence/readonly-review-20261126/positive-control.py": "75cda03f9b5d62cc072e84cd98d94a2dcd3be0fcc96174cdb0c361f618b5363b",
+    "docs/design/evidence/readonly-review-20261126/sample.py": "c9f28bea98a2738fd61db45b1a927b35357a4a9a22303e1343450814dea7c632",
+    "docs/design/evidence/readonly-review-20261126/write-egress-result.json": "05f97291ef796fd1577737a706182a858c6ee01d57c0e33e3c4e9ec9ce6a8bc7"
+  },
+  "reused_evidence": [
+    "docs/design/evidence/dsh-native-controls-20261126.json",
+    "docs/design/evidence/dsh-native-controls-20261126/native-denials.jsonl"
+  ],
+  "source_sha256": {
+    "examples/runtime/dsh-native-guard.mjs": "ebbe34e01341ed24b80f8c100c0a7d32cc4344624f7838d2e1b0d22d5b5739e7",
+    "examples/runtime/dsh-native-guard.patch.yml": "0a11a4763f5ef73fb2418e100495e631ade1537469a5d5f38f1299d748def5df",
+    "scripts/fixtures/cursor_native_control_probe.py": "f5bbabce7483c45c6c8cfae5051d62ca2717d87dd53ce21e0ca5d6a42420ab85",
+    "backend/tests/test_reference_readonly.py": "d0cb7817e34d1e90a7f15dfdad6a37b360f7526fbb314babfedbea248f41288a",
+    "scripts/qualify_reference_faults.py": "ec7d39b2a777f5217d0a671b7a71516be06959bf634c41bc37c01e9c912a827d"
+  },
+  "deployment": {
+    "image": "sha256:3d3f61fea596d5c2bf9cc309958a85ddbf548058aa3f2f0573f51514f3ee9026",
+    "scope": "isolated Linux/WSL qualification",
+    "main_preview_changed": false
+  },
+  "limits": [
+    "Pinned DSH 0.2.2-rc.5 and DiOS SDK 0.1.19 only. The probe image adds npm to the governed release image; it is a test image, not a new production release.",
+    "Write and egress requests reuse the retained earlier native guard run; compile and npm requests use one additional real model session. Each run retains its own Attempt and E2AG bindings.",
+    "The native guard denies tools before the tool body. It does not prevent content being submitted to the explicitly allowed model provider.",
+    "Positive controls execute only synthetic compiler/package fixtures in a separate network-disabled container. Customer business code is never executed.",
+    "F03-2.02 retains seven other fault scenarios and G05/G06."
+  ]
+}

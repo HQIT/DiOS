@@ -1,0 +1,626 @@
+{
+  "case": "native-deny",
+  "scope": "harness-ec3b0fdcac7b43e1",
+  "faults": [],
+  "checks": [
+    "real-process-session-and-three-level-delegation",
+    "usage-matches-retained-output-or-remains-unknown",
+    "unverified-native-activity-cannot-be-accepted-as-success",
+    "original-run-attempt-session-retained"
+  ],
+  "delegation_chain": [
+    {
+      "id": "dl-b14fccda0f256c469f43405a43d138ffa74b1aefa8c59a4d61450819919a",
+      "scope": "harness-ec3b0fdcac7b43e1",
+      "parent_ref": null,
+      "subject_ref": "operator:qualification",
+      "actor_ref": "service:delegate-0",
+      "audience": "dios-runtime",
+      "permissions": [
+        {
+          "action": "runtime.execute",
+          "resource_kind": "runtime_profile",
+          "resource_id": "dsh-real",
+          "resource_version": "9df43d49f973cb2507814e6c104451681bee868921eda3b08c69432a6ca8d1c4",
+          "constraint_revision": "harness-governance"
+        },
+        {
+          "action": "runtime.accept_result",
+          "resource_kind": "runtime_profile",
+          "resource_id": "dsh-real",
+          "resource_version": "9df43d49f973cb2507814e6c104451681bee868921eda3b08c69432a6ca8d1c4",
+          "constraint_revision": "harness-governance"
+        },
+        {
+          "action": "repository.search",
+          "resource_kind": "mcp_tool",
+          "resource_id": "sample/search",
+          "resource_version": "8a1b81b1915bca2dae9a9fb94847b2f564a89a259b4ec4bc2d844f0ac703cdc5",
+          "constraint_revision": "harness-governance"
+        }
+      ],
+      "expires_at": 1795711213.727696,
+      "depth": 0,
+      "authorization_epoch": 1,
+      "state": "active",
+      "version": 1,
+      "created_at": 1795707613.730018
+    },
+    {
+      "id": "dl-ba7a8afbc91efd6ec2b0a12270c105ef7c5003d2a617de29283d6aa73c80",
+      "scope": "harness-ec3b0fdcac7b43e1",
+      "parent_ref": "dl-b14fccda0f256c469f43405a43d138ffa74b1aefa8c59a4d61450819919a",
+      "subject_ref": "operator:qualification",
+      "actor_ref": "service:delegate-1",
+      "audience": "dios-runtime",
+      "permissions": [
+        {
+          "action": "runtime.execute",
+          "resource_kind": "runtime_profile",
+          "resource_id": "dsh-real",
+          "resource_version": "9df43d49f973cb2507814e6c104451681bee868921eda3b08c69432a6ca8d1c4",
+          "constraint_revision": "harness-governance"
+        },
+        {
+          "action": "runtime.accept_result",
+          "resource_kind": "runtime_profile",
+          "resource_id": "dsh-real",
+          "resource_version": "9df43d49f973cb2507814e6c104451681bee868921eda3b08c69432a6ca8d1c4",
+          "constraint_revision": "harness-governance"
+        },
+        {
+          "action": "repository.search",
+          "resource_kind": "mcp_tool",
+          "resource_id": "sample/search",
+          "resource_version": "8a1b81b1915bca2dae9a9fb94847b2f564a89a259b4ec4bc2d844f0ac703cdc5",
+          "constraint_revision": "harness-governance"
+        }
+      ],
+      "expires_at": 1795711183.727696,
+      "depth": 1,
+      "authorization_epoch": 1,
+      "state": "active",
+      "version": 1,
+      "created_at": 1795707613.7970061
+    },
+    {
+      "id": "dl-21860d3de30769799fef30fc294145d4f3645fca022dbd2d30b65395e8a2",
+      "scope": "harness-ec3b0fdcac7b43e1",
+      "parent_ref": "dl-ba7a8afbc91efd6ec2b0a12270c105ef7c5003d2a617de29283d6aa73c80",
+      "subject_ref": "operator:qualification",
+      "actor_ref": "service:delegate-2",
+      "audience": "dios-runtime",
+      "permissions": [
+        {
+          "action": "runtime.execute",
+          "resource_kind": "runtime_profile",
+          "resource_id": "dsh-real",
+          "resource_version": "9df43d49f973cb2507814e6c104451681bee868921eda3b08c69432a6ca8d1c4",
+          "constraint_revision": "harness-governance"
+        },
+        {
+          "action": "runtime.accept_result",
+          "resource_kind": "runtime_profile",
+          "resource_id": "dsh-real",
+          "resource_version": "9df43d49f973cb2507814e6c104451681bee868921eda3b08c69432a6ca8d1c4",
+          "constraint_revision": "harness-governance"
+        },
+        {
+          "action": "repository.search",
+          "resource_kind": "mcp_tool",
+          "resource_id": "sample/search",
+          "resource_version": "8a1b81b1915bca2dae9a9fb94847b2f564a89a259b4ec4bc2d844f0ac703cdc5",
+          "constraint_revision": "harness-governance"
+        }
+      ],
+      "expires_at": 1795711153.727696,
+      "depth": 2,
+      "authorization_epoch": 1,
+      "state": "active",
+      "version": 1,
+      "created_at": 1795707613.8320088
+    },
+    {
+      "id": "dl-bded167b9b980443c99b340026cc1111c0ab28ac5e8576f89c51e2fdceec",
+      "scope": "harness-ec3b0fdcac7b43e1",
+      "parent_ref": "dl-21860d3de30769799fef30fc294145d4f3645fca022dbd2d30b65395e8a2",
+      "subject_ref": "operator:qualification",
+      "actor_ref": "service:harness",
+      "audience": "dios-runtime",
+      "permissions": [
+        {
+          "action": "runtime.execute",
+          "resource_kind": "runtime_profile",
+          "resource_id": "dsh-real",
+          "resource_version": "9df43d49f973cb2507814e6c104451681bee868921eda3b08c69432a6ca8d1c4",
+          "constraint_revision": "harness-governance"
+        },
+        {
+          "action": "runtime.accept_result",
+          "resource_kind": "runtime_profile",
+          "resource_id": "dsh-real",
+          "resource_version": "9df43d49f973cb2507814e6c104451681bee868921eda3b08c69432a6ca8d1c4",
+          "constraint_revision": "harness-governance"
+        },
+        {
+          "action": "repository.search",
+          "resource_kind": "mcp_tool",
+          "resource_id": "sample/search",
+          "resource_version": "8a1b81b1915bca2dae9a9fb94847b2f564a89a259b4ec4bc2d844f0ac703cdc5",
+          "constraint_revision": "harness-governance"
+        }
+      ],
+      "expires_at": 1795711123.727696,
+      "depth": 3,
+      "authorization_epoch": 1,
+      "state": "active",
+      "version": 1,
+      "created_at": 1795707613.869989
+    }
+  ],
+  "run_id": "58576006-5344-4c22-84b7-3f19015bc7bc",
+  "image": "sha256:3d3f61fea596d5c2bf9cc309958a85ddbf548058aa3f2f0573f51514f3ee9026",
+  "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+  "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+  "process_id": 1156336,
+  "authorization_before": {
+    "mode": "e2ag",
+    "reference": "wa-4787b6a9ee73779662b8e8298f7d246c273358e71228a9ef1d89674d06fa",
+    "subject": "operator:qualification",
+    "actor": "service:harness",
+    "policy_id": "harness-governance",
+    "state": "active",
+    "expires_at": 1795711123.727696,
+    "authorization_epoch": 1,
+    "source_check": null,
+    "source_event": null,
+    "delegation": {
+      "reference": "dl-bded167b9b980443c99b340026cc1111c0ab28ac5e8576f89c51e2fdceec",
+      "captured_at": 1795707613.999982,
+      "chain": [
+        {
+          "id": "dl-b14fccda0f256c469f43405a43d138ffa74b1aefa8c59a4d61450819919a",
+          "parent_ref": null,
+          "subject": "operator:qualification",
+          "actor": "service:delegate-0",
+          "depth": 0,
+          "state": "active",
+          "expires_at": 1795711213.727696,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        },
+        {
+          "id": "dl-ba7a8afbc91efd6ec2b0a12270c105ef7c5003d2a617de29283d6aa73c80",
+          "parent_ref": "dl-b14fccda0f256c469f43405a43d138ffa74b1aefa8c59a4d61450819919a",
+          "subject": "operator:qualification",
+          "actor": "service:delegate-1",
+          "depth": 1,
+          "state": "active",
+          "expires_at": 1795711183.727696,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        },
+        {
+          "id": "dl-21860d3de30769799fef30fc294145d4f3645fca022dbd2d30b65395e8a2",
+          "parent_ref": "dl-ba7a8afbc91efd6ec2b0a12270c105ef7c5003d2a617de29283d6aa73c80",
+          "subject": "operator:qualification",
+          "actor": "service:delegate-2",
+          "depth": 2,
+          "state": "active",
+          "expires_at": 1795711153.727696,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        },
+        {
+          "id": "dl-bded167b9b980443c99b340026cc1111c0ab28ac5e8576f89c51e2fdceec",
+          "parent_ref": "dl-21860d3de30769799fef30fc294145d4f3645fca022dbd2d30b65395e8a2",
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "depth": 3,
+          "state": "active",
+          "expires_at": 1795711123.727696,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        }
+      ]
+    },
+    "secret_refs": [
+      {
+        "ref": "model/ecnu",
+        "version": "v1"
+      }
+    ],
+    "grant": {
+      "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+      "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+      "lease_epoch": 1,
+      "version": 2,
+      "state": "active",
+      "expires_at": 1795708514.2029986
+    },
+    "decisions": [
+      {
+        "id": "486e629d-4e38-4e32-9db7-8b42a1311d12",
+        "action": "tool-control",
+        "created_at": 1795707615.6499834,
+        "outcome": "deny",
+        "reason_codes": [
+          "TOOL_SESSION_NOT_READY"
+        ]
+      },
+      {
+        "id": "34bb424a-5176-4628-b63a-a48fe6a0360a",
+        "action": "execute",
+        "created_at": 1795707615.4499843,
+        "outcome": "allow",
+        "reason_codes": [
+          "EXECUTION_SESSION_BOUND"
+        ]
+      },
+      {
+        "id": "a0f6d1d1-919e-4871-bd8f-94d2130361a0",
+        "action": "tool-control",
+        "created_at": 1795707615.3459816,
+        "outcome": "deny",
+        "reason_codes": [
+          "TOOL_SESSION_NOT_READY"
+        ]
+      },
+      {
+        "id": "6013da87-8201-4b69-916f-7523e6068b92",
+        "action": "execute",
+        "created_at": 1795707614.2029986,
+        "outcome": "allow",
+        "reason_codes": [
+          "EXECUTION_GRANT_CREATED"
+        ]
+      },
+      {
+        "id": "8c4d2181-70dc-4515-b5a1-e030808be71f",
+        "action": "admit",
+        "created_at": 1795707613.9510183,
+        "outcome": "allow",
+        "reason_codes": [
+          "WORK_AUTHORIZATION_CREATED"
+        ]
+      }
+    ]
+  },
+  "invocation_id": "6e472f6e-be7a-4db3-86d7-130ce52067bd",
+  "approved_version": 2,
+  "state": "failed",
+  "attempt_error": {
+    "code": "AGENT_EXECUTION_REJECTED",
+    "category": "unknown",
+    "retry_at": null,
+    "retry_blocked": "NON_RETRYABLE"
+  },
+  "tool_calls": 1,
+  "invocation": {
+    "id": "6e472f6e-be7a-4db3-86d7-130ce52067bd",
+    "run_id": "58576006-5344-4c22-84b7-3f19015bc7bc",
+    "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+    "tool_id": "source-search",
+    "permission": {
+      "action": "repository.search",
+      "resource_kind": "mcp_tool",
+      "resource_id": "sample/search",
+      "resource_version": "8a1b81b1915bca2dae9a9fb94847b2f564a89a259b4ec4bc2d844f0ac703cdc5",
+      "constraint_revision": "harness-governance"
+    },
+    "arguments": {
+      "query": "c9f28bea98a2738fd61db45b1a927b35357a4a9a22303e1343450814dea7c632"
+    },
+    "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd",
+    "state": "succeeded",
+    "version": 4,
+    "approval_state": "consumed",
+    "approver": "operator:independent-reviewer",
+    "approval_reason": "",
+    "expires_at": 1795708217.449008,
+    "created_at": 1795707617.449008,
+    "updated_at": 1795707618.640995,
+    "result_key": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+    "reason": "TOOL_RESULT_VALIDATED",
+    "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+    "expired": false,
+    "dispatch_overdue": false,
+    "evidence": [
+      {
+        "stage": "receipt",
+        "created_at": 1795707618.640995,
+        "decision": {
+          "stage": "tool-receipt",
+          "decision": "allow",
+          "reason_codes": [
+            "TOOL_RESULT_VALIDATED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {
+            "receipt_key": "a8a45c1e52cfcabc662844abacb4879fb4f2ddb3555d296b12ba6c01482e1981",
+            "result_key": "796d10b3c622c31da5aae9109442ea53c33dc84e071965cffb4cb87ab97e8f35",
+            "binding": {
+              "run_id": "58576006-5344-4c22-84b7-3f19015bc7bc",
+              "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+              "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+              "worker_id": "3c9f8202-aa4f-473e-8241-decc72105442",
+              "worker_instance": "1be11636-4b9c-4bd0-9bc5-d39aa65feb57",
+              "lease_epoch": 1,
+              "authorization_epoch": 1,
+              "authorization_ref": "wa-4787b6a9ee73779662b8e8298f7d246c273358e71228a9ef1d89674d06fa",
+              "policy_digest": "a3667203c2a9f97fa9318a07d5c4d16b35eb2432e419269b77eb196138c9687a",
+              "permissions_digest": "6a04e889f001af38cc923ebeee0215f9004796c3303269adef7187e814098eb7",
+              "subject": "operator:qualification",
+              "actor": "service:harness"
+            },
+            "execution_grant_renewed": false
+          }
+        }
+      },
+      {
+        "stage": "dispatch",
+        "created_at": 1795707618.5509934,
+        "decision": {
+          "stage": "tool-dispatch",
+          "decision": "allow",
+          "reason_codes": [
+            "TOOL_DISPATCH_COMMITTED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {
+            "binding": {
+              "run_id": "58576006-5344-4c22-84b7-3f19015bc7bc",
+              "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+              "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+              "worker_id": "3c9f8202-aa4f-473e-8241-decc72105442",
+              "worker_instance": "1be11636-4b9c-4bd0-9bc5-d39aa65feb57",
+              "lease_epoch": 1,
+              "authorization_epoch": 1,
+              "authorization_ref": "wa-4787b6a9ee73779662b8e8298f7d246c273358e71228a9ef1d89674d06fa",
+              "policy_digest": "a3667203c2a9f97fa9318a07d5c4d16b35eb2432e419269b77eb196138c9687a",
+              "permissions_digest": "6a04e889f001af38cc923ebeee0215f9004796c3303269adef7187e814098eb7",
+              "subject": "operator:qualification",
+              "actor": "service:harness"
+            },
+            "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd",
+            "dispatch_version": 3,
+            "sender": null,
+            "budget": {
+              "maximum": null,
+              "committed_before": 0,
+              "unit": "dispatch_admission"
+            }
+          }
+        }
+      },
+      {
+        "stage": "approval",
+        "created_at": 1795707617.7810118,
+        "decision": {
+          "stage": "tool-approval",
+          "decision": "allow",
+          "reason_codes": [
+            "TOOL_APPROVED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {
+            "approver": "operator:independent-reviewer"
+          }
+        }
+      },
+      {
+        "stage": "request",
+        "created_at": 1795707617.449008,
+        "decision": {
+          "stage": "tool-request",
+          "decision": "approval_required",
+          "reason_codes": [
+            "TOOL_APPROVAL_REQUIRED"
+          ],
+          "policy_version": "e2ag-2026-08-12.1",
+          "contract_type": "",
+          "latency_us": 0,
+          "evidence": {
+            "run_id": "58576006-5344-4c22-84b7-3f19015bc7bc",
+            "arguments_digest": "61cc3768c3d47c4dc65f8b8df85565f1ffcc00fc94f1811658c9b1b598da4bdd"
+          }
+        }
+      }
+    ],
+    "receipt_available": true
+  },
+  "authorization_after": {
+    "mode": "e2ag",
+    "reference": "wa-4787b6a9ee73779662b8e8298f7d246c273358e71228a9ef1d89674d06fa",
+    "subject": "operator:qualification",
+    "actor": "service:harness",
+    "policy_id": "harness-governance",
+    "state": "closed",
+    "expires_at": 1795711123.727696,
+    "authorization_epoch": 1,
+    "source_check": null,
+    "source_event": null,
+    "delegation": {
+      "reference": "dl-bded167b9b980443c99b340026cc1111c0ab28ac5e8576f89c51e2fdceec",
+      "captured_at": 1795707613.999982,
+      "chain": [
+        {
+          "id": "dl-b14fccda0f256c469f43405a43d138ffa74b1aefa8c59a4d61450819919a",
+          "parent_ref": null,
+          "subject": "operator:qualification",
+          "actor": "service:delegate-0",
+          "depth": 0,
+          "state": "active",
+          "expires_at": 1795711213.727696,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        },
+        {
+          "id": "dl-ba7a8afbc91efd6ec2b0a12270c105ef7c5003d2a617de29283d6aa73c80",
+          "parent_ref": "dl-b14fccda0f256c469f43405a43d138ffa74b1aefa8c59a4d61450819919a",
+          "subject": "operator:qualification",
+          "actor": "service:delegate-1",
+          "depth": 1,
+          "state": "active",
+          "expires_at": 1795711183.727696,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        },
+        {
+          "id": "dl-21860d3de30769799fef30fc294145d4f3645fca022dbd2d30b65395e8a2",
+          "parent_ref": "dl-ba7a8afbc91efd6ec2b0a12270c105ef7c5003d2a617de29283d6aa73c80",
+          "subject": "operator:qualification",
+          "actor": "service:delegate-2",
+          "depth": 2,
+          "state": "active",
+          "expires_at": 1795711153.727696,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        },
+        {
+          "id": "dl-bded167b9b980443c99b340026cc1111c0ab28ac5e8576f89c51e2fdceec",
+          "parent_ref": "dl-21860d3de30769799fef30fc294145d4f3645fca022dbd2d30b65395e8a2",
+          "subject": "operator:qualification",
+          "actor": "service:harness",
+          "depth": 3,
+          "state": "active",
+          "expires_at": 1795711123.727696,
+          "authorization_epoch": 1,
+          "captured_epoch": 1,
+          "source_check": null,
+          "source_event": null,
+          "revocation": null
+        }
+      ]
+    },
+    "secret_refs": [
+      {
+        "ref": "model/ecnu",
+        "version": "v1"
+      }
+    ],
+    "grant": {
+      "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+      "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+      "lease_epoch": 1,
+      "version": 3,
+      "state": "closed",
+      "expires_at": 1795708514.2029986
+    },
+    "decisions": [
+      {
+        "id": "486e629d-4e38-4e32-9db7-8b42a1311d12",
+        "action": "tool-control",
+        "created_at": 1795707615.6499834,
+        "outcome": "deny",
+        "reason_codes": [
+          "TOOL_SESSION_NOT_READY"
+        ]
+      },
+      {
+        "id": "34bb424a-5176-4628-b63a-a48fe6a0360a",
+        "action": "execute",
+        "created_at": 1795707615.4499843,
+        "outcome": "allow",
+        "reason_codes": [
+          "EXECUTION_SESSION_BOUND"
+        ]
+      },
+      {
+        "id": "a0f6d1d1-919e-4871-bd8f-94d2130361a0",
+        "action": "tool-control",
+        "created_at": 1795707615.3459816,
+        "outcome": "deny",
+        "reason_codes": [
+          "TOOL_SESSION_NOT_READY"
+        ]
+      },
+      {
+        "id": "6013da87-8201-4b69-916f-7523e6068b92",
+        "action": "execute",
+        "created_at": 1795707614.2029986,
+        "outcome": "allow",
+        "reason_codes": [
+          "EXECUTION_GRANT_CREATED"
+        ]
+      },
+      {
+        "id": "8c4d2181-70dc-4515-b5a1-e030808be71f",
+        "action": "admit",
+        "created_at": 1795707613.9510183,
+        "outcome": "allow",
+        "reason_codes": [
+          "WORK_AUTHORIZATION_CREATED"
+        ]
+      }
+    ]
+  },
+  "result_frames": 0,
+  "usage": {
+    "frame_count": 4,
+    "availability": "reported",
+    "model_usage": {
+      "evidence_level": "agent_reported",
+      "settlement": "unreconciled",
+      "at_limit": false,
+      "items": [
+        {
+          "attempt_id": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+          "session_id": "5158879b-0693-45ca-9a08-d1119642dc11",
+          "sequence": 4,
+          "kind": "acp_session",
+          "quality": "reported",
+          "values": {
+            "size": 32768,
+            "used": 2092
+          },
+          "recorded_at": 1795707620.536016,
+          "evidence": {
+            "artifact_key": "98d54eeca38661bad43f51921199bdb37d585a49c1988dfab766487a21f12993",
+            "report_sequence": 10
+          },
+          "aggregation": "session_snapshot"
+        }
+      ]
+    }
+  },
+  "exit_receipt_sha256": "d90002eb5aa4b60decc652163f6c19cbc65bb941a9fe5affb86091bf71955c4c",
+  "exit": {
+    "alive": false,
+    "exit_code": 2,
+    "handle": "6d48e9cf-80c8-4fe4-8698-770c96c8e071",
+    "health": "not_configured",
+    "pid": null,
+    "process_instance": "b1d8e779d9ced2cb5ccad19399afdfb96f910476cc809fd2346a3b3ea20b3763:2026-11-26T15:40:13.153789082Z",
+    "runtime_host": "c55a125f-8dbf-4d27-a387-f254b34e4b47",
+    "state": "exited"
+  },
+  "passed": true
+}

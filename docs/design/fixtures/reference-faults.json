@@ -203,12 +203,11 @@
       "id": "R15",
       "tests": [
         "test_runtime_execution_isolation.ProfileIsolationTests.test_native_escape_configurations_are_rejected",
-        "test_runtime_tool_invocations.ToolInvocationTests.test_revoke_during_initialization_blocks_actual_tool_call"
+        "test_runtime_tool_invocations.ToolInvocationTests.test_revoke_during_initialization_blocks_actual_tool_call",
+        "test_reference_readonly.ReadonlyEvidenceTests.test_native_write_compile_package_and_egress_are_denied"
       ],
-      "covered": "执行配置拒绝逃逸；工具初始化期间撤销在实际控制点阻断",
-      "gaps": [
-        "评审只读配置需逐项注入写源码、编译、包脚本、越权外发，并保存源码摘要与 Attempt 授权证据"
-      ],
+      "covered": "固定 DSH 实际模型会话逐项请求写源码、Python 编译、npm 包脚本及越权外发；原生 guard 在工具执行前拒绝，正向控制证明编译与包脚本可执行；源码摘要不变，Run/Attempt/Session 与 E2AG 派发及回执绑定保持。",
+      "gaps": [],
       "owners": [
         34,
         58,
