@@ -7,10 +7,10 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K04-3.04",
-    "next_delivery": "K04-3.04",
+    "next_work_item": "F03-2.02",
+    "next_delivery": "F03-2.02",
     "next_delivery_order": [
-      "K04-3.04",
+      "F03-2.02",
       "K04-2.02",
       "K02-3.02",
       "K02-3.03",
@@ -25,7 +25,6 @@
     "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
-      "#46 诊断导出未验证 WIP 已保存在 git stash，待 K04-3.02 顺序到达后处理。",
       "K02-3.02 等待源端隔离方式选择；当前先推进 W1 已就绪的 Harness 恢复与治理资格，原恢复验收保留。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
@@ -33,7 +32,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "K04-3.01/.02/.03 已完成，继续已就绪的 #46 证据完整性与瓶颈报告，复用既有成本结算和阶段证据。身份资格补查开发 Provider 配置。K04-2.02 等待容量语义选择，K02-3.02 等待源端隔离选择；其下游资格保留依赖。"
+    "next_selection_reason": "K04-3 四项均已完成。继续已就绪的 F03-2.02 十八项故障验收夹具，复用 Cursor ACP、E2AG、恢复与观测实现。父子容量和源端隔离两项继续等待用户选择，其余功能按依赖推进。"
   },
   "waves": [
     {
@@ -1896,7 +1895,7 @@
         "docs/design/evidence/managed-secrets-20261124.json"
       ],
       "wave": "W4",
-      "qualification_followup": "开发实例对不匹配 Bearer 返回 AUTH_PROVIDER_UNAVAILABLE，操作员正常；需在身份资格中定位目录/Provider 配置原因。监测凭据仅固定指标接口可用，测试身份源下越权请求均拒绝。"
+      "qualification_followup": "开发 AppRole 12 小时 SecretID 到期与原生锁定已恢复；两个 Agent 认证、受管读取正常，无效 Bearer 返回 403。长期平台身份供给与物理跨主机资格仍按本项承接。"
     },
     {
       "id": "K03-1.04",
@@ -2590,7 +2589,7 @@
       "issue": 46,
       "title": "证据完整性和瓶颈报告",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K04-3-A01",
         "K04-3-A03",
@@ -2608,8 +2607,12 @@
         "K04-2.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有阶段、真实并发、吞吐、用量及调度健康；版本/来源全链关联和诊断交付待补。",
+      "completion_evidence": [
+        "docs/design/evidence-completeness-46.md",
+        "docs/design/evidence/evidence-completeness-20261126.json",
+        "docs/design/evidence/evidence-boundary-samples-20261126.json"
+      ],
+      "basis": "7 项 SQLite/PostgreSQL 报告测试、五组双 Worker 原生边界实验和 85 项历史捕获/离线复算通过；生产缺失与有界截断明确保留，费用复用已验证结算账本。",
       "existing_evidence": [
         "docs/design/evidence/runtime-diagnostics-20261125.json",
         "docs/design/evidence/runtime-overview-20261125.json",
