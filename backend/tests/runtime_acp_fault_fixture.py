@@ -109,6 +109,7 @@ async def bridge():
                 {
                     "command": [sys.executable, __file__, "server"],
                     "cwd": directory,
+                    "preflight": {"commands": ["python"]},
                     "prompt_timeout": 150 if payload.get("mode") == "network" else 30,
                 }
             )

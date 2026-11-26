@@ -234,6 +234,13 @@ def configuration(path):
 async def execute(path, prompt, decode_result, *, required_tools=(), activity_decoder=None, output_decoder=None, permission_decoder=None):
     """Run one ACP turn and map its result through an application-owned validator."""
     config,command,cwd,env=configuration(path)
+    from .acp_preflight import PreflightError, check_environment
+    try:
+        await check_environment(config.get('preflight'),env)
+    except PreflightError as exc:
+        # Only a validated operator check identifier is recorded, never URL/credential text.
+        sys.stderr.write(json.dumps({'code':exc.code,'check':exc.check})+'\n');sys.stderr.flush()
+        raise
     timeout=config.get('prompt_timeout',240)
     if type(timeout) not in (int,float) or not 1<=timeout<=600:raise RuntimeErrorCode('ACP_CONFIG_INVALID')
     from .worker_tool_channel import SOCKET_ENV

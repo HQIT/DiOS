@@ -92,15 +92,15 @@
     {
       "id": "R13",
       "tests": ["test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities", "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate"],
-      "covered": "干净 Compose 实例中实际镜像切换与失败候选回退；原生 ACP 任务自然排空、备份校验、历史及产物保持、排队身份延续，后台 Worker 使用安装 scope",
+      "covered": "干净 Compose 实例中三路实际 ACP 会话自然排空；排空期间新提交明确拒绝，原排队任务保留；实际镜像切换与失败候选回退、备份校验、历史及产物保持，后台 Worker 使用安装 scope",
       "gaps": [],
       "owners": [10, 30, 51]
     },
     {
       "id": "R14",
-      "tests": ["test_runtime_process.SupervisorTests.test_missing_path_is_preflight_failure"],
-      "covered": "无 PATH 时 Git 缺失明确分类；当前目标操作系统为 Linux",
-      "gaps": ["需隔离无人值守 Linux 服务的代理缺失、配置修复后恢复及日志凭据检查"],
+      "tests": ["test_runtime_process.SupervisorTests.test_missing_path_is_preflight_failure", "test_reference_unattended.PreflightSpecificationTests.test_invalid_specifications_fail_before_any_network", "test_reference_unattended.NativeUnattendedTests.test_service_dependency_proxy_repair_and_no_credential_logs"],
+      "covered": "隔离 Linux systemd 服务中移除 Git PATH、移除代理及注入不可达代理；实际 ACP 启动链路在会话创建前明确拒绝，修复配置后单次执行成功，日志检查凭据无泄漏",
+      "gaps": [],
       "owners": [10, 51]
     },
     {

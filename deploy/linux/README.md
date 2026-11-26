@@ -74,13 +74,33 @@ CLI 默认从 `DIOS_RUNTIME_SCOPE` 读取实例范围，与 API 和后台服务�
 
 Secret 文件权限、OpenBao 原生 Agent 后台配置、固定版本注入和轮换操作见 [Linux Secret 交付](secrets.md)。
 
+ACP 的管理员配置支持可选的 `preflight`，在 Harness 实际环境中、创建模型会话前检查依赖和网络。只声明该 Harness 必需的命令；Git 不属于 DiOS 控制面的必需依赖。例如：
+
+```json
+{
+  "preflight": {
+    "commands": ["git"],
+    "network": [
+      {"id": "model-route", "url": "https://gateway.example/health", "proxy_env": "HTTPS_PROXY"}
+    ]
+  },
+  "credential_env_files": {"HTTPS_PROXY": "/run/secrets/model-proxy"}
+}
+```
+
+将这两项合入现有 ACP 配置；地址替换为支持 HEAD 的受控健康端点。`proxy_env` 表示该探测必须使用指定环境变量中的代理，缺失时返回明确错误；省略则直连，不继承宿主代理。代理认证可通过既有 Secret 文件注入。探测不跟随重定向、每项最多 5 秒，最多 16 项检查；健康地址不接受内嵌凭据、查询参数或 fragment。端点可达性通过后仍需实际 Harness 会话确认模型服务可用。
+
+依赖缺失、代理缺失或格式错误归为配置故障；连接失败进入既有网络恢复策略。诊断只包含错误代码及命令名/检查 ID。修复配置后按原任务的恢复入口继续，后续执行仍需 E2AG 授权。修改已登记配置时沿用版本固定与排空切换流程。
+
+后台环境沿用 [systemd EnvironmentFile](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html)，网络检查采用 [HTTPX 显式代理](https://www.python-httpx.org/advanced/proxies/)。[Linux 后台资格证据](../../docs/design/evidence/unattended-cutover-20261126.json) 包含真实 systemd 服务的 PATH 缺失、代理缺失、代理不可达和修复后执行，以及 journal 凭据检查。
+
 采用 [Cursor 原生控制配置](../../docs/design/cursor-native-controls.md)和已验证镜像。每个服务实例运行一个 Worker，实际并发以 Runtime 进程、Attempt 与 Session 观测为准。计划升级或停止前先用 Runtime `upgrade drain`、`upgrade wait` 排空；systemd 配置不以超时强杀代替排空。
 
 ## 交付验证
 
 首轮已验证全新数据目录、固定镜像启动、精简环境诊断、访问认证、Console 资源和独立重启后的数据挂载。Worker unit 通过 systemd 静态校验，真实 Cursor 执行复用既有开发环境证据。清洁安装中的任务、升级回退和恢复组合资格由 D01-1.02 承接。
 
-[固定镜像切换证据](../../docs/design/evidence/installation-cutover-20261126.json) 已覆盖干净 Compose 实例中的 ACP 原生任务、自然排空、安装备份校验、候选启动失败回退、实际旧/新版本切换，以及恢复后排队任务的原身份和成果校验。模型输出为合成协议端点；跨 Harness、schema 变更和物理跨主机资格分别保留。
+[固定镜像切换证据](../../docs/design/evidence/unattended-cutover-20261126.json) 已覆盖干净 Compose 实例中的三路 ACP 原生任务、自然排空、安装备份校验、候选启动失败回退、实际旧/新版本切换，以及恢复后排队任务的原身份和成果校验。排空期间新提交明确返回 `RUNTIME_DRAINING`，原排队任务保持身份。模型输出为合成协议端点；跨 Harness、schema 变更和物理跨主机资格分别保留。
 
 升级顺序为：固定候选镜像摘要 → 调用 `/api/os/upgrade/drain` → 等待原任务自然结束 → `settle-services` 并确认 `ready_for_cutover` → 使用 `installation-backup` 和 `installation-verify` 保存并校验备份 → 切换 `.env` 中镜像并执行 Compose `up -d --wait` → 检查历史、产物、配置及排队任务 → 携当前 `revision`、`kernel_revision` 调用 `resume`。候选启动失败时先恢复原固定镜像，保持 draining，完成诊断后再恢复领取。查询超时、活跃任务或未知执行状态均不允许进入镜像切换。
 

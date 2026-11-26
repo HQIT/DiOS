@@ -14,7 +14,7 @@ from uuid import uuid4
 
 import httpx
 from app.runtime.adapter import LaunchSpec, Mount
-from app.runtime.database import Database
+from app.runtime.database import Database, RuntimeErrorCode
 from app.runtime.store import RuntimeStore
 from work_auth_fixtures import policy_fixture
 
@@ -265,28 +265,42 @@ class NativeInstallationUpgradeTests(unittest.IsolatedAsyncioTestCase):
     async def test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities(
         self,
     ):
-        first = await self.submit("active")
-        process = await self.worker()
-        running = await self.wait_stream(first)
-        queued = await self.submit("queued")
+        active = [await self.submit(f"active-{i}") for i in range(3)]
+        processes = [await self.worker() for _ in active]
+        running = [await self.wait_stream(run) for run in active]
+        status = await self.store.runtime_status()
+        self.assertEqual(status["actual_concurrency"], 3)
+        for field in (
+            "worker_instance",
+            "process_id",
+            "process_instance",
+            "session_id",
+        ):
+            self.assertEqual(len({r["attempts"][0][field] for r in running}), 3, field)
+        queued = await self.submit("queued-before-drain")
         drain = await self.api("upgrade/drain", {})
         self.assertFalse(drain["ready_for_cutover"])
+        with self.assertRaisesRegex(RuntimeErrorCode, "RUNTIME_DRAINING"):
+            await self.submit("new-trigger-during-drain")
         self.assertEqual((await self.collect(await self.worker()))["state"], "idle")
-        self.assertIsNone(process.returncode)
-        self.assertEqual(
-            (await self.store.get(first["id"]))["attempts"][0]["process_instance"],
-            running["attempts"][0]["process_instance"],
-        )
+        for process, before in zip(processes, running):
+            self.assertIsNone(process.returncode)
+            self.assertEqual(
+                (await self.store.get(before["id"]))["attempts"][0]["process_instance"],
+                before["attempts"][0]["process_instance"],
+            )
+        self.assertEqual((await self.store.get(queued["id"]))["attempts"], [])
         self.journal.joinpath("release").touch()
-        self.assertEqual((await self.collect(process))["state"], "succeeded")
+        for result in await asyncio.gather(*(self.collect(p) for p in processes)):
+            self.assertEqual(result["state"], "succeeded")
         self.journal.joinpath("release").unlink()
         settled = await self.api("upgrade/settle-services", {})
         self.assertTrue(settled["ready_for_cutover"])
-        stable = await self.store.get(first["id"])
+        stable = [await self.store.get(run["id"]) for run in active]
         queued_before = await self.store.get(queued["id"])
         api_before = {
             row["id"]: await self.api("runtime/runs/" + row["id"])
-            for row in (stable, queued_before)
+            for row in (*stable, queued_before)
         }
         config_hashes = {
             str(p.relative_to(self.root)): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -343,7 +357,7 @@ class NativeInstallationUpgradeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(after["revision"], settled["revision"])
         self.assertEqual(after["kernel"]["revision"], settled["kernel"]["revision"])
         self.assertTrue(after["ready_for_cutover"])
-        for before in (stable, queued_before):
+        for before in (*stable, queued_before):
             current = await self.store.get(before["id"])
             for field in (
                 "id",
@@ -354,7 +368,7 @@ class NativeInstallationUpgradeTests(unittest.IsolatedAsyncioTestCase):
                 "attempts",
             ):
                 self.assertEqual(current[field], before[field], field)
-            # Both identities are accessible through the newly deployed HTTP API.
+            # All identities are accessible through the newly deployed HTTP API.
             detail = await self.api("runtime/runs/" + before["id"])
             self.assertEqual(detail["id"], before["id"])
             for field in ("attempts", "artifacts"):
@@ -392,31 +406,52 @@ class NativeInstallationUpgradeTests(unittest.IsolatedAsyncioTestCase):
         self.journal.joinpath("release").touch()
         self.assertEqual((await self.collect(resumed_process))["state"], "succeeded")
         self.assertEqual(
-            len((self.journal / "prompts.jsonl").read_text().splitlines()), 2
+            len((self.journal / "prompts.jsonl").read_text().splitlines()), 4
         )
-        self.assertEqual(
-            (await self.store.get(first["id"]))["attempts"], stable["attempts"]
-        )
+        for before in stable:
+            self.assertEqual(
+                (await self.store.get(before["id"]))["attempts"], before["attempts"]
+            )
         OBSERVATIONS.append(
             {
                 "case": "R13",
                 "old_image": self.old_image,
                 "new_image": self.new_image,
                 "failed_candidate": os.environ["DIOS_TEST_UPGRADE_BAD"],
-                "runs": [first["id"], queued["id"]],
-                "old_attempt": stable["attempts"][0]["id"],
+                "runs": [r["id"] for r in (*stable, queued)],
+                "actual_concurrency_before_drain": status["actual_concurrency"],
+                "active_execution_evidence": [
+                    {
+                        k: r["attempts"][0][k]
+                        for k in (
+                            "id",
+                            "worker_id",
+                            "worker_instance",
+                            "process_id",
+                            "process_instance",
+                            "session_id",
+                            "epoch",
+                        )
+                    }
+                    | {"run_id": r["id"]}
+                    for r in running
+                ],
+                "old_attempts": [r["attempts"][0]["id"] for r in stable],
                 "new_attempt": resumed["attempts"][0]["id"],
-                "old_session": stable["attempts"][0]["session_id"],
+                "old_sessions": [r["attempts"][0]["session_id"] for r in stable],
                 "new_session": resumed["attempts"][0]["session_id"],
                 "backup_verified": True,
                 "natural_drain": True,
                 "failed_image_rolled_back": True,
                 "configuration_and_history_preserved": True,
                 "queued_identity_preserved": True,
+                "new_trigger_during_drain": "RUNTIME_DRAINING",
                 "dispatch_held_until_explicit_resume": True,
                 "worker_uses_installation_scope_environment": True,
-                "prompt_calls": 2,
-                "final_states": ["succeeded", "succeeded"],
+                "prompt_calls": 4,
+                "final_states": [
+                    (await self.store.get(r["id"]))["state"] for r in (*stable, queued)
+                ],
                 "model": "synthetic ACP endpoint",
                 "e2ag": "enforced",
             }

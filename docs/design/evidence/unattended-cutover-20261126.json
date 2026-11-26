@@ -1,0 +1,242 @@
+{
+  "work_item": "F03-2.02",
+  "related_work_items": [
+    "D01-1.01",
+    "D01-1.02"
+  ],
+  "complete": false,
+  "qualified_cases": [
+    "R13",
+    "R14"
+  ],
+  "base_commit": "33e898ba9bfe761cbe8fad29a45b3f61f1cc6c66",
+  "outcomes": {
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": "passed",
+    "test_reference_unattended.NativeUnattendedTests.test_service_dependency_proxy_repair_and_no_credential_logs": "passed",
+    "test_reference_unattended.PreflightSpecificationTests.test_invalid_specifications_fail_before_any_network": "passed",
+    "test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities": "passed",
+    "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate": "passed",
+    "test_runtime_process.SupervisorTests.test_missing_path_is_preflight_failure": "passed"
+  },
+  "test_seconds": {
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": 0.0008734470029594377,
+    "test_reference_unattended.NativeUnattendedTests.test_service_dependency_proxy_repair_and_no_credential_logs": 1.5595555999898352,
+    "test_reference_unattended.PreflightSpecificationTests.test_invalid_specifications_fail_before_any_network": 0.001258254997082986,
+    "test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities": 44.711105417009094,
+    "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate": 1.235508910001954,
+    "test_runtime_process.SupervisorTests.test_missing_path_is_preflight_failure": 0.00047827900561969727
+  },
+  "observations": [
+    {
+      "case": "R13",
+      "old_image": "sha256:bcfd1072879988148c320b1be3f75376ed9491a8d472e8d208f42dae283b274e",
+      "new_image": "sha256:2e0d16f52f858d3107d54064cdb2d99f5c927cf8224498abe384ccd236abd36b",
+      "failed_candidate": "dios-upgrade-rejected:20261126",
+      "runs": [
+        "4247b474-031f-48d9-b2d0-fc30a801343a",
+        "f1849ab4-0004-4bf3-99cc-781ee3fd9c02",
+        "37d2affe-bb93-4743-b70a-d48af312ecfa",
+        "c9025ce1-cff0-489a-9268-16bf69b12d4a"
+      ],
+      "actual_concurrency_before_drain": 3,
+      "active_execution_evidence": [
+        {
+          "id": "717de8b4-8556-4be0-83b8-6bb4306bf8cf",
+          "worker_id": "e65a2259-f03a-49f3-af7b-a0e0690dd8f3",
+          "worker_instance": "edf23c49-c090-42fb-a7dc-f74d7def1523",
+          "process_id": 930655,
+          "process_instance": "49e8e565b14648dec94eb52c21b4795005cd3482d092d7bc9b1adf29fd845c52:2026-11-26T12:15:31.575346502Z",
+          "session_id": "fault-session-2e76a4e838914378b6451f6e7066f372",
+          "epoch": 1,
+          "run_id": "4247b474-031f-48d9-b2d0-fc30a801343a"
+        },
+        {
+          "id": "f2ffd8fc-e90a-4cde-90a3-34bb7e7630be",
+          "worker_id": "4329f2d4-d04c-4296-892f-d1dee0a3e462",
+          "worker_instance": "9ac37292-7f61-4ee1-aa9f-e45e893608ac",
+          "process_id": 930759,
+          "process_instance": "5f773b47093508413fb0d5644c0513b2ac6bbc902d42756c5b40b710e2c9c836:2026-11-26T12:15:32.052748902Z",
+          "session_id": "fault-session-c959bcdd3d7942c08cc8e2d1f2fff1ce",
+          "epoch": 1,
+          "run_id": "f1849ab4-0004-4bf3-99cc-781ee3fd9c02"
+        },
+        {
+          "id": "ff47248d-b971-433d-bb91-9bd1a74870bc",
+          "worker_id": "69998a87-a6d7-46c7-9f58-601efc714dfd",
+          "worker_instance": "90aac7ca-a1da-4d56-bcc2-07ac17c9f57d",
+          "process_id": 930706,
+          "process_instance": "159815c7da7b9dd131e0cede61038fd0969b5abdc7c69f00de97f24fb6a305a7:2026-11-26T12:15:31.814946691Z",
+          "session_id": "fault-session-2b66597c63a84d86bbd1133e1ffedbaa",
+          "epoch": 1,
+          "run_id": "37d2affe-bb93-4743-b70a-d48af312ecfa"
+        }
+      ],
+      "old_attempts": [
+        "717de8b4-8556-4be0-83b8-6bb4306bf8cf",
+        "f2ffd8fc-e90a-4cde-90a3-34bb7e7630be",
+        "ff47248d-b971-433d-bb91-9bd1a74870bc"
+      ],
+      "new_attempt": "f60b6729-2357-40f6-9e95-fe7903db59d5",
+      "old_sessions": [
+        "fault-session-2e76a4e838914378b6451f6e7066f372",
+        "fault-session-c959bcdd3d7942c08cc8e2d1f2fff1ce",
+        "fault-session-2b66597c63a84d86bbd1133e1ffedbaa"
+      ],
+      "new_session": "fault-session-042c2bc911f341a2a768b35072381b77",
+      "backup_verified": true,
+      "natural_drain": true,
+      "failed_image_rolled_back": true,
+      "configuration_and_history_preserved": true,
+      "queued_identity_preserved": true,
+      "new_trigger_during_drain": "RUNTIME_DRAINING",
+      "dispatch_held_until_explicit_resume": true,
+      "worker_uses_installation_scope_environment": true,
+      "prompt_calls": 4,
+      "final_states": [
+        "succeeded",
+        "succeeded",
+        "succeeded",
+        "succeeded"
+      ],
+      "model": "synthetic ACP endpoint",
+      "e2ag": "enforced"
+    },
+    {
+      "case": "R14",
+      "environment": "Linux systemd user services",
+      "phases": [
+        {
+          "phase": "missing-git",
+          "unit": "dios-qualification-aad8adbb8a0f4a91",
+          "code": "ACP_PREFLIGHT_DEPENDENCY_MISSING"
+        },
+        {
+          "phase": "missing-proxy",
+          "unit": "dios-qualification-a3973ce247174ae4",
+          "code": "ACP_PREFLIGHT_PROXY_MISSING"
+        },
+        {
+          "phase": "unreachable-proxy",
+          "unit": "dios-qualification-552587500e914bcd",
+          "code": "ACP_PREFLIGHT_NETWORK_FAILED"
+        },
+        {
+          "session": "fault-session-5a2e12fc413c4545b867476a0bde848e",
+          "pid": 929599
+        },
+        {
+          "phase": "repaired",
+          "unit": "dios-qualification-249a32ca04ef4e25",
+          "code": "succeeded"
+        }
+      ],
+      "authenticated_proxy_probe": true,
+      "credentials_absent_from_journal": true,
+      "prompt_calls": 1,
+      "model": "synthetic ACP endpoint",
+      "preflight_before_session_creation": true
+    }
+  ],
+  "cases": [
+    {
+      "id": "R13",
+      "tests": [
+        "test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities",
+        "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate"
+      ],
+      "covered": "干净 Compose 实例中三路实际 ACP 会话自然排空；排空期间新提交明确拒绝，原排队任务保留；实际镜像切换与失败候选回退、备份校验、历史及产物保持，后台 Worker 使用安装 scope",
+      "gaps": [],
+      "owners": [
+        10,
+        30,
+        51
+      ],
+      "title": "R13 运行中升级",
+      "injection": "3 路活跃时设 drain，同时触发新任务，再等待自然结束",
+      "assertions": "停领新任务，活跃任务结束后切换；会话不重复、未完成工作保留",
+      "status": "passed"
+    },
+    {
+      "id": "R14",
+      "tests": [
+        "test_runtime_process.SupervisorTests.test_missing_path_is_preflight_failure",
+        "test_reference_unattended.PreflightSpecificationTests.test_invalid_specifications_fail_before_any_network",
+        "test_reference_unattended.NativeUnattendedTests.test_service_dependency_proxy_repair_and_no_credential_logs"
+      ],
+      "covered": "隔离 Linux systemd 服务中移除 Git PATH、移除代理及注入不可达代理；实际 ACP 启动链路在会话创建前明确拒绝，修复配置后单次执行成功，日志检查凭据无泄漏",
+      "gaps": [],
+      "owners": [
+        10,
+        51
+      ],
+      "title": "R14 无人值守",
+      "injection": "隔离计划任务移除 Git PATH，再移除代理；恢复配置重跑预检",
+      "assertions": "精确依赖错误；修复后可执行；凭据不写日志、后台无反复窗口",
+      "status": "passed"
+    }
+  ],
+  "source_sha256": {
+    "backend/app/runtime/acp_bridge.py": "ded4300d8ae7e8f6088dcc19544dda51e7ee40083c10f36d409d27c16ea470fc",
+    "backend/app/runtime/acp_preflight.py": "c5e876b70e3fb1789b27833551bf2d1d4bbeee690deb1727aed7e9b94b1ec7fc",
+    "backend/app/runtime/faults.py": "d9ec13e6a58fc6764991c3a497a42eb11149699e64733b93e2e8849dd649e3fe",
+    "backend/tests/runtime_acp_fault_fixture.py": "0cf7f2e407f4dc31c6edc756f7893050829ec97ca27601a5782a6feb8ba0af94",
+    "backend/tests/runtime_unattended_fixture.py": "dc7822e89b3f8b38b7b1f7625fcef125101b49a10304d9cbaeb667a2ccf06b17",
+    "backend/tests/test_reference_unattended.py": "9adeb2cefa6169694375b9b607f59ae4a5c143ad3270a82065c3c2bc29cde452",
+    "backend/tests/test_reference_upgrade.py": "77508f512c877b2b22b83e43c330480509cfef78d5724caa8b9179b79e19d088",
+    "docs/design/fixtures/reference-faults.json": "2faaddaafd83deb09c09bb944ae42e9c30fff4c24cdcf89cfd04fe9d492fb018",
+    "docs/design/reference-scenario-acceptance.md": "693a8f60a50d2e12bc1435b2cf42a6163fd76e4bae15220072a1ae377f160bb5",
+    "scripts/qualify_reference_faults.py": "afd05885e8ec28908bd2dbf60436d29091bb1244b00c2df13c0bf3a51c841c0e"
+  },
+  "sources_unchanged": true,
+  "private_report_sha256": "986fbc1bf33228d458476854ae89738b66dac7185f2703fe5724f986fdd6004d",
+  "deployment": {
+    "backend_image": "sha256:2e0d16f52f858d3107d54064cdb2d99f5c927cf8224498abe384ccd236abd36b",
+    "previous_backend_image": "sha256:bcfd1072879988148c320b1be3f75376ed9491a8d472e8d208f42dae283b274e",
+    "api": "http://localhost:13481",
+    "console": "http://localhost:13482/dios/",
+    "health": "ok",
+    "mode": "restore_hold",
+    "cli_default_reads_configured_scope": true,
+    "source_deployments_unchanged": true
+  },
+  "paid_model_calls": 0,
+  "production_tasks_changed": false,
+  "cumulative_qualified_cases": [
+    "R02",
+    "R03",
+    "R04",
+    "R07",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14"
+  ],
+  "remaining_cases": [
+    "R01",
+    "R05",
+    "R06",
+    "R08",
+    "R09",
+    "R15",
+    "R16",
+    "R17",
+    "R18"
+  ],
+  "related_regression": {
+    "suite": "test_runtime_acp_bridge test_runtime_faults",
+    "passed": 29,
+    "skipped_native_docker_cases": 16,
+    "seconds": 31.917
+  },
+  "references": [
+    "https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html",
+    "https://www.python-httpx.org/advanced/proxies/"
+  ],
+  "remaining": [
+    "R06 provider structured error source",
+    "other original fault and cross-agent scenarios",
+    "schema-changing upgrade and accepted recovery conditions",
+    "clean CI runner delivery gate"
+  ]
+}
