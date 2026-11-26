@@ -350,6 +350,16 @@ async def execute(args):
             return {'run_id':args.run_id,'removed':True}
         if args.command == 'submit':
             return await store.submit(args.key, json.loads(Path(args.file).read_text(encoding='utf-8')))
+        if args.command == 'diagnostic-export':
+            import os
+            from .diagnostic_export import build
+            async with db.read(args.scope) as c:
+                run=await store._run(c,args.run_id)
+                value=await build(c,args.scope,run,await db.now(c),include_tools=True,include_artifacts=True)
+            # Explicit export path; existing files and symbolic links are never overwritten.
+            fd=os.open(args.output,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+            with os.fdopen(fd,'wb') as output:output.write(value)
+            return {'run_id':run['id'],'bytes':len(value),'format':'dios-diagnostic-bundle','version':1}
         if args.command == 'evidence':
             from app.services.task_console import TaskConsole
             from app.services.run_evidence import RunEvidence
@@ -574,6 +584,8 @@ def main(argv=None):
     identity.add_argument('--retry-max',type=float,default=300)
     status=commands.add_parser('workers' ,help='persisted process/session evidence, freshness and actual concurrency')
     status.add_argument('--fresh-seconds',type=float,default=15)
+    export=commands.add_parser('diagnostic-export',help='write a bounded redacted support ZIP to a new file')
+    export.add_argument('run_id');export.add_argument('--output',required=True)
     commands.add_parser('scheduler-health',help='persistent scheduler liveness and progress observations')
     overview=commands.add_parser('overview',help='durable console-task throughput and active-work observations in the trusted local scope')
     overview.add_argument('--period',choices=['hour','day'],default='hour')

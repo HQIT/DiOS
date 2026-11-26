@@ -392,6 +392,43 @@ class TaskConsole:
             events=[dict(id=e['id'],version=e['version'],type=e['type'],state=e['payload']['state'],created_at=e['created_at']) for e in recent],
             attempts_has_more=bool(rows and rows[-1]['epoch']>1),artifacts_at_limit=len(blobs)==100)
 
+    async def diagnostic_export(self, run_id):
+        from app.runtime.diagnostic_export import build
+        from app.services.object_access import ObjectReader
+        from app.runtime.objects import reference
+        from app.runtime.work_auth_schema import grants
+        reader=ObjectReader(self);checked={}
+        await self.authorize(run_id,'run.read')
+        # Read candidate identities first; object policy auditing opens its own transaction.
+        async with self.db.read(self.scope) as c:
+            session_ids=list((await c.execute(select(attempts.c.id).where(attempts.c.run_id==run_id).order_by(attempts.c.epoch.desc()).limit(20))).scalars())
+            session_ids+=list((await c.execute(select(grants.c.attempt_id).where(grants.c.run_id==run_id).order_by(grants.c.lease_epoch.desc()).limit(20))).scalars())
+            artifact_ids=list((await c.execute(select(artifacts.c.id).where(artifacts.c.run_id==run_id).order_by(artifacts.c.created_at.desc(),artifacts.c.id).limit(100))).scalars())
+        for kind,identity in set([('session',x) for x in session_ids]+[('artifact',x) for x in artifact_ids]):
+            try:checked[(kind,identity)]=await reader.get(reference(kind,identity))
+            except RuntimeErrorCode as exc:
+                if exc.code!='NOT_FOUND':raise
+                checked[(kind,identity)]=None
+        async def object_allowed(kind,identity):
+            return checked.get((kind,identity)) is not None
+        included=['run.read']
+        async with self.db.read(self.scope) as c:
+            run=await self.store._run(c,run_id)
+            if not is_console_input(run['input']):raise RuntimeErrorCode('NOT_FOUND')
+            await asyncio.to_thread(self.check_access,run,'run.read')
+            for action in ('tool.read','artifact.read'):
+                try:await asyncio.to_thread(self.check_access,run,action);included.append(action)
+                except RuntimeErrorCode as exc:
+                    if exc.code!='NOT_FOUND':raise
+            value=await build(c,self.scope,run,await self.db.now(c),include_tools='tool.read' in included,include_artifacts='artifact.read' in included,include_operational=self.principal is None,object_allowed=object_allowed)
+        for object_value in checked.values():
+            if object_value is not None:await reader.authorize(object_value,audit=False)
+        refresh=getattr(self,'credential_recheck',None)
+        if refresh:await refresh()
+        # Recheck each included permission immediately before returning the package.
+        for action in included:await self.authorize(run_id,action)
+        return value
+
     async def artifact(self, run_id, artifact_id):
         async with self.db.read(self.scope) as c:
             run=await self.store._run(c,run_id)

@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K04-3.02",
-    "next_delivery": "K04-3.02",
+    "next_work_item": "K04-3.03",
+    "next_delivery": "K04-3.03",
     "next_delivery_order": [
-      "K04-3.02",
       "K04-3.03",
       "K04-2.02",
       "K02-3.02",
@@ -34,7 +33,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "K04-3.01 已完成。继续 #46 有界诊断导出与脱敏，复用既有查询和暂存实现。K04-2.02 等待容量语义选择，K02-3.02 等待源端隔离选择；其下游资格保留依赖。"
+    "next_selection_reason": "K04-3.01/.02 已完成。继续 #46 最小权限监测、指标留存和本地告警配置。K04-2.02 等待容量语义选择，K02-3.02 等待源端隔离选择；其下游资格保留依赖。"
   },
   "waves": [
     {
@@ -2529,7 +2528,7 @@
       "issue": 46,
       "title": "有界诊断导出与脱敏",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "K04-3-A02",
         "K04-3-A03",
@@ -2541,8 +2540,11 @@
       "verification": "越权与敏感字段拒绝/脱敏；长等待、调度停摆、同步失败可定位，完整结果不依赖大快照上传",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有阶段、真实并发、吞吐、用量及调度健康；版本/来源全链关联和诊断交付待补。",
+      "completion_evidence": [
+        "docs/design/diagnostic-export-46.md",
+        "docs/design/evidence/diagnostic-export-20261126.json"
+      ],
+      "basis": "512 KiB 有界脱敏诊断 ZIP 已接入 API、CLI、SDK 与 Console；75 项相关回归、四项浏览器检查及开发部署通过。按当前对象、任务和请求凭据过滤，保留 E2AG 决策、独立进程/调度/接收版本观测；未登记远端接收端保持未知。",
       "existing_evidence": [
         "docs/design/evidence/runtime-diagnostics-20261125.json",
         "docs/design/evidence/runtime-overview-20261125.json",

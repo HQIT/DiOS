@@ -98,6 +98,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
   const [refresh, setRefresh] = useState(0); const [artifact, setArtifact] = useState("");
   const [preview, setPreview] = useState<Preview>(); const [previewError, setPreviewError] = useState("");
   const [downloading, setDownloading] = useState(false);
+  const [exporting,setExporting]=useState(false);
   const keyRef = useRef<{ content: string; key: string } | null>(null);
   const selectedId = runId || "";
 
@@ -291,6 +292,11 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           <p className="tr-muted">{translateUI("父任务结束或失去授权后，未完成的子任务将收到取消请求；进程退出后确认结束。")}</p>
         </section>}
         <section className="tr-card"><div className="tr-section-title"><h3>{detail.goal}</h3><Badge state={detail.state} /></div>
+          <div className="tr-actions"><button disabled={exporting} onClick={async()=>{
+            setExporting(true);setActionError("");
+            try{await runtimeApi.diagnosticExport(detail.id);}catch(error){setActionError(errorText(error));}finally{setExporting(false);}
+          }}>{translateUI(exporting?"正在导出诊断包…":"导出脱敏诊断包")}</button></div>
+          <p className="tr-muted">{translateUI("诊断包保留状态与关联，排除业务正文、凭据和原始输出；截断及权限范围见包内清单。")}</p>
           <p className="tr-muted">{detail.display.name || detail.profile_id} · {translateUI(detail.display.synthetic ? "合成端点" : detail.display.implementation)}</p>
           <RunRevision revision={detail.revision_ref} deployment={detail.deployment_id} operator={operatorMode} />
           <div className="tr-metrics"><div><span>{translateUI("当前阶段")}</span><strong>{translateUI(detail.cancel_requested && !terminal(detail.state) ? "取消待确认" : detail.state === "retry_wait" ? "冷却待重试" : active?.runtime_state === "paused" && !terminal(detail.state) ? "执行已暂停" : LABELS[active?.state || detail.state] || active?.state)}</strong></div>

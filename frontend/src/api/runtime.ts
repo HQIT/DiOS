@@ -212,6 +212,13 @@ export const runtimeApi = {
     const a = document.createElement("a"); a.href = url; a.download = `${markdown ? "report" : "artifact"}-${artifact}.${markdown ? "md" : "bin"}`;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   },
+  diagnosticExport: async (id: string) => {
+    const result=await response(`${path(id)}/diagnostic-export`,{signal:AbortSignal.timeout(30000)});
+    const blob=await result.blob();
+    const url=URL.createObjectURL(blob);const link=document.createElement("a");
+    link.href=url;link.download=`dios-diagnostic-${id}.zip`;document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },
 };
 
 

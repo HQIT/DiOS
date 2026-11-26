@@ -352,6 +352,15 @@ async def revoke(run_id:str,body:Cancel,s=Depends(service)):
 async def preview(run_id:str,artifact_id:str,s=Depends(service)):
     return await s.preview(run_id,artifact_id)
 
+@router.get('/runs/{run_id}/diagnostic-export')
+async def diagnostic_export(run_id:str,s=Depends(service)):
+    from fastapi.responses import Response
+    from uuid import uuid4
+    value=await s.diagnostic_export(run_id)
+    return Response(value,media_type='application/zip',headers={
+        'Content-Disposition':f'attachment; filename="dios-diagnostic-{uuid4()}.zip"',
+        'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'})
+
 @router.get('/runs/{run_id}/artifacts/{artifact_id}/download')
 async def download(run_id:str,artifact_id:str,format:str=Query('raw',pattern='^(raw|markdown)$'),s=Depends(service)):
     headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}

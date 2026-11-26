@@ -131,3 +131,5 @@ the original Run, Attempt, Worker, Revision and object-version identities. Follo
 platform records, Worker observations, remote/Agent reports and operator-declared
 source relations. Object sources can be followed with `object_relations`; every
 request checks current Run and object access.
+
+Diagnostic support ZIP: `client.diagnostic_export(run_id)` returns bounded, permission-filtered bytes (SDK 0.1.18). The archive manifest records file hashes, redaction, permissions and truncation. Raw model/tool/artifact contents are excluded; complete artifacts retain their separate download API.

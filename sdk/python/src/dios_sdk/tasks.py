@@ -43,6 +43,9 @@ class TaskClient:
         self._token, self.timeout, self.max_bytes = token, timeout, max_bytes
         self._opener = build_opener(ProxyHandler({}) if local else ProxyHandler(), _NoRedirect())
 
+    def diagnostic_export(self, run_id):
+        return self._request('/runs/'+quote(run_id,safe='')+'/diagnostic-export',raw=True)
+
     def package_catalog(self, *, q='', kind='', version='', admission='', after='', limit=50):
         return self._request('/packages?'+urlencode(dict(q=q,kind=kind,version=version,admission=admission,after=after,limit=limit)))
 
