@@ -383,7 +383,7 @@ async def execute(args):
 def main(argv=None):
     p = argparse.ArgumentParser(description='DiOS durable runtime local administration')
     p.add_argument('--database-url',default=os.environ.get('DIOS_RUNTIME_DATABASE_URL'))
-    p.add_argument('--scope',default='local')
+    p.add_argument('--scope',default=os.environ.get('DIOS_RUNTIME_SCOPE','local'))
     commands = p.add_subparsers(dest='command',required=True)
     commands.add_parser('migrate',help='explicit additive migration; backup existing database first')
     collection=commands.add_parser('object-collect',help='offline local collection; dry run unless --apply')

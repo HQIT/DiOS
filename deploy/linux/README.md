@@ -68,6 +68,8 @@ sudo systemctl daemon-reload
 
 生成器固定安装账户、Docker 组、Python 路径、PATH、工作目录和环境文件，不自动启动 Worker。登记 `config/profiles/cursor.json` 以及 E2AG 工作权限、工具目录、审批者、Secret 引用后，用 `sudo systemctl enable --now dios-worker@cursor` 启用。需要的 `DIOS_RUNTIME_TOOLS_FILE`、`DIOS_RUNTIME_APPROVERS_FILE`、`DIOS_RUNTIME_SECRETS_FILE` 加入受保护的 `service.env`；使用只读的安装配置目录存放文件。
 
+CLI 默认从 `DIOS_RUNTIME_SCOPE` 读取实例范围，与 API 和后台服务使用同一队列；显式 `--scope` 优先。未配置该变量时沿用 `local`。操作已有实例时加载该实例的环境文件，或显式指定其 scope。
+
 使用工具通道的 profile 通过 `tool_channel.worker_secret_refs` 显式列出 Agent 需要的模型凭据。本地和远程执行均遵循此列表；省略表示不向容器挂载凭据。工具网关使用的 `credential_ref` 留在网关侧，与执行端列表互斥。修改列表后重新固定 profile 和 E2AG 工作授权，排空旧任务后切换；不要通过固定目录挂载暴露整个 Secret 目录。
 
 Secret 文件权限、OpenBao 原生 Agent 后台配置、固定版本注入和轮换操作见 [Linux Secret 交付](secrets.md)。
@@ -77,5 +79,9 @@ Secret 文件权限、OpenBao 原生 Agent 后台配置、固定版本注入和�
 ## 交付验证
 
 首轮已验证全新数据目录、固定镜像启动、精简环境诊断、访问认证、Console 资源和独立重启后的数据挂载。Worker unit 通过 systemd 静态校验，真实 Cursor 执行复用既有开发环境证据。清洁安装中的任务、升级回退和恢复组合资格由 D01-1.02 承接。
+
+[固定镜像切换证据](../../docs/design/evidence/installation-cutover-20261126.json) 已覆盖干净 Compose 实例中的 ACP 原生任务、自然排空、安装备份校验、候选启动失败回退、实际旧/新版本切换，以及恢复后排队任务的原身份和成果校验。模型输出为合成协议端点；跨 Harness、schema 变更和物理跨主机资格分别保留。
+
+升级顺序为：固定候选镜像摘要 → 调用 `/api/os/upgrade/drain` → 等待原任务自然结束 → `settle-services` 并确认 `ready_for_cutover` → 使用 `installation-backup` 和 `installation-verify` 保存并校验备份 → 切换 `.env` 中镜像并执行 Compose `up -d --wait` → 检查历史、产物、配置及排队任务 → 携当前 `revision`、`kernel_revision` 调用 `resume`。候选启动失败时先恢复原固定镜像，保持 draining，完成诊断后再恢复领取。查询超时、活跃任务或未知执行状态均不允许进入镜像切换。
 
 机制依据：[Compose 启动依赖](https://docs.docker.com/compose/how-tos/startup-order/)、[Docker 自动重启](https://docs.docker.com/engine/containers/start-containers-automatically/)、[Compose 环境变量优先级](https://docs.docker.com/compose/how-tos/environment-variables/envvars/)。

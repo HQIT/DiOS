@@ -1,0 +1,126 @@
+{
+  "work_item": "F03-2.02",
+  "related_work_items": [
+    "D01-1.01",
+    "D01-1.02"
+  ],
+  "complete": false,
+  "qualified_cases": [
+    "R13"
+  ],
+  "base_commit": "51e131c70803ec0def271527b05b1b42fba5b45f",
+  "outcomes": {
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": "passed",
+    "test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities": "passed",
+    "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate": "passed"
+  },
+  "test_seconds": {
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": 0.0029297940054675564,
+    "test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities": 39.8800586819998,
+    "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate": 1.207112224001321
+  },
+  "observations": [
+    {
+      "case": "R13",
+      "old_image": "sha256:54455133e2352311327bdbfadb24233bead1fa2b96cc1701d71e1a33963fee91",
+      "new_image": "sha256:bcfd1072879988148c320b1be3f75376ed9491a8d472e8d208f42dae283b274e",
+      "failed_candidate": "dios-upgrade-rejected:20261126",
+      "runs": [
+        "665e9b27-c38b-4ea3-a2b2-7cde0960dd72",
+        "6dbcb15b-8402-43ba-b300-6da27b8c3d6e"
+      ],
+      "old_attempt": "f3cc0ce4-f0ba-43b4-8833-047ac7da8d7b",
+      "new_attempt": "bb0c027e-bb8e-417e-8ae6-42a430f4f2ab",
+      "old_session": "fault-session-cbbd109137e84d5ebd89d6e64342bac6",
+      "new_session": "fault-session-ddc575e136904e338405b0e13fc38e88",
+      "backup_verified": true,
+      "natural_drain": true,
+      "failed_image_rolled_back": true,
+      "configuration_and_history_preserved": true,
+      "queued_identity_preserved": true,
+      "dispatch_held_until_explicit_resume": true,
+      "worker_uses_installation_scope_environment": true,
+      "prompt_calls": 2,
+      "final_states": [
+        "succeeded",
+        "succeeded"
+      ],
+      "model": "synthetic ACP endpoint",
+      "e2ag": "enforced"
+    }
+  ],
+  "cases": [
+    {
+      "id": "R13",
+      "tests": [
+        "test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities",
+        "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate"
+      ],
+      "covered": "干净 Compose 实例中实际镜像切换与失败候选回退；原生 ACP 任务自然排空、备份校验、历史及产物保持、排队身份延续，后台 Worker 使用安装 scope",
+      "gaps": [],
+      "owners": [
+        10,
+        30,
+        51
+      ],
+      "title": "R13 运行中升级",
+      "injection": "3 路活跃时设 drain，同时触发新任务，再等待自然结束",
+      "assertions": "停领新任务，活跃任务结束后切换；会话不重复、未完成工作保留",
+      "status": "passed"
+    }
+  ],
+  "source_sha256": {
+    "backend/app/runtime/cli.py": "6375a69d5823dddfdbef7315801bae25a97a3424a46518987a3311ef7738612f",
+    "backend/tests/runtime_acp_fault_fixture.py": "0ae36e7c210f2f277aa4f52c2e4c90226567a5152c61b8c2c59cca6ec54d2233",
+    "backend/tests/test_reference_upgrade.py": "9498b1068f682a30ac3b616eacfe2c746089bd1114b12eb468106a781e6a13b8",
+    "backend/tests/test_runtime_cli_scope.py": "3413968696ffa9c26b2f024d54caa64a061a9d2533d5a30669485ffd8ea82454",
+    "docs/design/reference-scenario-acceptance.md": "693a8f60a50d2e12bc1435b2cf42a6163fd76e4bae15220072a1ae377f160bb5",
+    "scripts/qualify_reference_faults.py": "e9496e9a582656a916f7b22cbb582d5080f3ebaa46da1ca55bf35ee3a004db31"
+  },
+  "private_report_sha256": "c8c64f6efb95cc11dc755d9341f8a9417796224074e29333cf6ed5b0e816685a",
+  "negative_candidate_image": "sha256:c6d68f428c5decccc4dd0502bff8b84bf8f0ce48e1e01938bcefdea2707539ef",
+  "deployment": {
+    "backend_image": "sha256:bcfd1072879988148c320b1be3f75376ed9491a8d472e8d208f42dae283b274e",
+    "previous_backend_image": "sha256:d141cc995b4fbb7b5aab656cdcd97acd0e1c30365a23f42f2fc90714c2acbffd",
+    "api": "http://localhost:13481",
+    "console": "http://localhost:13482/dios/",
+    "health": "ok",
+    "mode": "restore_hold",
+    "cli_default_reads_configured_scope": true,
+    "source_deployments_unchanged": true
+  },
+  "runtime_fix": "CLI default scope follows DIOS_RUNTIME_SCOPE; explicit --scope wins; absent environment keeps local",
+  "model_calls": 0,
+  "production_tasks_changed": false,
+  "cumulative_qualified_cases": [
+    "R02",
+    "R03",
+    "R04",
+    "R07",
+    "R10",
+    "R11",
+    "R12",
+    "R13"
+  ],
+  "remaining_cases": [
+    "R01",
+    "R05",
+    "R06",
+    "R08",
+    "R09",
+    "R14",
+    "R15",
+    "R16",
+    "R17",
+    "R18"
+  ],
+  "installation_qualification_remaining": [
+    "additional Harness qualification",
+    "schema-changing upgrade and accepted recovery conditions",
+    "clean CI runner delivery gate"
+  ],
+  "references": [
+    "https://docs.docker.com/compose/how-tos/production/",
+    "https://docs.docker.com/compose/how-tos/startup-order/"
+  ]
+}

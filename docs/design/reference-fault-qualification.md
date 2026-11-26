@@ -1,6 +1,6 @@
 # 故障场景资格与剩余交付
 
-F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R07 完整输出抢救、R10 迟到结果隔离、R11 进度与详情独立同步及 R12 指定 UTF-8 分块已通过；其余十一项及六项共同治理场景仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
+F03-2.02 将原有十八项故障场景关联到可执行的底座测试、原始注入动作、完整断言和责任任务。R02 真实并发、R03 代理断连、R04 ACP 进程崩溃、R07 完整输出抢救、R10 迟到结果隔离、R11 进度与详情独立同步、R12 指定 UTF-8 分块及 R13 运行中升级已通过；其余十项及六项共同治理场景仍有缺口。F03-2.02 尚未完成，WBS 总数保持 79 项。
 
 ## 执行与结果
 
@@ -65,12 +65,22 @@ DIOS_TEST_DOCKER=1 DIOS_TEST_ACP_IMAGE=dios-cursor:acp-exit-20261126 \
 
 R06 仍有供应商错误转换缺口。当前打包 Cursor 的 `processPrompt` 会捕获部分上游异常并输出普通文本，随后 `handlePrompt` 返回 `end_turn`；具体镜像与模块摘要记录在 R03 证据中的 `cursor_R06_gap`。代码检查尚未覆盖供应商真实 429/额度响应。DiOS 已有分类退避、单路探测和成功恢复并发，接入这些机制需要可核验的机器可读错误来源；普通模型输出不作为自动重试分类依据。后续采用供应商明确支持的错误通道或经过资格验证的上游修复。
 
+## 固定版本升级与回退
+
+[R13 证据](evidence/installation-cutover-20261126.json) 使用 Linux 安装器创建独立 Compose 实例，并在旧后端镜像中运行受 E2AG 授权的 ACP Worker。任务输出到达后开始排空，后续任务保持原 Run 身份排队；原任务完成后校验安装备份。启动失败的候选镜像回退至原版本，随后切换到新的固定镜像，接口仍保持 draining。
+
+新版本通过 API 读取原任务与排队任务，核验 Attempt、Session、授权输入、配置摘要和逐个下载产物的摘要。恢复领取后，排队任务沿用原身份执行，一共只有两次 prompt。期间发现并修复 CLI 默认 scope 未读取 `DIOS_RUNTIME_SCOPE` 的问题；新版本 Worker 无需命令行重复指定 scope，即可领取安装实例的任务。显式参数覆盖与默认 `local` 均保留。
+
+执行此场景时设置 `DIOS_TEST_UPGRADE_OLD`、`DIOS_TEST_UPGRADE_NEW`、`DIOS_TEST_UPGRADE_BAD`、`DIOS_TEST_FRONTEND_IMAGE` 和 `DIOS_TEST_ACP_IMAGE`，再以 `--cases R13` 运行资格入口。`UPGRADE_BAD` 必须为隔离测试的启动失败镜像。原生产部署不参与测试。
+
+版本切换使用 [Docker Compose 既有服务重建机制](https://docs.docker.com/compose/how-tos/production/)，排空和恢复使用 DiOS 原有版本检查。此证据覆盖所列兼容 schema 镜像对；涉及 schema 变化、其他 Harness 与跨主机恢复的资格继续由对应任务承接。
+
 ## 底座与应用职责
 
 | 范围 | 场景与剩余条件 | 承接 |
 | --- | --- | --- |
 | 原生执行故障 | R06 模型 HTTP 错误转换、R09 组合长等待 | #10/#30/#32/#46/#56/#58 |
-| 节点与交付 | R05 隔离节点重启、R13 实际版本切换、R14 Linux 无人值守依赖与代理恢复 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
+| 节点与交付 | R05 隔离节点重启、R14 Linux 无人值守依赖与代理恢复 | #30/#32/#51/#58；物理节点由 D01-3.02 承接 |
 | 静态评审应用 | R01 分支 SHA 水位、R08 证据待验证及覆盖账本、R15 只读业务配置、R16 上下文复用、R17 质量与导出统一口径 | #43/#59；底座提供任务、授权、工具、产物与统计接口 |
 | 旧系统接续 | R18 旧控制器兼容回滚、分区独占及历史身份 | #11/#60；需隔离源端和旧系统适配 |
 | 共同治理 | 能力缺失、断连、撤销、乱序回调、人工接管复核及实现交接 | 原验收列出的 #30/#34/#35/#37/#38/#40/#56/#58 |
@@ -85,4 +95,4 @@ ACP 使用标准 [stdio JSON-RPC 传输](https://agentclientprotocol.com/protoco
 
 迟到报告采用 [AWS 死信队列](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html) 的隔离与排查思路；进度与详情沿用 [Azure 队列负载调节](https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling) 的生产和消费解耦原则，复用现有 SQLite/Provider、离线 spool 和分块协议。预览网络采用 [Docker Compose 自定义网络](https://docs.docker.com/compose/how-tos/networking/) 的服务分区方式。
 
-下一批补齐 R13 运行中真实版本切换，衔接安装与交付资格；R06 继续保留供应商错误来源缺口。节点、应用和旧系统迁移断言按对应责任项推进。
+下一批补齐 R14 Linux 后台依赖与代理恢复，随后将通过路径纳入最小交付 CI；R06 继续保留供应商错误来源缺口。节点、应用和旧系统迁移断言按对应责任项推进。

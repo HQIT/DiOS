@@ -77,6 +77,9 @@ def server():
             if mode == "crash":
                 time.sleep(0.15)
                 os.kill(os.getpid(), signal.SIGKILL)
+            if mode == "barrier":
+                while not Path("/run/qualification/release").exists():
+                    time.sleep(0.05)
             result = {"stopReason": "end_turn"}
         else:
             raise ValueError(method)

@@ -91,9 +91,9 @@
     },
     {
       "id": "R13",
-      "tests": ["test_runtime_worker.DockerWorkerTests.test_docker_three_independent_workers_sessions_and_natural_drain", "test_run_schedules.RunScheduleTests.test_drain_defers_work_and_resumes_same_occurrence"],
-      "covered": "三路原生运行自然排空，新任务保持排队；定时触发延后且恢复同一工作",
-      "gaps": ["需真实部署版本切换并核验切换后的全部会话与待处理任务身份"],
+      "tests": ["test_reference_upgrade.NativeInstallationUpgradeTests.test_drain_cutover_and_failed_image_rollback_preserve_all_task_identities", "test_runtime_cli_scope.InstalledScopeTests.test_environment_scope_and_explicit_override_keep_queues_separate"],
+      "covered": "干净 Compose 实例中实际镜像切换与失败候选回退；原生 ACP 任务自然排空、备份校验、历史及产物保持、排队身份延续，后台 Worker 使用安装 scope",
+      "gaps": [],
       "owners": [10, 30, 51]
     },
     {
