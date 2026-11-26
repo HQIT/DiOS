@@ -25,9 +25,11 @@ def accepted(report):
     return (
         report.get("components_passed") is True
         and report.get("sources_unchanged") is True
-        and report.get("selected_cases") == ["R13"]
-        and cases.get("R13", {}).get("status") == "passed"
-        and not cases["R13"].get("gaps")
+        and report.get("selected_cases") == ["R07", "R13"]
+        and all(
+            cases.get(key, {}).get("status") == "passed" and not cases[key].get("gaps")
+            for key in ("R07", "R13")
+        )
         and bool(report.get("outcomes"))
         and all(value == "passed" for value in report["outcomes"].values())
         and any(
@@ -36,6 +38,14 @@ def accepted(report):
             and row.get("prompt_calls") == 4
             and row.get("failed_image_rolled_back") is True
             and row.get("e2ag") == "enforced"
+            for row in report.get("observations", [])
+        )
+        and any(
+            row.get("case") == "R07"
+            and row.get("worker_exit") == -9
+            and row.get("prompt_calls_before") == row.get("prompt_calls_after") == 1
+            and row.get("state") == "succeeded"
+            and row.get("e2ag_grants_verified") is True
             for row in report.get("observations", [])
         )
     )
@@ -163,6 +173,7 @@ def main():
                         sys.executable,
                         "scripts/qualify_reference_faults.py",
                         "--cases",
+                        "R07",
                         "R13",
                         "--output",
                         str(output / "qualification"),

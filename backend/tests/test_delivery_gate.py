@@ -16,8 +16,10 @@ class DeliveryGateTests(unittest.TestCase):
         report = {
             "components_passed": True,
             "sources_unchanged": True,
-            "selected_cases": ["R13"],
-            "cases": [{"id": "R13", "status": "passed", "gaps": []}],
+            "selected_cases": ["R07", "R13"],
+            "cases": [
+                {"id": key, "status": "passed", "gaps": []} for key in ("R07", "R13")
+            ],
             "outcomes": {"native": "passed"},
             "complete": False,
             "observations": [
@@ -27,7 +29,15 @@ class DeliveryGateTests(unittest.TestCase):
                     "prompt_calls": 4,
                     "failed_image_rolled_back": True,
                     "e2ag": "enforced",
-                }
+                },
+                {
+                    "case": "R07",
+                    "worker_exit": -9,
+                    "prompt_calls_before": 1,
+                    "prompt_calls_after": 1,
+                    "state": "succeeded",
+                    "e2ag_grants_verified": True,
+                },
             ],
         }
         self.assertTrue(gate.accepted(report))
