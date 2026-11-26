@@ -191,7 +191,7 @@ async def bind_input(c, scope, revision_ref, value, *, authorized):
     if row is None:
         raise RuntimeErrorCode("NOT_FOUND")
     record = representation(row, include_manifest=True)
-    _, profile_id, spec, mode, refs = decode(record)
+    raw, profile_id, spec, mode, refs = decode(record)
     if (
         value.get("runtime_profile") != profile_id
         or value.get("profile_digest") != spec.fingerprint()
@@ -200,6 +200,14 @@ async def bind_input(c, scope, revision_ref, value, *, authorized):
         raise RuntimeErrorCode("REVISION_EXECUTION_BINDING_INVALID")
     if mode == "e2ag" and not authorized:
         raise RuntimeErrorCode("WORK_AUTHORIZATION_REQUIRED")
+    if "package_lock" in raw:
+        if mode != "e2ag" or not authorized:
+            raise RuntimeErrorCode("WORK_AUTHORIZATION_REQUIRED")
+        from .package_admission import require_lock
+
+        value = dict(
+            value, package_admissions=await require_lock(c, scope, raw["package_lock"])
+        )
     return dict(
         value,
         revision_ref=revision_ref,

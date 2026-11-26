@@ -68,6 +68,8 @@ async def create(c,scope,run,descriptor,now):
 
 
 async def checked_work(c,run,attempt,now,action):
+    from .package_admission import check_work as check_packages
+    await check_packages(c,run)
     if action=='execute':
         from .execution_budgets import require_execution
         await require_execution(c,run,now)

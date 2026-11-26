@@ -109,9 +109,14 @@ class Deployments:
         return value
 
     async def _authorize(self, database, revision_ref):
-        _, profile, spec, mode, refs = await load_profile(
+        raw, profile, spec, mode, refs = await load_profile(
             database, self.scope, revision_ref
         )
+        if "package_lock" in raw:
+            from .package_admission import require_lock
+
+            async with database.read(self.scope) as c:
+                await require_lock(c, self.scope, raw["package_lock"])
         if mode != "e2ag" or self.policy is None:
             raise RuntimeErrorCode("WORK_POLICY_REQUIRED")
         grant = await asyncio.to_thread(

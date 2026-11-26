@@ -44,6 +44,7 @@ from .object_access_schema import metadata as object_access_metadata, CHECKSUM a
 from .object_lifetime_schema import metadata as object_lifetime_metadata, CHECKSUM as OBJECT_LIFETIME_CHECKSUM
 from .object_collection_schema import metadata as object_collection_metadata, CHECKSUM as OBJECT_COLLECTION_CHECKSUM
 from .knowledge_schema import metadata as knowledge_metadata, CHECKSUM as KNOWLEDGE_CHECKSUM
+from .package_admission_schema import metadata as package_admission_metadata, CHECKSUM as PACKAGE_ADMISSION_CHECKSUM, GUARDS as PACKAGE_ADMISSION_GUARDS
 
 
 def sqlite_path(url):
@@ -123,6 +124,7 @@ def _database_info(path):
             ('runtime_object_lifetime_schema',object_lifetime_metadata,OBJECT_LIFETIME_CHECKSUM),
             ('runtime_object_collection_schema',object_collection_metadata,OBJECT_COLLECTION_CHECKSUM),
             ('runtime_knowledge_schema',knowledge_metadata,KNOWLEDGE_CHECKSUM),
+            ('runtime_package_admission_schema',package_admission_metadata,PACKAGE_ADMISSION_CHECKSUM),
             ('runtime_outcome_schema',outcome_metadata,OUTCOME_CHECKSUM)]
         known=set().union(*(set(m.tables) for _,m,_ in components))
         if any(t.startswith('runtime_') and t not in known for t in tables):
@@ -139,6 +141,10 @@ def _database_info(path):
                 if not set(table.columns.keys()).issubset(actual): raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
             schemas[version_table]={'version':1,'checksum':checksum}
         objects={}
+        if 'runtime_package_admission_schema' in tables:
+            guards={row[0] for row in c.execute("SELECT name FROM sqlite_master WHERE type='trigger'")}
+            if not set(PACKAGE_ADMISSION_GUARDS).issubset(guards):
+                raise RuntimeErrorCode('BACKUP_SCHEMA_INCOMPATIBLE')
         if 'runtime_revision_schema' in tables:
             guards={row[0] for row in c.execute("SELECT name FROM sqlite_master WHERE type='trigger'")}
             if not set(REVISION_GUARDS).issubset(guards):

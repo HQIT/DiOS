@@ -50,6 +50,15 @@ async def execute(args):
         return await asyncio.to_thread(backup_sqlite,args.database_url,args.artifacts,args.destination,timeout=args.timeout,config_files=args.config_file)
     db = Database(args.database_url)
     try:
+        if args.command == 'package-review':
+            from .package_admission import PackageAdmission
+            from .package_lock import read_json
+            manager = PackageAdmission(db, args.scope)
+            if args.package_review_command == 'show':
+                return await manager.show(args.digest, after=args.after, limit=args.limit)
+            value = read_json(args.file)
+            return await manager.review(value['manifest'],value['decision'],value['statement'],
+                expected_version=args.expected_version,key=args.key,actor=args.actor)
         if args.command == 'tool-gateway':
             from .gateway_admin import serve_gateway
             return await serve_gateway(args,db)
@@ -360,6 +369,17 @@ def main(argv=None):
     package_lock.add_argument('--roots', required=True)
     package_verify = package_commands.add_parser('verify')
     package_verify.add_argument('--lock', required=True)
+    review = commands.add_parser('package-review', help='trusted local package admission administration')
+    review_commands = review.add_subparsers(dest='package_review_command', required=True)
+    review_record = review_commands.add_parser('record')
+    review_record.add_argument('--file', required=True)
+    review_record.add_argument('--expected-version', type=int, required=True)
+    review_record.add_argument('--key', required=True)
+    review_record.add_argument('--actor', required=True)
+    review_show = review_commands.add_parser('show')
+    review_show.add_argument('digest')
+    review_show.add_argument('--after', type=int, default=0)
+    review_show.add_argument('--limit', type=int, default=50)
     revision = commands.add_parser('revision', help='immutable configuration snapshots; does not launch or authorize tasks')
     revision_commands = revision.add_subparsers(dest='revision_command', required=True)
     revision_create = revision_commands.add_parser('create')

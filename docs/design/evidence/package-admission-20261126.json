@@ -1,0 +1,131 @@
+{
+  "work_item": "K04-1.02",
+  "passed": true,
+  "tests": 78,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 61.451,
+  "suites": [
+    "test_package_lock",
+    "test_package_admission",
+    "test_runtime_work_authorizations.WorkAuthorizationTests",
+    "test_runtime_work_authorizations.WorkPolicyTests",
+    "test_execution_revisions.SQLiteBindingTests",
+    "test_runtime_revisions.SQLiteRevisionTests",
+    "test_runtime_revisions.ManifestTests",
+    "test_runtime_deployments.SQLiteDeploymentTests",
+    "test_revision_mounts",
+    "test_runtime_worker.WorkerTests",
+    "test_runtime_worker.BridgeTests"
+  ],
+  "native_execution": [
+    {
+      "revision": "rev-eb900914a1a69e3514f85bcfe74c07fe115b3573b166d05f9c366441703842a6",
+      "image": "sha256:56e3bf31c94d93d0d9ce8571d7e972a5feb543710dd02cf3cb18b0040cc11090",
+      "expected": "原始版本",
+      "session": "原始版本",
+      "state": "succeeded"
+    },
+    {
+      "revision": "rev-d031e689b7db0d4b9587f7772b53eed3c8baf7cc332bf65fe55d46a07c90b7c2",
+      "image": "sha256:f02f6c396f7828d654faac60c4eaf8193fdd3b40f4a69ad1330f79832d8b00f4",
+      "expected": "升级版本",
+      "session": "升级版本",
+      "state": "succeeded"
+    }
+  ],
+  "source_sha256": {
+    "backend/app/runtime/package_lock.py": "82195f8609314b9d6b40ab855cb6fd0b6d0ec5e541d4e909f57c706194ef7b10",
+    "backend/app/runtime/package_admission.py": "84b006131df82cd2efad754b0d58f786d7ef40ffe6a80640a66190a7b3bc5dcd",
+    "backend/app/runtime/package_admission_schema.py": "2f677ebff078de676eca47afa61a0d268b52b48fd8e451eaf8b8cbe89dae6e7f",
+    "backend/app/runtime/package_declarations.py": "1def4ed0cb66db025f0465fe5e09e0eebf153822bdc07f1cedee2e07ea6b14db",
+    "backend/app/runtime/database.py": "6704ffe2111e1396d2d3a2978af3112219c55ce07cfdd58342a3b199f662972f",
+    "backend/app/runtime/recovery.py": "8f5944bcb2d89d481ee50d611293e255b423b1f64b7392199941619da6048691",
+    "backend/app/runtime/store.py": "267cc088c68bdd0d1affbef9263dc3fc507b8e6ecfd4dd55aa5595354cdff5f9",
+    "backend/app/runtime/work_authorizations.py": "7939e67985184e64bbecde6e365b1d6fe7cec18537741de744df1aabaaf63494",
+    "backend/app/runtime/faults.py": "e263174d79b9f2ee66806c5497c318a3d8f89ceb1d78b3250b6bb48d769b4463",
+    "backend/app/runtime/package_payloads.py": "5eb985078f8f8492f008f2b9fb846eef418760da888355513e7ea89057194f08",
+    "backend/app/runtime/execution_revisions.py": "caadd2145b99a6457dc2b926cd8c77825e99691153f618efe7d13015598cc7dc",
+    "backend/app/runtime/worker.py": "216120ec91584130ae1475575a82a506ce49c6dc3b61acdb0e90c2fdbef97fbd",
+    "backend/app/runtime/cli.py": "fdec333f13abea733a40c6f649233866d0e288f7cfab42e01e2f047009deaeea",
+    "backend/app/runtime/revision_mounts.py": "df60e3d39a432a4713332efd12bb33b67cdf0f9b6d0781ce64deb4063669cece",
+    "backend/app/runtime/deployments.py": "1fa495c1dc08ab69e752a3e30b45f66dfda1a90929cedc6f3c680acbf4e3259f",
+    "backend/tests/test_package_lock.py": "7ab8071333800b3fca8203f86194c51ac8dd36b35065f31c68acc95590c21fec",
+    "backend/requirements.txt": "179ab359652609a1720d31c156c28af9f96aea66dd9238f3d49c4940b8df42a4",
+    "scripts/qualify_package_admission.py": "09cb4b0ddd5f98854b4d0701d11300ef3dc80eb1495f49dda8e4009b91005200",
+    "backend/tests/test_package_admission.py": "8594d1295058447885418aea6f1155354df0e06b2cc31c6ab899ea8ae0c49a2f",
+    "backend/tests/package_admission_fixtures.py": "869ef8b4c3bab579ab8b07dc8011744a7749d18c5d8452d9a37101aa603b508a"
+  },
+  "limits": [
+    "Local Linux OCI publication; package sources are supplied by a trusted publisher.",
+    "PEP 440 versions for DiOS package metadata; native ecosystem installation belongs to package producers.",
+    "Trusted Linux reviewer confirms source/licence/capability evidence; automatic SLSA provenance verification and remote reviewer UI are not claimed."
+  ],
+  "deployment": {
+    "api_health": "ok",
+    "migration": {
+      "version": 1,
+      "history_version": 1,
+      "history_archive_version": 1,
+      "lifecycle_version": 1,
+      "work_authorization_version": 1,
+      "tool_version": 1,
+      "credential_version": 1,
+      "remote_version": 1,
+      "fault_version": 1,
+      "identity_check_version": 1,
+      "logout_version": 1,
+      "delegation_version": 1,
+      "delegation_identity_version": 1,
+      "delegation_check_version": 1,
+      "schedule_version": 1,
+      "child_version": 1,
+      "child_handoff_version": 1,
+      "capacity_version": 1,
+      "execution_budget_version": 1,
+      "tool_budget_version": 1,
+      "usage_version": 1,
+      "outcome_version": 1,
+      "monitor_version": 1,
+      "revision_version": 1,
+      "deployment_version": 1,
+      "knowledge_version": 1,
+      "object_collection_version": 1,
+      "object_lifetime_version": 1,
+      "object_access_version": 1,
+      "object_version": 1,
+      "compatibility_version": 1,
+      "package_admission_version": 1,
+      "changed": true
+    },
+    "mode": "running",
+    "history": {
+      "runtime_runs": {
+        "count": 85,
+        "identity_sha256": "2fec08cfece2f9db1861a237755433f45abd3fabf36ddd9f38e752f925c00759",
+        "preserved": true
+      },
+      "runtime_attempts": {
+        "count": 89,
+        "identity_sha256": "b2c2ae440c5dd3b26ce935ba81be4802c58ce912652616c730ed7e47f69ebb94",
+        "preserved": true
+      },
+      "runtime_artifacts": {
+        "count": 239,
+        "identity_sha256": "2ce6df8d337644eb483fdfb24e0bb4855491e504d1adad4f064e90b28b1f1b7b",
+        "preserved": true
+      }
+    }
+  },
+  "image": {
+    "image": "sha256:ef1feb634b97edfeaf7e802c43e6ee3e31138da3c7ae20cd4adeff954c9c0e6d",
+    "tag": "dios-backend:package-admission-20261126",
+    "base": "sha256:f7937405e5c2a3b778637ad4f13ce2f2528e41c2cfe25aa0dfc64c482d7dfc63",
+    "checks": {
+      "dependencies": "WARNING: The directory '/nonexistent/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nNo broken requirements found.\n",
+      "cli": "usage: cli.py package-review [-h] {record,show} ...\n\npositional arguments:\n  {record,show}\n\noptions:\n  -h, --help     show this help message and exit\n",
+      "imports": "package runtime loaded\n"
+    }
+  }
+}

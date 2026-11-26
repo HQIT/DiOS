@@ -322,6 +322,7 @@ class NativePackageTests(unittest.IsolatedAsyncioTestCase):
     asyncTearDown = fixtures.CapacityScenarios.asyncTearDown
 
     async def test_native_frozen_dependencies_and_live_e2ag(self):
+        from package_admission_fixtures import admit_fixture, declared
         import docker
         from app.runtime.artifacts import LocalArtifacts
         from app.runtime.docker_adapter import DockerRuntimeAdapter
@@ -360,7 +361,12 @@ class NativePackageTests(unittest.IsolatedAsyncioTestCase):
                 )
                 prompt = package("prompt", version, content=content)
                 prompt["kind"] = "prompt"
+                agent, prompt = declared(agent), declared(prompt)
                 lock = resolve([agent, prompt], [requirement("agent")])
+                for package_row in lock["packages"]:
+                    await admit_fixture(
+                        self.db, self.scope, self.root, package_row["manifest"]
+                    )
                 (self.root / "lock.json").write_text(json.dumps(lock))
                 saved = await publish_profile(
                     self.db, self.scope, path, version, "operator"

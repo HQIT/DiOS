@@ -69,7 +69,7 @@ def requirements(value):
 
 def manifest(value):
     value = snapshot(value)
-    if not isinstance(value, dict) or set(value) != {
+    if not isinstance(value, dict) or set(value) - {"declaration"} != {
         "schema_version",
         "name",
         "version",
@@ -80,6 +80,10 @@ def manifest(value):
         fail()
     if type(value["schema_version"]) is not int or value["schema_version"] != 1:
         fail()
+    if "declaration" in value:
+        from .package_declarations import declaration
+
+        value["declaration"] = declaration(value["declaration"])
     if not isinstance(value["name"], str) or not NAME.fullmatch(value["name"]):
         fail()
     if value["kind"] not in ("harness", "skill", "tool", "prompt", "policy"):

@@ -41,7 +41,7 @@ def from_spec(spec):return policy(json.loads(spec.environment[POLICY_ENV])) if P
 def category(code):
     if code=='SECRET_PROVIDER_UNAVAILABLE':return 'secret_service'
     if code.startswith('COMPATIBILITY_'):return 'configuration'
-    if code.startswith(('AUTH_','WORK_AUTHORIZATION','EXECUTION_GRANT','WORK_POLICY','TOOL_','SECRET_')):return 'authorization'
+    if code.startswith(('AUTH_','WORK_AUTHORIZATION','EXECUTION_GRANT','WORK_POLICY','TOOL_','SECRET_','PACKAGE_ADMISSION','PACKAGE_NOT_ADMITTED')):return 'authorization'
     return CATEGORIES.get(code,'unknown')
 def delay(p,count,kind):
     base=p['quota_delay'] if kind=='quota' else p['base_delay']

@@ -99,7 +99,7 @@ class RuntimeStore:
     async def submit(self, key, value, *, authorization=None, submission_digest=None, admission_guard=None, parent_binding=None, revision_ref=None, deployment_id=None, deployment_rollout_id=None):
         identifier(key)
         if not isinstance(value, dict): raise RuntimeErrorCode("INVALID_ARGUMENT")
-        if {'revision_ref','revision_digest'}.intersection(value):raise RuntimeErrorCode('REVISION_BINDING_SERVER_OWNED')
+        if {'revision_ref','revision_digest','package_admissions'}.intersection(value):raise RuntimeErrorCode('REVISION_BINDING_SERVER_OWNED')
         if {'deployment_id','deployment_rollout_id'}.intersection(value):raise RuntimeErrorCode('DEPLOYMENT_BINDING_SERVER_OWNED')
         if deployment_id is not None:
             identifier(deployment_id)
