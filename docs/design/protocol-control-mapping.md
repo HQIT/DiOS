@@ -10,6 +10,7 @@
 | ACP 权限请求 | Cursor `proxy_permission` → Worker `permit_proxy` | 只识别已登记的 DiOS MCP 工具与有效参数。`allow_once` 仅进入代理，实际调用仍等待独立审批 |
 | Agent 工具完成通知 | SDK 活动归一化 → Worker `verify_activity` / `verify_required` | 按成功调用、参数及会话核对；通知自身不生成执行权或成功成果 |
 | Harness 内部原生动作 | 固定 Cursor CLI 策略、Docker 文件边界、Squid 出站控制 | 文件/命令/WebFetch 限制及真实副作用见 [Cursor 控制证据](cursor-native-controls.md) |
+| 严格本地执行配置 | Profile `isolation`、Worker、Docker inspect | 原生网络关闭、工作区只读、排除子挂载；工具通过 E2AG Unix 通道并受预算约束，见[组合策略](execution-isolation-45.md)。需要直接模型网络的配置沿用其专用控制资格 |
 | API 选择执行配置 | `TaskConsole` 注册目录、E2AG `FileWorkPolicy.admission` | 请求只能选已启用配置；未登记 ID 拒绝。镜像、命令、网络或根文件系统控制变化导致摘要不匹配，重新准入前不入队 |
 | API 自报能力与治理模式 | `TaskInput` 严格字段校验 | 请求体不能追加能力、治理或启动参数以扩大权限 |
 | 兼容执行入口 | 任务输入契约 `requires_e2ag` | 明确要求治理的任务不能交给 `trusted-local` 配置 |

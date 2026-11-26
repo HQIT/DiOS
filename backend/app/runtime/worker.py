@@ -30,12 +30,18 @@ def read_profile(path, *, value=None, allow_unfrozen_packages=False, package_rev
             raise RuntimeErrorCode('PACKAGE_REVISION_REQUIRED')
     identifier(value['id'])
     if value.get('bridge') == 'a2a-0.3-jsonrpc':
+        if value.get('isolation') is not None:raise RuntimeErrorCode('EXECUTION_ISOLATION_UNSUPPORTED')
         from .a2a_profile import read
         return read(value)
     if value.get('bridge') != 'jsonl-v1': raise RuntimeErrorCode('BRIDGE_UNSUPPORTED')
     config = dict(value['launch'])
     from .worker_tool_channel import profile_policy, POLICY_ENV, SOCKET_ENV
     environment=dict(config.get('environment',{}))
+    from .execution_isolation import POLICY_ENV as ISOLATION_ENV, policy as isolation_policy, validate as validate_isolation
+    if ISOLATION_ENV in environment:raise RuntimeErrorCode('EXECUTION_ISOLATION_ENV_RESERVED')
+    if value.get('isolation') is not None:
+        if value.get('governance',{}).get('mode')!='e2ag':raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
+        environment[ISOLATION_ENV]=encoded(isolation_policy(value['isolation'])).decode('utf-8')
     if POLICY_ENV in environment or SOCKET_ENV in environment:raise RuntimeErrorCode('TOOL_CHANNEL_ENV_RESERVED')
     if value.get('tool_channel') is not None:
         if value.get('governance',{}).get('mode')!='e2ag':raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
@@ -50,6 +56,7 @@ def read_profile(path, *, value=None, allow_unfrozen_packages=False, package_rev
     config['mounts'] = tuple(Mount(**m) for m in config.get('mounts', []))
     spec = LaunchSpec(**config)
     spec.validate()
+    validate_isolation(spec)
     if spec.kind != 'task': raise RuntimeErrorCode('WORKER_REQUIRES_TASK_PROFILE')
     return value['id'], spec
 
@@ -142,6 +149,11 @@ class Worker:
                 timeout=min(60,self.timeout-(time.monotonic()-started) if started is not None else 15))
         try:
             await authorized('execute')
+            from .execution_isolation import from_spec as isolation_from_spec
+            if isolation_from_spec(self.spec) and self.adapter.name!='local-docker-v1':
+                raise RuntimeErrorCode('EXECUTION_ISOLATION_UNSUPPORTED')
+            if isolation_from_spec(self.spec) and not run['input'].get('work_authorization_ref'):
+                raise RuntimeErrorCode('WORK_AUTHORIZATION_REQUIRED')
             secret_mounts = ()
             from .worker_tool_channel import WorkerToolChannel, POLICY_ENV, SOCKET_ENV, MOUNT_PATH
             if POLICY_ENV in self.spec.environment:

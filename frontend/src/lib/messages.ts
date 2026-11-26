@@ -183,6 +183,7 @@ export const messages: Record<string, string> = {
   "失败": "Failed",
   "单任务工具派发上限": "Tool dispatch limit per task",
   "工具派发用量": "Tool dispatch usage",
+  "执行要求：原生网络关闭、工作区只读；外部工具经授权通道调用。": "Execution requires native networking disabled and a read-only workspace. External tools use the authorized channel.",
   "含子任务": "including child tasks",
   "受父级预算约束，可用次数": "Parent budget applies; available calls",
   "工具预算已耗尽": "Tool budget exhausted",

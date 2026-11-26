@@ -153,6 +153,7 @@ class TaskConsole:
             profiles[-1]['view']['revision_ref']=revision_ref
             profiles[-1]['view']['deployment_id']=deployment_id
             profiles[-1]['view']['deployment_state']=deployment_state
+            profiles[-1]['view']['isolation']=raw.get('isolation')
         return profiles
 
     async def catalog(self):

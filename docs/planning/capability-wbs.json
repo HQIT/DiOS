@@ -7,11 +7,13 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K04-2.02",
-    "next_delivery": "K04-2.02",
+    "next_work_item": "K04-3.01",
+    "next_delivery": "K04-3.01",
     "next_delivery_order": [
+      "K04-3.01",
+      "K04-3.02",
+      "K04-3.03",
       "K04-2.02",
-      "K04-2.03",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -33,7 +35,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "K04-2.01 按既定验收收尾；继续 K04-2.02 的等待容量与恢复资格。网关强制费用和自动账单拉取保留后续适配候选，不增加当前前置。K02-3.02 等待源端隔离选择。"
+    "next_selection_reason": "K04-2.03 已完成。K04-2.02 等待容量语义选择，K02-3.02 等待源端隔离选择；其下游资格保留依赖。继续已就绪的 #46 全链关联、诊断导出和监测部署，不新增范围。"
   },
   "waves": [
     {
@@ -2402,7 +2404,7 @@
       "issue": 45,
       "title": "父子任务预算与等待容量",
       "kind": "I",
-      "state": "in_progress",
+      "state": "blocked",
       "requirements": [
         "K04-2-A01",
         "K04-2-A02",
@@ -2416,7 +2418,7 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "父子树并发、频率、费用账户、工具预算和期限继承已接入；125 项相关测试及四项浏览器检查通过。父级等待时保留占位并立即报告阻塞；安全让出与恢复后重新领取、多父任务容量冲突的完整资格待完成。",
+      "basis": "父子树预算继承、容量阻塞提示已部署；等待用户选择子任务原子容量预留或可退出恢复的持久编排父任务。Cursor 尚无已验证的请求中途恢复；冻结进程保留内存与进程占位。",
       "existing_evidence": [
         "docs/design/evidence/execution-capacity-20261125.json",
         "docs/design/evidence/execution-budgets-20261125.json",
@@ -2434,7 +2436,7 @@
       "issue": 45,
       "title": "网络与文件策略组合",
       "kind": "I",
-      "state": "todo",
+      "state": "done",
       "requirements": [
         "K04-2-A01",
         "K04-2-A03",
@@ -2445,8 +2447,11 @@
       "verification": "组合策略不能通过原生工具绕过；受支持 Adapter 实测，远端不可强制项明确限制",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有执行并发、时限及工具预算；金额/token 结算及组合边界待补。",
+      "completion_evidence": [
+        "docs/design/execution-isolation-45.md",
+        "docs/design/evidence/execution-isolation-20261126.json"
+      ],
+      "basis": "Linux 本地 Docker 的严格组合策略通过 73 项相关测试、四项浏览器检查和开发部署；原生网络关闭、工作区只读、实际挂载核验与 E2AG 工具预算共同生效。远程 A2A 和需要原生模型网络的配置不声明此资格。",
       "existing_evidence": [
         "docs/design/evidence/execution-capacity-20261125.json",
         "docs/design/evidence/execution-budgets-20261125.json",

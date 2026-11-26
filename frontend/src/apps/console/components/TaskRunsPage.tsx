@@ -232,6 +232,7 @@ export default function TaskRunsPage({ runId }: { runId: string }) {
           {profiles.map(p => <option key={p.id} value={p.id} disabled={p.governance === "e2ag" && !p.policy_configured}>{p.name}{translateUI(p.synthetic ? " · 合成端点" : "")}{translateUI(p.governance === "e2ag" && !p.policy_configured ? " · 待配置授权" : "")}</option>)}
         </select></label>
         {profiles.find(p => p.id === profile)?.description && <p className="tr-muted">{profiles.find(p => p.id === profile)?.description}</p>}
+        {chosenProfile?.isolation && <p className="tr-notice">{translateUI("执行要求：原生网络关闭、工作区只读；外部工具经授权通道调用。")}</p>}
         {chosenProfile?.dynamic_inputs && availableSamples.length > 0 && <label><input type="checkbox" checked={customMode} onChange={e => setCustomMode(e.target.checked)} disabled={busy}/>{translateUI("使用自定义输入")}</label>}
         {customInput ? <>
           <label>{translateUI("自定义任务输入（JSON）")}<textarea aria-label={translateUI("自定义任务输入（JSON）")} rows={8} maxLength={12288} value={customDrafts[profile] || ""} onChange={e => setCustomDrafts(current => ({...current, [profile]: e.target.value}))} disabled={busy} required /></label>

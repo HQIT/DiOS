@@ -56,6 +56,18 @@ class DockerRuntimeAdapter:
     async def start(self, handle, spec: LaunchSpec):
         spec.validate()
         def launch():
+            from .execution_isolation import from_spec, validate, verify_container
+            if from_spec(spec) and self.client.api.base_url != 'http+docker://localhost':
+                # Host-path validation and peer credentials require this Worker's
+                # local Linux daemon. Remote hosts use their own enrolled Worker.
+                raise RuntimeErrorCode('EXECUTION_ISOLATION_UNSUPPORTED')
+            validate(spec, host_paths=True)
+            mounts = [DockerMount(m.target, m.source, type='bind', read_only=m.read_only) for m in spec.mounts]
+            if from_spec(spec):
+                for mount in mounts:
+                    # Exclude nested host mounts rather than relying on kernel-specific
+                    # best-effort recursive read-only behavior.
+                    mount.setdefault('BindOptions', {})['NonRecursive'] = True
             # Freeze the resolved image identity, not a mutable tag, in the launch digest.
             try:
                 image = self.client.images.get(spec.image)
@@ -66,6 +78,7 @@ class DockerRuntimeAdapter:
             if c is not None:
                 if c.labels.get('dios.runtime.spec') != fingerprint:
                     raise RuntimeErrorCode('RUNTIME_SPEC_CONFLICT')
+                verify_container(c, spec)
                 # Never restart an existing stopped/exited container implicitly.
                 return self._observation(handle, c)
             host = str(self.client.info().get('ID', 'unknown'))
@@ -73,7 +86,7 @@ class DockerRuntimeAdapter:
                 c = self.client.containers.create(image.id, command=list(spec.command) if spec.command is not None else None,
                     name=self._name(handle), environment=spec.environment,
                     working_dir=spec.working_dir, user=spec.user, network=spec.network,
-                    mounts=[DockerMount(m.target, m.source, type='bind', read_only=m.read_only) for m in spec.mounts],
+                    mounts=mounts,
                     mem_limit=spec.memory_bytes, nano_cpus=int(spec.cpu_count*1_000_000_000),
                     pids_limit=spec.pids_limit, read_only=spec.read_only_root,
                     cap_drop=['ALL'], security_opt=['no-new-privileges:true'],
@@ -88,7 +101,9 @@ class DockerRuntimeAdapter:
                 c = self._get(handle)
                 if c is None or c.labels.get('dios.runtime.spec') != fingerprint:
                     raise RuntimeErrorCode('RUNTIME_SPEC_CONFLICT') from None
+                verify_container(c, spec)
                 return self._observation(handle, c)
+            verify_container(c, spec)
             c.start()
             return self._observation(handle, c)
         return await _native_call(launch)

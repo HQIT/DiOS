@@ -24,7 +24,7 @@ export const packageApi = {
   detail: (digest: string, signal?: AbortSignal) => request<PackageEntry>(`/packages/${encodeURIComponent(digest)}`, {signal}),
   releases: (digest: string, after = "", signal?: AbortSignal) => request<PackageReleases>(`/packages/${encodeURIComponent(digest)}/releases?${new URLSearchParams({after, limit: "20"})}`, {signal}),
 };
-export interface Profile { dynamic_inputs?: boolean; input_schema?: Record<string, unknown> | boolean | null; input_kind?: string; input_ids?: string[]; id: string; name: string; description: string; implementation: string; synthetic: boolean; governance: string; policy_configured: boolean; }
+export interface Profile { dynamic_inputs?: boolean; input_schema?: Record<string, unknown> | boolean | null; input_kind?: string; input_ids?: string[]; id: string; name: string; description: string; implementation: string; synthetic: boolean; governance: string; policy_configured: boolean; isolation?: {version: number; network: string; workspace: string} | null; }
 export interface Sample { [key: string]: unknown; id: string; name: string; filename?: string; source?: string; sha256: string; }
 export interface RunSummary {
   revision_ref?: string | null; deployment_id?: string | null;

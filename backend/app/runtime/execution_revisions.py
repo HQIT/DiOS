@@ -20,7 +20,7 @@ def adapter_descriptor(bridge):
     names = {
         "jsonl-v1": (
             "local-docker-v1",
-            ("adapter.py", "docker_adapter.py", "bridge.py"),
+            ("adapter.py", "docker_adapter.py", "bridge.py", "execution_isolation.py"),
         ),
         "a2a-0.3-jsonrpc": ("a2a-0.3-jsonrpc", ("a2a_profile.py", "a2a_transport.py")),
     }
