@@ -132,6 +132,10 @@ def main():
     parser.add_argument(
         "--list", action="store_true", help="validate selectors without execution"
     )
+    parser.add_argument(
+        "--cases", nargs="+", choices=[f"R{i:02}" for i in range(1, 19)],
+        help="run only affected scenarios; unselected cases remain not run in this report",
+    )
     args = parser.parse_args()
     manifest = json.loads(MANIFEST.read_text())
     assert [c["id"] for c in manifest["cases"]] == [f"R{i:02}" for i in range(1, 19)]
@@ -145,8 +149,9 @@ def main():
     for case in manifest["cases"]:
         row = rows[case["id"]]
         case.update(title=row[1], injection=row[2], assertions=row[3])
+    selected = [c for c in manifest["cases"] if not args.cases or c["id"] in args.cases]
     selectors = sorted(
-        {s for c in manifest["cases"] for s in c["tests"]}
+        {s for c in selected for s in c["tests"]}
         | set(manifest["harness_tests"])
     )
     loader = unittest.TestLoader()
@@ -158,6 +163,7 @@ def main():
             json.dumps(
                 {
                     "scenarios": len(rows),
+                    "selected_cases": [c["id"] for c in selected],
                     "unique_tests": len(selectors),
                     "selectors": selectors,
                 },
@@ -211,6 +217,7 @@ def main():
         "sources_unchanged": stable,
         "materialized_review": materialized,
         "tests_run": result.testsRun,
+        "selected_cases": [c["id"] for c in selected],
         "outcomes": result.outcomes,
         "test_seconds": result.elapsed,
         "components_passed": components_passed,
@@ -220,7 +227,8 @@ def main():
         "complete": components_passed
         and all(c["status"] == "passed" for c in cases)
         and not manifest["cross_agent_remaining"],
-        "observations": sys.modules["test_reference_faults"].OBSERVATIONS,
+        "observations": [row for name in ("test_reference_faults", "test_reference_native_acp")
+                         if name in sys.modules for row in sys.modules[name].OBSERVATIONS],
     }
     target = args.output / "result.json"
     target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")

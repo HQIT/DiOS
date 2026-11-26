@@ -28,9 +28,9 @@
     },
     {
       "id": "R04",
-      "tests": ["test_runtime_process.SupervisorTests.test_parent_exit_with_inherited_pipe_is_bounded", "test_runtime_process.SupervisorTests.test_exit_retains_partial_output"],
-      "covered": "原生子进程退出、继承管道悬挂的有界回收与部分输出保留",
-      "gaps": ["需在未完成 ACP RPC 上杀进程，并由同一调度链推进后续任务"],
+      "tests": ["test_reference_native_acp.NativeAcpReferenceTests.test_pending_rpc_sigkill_retains_output_and_same_worker_continues"],
+      "covered": "原生 ACP session/prompt 未完成时 SIGKILL；后代继承管道，独立退出监测有界回收；保留部分输出、原 Attempt/E2AG Grant，同一 Worker 继续下一项",
+      "gaps": [],
       "owners": [10, 30, 56]
     },
     {
@@ -49,9 +49,9 @@
     },
     {
       "id": "R07",
-      "tests": ["test_runtime_remote_control.RemoteControlTests.test_completed_response_loss_is_recovered_without_duplicate_artifacts", "test_runtime_faults.FaultTests.test_complete_result_is_validated_before_retrying_teardown_failure"],
-      "covered": "完整结果优先验证、完成响应丢失后恢复同一任务并保持产物幂等",
-      "gaps": ["需在原生执行端完整 JSON 落盘且提交前精确终止进程，验证模型调用计数"],
+      "tests": ["test_reference_native_acp.NativeAcpReferenceTests.test_worker_sigkill_after_durable_result_recovers_without_prompt_replay"],
+      "covered": "完整 ACP JSON 与退出收据持久化后、状态提交前 SIGKILL 独立 Worker；原 Run/Attempt/Session 经 E2AG 重新校验后恢复，协议端点 prompt 计数保持 1",
+      "gaps": [],
       "owners": [30, 32]
     },
     {

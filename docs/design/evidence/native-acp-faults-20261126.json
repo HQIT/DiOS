@@ -1,0 +1,211 @@
+{
+  "work_item": "F03-2.02",
+  "complete": false,
+  "qualified_cases": [
+    "R04",
+    "R07"
+  ],
+  "environment": "Linux/WSL; independent Docker and Worker processes; synthetic ACP endpoint; packaged Cursor bridge",
+  "base_commit": "5e4253d48207ebd156c28b7e740407d685ac272e",
+  "outcomes": {
+    "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario": "passed",
+    "test_reference_native_acp.NativeAcpReferenceTests.test_pending_rpc_sigkill_retains_output_and_same_worker_continues": "passed",
+    "test_reference_native_acp.NativeAcpReferenceTests.test_worker_sigkill_after_durable_result_recovers_without_prompt_replay": "passed"
+  },
+  "observations": [
+    {
+      "case": "R04",
+      "seconds": 2.4614556000015,
+      "input_digest": "2da60dc2fa69e13415ce6bce6e3642e619b9885bdbde00646b9d97e376d50406",
+      "worker_id": "922d183a-f078-4d4d-898e-7e30159cdba8",
+      "runs": [
+        "69f73d88-7810-4e2f-9e9b-0a00973d5b09",
+        "3b17ced3-56df-4615-8e1d-3acc9f7309db"
+      ],
+      "attempts": [
+        {
+          "id": "574c0997-66b1-4c12-ab14-29a7a5f8e9e8",
+          "epoch": 1,
+          "session_id": "fault-session-a5ace324a6f24c0a83827304650bed95",
+          "process_instance": "4c3d21be60ebf2a2f6114a6cda66f044a3c62ae7a31b49e33ed18f94436d1142:2026-11-26T11:14:40.866268067Z"
+        },
+        {
+          "id": "0e4bdc33-f449-453c-83ea-36ecabfd2b43",
+          "epoch": 1,
+          "session_id": "fault-session-f5c7bc1ce5d0447e8bf3e18465431582",
+          "process_instance": "de93b1ba0b3f5b1dc4137de56cdd27b922da76fc3a54fe9cef97a5e4826c2d30:2026-11-26T11:14:43.311273149Z"
+        }
+      ],
+      "error": {
+        "code": "ACP_PROCESS_EXITED",
+        "category": "process"
+      },
+      "states": [
+        "failed",
+        "succeeded"
+      ],
+      "prompt_calls": 2,
+      "e2ag_grants_verified": true
+    },
+    {
+      "case": "R07",
+      "run_id": "cbba1ed9-3ea8-4da9-8e99-155b9013c64f",
+      "attempt_id": "031d4e61-45fe-4a43-ada5-6ea7ca9e7092",
+      "input_digest": "2da60dc2fa69e13415ce6bce6e3642e619b9885bdbde00646b9d97e376d50406",
+      "epoch": 1,
+      "session_id": "fault-session-7a178e94897c4f7bac00d799a9d0a595",
+      "worker_exit": -9,
+      "receipt_stdout": "1fa3b1eccf41566ac992537da690b49e2a33a276879d98690af50d768f9ef058",
+      "prompt_calls_before": 1,
+      "prompt_calls_after": 1,
+      "state": "succeeded",
+      "e2ag_grants_verified": true
+    }
+  ],
+  "source_sha256": {
+    "backend/app/runtime/acp_bridge.py": "4385a3a4a9fe9440304a23f441f7481a98f60105be77df7e5cb05879b8801c79",
+    "backend/tests/runtime_acp_fault_fixture.py": "a10822128e01f4b9ba86d2d06ba9b3ea5f91444a64d11cd870eb4b10df460d59",
+    "backend/tests/test_reference_native_acp.py": "21bba87c24b4685b6e6f87346e01b9172ccbbca3d45c50b89db64f3dc270d99a",
+    "scripts/qualify_reference_faults.py": "ab04b5904195a4401a56cc67c4a3e19c1fc2ee0ab2c70878cb0c450c89e21113"
+  },
+  "cases": [
+    {
+      "id": "R04",
+      "tests": [
+        "test_reference_native_acp.NativeAcpReferenceTests.test_pending_rpc_sigkill_retains_output_and_same_worker_continues"
+      ],
+      "covered": "原生 ACP session/prompt 未完成时 SIGKILL；后代继承管道，独立退出监测有界回收；保留部分输出、原 Attempt/E2AG Grant，同一 Worker 继续下一项",
+      "gaps": [],
+      "owners": [
+        10,
+        30,
+        56
+      ],
+      "title": "R04 子进程崩溃",
+      "injection": "保持 RPC 请求未完成，终止其隔离 ACP 子进程",
+      "assertions": "有界终止等待；错误及输出留存；后续任务可推进",
+      "status": "passed"
+    },
+    {
+      "id": "R07",
+      "tests": [
+        "test_reference_native_acp.NativeAcpReferenceTests.test_worker_sigkill_after_durable_result_recovers_without_prompt_replay"
+      ],
+      "covered": "完整 ACP JSON 与退出收据持久化后、状态提交前 SIGKILL 独立 Worker；原 Run/Attempt/Session 经 E2AG 重新校验后恢复，协议端点 prompt 计数保持 1",
+      "gaps": [],
+      "owners": [
+        30,
+        32
+      ],
+      "title": "R07 完整输出抢救",
+      "injection": "完整 JSON 产物落盘后，在状态提交前中止执行端",
+      "assertions": "原产物校验完成同一 Run；模型调用计数不增加",
+      "status": "passed"
+    }
+  ],
+  "original_requirements_sha256": "693a8f60a50d2e12bc1435b2cf42a6163fd76e4bae15220072a1ae377f160bb5",
+  "private_report_sha256": "7bcc3e50c69034ce9e451e919b1beeb7576b3100e3ba15763cb0ad151ac2040b",
+  "regression": {
+    "acp_bridge_tests_passed": 13,
+    "native_cleanup_tests_passed": 1,
+    "commands": [
+      "PYTHONPATH=.:tests .venv/bin/python -m unittest test_reference_native_acp test_runtime_acp_bridge",
+      "PYTHONPATH=.:tests .venv/bin/python -m unittest test_reference_native_acp.NativeAcpCleanupTests"
+    ]
+  },
+  "deployment": {
+    "backend_image": "sha256:54455133e2352311327bdbfadb24233bead1fa2b96cc1701d71e1a33963fee91",
+    "cursor_image": "sha256:4d21718674c5cfd795de957429a2828702dae4e845ae63a27cfed01f5260cb3f",
+    "previous_backend_image": "sha256:5d904848f90d5368274602e16d9111ef099a871e352aaded93d084b5667fe290",
+    "api": "http://localhost:13481",
+    "console": "http://localhost:13482/dios/",
+    "health": "ok",
+    "mode": "restore_hold",
+    "existing_source_deployments_unchanged": true,
+    "native_workers_used_packaged_cursor_bridge": true
+  },
+  "model_calls": 0,
+  "production_tasks_changed": false,
+  "cumulative_qualified_cases": [
+    "R02",
+    "R04",
+    "R07",
+    "R12"
+  ],
+  "reused_evidence": [
+    "docs/design/evidence/reference-faults-20261126.json"
+  ],
+  "remaining_cases": [
+    "R01",
+    "R03",
+    "R05",
+    "R06",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R13",
+    "R14",
+    "R15",
+    "R16",
+    "R17",
+    "R18"
+  ],
+  "cross_agent_remaining": [
+    {
+      "case": "cancel=false",
+      "owners": [
+        56,
+        58
+      ],
+      "required": "需要可靠取消的工作按探测能力拒绝准入"
+    },
+    {
+      "case": "disconnect",
+      "owners": [
+        30,
+        56
+      ],
+      "required": "按 R03 的原生路径验证"
+    },
+    {
+      "case": "revoke",
+      "owners": [
+        34,
+        35,
+        58
+      ],
+      "required": "跨场景读取和外发的运行中撤销证据"
+    },
+    {
+      "case": "callback-replay",
+      "owners": [
+        30,
+        32,
+        56
+      ],
+      "required": "同 callback id 十次乱序重放，一次推进及旧版本隔离"
+    },
+    {
+      "case": "human-takeover",
+      "owners": [
+        40,
+        58
+      ],
+      "required": "人工决定与取消独立记录，迟到结果进入复核"
+    },
+    {
+      "case": "implementation-handoff",
+      "owners": [
+        37,
+        38,
+        58
+      ],
+      "required": "交接 WorkItem/会话/成果身份连续且权限不扩大；首轮 Cursor 闭环后安排"
+    }
+  ],
+  "references": [
+    "https://docs.python.org/3/library/asyncio-subprocess.html",
+    "https://agentclientprotocol.com/protocol/v1/transports"
+  ]
+}

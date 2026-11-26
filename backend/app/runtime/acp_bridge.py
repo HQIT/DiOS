@@ -27,12 +27,31 @@ def diagnostic(code):
 
 
 class AcpClient:
-    def __init__(self, process, *, emit_event=emit, limit=32000, tool_client=None, client_read_tool=None, permission_decoder=None):
+    def __init__(self, process, *, emit_event=emit, limit=32000, tool_client=None, client_read_tool=None, permission_decoder=None, owns_process_group=False):
         self.process=process;self.emit=emit_event;self.limit=limit
         self.pending={};self.counter=0;self.session_id=None;self.output=''
         self.permission_decoder=permission_decoder
         self.tool_client=tool_client;self.client_read_tool=client_read_tool;self.tool_activity={}
         self.native_tool_seen=False;self.denials=0;self.reader=None;self.stderr=None;self.failure=None
+        self.monitor=None;self.owns_process_group=owns_process_group
+
+    def fail_pending(self, failure):
+        self.failure=self.failure or failure
+        for future in self.pending.values():
+            if not future.done():future.set_exception(self.failure)
+
+    async def wait_exited(self):
+        # Process.wait() may still wait for inherited pipes after the direct child exits.
+        while self.process.returncode is None:
+            await asyncio.sleep(.02)
+
+    async def watch_process(self):
+        await self.wait_exited()
+        # Give already-written final responses a bounded chance to drain.
+        if self.reader:
+            try:await asyncio.wait_for(asyncio.shield(self.reader),.5)
+            except TimeoutError:pass
+        self.fail_pending(RuntimeErrorCode('ACP_PROCESS_EXITED'))
 
     async def send(self, value):
         self.process.stdin.write(encoded(value)+b'\n')
@@ -53,9 +72,7 @@ class AcpClient:
             raise RuntimeErrorCode('ACP_PROCESS_EXITED')
         except asyncio.CancelledError:raise
         except Exception as exc:
-            self.failure=exc if isinstance(exc,RuntimeErrorCode) else RuntimeErrorCode('ACP_TRANSPORT_FAILED')
-            for future in self.pending.values():
-                if not future.done():future.set_exception(self.failure)
+            self.fail_pending(exc if isinstance(exc,RuntimeErrorCode) else RuntimeErrorCode('ACP_TRANSPORT_FAILED'))
 
     async def discard_stderr(self):
         # Drain concurrently so a verbose child cannot deadlock RPC. Never forward raw credentials.
@@ -165,19 +182,32 @@ class AcpClient:
             await self.send({'jsonrpc':'2.0','method':'session/cancel','params':{'sessionId':self.session_id}})
 
     async def close(self):
+        def stop(sig):
+            try:
+                if self.owns_process_group:os.killpg(self.process.pid,sig)
+                elif self.process.returncode is None:self.process.send_signal(sig)
+            except ProcessLookupError:pass
         try:
-            await self.cancel()
-            self.process.stdin.close()
-            await asyncio.wait_for(self.process.wait(),3)
-        except (OSError,ConnectionError,TimeoutError):
             if self.process.returncode is None:
-                self.process.terminate()
-                try:await asyncio.wait_for(self.process.wait(),2)
-                except TimeoutError:self.process.kill();await self.process.wait()
+                try:await asyncio.wait_for(self.cancel(),.5)
+                except (OSError,ConnectionError,TimeoutError):pass
+            self.process.stdin.close()
+            try:await asyncio.wait_for(self.wait_exited(),3)
+            except TimeoutError:
+                stop(signal.SIGTERM)
+                try:await asyncio.wait_for(self.wait_exited(),2)
+                except TimeoutError:
+                    stop(signal.SIGKILL)
+                    await asyncio.wait_for(self.wait_exited(),2)
         finally:
-            for task in (self.reader,self.stderr):
+            # Reap the private group even when its leader died with a descendant holding pipes.
+            stop(signal.SIGKILL)
+            for task in (self.reader,self.stderr,self.monitor):
                 if task:task.cancel()
-            await asyncio.gather(*(t for t in (self.reader,self.stderr) if t),return_exceptions=True)
+            await asyncio.gather(*(t for t in (self.reader,self.stderr,self.monitor) if t),return_exceptions=True)
+            # asyncio has no public Process.close(); close owned pipe transports before loop exit.
+            self.process._transport.close()
+            await asyncio.wait_for(self.process.wait(),2)
 
 
 def configuration(path):
@@ -212,9 +242,11 @@ async def execute(path, prompt, decode_result, *, required_tools=(), activity_de
     tool_description=await tool_client.request('describe',{}) if tool_client else {}
     read_tool=tool_description.get('client_read_tool')
     process=await asyncio.create_subprocess_exec(*command,cwd=cwd,env=env,
-        stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,limit=256*1024)
-    peer=AcpClient(process,tool_client=tool_client,client_read_tool=read_tool,permission_decoder=permission_decoder)
+        stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,limit=256*1024,
+        start_new_session=True)
+    peer=AcpClient(process,tool_client=tool_client,client_read_tool=read_tool,permission_decoder=permission_decoder,owns_process_group=True)
     peer.reader=asyncio.create_task(peer.read());peer.stderr=asyncio.create_task(peer.discard_stderr())
+    peer.monitor=asyncio.create_task(peer.watch_process())
     loop=asyncio.get_running_loop();task=asyncio.current_task()
     for sig in (signal.SIGTERM,signal.SIGINT):
         try:loop.add_signal_handler(sig,task.cancel)
