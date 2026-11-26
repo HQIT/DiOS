@@ -29,7 +29,7 @@ def validate_selector(value):
     raise RuntimeErrorCode("INVALID_CAPACITY_SELECTOR")
 
 
-def matches(selector, scope):
+def direct_matches(selector, scope):
     if selector["kind"] == "scope":
         return true()
     if selector["kind"] == "subject":
@@ -43,6 +43,21 @@ def matches(selector, scope):
         )
     return func.coalesce(runs.c.input["runtime_profile"].as_string(), "").in_(
         selector["profiles"]
+    )
+
+
+def matches(selector, scope):
+    if selector["kind"] == "scope":
+        return true()
+    from .budget_tree import descendants
+
+    return runs.c.id.in_(
+        descendants(
+            scope,
+            select(runs.c.id).where(
+                runs.c.scope == scope, direct_matches(selector, scope)
+            ),
+        )
     )
 
 
@@ -95,13 +110,6 @@ async def queue_status(c, scope, run, *, operator=False):
     if run["state"] != "queued":
         return None
     await require(c)
-    subject = (
-        await c.execute(
-            select(work.c.subject).where(
-                work.c.scope == scope, work.c.run_id == run["id"]
-            )
-        )
-    ).scalar_one_or_none()
     rows = (
         (
             await c.execute(
@@ -120,12 +128,15 @@ async def queue_status(c, scope, run, *, operator=False):
     now = await Database.now(c)
     for row in rows:
         selector = row["selector"]
-        if selector["kind"] == "subject" and selector["subject"] != subject:
-            continue
-        if (
-            selector["kind"] == "profiles"
-            and run["input"].get("runtime_profile") not in selector["profiles"]
-        ):
+        if not (
+            await c.execute(
+                select(runs.c.id).where(
+                    runs.c.id == run["id"],
+                    runs.c.scope == scope,
+                    matches(selector, scope),
+                )
+            )
+        ).first():
             continue
         occupied, unknown = await occupancy(c, scope, selector)
         budget = await policy(c, scope, row["id"])

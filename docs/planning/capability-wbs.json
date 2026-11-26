@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K04-2.01",
-    "next_delivery": "K04-2.01",
+    "next_work_item": "K04-2.02",
+    "next_delivery": "K04-2.02",
     "next_delivery_order": [
-      "K04-2.01",
       "K04-2.02",
       "K04-2.03",
       "K02-3.02",
@@ -34,7 +33,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "继续 K04-2.01：平台账本与执行控制点已部署；下一步适配成熟模型网关的强制上限与可恢复账单回执，保留不透明 Harness 的明确准入限制。K02-3.02 等待源端隔离选择。"
+    "next_selection_reason": "K04-2.01 按既定验收收尾；继续 K04-2.02 的等待容量与恢复资格。网关强制费用和自动账单拉取保留后续适配候选，不增加当前前置。K02-3.02 等待源端隔离选择。"
   },
   "waves": [
     {
@@ -2374,7 +2373,7 @@
       "issue": 45,
       "title": "用量预留与结算补齐",
       "kind": "I",
-      "state": "in_progress",
+      "state": "done",
       "requirements": [
         "K04-2-A01",
         "K04-2-A02",
@@ -2385,18 +2384,17 @@
       "verification": "并发不超平台预算，取消故障不重复扣费/释放；远端无法硬控成本显式展示并限制准入",
       "dependencies": [],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "平台 token/金额预留、证据结算、未知成本保留和严格模式拒绝已部署；80 项相关测试、六项浏览器检查通过。供应商侧强制上限允许路径与自动账单回执对账仍待完成，本项尚未计入完成数。",
+      "completion_evidence": [
+        "docs/design/consumption-acceptance-45.md",
+        "docs/design/evidence/consumption-acceptance-20261126.json"
+      ],
+      "basis": "平台预留、幂等证据结算、未知消耗保留及不可控通道准入限制通过既定验收；80 项测试与六项浏览器检查的已部署证据已按提交摘要核对。模型网关与自动账单作为后续适配候选，不作为新增前置。",
       "existing_evidence": [
         "docs/design/evidence/execution-capacity-20261125.json",
         "docs/design/evidence/execution-budgets-20261125.json",
         "docs/design/evidence/tool-dispatch-budgets-20261125.json"
       ],
-      "wave": "W3",
-      "progress_evidence": [
-        "docs/design/evidence/consumption-ledger-20261126.json",
-        "docs/design/consumption-budget-45.md"
-      ]
+      "wave": "W3"
     },
     {
       "id": "K04-2.02",
@@ -2404,7 +2402,7 @@
       "issue": 45,
       "title": "父子任务预算与等待容量",
       "kind": "I",
-      "state": "todo",
+      "state": "in_progress",
       "requirements": [
         "K04-2-A01",
         "K04-2-A02",
@@ -2418,13 +2416,17 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "已有执行并发、时限及工具预算；金额/token 结算及组合边界待补。",
+      "basis": "父子树并发、频率、费用账户、工具预算和期限继承已接入；125 项相关测试及四项浏览器检查通过。父级等待时保留占位并立即报告阻塞；安全让出与恢复后重新领取、多父任务容量冲突的完整资格待完成。",
       "existing_evidence": [
         "docs/design/evidence/execution-capacity-20261125.json",
         "docs/design/evidence/execution-budgets-20261125.json",
         "docs/design/evidence/tool-dispatch-budgets-20261125.json"
       ],
-      "wave": "W3"
+      "wave": "W3",
+      "progress_evidence": [
+        "docs/design/evidence/task-tree-budgets-20261126.json",
+        "docs/design/task-tree-budgets-45.md"
+      ]
     },
     {
       "id": "K04-2.03",

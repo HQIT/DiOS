@@ -102,6 +102,24 @@ class ChildChannelTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(RuntimeErrorCode,'CHILD_WAIT_INVALID'):
                 await self.client.child(child['id'],wait_seconds=value)
 
+    async def test_capacity_blocked_wait_returns_without_releasing_parent(self):
+        from app.runtime.capacity import Capacity, occupancy
+        await Capacity(self.f.store).put('one',{'kind':'scope'},1,0)
+        child=await self.submit()
+        observed=await asyncio.wait_for(self.client.child(child['id'],wait_seconds=30),3)
+        self.assertEqual(observed['wait_blocked'],['SHARED_CAPACITY_EXHAUSTED'])
+        self.assertFalse(observed['wait_exhausted'])
+        self.assertEqual(observed['state'],'queued')
+        async with self.f.db.read(self.f.scope) as c:
+            self.assertEqual((await occupancy(c,self.f.scope,{'kind':'scope'}))[0],1)
+        await Capacity(self.f.store).put('one',{'kind':'scope'},2,1)
+        worker=Worker(self.f.store,FakeAdapter(),'test-profile',self.f.spec,self.f.provider,
+            poll_interval=.05,authorization_verifier=self.f.verifier)
+        self.assertEqual((await worker.once())['state'],'succeeded')
+        observed=await self.client.child(child['id'],wait_seconds=30)
+        self.assertEqual(observed['state'],'succeeded')
+        self.assertEqual(observed['wait_blocked'],[])
+
     async def test_mcp_tools_expose_only_aliases_and_link_native_activity(self):
         bridge=WorkerMcpBridge(self.client,'test-bridge')
         await bridge.handle({'jsonrpc':'2.0','id':1,'method':'initialize','params':{'protocolVersion':'2025-06-18'}})

@@ -215,6 +215,19 @@ async def bind(c, scope, run, now):
         if row["max_runtime_seconds"] is not None
     ]
     deadline = min((first + row["max_runtime_seconds"] for row in limits), default=None)
+    from .budget_tree import ancestors
+
+    parent_ids = await ancestors(c, scope, run["id"])
+    if parent_ids:
+        inherited = (
+            await c.execute(
+                select(func.min(bindings.c.deadline_at)).where(
+                    bindings.c.scope == scope, bindings.c.run_id.in_(parent_ids)
+                )
+            )
+        ).scalar_one_or_none()
+        if inherited is not None:
+            deadline = inherited if deadline is None else min(deadline, inherited)
     await c.execute(
         bindings.insert().values(
             run_id=run["id"],

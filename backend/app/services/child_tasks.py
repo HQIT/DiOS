@@ -20,7 +20,7 @@ def tool_schemas(aliases):
         inputSchema=dict(type='object',properties=dict(profile={'type':'string','enum':aliases},goal={'type':'string','minLength':1,'maxLength':2000},
             sample_id={'type':'string','minLength':1,'maxLength':160},input_payload={'type':'object'}),
             required=['profile','goal'],additionalProperties=False,oneOf=[{'required':['sample_id']},{'required':['input_payload']}])),
-        dict(name=GET,description='Wait up to 20 seconds (default) for a child to finish, then return its state and verified result. If still active, call again with the same run ID. A wait timeout is not task failure and does not resubmit it.',
+        dict(name=GET,description='Wait up to 20 seconds (default) for a child to finish, then return its state and verified result. A wait timeout is not task failure and does not resubmit it. When wait_blocked is nonempty, capacity or budget must become available; report that reason instead of repeatedly waiting or resubmitting. The parent still occupies its resources.',
             inputSchema=dict(type='object',properties={'run_id':{'type':'string','minLength':1,'maxLength':160},
                 'wait_seconds':{'type':'integer','minimum':0,'maximum':30,'default':20}},required=['run_id'],additionalProperties=False)),
         dict(name=LIST,description='Discover children attached to this live parent execution. Wait for the first child up to 20 seconds by default. Observe a returned run ID with dios_task_get; an empty wait does not authorize resubmission.',
@@ -124,8 +124,15 @@ class ChildTasks:
         if type(wait_seconds) is not int or not 0<=wait_seconds<=30:raise RuntimeErrorCode('CHILD_WAIT_INVALID')
         deadline=time.monotonic()+wait_seconds
         while True:
-            async with self.store.db.read(self.store.scope) as c:run=await self.own(c,run_id,read_result=True)
-            if run['state'] in {'succeeded','failed','cancelled'} or time.monotonic()>=deadline:break
+            async with self.store.db.read(self.store.scope) as c:
+                run=await self.own(c,run_id,read_result=True)
+                from app.runtime.capacity import queue_status
+                from app.runtime.consumption import run_view
+                queue=await queue_status(c,self.store.scope,run)
+                blocked=([queue['reason']] if queue and queue['blocked'] else [])
+                if run['state']=='queued':
+                    blocked.extend((await run_view(c,self.store.scope,run))['blocked_reasons'])
+            if blocked or run['state'] in {'succeeded','failed','cancelled'} or time.monotonic()>=deadline:break
             await asyncio.sleep(min(.5,max(0,deadline-time.monotonic())))
         alias=next((key for key,value in self.config['profiles'].items() if value['profile_id']==run['input']['runtime_profile']),None)
         console,_=await self.console(alias,parent)
@@ -137,7 +144,8 @@ class ChildTasks:
         value=self.summary(result)
         active=next((a for a in result['attempts'] if a['id']==result['attempt_id']),None)
         value['phase']=active['state'] if active else result['state']
-        value['wait_exhausted']=bool(wait_seconds and result['state'] not in {'succeeded','failed','cancelled'})
+        value['wait_blocked']=sorted(set(blocked))
+        value['wait_exhausted']=bool(wait_seconds and not blocked and result['state'] not in {'succeeded','failed','cancelled'})
         value['artifacts']=result['artifacts']
         if result['state']=='succeeded':
             artifact=next((a for a in result['artifacts'] if a['kind']=='result'),None)

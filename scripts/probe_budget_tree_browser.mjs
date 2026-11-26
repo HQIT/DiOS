@@ -1,0 +1,36 @@
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import {chromium} from '../node_modules/playwright/index.mjs';
+const root=process.argv[2];
+const ids=JSON.parse(await fs.readFile(root+'/ready.json','utf8'));
+const browser=await chromium.launch({headless:true});
+const checks=[],errors=[];
+try {
+  const context=await browser.newContext({locale:'zh-CN',viewport:{width:1440,height:1000}});
+  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
+  const route=id=>'http://127.0.0.1:13346/dios/#console/tasks/'+id;
+  await page.goto(route(ids.parent));
+  await page.getByPlaceholder('Access Token',{exact:true}).fill('operator-test');
+  await page.getByRole('button',{name:'进入',exact:true}).click();
+  await page.getByText(/工具派发用量（含子任务）: 2\/2/).waitFor();
+  checks.push('parent-tree-total');
+  await page.goto(route(ids.child));
+  let notice=page.getByText(/受父级预算约束，可用次数: 0/);
+  await notice.waitFor();assert.match(await notice.innerText(),/工具预算已耗尽/);
+  checks.push('child-parent-ceiling');
+  await notice.scrollIntoViewIfNeeded();
+  await page.screenshot({path:root+'/child-budget-zh.png',fullPage:true});
+  await page.getByLabel('语言',{exact:true}).selectOption('en');
+  notice=page.getByText(/Parent budget applies; available calls: 0/);
+  await notice.waitFor();assert.match(await notice.innerText(),/including child tasks/);
+  checks.push('english');
+  await page.getByLabel('Theme',{exact:true}).selectOption('dark');
+  await page.setViewportSize({width:390,height:844});
+  await notice.scrollIntoViewIfNeeded();
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  checks.push('dark-mobile');
+  await page.screenshot({path:root+'/child-budget-mobile.png',fullPage:true});
+  assert.deepEqual(errors,[]);
+  await fs.writeFile(root+'/browser.json',JSON.stringify({passed:true,checks,page_errors:errors},null,2)+'\n');
+  console.log(JSON.stringify({passed:true,checks:checks.length}));
+} finally {await browser.close();}
