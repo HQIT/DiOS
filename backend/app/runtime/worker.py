@@ -21,11 +21,13 @@ from sqlalchemy.exc import OperationalError, InterfaceError
 from .schema import runs
 
 
-def read_profile(path, *, value=None, allow_unfrozen_packages=False):
+def read_profile(path, *, value=None, allow_unfrozen_packages=False, package_revision=False):
     value = json.loads(Path(path).read_text(encoding='utf-8')) if value is None else value
     if not allow_unfrozen_packages and ('package_source' in value or 'package_lock' in value):
         from .package_payloads import validate_binding
         validate_binding(value)
+        if 'package_lock' in value and not package_revision:
+            raise RuntimeErrorCode('PACKAGE_REVISION_REQUIRED')
     identifier(value['id'])
     if value.get('bridge') == 'a2a-0.3-jsonrpc':
         from .a2a_profile import read

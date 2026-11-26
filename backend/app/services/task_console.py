@@ -131,7 +131,7 @@ class TaskConsole:
                     raise RuntimeErrorCode('REVISION_INPUT_CATALOG_NOT_PINNED')
             display=raw.get('console',{})
             if display.get('enabled') is not True: continue
-            profile_id,spec=read_profile(path,value=raw)
+            profile_id,spec=read_profile(path,value=raw,package_revision=revision_ref is not None)
             if not await asyncio.to_thread(self.profile_allowed,profile_id):continue
             if any(x['view']['id']==profile_id for x in profiles):raise RuntimeErrorCode('DUPLICATE_PROFILE_ID')
             registered=await asyncio.to_thread(registration,display)

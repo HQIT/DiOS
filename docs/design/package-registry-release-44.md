@@ -50,7 +50,7 @@ python -m app.runtime.cli deployment --policy-file /srv/dios/policy.json reconci
 
 `publish-profile` 接受未附加包源的运行 Profile，按传入包锁取回和校验文件，通过既有 OCI 发布器创建 Revision。Deployment 申请仍需显式提供版本、幂等键、验证输入及操作人。注册和导出无需 Docker；导出不会启动模型、插件安装脚本或后端服务。跨环境接收方重新登记并批准来源证据，源环境的批准不自动授予目标环境执行权限。
 
-新增 `runtime_registry_packages` 与 `runtime_registry_receipts` 为只增账本，随数据库迁移和备份恢复管理；已发布 schema 文件保持冻结。当前入口是受信 Linux 管理 CLI，统一 API/Console 目录由 K04-1.04 接续。
+新增 `runtime_registry_packages` 与 `runtime_registry_receipts` 为只增账本，随数据库迁移和备份恢复管理；已发布 schema 文件保持冻结。发布使用受信 Linux 管理 CLI，查询使用[统一 API、CLI、Console 与 SDK 目录](package-catalog-44.md)。携带包锁的执行必须经 Revision；旧内联 Profile 入口返回 `PACKAGE_REVISION_REQUIRED`。
 
 ## 采用的公开设计
 

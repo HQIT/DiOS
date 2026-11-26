@@ -49,7 +49,7 @@ def compile_profile(raw):
     from .package_payloads import validate_binding
 
     package_lock = validate_binding(raw)
-    profile_id, spec = read_profile("immutable-profile", value=raw)
+    profile_id, spec = read_profile("immutable-profile", value=raw, package_revision=True)
     mode, refs = security_profile("immutable-profile", raw=raw)
     dependencies = {kind: [] for kind in sorted(DEPENDENCY_KINDS)}
     if package_lock:
@@ -153,7 +153,7 @@ def decode(record):
     ):
         raise RuntimeErrorCode("REVISION_EXECUTION_PROFILE_REQUIRED")
     raw = dict(config["execution_profile"], secrets=config["secret_bindings"])
-    profile_id, spec = read_profile("immutable-profile", value=raw)
+    profile_id, spec = read_profile("immutable-profile", value=raw, package_revision=True)
     mode, refs = security_profile("immutable-profile", raw=raw)
     if (
         profile_id != value["definition_id"]
