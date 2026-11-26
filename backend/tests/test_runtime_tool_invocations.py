@@ -39,6 +39,7 @@ class ToolInvocationTests(unittest.IsolatedAsyncioTestCase):
         self.registration=dict(enabled=True,transport='mcp-http',url=getattr(self,'tool_url','http://127.0.0.1:19999/mcp'),name='search',
             approval_required=True,input_schema={'type':'object','properties':{'query':{'type':'string'}},'required':['query'],'additionalProperties':False},
             result_schema={'type':'object','required':['content'],'properties':{'content':{'type':'array'}}})
+        if getattr(self,'evaluator_configuration',None):self.registration['policy_evaluator']=self.evaluator_configuration
         version=digest({k:v for k,v in self.registration.items() if k!='enabled'})
         self.permission=dict(action='repository.search',resource_kind='mcp_tool',resource_id='review/search',
             resource_version=version,constraint_revision='test-policy')

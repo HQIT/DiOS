@@ -73,7 +73,7 @@ class BridgeTests(unittest.TestCase):
 class WorkerTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name)
-        self.url='sqlite+aiosqlite:///'+str(self.root/'runtime.sqlite')
+        self.url=getattr(self,'database_url',None) or 'sqlite+aiosqlite:///'+str(self.root/'runtime.sqlite')
         self.db=Database(self.url);await self.db.migrate()
         self.scope='worker-test-'+str(uuid4());self.store=RuntimeStore(self.db,self.scope)
         self.provider=LocalArtifacts(self.root/'artifacts')
