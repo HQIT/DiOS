@@ -37,7 +37,7 @@
       "K02-3.02 源控制面隔离的工程方案与验证待完成；恢复冻结保持，生产恢复不自动解锁。",
       "K04-2.02 父子等待容量的工程方案与验证待完成；D01-3.02 已接入第二物理主机上的 Linux 节点，继续完成隔离故障注入。",
       "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
-      "五项评审包已就绪；指定接受人未确定，评审结论保持待认领。"
+      "产品与发布接受人已明确为徐刚，五项产品要求已确认；工程方按原验收提供实际效果与证据，发布接受按具体版本、限制和取舍记录。"
     ],
     "verification_rule": "每个 WBS 交付项集中收尾：开发期间只跑受影响测试；交付前集中执行相关回归、构建与部署。已有证据在代码、依赖和运行条件未变化时复用；仅新改动、失败或未解决风险触发重测。用户产品验收单独安排。",
     "research_rule": "遇到技术问题先调研公开发表的研究成果、规范与成熟实现，记录适用前提和代码差距；无适用方案时，先与用户讨论缺口和选择，再设计新机制。",
@@ -1342,7 +1342,7 @@
       "dependencies": [
         "K01-1.01"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有 Docker 生命周期、服务恢复及镜像证据；剩余原条款闭环与评审。",
       "existing_evidence": [
@@ -1355,7 +1355,12 @@
         "docs/design/evidence/ready-g2-review.json"
       ],
       "review_package_status": "ready_for_designated_review",
-      "blocking_reason": "原验收及固定范围证据已汇总；指定责任人和 G2 接受决议待填写。"
+      "product_acceptance": {
+        "reviewer": "徐刚",
+        "date": "2026-11-27",
+        "decision": "requirements_confirmed",
+        "record": "docs/engineering/product-acceptance-20261127.md"
+      }
     },
     {
       "id": "K01-2.01",
@@ -1516,7 +1521,7 @@
         "K01-2.04",
         "K02-2.03"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有持久队列、定时、租约、spool、分类故障和恢复；组合故障与多主裁决尚未完整资格验证。",
       "existing_evidence": [
@@ -1544,7 +1549,7 @@
       "done_when": "核验现有 TLS IMAP、故障隔离、进程锁释放及镜像记录；符合原范围则关闭 Issue",
       "verification": "核验现有 TLS IMAP、故障隔离、进程锁释放及镜像记录；符合原范围则关闭 Issue",
       "dependencies": [],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "原三条验收已勾选，具备 IMAP/TLS/隔离及镜像证据；Issue 尚待结项审阅。",
       "existing_evidence": [
@@ -1556,7 +1561,12 @@
         "docs/design/evidence/ready-g2-review.json"
       ],
       "review_package_status": "ready_for_designated_review",
-      "blocking_reason": "原验收及固定范围证据已汇总；指定责任人和 G2 接受决议待填写。"
+      "product_acceptance": {
+        "reviewer": "徐刚",
+        "date": "2026-11-27",
+        "decision": "requirements_confirmed",
+        "record": "docs/engineering/product-acceptance-20261127.md"
+      }
     },
     {
       "id": "K02-1.01",
@@ -1998,7 +2008,7 @@
         "K03-1.02",
         "K03-1.03"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有 OIDC、Keycloak、OpenBao、续期及注销；企业环境/轮换/跨主机完整资格待闭环。",
       "existing_evidence": [
@@ -2094,7 +2104,7 @@
         "K03-2.01",
         "K03-2.02"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有实际执行控制点、审批和三种 Harness 拒绝证据；完整矩阵与安全评审未闭环。",
       "existing_evidence": [
@@ -2108,7 +2118,12 @@
         "docs/design/evidence/ready-g2-review.json"
       ],
       "review_package_status": "ready_for_designated_review",
-      "blocking_reason": "原验收及固定范围证据已汇总；指定责任人和 G2 接受决议待填写。"
+      "product_acceptance": {
+        "reviewer": "徐刚",
+        "date": "2026-11-27",
+        "decision": "requirements_confirmed",
+        "record": "docs/engineering/product-acceptance-20261127.md"
+      }
     },
     {
       "id": "K01-4.01",
@@ -2292,7 +2307,7 @@
       "dependencies": [
         "K03-3.02"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有三层委派、子任务工具通道及跨 Harness；跨来源撤销顺序和完整资格仍待闭环。",
       "existing_evidence": [
@@ -2306,7 +2321,12 @@
         "docs/design/evidence/ready-g2-review.json"
       ],
       "review_package_status": "ready_for_designated_review",
-      "blocking_reason": "原验收及固定范围证据已汇总；指定责任人和 G2 接受决议待填写。"
+      "product_acceptance": {
+        "reviewer": "徐刚",
+        "date": "2026-11-27",
+        "decision": "requirements_confirmed",
+        "record": "docs/engineering/product-acceptance-20261127.md"
+      }
     },
     {
       "id": "K04-1.01",
@@ -2835,7 +2855,7 @@
         "K01-1.02",
         "K03-2.03"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有开发镜像与升级演练；固定候选版本的干净安装、CI 和交付验收待闭环。",
       "existing_evidence": [
@@ -2990,15 +3010,17 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "第二物理主机 Linux 节点已接通；三项真实跨主机测试覆盖限流/额度单路试恢复后恢复三路独立执行、旧执行权拒绝、E2AG 原任务关联、机器撤销与重复提交；248 个远端源文件及运行镜像摘要已核对。完整故障注入环境继续推进。",
+      "basis": "第二物理主机 Linux 节点已接入。六类场景已有实测：限流、额度、机器撤销与幂等、网络分区、Worker SIGKILL、200 ms 延迟。断连恢复无需手工重启 Worker；完整输出恢复保持原 Attempt/Session，未重新启动任务。",
       "existing_evidence": [
         "docs/design/evidence/a2a-recovery-20261125.json",
         "docs/design/evidence/worker-reconciliation-regression-20261113.json",
         "docs/design/physical-worker-qualification-53.md",
-        "docs/design/evidence/physical-worker-20261127.json"
+        "docs/design/evidence/physical-worker-20261127.json",
+        "docs/design/physical-fault-qualification-53.md",
+        "docs/design/evidence/physical-faults-20261127.json"
       ],
       "wave": "W4",
-      "blocking_reason": "主机已提供；待补隔离网络分区、进程终止、测试节点重启、延迟和存储故障入口。整台宿主重启或影响其他服务的故障须安排维护窗口。"
+      "blocking_reason": "待补存储故障与完整节点重启验证；整台宿主重启或影响其他服务的故障需维护窗口。"
     },
     {
       "id": "D01-3.03",
@@ -3050,7 +3072,7 @@
       "dependencies": [
         "D01-3.03"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有远端 Worker 恢复切片；控制面 HA、仲裁、复制 RPO 和物理跨主机验收尚缺。",
       "existing_evidence": [
@@ -3138,7 +3160,7 @@
         "D01-3.04",
         "F03-2.03"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有两档设计假设与局部性能实验；全平台两档容量不是已实测结论。",
       "existing_evidence": [
@@ -3235,7 +3257,7 @@
         "K01-5.02",
         "K01-4.03"
       ],
-      "owner": "评审责任人待认领",
+      "owner": "徐刚（产品与发布接受）；Codex 工程（验证与证据）",
       "completion_evidence": [],
       "basis": "已有三种真实 Harness 和治理切片；完整版本矩阵及联合资格待闭环。",
       "existing_evidence": [
@@ -3250,7 +3272,12 @@
         "docs/design/evidence/harness-review-58.json"
       ],
       "review_package_status": "ready_for_designated_review",
-      "blocking_reason": "工程材料和六条验收映射已齐；架构、安全及测试运维评审责任人待认领，接受决议待填写。"
+      "product_acceptance": {
+        "reviewer": "徐刚",
+        "date": "2026-11-27",
+        "decision": "requirements_confirmed",
+        "record": "docs/engineering/product-acceptance-20261127.md"
+      }
     },
     {
       "id": "S02-1.01",

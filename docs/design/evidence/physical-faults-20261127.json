@@ -1,0 +1,286 @@
+{
+  "work_item": "D01-3.02",
+  "passed": true,
+  "cases_passed": 3,
+  "observations": [
+    {
+      "case": "partition",
+      "run_id": "a97aa384-a2ef-433b-b157-1d49a9fbecd7",
+      "worker_process_restarted": false,
+      "original_attempt": "33797a62-14eb-4cf3-b13b-676590d1dcfc",
+      "final_attempt": "74f59e2d-e5b4-4b56-a92f-35f64bc0159b",
+      "original_work_retained": true,
+      "attempt_count": 2,
+      "initial_processes": {
+        "actual_concurrency": 1,
+        "observed_at": 1795776137.0190158,
+        "workers": [
+          {
+            "id": "qualified:9ac6f23e491f411ebd75403473e2a377",
+            "pid": 1659,
+            "instance": "5072d5d3-2367-4954-8130-a413c2ffc15a"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "a97aa384-a2ef-433b-b157-1d49a9fbecd7",
+            "attempt_id": "33797a62-14eb-4cf3-b13b-676590d1dcfc",
+            "worker_id": "qualified:9ac6f23e491f411ebd75403473e2a377",
+            "session_id": "8ae0bea3-6649-48e5-aaf7-95899ab9166d",
+            "process_id": 1719,
+            "process_instance": "9dc39f8c3ee2f2d3652edf72b07a3997d8dc62f844dceef4093c7ba8f4331b96:2026-11-27T10:42:15.961616941Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "first_error": {
+        "code": "CONTROL_PLANE_UNAVAILABLE",
+        "category": "control_service",
+        "retry_at": 1795776203.6660144,
+        "retry_blocked": null
+      },
+      "recovery_seconds": 70.94,
+      "state": "succeeded"
+    },
+    {
+      "case": "worker_sigkill",
+      "run_id": "8abf709e-1104-48e1-ad1b-71d990c53b4d",
+      "original_attempt": "13aec62e-f4ed-4c46-b0af-db471e47611f",
+      "session_id": "993bc1ec-0bdf-48e9-a1c0-a628c3fe7f54",
+      "same_attempt_and_session": true,
+      "additional_workload_launches": 0,
+      "initial_processes": {
+        "actual_concurrency": 1,
+        "observed_at": 1795776227.9249802,
+        "workers": [
+          {
+            "id": "qualified:d7f1d997861f481399779437f0848de8",
+            "pid": 2014,
+            "instance": "8c4af6bc-cfbb-454c-9e2c-b9ced44dcd76"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "8abf709e-1104-48e1-ad1b-71d990c53b4d",
+            "attempt_id": "13aec62e-f4ed-4c46-b0af-db471e47611f",
+            "worker_id": "qualified:d7f1d997861f481399779437f0848de8",
+            "session_id": "993bc1ec-0bdf-48e9-a1c0-a628c3fe7f54",
+            "process_id": 2073,
+            "process_instance": "9a0a1cc7aa05a18eabe4199cbb93fc399ff6c18b341056bb490df53fd8ef71b9:2026-11-27T10:43:46.034384856Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "recovery_seconds": 59.712,
+      "state": "succeeded"
+    },
+    {
+      "case": "latency",
+      "run_id": "c80b2fae-330c-4fb7-af51-e00a00a92232",
+      "latency_ms": 200,
+      "observed_roundtrip_seconds": 0.562,
+      "attempt_count": 1,
+      "initial_processes": {
+        "actual_concurrency": 1,
+        "observed_at": 1795776016.5000155,
+        "workers": [
+          {
+            "id": "qualified:34710a7747e34be08a0c21dcbee2267c",
+            "pid": 1377,
+            "instance": "e1a8d7a5-dd6e-4b06-8ac4-efa10bc31edc"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "c80b2fae-330c-4fb7-af51-e00a00a92232",
+            "attempt_id": "b8e5bd19-1085-47aa-aeff-df2a19ee3ac9",
+            "worker_id": "qualified:34710a7747e34be08a0c21dcbee2267c",
+            "session_id": "2ac173e5-fc5e-4830-83fb-e19a58fe5959",
+            "process_id": 1442,
+            "process_instance": "d47e5dbb0a0e8f66371ffb6791af75b683c0e082de9a2edc4988aaf3a852ad11:2026-11-27T10:40:13.259029416Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "state": "succeeded"
+    }
+  ],
+  "implementation_commit": "a821c1df9d6d9063f1f7e646dd3eddad7816a775",
+  "source_sha256": {
+    "scripts/qualify_physical_faults.py": "077dde52f7da1036a20a35627cd5e44a74818a72da92fc1b17faff20c3d14202",
+    "scripts/qualify_physical_worker.py": "c1320fc045ca345e8bc6a498cb9a5b13fa90a4d4aebdac4d81e4f5d8aec4b4ef",
+    "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+    "backend/app/runtime/remote_tool_channel.py": "9836b6f0bb3c14be0dd799fc77ed54bcc94aef98f521708f5592f21b05a8ea78",
+    "backend/app/runtime/worker.py": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12",
+    "backend/app/runtime/reconciliation.py": "a508d432e1fee9e3e3a7b0b44faa5af5ed5782d1058dd3ee76d84aac2ea36626"
+  },
+  "toxiproxy": {
+    "version": "2.13.0",
+    "sha256": "bf529e8bb9a05cd293f45a3f1d0aa66ff9469680dcdca7e0ebeae21f1b83de89",
+    "source": "https://github.com/Shopify/toxiproxy/releases/tag/v2.13.0"
+  },
+  "cleanup": {
+    "remaining_test_managers": 0,
+    "remaining_test_workloads": 0
+  },
+  "recovery_run": {
+    "work_item": "D01-3.02",
+    "passed": true,
+    "tests": 2,
+    "cases": [
+      "test_partition_recovers_without_manual_worker_restart",
+      "test_sigkill_preserves_complete_output_without_relaunch"
+    ],
+    "duration_seconds": 156.916,
+    "implementation_commit": "a821c1df9d6d9063f1f7e646dd3eddad7816a775",
+    "observations": [
+      {
+        "case": "partition",
+        "run_id": "a97aa384-a2ef-433b-b157-1d49a9fbecd7",
+        "worker_process_restarted": false,
+        "original_attempt": "33797a62-14eb-4cf3-b13b-676590d1dcfc",
+        "final_attempt": "74f59e2d-e5b4-4b56-a92f-35f64bc0159b",
+        "original_work_retained": true,
+        "attempt_count": 2,
+        "initial_processes": {
+          "actual_concurrency": 1,
+          "observed_at": 1795776137.0190158,
+          "workers": [
+            {
+              "id": "qualified:9ac6f23e491f411ebd75403473e2a377",
+              "pid": 1659,
+              "instance": "5072d5d3-2367-4954-8130-a413c2ffc15a"
+            }
+          ],
+          "attempts": [
+            {
+              "run_id": "a97aa384-a2ef-433b-b157-1d49a9fbecd7",
+              "attempt_id": "33797a62-14eb-4cf3-b13b-676590d1dcfc",
+              "worker_id": "qualified:9ac6f23e491f411ebd75403473e2a377",
+              "session_id": "8ae0bea3-6649-48e5-aaf7-95899ab9166d",
+              "process_id": 1719,
+              "process_instance": "9dc39f8c3ee2f2d3652edf72b07a3997d8dc62f844dceef4093c7ba8f4331b96:2026-11-27T10:42:15.961616941Z",
+              "freshness": "fresh"
+            }
+          ]
+        },
+        "first_error": {
+          "code": "CONTROL_PLANE_UNAVAILABLE",
+          "category": "control_service",
+          "retry_at": 1795776203.6660144,
+          "retry_blocked": null
+        },
+        "recovery_seconds": 70.94,
+        "state": "succeeded"
+      },
+      {
+        "case": "worker_sigkill",
+        "run_id": "8abf709e-1104-48e1-ad1b-71d990c53b4d",
+        "original_attempt": "13aec62e-f4ed-4c46-b0af-db471e47611f",
+        "session_id": "993bc1ec-0bdf-48e9-a1c0-a628c3fe7f54",
+        "same_attempt_and_session": true,
+        "additional_workload_launches": 0,
+        "initial_processes": {
+          "actual_concurrency": 1,
+          "observed_at": 1795776227.9249802,
+          "workers": [
+            {
+              "id": "qualified:d7f1d997861f481399779437f0848de8",
+              "pid": 2014,
+              "instance": "8c4af6bc-cfbb-454c-9e2c-b9ced44dcd76"
+            }
+          ],
+          "attempts": [
+            {
+              "run_id": "8abf709e-1104-48e1-ad1b-71d990c53b4d",
+              "attempt_id": "13aec62e-f4ed-4c46-b0af-db471e47611f",
+              "worker_id": "qualified:d7f1d997861f481399779437f0848de8",
+              "session_id": "993bc1ec-0bdf-48e9-a1c0-a628c3fe7f54",
+              "process_id": 2073,
+              "process_instance": "9a0a1cc7aa05a18eabe4199cbb93fc399ff6c18b341056bb490df53fd8ef71b9:2026-11-27T10:43:46.034384856Z",
+              "freshness": "fresh"
+            }
+          ]
+        },
+        "recovery_seconds": 59.712,
+        "state": "succeeded"
+      }
+    ],
+    "source_sha256": {
+      "scripts/qualify_physical_faults.py": "077dde52f7da1036a20a35627cd5e44a74818a72da92fc1b17faff20c3d14202",
+      "scripts/qualify_physical_worker.py": "c1320fc045ca345e8bc6a498cb9a5b13fa90a4d4aebdac4d81e4f5d8aec4b4ef",
+      "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+      "backend/app/runtime/remote_tool_channel.py": "9836b6f0bb3c14be0dd799fc77ed54bcc94aef98f521708f5592f21b05a8ea78",
+      "backend/app/runtime/worker.py": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12",
+      "backend/app/runtime/reconciliation.py": "a508d432e1fee9e3e3a7b0b44faa5af5ed5782d1058dd3ee76d84aac2ea36626"
+    },
+    "toxiproxy_sha256": "bf529e8bb9a05cd293f45a3f1d0aa66ff9469680dcdca7e0ebeae21f1b83de89",
+    "failures": [],
+    "limits": [
+      "Two physical Linux/WSL hosts with isolated synthetic tasks.",
+      "Worker SIGKILL and restart do not qualify full physical-host reboot.",
+      "Storage faults, HA and replication RPO/RTO remain separate qualifications."
+    ]
+  },
+  "latency_reuse": {
+    "test": "test_latency_keeps_original_execution",
+    "passed": true,
+    "initial_observations": [
+      {
+        "case": "latency",
+        "run_id": "c80b2fae-330c-4fb7-af51-e00a00a92232",
+        "latency_ms": 200,
+        "observed_roundtrip_seconds": 0.562,
+        "attempt_count": 1,
+        "initial_processes": {
+          "actual_concurrency": 1,
+          "observed_at": 1795776016.5000155,
+          "workers": [
+            {
+              "id": "qualified:34710a7747e34be08a0c21dcbee2267c",
+              "pid": 1377,
+              "instance": "e1a8d7a5-dd6e-4b06-8ac4-efa10bc31edc"
+            }
+          ],
+          "attempts": [
+            {
+              "run_id": "c80b2fae-330c-4fb7-af51-e00a00a92232",
+              "attempt_id": "b8e5bd19-1085-47aa-aeff-df2a19ee3ac9",
+              "worker_id": "qualified:34710a7747e34be08a0c21dcbee2267c",
+              "session_id": "2ac173e5-fc5e-4830-83fb-e19a58fe5959",
+              "process_id": 1442,
+              "process_instance": "d47e5dbb0a0e8f66371ffb6791af75b683c0e082de9a2edc4988aaf3a852ad11:2026-11-27T10:40:13.259029416Z",
+              "freshness": "fresh"
+            }
+          ]
+        },
+        "state": "succeeded"
+      }
+    ],
+    "source_sha256": {
+      "scripts/qualify_physical_faults.py": "0c623a12b98a42c469a03752a0dac68dfd2c15309545bbe0a291d7a33f6e7f36",
+      "scripts/qualify_physical_worker.py": "641027efdb0c7661960dcd67368f819314e7a74ce232fbdebdab0d739c873dc4",
+      "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+      "backend/app/runtime/remote_tool_channel.py": "9836b6f0bb3c14be0dd799fc77ed54bcc94aef98f521708f5592f21b05a8ea78",
+      "backend/app/runtime/worker.py": "e3fdc9e17d7a0f2f7b405e5654795aff2795fcbc87548a347e76e1af8f2a6a12",
+      "backend/app/runtime/reconciliation.py": "a508d432e1fee9e3e3a7b0b44faa5af5ed5782d1058dd3ee76d84aac2ea36626"
+    },
+    "unchanged_test_body_verified": true,
+    "subsequent_changes": "Unused import removed; workload lookup and cleanup use the Docker adapter hashed scope. Recovery cases exercise corrected lookup and cleanup."
+  },
+  "fixture_repair": {
+    "initial_failed_cases": [
+      "__main__.PhysicalFaults.test_partition_recovers_without_manual_worker_restart",
+      "__main__.PhysicalFaults.test_sigkill_preserves_complete_output_without_relaunch"
+    ],
+    "cause": "Test lookup/cleanup used raw scope; Docker labels use SHA-256(scope).",
+    "recovery_cases_rerun": true,
+    "runtime_code_changed": false
+  },
+  "limits": [
+    "Two physical Linux/WSL hosts with isolated synthetic tasks.",
+    "Worker SIGKILL and restart do not qualify full physical-host reboot.",
+    "Storage faults, HA and replication RPO/RTO remain separate qualifications."
+  ],
+  "topology_evidence": "docs/design/evidence/physical-worker-20261127.json"
+}

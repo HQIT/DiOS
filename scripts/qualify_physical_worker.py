@@ -140,7 +140,7 @@ class PhysicalWorkers(RemoteRecoveryQualificationTests):
         command = 'ids=$(docker ps -aq --filter ' + shlex.quote('label=dios.qualification=' + self.store.scope) + '); if [ -n "$ids" ]; then docker rm -f $ids >/dev/null; fi'
         try:
             await asyncio.to_thread(self.remote, command)
-            command = 'ids=$(docker ps -aq --filter ' + shlex.quote('label=dios.runtime.scope=' + self.store.scope) + '); if [ -n "$ids" ]; then docker rm -f $ids >/dev/null; fi'
+            command = 'ids=$(docker ps -aq --filter ' + shlex.quote('label=dios.runtime.scope=' + self.adapter.scope) + '); if [ -n "$ids" ]; then docker rm -f $ids >/dev/null; fi'
             await asyncio.to_thread(self.remote, command)
         finally:
             if self.tunnel is not None and self.tunnel.returncode is None:
