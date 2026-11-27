@@ -104,3 +104,7 @@ cli/dios runtime installation-readiness /path/to/restored-installation --sample-
 源控制面与执行器隔离、检查点之后的副作用核查、远端再认证及资源审阅完成后，管理员停止目标服务，使用 `installation-activate --evidence FILE --confirm-source-isolated` 启用。命令核验所有 scope 的未决状态、旧凭据、补报和关联产物，并以同一 SQLite 事务解除两层全局冻结。原 scope 排空状态保持。
 
 证据格式、维护锁、失败回滚与幂等恢复见[离线启用说明](../design/installation-activation-11.md)。该路径保持当前 E2AG 校验，不修改源安装或恢复旧执行身份。
+
+## 升级失败恢复计时
+
+固定镜像启动失败后，从新目录恢复、先对账再启用，并以原稳定版本恢复服务；完整步骤、RTO 定义和实测分段见[升级失败后的干净恢复](../design/recovery-upgrade-11.md)。服务健康、结果对账和首个受控任务完成分别记录时间。

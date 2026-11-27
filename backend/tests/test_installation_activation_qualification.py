@@ -36,6 +36,9 @@ OBSERVATIONS=[]
 
 @unittest.skipUnless(os.environ.get('DIOS_TEST_DOCKER')=='1','isolated Docker required')
 class InstallationActivationQualificationTests(unittest.IsolatedAsyncioTestCase):
+    async def stage(self, name, **context):
+        """Additional installation qualifications reuse the same recovery assertions."""
+
     async def cli(self,*args,success=True):
         process=await asyncio.create_subprocess_exec(sys.executable,str(native.ROOT/'cli/dios'),
             'runtime',*args,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)
@@ -60,6 +63,7 @@ class InstallationActivationQualificationTests(unittest.IsolatedAsyncioTestCase)
             session.add(Agent(id='historical-agent',name='Historical',workspace_path=str(workspace)))
             session.add(A2ATask(id='historical-task',agent_id='historical-agent',status='completed',message={'text':'retained history'}))
             await session.commit()
+        await self.stage('source-ready',fixture=f)
         run=await f.submit('before-checkpoint-active')
         original_handle=f.server.handle
         async def refuse_result(certificate,expiry,envelope):
@@ -81,6 +85,7 @@ class InstallationActivationQualificationTests(unittest.IsolatedAsyncioTestCase)
         await asyncio.to_thread(backup_installation,plan,bundle)
         with sqlite3.connect(bundle/'runtime/state.sqlite') as db:
             snapshot_version=db.execute('SELECT version FROM runtime_runs WHERE id=?',(run['id'],)).fetchone()[0]
+        await self.stage('backup-captured',fixture=f,bundle=bundle,target=target,run=run,queued=queued)
         (f.control/'release').touch()
         out,err=await asyncio.wait_for(process.communicate(),40)
         self.assertNotEqual(process.returncode,0)
@@ -91,6 +96,7 @@ class InstallationActivationQualificationTests(unittest.IsolatedAsyncioTestCase)
         self.assertIsNotNone(receipt)
         self.assertEqual(receipt['observation']['exit_code'],0)
         self.assertFalse(receipt['observation']['alive'])
+        await self.stage('before-source-stop',fixture=f)
         # Stop the actual source listener and executor process before the target opens.
         source_address=f.gateway.server.sockets[0].getsockname()
         f.stop.set();await asyncio.wait_for(f.gateway_task,15)
@@ -115,6 +121,7 @@ class InstallationActivationQualificationTests(unittest.IsolatedAsyncioTestCase)
         evidence.write_text(json.dumps(evidence_value))
         denied=await self.cli('installation-activate',str(target),'--evidence',str(evidence),'--confirm-source-isolated',success=False)
         self.assertIn('RESTORE_RECONCILIATION_REQUIRED',denied)
+        await self.stage('restore-published',fixture=f,target=target)
         db=Database('sqlite+aiosqlite:///'+str(target/'runtime/state.sqlite'))
         self.addAsyncCleanup(db.close)
         restored=RuntimeStore(db,f.store.scope)
@@ -174,11 +181,13 @@ class InstallationActivationQualificationTests(unittest.IsolatedAsyncioTestCase)
         audit=[(action,json.loads(decision)['decision']) for action,decision in audit]
         self.assertIn(('restore-result','deny'),audit)
         self.assertIn(('restore-result','allow'),audit)
+        await self.stage('reconciliation-complete',fixture=f,target=target,recovered=recovered)
         await close_gateway();await db.close();provider.close()
         activated=await self.cli('installation-activate',str(target),'--evidence',str(evidence),'--confirm-source-isolated')
         self.assertEqual(activated,await self.cli('installation-activate',str(target),'--evidence',str(evidence),'--confirm-source-isolated'))
         self.assertEqual(activated['status'],'activated')
         self.assertGreaterEqual(activated['verified_objects'],3)
+        await self.stage('activation-committed',fixture=f,target=target)
         # Reopen through the normal runtime and run the already-queued task using fresh credentials.
         resumed_db=Database('sqlite+aiosqlite:///'+str(target/'runtime/state.sqlite'))
         self.addAsyncCleanup(resumed_db.close)
@@ -201,6 +210,7 @@ class InstallationActivationQualificationTests(unittest.IsolatedAsyncioTestCase)
         self.assertEqual(source_hash,_file_info(root/'runtime.sqlite'))
         with sqlite3.connect(target/'service.sqlite') as c:
             self.assertEqual(c.execute("SELECT status FROM a2a_tasks WHERE id='historical-task'").fetchone()[0],'completed')
+        await self.stage('resumed-complete',fixture=f,target=target,resumed=resumed,recovered=recovered)
         OBSERVATIONS.append({'source_listener_stopped':True,'source_worker_pid':process.pid,
             'source_worker_returncode':process.returncode,'source_container_count':len(containers),
             'source_containers_stopped':True,'source_database_unchanged':True,

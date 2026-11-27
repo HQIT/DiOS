@@ -1,0 +1,158 @@
+{
+  "work_item": "K02-3.03",
+  "passed": true,
+  "tests": 1,
+  "errors": 0,
+  "failures": 0,
+  "skipped": 0,
+  "duration_seconds": 55.383,
+  "selected_suite": "test_recovery_upgrade_qualification.RecoveryUpgradeQualificationTests",
+  "implementation_base": "5ed239caf992165ffe928c0c4d14bf2235ff9381",
+  "build": {
+    "baseline_commit": "33e898ba9bfe761cbe8fad29a45b3f61f1cc6c66",
+    "candidate_commit": "5ed239caf992165ffe928c0c4d14bf2235ff9381",
+    "images": {
+      "old": "sha256:64658b7c9826abdedd6cbc656354e8e50d3c9f57813b46f07c09a5a3678465f4",
+      "new": "sha256:2ffe974b25f90fe5e31d69d682746c07ea63e7c32aa555a13fa060ec41ddd014",
+      "bad": "sha256:ef1b183a182c73a93477bf3ff037a8dea7a941a925c93209f90a8386891d55ca"
+    },
+    "baseline_verified_files": [
+      "app/runtime/store.py",
+      "app/runtime/lifecycle.py",
+      "app/runtime/recovery.py",
+      "requirements.txt"
+    ],
+    "source_verification": [
+      {
+        "role": "old",
+        "commit": "33e898ba9bfe761cbe8fad29a45b3f61f1cc6c66",
+        "image": "sha256:64658b7c9826abdedd6cbc656354e8e50d3c9f57813b46f07c09a5a3678465f4",
+        "verified_files": 249,
+        "manifest_sha256": "a957ba2b6bd8a54e71d42afdbe4d3d74778d18c0d07892d5557414724e42c575",
+        "matched": true
+      },
+      {
+        "role": "new",
+        "commit": "5ed239caf992165ffe928c0c4d14bf2235ff9381",
+        "image": "sha256:2ffe974b25f90fe5e31d69d682746c07ea63e7c32aa555a13fa060ec41ddd014",
+        "verified_files": 251,
+        "manifest_sha256": "3287e6fd9c5299413c23a9f73aa4d21dded892972bb14d02c0bc038d76466826",
+        "matched": true
+      }
+    ]
+  },
+  "observations": [
+    {
+      "images": {
+        "old": "sha256:64658b7c9826abdedd6cbc656354e8e50d3c9f57813b46f07c09a5a3678465f4",
+        "new": "sha256:2ffe974b25f90fe5e31d69d682746c07ea63e7c32aa555a13fa060ec41ddd014",
+        "bad": "sha256:ef1b183a182c73a93477bf3ff037a8dea7a941a925c93209f90a8386891d55ca"
+      },
+      "failure_exit_code": 1,
+      "timings": {
+        "failure_detected_seconds": 3.585,
+        "restore_published_seconds": 5.795,
+        "held_api_ready_seconds": 10.439,
+        "result_reconciled_seconds": 16.346,
+        "activation_seconds": 18.899,
+        "restored_service_ready_seconds": 23.645,
+        "governed_work_completed_seconds": 31.627,
+        "candidate_ready_after_restore_seconds": 38.07
+      },
+      "rto_start": "known-good API stop immediately before failed candidate start",
+      "rto_end": "restored original queued task completed under current E2AG and visible via the rolled-back API",
+      "run_id": "105e54bd-d479-4ca1-96d1-f57da7c12f65",
+      "queued_run_id": "76df56fc-dbab-4c85-86e4-501ade452e1f",
+      "restored_service_image": "sha256:64658b7c9826abdedd6cbc656354e8e50d3c9f57813b46f07c09a5a3678465f4",
+      "final_service_image": "sha256:2ffe974b25f90fe5e31d69d682746c07ea63e7c32aa555a13fa060ec41ddd014",
+      "unknown_result_reconciled_before_activation": true,
+      "both_holds_observed_via_deployed_api": true,
+      "rollback_after_clean_restore_usable": true,
+      "candidate_upgrade_preserved_history_and_artifacts": true
+    }
+  ],
+  "recovery": [
+    {
+      "source_listener_stopped": true,
+      "source_worker_pid": 1977296,
+      "source_worker_returncode": 2,
+      "source_container_count": 0,
+      "source_containers_stopped": true,
+      "source_database_unchanged": true,
+      "checkpoint_version": 7,
+      "run_id": "105e54bd-d479-4ca1-96d1-f57da7c12f65",
+      "original_attempt_id": "5afcad42-2418-476f-a2f5-e8a1cff729fd",
+      "session_id": "36afa166-38d0-4b65-8934-b9ff7ea02152",
+      "restored_attempt_count": 1,
+      "old_certificate_rejected": true,
+      "current_e2ag_revocation_rejected": true,
+      "result_after_checkpoint_reconciled": true,
+      "repeated_result_receipt_equal": true,
+      "verified_objects": 3,
+      "activation": {
+        "runtime": [
+          "running",
+          2
+        ],
+        "service": [
+          "__dios_installation_restore__",
+          "running",
+          2
+        ]
+      },
+      "queued_run_id": "76df56fc-dbab-4c85-86e4-501ade452e1f",
+      "queued_run_after_activation": "succeeded",
+      "duplicate_dispatch_after_completion": false,
+      "image_id": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+      "native_concurrency": {
+        "actual_concurrency": 1,
+        "observed_at": 1795786041.4079814,
+        "workers": [
+          {
+            "id": "qualified:1cb89193e4494861ac9b17f4aaa8b901",
+            "pid": 1977296,
+            "instance": "d3affc1d-bb70-49df-ba04-8cc157add327"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "105e54bd-d479-4ca1-96d1-f57da7c12f65",
+            "attempt_id": "5afcad42-2418-476f-a2f5-e8a1cff729fd",
+            "worker_id": "qualified:1cb89193e4494861ac9b17f4aaa8b901",
+            "session_id": "36afa166-38d0-4b65-8934-b9ff7ea02152",
+            "process_id": 1977410,
+            "process_instance": "47ad3b4a2c53711132a62d5cc7c7bf95e4f1563aef8b11984fb2a9b887253ee6:2026-11-27T13:27:19.787912525Z",
+            "freshness": "fresh"
+          }
+        ]
+      }
+    }
+  ],
+  "source_sha256": {
+    "backend/tests/test_recovery_upgrade_qualification.py": "90243cab53c597045ff9eddda048bd4b5ba917184d50ad1e82d3bd5262fba7f6",
+    "backend/tests/test_installation_activation_qualification.py": "a496e666d5bbc9a68cc6cb7d9ade396379808c5ebb8366ffb8a0bb0250d295b8",
+    "scripts/qualify_recovery_upgrade.py": "f797a7fe4e5a3084f71d0a8b1ab37743a85df808000b3dc54cd027c41d13cede",
+    "backend/app/services/installation_activation.py": "eb1cb4d893405d265371b36ceb55e0e4e1e4a962abdd623f971ba81b6ae0262f",
+    "backend/app/services/installation_readiness.py": "211ded5fc35085d5b9ec1ec2c6ddfd2c9264d050b9589e2d0e0369ddc0c30085",
+    "backend/app/services/installation_backup.py": "91b0919945bfdee557354513a016c6956b8ff5278d436216f9802ea0579697fb",
+    "backend/app/services/installation_restore.py": "b38983e4eda2bc9341301936cf669e3d835168b6d8d26fbc484931be604efa3c",
+    "backend/app/runtime/restore_remote.py": "568e7a90284aee5a0c30342fed346b29396bf9baf763ec282d507511608600f9",
+    "backend/app/runtime/restore_client.py": "92b5929bbe67b8b85563d5d28fdaf56daa810acdff13f7346dbadeac02e1efef"
+  },
+  "failure_cases": [],
+  "limits": [
+    "One Linux/WSL host, SQLite, small synthetic workload and compatible schemas; no enterprise RTO target or schema-changing rollback claim.",
+    "Native fixed-image API services, independent Worker/CLI processes, native Docker task and real mTLS; no paid model calls.",
+    "Source API and recovery gateway are stopped and original executor is confirmed exited; infrastructure fencing is administrator-managed.",
+    "Unknown original result is retained and reconciled before activation; unknown external effects still require independent reconciliation.",
+    "Measured RTO includes failure detection, restore, reauthentication/reconciliation, offline activation and governed queued-task completion.",
+    "Images were locally available and administrator evidence was supplied by the isolated fixture; image download and human investigation/approval waiting are outside this measurement."
+  ],
+  "reused_delivery_ci": {
+    "commit": "5ed239caf992165ffe928c0c4d14bf2235ff9381",
+    "run_id": 45992123618,
+    "conclusion": "success",
+    "url": "https://github.com/HQIT/DiOS/actions/runs/45992123618",
+    "scope": "R07 original-result recovery and R13 compatible-image drain/upgrade/rollback; production sources unchanged by this qualification batch"
+  }
+}
