@@ -26,7 +26,7 @@ docker --host unix:///var/run/docker.sock compose --project-directory "$DIOS_INS
 python3 deploy/linux/install.py doctor --root "$DIOS_INSTALL" --running
 ```
 
-`init` 将已有镜像解析为不可变 image ID，不会覆盖已有安装。`migrate` 只用于首次初始化；已有实例的升级先执行排空、备份与对应版本的升级流程。启动服务不会自动运行该迁移命令。
+`init` 将已有镜像解析为不可变 image ID，不会覆盖已有安装。`migrate` 用于首次初始化，或已通过兼容资格的显式升级；已有实例先执行排空、备份与对应版本的升级流程。启动服务不会自动运行该迁移命令。
 
 Console 位于 `http://localhost:3000/dios/`，API 位于 `http://localhost:8000`，均只监听主机回环地址。Access Token 保存在安装目录的 `service.env` 中，由管理员通过本机受控方式取用。远程访问通过现有身份代理/TLS 入口接入，不直接开放管理端口。
 
@@ -98,10 +98,32 @@ ACP 的管理员配置支持可选的 `preflight`，在 Harness 实际环境中�
 
 ## 交付验证
 
-首轮已验证全新数据目录、固定镜像启动、精简环境诊断、访问认证、Console 资源和独立重启后的数据挂载。Worker unit 通过 systemd 静态校验，真实 Cursor 执行复用既有开发环境证据。清洁安装中的任务、升级回退和恢复组合资格由 D01-1.02 承接。
+首轮已验证全新数据目录、固定镜像启动、精简环境诊断、访问认证、Console 资源和独立重启后的数据挂载。Worker unit 通过 systemd 静态校验，真实 Cursor 执行复用既有开发环境证据。D01-1.02 的干净安装、任务、Schema 迁移、升级回退与恢复组合已通过[工程资格](../../docs/design/installation-qualification-51.md)。
 
-[固定镜像切换证据](../../docs/design/evidence/unattended-cutover-20261126.json) 已覆盖干净 Compose 实例中的三路 ACP 原生任务、自然排空、安装备份校验、候选启动失败回退、实际旧/新版本切换，以及恢复后排队任务的原身份和成果校验。排空期间新提交明确返回 `RUNTIME_DRAINING`，原排队任务保持身份。模型输出为合成协议端点；跨 Harness、schema 变更和物理跨主机资格分别保留。
+[固定镜像切换证据](../../docs/design/evidence/unattended-cutover-20261126.json) 已覆盖干净 Compose 实例中的三路 ACP 原生任务、自然排空、安装备份校验、候选启动失败回退、实际旧/新版本切换，以及恢复后排队任务的原身份和成果校验。排空期间新提交明确返回 `RUNTIME_DRAINING`，原排队任务保持身份。该安装场景使用合成协议端点；真实跨 Harness 与增量 Schema 迁移证据汇总在[安装资格报告](../../docs/design/installation-qualification-51.md)，物理跨主机资格由对应工作项承接。
 
 升级顺序为：固定候选镜像摘要 → 调用 `/api/os/upgrade/drain` → 等待原任务自然结束 → `settle-services` 并确认 `ready_for_cutover` → 使用 `installation-backup` 和 `installation-verify` 保存并校验备份 → 切换 `.env` 中镜像并执行 Compose `up -d --wait` → 检查历史、产物、配置及排队任务 → 携当前 `revision`、`kernel_revision` 调用 `resume`。候选启动失败时先恢复原固定镜像，保持 draining，完成诊断后再恢复领取。查询超时、活跃任务或未知执行状态均不允许进入镜像切换。
+
+### 含 Schema 迁移的受控升级
+
+迁移前使用已固定目标镜像的备份工具，完成 `installation-backup` 和 `installation-verify`。该操作只读源库，仍保留原服务镜像；历史版本备份器不识别新增表时，也必须通过目标工具的完整清单和摘要校验。
+
+在已排空并确认 `ready_for_cutover` 后执行，先准备覆盖本安装的备份计划：
+
+```sh
+export DIOS_TARGET_IMAGE=sha256:VERIFIED_CANDIDATE_IMAGE
+DIOS_BACKEND_IMAGE="$DIOS_TARGET_IMAGE" docker --host unix:///var/run/docker.sock compose \
+  --project-directory "$DIOS_INSTALL" run --rm --no-deps -T --entrypoint python backend \
+  -m app.runtime.cli installation-backup --plan "$DIOS_INSTALL/data/backup-plan.json" \
+  --destination "$DIOS_INSTALL/data/pre-upgrade-backup"
+DIOS_BACKEND_IMAGE="$DIOS_TARGET_IMAGE" docker --host unix:///var/run/docker.sock compose \
+  --project-directory "$DIOS_INSTALL" run --rm --no-deps -T --entrypoint python backend \
+  -m app.runtime.cli installation-verify "$DIOS_INSTALL/data/pre-upgrade-backup"
+docker --host unix:///var/run/docker.sock compose --project-directory "$DIOS_INSTALL" stop backend
+DIOS_BACKEND_IMAGE="$DIOS_TARGET_IMAGE" docker --host unix:///var/run/docker.sock compose \
+  --project-directory "$DIOS_INSTALL" run --rm -T migrate
+```
+
+迁移成功后，将 `.env` 的 `DIOS_BACKEND_IMAGE` 更新为该固定摘要，再启动并核验服务。失败时保持排空；直接切回旧镜像只适用于已验证的 Schema 兼容范围。其他情况按[干净恢复与对账](../../docs/design/installation-activation-11.md)及相应版本恢复方案处理。
 
 机制依据：[Compose 启动依赖](https://docs.docker.com/compose/how-tos/startup-order/)、[Docker 自动重启](https://docs.docker.com/engine/containers/start-containers-automatically/)、[Compose 环境变量优先级](https://docs.docker.com/compose/how-tos/environment-variables/envvars/)。
