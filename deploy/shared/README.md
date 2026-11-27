@@ -92,9 +92,9 @@ sha256sum runtime.dump data.tar > SHA256SUMS
 
 4. 同时归档受保护配置、证书引用、固定镜像、应用/CLI 版本，以及保留的 Worker spool。备份上传独立故障域，使用现有备份系统的加密、访问控制、保留周期和回读校验。模型/API 密钥只进入受控 Secret 备份，不出现在报告中。
 5. 在隔离空环境按 `roles.sql` 重建账号；以 `dios_owner` 运行 `pg_restore --single-transaction --exit-on-error --no-owner --no-acl --dbname=service=dios-owner runtime.dump`。默认权限重新授予运行和备份角色。还原产物、旧服务库和所需配置，核验 ID、外键、授权、全部引用的 SHA-256 和 spool 水位。
-6. 恢复期间保持入口关闭和派发暂停。确认原控制面隔离、旧执行身份失效、当前策略和 Secret 版本有效后，再执行既有恢复授权流程。源端隔离方式仍属于 K02-3.02 的待决条件。
+6. 恢复期间保持入口关闭和派发暂停。确认原控制面隔离、旧执行身份失效、当前策略和 Secret 版本有效后，再执行既有恢复授权流程。源端隔离采用 K02-3.02 已确认的基础设施隔离与管理员记录。共享恢复目标在对账后仍保持冻结；SQLite 双库 `installation-activate` 不用于 PostgreSQL，执行启用与 HA 接管按 D01-3.03 验收。
 
-D01-2.01 验证只读账号能产生 PG custom dump；D01-2.03 验证整套备份在干净环境恢复。数据库复制、WAL 归档与卷快照可缩短恢复窗口，RPO/RTO 按容量与 HA 资格报告填写实测值。
+D01-2.01 验证只读账号能产生 PG custom dump；D01-2.03 已验证整套备份在独立空库、空目录恢复，见[共享恢复资格](../../docs/design/shared-restore-52.md)。数据库复制、WAL 归档与卷快照可缩短恢复窗口，RPO/RTO 按容量与 HA 资格报告填写实测值。
 
 ## 工程资格
 

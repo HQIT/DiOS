@@ -2883,7 +2883,13 @@
         "D01-2.01",
         "D01-2.02",
         "D01-2.03"
-      ]
+      ],
+      "clean_restore_qualification": {
+        "state": "engineering_verified",
+        "evidence": "docs/design/evidence/shared-restore-20261127.json",
+        "guide": "docs/design/shared-restore-52.md",
+        "execution_activation": "D01-3.03"
+      }
     },
     {
       "id": "D01-3",
@@ -3254,10 +3260,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "D01-2.03",
-    "next_delivery": "D01-2.03",
+    "next_work_item": "K04-2.02",
+    "next_delivery": "K04-2.02",
     "next_delivery_order": [
-      "D01-2.03",
       "K04-2.02",
       "K03-1.03",
       "K04-2.04",
@@ -3277,7 +3282,7 @@
     "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
-      "K02-3.02/.03 与 D01-1.02 单节点恢复、升级和安装工程资格已完成。接续 D01-2.03 共享后端干净恢复；生产隔离由基础设施和管理员执行。",
+      "单节点安装/恢复及 D01-2.03 共享后端干净恢复工程资格已完成；共享执行启用、复制和故障接管按 D01-3.03 验收。",
       "K04-2.02 父子等待容量的工程方案与验证待完成；D01-3.02 的物理跨主机故障环境已具备，下游复用证据。",
       "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
       "产品与发布接受人已明确为徐刚，五项产品要求已确认；工程方按原验收提供实际效果与证据，发布接受按具体版本、限制和取舍记录。"
@@ -3287,7 +3292,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "单节点安装、增量 Schema 迁移、回退和恢复资格已完成；按原顺序推进 D01-2.03 的共享数据库与对象存储恢复，复用原结果对账、E2AG 和物理跨主机证据。",
+    "next_selection_reason": "共享后端干净恢复资格已完成；按原顺序补父子任务预算和等待容量，随后接续跨主机身份、资源与 HA 资格。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
   }
 }
