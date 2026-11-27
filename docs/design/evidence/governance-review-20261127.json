@@ -1,0 +1,793 @@
+{
+  "passed": true,
+  "arms": [
+    {
+      "storage": "sqlite",
+      "policy": "builtin",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 19.691
+    },
+    {
+      "storage": "sqlite",
+      "policy": "opa",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 24.432
+    },
+    {
+      "storage": "postgresql",
+      "policy": "builtin",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 12.304
+    },
+    {
+      "storage": "postgresql",
+      "policy": "opa",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 15.568
+    }
+  ],
+  "observations": [
+    {
+      "case": "test_approval_and_duplicate_dispatch",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "5d7475df-d26f-4a4d-94bb-e679fbfd6baf",
+      "attempt_id": "396c1df6-6d1e-4665-b01a-74d97d90ed31",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "approval": "consumed-once"
+    },
+    {
+      "case": "test_approval_before_side_effect_and_parameter_expiry_guards",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "2c65b1cc-0d0b-4796-82a3-519c59d187a0",
+      "attempt_id": "e36d6016-4588-4361-9e4a-93047c319efc",
+      "session_id": "session-one",
+      "tool_calls": 0
+    },
+    {
+      "case": "test_committed_intent_precedes_external_call",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "9f864478-f097-4cb4-849d-da540949383a",
+      "attempt_id": "3c9925de-6104-4594-874c-7f3a88a58f06",
+      "session_id": "session-one",
+      "committed_before_call": true,
+      "tool_calls": 1
+    },
+    {
+      "case": "test_complete_receipt_recovers_after_control_restart",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "dfec4171-66c1-41ec-89b3-336aef50da9d",
+      "attempt_id": "3c58b4cb-463e-45b7-af88-bf4d4a059570",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "invocation_id": "ee396cc5-9247-4f15-8bcb-b4b81337838a",
+      "recovered_same_binding": true
+    },
+    {
+      "case": "test_complete_tuple_policy_parity",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "22f3d5a3-b8ee-440a-bc17-19a162c783a3",
+      "attempt_id": "be886271-9df6-4b06-a1f1-d4d264f27934",
+      "session_id": "session-one",
+      "decisions": [
+        {
+          "case": "allow",
+          "allow": true
+        },
+        {
+          "case": "changed-action",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_kind",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_id",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_version",
+          "allow": false
+        },
+        {
+          "case": "changed-constraint_revision",
+          "allow": false
+        },
+        {
+          "case": "missing-caller",
+          "allow": false
+        },
+        {
+          "case": "missing-service",
+          "allow": false
+        },
+        {
+          "case": "missing-workload",
+          "allow": false
+        },
+        {
+          "case": "missing-resource",
+          "allow": false
+        }
+      ]
+    },
+    {
+      "case": "test_concurrent_dispatch_consumes_once",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "87c6c5e6-e8ff-4bfc-87af-40fd02dacd02",
+      "attempt_id": "08f09f38-19d5-42cd-b775-43e6931d7cbc",
+      "session_id": "session-one",
+      "tool_calls": 1
+    },
+    {
+      "case": "test_dispatch_audit_failure_rolls_back_then_resumes_original_call",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "c32f7370-586b-4f83-9c10-af14a761d027",
+      "attempt_id": "356af5f2-4f21-4db2-9a82-89431473331f",
+      "session_id": "session-one",
+      "invocation_id": "d8c24506-8d32-4939-bbf1-ad951a7359b4",
+      "tool_calls": 1,
+      "approval_preserved": true
+    },
+    {
+      "case": "test_dispatch_commit_wins_and_later_revocation_blocks_new_work",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "7ecf0e89-4c18-41ab-990e-42470032afd6",
+      "attempt_id": "4bc9ccb0-9ae4-45a3-9a23-3dfa9efe055c",
+      "session_id": "session-one",
+      "order": "dispatch-commit-before-revoke",
+      "tool_calls": 1,
+      "original_tool_fact_retained": true,
+      "new_work_denied": true
+    },
+    {
+      "case": "test_policy_outage_then_recovery_preserves_approval_and_identity",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "3ef94af4-3c10-4a83-b554-de657c0b2ca7",
+      "attempt_id": "a9abe86e-b7b2-4ac1-b4a9-f6c7f3be3f7d",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "same_approval": true,
+      "same_binding": true
+    },
+    {
+      "case": "test_receipt_disk_failure_never_calls_or_replays_tool",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "6f8e7d03-2098-49d2-ae9e-52d34903bd34",
+      "attempt_id": "e97cb1b9-ed6e-4ac1-97c6-ee306ad99992",
+      "session_id": "session-one",
+      "tool_calls": 0,
+      "state": "result_unknown"
+    },
+    {
+      "case": "test_revoke_transaction_wins_before_dispatch",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "c6bb6eea-dbe8-43f9-9710-b2dc8e6c476d",
+      "attempt_id": "d4a08e7e-ef30-4f23-aff6-d7351dc606c4",
+      "session_id": "session-one",
+      "order": "revoke-commit-before-dispatch",
+      "tool_calls": 0
+    },
+    {
+      "case": "test_source_revocation_survives_rejected_operation_rollback",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "a159f79d-a5d6-401e-9e44-b030ba3839f8",
+      "attempt_id": "f0943732-9ac1-4339-977e-5ab35a816bfb",
+      "session_id": "session-one",
+      "durable_revocation": true,
+      "rejected_operation_rolled_back": true,
+      "single_transition": true
+    },
+    {
+      "case": "test_unknown_outcome_is_not_replayed",
+      "storage": "sqlite",
+      "policy": "builtin",
+      "run_id": "24ef17c4-ee68-4c2c-8f26-74e42c455719",
+      "attempt_id": "e962e835-eef4-4964-a596-da250e5c73f0",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "state": "result_unknown"
+    },
+    {
+      "case": "test_approval_and_duplicate_dispatch",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "eca93928-7411-4878-a58f-e49a231edfcd",
+      "attempt_id": "a8180546-50de-49bf-8bf9-900a1454664b",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "approval": "consumed-once"
+    },
+    {
+      "case": "test_approval_before_side_effect_and_parameter_expiry_guards",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "4be00e06-313b-43c6-81fd-bdc13275b647",
+      "attempt_id": "36357346-fe44-41e3-87b3-f8f560fa878d",
+      "session_id": "session-one",
+      "tool_calls": 0
+    },
+    {
+      "case": "test_committed_intent_precedes_external_call",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "a52e85f3-ec1b-4be0-ba27-842ca38c5091",
+      "attempt_id": "508f7389-1211-4833-8392-d613251847e1",
+      "session_id": "session-one",
+      "committed_before_call": true,
+      "tool_calls": 1
+    },
+    {
+      "case": "test_complete_receipt_recovers_after_control_restart",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "1456f388-6351-468f-aedb-4e35177c3f89",
+      "attempt_id": "d3ad34d8-506a-4e85-b141-8f3ac683d707",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "invocation_id": "5c3f03de-92e4-4ec6-a26c-f6bb03834315",
+      "recovered_same_binding": true
+    },
+    {
+      "case": "test_complete_tuple_policy_parity",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "1e71fe17-e7e7-47bc-8eea-1acdbcccd32e",
+      "attempt_id": "9260e9b0-481d-494d-bdeb-4eeb6fcb4791",
+      "session_id": "session-one",
+      "decisions": [
+        {
+          "case": "allow",
+          "allow": true
+        },
+        {
+          "case": "changed-action",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_kind",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_id",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_version",
+          "allow": false
+        },
+        {
+          "case": "changed-constraint_revision",
+          "allow": false
+        },
+        {
+          "case": "missing-caller",
+          "allow": false
+        },
+        {
+          "case": "missing-service",
+          "allow": false
+        },
+        {
+          "case": "missing-workload",
+          "allow": false
+        },
+        {
+          "case": "missing-resource",
+          "allow": false
+        }
+      ]
+    },
+    {
+      "case": "test_concurrent_dispatch_consumes_once",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "b8c14964-8d1d-4640-b7a3-c0a5d4a127a2",
+      "attempt_id": "b654dc97-f21e-40ff-b85e-510adab3f31d",
+      "session_id": "session-one",
+      "tool_calls": 1
+    },
+    {
+      "case": "test_dispatch_audit_failure_rolls_back_then_resumes_original_call",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "8d7faea4-25aa-4928-9baa-625f8f427f46",
+      "attempt_id": "541b9733-63be-468b-a3c7-129dad6f7ff9",
+      "session_id": "session-one",
+      "invocation_id": "72827658-b2c1-480a-b2ba-02346556be68",
+      "tool_calls": 1,
+      "approval_preserved": true
+    },
+    {
+      "case": "test_dispatch_commit_wins_and_later_revocation_blocks_new_work",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "c29a4eb9-4845-469c-be77-fefa1c9f945c",
+      "attempt_id": "37449cb1-4c4a-421e-8d36-af9056701812",
+      "session_id": "session-one",
+      "order": "dispatch-commit-before-revoke",
+      "tool_calls": 1,
+      "original_tool_fact_retained": true,
+      "new_work_denied": true
+    },
+    {
+      "case": "test_policy_outage_then_recovery_preserves_approval_and_identity",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "f4fd57eb-f449-47dc-b46b-6f9bd47429d2",
+      "attempt_id": "5c5fc10c-2091-4296-a092-d6223d111f38",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "same_approval": true,
+      "same_binding": true
+    },
+    {
+      "case": "test_receipt_disk_failure_never_calls_or_replays_tool",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "f737c4a2-638e-4d82-93eb-31c3aa2c0bb2",
+      "attempt_id": "c2ade187-ecfb-4061-8a6b-2207c9286560",
+      "session_id": "session-one",
+      "tool_calls": 0,
+      "state": "result_unknown"
+    },
+    {
+      "case": "test_revoke_transaction_wins_before_dispatch",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "927ed018-348a-47a0-bd81-0922029663ff",
+      "attempt_id": "94e53366-f08b-44b9-98d6-5e447062836c",
+      "session_id": "session-one",
+      "order": "revoke-commit-before-dispatch",
+      "tool_calls": 0
+    },
+    {
+      "case": "test_source_revocation_survives_rejected_operation_rollback",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "193e1daa-6b42-469d-b023-6b84ff3ae20d",
+      "attempt_id": "c8e161e7-fda3-47f6-8365-283ce04abf93",
+      "session_id": "session-one",
+      "durable_revocation": true,
+      "rejected_operation_rolled_back": true,
+      "single_transition": true
+    },
+    {
+      "case": "test_unknown_outcome_is_not_replayed",
+      "storage": "sqlite",
+      "policy": "opa",
+      "run_id": "8e8b553e-6ccd-45f5-b308-c9889e208db3",
+      "attempt_id": "6eb0f2d8-44eb-4c8b-a170-a1ea72d81b03",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "state": "result_unknown"
+    },
+    {
+      "case": "test_approval_and_duplicate_dispatch",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "9475ff16-fd07-45ab-b755-3e31a25004ab",
+      "attempt_id": "320f59fd-dcf7-402c-b298-35029bbcddb5",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "approval": "consumed-once"
+    },
+    {
+      "case": "test_approval_before_side_effect_and_parameter_expiry_guards",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "4338646c-6abe-4d2f-b89b-2ee85b330187",
+      "attempt_id": "fbc6000c-2550-433a-9988-dc86e7a16da1",
+      "session_id": "session-one",
+      "tool_calls": 0
+    },
+    {
+      "case": "test_committed_intent_precedes_external_call",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "fc922af6-7677-41a0-8205-bf1d48813619",
+      "attempt_id": "f27e15fd-3324-4451-98a9-0daf91128667",
+      "session_id": "session-one",
+      "committed_before_call": true,
+      "tool_calls": 1
+    },
+    {
+      "case": "test_complete_receipt_recovers_after_control_restart",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "f989111f-11a8-44de-a3c4-996e95526e3f",
+      "attempt_id": "6935cc98-408c-46d4-925b-e5d0272556ef",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "invocation_id": "fb005b9c-ecdf-4ebb-9591-da84561f43cb",
+      "recovered_same_binding": true
+    },
+    {
+      "case": "test_complete_tuple_policy_parity",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "8021a2cd-e55f-4991-bd37-3e66965753b6",
+      "attempt_id": "f016b3c5-3caa-4d61-a88d-e7eceba110c1",
+      "session_id": "session-one",
+      "decisions": [
+        {
+          "case": "allow",
+          "allow": true
+        },
+        {
+          "case": "changed-action",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_kind",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_id",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_version",
+          "allow": false
+        },
+        {
+          "case": "changed-constraint_revision",
+          "allow": false
+        },
+        {
+          "case": "missing-caller",
+          "allow": false
+        },
+        {
+          "case": "missing-service",
+          "allow": false
+        },
+        {
+          "case": "missing-workload",
+          "allow": false
+        },
+        {
+          "case": "missing-resource",
+          "allow": false
+        }
+      ]
+    },
+    {
+      "case": "test_concurrent_dispatch_consumes_once",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "25592850-4935-42d4-afb2-c7e393820729",
+      "attempt_id": "7fc8d044-194e-4385-a4d1-28f09eb55ec9",
+      "session_id": "session-one",
+      "tool_calls": 1
+    },
+    {
+      "case": "test_dispatch_audit_failure_rolls_back_then_resumes_original_call",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "e21dc190-877e-4157-9380-90aba1bc8ffa",
+      "attempt_id": "8009ae5f-f527-410e-8d82-0282d759bb49",
+      "session_id": "session-one",
+      "invocation_id": "9428b96d-bdc9-4c09-955f-b76f1fa91346",
+      "tool_calls": 1,
+      "approval_preserved": true
+    },
+    {
+      "case": "test_dispatch_commit_wins_and_later_revocation_blocks_new_work",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "7ceaa610-89c7-4930-a78e-43d5ed8ab7af",
+      "attempt_id": "9ceb73a9-97fc-40d9-a97c-c2aab285d553",
+      "session_id": "session-one",
+      "order": "dispatch-commit-before-revoke",
+      "tool_calls": 1,
+      "original_tool_fact_retained": true,
+      "new_work_denied": true
+    },
+    {
+      "case": "test_policy_outage_then_recovery_preserves_approval_and_identity",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "f0ed7d76-d233-4440-9c15-61fa379228f3",
+      "attempt_id": "c6ad4316-3da2-4750-8ead-be1f6dad7a22",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "same_approval": true,
+      "same_binding": true
+    },
+    {
+      "case": "test_receipt_disk_failure_never_calls_or_replays_tool",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "6a1b2ffb-24d4-4bdb-b1a3-0aa72bc2e190",
+      "attempt_id": "3d89fa97-7d08-4a26-8b73-c7ea4abb303e",
+      "session_id": "session-one",
+      "tool_calls": 0,
+      "state": "result_unknown"
+    },
+    {
+      "case": "test_revoke_transaction_wins_before_dispatch",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "5c90c233-3c56-4388-9a1c-49bad0133d9f",
+      "attempt_id": "fcd47c74-7b55-4b5d-af74-fe82bc255148",
+      "session_id": "session-one",
+      "order": "revoke-commit-before-dispatch",
+      "tool_calls": 0
+    },
+    {
+      "case": "test_source_revocation_survives_rejected_operation_rollback",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "a9a24ee3-f52e-46ab-8cb9-179863e81f47",
+      "attempt_id": "254600a0-3f09-46b3-8a2e-15919af92abf",
+      "session_id": "session-one",
+      "durable_revocation": true,
+      "rejected_operation_rolled_back": true,
+      "single_transition": true
+    },
+    {
+      "case": "test_unknown_outcome_is_not_replayed",
+      "storage": "postgresql",
+      "policy": "builtin",
+      "run_id": "b1a5a92a-02e2-464f-9651-1b73657c41cb",
+      "attempt_id": "d991b6bf-8511-43fa-9e7a-2d13f205e1fb",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "state": "result_unknown"
+    },
+    {
+      "case": "test_approval_and_duplicate_dispatch",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "cedea12f-eb26-4220-a6bb-5b0b0af81e58",
+      "attempt_id": "5b79863b-4df0-464f-b7b8-1ab56fde49fd",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "approval": "consumed-once"
+    },
+    {
+      "case": "test_approval_before_side_effect_and_parameter_expiry_guards",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "b526f834-042c-412c-b0b6-be94f52e063e",
+      "attempt_id": "2eeb3bb7-5e71-4329-8e95-6c7139086f0d",
+      "session_id": "session-one",
+      "tool_calls": 0
+    },
+    {
+      "case": "test_committed_intent_precedes_external_call",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "86b3eb64-d815-4764-95ae-d9f4ccf969b8",
+      "attempt_id": "2cde1e81-3789-44d6-a54f-fdbfabe19680",
+      "session_id": "session-one",
+      "committed_before_call": true,
+      "tool_calls": 1
+    },
+    {
+      "case": "test_complete_receipt_recovers_after_control_restart",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "af279a90-61d6-42e9-ae12-1727682e0bf9",
+      "attempt_id": "af726dd0-2b9f-4340-8764-bb8e7c6d19f4",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "invocation_id": "53692870-3a36-475b-ba00-03c332a676e2",
+      "recovered_same_binding": true
+    },
+    {
+      "case": "test_complete_tuple_policy_parity",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "42a1bfc2-a2f8-4e1e-84cf-92f2bfa9c6eb",
+      "attempt_id": "7e59ffd8-7a30-481c-89ab-18afcce7b6a4",
+      "session_id": "session-one",
+      "decisions": [
+        {
+          "case": "allow",
+          "allow": true
+        },
+        {
+          "case": "changed-action",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_kind",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_id",
+          "allow": false
+        },
+        {
+          "case": "changed-resource_version",
+          "allow": false
+        },
+        {
+          "case": "changed-constraint_revision",
+          "allow": false
+        },
+        {
+          "case": "missing-caller",
+          "allow": false
+        },
+        {
+          "case": "missing-service",
+          "allow": false
+        },
+        {
+          "case": "missing-workload",
+          "allow": false
+        },
+        {
+          "case": "missing-resource",
+          "allow": false
+        }
+      ]
+    },
+    {
+      "case": "test_concurrent_dispatch_consumes_once",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "f07ead5f-81b2-4260-aae6-32e1ed269253",
+      "attempt_id": "a5d6a6cc-152b-4bee-8512-e21031b0866a",
+      "session_id": "session-one",
+      "tool_calls": 1
+    },
+    {
+      "case": "test_dispatch_audit_failure_rolls_back_then_resumes_original_call",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "82871b93-e70f-48e1-bfc3-66e8ead481bd",
+      "attempt_id": "ba6fe302-db82-4dd2-a019-d7c37e7668b1",
+      "session_id": "session-one",
+      "invocation_id": "ff29457d-ef7e-4c55-ac49-a8eb0e9b988b",
+      "tool_calls": 1,
+      "approval_preserved": true
+    },
+    {
+      "case": "test_dispatch_commit_wins_and_later_revocation_blocks_new_work",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "45e103a2-88cd-477b-bbe7-3169a6df46a7",
+      "attempt_id": "1b40c3f6-b380-4d5f-9c1f-ba9275500ab7",
+      "session_id": "session-one",
+      "order": "dispatch-commit-before-revoke",
+      "tool_calls": 1,
+      "original_tool_fact_retained": true,
+      "new_work_denied": true
+    },
+    {
+      "case": "test_policy_outage_then_recovery_preserves_approval_and_identity",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "3f61de29-d3dc-4aa6-97b6-3f3d3d5e09ba",
+      "attempt_id": "025bf698-9a25-4e1e-ae35-8f65fc8c5a4a",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "same_approval": true,
+      "same_binding": true
+    },
+    {
+      "case": "test_receipt_disk_failure_never_calls_or_replays_tool",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "a88e7850-58d9-415a-9efa-2f506d07bbc7",
+      "attempt_id": "2d358dd0-250b-4b17-a9fe-102d951aaa8d",
+      "session_id": "session-one",
+      "tool_calls": 0,
+      "state": "result_unknown"
+    },
+    {
+      "case": "test_revoke_transaction_wins_before_dispatch",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "dd865f69-ff0f-4be3-9785-2d1ff461140e",
+      "attempt_id": "819ec540-5fd2-45d9-8834-a38988761eb4",
+      "session_id": "session-one",
+      "order": "revoke-commit-before-dispatch",
+      "tool_calls": 0
+    },
+    {
+      "case": "test_source_revocation_survives_rejected_operation_rollback",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "b4fd35e1-a27e-4d1b-a5ea-ee159cf7fb87",
+      "attempt_id": "fb1524d6-ec76-436d-afcd-50386b3e9899",
+      "session_id": "session-one",
+      "durable_revocation": true,
+      "rejected_operation_rolled_back": true,
+      "single_transition": true
+    },
+    {
+      "case": "test_unknown_outcome_is_not_replayed",
+      "storage": "postgresql",
+      "policy": "opa",
+      "run_id": "67c49173-8b93-491d-8078-24a30a7fe539",
+      "attempt_id": "8da70a57-be8b-4eef-81a7-e4d59b740e19",
+      "session_id": "session-one",
+      "tool_calls": 1,
+      "state": "result_unknown"
+    }
+  ],
+  "postgres": {
+    "image": "sha256:11ea9d908f285359c7ade748db20089bc3025aafde9754298c9e2feecc1c4830",
+    "settings": {
+      "server_version": "16.13 (Debian 16.13-1.pgdg13+1)",
+      "fsync": "on",
+      "synchronous_commit": "on",
+      "full_page_writes": "on"
+    }
+  },
+  "opa": {
+    "image": "sha256:a87f4268abd4b733e3af5381adebd33e0f05039d6f9ef0d316b596c78a51d2ad",
+    "reference": "openpolicyagent/opa:1.17.0@sha256:3c6e9e4d433b6e94df424c3385134312a95042aa991cdfc8e01944115675fb9d",
+    "bundle_revision": "matrix-v1"
+  },
+  "limits": [
+    "Single Linux host; recording tool transport, no new Harness/model run.",
+    "Revocation ordering is the Runtime transactional boundary. Independent upstream policy updates are not atomically committed with Runtime.",
+    "Control restart recreates Runtime connections and receipt service; not a host power-loss experiment."
+  ],
+  "work_items": [
+    "K03-2.03",
+    "K03-3.03"
+  ],
+  "candidate_commit": "5770c10fa5d2ec69e17dea8c28bf58b06c890d0a",
+  "qualification_scope": "Existing 13-case tool governance contract across SQLite/PostgreSQL and builtin/native OPA; not a complete independent security review.",
+  "dependencies": {
+    "sqlalchemy": "2.0.58",
+    "anyio": "4.12.1",
+    "aiosqlite": "0.22.1",
+    "asyncpg": "0.31.0"
+  },
+  "source_sha256": {
+    "scripts/qualify_governance_matrix.py": "bcfaa7318a68725051f805dd0f279da3d19381df416c90f274e7203f84d625c4",
+    "backend/tests/test_runtime_governance_matrix.py": "b2b39067b963c15da684944399f9bc3df1c6f8aeca576eb6d6dff010631a68d1",
+    "backend/app/runtime/database.py": "fd6b9418c267d854aed2117a120d357169363345f2e29fdbeaa9bb6276d8d6a5",
+    "backend/app/runtime/tool_invocations.py": "665bd79e72465f3e11fe15a9e582b9539f4a2598f6f6b75c3f79989e282bdf9b",
+    "backend/app/runtime/work_authorizations.py": "7939e67985184e64bbecde6e365b1d6fe7cec18537741de744df1aabaaf63494",
+    "backend/app/runtime/delegations.py": "1bcc881c61f11e49f9e317503cb11aa3761ae2e66b380f6c0f701e24ddbfc982",
+    "backend/requirements.txt": "31a0c66aba44895001c859dec885653d94b07969cc9206e02536756d93b278d9"
+  },
+  "independent_review": {
+    "state": "not_completed",
+    "attempts": 2,
+    "failure": "review execution rejected by automatic safety review as possible cybersecurity risk",
+    "confirmed_new_findings": 0,
+    "lease_timing_followup": {
+      "state": "incomplete",
+      "observed_error": "STALE_OWNER",
+      "tool_delegation_evaluations": 0,
+      "actual_tool_calls": 0,
+      "remaining": "Final delegation policy response crossing lease expiry was not exercised."
+    }
+  },
+  "acceptance": "pending_designated_reviewer"
+}
