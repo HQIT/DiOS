@@ -1,0 +1,346 @@
+{
+  "work_item": "K04-2.04",
+  "passed": true,
+  "complete": false,
+  "mode": "local-independent-process",
+  "results": [
+    {
+      "work_item": "K04-2.04",
+      "passed": true,
+      "complete": false,
+      "mode": "local-independent-process",
+      "implementation_commit": "95690d27a2d5fababa98558a08f47db48435025e",
+      "tests": 1,
+      "seconds": 59.264,
+      "host_boot_sha256": {
+        "controller": "248799648d6da6d67faced5c7cdf815a8d5248292ae3bddd9a71f24b1fcff0a9"
+      },
+      "observations": [
+        {
+          "provider": "sqlite",
+          "scope": "worker-test-a0b6ac65-cccf-43f7-b2ef-89f715fc455a",
+          "real_concurrency": {
+            "actual_concurrency": 2,
+            "observed_at": 1795791704.45399,
+            "workers": [
+              {
+                "id": "qualified:c6cd9de01ee741e4b43c423c832f1b86",
+                "pid": 2090273,
+                "instance": "f281e790-d7cb-496a-bed8-ed629841e780"
+              },
+              {
+                "id": "qualified:8727962e03f14343867a6868539bfb9c",
+                "pid": 2090339,
+                "instance": "7d76aa21-6c6e-4151-b73e-6ed32115bf30"
+              }
+            ],
+            "attempts": [
+              {
+                "run_id": "d2da357f-1cdb-4f8c-92d1-b3252fa27483",
+                "attempt_id": "67ef88e5-5309-424f-9e7e-94bbd6e3724d",
+                "worker_id": "qualified:c6cd9de01ee741e4b43c423c832f1b86",
+                "session_id": "8458d359-1396-4219-9c15-9e29999b6c09",
+                "process_id": 2090324,
+                "process_instance": "877684bf0454b1e6f5f9b283760de6068e395160485da5f0d75cc8384c9a3c96:2026-11-27T15:01:41.331623022Z",
+                "freshness": "fresh"
+              },
+              {
+                "run_id": "95eab778-d6e8-465e-a844-c74e4d27509c",
+                "attempt_id": "10524ad4-f22c-499a-b563-8e0c64c0dea1",
+                "worker_id": "qualified:8727962e03f14343867a6868539bfb9c",
+                "session_id": "e7d1e06a-1528-4be2-b13f-8011a6c6bf97",
+                "process_id": 2090437,
+                "process_instance": "abacbbaa0801b90e4d11d6fa218b55ba1962e9ffe75d675115f2d469b409c968:2026-11-27T15:01:43.668588478Z",
+                "freshness": "fresh"
+              }
+            ]
+          },
+          "killed_worker_pid": 2090273,
+          "original_attempt": "67ef88e5-5309-424f-9e7e-94bbd6e3724d",
+          "original_session": "8458d359-1396-4219-9c15-9e29999b6c09",
+          "lease_until": 1795791761.195991,
+          "expired_at": 1795791761.2560153,
+          "unknown_capacity": {
+            "scope": "worker-test-a0b6ac65-cccf-43f7-b2ef-89f715fc455a",
+            "id": "shared",
+            "selector": {
+              "kind": "scope"
+            },
+            "max_concurrent": 2,
+            "enabled": true,
+            "revision": 1,
+            "updated_at": 1795791699.855986,
+            "budget": {
+              "max_dispatches": null,
+              "dispatch_window_seconds": null,
+              "max_runtime_seconds": null,
+              "max_tool_calls": null
+            },
+            "dispatch_rate": null,
+            "reserved_attempts": 1,
+            "unresolved_attempts": 1,
+            "queued_runs": 1,
+            "tree_reserved_slots": 0,
+            "available": 1
+          },
+          "stale_owner_error": "STALE_OWNER",
+          "restored_state": "succeeded",
+          "attempt_count": 1,
+          "usage": [
+            {
+              "attempt_id": "67ef88e5-5309-424f-9e7e-94bbd6e3724d",
+              "session_id": "8458d359-1396-4219-9c15-9e29999b6c09",
+              "sequence": 1,
+              "kind": "acp_prompt",
+              "quality": "reported",
+              "values": {
+                "inputTokens": 1,
+                "outputTokens": 0,
+                "totalTokens": 1
+              },
+              "recorded_at": 1795791702.21401,
+              "evidence": {
+                "artifact_key": "3b09b8af25efe242a5cab11521e0e04569bedffd1b2c0ee6ccd06427e5336626",
+                "exit_receipt": "fb37d41562ff342a16e967550520a27850b95358cdb76ae208ea58e137faf96e",
+                "report_sequence": 5
+              },
+              "aggregation": "unspecified_acp_scope"
+            }
+          ],
+          "settlement": {
+            "settlement": {
+              "scope": "worker-test-a0b6ac65-cccf-43f7-b2ef-89f715fc455a",
+              "account_id": "tokens",
+              "attempt_id": "67ef88e5-5309-424f-9e7e-94bbd6e3724d",
+              "actual": 1,
+              "evidence": {
+                "ref": {
+                  "kind": "file",
+                  "id": "7e123551-df4b-450d-a864-8c25700b20e1",
+                  "version": 1
+                },
+                "digest": "sha256:860add9f5fe21b1cd447d7c30dd9343469da7623cff42fe66b8794e8cabba371",
+                "basis": "operator_reconciliation"
+              },
+              "actor": "qualification",
+              "created_at": 1795791763.132006
+            },
+            "reserved": 2,
+            "over_reserved": false
+          },
+          "balance": {
+            "scope": "worker-test-a0b6ac65-cccf-43f7-b2ef-89f715fc455a",
+            "id": "tokens",
+            "selector": {
+              "kind": "scope"
+            },
+            "unit": "tokens",
+            "maximum": 4,
+            "per_attempt": 2,
+            "enforcement": "reservation_only",
+            "enabled": true,
+            "revision": 1,
+            "updated_at": 1795791699.9020128,
+            "reserved": 2,
+            "settled": 1,
+            "unreconciled_attempts": 1,
+            "remaining": 1,
+            "admission_error": "CONSUMPTION_BUDGET_EXHAUSTED",
+            "provider_hard_cap": "unsupported"
+          },
+          "queued_run": "ee3bfab6-bdd4-4070-9e7e-7f960cfeea83",
+          "workload_image": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+          "additional_launch_for_restored_run": 0
+        }
+      ],
+      "failures": [],
+      "source_sha256": {
+        "scripts/qualify_resource_recovery.py": "7ea109c70d7407bc4101397e06d9339c8cf90a315024edb4c828ec990d2ec978",
+        "scripts/qualify_physical_worker.py": "c1320fc045ca345e8bc6a498cb9a5b13fa90a4d4aebdac4d81e4f5d8aec4b4ef",
+        "backend/tests/test_remote_recovery_qualification.py": "bdaad0e1525cb8bdb130a8806a34b87f42148325ebc5ee6c4bda8b39182307f7",
+        "backend/app/runtime/capacity.py": "daceea1add467fb1bc65f3b0de11478f307d2a194c52090273dd8d4375c0b150",
+        "backend/app/runtime/consumption.py": "9a2f78b8a7290d61b0bdaed21f016ed66095853e46e0505f4cbfebaa22a70230",
+        "backend/app/runtime/remote_control.py": "4e8f3f459c6eff7f7665a0d8ac084ffd7b84dca7766a25dd8c00c1171fbad3da",
+        "backend/app/runtime/remote_runtime.py": "2d24357fc6b8ed0dadefdd562dd0706f0ed4a7a8312f91812ffb3d262dab767a",
+        "backend/app/runtime/worker.py": "199dedd026b27103c275c1eb8a84b5192d542e555970877f57f4aa5a2cdcda07"
+      },
+      "limits": [
+        "Synthetic reported usage exercises accounting correlation; no provider invoice or hard cost ceiling is qualified.",
+        "Worker SIGKILL is an execution-manager fault; network partition, old control-plane primary and physical-host loss require separate evidence.",
+        "Local mode does not qualify two physical hosts; complete remains false until the full WBS matrix is accepted."
+      ]
+    },
+    {
+      "work_item": "K04-2.04",
+      "passed": true,
+      "complete": false,
+      "mode": "local-independent-process",
+      "implementation_commit": "95690d27a2d5fababa98558a08f47db48435025e",
+      "tests": 1,
+      "seconds": 59.328,
+      "host_boot_sha256": {
+        "controller": "248799648d6da6d67faced5c7cdf815a8d5248292ae3bddd9a71f24b1fcff0a9"
+      },
+      "observations": [
+        {
+          "provider": "postgresql",
+          "scope": "worker-test-d4c56ed0-2dca-463a-ba8a-d7ad7d94f816",
+          "real_concurrency": {
+            "actual_concurrency": 2,
+            "observed_at": 1795791802.41377,
+            "workers": [
+              {
+                "id": "qualified:4e93e3edc51f405c8a2d5debc1b89b2b",
+                "pid": 2091865,
+                "instance": "77b606e7-ebc6-496b-95d7-8bac7be8e87f"
+              },
+              {
+                "id": "qualified:fa17eddec8e04f0a908081b4762f12e3",
+                "pid": 2091932,
+                "instance": "311ab2dc-7d92-4e30-919f-7ba684980372"
+              }
+            ],
+            "attempts": [
+              {
+                "run_id": "35efae3d-81fc-4120-a7d7-69db29d6c800",
+                "attempt_id": "2c1759d5-47f6-4e87-ab60-f77d1d7ec6a5",
+                "worker_id": "qualified:4e93e3edc51f405c8a2d5debc1b89b2b",
+                "session_id": "257d4c29-73f0-4ad7-83a8-d931523095c2",
+                "process_id": 2091913,
+                "process_instance": "ac8b308cdfa8a5f3ff244c0aacf63322196040a80b1395d685491e3d5a197874:2026-11-27T15:03:20.081656295Z",
+                "freshness": "fresh"
+              },
+              {
+                "run_id": "b800d49d-3fa8-40a9-9034-162a5c7ca0e6",
+                "attempt_id": "afc52502-a467-4d0f-b643-3db961448b9d",
+                "worker_id": "qualified:fa17eddec8e04f0a908081b4762f12e3",
+                "session_id": "35e2ec4a-3913-4f63-b940-419ad6769ae0",
+                "process_id": 2091982,
+                "process_instance": "79fe220053df9aecd6ca75ab617e3a8c973a6af10d4b9d0fcc9e44aef509e17f:2026-11-27T15:03:21.856051958Z",
+                "freshness": "fresh"
+              }
+            ]
+          },
+          "killed_worker_pid": 2091865,
+          "original_attempt": "2c1759d5-47f6-4e87-ab60-f77d1d7ec6a5",
+          "original_session": "257d4c29-73f0-4ad7-83a8-d931523095c2",
+          "lease_until": 1795791859.94128,
+          "expired_at": 1795791859.997279,
+          "unknown_capacity": {
+            "scope": "worker-test-d4c56ed0-2dca-463a-ba8a-d7ad7d94f816",
+            "id": "shared",
+            "selector": {
+              "kind": "scope"
+            },
+            "max_concurrent": 2,
+            "enabled": true,
+            "revision": 1,
+            "updated_at": 1795791798.73876,
+            "budget": {
+              "max_runtime_seconds": null,
+              "max_dispatches": null,
+              "dispatch_window_seconds": null,
+              "max_tool_calls": null
+            },
+            "dispatch_rate": null,
+            "reserved_attempts": 1,
+            "unresolved_attempts": 1,
+            "queued_runs": 1,
+            "tree_reserved_slots": 0,
+            "available": 1
+          },
+          "stale_owner_error": "STALE_OWNER",
+          "restored_state": "succeeded",
+          "attempt_count": 1,
+          "usage": [
+            {
+              "attempt_id": "2c1759d5-47f6-4e87-ab60-f77d1d7ec6a5",
+              "session_id": "257d4c29-73f0-4ad7-83a8-d931523095c2",
+              "sequence": 1,
+              "kind": "acp_prompt",
+              "quality": "reported",
+              "values": {
+                "inputTokens": 1,
+                "outputTokens": 0,
+                "totalTokens": 1
+              },
+              "recorded_at": 1795791800.752278,
+              "evidence": {
+                "artifact_key": "373c04f3d5044290a7f509f0a4ec392b3157c3c4d41869855f94901d173cfd8e",
+                "exit_receipt": "754d910875c7116880a0383a4935954657ef2e2729d9aeb95f170266ec90e095",
+                "report_sequence": 5
+              },
+              "aggregation": "unspecified_acp_scope"
+            }
+          ],
+          "settlement": {
+            "settlement": {
+              "scope": "worker-test-d4c56ed0-2dca-463a-ba8a-d7ad7d94f816",
+              "account_id": "tokens",
+              "attempt_id": "2c1759d5-47f6-4e87-ab60-f77d1d7ec6a5",
+              "actual": 1,
+              "evidence": {
+                "ref": {
+                  "kind": "file",
+                  "id": "744ac7ca-bb21-453c-97f7-b8767fa8d698",
+                  "version": 1
+                },
+                "digest": "sha256:dcc2746ac6f9c5f932573e789ecbc5aed2f63f88115c17418e346ddecb714719",
+                "basis": "operator_reconciliation"
+              },
+              "actor": "qualification",
+              "created_at": 1795791861.354519
+            },
+            "reserved": 2,
+            "over_reserved": false
+          },
+          "balance": {
+            "scope": "worker-test-d4c56ed0-2dca-463a-ba8a-d7ad7d94f816",
+            "id": "tokens",
+            "selector": {
+              "kind": "scope"
+            },
+            "unit": "tokens",
+            "maximum": 4,
+            "per_attempt": 2,
+            "enforcement": "reservation_only",
+            "enabled": true,
+            "revision": 1,
+            "updated_at": 1795791798.789477,
+            "reserved": 2,
+            "settled": 1,
+            "unreconciled_attempts": 1,
+            "remaining": 1,
+            "admission_error": "CONSUMPTION_BUDGET_EXHAUSTED",
+            "provider_hard_cap": "unsupported"
+          },
+          "queued_run": "7279e598-a7e2-4794-bbf4-e1c37e62fbae",
+          "workload_image": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+          "additional_launch_for_restored_run": 0
+        }
+      ],
+      "failures": [],
+      "source_sha256": {
+        "scripts/qualify_resource_recovery.py": "85da77126c354cd72090157acfa3cbeb48fffebec2dfbcb913e5cf0d77eb1052",
+        "scripts/qualify_physical_worker.py": "c1320fc045ca345e8bc6a498cb9a5b13fa90a4d4aebdac4d81e4f5d8aec4b4ef",
+        "backend/tests/test_remote_recovery_qualification.py": "bdaad0e1525cb8bdb130a8806a34b87f42148325ebc5ee6c4bda8b39182307f7",
+        "backend/app/runtime/capacity.py": "daceea1add467fb1bc65f3b0de11478f307d2a194c52090273dd8d4375c0b150",
+        "backend/app/runtime/consumption.py": "9a2f78b8a7290d61b0bdaed21f016ed66095853e46e0505f4cbfebaa22a70230",
+        "backend/app/runtime/remote_control.py": "4e8f3f459c6eff7f7665a0d8ac084ffd7b84dca7766a25dd8c00c1171fbad3da",
+        "backend/app/runtime/remote_runtime.py": "2d24357fc6b8ed0dadefdd562dd0706f0ed4a7a8312f91812ffb3d262dab767a",
+        "backend/app/runtime/worker.py": "199dedd026b27103c275c1eb8a84b5192d542e555970877f57f4aa5a2cdcda07"
+      },
+      "limits": [
+        "Synthetic reported usage exercises accounting correlation; no provider invoice or hard cost ceiling is qualified.",
+        "Worker SIGKILL is an execution-manager fault; network partition, old control-plane primary and physical-host loss require separate evidence.",
+        "Local mode does not qualify two physical hosts; complete remains false until the full WBS matrix is accepted."
+      ]
+    }
+  ],
+  "remaining": [
+    "Physical two-host execution",
+    "Network partition and stale control-plane primary isolation",
+    "Host loss and complete resource-governance matrix"
+  ],
+  "scope": "Native synthetic usage frames and operator reconciliation; no supplier invoice or provider hard cost ceiling"
+}

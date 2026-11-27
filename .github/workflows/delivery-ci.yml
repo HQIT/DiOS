@@ -59,6 +59,12 @@ jobs:
           args=()
           if [ "$EXPORT_IMAGES" = true ]; then args+=(--export-images); fi
           python scripts/qualify_delivery.py --output "$RUNNER_TEMP/dios-delivery" "${args[@]}"
+      - name: Qualify shared budget recovery with native Workers
+        env:
+          DIOS_TEST_POSTGRES_URL: postgresql+asyncpg://postgres:qualification-only@localhost:${{ job.services.postgres.ports[5432] }}/dios
+        run: |
+          docker build -f examples/runtime/Dockerfile.fixture --build-arg BASE_IMAGE=dios-ci-candidate:${GITHUB_SHA:0:12} -t dios-worker-fixture:local examples/runtime
+          python scripts/qualify_resource_recovery.py --local --postgres --output workspace/resource-recovery-ci
       - name: Retain tested backend image
         if: inputs.export_images
         uses: actions/upload-artifact@v4
@@ -89,5 +95,7 @@ jobs:
             ${{ runner.temp }}/dios-delivery/tests.log
             ${{ runner.temp }}/dios-delivery/qualification/result.json
             workspace/identity-access-ci/result.json
+            workspace/resource-recovery-ci/result.json
+            workspace/resource-recovery-ci/tests.log
           if-no-files-found: error
           retention-days: 14
