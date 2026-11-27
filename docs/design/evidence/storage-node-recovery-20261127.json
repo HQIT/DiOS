@@ -1,0 +1,267 @@
+{
+  "work_item": "D01-3.02",
+  "passed": true,
+  "cases_passed": 2,
+  "runtime_base_commit": "dc148ff73a9c8436745f446d6fa032ff360bb4d8",
+  "source_sha256": {
+    "scripts/qualify_storage_restart.py": "068ca876e101ce605cb40807907bd20deb6b70c9296b4f65f2a67cbe070d05c8",
+    "backend/app/runtime/worker.py": "05ea64e735b97afb4b93f3ce657ada4f26ec44c02af820dc097e9dbbc772d16d",
+    "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+    "backend/app/runtime/spool.py": "6f15a0ee7cba5bb67c21eb5d2dbc53fcee98ca4e84283c770dde2360fe4bac07"
+  },
+  "observations": [
+    {
+      "case": "storage_full",
+      "run_id": "009dd709-1737-497e-ad02-c83ac3482c7c",
+      "real_errno": 28,
+      "bounded_volume_bytes": 8388608,
+      "worker_restarted": false,
+      "no_claim_while_full": true,
+      "original_attempt": "0163b3db-9fbd-42f0-bb6a-974b4b8bacb9",
+      "same_attempt_and_session": true,
+      "additional_workload_launches": 0,
+      "recovery_seconds": 15.551,
+      "final_state": "succeeded",
+      "queued_state": "succeeded"
+    },
+    {
+      "case": "node_restart",
+      "before": {
+        "boot_id": "604f8162-e67c-461a-8f77-3b54325d1f1f",
+        "pid1_start": "54258",
+        "pid_namespace": "pid:[4026532216]"
+      },
+      "after": {
+        "boot_id": "604f8162-e67c-461a-8f77-3b54325d1f1f",
+        "pid1_start": "64471",
+        "pid_namespace": "pid:[4026532217]"
+      },
+      "restart": {
+        "mechanism": "named Linux WSL distribution terminate/start",
+        "unrelated_containers_preserved": 2,
+        "docker_ready_seconds": 11.887
+      },
+      "initial_processes": {
+        "actual_concurrency": 2,
+        "observed_at": 1795777705.107996,
+        "workers": [
+          {
+            "id": "qualified:d60b3d3ef6a144058e3ac997e1068157",
+            "pid": 1221,
+            "instance": "8b3b3c4e-f62f-4558-a347-84d12045263b"
+          },
+          {
+            "id": "qualified:5952395d22bc49abae5df3bf5ee235fa",
+            "pid": 1225,
+            "instance": "5e926b67-f497-446f-867b-2e493c90537d"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "5ddd58be-839c-427a-ba54-4387c04c6f67",
+            "attempt_id": "f6ec35d1-e13c-449d-9d61-c7bf50f70c28",
+            "worker_id": "qualified:d60b3d3ef6a144058e3ac997e1068157",
+            "session_id": "f543e196-8e8f-4d22-8872-ae0d9246350d",
+            "process_id": 1312,
+            "process_instance": "bd1c96fe28f934e5c735806d7a663077dac784705319297f6e411e12954a25ac:2026-11-27T11:08:23.47102225Z",
+            "freshness": "fresh"
+          },
+          {
+            "run_id": "c832ddfc-f40f-425a-a2cf-4590e05f9ea3",
+            "attempt_id": "bc62f83e-0192-4b84-a4fa-0b2eec4d791e",
+            "worker_id": "qualified:5952395d22bc49abae5df3bf5ee235fa",
+            "session_id": "bae39281-d3c1-4208-b916-1b9e559b3d16",
+            "process_id": 1357,
+            "process_instance": "8f16ac97af739aa0dedd7fa04c4946dea2fbca28ed9334e52cbbaaa235861db3:2026-11-27T11:08:23.608912849Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "run_id": "5ddd58be-839c-427a-ba54-4387c04c6f67",
+      "complete_state": "succeeded",
+      "complete_attempts": 1,
+      "partial_run_id": "c832ddfc-f40f-425a-a2cf-4590e05f9ea3",
+      "partial_state": "failed",
+      "partial_error": {
+        "code": "RESULT_INCOMPLETE",
+        "category": "format",
+        "retry_at": null,
+        "retry_blocked": "NON_RETRYABLE"
+      },
+      "partial_attempts": 1,
+      "old_owner_rejected": true,
+      "fresh_task_succeeded": true,
+      "recovery_seconds": 72.574
+    }
+  ],
+  "storage_run": {
+    "work_item": "D01-3.02",
+    "passed": true,
+    "tests": 1,
+    "duration_seconds": 31.762,
+    "observations": [
+      {
+        "case": "storage_full",
+        "run_id": "009dd709-1737-497e-ad02-c83ac3482c7c",
+        "real_errno": 28,
+        "bounded_volume_bytes": 8388608,
+        "worker_restarted": false,
+        "no_claim_while_full": true,
+        "original_attempt": "0163b3db-9fbd-42f0-bb6a-974b4b8bacb9",
+        "same_attempt_and_session": true,
+        "additional_workload_launches": 0,
+        "recovery_seconds": 15.551,
+        "final_state": "succeeded",
+        "queued_state": "succeeded"
+      }
+    ],
+    "source_sha256": {
+      "scripts/qualify_storage_restart.py": "39e756e2cfa213ceaeb2ae57dbbae32289dd69b1f7138ca338713c631d06c17e",
+      "backend/app/runtime/worker.py": "05ea64e735b97afb4b93f3ce657ada4f26ec44c02af820dc097e9dbbc772d16d",
+      "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+      "backend/app/runtime/spool.py": "6f15a0ee7cba5bb67c21eb5d2dbc53fcee98ca4e84283c770dde2360fe4bac07"
+    },
+    "failures": [],
+    "limits": [
+      "8 MiB test volume exhaustion; no host disk is filled.",
+      "Linux node restart on second physical host; not a physical power cut.",
+      "Incomplete output is retained as failed and never counted as successful."
+    ]
+  },
+  "restart_run": {
+    "work_item": "D01-3.02",
+    "passed": true,
+    "tests": 1,
+    "duration_seconds": 85.837,
+    "observations": [
+      {
+        "case": "node_restart",
+        "before": {
+          "boot_id": "604f8162-e67c-461a-8f77-3b54325d1f1f",
+          "pid1_start": "54258",
+          "pid_namespace": "pid:[4026532216]"
+        },
+        "after": {
+          "boot_id": "604f8162-e67c-461a-8f77-3b54325d1f1f",
+          "pid1_start": "64471",
+          "pid_namespace": "pid:[4026532217]"
+        },
+        "restart": {
+          "mechanism": "named Linux WSL distribution terminate/start",
+          "unrelated_containers_preserved": 2,
+          "docker_ready_seconds": 11.887
+        },
+        "initial_processes": {
+          "actual_concurrency": 2,
+          "observed_at": 1795777705.107996,
+          "workers": [
+            {
+              "id": "qualified:d60b3d3ef6a144058e3ac997e1068157",
+              "pid": 1221,
+              "instance": "8b3b3c4e-f62f-4558-a347-84d12045263b"
+            },
+            {
+              "id": "qualified:5952395d22bc49abae5df3bf5ee235fa",
+              "pid": 1225,
+              "instance": "5e926b67-f497-446f-867b-2e493c90537d"
+            }
+          ],
+          "attempts": [
+            {
+              "run_id": "5ddd58be-839c-427a-ba54-4387c04c6f67",
+              "attempt_id": "f6ec35d1-e13c-449d-9d61-c7bf50f70c28",
+              "worker_id": "qualified:d60b3d3ef6a144058e3ac997e1068157",
+              "session_id": "f543e196-8e8f-4d22-8872-ae0d9246350d",
+              "process_id": 1312,
+              "process_instance": "bd1c96fe28f934e5c735806d7a663077dac784705319297f6e411e12954a25ac:2026-11-27T11:08:23.47102225Z",
+              "freshness": "fresh"
+            },
+            {
+              "run_id": "c832ddfc-f40f-425a-a2cf-4590e05f9ea3",
+              "attempt_id": "bc62f83e-0192-4b84-a4fa-0b2eec4d791e",
+              "worker_id": "qualified:5952395d22bc49abae5df3bf5ee235fa",
+              "session_id": "bae39281-d3c1-4208-b916-1b9e559b3d16",
+              "process_id": 1357,
+              "process_instance": "8f16ac97af739aa0dedd7fa04c4946dea2fbca28ed9334e52cbbaaa235861db3:2026-11-27T11:08:23.608912849Z",
+              "freshness": "fresh"
+            }
+          ]
+        },
+        "run_id": "5ddd58be-839c-427a-ba54-4387c04c6f67",
+        "complete_state": "succeeded",
+        "complete_attempts": 1,
+        "partial_run_id": "c832ddfc-f40f-425a-a2cf-4590e05f9ea3",
+        "partial_state": "failed",
+        "partial_error": {
+          "code": "RESULT_INCOMPLETE",
+          "category": "format",
+          "retry_at": null,
+          "retry_blocked": "NON_RETRYABLE"
+        },
+        "partial_attempts": 1,
+        "old_owner_rejected": true,
+        "fresh_task_succeeded": true,
+        "recovery_seconds": 72.574
+      }
+    ],
+    "source_sha256": {
+      "scripts/qualify_storage_restart.py": "068ca876e101ce605cb40807907bd20deb6b70c9296b4f65f2a67cbe070d05c8",
+      "backend/app/runtime/worker.py": "05ea64e735b97afb4b93f3ce657ada4f26ec44c02af820dc097e9dbbc772d16d",
+      "backend/app/runtime/remote_runtime.py": "7328327d3164928cbdb8df411d5fa1d38844b8403e1b1d1f6b14ddfbf6ec638d",
+      "backend/app/runtime/spool.py": "6f15a0ee7cba5bb67c21eb5d2dbc53fcee98ca4e84283c770dde2360fe4bac07"
+    },
+    "failures": [],
+    "limits": [
+      "8 MiB test volume exhaustion; no host disk is filled.",
+      "Linux node restart on second physical host; not a physical power cut.",
+      "Incomplete output is retained as failed and never counted as successful."
+    ]
+  },
+  "storage_evidence_reuse": "Runtime source unchanged. Subsequent fixture edits only use persistent case roots, readable namespace identity and the correct Attempt error field for node restart. Original source digest reconstructed and matched.",
+  "regression": {
+    "worker": {
+      "passed": 12,
+      "skipped_native": 16
+    },
+    "storage_and_spool": {
+      "passed": 19
+    }
+  },
+  "initial_failures": [
+    {
+      "case": "storage_full",
+      "finding": "Daemon exited on real ENOSPC before repair",
+      "artifact": "private baseline.json"
+    },
+    {
+      "case": "node_restart_inventory",
+      "finding": "Unprivileged /proc/1/ns/pid read rejected; use own process in the same PID namespace"
+    },
+    {
+      "case": "node_restart_paths",
+      "finding": "Test files in /tmp removed by Linux startup; move to persistent /var/tmp case root"
+    },
+    {
+      "case": "node_restart_assertion",
+      "finding": "Failure is recorded on Attempt, not top-level Run; corrected assertion"
+    }
+  ],
+  "limits": [
+    "8 MiB test volume exhaustion; no host disk is filled.",
+    "Linux node restart on second physical host; not a physical power cut.",
+    "Incomplete output is retained as failed and never counted as successful."
+  ],
+  "qualification_chain": [
+    "docs/design/evidence/physical-worker-20261127.json",
+    "docs/design/evidence/physical-faults-20261127.json"
+  ],
+  "acceptance": "All five required fault entry points now exercised on two physical hosts: partition, process death, Linux node restart, latency and storage full. HA/replication RPO/RTO remain D01-3.03.",
+  "candidate_image": {
+    "image": "sha256:4c43f17cecf91e37c6c2a773ba4aad844ef3ad49e611a1f99ccef90c141f2656",
+    "base": "sha256:46e5843d44e646e392b4906fcb7b8b9b3100285f515463cbca5409ff7f04d194",
+    "worker_sha256": "05ea64e735b97afb4b93f3ce657ada4f26ec44c02af820dc097e9dbbc772d16d",
+    "source_import_passed": true,
+    "test_containers_remaining": 0,
+    "test_volumes_remaining": 0
+  }
+}

@@ -73,6 +73,8 @@ env -u DIOS_RUNTIME_DATABASE_URL -u DIOS_DATABASE_URL \
 
 工作目录为 `/opt/dios-source/backend`。生产服务管理器固定该目录、Python 路径、凭据、PATH 和代理；每个实例的 spool 路径唯一。profile 的镜像与挂载路径必须在该执行机可用。使用工具通道时只将 `worker_secret_refs` 指定的模型 Secret 提供给 Worker，工具服务凭据留在网关。
 
+配置、证书、spool 和产物使用持久安装目录，避免使用启动时可能清理的 `/tmp`。运行中磁盘空间或配额耗尽时，Worker 退避探测写入能力，恢复后先对账原输出再领取新任务。节点重启后的恢复证据见[存储与节点恢复](../../docs/design/storage-node-recovery-53.md)。
+
 ## 备份与恢复顺序
 
 `pg_dump` 给出数据库的一致性快照，产物文件和配置需要同一停写窗口。[PostgreSQL 备份说明](https://www.postgresql.org/docs/current/backup-dump.html)

@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "D01-3.02",
-    "next_delivery": "D01-3.02",
+    "next_work_item": "K02-3.02",
+    "next_delivery": "K02-3.02",
     "next_delivery_order": [
-      "D01-3.02",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
@@ -35,7 +34,7 @@
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
       "K02-3.02 源控制面隔离的工程方案与验证待完成；恢复冻结保持，生产恢复不自动解锁。",
-      "K04-2.02 父子等待容量的工程方案与验证待完成；D01-3.02 已接入第二物理主机上的 Linux 节点，继续完成隔离故障注入。",
+      "K04-2.02 父子等待容量的工程方案与验证待完成；D01-3.02 的物理跨主机故障环境已具备，下游复用证据。",
       "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
       "产品与发布接受人已明确为徐刚，五项产品要求已确认；工程方按原验收提供实际效果与证据，发布接受按具体版本、限制和取舍记录。"
     ],
@@ -44,7 +43,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "用户已提供第二台物理主机的 WSL；D01-3.02 从等待环境转为进行中，先完成真实跨主机 Worker/E2AG 恢复验证，再补网络、进程、测试节点重启、延迟和存储故障入口。恢复隔离和父子容量由工程侧依据成熟方案继续推进；全局宿主故障须安排维护窗口。",
+    "next_selection_reason": "物理跨主机故障环境 D01-3.02 已完成。按原顺序推进 K02-3.02 的源控制面隔离、原结果对账与安全启用联合资格；继续保持恢复冻结，使用隔离夹具验证，不启动生产迁移。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
   },
   "waves": [
@@ -2996,7 +2995,7 @@
       "issue": 53,
       "title": "物理跨主机资格环境",
       "kind": "I",
-      "state": "in_progress",
+      "state": "done",
       "requirements": [
         "D01-3-A01",
         "D01-3-A02",
@@ -3009,18 +3008,23 @@
         "D01-3.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "第二物理主机 Linux 节点已接入。六类场景已有实测：限流、额度、机器撤销与幂等、网络分区、Worker SIGKILL、200 ms 延迟。断连恢复无需手工重启 Worker；完整输出恢复保持原 Attempt/Session，未重新启动任务。",
+      "completion_evidence": [
+        "docs/design/evidence/physical-worker-20261127.json",
+        "docs/design/evidence/physical-faults-20261127.json",
+        "docs/design/evidence/storage-node-recovery-20261127.json"
+      ],
+      "basis": "两台物理主机的 Linux 节点已完成网络分区、进程终止、节点停止/启动、延迟和限额存储写满五类独立故障注入。E2AG、原任务/会话、结果校验与旧所有权拒绝均有实测证据；HA/复制 RPO/RTO 由 D01-3.03 承接。",
       "existing_evidence": [
         "docs/design/evidence/a2a-recovery-20261125.json",
         "docs/design/evidence/worker-reconciliation-regression-20261113.json",
         "docs/design/physical-worker-qualification-53.md",
         "docs/design/evidence/physical-worker-20261127.json",
         "docs/design/physical-fault-qualification-53.md",
-        "docs/design/evidence/physical-faults-20261127.json"
+        "docs/design/evidence/physical-faults-20261127.json",
+        "docs/design/storage-node-recovery-53.md",
+        "docs/design/evidence/storage-node-recovery-20261127.json"
       ],
-      "wave": "W4",
-      "blocking_reason": "待补存储故障与完整节点重启验证；整台宿主重启或影响其他服务的故障需维护窗口。"
+      "wave": "W4"
     },
     {
       "id": "D01-3.03",

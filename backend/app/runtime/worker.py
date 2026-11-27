@@ -1,5 +1,6 @@
 """Independent trusted Worker. One process/slot, one registered profile, durable ownership."""
 import asyncio
+import errno
 from dataclasses import replace
 import json
 import os
@@ -361,6 +362,7 @@ class Worker:
             # A live workload stays discoverable; a read error never proves its death.
             exception_code = exc.code if isinstance(exc,RuntimeErrorCode) else (
                 'CONTROL_PLANE_UNAVAILABLE' if isinstance(exc,(ConnectionError,TimeoutError,OperationalError,InterfaceError))
+                else 'STORAGE_FULL' if isinstance(exc,OSError) and exc.errno in {errno.ENOSPC,errno.EDQUOT}
                 else 'RUNTIME_OBSERVATION_UNAVAILABLE')
             try:
                 observed = await self.adapter.stop(handle) if run['input'].get('work_authorization_ref') or budget else await self.adapter.observe(handle)
@@ -413,9 +415,19 @@ class Worker:
             try: loop.add_signal_handler(sig,lambda:setattr(self,'stopping',True))
             except (NotImplementedError,RuntimeError): pass
         try:
-            recovered_at, backoff = 0, 1
+            recovered_at, backoff, storage_blocked = 0, 1, False
             while not self.stopping:
                 try:
+                    if storage_blocked:
+                        # A successful query does not prove the local volume is writable.
+                        # One small, content-addressed probe is reused across recoveries.
+                        await asyncio.to_thread(self.artifacts.put,[b'dios-storage-probe-v1'])
+                        await relay_reports(self.store,self.spool)
+                        status=await asyncio.to_thread(self.spool.status)
+                        if status['retained'] >= self.spool.max_records or status['payload_bytes'] >= self.spool.max_bytes:
+                            raise RuntimeErrorCode('SPOOL_FULL')
+                        storage_blocked=False
+                        recovered_at=0
                     if time.monotonic()-recovered_at >= 5:
                         await self.recover()
                         recovered_at = time.monotonic()
@@ -427,7 +439,18 @@ class Worker:
                     await asyncio.sleep(backoff)
                     backoff = min(30, backoff*2)
                     continue
+                except OSError as exc:
+                    if once or exc.errno not in {errno.ENOSPC,errno.EDQUOT}: raise
+                    storage_blocked=True
+                    await asyncio.sleep(backoff)
+                    backoff=min(30,backoff*2)
+                    continue
                 except RuntimeErrorCode as exc:
+                    if exc.code=='SPOOL_FULL' and not once:
+                        storage_blocked=True
+                        await asyncio.sleep(backoff)
+                        backoff=min(30,backoff*2)
+                        continue
                     if once or exc.code not in {'REPORT_DELIVERY_PENDING','WRITE_QUEUE_FULL',
                             'WRITE_QUEUE_TIMEOUT','WRITE_DRAINING','STALE_OWNER','AUTH_REVOKED'}: raise
                     await asyncio.sleep(backoff)
