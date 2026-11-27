@@ -1,6 +1,7 @@
 """Explicit migrations and database-owned clock/serialization for both providers."""
 from contextlib import asynccontextmanager
 import asyncio
+from anyio import CancelScope
 import hashlib
 from pathlib import Path
 from sqlalchemy import select, text, inspect, event
@@ -37,8 +38,11 @@ class _BufferedConnection:
         task = asyncio.ensure_future(awaitable)
         try: return await asyncio.shield(task)
         except asyncio.CancelledError:
-            try: await task
-            finally: raise
+            # ASGI cancellation is level-triggered; finish the driver operation
+            # inside an AnyIO shield before propagating cancellation.
+            with CancelScope(shield=True):
+                try: await task
+                finally: raise
     async def execute(self, *args, **kwargs):
         return await self._finish(self.connection.execute(*args, **kwargs))
     async def run_sync(self, *args, **kwargs):
@@ -88,7 +92,7 @@ class Database:
             async with self.transaction(scope) as c:
                 yield c
             return
-        async with self.engine.connect() as c:
+        async with self._connection() as c:
             reader = _BufferedConnection(c)
             try:
                 await reader.execute(text('PRAGMA query_only=ON'))
@@ -97,9 +101,10 @@ class Database:
                 yield reader
             except asyncio.CancelledError:
                 # Interrupted aiosqlite cursors must not return a read lock to the pool.
-                cleanup = asyncio.create_task(c.invalidate())
-                try: await asyncio.shield(cleanup)
-                except asyncio.CancelledError: await cleanup
+                with CancelScope(shield=True):
+                    cleanup = asyncio.create_task(c.invalidate())
+                    try: await asyncio.shield(cleanup)
+                    except asyncio.CancelledError: await cleanup
                 raise
             finally:
                 if not c.invalidated:
@@ -111,11 +116,22 @@ class Database:
                         except BaseException:
                             await c.invalidate()
                             raise
-                    cleanup = asyncio.create_task(reset_read_connection())
-                    try: await asyncio.shield(cleanup)
-                    except asyncio.CancelledError:
-                        await cleanup
-                        raise
+                    with CancelScope(shield=True):
+                        cleanup = asyncio.create_task(reset_read_connection())
+                        try: await asyncio.shield(cleanup)
+                        except asyncio.CancelledError:
+                            await cleanup
+                            raise
+
+    @asynccontextmanager
+    async def _connection(self):
+        connection = await self.engine.connect()
+        try:
+            yield connection
+        finally:
+            # The request may already be cancelled when rollback/close begins.
+            with CancelScope(shield=True):
+                await connection.close()
 
     @asynccontextmanager
     async def transaction(self, scope, *, check=True):
@@ -129,14 +145,15 @@ class Database:
             try:
                 await asyncio.shield(task)
             except asyncio.CancelledError:
-                await task
+                with CancelScope(shield=True):
+                    await task
                 raise
             raise
 
     @asynccontextmanager
     async def _transaction(self, scope, *, check=True):
         if self._closed:raise RuntimeErrorCode('DATABASE_CLOSED')
-        async with self._write_slot(), self.engine.connect() as connection:
+        async with self._write_slot(), self._connection() as connection:
             c = _BufferedConnection(connection) if self.write_gate else connection
             try:
                 if c.dialect.name == 'sqlite':
@@ -149,7 +166,8 @@ class Database:
                 yield c
                 await c.commit()
             except BaseException:
-                await c.rollback()
+                with CancelScope(shield=True):
+                    await c.rollback()
                 raise
 
     async def check_schema(self, c):

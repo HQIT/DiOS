@@ -24,6 +24,16 @@ jobs:
   delivery:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16-alpine@sha256:20edbde7749f822887a1a022ad526fde0a47d6b2be9a8364433605cf65099416
+        env:
+          POSTGRES_PASSWORD: qualification-only
+          POSTGRES_DB: dios
+        ports: ['5432/tcp']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d dios"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,6 +45,13 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - name: Install qualification dependencies
         run: pip install -r backend/requirements.txt
+      - name: Qualify request cancellation and identity boundaries
+        env:
+          PYTHONPATH: backend:backend/tests
+          DIOS_TEST_POSTGRES_URL: postgresql+asyncpg://postgres:qualification-only@localhost:${{ job.services.postgres.ports[5432] }}/dios
+        run: |
+          python -m unittest -v test_runtime_database_cancellation
+          python scripts/qualify_identity_access.py --local --output workspace/identity-access-ci
       - name: Build, install, run governed tasks, upgrade and roll back
         env:
           EXPORT_IMAGES: ${{ inputs.export_images }}
@@ -71,5 +88,6 @@ jobs:
             ${{ runner.temp }}/dios-delivery/summary.json
             ${{ runner.temp }}/dios-delivery/tests.log
             ${{ runner.temp }}/dios-delivery/qualification/result.json
+            workspace/identity-access-ci/result.json
           if-no-files-found: error
           retention-days: 14

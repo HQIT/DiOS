@@ -1980,7 +1980,11 @@
         "docs/design/evidence/managed-secrets-20261124.json"
       ],
       "wave": "W4",
-      "qualification_followup": "开发 AppRole 12 小时 SecretID 到期与原生锁定已恢复；两个 Agent 认证、受管读取正常，无效 Bearer 返回 403。长期平台身份供给与物理跨主机资格仍按本项承接。"
+      "qualification_followup": "开发 AppRole 12 小时 SecretID 到期与原生锁定已恢复；两个 Agent 认证、受管读取正常，无效 Bearer 返回 403。长期平台身份供给与物理跨主机资格仍按本项承接。 实际 HTTPS/mTLS、同摘要不同 ACL、撤销前/初始化期间工具拦截、加密流量及输出检查通过；修复请求取消导致连接清理异常，SQLite/PG 64 项回归通过。第二台主机当前 Tailscale/SSH 不可达，物理双机资格保留待验证。",
+      "progress_evidence": [
+        "docs/design/identity-access-qualification-33.md",
+        "docs/design/evidence/identity-access-20261127.json"
+      ]
     },
     {
       "id": "K03-1.04",
