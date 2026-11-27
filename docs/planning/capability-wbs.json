@@ -7,15 +7,15 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-3.02",
-    "next_delivery": "K02-3.02",
+    "next_work_item": "D01-3.02",
+    "next_delivery": "D01-3.02",
     "next_delivery_order": [
+      "D01-3.02",
       "K02-3.02",
       "K02-3.03",
       "D01-1.02",
       "D01-2.03",
       "K04-2.02",
-      "D01-3.02",
       "K03-1.03",
       "K04-2.04",
       "D01-3.03",
@@ -34,8 +34,8 @@
     "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
-      "K02-3.02 等待源控制面隔离方式选择；恢复冻结保持，当前无自动解锁授权。",
-      "K04-2.02 等待父子等待容量语义选择；D01-3.02 等待第二物理 Linux 主机及故障范围。",
+      "K02-3.02 源控制面隔离的工程方案与验证待完成；恢复冻结保持，生产恢复不自动解锁。",
+      "K04-2.02 父子等待容量的工程方案与验证待完成；D01-3.02 已接入第二物理主机上的 Linux 节点，继续完成隔离故障注入。",
       "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
       "五项评审包已就绪；指定接受人未确定，评审结论保持待认领。"
     ],
@@ -44,7 +44,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "优先解锁 K02-3.02 源控制面隔离选择后完成恢复链；当前保持 blocked 和 restore_hold。父子容量、独立物理主机及指定评审人各有明确前置。F03-2.02/.03 保留跨层联验，#40/#59 仅消费 F03-2.01 的已验证契约，消除等待 #29 全部关闭的循环。完整依赖见 remaining-delivery-dependencies.md。",
+    "next_selection_reason": "用户已提供第二台物理主机的 WSL；D01-3.02 从等待环境转为进行中，先完成真实跨主机 Worker/E2AG 恢复验证，再补网络、进程、测试节点重启、延迟和存储故障入口。恢复隔离和父子容量由工程侧依据成熟方案继续推进；全局宿主故障须安排维护窗口。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
   },
   "waves": [
@@ -2976,7 +2976,7 @@
       "issue": 53,
       "title": "物理跨主机资格环境",
       "kind": "I",
-      "state": "todo",
+      "state": "in_progress",
       "requirements": [
         "D01-3-A01",
         "D01-3-A02",
@@ -2990,13 +2990,15 @@
       ],
       "owner": "Codex 工程",
       "completion_evidence": [],
-      "basis": "已有远端 Worker 恢复切片；控制面 HA、仲裁、复制 RPO 和物理跨主机验收尚缺。",
+      "basis": "第二物理主机 Linux 节点已接通；三项真实跨主机测试覆盖限流/额度单路试恢复后恢复三路独立执行、旧执行权拒绝、E2AG 原任务关联、机器撤销与重复提交；248 个远端源文件及运行镜像摘要已核对。完整故障注入环境继续推进。",
       "existing_evidence": [
         "docs/design/evidence/a2a-recovery-20261125.json",
-        "docs/design/evidence/worker-reconciliation-regression-20261113.json"
+        "docs/design/evidence/worker-reconciliation-regression-20261113.json",
+        "docs/design/physical-worker-qualification-53.md",
+        "docs/design/evidence/physical-worker-20261127.json"
       ],
       "wave": "W4",
-      "blocking_reason": "第二台 Linux 主机及独立故障域的故障注入范围待提供；当前三 VM 仍在同一物理主机，不能代替本项资格。"
+      "blocking_reason": "主机已提供；待补隔离网络分区、进程终止、测试节点重启、延迟和存储故障入口。整台宿主重启或影响其他服务的故障须安排维护窗口。"
     },
     {
       "id": "D01-3.03",
