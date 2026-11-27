@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K02-3.02",
-    "next_delivery": "K02-3.02",
+    "next_work_item": "K02-3.03",
+    "next_delivery": "K02-3.03",
     "next_delivery_order": [
-      "K02-3.02",
       "K02-3.03",
       "D01-1.02",
       "D01-2.03",
@@ -33,7 +32,7 @@
     "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
-      "K02-3.02 源控制面隔离的工程方案与验证待完成；恢复冻结保持，生产恢复不自动解锁。",
+      "K02-3.02 管理员确认源端隔离、原结果对账与双库原子启用资格已完成；生产隔离由基础设施和管理员执行。接续 K02-3.03 固定版本升级失败恢复与 RTO。",
       "K04-2.02 父子等待容量的工程方案与验证待完成；D01-3.02 的物理跨主机故障环境已具备，下游复用证据。",
       "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
       "产品与发布接受人已明确为徐刚，五项产品要求已确认；工程方按原验收提供实际效果与证据，发布接受按具体版本、限制和取舍记录。"
@@ -43,7 +42,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "物理跨主机故障环境 D01-3.02 已完成。按原顺序推进 K02-3.02 的源控制面隔离、原结果对账与安全启用联合资格；继续保持恢复冻结，使用隔离夹具验证，不启动生产迁移。",
+    "next_selection_reason": "K02-3.02 已完成单节点干净恢复、远端再认证及启用资格。按原顺序推进 K02-3.03 恢复与版本升级联动，记录固定候选版本 RTO 与失败回滚；复用已通过的原结果/E2AG 验证。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
   },
   "waves": [
@@ -1833,7 +1832,7 @@
       "issue": 11,
       "title": "干净恢复与远端再认证资格",
       "kind": "V",
-      "state": "blocked",
+      "state": "done",
       "requirements": [
         "K02-3-A01",
         "K02-3-A02",
@@ -1846,22 +1845,23 @@
         "K02-3.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "已有恢复演练；需纳入新增版本、委派、工具回执与完整产物的一致性恢复。",
+      "completion_evidence": [
+        "docs/design/evidence/installation-activation-20261127.json"
+      ],
+      "basis": "原生 Linux Docker 任务在检查点后完成；源监听器/执行进程停止后，新安装通过真实 mTLS 轮换证书及当前 E2AG 补回原结果，双库原子启用后原排队任务完成。15 项通过，旧证书、撤权、未决结果及重复启用均有验证。",
       "existing_evidence": [
-        "docs/design/evidence/recovery-drill-20261111.json"
+        "docs/design/evidence/recovery-drill-20261111.json",
+        "docs/design/installation-activation-11.md",
+        "docs/design/evidence/installation-activation-20261127.json"
       ],
       "wave": "W1",
       "design_reference": "docs/design/recovery-research-11.md",
-      "remaining_detail": [
-        "Verify source-controller isolation, checkpoint message/effect completeness and a guarded scheduling release before closing K02-3.02"
-      ],
       "progress_evidence": [
         "docs/design/evidence/installation-restore-hold-20261125.json",
         "docs/design/evidence/restore-remote-20261125.json",
-        "docs/design/evidence/restore-readiness-20261125.json"
-      ],
-      "blocking_reason": "恢复启用前的源控制面隔离方式待用户选择：管理员完成隔离并确认，或独立仲裁/基础设施 fencing；保持恢复冻结。"
+        "docs/design/evidence/restore-readiness-20261125.json",
+        "docs/design/evidence/installation-activation-20261127.json"
+      ]
     },
     {
       "id": "K02-3.03",

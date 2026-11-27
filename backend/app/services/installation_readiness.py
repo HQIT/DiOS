@@ -61,7 +61,7 @@ def inspect_restore(destination, *, sample_limit=20):
         observe(
             "unsettled_attempts",
             runtime,
-            "SELECT id,run_id,state FROM runtime_attempts WHERE state NOT IN ('succeeded','failed','cancelled','abandoned')",
+            "SELECT id,run_id,state FROM runtime_attempts WHERE state NOT IN ('completed','failed','cancelled','abandoned')",
         )
         observe(
             "unknown_tool_effects",

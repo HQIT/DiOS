@@ -97,3 +97,10 @@ cli/dios runtime installation-readiness /path/to/restored-installation --sample-
 命令只读观察 Runtime、兼容服务和捕获的 Worker spool，覆盖全部 scope，输出冻结状态、未结任务/尝试、未决工具调用、未应用结果、旧凭据和待补报数量。样例上限不改变总数；输出不含密钥、消息正文和模型结果。
 
 `local_execution_settled` 表示双层冻结仍生效且本地待处理项为零。`ready_to_activate` 始终为 `false`：源控制面和执行器隔离、恢复点之后的副作用、远端重新认证及资源路径仍需核验。该命令不解除冻结、不操作源端进程、不补发消息。各组件使用独立读事务，观察不构成跨库一致检查点。
+
+
+## 离线启用恢复安装
+
+源控制面与执行器隔离、检查点之后的副作用核查、远端再认证及资源审阅完成后，管理员停止目标服务，使用 `installation-activate --evidence FILE --confirm-source-isolated` 启用。命令核验所有 scope 的未决状态、旧凭据、补报和关联产物，并以同一 SQLite 事务解除两层全局冻结。原 scope 排空状态保持。
+
+证据格式、维护锁、失败回滚与幂等恢复见[离线启用说明](../design/installation-activation-11.md)。该路径保持当前 E2AG 校验，不修改源安装或恢复旧执行身份。

@@ -1,0 +1,92 @@
+{
+  "work_item": "K02-3.02",
+  "passed": true,
+  "tests": 15,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "duration_seconds": 78.407,
+  "selected_suites": [
+    "test_installation_activation.ActivationTests",
+    "test_installation_readiness.ReadinessTests",
+    "test_installation_activation_qualification.InstallationActivationQualificationTests"
+  ],
+  "implementation_base": "2ad05a6dc04b3cd0be5ead242ae2d761d1ee93b1",
+  "source_sha256": {
+    "backend/app/services/installation_activation.py": "eb1cb4d893405d265371b36ceb55e0e4e1e4a962abdd623f971ba81b6ae0262f",
+    "backend/app/runtime/cli.py": "259249a6b4aeb785bc0ea3959f6104b3b2ba90b815ae70e82f92fa87eb42e2d2",
+    "backend/app/services/installation_readiness.py": "211ded5fc35085d5b9ec1ec2c6ddfd2c9264d050b9589e2d0e0369ddc0c30085",
+    "backend/app/services/installation_restore.py": "b38983e4eda2bc9341301936cf669e3d835168b6d8d26fbc484931be604efa3c",
+    "backend/app/runtime/restore_remote.py": "568e7a90284aee5a0c30342fed346b29396bf9baf763ec282d507511608600f9",
+    "backend/app/runtime/restore_client.py": "92b5929bbe67b8b85563d5d28fdaf56daa810acdff13f7346dbadeac02e1efef",
+    "backend/tests/test_installation_activation.py": "ed9350e599ed54bb63c56b86c71a00ec73ddbab709730ccb33ebe9c29ac53311",
+    "backend/tests/test_installation_activation_qualification.py": "cd98106645d24d3920ca0bdf012fb809cd0f68bc016d3e67fb1cf8781e200c77",
+    "scripts/qualify_installation_activation.py": "09f8f2a3dc491b9505054292560aba9bc7be5903db80dce64aa2446294676b2d"
+  },
+  "native": [
+    {
+      "source_listener_stopped": true,
+      "source_worker_pid": 1959936,
+      "source_worker_returncode": 2,
+      "source_container_count": 0,
+      "source_containers_stopped": true,
+      "source_database_unchanged": true,
+      "checkpoint_version": 7,
+      "run_id": "accaca39-c3e5-488f-858f-7504bcfd2826",
+      "original_attempt_id": "db2df10b-a348-401b-867b-5701e7787dc4",
+      "session_id": "11938188-ee15-43fb-a6ac-84ce9fe63272",
+      "restored_attempt_count": 1,
+      "old_certificate_rejected": true,
+      "current_e2ag_revocation_rejected": true,
+      "result_after_checkpoint_reconciled": true,
+      "repeated_result_receipt_equal": true,
+      "verified_objects": 3,
+      "activation": {
+        "runtime": [
+          "running",
+          2
+        ],
+        "service": [
+          "__dios_installation_restore__",
+          "running",
+          2
+        ]
+      },
+      "queued_run_id": "c44c8ec6-b654-45c0-a2da-8e41f982b23a",
+      "queued_run_after_activation": "succeeded",
+      "duplicate_dispatch_after_completion": false,
+      "image_id": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+      "native_concurrency": {
+        "actual_concurrency": 1,
+        "observed_at": 1795779370.5690086,
+        "workers": [
+          {
+            "id": "qualified:e1768d9e31ed4427841af0e4693440fe",
+            "pid": 1959936,
+            "instance": "f3da916f-ef50-466b-b77c-f76ba93030a4"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "accaca39-c3e5-488f-858f-7504bcfd2826",
+            "attempt_id": "db2df10b-a348-401b-867b-5701e7787dc4",
+            "worker_id": "qualified:e1768d9e31ed4427841af0e4693440fe",
+            "session_id": "11938188-ee15-43fb-a6ac-84ce9fe63272",
+            "process_id": 1960019,
+            "process_instance": "1d2006b9d5ea9e7a0f016b1a4d81b5ab634da5c8d9927a0b6261300826ee829b:2026-11-27T11:36:09.249310895Z",
+            "freshness": "fresh"
+          }
+        ]
+      }
+    }
+  ],
+  "failure_cases": [],
+  "limits": [
+    "One Linux/WSL host with independent CLI Worker processes, native Docker workloads and loopback mTLS.",
+    "Source isolation uses explicit shutdown of the fixture listener/executor and no restart supervisor; infrastructure must fence production sources.",
+    "The original read-only workload finishes after the checkpoint; its retained exit receipt and immutable output are reconciled without relaunch.",
+    "External side effects with unknown outcome remain held for administrator reconciliation; exactly-once external effects are not asserted.",
+    "SQLite installation qualification; PostgreSQL/shared-backend recovery remains D01-2.03.",
+    "Manual administrative evidence is attested, not automatically verified infrastructure fencing."
+  ]
+}
