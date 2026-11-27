@@ -98,8 +98,10 @@ class Worker:
 
     async def once(self):
         await self.store.register_worker(self.worker_id, self.instance, socket.gethostname(), os.getpid(), slots=1)
+        from .child_capacity import from_spec as child_capacity_plan
+        capacity_plan = await asyncio.to_thread(child_capacity_plan, self.spec) if isinstance(self.store, RuntimeStore) else None
         a = await self.store.claim(self.worker_id, self.instance, profile_id=self.profile_id,recovery_policy=self.recovery_policy,
-            profile_digest=self.spec.fingerprint(),revision_ref=self.revision_ref)
+            profile_digest=self.spec.fingerprint(),revision_ref=self.revision_ref,child_capacity=capacity_plan)
         if a is None: return {'worker_id':self.worker_id,'state':'idle'}
         binding = (a['run_id'], a['id'], self.worker_id, self.instance, a['epoch'])
         budget_observation_started = time.monotonic()

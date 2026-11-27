@@ -245,6 +245,7 @@ export const messages: Record<string, string> = {
   "运行配置组": "Execution profile group",
   "并发上限": "Concurrency limit",
   "占位": "Reserved",
+  "子任务预留": "Child slots reserved",
   "排队": "Queued",
   "修改额度": "Edit limit",
   "同一任务可匹配多个额度，排队数量不可累加。": "A task may match multiple limits. Queued counts overlap.",

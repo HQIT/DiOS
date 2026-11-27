@@ -32,7 +32,7 @@ class RemoteRuntimeStore:
         if worker_id!=self.worker_id or slots!=1:raise RuntimeErrorCode('WORKER_MISMATCH')
         self.instance=instance
         return await self.call('register',dict(host=host,pid=pid))
-    async def claim(self,worker_id,instance,*,profile_id,recovery_policy=None,profile_digest=None,revision_ref=None):
+    async def claim(self,worker_id,instance,*,profile_id,recovery_policy=None,profile_digest=None,revision_ref=None,child_capacity=None):
         if revision_ref!=getattr(self.transport,'revision_ref',None):raise RuntimeErrorCode('REMOTE_REVISION_BINDING_REQUIRED')
         if profile_digest is not None and profile_digest!=self.transport.spec.fingerprint():raise RuntimeErrorCode('PROFILE_CHANGED')
         if (worker_id,instance,profile_id)!=(self.worker_id,self.instance,self.transport.profile):raise RuntimeErrorCode('WORKER_MISMATCH')

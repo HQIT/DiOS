@@ -1,0 +1,365 @@
+{
+  "work_item": "K04-2.02",
+  "complete": false,
+  "implementation_base": "08ef2d121606b904ef4ac1ffc8efa64dd40c6f56",
+  "passed_scope": [
+    "SQLite and PostgreSQL atomic whole-tree reservations, independent connections, three levels, cross-profile limits, unknown/cancel preservation and terminal release",
+    "Actual Docker parent/child containers finish two trees under two slots; measured maximum concurrency two, final occupied/reserved zero",
+    "Child channel, Console/API, remote mTLS and A2A compatibility; frontend TypeScript/Vite build"
+  ],
+  "reports": [
+    {
+      "suite": "related API, child channel and remote contracts",
+      "log_sha256": "f47012435fed0da7d8759da1f05707fd1442253618762349cf3c1be83e73d416",
+      "cases": [
+        {
+          "test": "test_future_child_profile_limit_is_reserved_before_parent_launch (test_runtime_child_capacity.ChildCapacityTests.test_future_child_profile_limit_is_reserved_before_parent_launch)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_independent_connections_cannot_reserve_same_spare_slots (test_runtime_child_capacity.ChildCapacityTests.test_independent_connections_cannot_reserve_same_spare_slots)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_multiple_parents_leave_slots_for_descendants (test_runtime_child_capacity.ChildCapacityTests.test_multiple_parents_leave_slots_for_descendants)",
+          "outcome": "ERROR"
+        },
+        {
+          "test": "test_terminal_root_releases_unused_reservation (test_runtime_child_capacity.ChildCapacityTests.test_terminal_root_releases_unused_reservation)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_unknown_or_cancel_requested_parent_retains_reservation (test_runtime_child_capacity.ChildCapacityTests.test_unknown_or_cancel_requested_parent_retains_reservation)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_bounded_wait_preserves_task_and_rechecks_parent (test_runtime_child_channel.ChildChannelTests.test_bounded_wait_preserves_task_and_rechecks_parent)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_capacity_blocked_wait_returns_without_releasing_parent (test_runtime_child_channel.ChildChannelTests.test_capacity_blocked_wait_returns_without_releasing_parent)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_discovery_is_bounded_and_bound_to_current_session (test_runtime_child_channel.ChildChannelTests.test_discovery_is_bounded_and_bound_to_current_session)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_discovery_waits_for_admission_and_links_actual_mcp_activity (test_runtime_child_channel.ChildChannelTests.test_discovery_waits_for_admission_and_links_actual_mcp_activity)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_empty_discovery_checks_live_owner_and_remote_identity (test_runtime_child_channel.ChildChannelTests.test_empty_discovery_checks_live_owner_and_remote_identity)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_mcp_tools_expose_only_aliases_and_link_native_activity (test_runtime_child_channel.ChildChannelTests.test_mcp_tools_expose_only_aliases_and_link_native_activity)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_no_child_profile_requires_explicit_activation (test_runtime_child_channel.ChildChannelTests.test_no_child_profile_requires_explicit_activation)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_parent_cancel_fences_child_access_and_closes_queue (test_runtime_child_channel.ChildChannelTests.test_parent_cancel_fences_child_access_and_closes_queue)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_remote_sender_is_rechecked_inside_admission (test_runtime_child_channel.ChildChannelTests.test_remote_sender_is_rechecked_inside_admission)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_socket_admission_replay_independent_worker_and_result (test_runtime_child_channel.ChildChannelTests.test_socket_admission_replay_independent_worker_and_result)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_target_profile_upgrade_and_key_change_do_not_reuse_authority (test_runtime_child_channel.ChildChannelTests.test_target_profile_upgrade_and_key_change_do_not_reuse_authority)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_unknown_alias_extra_identity_and_unrelated_run_are_denied (test_runtime_child_channel.ChildChannelTests.test_unknown_alias_extra_identity_and_unrelated_run_are_denied)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_wait_duration_is_bounded (test_runtime_child_channel.ChildChannelTests.test_wait_duration_is_bounded)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_cross_scope_and_cross_run_artifact_access_denied (test_runtime_task_console.TaskConsoleTests.test_cross_scope_and_cross_run_artifact_access_denied)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_end_to_end_projection_preview_and_authorized_download (test_runtime_task_console.TaskConsoleTests.test_end_to_end_projection_preview_and_authorized_download)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_only_registered_profiles_and_samples_accepted (test_runtime_task_console.TaskConsoleTests.test_only_registered_profiles_and_samples_accepted)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_preview_rejects_corrupted_content (test_runtime_task_console.TaskConsoleTests.test_preview_rejects_corrupted_content)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_route_requires_operator_token_and_explicit_enable (test_runtime_task_console.TaskConsoleTests.test_route_requires_operator_token_and_explicit_enable)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_stable_pagination_and_cancel_revision (test_runtime_task_console.TaskConsoleTests.test_stable_pagination_and_cancel_revision)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_submit_idempotent_and_http_never_launches (test_runtime_task_console.TaskConsoleTests.test_submit_idempotent_and_http_never_launches)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_actual_tls_control_roundtrip (test_runtime_remote_control.RemoteControlTests.test_actual_tls_control_roundtrip)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_actual_tls_docker_worker_with_isolated_storage (test_runtime_remote_control.RemoteControlTests.test_actual_tls_docker_worker_with_isolated_storage)",
+          "outcome": "skipped 'isolated Docker not enabled'"
+        },
+        {
+          "test": "test_backup_contains_incomplete_upload_and_resumes (test_runtime_remote_control.RemoteControlTests.test_backup_contains_incomplete_upload_and_resumes)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_completed_response_loss_is_recovered_without_duplicate_artifacts (test_runtime_remote_control.RemoteControlTests.test_completed_response_loss_is_recovered_without_duplicate_artifacts)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_denial_evidence_survives_operation_rollback (test_runtime_remote_control.RemoteControlTests.test_denial_evidence_survives_operation_rollback)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_disconnected_result_recovers_after_worker_restart_without_relaunch (test_runtime_remote_control.RemoteControlTests.test_disconnected_result_recovers_after_worker_restart_without_relaunch)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_drain_allows_active_completion_and_blocks_new_claim (test_runtime_remote_control.RemoteControlTests.test_drain_allows_active_completion_and_blocks_new_claim)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_e2ag_revocation_and_machine_revocation_reject_execution (test_runtime_remote_control.RemoteControlTests.test_e2ag_revocation_and_machine_revocation_reject_execution)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_fenced_epoch_never_accepts_old_report (test_runtime_remote_control.RemoteControlTests.test_fenced_epoch_never_accepts_old_report)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_gateway_fences_expired_lease_without_worker_reconnection (test_runtime_remote_control.RemoteControlTests.test_gateway_fences_expired_lease_without_worker_reconnection)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_lost_claim_response_and_duplicate_triggers_do_not_duplicate_attempt (test_runtime_remote_control.RemoteControlTests.test_lost_claim_response_and_duplicate_triggers_do_not_duplicate_attempt)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_policy_change_rolls_back_claim_and_grant (test_runtime_remote_control.RemoteControlTests.test_policy_change_rolls_back_claim_and_grant)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_remote_retry_uses_server_profile_and_same_work_identity (test_runtime_remote_control.RemoteControlTests.test_remote_retry_uses_server_profile_and_same_work_identity)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_shared_capacity_blocks_remote_claim_before_launch (test_runtime_remote_control.RemoteControlTests.test_shared_capacity_blocks_remote_claim_before_launch)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_upload_resume_utf8_and_no_hash_based_acl_bypass (test_runtime_remote_control.RemoteControlTests.test_upload_resume_utf8_and_no_hash_based_acl_bypass)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_worker_completes_with_separate_artifacts_and_no_database (test_runtime_remote_control.RemoteControlTests.test_worker_completes_with_separate_artifacts_and_no_database)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_wrong_instance_and_scope_cannot_control_original_attempt (test_runtime_remote_control.RemoteControlTests.test_wrong_instance_and_scope_cannot_control_original_attempt)",
+          "outcome": "ok"
+        }
+      ]
+    },
+    {
+      "suite": "SQLite slot reservation scenarios",
+      "log_sha256": "65a06f8126071857b20ccaca81784bef82cf9516cc993e4c40542ee389c0f588",
+      "cases": [
+        {
+          "test": "test_future_child_profile_limit_is_reserved_before_parent_launch (test_runtime_child_capacity.ChildCapacityTests.test_future_child_profile_limit_is_reserved_before_parent_launch)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_independent_connections_cannot_reserve_same_spare_slots (test_runtime_child_capacity.ChildCapacityTests.test_independent_connections_cannot_reserve_same_spare_slots)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_multiple_parents_leave_slots_for_descendants (test_runtime_child_capacity.ChildCapacityTests.test_multiple_parents_leave_slots_for_descendants)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_terminal_root_releases_unused_reservation (test_runtime_child_capacity.ChildCapacityTests.test_terminal_root_releases_unused_reservation)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_unknown_or_cancel_requested_parent_retains_reservation (test_runtime_child_capacity.ChildCapacityTests.test_unknown_or_cancel_requested_parent_retains_reservation)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_two_parents_and_child_complete_without_holding_all_slots (test_runtime_child_capacity_native.NativeChildCapacityTests.test_two_parents_and_child_complete_without_holding_all_slots)",
+          "outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "suite": "native two-parent two-child containers",
+      "log_sha256": "cf8b2ebdd0e9a5e8d4158c2c2d61dac383f0a1210ddfa20db47b4adad27f5728",
+      "cases": [
+        {
+          "test": "test_two_parents_and_child_complete_without_holding_all_slots (test_runtime_child_capacity_native.NativeChildCapacityTests.test_two_parents_and_child_complete_without_holding_all_slots)",
+          "outcome": "ok"
+        }
+      ]
+    },
+    {
+      "suite": "PostgreSQL concurrency and tree scenarios",
+      "log_sha256": "17d3fde3709ecc2283e3e50e01a05fe87b66782f68a9a3ce441d084fa2011783",
+      "cases": [
+        {
+          "test": "test_future_child_profile_limit_is_reserved_before_parent_launch (test_runtime_child_capacity.PostgresChildCapacityTests.test_future_child_profile_limit_is_reserved_before_parent_launch)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_independent_connections_cannot_reserve_same_spare_slots (test_runtime_child_capacity.PostgresChildCapacityTests.test_independent_connections_cannot_reserve_same_spare_slots)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_multiple_parents_leave_slots_for_descendants (test_runtime_child_capacity.PostgresChildCapacityTests.test_multiple_parents_leave_slots_for_descendants)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_terminal_root_releases_unused_reservation (test_runtime_child_capacity.PostgresChildCapacityTests.test_terminal_root_releases_unused_reservation)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_unknown_or_cancel_requested_parent_retains_reservation (test_runtime_child_capacity.PostgresChildCapacityTests.test_unknown_or_cancel_requested_parent_retains_reservation)",
+          "outcome": "ok"
+        }
+      ]
+    },
+    {
+      "suite": "corrected queue query, native mTLS and A2A compatibility",
+      "log_sha256": "3b1372f5d5af6b668eaf27adacb8004adbb1e734ee41ff5cda87c8419c3189ee",
+      "cases": [
+        {
+          "test": "test_multiple_parents_leave_slots_for_descendants (test_runtime_child_capacity.ChildCapacityTests.test_multiple_parents_leave_slots_for_descendants)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_actual_tls_docker_worker_with_isolated_storage (test_runtime_remote_control.RemoteControlTests.test_actual_tls_docker_worker_with_isolated_storage)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_cancel_requires_remote_terminal_and_restart_preserves_intent (test_runtime_a2a_outbound.OutboundTests.test_cancel_requires_remote_terminal_and_restart_preserves_intent)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_capacity_is_atomic_across_worker_instances (test_runtime_a2a_outbound.OutboundTests.test_capacity_is_atomic_across_worker_instances)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_card_redirect_and_cross_origin_artifact_never_receive_credentials (test_runtime_a2a_outbound.OutboundTests.test_card_redirect_and_cross_origin_artifact_never_receive_credentials)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_invalid_result_is_retained_and_fails_schema (test_runtime_a2a_outbound.OutboundTests.test_invalid_result_is_retained_and_fails_schema)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_query_timeout_recovers_same_task_without_model_resubmission (test_runtime_a2a_outbound.OutboundTests.test_query_timeout_recovers_same_task_without_model_resubmission)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_real_sdk_executes_once_and_links_remote_result_without_fake_pid (test_runtime_a2a_outbound.OutboundTests.test_real_sdk_executes_once_and_links_remote_result_without_fake_pid)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_recovery_rejects_changed_profile_and_retains_unknown (test_runtime_a2a_outbound.OutboundTests.test_recovery_rejects_changed_profile_and_retains_unknown)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_response_receipt_recovers_after_database_write_failure (test_runtime_a2a_outbound.OutboundTests.test_response_receipt_recovers_after_database_write_failure)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_revision_bound_a2a_worker_loads_frozen_endpoint (test_runtime_a2a_outbound.OutboundTests.test_revision_bound_a2a_worker_loads_frozen_endpoint)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_revocation_cancels_remote_and_never_accepts_result (test_runtime_a2a_outbound.OutboundTests.test_revocation_cancels_remote_and_never_accepts_result)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_shared_capacity_blocks_a2a_before_any_remote_request (test_runtime_a2a_outbound.OutboundTests.test_shared_capacity_blocks_a2a_before_any_remote_request)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_submit_response_loss_stays_unknown_without_resending (test_runtime_a2a_outbound.OutboundTests.test_submit_response_loss_stays_unknown_without_resending)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_transport_rejects_redirect_oversize_and_wrong_rpc_id (test_runtime_a2a_outbound.OutboundTests.test_transport_rejects_redirect_oversize_and_wrong_rpc_id)",
+          "outcome": "ok"
+        },
+        {
+          "test": "test_worker_loss_queries_remote_after_lease_expiry (test_runtime_a2a_outbound.OutboundTests.test_worker_loss_queries_remote_after_lease_expiry)",
+          "outcome": "ok"
+        }
+      ]
+    }
+  ],
+  "postgres": {
+    "passed": true,
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 7.892,
+    "image": "sha256:108b27c919e6e7bc124350fb265deea9adac58e118eade428c6d1ad44b90debe"
+  },
+  "corrected_fixture_failures": [
+    "Initial unit fixture used an attribute name already assigned to its directory and lacked process-exit evidence; both corrected. Existing child-depth scenario also inherited a different reservation limit and was separated from the new cases.",
+    "Native fixture needed its image Python path and bounded session-binding wait; corrected. Concurrency observer now treats null as unknown and emits the child session before waiting.",
+    "Queue assertions use the capacity query shared by Console instead of expecting an absent RuntimeStore.get field; corrected case passed in the final suite."
+  ],
+  "frontend_build": {
+    "passed": true,
+    "log_sha256": "ef3465fe6f7bef7e7fb6349acf8b113268ffb757fc5fd06fa01d407ba1fa2085"
+  },
+  "source_sha256": {
+    "backend/app/runtime/capacity.py": "daceea1add467fb1bc65f3b0de11478f307d2a194c52090273dd8d4375c0b150",
+    "backend/app/runtime/child_authorizations.py": "00daa38ddc4cc71df8b222b5bc5527cea102b1628de16302ac66b9d37128f37b",
+    "backend/app/runtime/remote_control.py": "4e8f3f459c6eff7f7665a0d8ac084ffd7b84dca7766a25dd8c00c1171fbad3da",
+    "backend/app/runtime/remote_runtime.py": "2d24357fc6b8ed0dadefdd562dd0706f0ed4a7a8312f91812ffb3d262dab767a",
+    "backend/app/runtime/store.py": "2f5179c1def8ad9ed651c848aad4a4da727f256503c3cd8a68cbb7baf8c2ef33",
+    "backend/app/runtime/worker.py": "199dedd026b27103c275c1eb8a84b5192d542e555970877f57f4aa5a2cdcda07",
+    "backend/app/services/task_console.py": "7c723ea3b5700ec3fef309255c98fc06d9fa36e05014d9fccb3a8e7b3fdedd4c",
+    "frontend/src/api/runtime.ts": "f2530c08852be9020d1fb299f068826f34a14243bd762bd651b405b915103b95",
+    "frontend/src/apps/console/components/CapacityPanel.tsx": "ebafb5ba703a78ecb933c4bf01aeef9d2fc83370bd08cbfb2111f574bb3e64d6",
+    "frontend/src/apps/console/components/TaskRunsPage.tsx": "93e218d6b9d391dbaa128fbe0e3f0d2b86a066322694f5e2196956ba51ec7b75",
+    "frontend/src/lib/messages.ts": "2b51cd7472acca6cbbde03004d0e6b36d8e6480ecd6bcf9219c7fbdbce122cac",
+    "backend/app/runtime/child_capacity.py": "e2a31c8e8a3ed4b43defa24c4f196d79f8eb8e4afa93c14588969c7e3b04c8a8",
+    "backend/tests/test_runtime_child_capacity.py": "3ea7e0a22a947bdae5220d2bdb5eeb724401f9c153a8ec30f5bb516238a004bb",
+    "backend/tests/test_runtime_child_capacity_native.py": "97ea03ae2ba8360bc85f7b7ee5d906cd065ca33e51ee2f422a61c3fc1c823db9"
+  },
+  "remaining": [
+    "Native Worker interruption and parent/child recovery qualification",
+    "Delivery build and deployment at the committed candidate"
+  ],
+  "limits": [
+    "No new schemas; reservations persisted in existing attempt.claimed events.",
+    "Native parent/child containers are distinct processes; this fixture runs their Worker objects in one supervisor process.",
+    "Capacity bounds require provisioned matching Workers. Whole-tree reservation uses declared maximum children and does not release a live parent slot."
+  ]
+}

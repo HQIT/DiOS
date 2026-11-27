@@ -21,7 +21,7 @@ Console 工具用量标明“含子任务”；子任务另外显示祖先约束
 
 `child.get` 在子任务排队且并发、领取频率或费用预算受阻时立即返回 `wait_blocked` 原因列表，`wait_exhausted` 为 false。任务身份保留，调整额度后可继续执行和查询。无阻塞原因时沿用最长 30 秒的有界等待；读取、结果访问和返回前的 E2AG 校验保持生效。
 
-等待中的父进程仍然存活并占用容量。[Ray 的嵌套任务](https://docs.ray.io/en/master/core/tasks/nested-tasks.html#yielding-resources-while-blocked)可在阻塞期间释放逻辑 CPU，但保留 GPU；DiOS 当前并发额度统计实际执行尝试，不能直接按查询等待释放。当前交付提供立即诊断与人工调整后的继续执行。父级安全让出执行位置、恢复后的重新领取以及多个父任务相互占满容量的完整解决仍属于 K04-2.02 的后续验收。
+等待中的父进程仍然存活并占用容量。[Ray 的嵌套任务](https://docs.ray.io/en/master/core/tasks/nested-tasks.html#yielding-resources-while-blocked)可在阻塞期间释放逻辑 CPU，但保留 GPU；DiOS 当前并发额度统计实际执行尝试，不能直接按查询等待释放。新的[整组容量预留](child-capacity-reservations-45.md)在父任务领取前保留整棵有界子树的位置，已验证多个父任务竞争下的父子容器完成；Worker 中断/恢复联合资格继续按 K04-2.02 验收。
 
 ## 工程证据
 

@@ -192,7 +192,9 @@ class RuntimeStore:
             result = await c.execute(workers.update().where(workers.c.id == worker_id, workers.c.scope == self.scope).values(draining=True))
             if result.rowcount != 1: raise RuntimeErrorCode('NOT_FOUND')
 
-    async def claim(self, worker_id, instance, lease_seconds=60, *, profile_id=None, recovery_policy=None, profile_digest=None, revision_ref=None):
+    async def claim(self, worker_id, instance, lease_seconds=60, *, profile_id=None, recovery_policy=None, profile_digest=None, revision_ref=None, child_capacity=None):
+        from .child_capacity import validate as validate_child_capacity
+        validate_child_capacity(child_capacity)
         if not 1 <= lease_seconds <= 60: raise RuntimeErrorCode('INVALID_LEASE')
         if profile_digest is not None and (not isinstance(profile_digest,str) or len(profile_digest)!=64 or any(x not in '0123456789abcdef' for x in profile_digest)):
             raise RuntimeErrorCode('INVALID_PROFILE_DIGEST')
@@ -223,7 +225,7 @@ class RuntimeStore:
                 query=query.where(runs.c.input['profile_digest'].as_string()==profile_digest)
             query=query.where(runs.c.input['revision_ref'].as_string()==revision_ref if revision_ref is not None else runs.c.input['revision_ref'].as_string().is_(None))
             from .capacity import admit_query
-            query = await admit_query(c, self.scope, query)
+            query = await admit_query(c, self.scope, query, child_capacity)
             query = await budget_query(c, self.scope, query, now)
             from .consumption import admit_query as consumption_query, bind as reserve_consumption
             query = await consumption_query(c, self.scope, query)
@@ -243,7 +245,8 @@ class RuntimeStore:
             await reserve_consumption(c,self.scope,run,aid,now)
             await claimed(c,self.scope,record,recovery_policy,now)
             await c.execute(workers.update().where(workers.c.id == worker_id).values(heartbeat_at=now))
-            await self._event(c, run, 'attempt.claimed', {'attempt_id': aid, 'epoch': epoch}, now,
+            await self._event(c, run, 'attempt.claimed', {'attempt_id': aid, 'epoch': epoch,
+                **({'child_capacity': child_capacity} if child_capacity else {})}, now,
                 state='executing', epoch=epoch, attempt_id=aid)
             return record
 

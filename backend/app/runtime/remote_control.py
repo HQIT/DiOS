@@ -147,7 +147,9 @@ class RemoteControl:
             from .faults import from_spec
             entry=(await asyncio.to_thread(document,self.profiles))['profiles'][e['profile']]
             spec,_=await resolve(s.db,s.scope,entry,e['profile'],e['profile_digest'],e.get('revision_ref'))
-            a=await s.claim(e['worker_id'],e['instance'],profile_id=e['profile'],profile_digest=e['profile_digest'],revision_ref=e.get('revision_ref'),recovery_policy=from_spec(spec))
+            from .child_capacity import from_spec as child_capacity_plan
+            capacity_plan=await asyncio.to_thread(child_capacity_plan,spec)
+            a=await s.claim(e['worker_id'],e['instance'],profile_id=e['profile'],profile_digest=e['profile_digest'],revision_ref=e.get('revision_ref'),recovery_policy=from_spec(spec),child_capacity=capacity_plan)
             if a:
                 run=await s.get(a['run_id'])
                 if run['input'].get('profile_digest')!=e['profile_digest']:raise RuntimeErrorCode('PROFILE_CHANGED')

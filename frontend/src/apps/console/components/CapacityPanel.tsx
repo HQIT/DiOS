@@ -78,7 +78,7 @@ export default function CapacityPanel() {
     {rows.map(row => <article className="tr-capacity-row" key={row.id}>
       <div><strong>{row.id}</strong><small>{t(row.selector.kind === "scope" ? "整个控制域" : row.selector.kind === "subject" ? "指定主体" : "运行配置组")}{row.selector.kind === "subject" ? ` · ${row.selector.subject}` : row.selector.kind === "profiles" ? ` · ${row.selector.profiles.join(", ")}` : ""}</small></div>
       <span>{t(row.enabled ? "已启用" : "已停用")} · {t("并发上限")}: {row.max_concurrent}</span>
-      <span>{t("占位")}: {row.reserved_attempts} · {t("待确认")}: {row.unresolved_attempts} · {t("排队")}: {row.queued_runs}</span>
+      <span>{t("占位")}: {row.reserved_attempts} · {t("子任务预留")}: {row.tree_reserved_slots ?? 0} · {t("待确认")}: {row.unresolved_attempts} · {t("排队")}: {row.queued_runs}</span>
       {row.budget?.max_tool_calls != null && <span>{t("单任务工具派发上限")}: {row.budget.max_tool_calls}</span>}
       {row.budget?.max_runtime_seconds != null && <span>{t("执行时长上限（秒）")}: {row.budget.max_runtime_seconds}</span>}
       {row.dispatch_rate && <span>{t("窗口内已领取")}: {row.dispatch_rate.used}/{row.dispatch_rate.maximum} · {t("窗口长度（秒）")}: {row.dispatch_rate.window_seconds}{row.enabled && row.dispatch_rate.available_at && <> · {t("最早可再次领取")}: {new Date(row.dispatch_rate.available_at * 1000).toLocaleTimeString(languageTag())}</>}</span>}

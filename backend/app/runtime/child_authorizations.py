@@ -60,6 +60,8 @@ async def bind(c, store, run, descriptor, binding):
     ancestor = await row(c, store.scope, parent['id'])
     depth = ancestor['depth'] + 1 if ancestor else 1
     root = ancestor['root_run_id'] if ancestor else parent['id']
+    from .child_capacity import check_child
+    await check_child(c, store.scope, root, run)
     prior = (await c.execute(select(func.min(children.c.root_limit), func.min(children.c.depth_limit))
         .where(children.c.scope == store.scope, children.c.root_run_id == root))).one()
     root_limit = min(binding['max_children'], ancestor['root_limit'] if ancestor else 32, prior[0] or 32)

@@ -1,6 +1,6 @@
 """Scope-serialized admission; persisted Attempts are the capacity ledger."""
 
-from sqlalchemy import exists, func, not_, select, true
+from sqlalchemy import exists, func, not_, or_, select, true
 
 from .capacity_schema import changes, limits, require
 from .database import RuntimeErrorCode
@@ -82,7 +82,7 @@ async def occupancy(c, scope, selector):
     return sum(by_state.values()), by_state.get("result_unknown", 0)
 
 
-async def admit_query(c, scope, query):
+async def admit_query(c, scope, query, child_capacity=None):
     """Caller holds the same transaction through Attempt insertion."""
     await require(c)
     rows = (
@@ -96,12 +96,26 @@ async def admit_query(c, scope, query):
         .mappings()
         .all()
     )
+    from .child_capacity import is_child, reserved_occupancy
+    from .budget_tree import subtree
     for row in rows:
-        occupied, _ = await occupancy(c, scope, row["selector"])
-        if occupied >= row["max_concurrent"]:
-            # Filter in SQL: an arbitrarily long blocked queue prefix cannot starve
-            # a different subject/profile that still has capacity.
-            query = query.where(not_(matches(row["selector"], scope)))
+        selector = row['selector']
+        actual, _ = await occupancy(c, scope, selector)
+        occupied, owners = await reserved_occupancy(c, scope, selector, actual)
+        covered = or_(*(runs.c.id.in_(subtree(scope, root)) for root in owners)) if owners else False
+        match = matches(selector, scope)
+        if actual >= row['max_concurrent']:
+            query = query.where(not_(match))
+        elif occupied >= row['max_concurrent']:
+            query = query.where(or_(not_(match), covered))
+        if child_capacity:
+            count = child_capacity['max_children']
+            if occupied + 1 + count > row['max_concurrent']:
+                query = query.where(or_(is_child(scope), not_(match)))
+            if (selector['kind'] == 'profiles'
+                    and set(selector['profiles']) & set(child_capacity['profiles'])
+                    and occupied + count > row['max_concurrent']):
+                query = query.where(is_child(scope))
     return query
 
 
@@ -125,31 +139,32 @@ async def queue_status(c, scope, run, *, operator=False):
     from .database import Database
     from .execution_budgets import policy, rate_status
 
+    from .child_capacity import reserved_occupancy, validate
+    from .child_schema import children
     now = await Database.now(c)
+    family = (await c.execute(select(children.c.root_run_id).where(
+        children.c.scope == scope, children.c.run_id == run['id']))).scalar_one_or_none()
+    plan = run['input'].get('child_capacity_request') if family is None else None
+    validate(plan)
     for row in rows:
-        selector = row["selector"]
-        if not (
-            await c.execute(
-                select(runs.c.id).where(
-                    runs.c.id == run["id"],
-                    runs.c.scope == scope,
-                    matches(selector, scope),
-                )
-            )
-        ).first():
+        selector = row['selector']
+        match = bool((await c.execute(select(runs.c.id).where(
+            runs.c.id == run['id'], runs.c.scope == scope, matches(selector, scope)))).first())
+        future_match = bool(plan and selector['kind'] == 'profiles'
+            and set(selector['profiles']) & set(plan['profiles']))
+        if not match and not future_match:
             continue
         occupied, unknown = await occupancy(c, scope, selector)
-        budget = await policy(c, scope, row["id"])
-        rate = await rate_status(c, scope, selector, budget, now)
-        if occupied >= row["max_concurrent"]:
-            blocked.append(
-                {
-                    "id": row["id"],
-                    "max_concurrent": row["max_concurrent"],
-                    "reserved_attempts": occupied,
-                    "unresolved_attempts": unknown,
-                }
-            )
+        reserved, owners = await reserved_occupancy(c, scope, selector, occupied)
+        required = int(match) + (plan['max_children'] if plan and (match or future_match) else 0)
+        blocked_capacity = (occupied + int(match) > row['max_concurrent'] or
+            (family not in owners and reserved + required > row['max_concurrent']))
+        budget = await policy(c, scope, row['id'])
+        rate = await rate_status(c, scope, selector, budget, now) if match else None
+        if blocked_capacity:
+            blocked.append(dict(id=row['id'], max_concurrent=row['max_concurrent'],
+                reserved_attempts=occupied, tree_reserved_slots=reserved-occupied,
+                required_slots=required, unresolved_attempts=unknown))
         if rate and rate["available_at"] is not None:
             blocked.append(
                 {
@@ -313,6 +328,8 @@ class Capacity:
                         )
                     )
                 ).scalar_one()
+                from .child_capacity import reserved_occupancy
+                reserved, _ = await reserved_occupancy(c, scope, row["selector"], occupied)
                 result.append(
                     dict(
                         row,
@@ -321,7 +338,8 @@ class Capacity:
                         reserved_attempts=occupied,
                         unresolved_attempts=unknown,
                         queued_runs=waiting,
-                        available=max(0, row["max_concurrent"] - occupied)
+                        tree_reserved_slots=reserved - occupied,
+                        available=max(0, row["max_concurrent"] - reserved)
                         if row["enabled"]
                         else None,
                     )

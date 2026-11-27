@@ -97,7 +97,7 @@ export interface WorkAuthorization {
 }
 export interface RunDetail extends RunSummary {
   diagnostics?: RunDiagnostics;
-  capacity?: {blocked: boolean; reason: string | null; available_at?: number; limits: {id: string; reason?: string; available_at?: number; max_concurrent: number; reserved_attempts: number; unresolved_attempts: number}[]} | null;
+  capacity?: {blocked: boolean; reason: string | null; available_at?: number; limits: {id: string; reason?: string; available_at?: number; max_concurrent: number; reserved_attempts: number; tree_reserved_slots?: number; required_slots?: number; unresolved_attempts: number}[]} | null;
   model_usage?: {evidence_level: string; settlement: string; at_limit: boolean; items: Array<{attempt_id: string; session_id: string; sequence: number; kind: string; quality: string; values: Record<string, number | {amount: string; unit: string}>; recorded_at: number}>};
   tool_budget?: {maximum: number | null; committed: number; succeeded: number; failed: number; unresolved: number; remaining: number | null; exhausted: boolean; inherited?: boolean; accounting_scope?: 'run_tree'} | null;
   consumption_budget?: {provider_hard_cap: string; blocked_reasons: string[]; at_limit: boolean; items: Array<{account_id: string; attempt_id: string; unit: string; reserved: number; actual: number | null; state: string; account_revision: number; evidence: unknown}>};
@@ -162,7 +162,7 @@ export const studioApi = {
 export type CapacitySelector = {kind: "scope"} | {kind: "subject"; subject: string} | {kind: "profiles"; profiles: string[]};
 export interface CapacityLimit {
   id: string; selector: CapacitySelector; max_concurrent: number; enabled: boolean; revision: number;
-  reserved_attempts: number; unresolved_attempts: number; queued_runs: number; available: number | null;
+  reserved_attempts: number; tree_reserved_slots?: number; required_slots?: number; unresolved_attempts: number; queued_runs: number; available: number | null;
   budget?: ExecutionBudgetPolicy;
   dispatch_rate?: {used: number; maximum: number; window_seconds: number; available_at: number | null} | null;
 }

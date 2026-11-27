@@ -140,7 +140,7 @@ class TaskConsole:
             if spec.mounts and any(not m.read_only for m in spec.mounts):
                 raise RuntimeErrorCode('PROFILE_REQUIRES_READ_ONLY_MOUNTS')
             mode,refs=security_profile(path,raw=raw)
-            profiles.append(dict(inputs=registered_inputs,refs=refs,revision_ref=revision_ref,deployment_id=deployment_id,registration_digest=registered['digest'],
+            profiles.append(dict(capacity_environment=dict(getattr(spec,"environment",{})),inputs=registered_inputs,refs=refs,revision_ref=revision_ref,deployment_id=deployment_id,registration_digest=registered['digest'],
                 requires_e2ag=registered['requires_e2ag'],contract=registered,view=dict(id=profile_id,name=str(display.get('name',profile_id))[:120],
                 description=str(display.get('description',''))[:500],
                 implementation=str(display.get('implementation','unknown'))[:120],
@@ -254,7 +254,11 @@ class TaskConsole:
             from app.services.delegation_access import submission_guard
             admission_guard=submission_guard(self,descriptor,delegation_ref,admission_guard)
             descriptor=dict(descriptor,delegation_ref=delegation_ref)
+        from app.runtime.child_capacity import from_spec as child_capacity_plan
+        from types import SimpleNamespace
+        capacity_plan=await asyncio.to_thread(child_capacity_plan,SimpleNamespace(environment=registered["capacity_environment"]))
         run=await self.store.submit(key,dict(origin=CONSOLE_ORIGIN,
+            **({"child_capacity_request":capacity_plan} if capacity_plan else {}),
             **({'transport_binding':transport_binding} if transport_binding is not None else {}),
             **({'principal':self.principal} if self.principal is not None else {}),
             input_registration=dict(digest=registered['registration_digest'],
