@@ -1,11 +1,13 @@
 {
   "work_item": "K04-2.02",
-  "complete": false,
+  "complete": true,
   "implementation_base": "08ef2d121606b904ef4ac1ffc8efa64dd40c6f56",
   "passed_scope": [
     "SQLite and PostgreSQL atomic whole-tree reservations, independent connections, three levels, cross-profile limits, unknown/cancel preservation and terminal release",
     "Actual Docker parent/child containers finish two trees under two slots; measured maximum concurrency two, final occupied/reserved zero",
-    "Child channel, Console/API, remote mTLS and A2A compatibility; frontend TypeScript/Vite build"
+    "Child channel, Console/API, remote mTLS and A2A compatibility; frontend TypeScript/Vite build",
+    "Real Worker process SIGKILL during child wait; natural lease expiry, original attempt/session retained, incomplete output failed, queued child cancelled, reservation released, next tree completes after process restart",
+    "Linux candidate installation, E2AG result recovery, natural drain, upgrade and failed-candidate rollback at committed runtime source"
   ],
   "reports": [
     {
@@ -331,7 +333,8 @@
   "corrected_fixture_failures": [
     "Initial unit fixture used an attribute name already assigned to its directory and lacked process-exit evidence; both corrected. Existing child-depth scenario also inherited a different reservation limit and was separated from the new cases.",
     "Native fixture needed its image Python path and bounded session-binding wait; corrected. Concurrency observer now treats null as unknown and emits the child session before waiting.",
-    "Queue assertions use the capacity query shared by Console instead of expecting an absent RuntimeStore.get field; corrected case passed in the final suite."
+    "Queue assertions use the capacity query shared by Console instead of expecting an absent RuntimeStore.get field; corrected case passed in the final suite.",
+    "The native recovery fixture uses the production ToolInvocations provider; the earlier minimal tool-gate fixture did not implement recover_pending. Both native cases passed with the complete provider."
   ],
   "frontend_build": {
     "passed": true,
@@ -351,15 +354,250 @@
     "frontend/src/lib/messages.ts": "2b51cd7472acca6cbbde03004d0e6b36d8e6480ecd6bcf9219c7fbdbce122cac",
     "backend/app/runtime/child_capacity.py": "e2a31c8e8a3ed4b43defa24c4f196d79f8eb8e4afa93c14588969c7e3b04c8a8",
     "backend/tests/test_runtime_child_capacity.py": "3ea7e0a22a947bdae5220d2bdb5eeb724401f9c153a8ec30f5bb516238a004bb",
-    "backend/tests/test_runtime_child_capacity_native.py": "97ea03ae2ba8360bc85f7b7ee5d906cd065ca33e51ee2f422a61c3fc1c823db9"
+    "backend/tests/test_runtime_child_capacity_native.py": "10e482caa3c0c92ad4d39c9f0fe0f033e4678cd5aaf73ac4347b4d01852a0fea"
   },
-  "remaining": [
-    "Native Worker interruption and parent/child recovery qualification",
-    "Delivery build and deployment at the committed candidate"
-  ],
+  "remaining": [],
   "limits": [
     "No new schemas; reservations persisted in existing attempt.claimed events.",
-    "Native parent/child containers are distinct processes; this fixture runs their Worker objects in one supervisor process.",
-    "Capacity bounds require provisioned matching Workers. Whole-tree reservation uses declared maximum children and does not release a live parent slot."
-  ]
+    "The two-tree concurrency case uses Worker objects in one supervisor; the SIGKILL case launches independent CLI Worker OS processes and records their PIDs.",
+    "Capacity bounds require provisioned matching Workers. Whole-tree reservation uses declared maximum children and does not release a live parent slot.",
+    "Child-wait crash qualification uses a synthetic JSONL agent; terminated active Harness requests are not resumed. Original-attempt incomplete output fails and remains inspectable.",
+    "Deployment evidence is the isolated Linux CI candidate. Physical cross-node resource qualification remains K04-2.04."
+  ],
+  "implementation_commit": "1cacb51c687823a79be3c7c9b42d99af2bbe33f8",
+  "native_parent_worker_recovery": {
+    "passed": true,
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 89.813,
+    "observations": [
+      {
+        "image": "sha256:2ffe974b25f90fe5e31d69d682746c07ea63e7c32aa555a13fa060ec41ddd014",
+        "parents": [
+          "f4b03781-4a5e-4087-be22-71c6e945c73a",
+          "d0200bca-386b-4d16-8ebd-acf852223abd"
+        ],
+        "max_actual_concurrency": 2,
+        "competing_parent_waited": true,
+        "completed_parent_trees": 2,
+        "final_capacity": {
+          "scope": "30bdf761-f783-49f8-8876-fb279f11ddb4",
+          "id": "shared",
+          "selector": {
+            "kind": "scope"
+          },
+          "max_concurrent": 2,
+          "enabled": true,
+          "revision": 1,
+          "updated_at": 1795789500.8220077,
+          "budget": {
+            "max_dispatches": null,
+            "max_runtime_seconds": null,
+            "dispatch_window_seconds": null,
+            "max_tool_calls": null
+          },
+          "dispatch_rate": null,
+          "reserved_attempts": 0,
+          "unresolved_attempts": 0,
+          "queued_runs": 0,
+          "tree_reserved_slots": 0,
+          "available": 2
+        }
+      },
+      {
+        "case": "native-parent-worker-sigkill",
+        "image": "sha256:2ffe974b25f90fe5e31d69d682746c07ea63e7c32aa555a13fa060ec41ddd014",
+        "killed_worker_pid": 2050238,
+        "worker_exit": -9,
+        "restarted_worker_pid": 2051050,
+        "parent_run": "e0a26c0e-d561-4817-ba2e-08a5c765028d",
+        "parent_attempt": "d8b7eea9-5613-4d94-afde-3c20c2660dfd",
+        "session_id": "13c0a213-7cd3-41c5-b6ac-29091b990684",
+        "process_instance": "39c084664726fce01a8d9232e554f29ebdcbafafee86af3afa3e33675f0ad5ef:2026-11-27T14:25:29.39766982Z",
+        "child_run": "378405c3-7792-4d75-aeac-d528d8de802e",
+        "parent_state": "failed",
+        "original_attempts": 1,
+        "child_state": "cancelled",
+        "held_capacity": {
+          "scope": "0a6c9be1-4f06-43a7-853b-89f514845bdc",
+          "id": "shared",
+          "selector": {
+            "kind": "scope"
+          },
+          "max_concurrent": 2,
+          "enabled": true,
+          "revision": 1,
+          "updated_at": 1795789528.5460174,
+          "budget": {
+            "max_dispatches": null,
+            "max_runtime_seconds": null,
+            "dispatch_window_seconds": null,
+            "max_tool_calls": null
+          },
+          "dispatch_rate": null,
+          "reserved_attempts": 1,
+          "unresolved_attempts": 0,
+          "queued_runs": 2,
+          "tree_reserved_slots": 1,
+          "available": 0
+        },
+        "reconciled_capacity": {
+          "scope": "0a6c9be1-4f06-43a7-853b-89f514845bdc",
+          "id": "shared",
+          "selector": {
+            "kind": "scope"
+          },
+          "max_concurrent": 2,
+          "enabled": true,
+          "revision": 1,
+          "updated_at": 1795789528.5460174,
+          "budget": {
+            "max_dispatches": null,
+            "max_runtime_seconds": null,
+            "dispatch_window_seconds": null,
+            "max_tool_calls": null
+          },
+          "dispatch_rate": null,
+          "reserved_attempts": 0,
+          "unresolved_attempts": 0,
+          "queued_runs": 1,
+          "tree_reserved_slots": 0,
+          "available": 2
+        },
+        "next_parent": "0f7a602c-d69a-4763-8171-c18e5f5d3980",
+        "next_parent_state": "succeeded",
+        "final_capacity": {
+          "scope": "0a6c9be1-4f06-43a7-853b-89f514845bdc",
+          "id": "shared",
+          "selector": {
+            "kind": "scope"
+          },
+          "max_concurrent": 2,
+          "enabled": true,
+          "revision": 1,
+          "updated_at": 1795789528.5460174,
+          "budget": {
+            "max_dispatches": null,
+            "max_runtime_seconds": null,
+            "dispatch_window_seconds": null,
+            "max_tool_calls": null
+          },
+          "dispatch_rate": null,
+          "reserved_attempts": 0,
+          "unresolved_attempts": 0,
+          "queued_runs": 0,
+          "tree_reserved_slots": 0,
+          "available": 2
+        }
+      }
+    ],
+    "log_sha256": "1452953da585491889c56ac62f746868b8de0558413578dcecfc740716f0a843"
+  },
+  "delivery": {
+    "passed": true,
+    "commit": "1cacb51c687823a79be3c7c9b42d99af2bbe33f8",
+    "run_url": "https://github.com/HQIT/DiOS/actions/runs/46014727972",
+    "summary_sha256": "395ae56ba31ae4abd5db1674779798d85c445f8598533e8f6f0546854142cea9",
+    "images": {
+      "baseline": "sha256:86642ddc0c01f2eb721c570d40495d62ce3f4f2de8ba49de35df5c9eed2d6be9",
+      "candidate": "sha256:ac3b37e6d46a331a625f3a554313ad88fe26fa8f505bfd17d6b14cdcedfa8cb0",
+      "frontend": "sha256:57cb1bc06bc7c69384d891dce164b36a266a812af8a5b0505366da139a3e307d",
+      "rejected": "sha256:d47518486cb69ebefe916a32d35a35fde9260c6eede365d680923f45068407d0"
+    },
+    "scope": "Linux installation and compatible-schema cutover",
+    "observations": [
+      {
+        "case": "R07",
+        "run_id": "94a5de78-496b-4026-9e63-f5a1cc483fe9",
+        "attempt_id": "75f5b3cd-4ffb-441f-9b61-6ebc3c0a8d97",
+        "input_digest": "2da60dc2fa69e13415ce6bce6e3642e619b9885bdbde00646b9d97e376d50406",
+        "epoch": 1,
+        "session_id": "fault-session-0e2903c5a3b74c5bb945d5d525076ebc",
+        "worker_exit": -9,
+        "receipt_stdout": "301c6e2c0d64c8f5ff0275d211ec62909e13500be480ff8d95bc26769617fb8a",
+        "prompt_calls_before": 1,
+        "prompt_calls_after": 1,
+        "state": "succeeded",
+        "e2ag_grants_verified": true
+      },
+      {
+        "case": "R13",
+        "old_image": "sha256:86642ddc0c01f2eb721c570d40495d62ce3f4f2de8ba49de35df5c9eed2d6be9",
+        "new_image": "sha256:ac3b37e6d46a331a625f3a554313ad88fe26fa8f505bfd17d6b14cdcedfa8cb0",
+        "failed_candidate": "sha256:d47518486cb69ebefe916a32d35a35fde9260c6eede365d680923f45068407d0",
+        "runs": [
+          "8b096a13-9bce-43bf-9559-490ad023d573",
+          "d6e60b2f-c741-4a91-bdf3-c6bdf7d9078a",
+          "cc46dd0b-175f-464f-a8d3-824604af6fc1",
+          "9433a238-5853-42e9-882f-8103c918532d"
+        ],
+        "actual_concurrency_before_drain": 3,
+        "active_execution_evidence": [
+          {
+            "id": "19369119-6d17-4caf-a3f5-d15af60b262a",
+            "worker_id": "4edb78a8-9625-4abb-a95b-1c671eb16705",
+            "worker_instance": "c59c0058-086c-4447-8b7b-8eef4e4d4e0b",
+            "process_id": 3919,
+            "process_instance": "eeee5bd34604dc381418db010a053346456b6e4d65f54445cf775fc798f59540:2026-11-27T14:20:30.110729517Z",
+            "session_id": "fault-session-2458dba56b594c74b265d3f1356a9e77",
+            "epoch": 1,
+            "run_id": "8b096a13-9bce-43bf-9559-490ad023d573"
+          },
+          {
+            "id": "cd025934-4bee-4158-bf9f-ff556a309287",
+            "worker_id": "f35a280a-bdf9-4706-9e39-bcc11ee7cdd1",
+            "worker_instance": "8d1f5228-5f49-4710-bf58-333a8c127f17",
+            "process_id": 3972,
+            "process_instance": "3adf2f96f6f7bf93139a3233c89b6093a8e8677763c67df35d32df7529798165:2026-11-27T14:20:30.190092275Z",
+            "session_id": "fault-session-53742cf0e5a54b5ea510371829e27940",
+            "epoch": 1,
+            "run_id": "d6e60b2f-c741-4a91-bdf3-c6bdf7d9078a"
+          },
+          {
+            "id": "ef875429-c96f-4d63-a110-315bc2b004b4",
+            "worker_id": "3433f8fd-7cb3-4985-a839-6f6642bed4e2",
+            "worker_instance": "4204c9b0-77b3-47cf-a221-abfe1c572523",
+            "process_id": 4028,
+            "process_instance": "31f4f9f5eaad945088e352fd01b6a66f4cef484590faef6f5b8a29283321565c:2026-11-27T14:20:30.845151196Z",
+            "session_id": "fault-session-6f21690edadc45d1ac09ce45189434b2",
+            "epoch": 1,
+            "run_id": "cc46dd0b-175f-464f-a8d3-824604af6fc1"
+          }
+        ],
+        "old_attempts": [
+          "19369119-6d17-4caf-a3f5-d15af60b262a",
+          "cd025934-4bee-4158-bf9f-ff556a309287",
+          "ef875429-c96f-4d63-a110-315bc2b004b4"
+        ],
+        "new_attempt": "55abb0e2-d053-4d3b-81ac-7876a34dd74c",
+        "old_sessions": [
+          "fault-session-2458dba56b594c74b265d3f1356a9e77",
+          "fault-session-53742cf0e5a54b5ea510371829e27940",
+          "fault-session-6f21690edadc45d1ac09ce45189434b2"
+        ],
+        "new_session": "fault-session-7ebebea35be64423834b54cc0ab0954f",
+        "backup_verified": true,
+        "natural_drain": true,
+        "failed_image_rolled_back": true,
+        "configuration_and_history_preserved": true,
+        "queued_identity_preserved": true,
+        "new_trigger_during_drain": "RUNTIME_DRAINING",
+        "dispatch_held_until_explicit_resume": true,
+        "worker_uses_installation_scope_environment": true,
+        "prompt_calls": 4,
+        "final_states": [
+          "succeeded",
+          "succeeded",
+          "succeeded",
+          "succeeded"
+        ],
+        "model": "synthetic ACP endpoint",
+        "e2ag": "enforced"
+      }
+    ],
+    "reference_suite_complete": false,
+    "persistent_development_deployment_updated": false
+  }
 }

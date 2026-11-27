@@ -7,10 +7,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K04-2.02",
-    "next_delivery": "K04-2.02",
+    "next_work_item": "K03-1.03",
+    "next_delivery": "K03-1.03",
     "next_delivery_order": [
-      "K04-2.02",
       "K03-1.03",
       "K04-2.04",
       "D01-3.03",
@@ -30,7 +29,7 @@
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
       "单节点安装/恢复及 D01-2.03 共享后端干净恢复工程资格已完成；共享执行启用、复制和故障接管按 D01-3.03 验收。",
-      "K04-2.02 整组容量预留已实现；接续父子运行中的 Worker 中断/恢复及交付验证。D01-3.02 物理故障环境复用。",
+      "K04-2.02 父子任务预算与等待容量已完成；跨节点资源资格按 K04-2.04 推进，复用 D01-3.02 物理故障环境。",
       "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
       "产品与发布接受人已明确为徐刚，五项产品要求已确认；工程方按原验收提供实际效果与证据，发布接受按具体版本、限制和取舍记录。"
     ],
@@ -39,7 +38,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "共享后端干净恢复资格已完成；按原顺序补父子任务预算和等待容量，随后接续跨主机身份、资源与 HA 资格。",
+    "next_selection_reason": "父子任务预算与等待容量已完成；按原顺序推进跨主机身份与对象权限，再完成资源、HA、存储及两档容量资格。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
   },
   "waves": [
@@ -2510,7 +2509,7 @@
       "issue": 45,
       "title": "父子任务预算与等待容量",
       "kind": "I",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K04-2-A01",
         "K04-2-A02",
@@ -2523,8 +2522,12 @@
         "K04-2.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "父子树原子容量预留已接入本地 Worker 与远程网关，SQLite/PG 竞争与真实父子容器通过；仍待运行中 Worker 中断/恢复联合资格及交付部署，原预算验收保持。",
+      "completion_evidence": [
+        "docs/design/evidence/task-tree-budgets-20261126.json",
+        "docs/design/evidence/child-capacity-reservations-20261127.json",
+        "docs/design/child-capacity-reservations-45.md"
+      ],
+      "basis": "父子预算继承、整组原子预留、SQLite/PG 竞争、真实父子容器、Worker SIGKILL 后原尝试对账及 Linux 候选部署通过。",
       "existing_evidence": [
         "docs/design/evidence/execution-capacity-20261125.json",
         "docs/design/evidence/execution-budgets-20261125.json",
@@ -2535,8 +2538,7 @@
         "docs/design/evidence/task-tree-budgets-20261126.json",
         "docs/design/task-tree-budgets-45.md",
         "docs/design/evidence/child-capacity-reservations-20261127.json"
-      ],
-      "blocking_reason": "父子任务预算已具备继承和阻塞提示；等待既有选择：子任务原子容量预留，或可退出恢复的持久编排父任务。Cursor 活跃请求续接尚未通过资格。"
+      ]
     },
     {
       "id": "K04-2.03",
