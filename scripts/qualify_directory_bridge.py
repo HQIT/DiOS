@@ -21,7 +21,7 @@ def main():
     import dios_directory.mapping as installed
     assert not Path(installed.__file__).resolve().is_relative_to(ROOT / "applications"), "Install the wheel first"
     loader = unittest.TestLoader()
-    suite = loader.loadTestsFromNames(["test_mapping", "test_runtime_integration", "test_principal_updates"])
+    suite = loader.loadTestsFromNames(["test_mapping", "test_sync", "test_runtime_integration", "test_principal_updates"])
     cases = []
 
     class Result(unittest.TextTestResult):
@@ -40,19 +40,25 @@ def main():
     sources = ["applications/directory-bridge/src/dios_directory/mapping.py",
                "applications/directory-bridge/tests/test_mapping.py",
                "applications/directory-bridge/tests/test_runtime_integration.py",
+               "applications/directory-bridge/tests/test_sync.py",
+               "applications/directory-bridge/src/dios_directory/scim.py",
+               "applications/directory-bridge/src/dios_directory/journal.py",
+               "applications/directory-bridge/src/dios_directory/sync.py",
                "backend/app/runtime/principal_updates.py", "backend/app/runtime/cli.py",
                "scripts/qualify_directory_bridge.py"]
     report = {"result": "PASS" if result.wasSuccessful() and not result.skipped else "FAIL",
               "observed_at": start, "duration_seconds": round(time.time()-start, 3),
               "tests_run": result.testsRun, "cases": cases,
-              "application": "dios-directory-bridge==0.1.0",
+              "application": "dios-directory-bridge==0.2.0",
               "installed_module_sha256": hashlib.sha256(Path(installed.__file__).read_bytes()).hexdigest(),
               "source_hashes": {p: hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources},
               "conditions": {"database": "isolated temporary SQLite", "identity": "synthetic independent principals",
                              "worker_adapter": "deterministic test adapter; no external model",
                              "administration": "real subprocess identity-policy/identity-update CLI",
+                             "directory": "loopback synthetic SCIM HTTP service, conditional GET and configured resource IDs",
+                             "synchronization": "independent sync CLI, durable outbox/checkpoint, inherited process lock",
                              "authorization": "real API middleware and E2AG admission/execution/result verifier"},
-              "not_qualified": ["live enterprise SCIM pagination/delta synchronization", "enterprise SSO login",
+              "not_qualified": ["live enterprise SCIM source", "automatic directory discovery and identity provisioning", "enterprise SSO login",
                                 "atomic multi-principal directory publication", "physical-node failure recovery"]}
     (output / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n")
     print(json.dumps({"result": report["result"], "tests_run": result.testsRun, "report": str(output/"result.json")}))

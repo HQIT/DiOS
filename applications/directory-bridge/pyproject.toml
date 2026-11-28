@@ -4,14 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dios-directory-bridge"
-version = "0.1.0"
-description = "Independent SCIM snapshot to DiOS identity policy planner"
+version = "0.2.0"
+description = "Independent SCIM directory lifecycle synchronization for DiOS"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["httpx>=0.28.1,<0.29"]
 
 [project.scripts]
 dios-directory = "dios_directory.mapping:main"
+dios-directory-sync = "dios_directory.sync:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

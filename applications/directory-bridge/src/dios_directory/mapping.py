@@ -72,6 +72,19 @@ def resources(document, schema):
     return result
 
 
+def validate_mapping(mapping):
+    require(isinstance(mapping, dict) and type(mapping.get("version")) is int
+            and mapping["version"] == 1, "INVALID_MAPPING")
+    require(isinstance(mapping.get("source"), str) and bool(mapping["source"]), "INVALID_MAPPING")
+    identifier(mapping.get("issuer")); identifier(mapping.get("scope"))
+    subjects, roles = mapping.get("subjects"), mapping.get("roles")
+    require(isinstance(subjects, dict) and 0 < len(subjects) <= 256
+            and isinstance(roles, dict) and len(roles) <= 256, "INVALID_MAPPING")
+    for uid, pid in subjects.items(): identifier(uid); identifier(pid)
+    require(len(set(subjects.values())) == len(subjects), "DUPLICATE_PRINCIPAL_MAPPING")
+    for gid, value in roles.items(): identifier(gid); profiles(value)
+
+
 def plan(snapshot, mapping, current, *, now=None, max_age=300):
     """Inputs come from a trusted directory export and operator policy projections.
 
@@ -83,6 +96,7 @@ def plan(snapshot, mapping, current, *, now=None, max_age=300):
             "INVALID_MAX_AGE")
     require(isinstance(snapshot, dict) and isinstance(mapping, dict) and isinstance(current, list),
             "INVALID_INPUT")
+    validate_mapping(mapping)
     require(snapshot.get("version") == mapping.get("version") == 1, "UNSUPPORTED_VERSION")
     require(isinstance(mapping.get("source"), str) and bool(mapping["source"])
             and snapshot.get("source") == mapping["source"], "DIRECTORY_SOURCE_MISMATCH")
@@ -147,17 +161,22 @@ def plan(snapshot, mapping, current, *, now=None, max_age=300):
             "patches": patches, "unchanged": unchanged}
 
 
-def load(path):
-    with Path(path).open("rb") as stream:
-        raw = stream.read(4 * 1024 * 1024 + 1)
-    require(len(raw) <= 4 * 1024 * 1024, "INPUT_TOO_LARGE")
+def decode(raw):
     def unique(pairs):
         result = {}
         for key, value in pairs:
             require(key not in result, "DUPLICATE_JSON_KEY")
             result[key] = value
         return result
-    return json.loads(raw, object_pairs_hook=unique)
+    def constant(_): raise MappingError("INVALID_JSON_NUMBER")
+    return json.loads(raw, object_pairs_hook=unique, parse_constant=constant)
+
+
+def load(path):
+    with Path(path).open("rb") as stream:
+        raw = stream.read(4 * 1024 * 1024 + 1)
+    require(len(raw) <= 4 * 1024 * 1024, "INPUT_TOO_LARGE")
+    return decode(raw)
 
 
 def main():
