@@ -109,7 +109,7 @@ MCP、Skills、Plugins 和受控能力包集中管理；查看来源、版本、
 
 上层 **WorkItem** 将“任务运行成功”接到“业务确认完成”：创建工作项、固定员工发布版本、关联成果，再由独立复核人明确确认。人工确认会重新核验当前成果权限与内容完整性；执行状态、业务状态和历史决策分别保存。需要补偿时，独立执行补偿任务，保留原历史并经人工复核后关闭。[运行示例与状态图](docs/design/workitem-40.md)
 
-当前底座基线完成 **63/79**。本期剩余 7 项接受工作，物理环境与容量相关的 9 项延期；多 Harness 接入保留，运行中跨实现交接作为后续候选。[本期交付范围与接受清单](docs/planning/closure-scope-20261128.md) · [Docker / 采集器 / Harness 版本接受](docs/engineering/version-acceptance-20261128.md)
+当前底座基线完成 **66/79**。本期剩余 4 项安全与发布接受工作，物理环境与容量相关的 9 项延期；多 Harness 接入保留，运行中跨实现交接作为后续候选。[本期交付范围与接受清单](docs/planning/closure-scope-20261128.md) · [Docker / 采集器 / Harness 工程结项](docs/engineering/engineering-closure-20261128.md)
 
 
 人工退回可进入下一轮执行。同一工作项下，每轮拥有独立 Run 和 E2AG 授权，历史目标、员工版本、成果及决策连续保留；同轮重试复用原任务，新轮重新检查当前权限。[返工命令与历史查询](applications/workforce-registry/README.md#退回返工与多-run-历史)
@@ -150,3 +150,5 @@ python cli/dios connector types
 ## License
 
 MIT
+
+工具执行在最后一次权限检查返回后复核执行期限：过期请求被拒绝，审批保持未消耗。[E2AG 期限验证与部署证据](docs/design/evidence/tool-delegation-deadline-20261128.json)

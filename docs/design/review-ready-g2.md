@@ -97,8 +97,10 @@ Docker Adapter 后续关闭宿主代理隐式注入，实际容器回归及 DSH 
 
 每项填写通过、有条件通过或需修订，并记录接受的版本、残余问题、责任人与复审条件。#58 的 [Harness 联合评审](review-harness-58.md)与本文共享证据，结论独立保留。评审通过后才将对应 WBS 标为完成并按原范围关闭 Issue。
 
-当前五项就绪评审材料共覆盖 27 条原验收；整体完成数为 63/79。本期集中接受清单见[七项收尾条件](../planning/closure-scope-20261128.md)；物理与容量相关资格及其接受延期。
+当前五项就绪评审材料共覆盖 27 条原验收；整体完成数为 66/79。本期集中接受清单见[四项收尾条件](../planning/closure-scope-20261128.md)；物理与容量相关资格及其接受延期。
 
 评审职责、判断事项与决议填写见[交付评审说明](../engineering/reviewer-guide.md)。
 
 徐刚已确认本批产品要求；原文与产品验收方式见[产品确认](../engineering/product-acceptance-20261127.md)。
+
+#10/#9/#58 已按[本期工程结项记录](../engineering/engineering-closure-20261128.md)完成。#34 期限修复见[定向证据](evidence/tool-delegation-deadline-20261128.json)；完整独立安全审查继续待完成。

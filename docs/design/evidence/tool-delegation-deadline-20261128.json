@@ -1,0 +1,74 @@
+{
+  "work_item": "K03-2.03",
+  "result": "PASS",
+  "tests": 5,
+  "observations": [
+    {
+      "case": "test_current_authority_dispatches_once",
+      "operation": "dispatch",
+      "expired": null,
+      "delayed_allow_replies": 1,
+      "tool_calls": 1,
+      "clock": "DB time offset after real OPA reply",
+      "run_id": "12847eb2-8c78-4f74-a82e-6050e6241525",
+      "attempt_id": "03a0e5be-e930-4952-85b2-eda5bc2d3a88"
+    },
+    {
+      "case": "test_expired_grant_blocks_final_dispatch",
+      "operation": "dispatch",
+      "expired": "grant",
+      "delayed_allow_replies": 1,
+      "tool_calls": 0,
+      "clock": "DB time offset after real OPA reply",
+      "run_id": "5716ab8a-8358-4c0d-a71d-5515be3d1537",
+      "attempt_id": "18bbc084-68f7-40bb-aaf9-4f696d17da75"
+    },
+    {
+      "case": "test_expired_lease_blocks_approval",
+      "operation": "approve",
+      "expired": "lease",
+      "delayed_allow_replies": 1,
+      "tool_calls": 0,
+      "clock": "DB time offset after real OPA reply",
+      "run_id": "0718ec1b-7884-426a-bcfe-c306400e309b",
+      "attempt_id": "22f85340-8ceb-4b91-aa60-5caad8f05ac1"
+    },
+    {
+      "case": "test_expired_lease_blocks_final_dispatch",
+      "operation": "dispatch",
+      "expired": "lease",
+      "delayed_allow_replies": 1,
+      "tool_calls": 0,
+      "clock": "DB time offset after real OPA reply",
+      "run_id": "621c2ca9-126b-4d7c-b69e-2bbd597de16b",
+      "attempt_id": "6cefe76c-cbd2-4f96-a951-21fc4e08eed1"
+    },
+    {
+      "case": "test_expired_lease_blocks_request",
+      "operation": "request",
+      "expired": "lease",
+      "delayed_allow_replies": 1,
+      "tool_calls": 0,
+      "clock": "DB time offset after real OPA reply",
+      "run_id": "25d9d4b0-c186-4e1c-8203-f84460b3de95",
+      "attempt_id": "432e3693-6fc2-4ee2-a2fa-dc1e8fb8ab68"
+    }
+  ],
+  "duration_seconds": 31.242,
+  "source_sha256": {
+    "backend/app/runtime/tool_invocations.py": "e44c7a768bd1349988e47fd46a81f0c3fd09a2595f1b4a46c1ca1b03f87a0b6f",
+    "backend/tests/test_tool_delegation_deadline.py": "d5d1f35801a768e12212e4ad32608713b8b83984b9c757dfa95e646e08a0d9e7"
+  },
+  "before_fix": {
+    "case": "test_expired_lease_blocks_final_dispatch",
+    "result": "FAIL",
+    "reason": "Expected STALE_OWNER was not raised after the final allowing delegation response."
+  },
+  "test_scope": "Real OPA container, real HTTP MCP endpoint, local SQLite. Deterministic authoritative DB clock offset after final OPA reply; no wall-clock wait or physical fault claim.",
+  "new_model_calls": 0,
+  "independent_diff_review": "No confirmed security findings in the modified deadline checks. Whole identity/delegation review remains separate.",
+  "limitations": [
+    "This result covers delayed final delegation replies, not the entire independent security review.",
+    "In-flight effects after a committed dispatch retain existing reconciliation semantics."
+  ]
+}

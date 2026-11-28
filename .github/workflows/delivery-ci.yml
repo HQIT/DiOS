@@ -52,6 +52,11 @@ jobs:
         run: |
           python -m unittest -v test_runtime_database_cancellation
           python scripts/qualify_identity_access.py --local --output workspace/identity-access-ci
+      - name: Reject late delegation replies after execution expires
+        env:
+          PYTHONPATH: backend:backend/tests
+          DIOS_TEST_OPA: '1'
+        run: python -m unittest -v test_tool_delegation_deadline.ToolDelegationDeadlineTests
       - name: Build, install, run governed tasks, upgrade and roll back
         env:
           EXPORT_IMAGES: ${{ inputs.export_images }}

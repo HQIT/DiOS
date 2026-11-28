@@ -518,7 +518,7 @@
       ],
       "priority": "最高",
       "existing": 10,
-      "status": "In Progress",
+      "status": "Done",
       "progress": {
         "date": "2026-11-24",
         "summary": "托管 task/service 共用 RuntimeAdapter，原执行恢复持久化；升级统一关闭兼容与 Worker 入口，等待任务、请求与 E2AG 工具结清，再归档回收共享服务。事件 fan-out、审批和重试受同一准入控制。",
@@ -581,7 +581,9 @@
         "status": "review_pending",
         "package": "docs/design/review-ready-g2.md",
         "decision": null
-      }
+      },
+      "engineering_closure": "docs/engineering/engineering-closure-20261128.md",
+      "product_acceptance_status": "user_experience_and_release_separate"
     },
     {
       "id": "K01-2",
@@ -873,7 +875,7 @@
       "priority": "最高",
       "existing": 9,
       "product_scope": "dios-capability",
-      "status": "In Progress",
+      "status": "Done",
       "implementation": {
         "date": "2026-11-24",
         "state": "engineering_verified_deployed_review_pending",
@@ -891,7 +893,9 @@
         "status": "review_pending",
         "package": "docs/design/review-ready-g2.md",
         "decision": null
-      }
+      },
+      "engineering_closure": "docs/engineering/engineering-closure-20261128.md",
+      "product_acceptance_status": "user_experience_and_release_separate"
     },
     {
       "id": "K02-1",
@@ -3178,7 +3182,7 @@
       ],
       "priority": "最高",
       "next_acceptance": "继续跨主机、供应商工具路径和企业凭据资格验证；活动 ACP 请求续接以固定 Adapter 提供稳定请求身份及可核验的续接语义为准。",
-      "status": "In Progress",
+      "status": "Done",
       "progress": {
         "date": "2026-11-25",
         "validation_status": "a2a_remote_recovery_and_acp_three_harness_slices_verified",
@@ -3314,7 +3318,9 @@
         "status": "review_pending",
         "package": "docs/design/review-harness-58.md",
         "decision": null
-      }
+      },
+      "engineering_closure": "docs/engineering/engineering-closure-20261128.md",
+      "product_acceptance_status": "user_experience_and_release_separate"
     },
     {
       "id": "A01-5",
@@ -3412,12 +3418,9 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K01-1.02",
-    "next_delivery": "集中处理本期七项接受条件；#29/#40 工程结项，物理及其依赖九项延期，G06 退出本期",
+    "next_work_item": "K03-1.04",
+    "next_delivery": "完成身份、工具与委派独立安全审查后进入发布接受；#10/#9/#58 工程结项，用户体验单列",
     "next_delivery_order": [
-      "K01-1.02",
-      "K01-3.01",
-      "K01-5.03",
       "K03-1.04",
       "K03-2.03",
       "K03-3.03",
@@ -3428,7 +3431,7 @@
     "stop_rule": "原验收通过即停止追加优化；发现阻断缺陷归原工作项，性能或观测增强移至候选后续，不进入当前分母。",
     "cadence": "每个工作项完成或发生阻断时同步证据和状态；每个可部署交付后报告本批完成、总剩余、下一项及分母变化。",
     "timebox": "每工作项最多一个工作周期再复核；连续两小时仍无可验证结果则披露阻断，按原范围拆分或转向已就绪项；不连续多轮只补观测细节。",
-    "review_rule": "工程测试、开发部署持续执行；按 handbook 的 G2/G3 由指定责任人接受。高影响独立评审人未指定时记录待认领，其他工程工作可继续。",
+    "review_rule": "原条款、固定版本及证据由工程核验并结项；产品要求沿用已确认范围，用户体验验收提供可操作场景。高影响独立安全审查和 G3 正式发布接受继续单列，不由工程结项替代。",
     "project_sync": "GitHub Project #2 的 gh 凭据缺 read:project；本轮以仓库 WBS 和现有 Issue 的工作项清单同步，不宣称已写 Project 字段。",
     "deferred": [
       "单节点安装/恢复及 D01-2.03 共享后端干净恢复工程资格已完成；共享执行启用、复制和故障接管按 D01-3.03 验收。",
@@ -3448,18 +3451,18 @@
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md",
     "active_application_task": null,
     "progress_dimensions": {
-      "core_closed": 63,
+      "core_closed": 66,
       "core_total": 79,
       "core_remaining": {
         "physical_or_capacity": 6,
         "application_joint_verification": 0,
-        "engineering_ready_review": 6,
+        "engineering_ready_review": 3,
         "dependent_closure_review": 4
       },
       "current_delivery": {
         "total": 70,
-        "done": 63,
-        "pending_acceptance": 7
+        "done": 66,
+        "pending_acceptance": 4
       },
       "deferred_work_items": [
         "K04-2.04",

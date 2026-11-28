@@ -71,6 +71,12 @@ class ToolInvocations:
         credential=registration.get('credential_ref')
         if credential is not None and credential not in work['secret_refs']:raise RuntimeErrorCode('SECRET_ACCESS_DENIED')
         grant=(await c.execute(select(grants).where(grants.c.attempt_id==attempt_id))).mappings().one()
+        # The final tool-specific delegation PDP may outlive the local execution
+        # authority. Recheck deadlines after that await without another PDP call.
+        now=await self.store.db.now(c)
+        if a['lease_until']<=now:raise RuntimeErrorCode('STALE_OWNER')
+        if work['expires_at']<=now:raise RuntimeErrorCode('WORK_AUTHORIZATION_EXPIRED')
+        if grant['expires_at']<=now:raise RuntimeErrorCode('EXECUTION_GRANT_EXPIRED')
         binding=dict(run_id=run_id,attempt_id=attempt_id,session_id=session_id,worker_id=a['worker_id'],
             worker_instance=a['worker_instance'],lease_epoch=a['epoch'],authorization_epoch=a['authorization_epoch'],
             authorization_ref=work['id'],policy_digest=work['policy_digest'],permissions_digest=digest(work['permissions']),
