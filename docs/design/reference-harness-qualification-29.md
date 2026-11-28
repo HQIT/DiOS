@@ -31,10 +31,10 @@ python3 scripts/verify_reference_harness.py \
 
 新增版本的隔离验证入口为 `scripts/qualify_reference_harness.py`，显式传入固定镜像 Profile、凭据清单引用、OPA 配置、场景及输出目录。凭据内容不写入资格报告。已有运行实例及生产评审不参与注入。
 
-## 剩余交付
+## 本期资格结论
 
-F03-2.03 保持待完整验证：G05 需要独立平台记录人工接管决定、取消请求与迟到结果复核；G06 需要同一 WorkItem 的跨实现交接、远端引用及权限连续性；F03-2.02 仍保留其余五项原始故障场景。六条执行路径通过不替代这些要求。
+F03-2.03 已按[本期范围](../planning/closure-scope-20261128.md)结项。六条固定版本参考路径的证据和应用源码摘要仍可核验；G05 接管、取消和迟到成果复核已补齐。G06 运行中跨实现交接为后续候选，五项评审应用专属验收由 #59/#60 承接。
 
-已有 Run、Attempt、Session、Artifact、取消、迟到结果隔离和 E2AG 能力用于上层联验。WorkItem、岗位责任与业务决定由独立平台管理，底座继续提供业务无关的能力接口。
+[汇总证据](evidence/reference-closure-20261128.json)保留各报告原版本和条件；历史报告中的 remaining 表示当时状态，当前范围与结论以本节和范围文件为准。运行 `python scripts/verify_reference_closure.py` 可复核，无需再次调用模型。
 
 接口依据：[ACP v1 Prompt Turn](https://agentclientprotocol.com/protocol/v1/prompt-turn)、[MCP Tools](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)。应用沿用这两个协议及既有 SDK，没有增加私有 Agent 协议。

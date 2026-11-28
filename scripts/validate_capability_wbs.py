@@ -91,6 +91,16 @@ def main():
         visit_joint(key)
     assert plan['execution_control'] == wbs['control'], 'control drift'
     assert wbs['control']['next_work_item'] in items
+    dimensions = wbs['control']['progress_dimensions']
+    assert dimensions['core_closed'] == sum(i['state'] == 'done' for i in rows), 'completion count drift'
+    if 'current_delivery' in dimensions:
+        deferred = {i['id'] for i in rows if i.get('delivery_disposition') == 'deferred'}
+        assert deferred == set(dimensions['deferred_work_items'])
+        assert all(items[k]['state'] != 'done' for k in deferred), 'deferred counted as completed'
+        current = dimensions['current_delivery']
+        assert current['total'] == len(rows) - len(deferred)
+        assert current['done'] == dimensions['core_closed']
+        assert current['pending_acceptance'] == current['total'] - current['done']
     active = [i for i in rows if i['kind'] == 'I' and i['state'] == 'in_progress']
     assert len(active) <= wbs['control']['implementation_wip_limit'], 'WIP exceeded'
     for group in wbs['shared_work']:

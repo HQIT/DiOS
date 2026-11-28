@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "docs/design/fixtures/reference-faults.json"
-sys.path[:0] = [str(ROOT / "backend"), str(ROOT / "backend/tests")]
+sys.path[:0] = [str(ROOT / "backend"), str(ROOT / "backend/tests"), str(ROOT / "applications/workforce-registry/tests")]
 
 
 def digest(path):
@@ -196,12 +196,13 @@ def main():
         )
     # Native CLI Worker subprocesses must import the same checkout as the runner.
     os.environ["PYTHONPATH"] = os.pathsep.join(
-        [str(ROOT / "backend"), str(ROOT / "backend/tests")]
+        [str(ROOT / "backend"), str(ROOT / "backend/tests"), str(ROOT / "applications/workforce-registry/tests")]
     )
     args.output.mkdir(mode=0o700, parents=True, exist_ok=False)
     paths = set((ROOT / "backend").rglob("*.py"))
     paths = {p for p in paths if ".venv" not in p.parts}
     paths.update((ROOT / "scripts").glob("*.py"))
+    paths.update((ROOT / "applications/workforce-registry").rglob("*.py"))
     paths.update((ROOT / "examples/runtime").rglob("*"))
     paths.update([MANIFEST, ROOT / manifest["input"], ROOT / manifest["requirements"]])
     hashes = {str(p.relative_to(ROOT)): digest(p) for p in sorted(paths) if p.is_file()}
@@ -265,6 +266,7 @@ def main():
                 "test_reference_readonly",
                 "test_reference_reboot",
                 "test_reference_provider_errors",
+                "test_takeover_joint",
             )
             if name in sys.modules
             for row in sys.modules[name].OBSERVATIONS

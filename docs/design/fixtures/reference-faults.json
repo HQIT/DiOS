@@ -2,7 +2,7 @@
   "version": 1,
   "requirements": "docs/design/reference-scenario-acceptance.md",
   "input": "docs/design/fixtures/reference-scenarios.json",
-  "scope": "Linux/WSL, isolated synthetic fixtures; full scenarios require every original assertion",
+  "scope": "Linux/WSL isolated fixtures; current core acceptance and separately owned application/future cases",
   "harness_tests": [
     "test_reference_faults.QualificationAccountingTests.test_partial_skipped_and_failed_checks_never_pass_a_scenario"
   ],
@@ -21,7 +21,9 @@
       "owners": [
         30,
         59
-      ]
+      ],
+      "delivery_scope": "application",
+      "acceptance_owner": 59
     },
     {
       "id": "R02",
@@ -34,7 +36,9 @@
         10,
         30,
         58
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R03",
@@ -46,7 +50,9 @@
       "owners": [
         30,
         56
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R04",
@@ -59,7 +65,9 @@
         10,
         30,
         56
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R05",
@@ -72,7 +80,9 @@
         30,
         32,
         58
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R06",
@@ -85,7 +95,9 @@
       "owners": [
         30,
         56
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R07",
@@ -97,7 +109,9 @@
       "owners": [
         30,
         32
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R08",
@@ -112,7 +126,9 @@
       "owners": [
         30,
         59
-      ]
+      ],
+      "delivery_scope": "application",
+      "acceptance_owner": 59
     },
     {
       "id": "R09",
@@ -128,7 +144,9 @@
       "owners": [
         30,
         46
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R10",
@@ -140,7 +158,9 @@
       "owners": [
         30,
         32
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R11",
@@ -152,7 +172,9 @@
       "owners": [
         32,
         46
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R12",
@@ -164,7 +186,9 @@
       "owners": [
         32,
         59
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R13",
@@ -178,7 +202,9 @@
         10,
         30,
         51
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R14",
@@ -192,7 +218,9 @@
       "owners": [
         10,
         51
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R15",
@@ -207,7 +235,9 @@
         34,
         58,
         59
-      ]
+      ],
+      "delivery_scope": "core",
+      "acceptance_owner": 29
     },
     {
       "id": "R16",
@@ -218,7 +248,9 @@
       ],
       "owners": [
         59
-      ]
+      ],
+      "delivery_scope": "application",
+      "acceptance_owner": 59
     },
     {
       "id": "R17",
@@ -230,7 +262,9 @@
       "owners": [
         43,
         59
-      ]
+      ],
+      "delivery_scope": "application",
+      "acceptance_owner": 59
     },
     {
       "id": "R18",
@@ -244,7 +278,9 @@
       "owners": [
         11,
         60
-      ]
+      ],
+      "delivery_scope": "application",
+      "acceptance_owner": 60
     }
   ],
   "governance_cases": [
@@ -260,7 +296,8 @@
         "test_application_contracts.ApplicationContractTests.test_confirmed_cancellation_is_an_execution_requirement",
         "test_runtime_worker.DockerWorkerTests.test_docker_cancel_confirms_exit_and_retains_logs"
       ],
-      "gaps": []
+      "gaps": [],
+      "delivery_scope": "core"
     },
     {
       "case": "disconnect",
@@ -273,7 +310,8 @@
       "tests": [
         "test_reference_observation.ObservationQualificationTests.test_query_timeout_activity_and_report_outage"
       ],
-      "gaps": []
+      "gaps": [],
+      "delivery_scope": "core"
     },
     {
       "case": "revoke",
@@ -288,7 +326,8 @@
         "test_reference_revocation.NativeRevocationTests.test_revoked_work_blocks_prepared_and_new_read_and_outbound",
         "test_reference_revocation.NativeRevocationTests.test_revoke_during_mcp_initialize_blocks_read_and_outbound"
       ],
-      "gaps": []
+      "gaps": [],
+      "delivery_scope": "core"
     },
     {
       "case": "callback-replay",
@@ -302,7 +341,8 @@
       "tests": [
         "test_reference_remote_consistency.NativeRemoteConsistencyTests.test_old_epoch_payloads_are_quarantined_once_without_overwriting_new_attempt"
       ],
-      "gaps": []
+      "gaps": [],
+      "delivery_scope": "core"
     },
     {
       "case": "human-takeover",
@@ -312,10 +352,12 @@
       ],
       "required": "人工决定与取消独立记录，迟到结果进入复核",
       "id": "G05",
-      "tests": [],
-      "gaps": [
-        "外部平台 WorkItem 接管决定、独立取消记录和迟到成果复核仍待集成"
-      ]
+      "tests": [
+        "test_takeover_joint.TakeoverJointTests.test_late_result_is_reviewed_without_accepting_cancelled_work"
+      ],
+      "gaps": [],
+      "delivery_scope": "core",
+      "covered": "人工接管与取消分开；迟到完成回调撤权拒绝；已上传成果保留受限运维视图，原复核人记录拒绝采纳意见并交回新轮"
     },
     {
       "case": "implementation-handoff",
@@ -329,7 +371,9 @@
       "tests": [],
       "gaps": [
         "外部平台交接 WorkItem、会话和成果关联，验证权限不扩大和远端引用连续"
-      ]
+      ],
+      "delivery_scope": "future",
+      "current_scope_decision": "Removed from current acceptance; candidate only, not passed"
     }
   ]
 }

@@ -21,7 +21,7 @@ def main():
     assert not Path(installed.__file__).resolve().is_relative_to(ROOT/'applications'), 'Install the wheel first'
     sys.path[:0]=[str(ROOT/'applications/workforce-registry/tests'),str(ROOT/'backend'),
                   str(ROOT/'backend/tests'),str(ROOT/'sdk/python/tests')]
-    names=['test_registry','test_runtime_integration','test_workitems','test_rework','test_groups','test_interventions','test_compensations']
+    names=['test_registry','test_runtime_integration','test_workitems','test_rework','test_groups','test_interventions','test_compensations','test_takeover_joint']
     if args.native_image:
         os.environ['DIOS_WORKITEM_TEST_IMAGE']=args.native_image
         names.append('test_workitem_joint_native')
@@ -51,6 +51,7 @@ def main():
              'applications/workforce-registry/tests/test_groups.py',
              'applications/workforce-registry/tests/test_interventions.py',
              'applications/workforce-registry/tests/test_compensations.py',
+             'applications/workforce-registry/tests/test_takeover_joint.py',
              'applications/workforce-registry/tests/test_workitem_joint_native.py',
              'applications/workforce-registry/tests/workitem_native_fixture.py',
              'backend/app/api/os/runtime_tasks.py','backend/app/services/task_console.py',

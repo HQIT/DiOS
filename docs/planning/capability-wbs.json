@@ -7,18 +7,16 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "F03-2.02",
-    "next_delivery": "F03-2.02/.03 application joint evidence using completed S02-3; retain #59/#60 business ledger and isolated migration scope",
+    "next_work_item": "K01-1.02",
+    "next_delivery": "集中处理本期七项接受条件；#29/#40 工程结项，物理及其依赖九项延期，G06 退出本期",
     "next_delivery_order": [
-      "K03-1.03",
-      "K04-2.04",
-      "D01-3.03",
-      "K01-2.04",
-      "K02-2.03",
-      "D01-4.01",
-      "D01-4.02",
-      "F03-2.02",
-      "F03-2.03"
+      "K01-1.02",
+      "K01-3.01",
+      "K01-5.03",
+      "K03-1.04",
+      "K03-2.03",
+      "K03-3.03",
+      "D01-1.04"
     ],
     "progress_rule": "按工作项报告待实现、待验证、待评审及阻断；不按 Issue 勾选数计算产品百分比。工程验证与责任人接受分别记录。",
     "change_rule": "新增项先绑定原验收；超出原范围单列变更影响和顺序，须经用户确认，不静默扩项。拆分保留旧 ID 与父子关系，统计叶项，分母变化单列。",
@@ -30,7 +28,7 @@
     "deferred": [
       "单节点安装/恢复及 D01-2.03 共享后端干净恢复工程资格已完成；共享执行启用、复制和故障接管按 D01-3.03 验收。",
       "K04-2.02 父子任务预算与等待容量已完成；跨节点资源资格按 K04-2.04 推进，复用 D01-3.02 物理故障环境。",
-      "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
+      "R01/R08/R16/R17 归 #59，R18 归 #60；G05 已通过，G06 为后续候选；#29 本期通用资格已完成，生产迁移需单独授权。",
       "产品与发布接受人已明确为徐刚，五项产品要求已确认；工程方按原验收提供实际效果与证据，发布接受按具体版本、限制和取舍记录。",
       "2026-11-28：第二物理节点、网络连通及宿主故障窗口相关实测按用户要求暂缓，不重复连接探测；原要求、状态和分母保留。",
       "2026-11-28：笔记本仅做功能与低负载回归；H200 的 CPU/内存测试使用独立目录和用户级资源限额，不占用 GPU，不调整山河服务。32/128 档待资源条件合适再安排。",
@@ -41,19 +39,38 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "#40 原五条工程验收 5/5：独立补偿、E2AG 审批及 JSONL/ACP 联合场景通过。停止增加 #40 功能；按既定 F03-2.02/.03 回填证据并继续 #59/#60 尚缺业务验收。真实目录/SSO、物理/HA/容量暂缓；底座保持 61/79。",
+    "next_selection_reason": "按用户确认的收尾范围，优先结项而非新增能力；现有结果仅在相关代码或条件变化时重测。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md",
     "active_application_task": null,
     "progress_dimensions": {
-      "core_closed": 61,
+      "core_closed": 63,
       "core_total": 79,
       "core_remaining": {
         "physical_or_capacity": 6,
-        "application_joint_verification": 2,
+        "application_joint_verification": 0,
         "engineering_ready_review": 6,
         "dependent_closure_review": 4
       },
-      "application_evidence": "docs/planning/remaining-delivery-dependencies.md"
+      "current_delivery": {
+        "total": 70,
+        "done": 63,
+        "pending_acceptance": 7
+      },
+      "deferred_work_items": [
+        "K04-2.04",
+        "D01-3.03",
+        "K01-2.04",
+        "K02-2.03",
+        "D01-4.01",
+        "D01-4.02",
+        "K01-2.05",
+        "D01-3.04",
+        "D01-4.03"
+      ],
+      "cancelled_current_requirements": [
+        "G06"
+      ],
+      "application_evidence": "docs/planning/closure-scope-20261128.md"
     }
   },
   "waves": [
@@ -1202,23 +1219,27 @@
       "id": "F03-2.02",
       "parent": "F03-2",
       "issue": 29,
-      "title": "十八项故障验收夹具",
+      "title": "通用故障资格与十八场景责任映射",
       "kind": "I",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "F03-2-A02",
         "F03-2-A04",
         "F03-2-A05"
       ],
       "deliverable": "逐场景可执行输入、预期状态和断言，复用通用故障夹具",
-      "done_when": "十八场景逐项执行；含不支持能力、断连、撤销、重复回调、人工接管和复核；生产运行无变更",
-      "verification": "十八场景逐项执行；含不支持能力、断连、撤销、重复回调、人工接管和复核；生产运行无变更",
+      "done_when": "十三项通用故障与 G01–G05 有通过证据；十八场景输入和预期完整；五项应用执行验收明确归 #59/#60；G06 移出本期",
+      "verification": "十三项通用故障与 G01–G05 有通过证据；十八场景输入和预期完整；五项应用执行验收明确归 #59/#60；G06 移出本期",
       "dependencies": [
         "K01-2.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "十八项原要求保留；R02/R03/R04/R05/R06/R07/R09/R10/R11/R12/R13/R14/R15 已通过，剩余 5 项。共同治理 G01—G04 已通过，G05/G06 待上层平台联验。G03 以独立 MCP HTTP 服务执行真实文件读取与回环外发：撤权前成功，撤权后已审批调用及新请求均拒绝，初始化期间撤权同样拒绝，原 Attempt/epoch/权限证据保留。 R15 固定 DSH 实际工具请求在执行前拒绝写源码、编译、npm 包脚本和越权外发；源码摘要不变、正向执行控制和 E2AG Attempt 关联已核验。 R05 隔离 Linux VM 真实硬重启及自动 Worker 恢复通过，四类任务身份、E2AG 复核与旧租约隔离有完整证据。 R06 固定 DSH 的实际 HTTP 429/额度响应、单路探测、三路独立恢复与 E2AG 新尝试授权已通过。",
+      "completion_evidence": [
+        "docs/planning/closure-scope-20261128.md",
+        "docs/design/evidence/reference-closure-20261128.json",
+        "docs/design/evidence/human-takeover-joint-20261128.json"
+      ],
+      "basis": "按用户确认范围完成：13 项通用故障和 G01–G05；三路径两实现已有六条真实模型证据。固定版本证据复用，新增 G05 一项通过；原应用断言有明确责任方，历史未通过状态保留。",
       "existing_evidence": [
         "docs/design/evidence/business-evidence-20261123.json",
         "docs/design/evidence/harness-governance-20261125.json",
@@ -1238,7 +1259,7 @@
         "docs/design/evidence/provider-errors-20261127.json"
       ],
       "wave": "W3",
-      "qualification_followup": "保留原要求、状态与全部未通过断言；技术工程证据独立积累，应用相关断言在独立平台/应用就绪后联验，不作为上层应用开工的反向前置。",
+      "qualification_followup": "R01/R08/R16/R17 执行验收归 #59，R18 归 #60；G06 取消本期要求，未计通过。",
       "progress_evidence": [
         "docs/design/reference-fault-qualification.md",
         "docs/design/evidence/reference-faults-20261126.json",
@@ -1254,12 +1275,8 @@
         "docs/design/evidence/node-reboot-20261126.json",
         "docs/design/evidence/provider-errors-20261127.json"
       ],
-      "acceptance_stage": "cross_layer_joint_qualification",
-      "external_acceptance_dependencies": [
-        "S02-3",
-        "A01-5",
-        "D01-5"
-      ]
+      "acceptance_stage": "current_core_scope_complete",
+      "external_acceptance_dependencies": []
     },
     {
       "id": "F03-2.03",
@@ -1267,7 +1284,7 @@
       "issue": 29,
       "title": "跨实现参考场景资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "F03-2-A01",
         "F03-2-A02",
@@ -1275,16 +1292,20 @@
         "F03-2-A05"
       ],
       "deliverable": "同一任务契约的两来源运行与成果证据",
-      "done_when": "固定版本重放代表路径；结果关联、技术失败与人工接管完整，差异可解释",
-      "verification": "固定版本重放代表路径；结果关联、技术失败与人工接管完整，差异可解释",
+      "done_when": "三路径两实现六条结果证据可核验，人工接管与迟到成果复核通过；G06 移出本期",
+      "verification": "三路径两实现六条结果证据可核验，人工接管与迟到成果复核通过；G06 移出本期",
       "dependencies": [
         "F03-2.01",
         "F03-2.02",
         "K01-5.01"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
-      "basis": "三条原始合成路径已由 Cursor ACP 与 DSH 分别通过真实模型执行，共六条；固定输入、来源摘要、Revision、Run/Attempt/Session、E2AG 审批与产物关联通过。两条模型结果错误真实拒绝且原输出保留。G05 人工接管和 G06 WorkItem 跨实现交接仍需独立平台联验；F03-2.02 完整故障资格保留。",
+      "completion_evidence": [
+        "docs/planning/closure-scope-20261128.md",
+        "docs/design/evidence/reference-closure-20261128.json",
+        "docs/design/evidence/human-takeover-joint-20261128.json"
+      ],
+      "basis": "按用户确认范围完成：13 项通用故障和 G01–G05；三路径两实现已有六条真实模型证据。固定版本证据复用，新增 G05 一项通过；原应用断言有明确责任方，历史未通过状态保留。",
       "existing_evidence": [
         "docs/design/evidence/business-evidence-20261123.json",
         "docs/design/evidence/harness-governance-20261125.json",
@@ -1296,13 +1317,9 @@
         "docs/design/reference-harness-qualification-29.md",
         "docs/design/evidence/reference-harnesses-20261127.json"
       ],
-      "acceptance_stage": "cross_layer_joint_qualification",
-      "external_acceptance_dependencies": [
-        "S02-3",
-        "A01-5",
-        "D01-5"
-      ],
-      "qualification_followup": "保留原要求、状态与全部未通过断言；技术工程证据独立积累，应用相关断言在独立平台/应用就绪后联验，不作为上层应用开工的反向前置。"
+      "acceptance_stage": "current_core_scope_complete",
+      "external_acceptance_dependencies": [],
+      "qualification_followup": "R01/R08/R16/R17 执行验收归 #59，R18 归 #60；G06 取消本期要求，未计通过。"
     },
     {
       "id": "K01-1.01",
@@ -1500,7 +1517,9 @@
         "docs/design/evidence/durable-subscription-schedules-20261124.json",
         "docs/design/evidence/worker-reconciliation-regression-20261113.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "K01-2.05",
@@ -1540,7 +1559,9 @@
         "docs/design/evidence/durable-subscription-schedules-20261124.json",
         "docs/design/evidence/worker-reconciliation-regression-20261113.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "K01-3.01",
@@ -1807,7 +1828,9 @@
         "docs/design/evidence/provider-correctness-20261111.json",
         "docs/design/evidence/history-query-regression-20261111.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "K02-3.01",
@@ -2637,7 +2660,9 @@
         "worker_loss_and_accounting": "passed_physical_two_host",
         "network_loss_and_e2ag_revocation": "passed_physical_two_host",
         "old_control_primary_fencing": "pending_ha_fault_environment"
-      }
+      },
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "K04-3.01",
@@ -3103,7 +3128,9 @@
         "docs/design/evidence/a2a-recovery-20261125.json",
         "docs/design/evidence/worker-reconciliation-regression-20261113.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "D01-3.04",
@@ -3131,7 +3158,9 @@
         "docs/design/evidence/a2a-recovery-20261125.json",
         "docs/design/evidence/worker-reconciliation-regression-20261113.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "D01-4.01",
@@ -3164,7 +3193,9 @@
       "progress_evidence": [
         "docs/design/control-load-54.md",
         "docs/design/evidence/control-load-20261128.json"
-      ]
+      ],
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "D01-4.02",
@@ -3193,7 +3224,9 @@
         "docs/design/evidence/capacity-estimate-20261111.json",
         "docs/design/evidence/provider-summary-20261111.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "D01-4.03",
@@ -3224,7 +3257,9 @@
         "docs/design/evidence/capacity-estimate-20261111.json",
         "docs/design/evidence/provider-summary-20261111.json"
       ],
-      "wave": "W4"
+      "wave": "W4",
+      "delivery_disposition": "deferred",
+      "resume_conditions_ref": "docs/planning/closure-scope-20261128.md"
     },
     {
       "id": "K01-5.01",
@@ -3851,6 +3886,23 @@
       ],
       "need": "按 handbook 指定评审/发布责任人。",
       "fallback": "工程实现、测试与开发部署继续；接受结论保持待认领。"
+    }
+  ],
+  "scope_decisions": [
+    {
+      "reference": "docs/planning/closure-scope-20261128.md",
+      "date": "2026-11-28",
+      "application_acceptance_owners": {
+        "R01": 59,
+        "R08": 59,
+        "R16": 59,
+        "R17": 59,
+        "R18": 60
+      },
+      "future_candidates": [
+        "G06"
+      ],
+      "baseline_count_unchanged": 79
     }
   ]
 }

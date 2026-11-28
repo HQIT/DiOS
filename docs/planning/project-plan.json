@@ -483,12 +483,16 @@
         "F01-1"
       ],
       "priority": "最高",
-      "status": "In Progress",
+      "status": "Done",
       "product_scope": "dios-capability",
       "closure_work_items": [
         "F03-2.01",
         "F03-2.02",
         "F03-2.03"
+      ],
+      "closure_scope": "docs/planning/closure-scope-20261128.md",
+      "completion_evidence": [
+        "docs/design/evidence/reference-closure-20261128.json"
       ]
     },
     {
@@ -2352,10 +2356,10 @@
           "work_items": [
             "F03-2.01"
           ],
-          "purpose": "参考场景与扩展契约已就绪；F03-2.02/.03 的应用相关断言在应用实现后联合验收，其他依赖保持原安排。"
+          "purpose": "#29 通用契约及本期参考资格已完成；应用业务断言由 #59/#60 独立验收，不反向阻塞底座结项。"
         }
       },
-      "status": "In Progress",
+      "status": "Done",
       "engineering_start_contracts": [
         "F03-2.01",
         "K01-2.01",
@@ -2363,7 +2367,7 @@
         "S01-2"
       ],
       "application_progress": {
-        "state": "engineering_ready_for_acceptance",
+        "state": "engineering_complete",
         "package": "applications/workforce-registry",
         "completed_slices": [
           "create, pin employee publication, associate Run/artifacts and explicitly confirm or reject",
@@ -2398,9 +2402,10 @@
           "execution": "installed application 0.6.0 and unchanged SDK 0.1.22; actual HTTP/API, Worker and E2AG; isolated native JSONL/ACP processes with 2 Runs/3 attempts; explicit approval and compensation review; old 0.5.0 binary fenced; previous SDK 12-test evidence reused"
         },
         "remaining": [
-          "Final business acceptance against original five criteria; dependent F03-2.02/.03 application joint acceptance retains other applications and isolated migration requirements"
+          "用户业务接受单独记录；工程任务结项，不再作为 #29 前置"
         ],
-        "scope_note": "Original five criteria and dependencies retained. A01-A05 engineering verified within documented synthetic fixture conditions; user business acceptance separate. No core WBS count change. Live directory/SSO and physical validation deferred."
+        "scope_note": "Original five criteria and dependencies retained. A01-A05 engineering verified within documented synthetic fixture conditions; user business acceptance separate. No core WBS count change. Live directory/SSO and physical validation deferred.",
+        "product_acceptance": "pending"
       }
     },
     {
@@ -3349,8 +3354,18 @@
           "work_items": [
             "F03-2.01"
           ],
-          "purpose": "参考场景与扩展契约已就绪；F03-2.02/.03 的应用相关断言在应用实现后联合验收，其他依赖保持原安排。"
+          "purpose": "#29 通用契约及本期参考资格已完成；应用业务断言由 #59/#60 独立验收，不反向阻塞底座结项。"
         }
+      },
+      "owned_reference_acceptance": {
+        "cases": [
+          "R01",
+          "R08",
+          "R16",
+          "R17"
+        ],
+        "status": "pending",
+        "scope_decision": "docs/planning/closure-scope-20261128.md"
       }
     },
     {
@@ -3382,7 +3397,14 @@
         "明确切换所有权 epoch、旧系统停领与活跃任务自然排空、最终产物/outbox 水位、未知会话对账",
         "验证新增历史回交、回滚兼容和前向修复；确定试点范围、数据外发、质量预算、RPO/RTO 和切换窗口"
       ],
-      "dios_scope": []
+      "dios_scope": [],
+      "owned_reference_acceptance": {
+        "cases": [
+          "R18"
+        ],
+        "status": "pending",
+        "scope_decision": "docs/planning/closure-scope-20261128.md"
+      }
     }
   ],
   "boundary_decision": "docs/adr/0011-capability-only-platform-boundary.md",
@@ -3390,18 +3412,16 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "F03-2.02",
-    "next_delivery": "F03-2.02/.03 application joint evidence using completed S02-3; retain #59/#60 business ledger and isolated migration scope",
+    "next_work_item": "K01-1.02",
+    "next_delivery": "集中处理本期七项接受条件；#29/#40 工程结项，物理及其依赖九项延期，G06 退出本期",
     "next_delivery_order": [
-      "K03-1.03",
-      "K04-2.04",
-      "D01-3.03",
-      "K01-2.04",
-      "K02-2.03",
-      "D01-4.01",
-      "D01-4.02",
-      "F03-2.02",
-      "F03-2.03"
+      "K01-1.02",
+      "K01-3.01",
+      "K01-5.03",
+      "K03-1.04",
+      "K03-2.03",
+      "K03-3.03",
+      "D01-1.04"
     ],
     "progress_rule": "按工作项报告待实现、待验证、待评审及阻断；不按 Issue 勾选数计算产品百分比。工程验证与责任人接受分别记录。",
     "change_rule": "新增项先绑定原验收；超出原范围单列变更影响和顺序，须经用户确认，不静默扩项。拆分保留旧 ID 与父子关系，统计叶项，分母变化单列。",
@@ -3413,7 +3433,7 @@
     "deferred": [
       "单节点安装/恢复及 D01-2.03 共享后端干净恢复工程资格已完成；共享执行启用、复制和故障接管按 D01-3.03 验收。",
       "K04-2.02 父子任务预算与等待容量已完成；跨节点资源资格按 K04-2.04 推进，复用 D01-3.02 物理故障环境。",
-      "F03-2.02/.03 原验收保留；R01/R08/R16/R17 和 G05/G06 由独立平台/应用联验，R18 依赖旧系统隔离适配；不反向阻止应用实现，也不启动生产迁移。",
+      "R01/R08/R16/R17 归 #59，R18 归 #60；G05 已通过，G06 为后续候选；#29 本期通用资格已完成，生产迁移需单独授权。",
       "产品与发布接受人已明确为徐刚，五项产品要求已确认；工程方按原验收提供实际效果与证据，发布接受按具体版本、限制和取舍记录。",
       "2026-11-28：第二物理节点、网络连通及宿主故障窗口相关实测按用户要求暂缓，不重复连接探测；原要求、状态和分母保留。",
       "2026-11-28：笔记本仅做功能与低负载回归；H200 的 CPU/内存测试使用独立目录和用户级资源限额，不占用 GPU，不调整山河服务。32/128 档待资源条件合适再安排。",
@@ -3424,19 +3444,38 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "#40 原五条工程验收 5/5：独立补偿、E2AG 审批及 JSONL/ACP 联合场景通过。停止增加 #40 功能；按既定 F03-2.02/.03 回填证据并继续 #59/#60 尚缺业务验收。真实目录/SSO、物理/HA/容量暂缓；底座保持 61/79。",
+    "next_selection_reason": "按用户确认的收尾范围，优先结项而非新增能力；现有结果仅在相关代码或条件变化时重测。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md",
     "active_application_task": null,
     "progress_dimensions": {
-      "core_closed": 61,
+      "core_closed": 63,
       "core_total": 79,
       "core_remaining": {
         "physical_or_capacity": 6,
-        "application_joint_verification": 2,
+        "application_joint_verification": 0,
         "engineering_ready_review": 6,
         "dependent_closure_review": 4
       },
-      "application_evidence": "docs/planning/remaining-delivery-dependencies.md"
+      "current_delivery": {
+        "total": 70,
+        "done": 63,
+        "pending_acceptance": 7
+      },
+      "deferred_work_items": [
+        "K04-2.04",
+        "D01-3.03",
+        "K01-2.04",
+        "K02-2.03",
+        "D01-4.01",
+        "D01-4.02",
+        "K01-2.05",
+        "D01-3.04",
+        "D01-4.03"
+      ],
+      "cancelled_current_requirements": [
+        "G06"
+      ],
+      "application_evidence": "docs/planning/closure-scope-20261128.md"
     }
   }
 }
