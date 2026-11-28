@@ -1346,6 +1346,15 @@
           "K03-1.03",
           "K03-1.04"
         ]
+      },
+      "cross_host_qualification": {
+        "work_item": "K03-1.03",
+        "status": "engineering_verified",
+        "evidence": "docs/design/evidence/identity-access-h200-20261128.json",
+        "checks": 7,
+        "remaining": [
+          "K03-1.04"
+        ]
       }
     },
     {
@@ -3268,8 +3277,8 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K03-1.03",
-    "next_delivery": "K03-1.03",
+    "next_work_item": "K04-2.04",
+    "next_delivery": "K04-2.04",
     "next_delivery_order": [
       "K03-1.03",
       "K04-2.04",
@@ -3301,7 +3310,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "H200 SSH 与独立低负载入口已可用；受限资源测量出现撤权超时，容量资格保留待验。下一步使用现有跨主机身份与 E2AG 权限夹具做低负载验证，暂缓高并发和全局宿主故障。",
+    "next_selection_reason": "K03-1.03 已在 WSL/H200 通过；按既定顺序推进 K04-2.04 的低并发跨节点预算与恢复验证，复用现有 Worker 及 E2AG 证据。H200 高并发、全局宿主故障和第二笔记本连接测试继续暂缓。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
   }
 }

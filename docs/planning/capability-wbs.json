@@ -7,8 +7,8 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K03-1.03",
-    "next_delivery": "K03-1.03",
+    "next_work_item": "K04-2.04",
+    "next_delivery": "K04-2.04",
     "next_delivery_order": [
       "K03-1.03",
       "K04-2.04",
@@ -40,7 +40,7 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "H200 SSH 与独立低负载入口已可用；受限资源测量出现撤权超时，容量资格保留待验。下一步使用现有跨主机身份与 E2AG 权限夹具做低负载验证，暂缓高并发和全局宿主故障。",
+    "next_selection_reason": "K03-1.03 已在 WSL/H200 通过；按既定顺序推进 K04-2.04 的低并发跨节点预算与恢复验证，复用现有 Worker 及 E2AG 证据。H200 高并发、全局宿主故障和第二笔记本连接测试继续暂缓。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
   },
   "waves": [
@@ -1957,7 +1957,7 @@
       "issue": 33,
       "title": "跨主机身份与对象权限资格",
       "kind": "V",
-      "state": "verification_pending",
+      "state": "done",
       "requirements": [
         "K03-1-A01",
         "K03-1-A02",
@@ -1973,7 +1973,10 @@
         "S02-1.02"
       ],
       "owner": "Codex 工程",
-      "completion_evidence": [],
+      "completion_evidence": [
+        "docs/design/evidence/identity-access-h200-20261128.json",
+        "docs/design/identity-access-qualification-33.md"
+      ],
       "basis": "已有 OIDC、Keycloak、OpenBao、续期及注销；企业环境/轮换/跨主机完整资格待闭环。",
       "existing_evidence": [
         "docs/design/evidence/worker-credential-renewal-20261113.json",
@@ -1982,10 +1985,11 @@
         "docs/design/evidence/managed-secrets-20261124.json"
       ],
       "wave": "W4",
-      "qualification_followup": "开发 AppRole 12 小时 SecretID 到期与原生锁定已恢复；两个 Agent 认证、受管读取正常，无效 Bearer 返回 403。长期平台身份供给与物理跨主机资格仍按本项承接。 实际 HTTPS/mTLS、同摘要不同 ACL、撤销前/初始化期间工具拦截、加密流量及输出检查通过；修复请求取消导致连接清理异常，SQLite/PG 64 项回归通过。第二台主机当前 Tailscale/SSH 不可达，物理双机资格保留待验证。",
+      "qualification_followup": "WSL 控制端与 H200 独立 Linux 客户端完成 7 组跨主机断言；实际 HTTPS/mTLS、对象 ACL、凭据撤销、工具最终执行点和 E2AG Work 撤销均通过。复用既有身份生命周期、Secret 交付及 SQLite/PG 取消回归；独立安全评审仍归 K03-1.04。",
       "progress_evidence": [
         "docs/design/identity-access-qualification-33.md",
-        "docs/design/evidence/identity-access-20261127.json"
+        "docs/design/evidence/identity-access-20261127.json",
+        "docs/design/evidence/identity-access-h200-20261128.json"
       ]
     },
     {

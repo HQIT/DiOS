@@ -38,6 +38,10 @@ backend/.venv/bin/python scripts/qualify_identity_access.py \
 
 ## 当前结果
 
-本地独立进程的 HTTPS、mTLS、实际 MCP 读取与撤销验证通过。第二台物理主机当前无法经 Tailscale/SSH 连接，K03-1.03 保持待验证；整体 WBS 完成数保持 60/79。对应[工程证据](evidence/identity-access-20261127.json)分别记录已通过断言和双机缺口。
+WSL 控制端与 H200 独立 Linux 客户端完成 7 组双机断言，19 次客户端观测全部通过；两端 boot 摘要不同。真实 HTTPS/mTLS、同摘要不同 ACL、令牌撤销、证书与受众校验、MCP 初始化期间撤权、E2AG Work 撤销及凭据保护均有[双机工程证据](evidence/identity-access-h200-20261128.json)。实际 MCP 工具调用仅一次，付费模型调用为零，服务端异常为零。
+
+对应代码的 [Linux 交付 CI](https://github.com/HQIT/DiOS/actions/runs/46099092113) 已通过，覆盖请求取消/身份边界、安装升级回滚及原生 Worker 预算恢复。
+
+K03-1.03 已完成；K03-1.04 独立安全评审继续待评审。身份生命周期与 Secret 交付采用此前固定版本证据，未变化部分不重复执行。第二笔记本的连接及全局宿主故障实测仍暂缓。
 
 证书绑定依据 [RFC 8705](https://www.rfc-editor.org/rfc/rfc8705.html)，逐请求授权与拒绝规则参考 [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)。

@@ -1,0 +1,273 @@
+{
+  "work_item": "K03-1.03",
+  "passed": true,
+  "complete": true,
+  "mode": "physical-two-host",
+  "checks": [
+    "identical-content-distinct-object-ACL-at-actual-HTTPS-read",
+    "ACL-and-bearer-token-revocation-reject-actual-read",
+    "expired-token-and-wrong-server-certificate-rejected",
+    "remote-tool-certificate-token-expiry-and-audience-bound",
+    "machine-revocation-before-and-during-MCP-initialization-blocks-actual-tool-call",
+    "E2AG-work-revocation-rejects-remote-channel",
+    "captured-TLS-wire-client-output-and-tool-artifacts-have-no-credential-values"
+  ],
+  "observations": [
+    {
+      "pid": 881191,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "status": 200,
+      "sha256": "35110828c5d3ed93740479c142c8645974f244bd49e3d06beaaeb5444ed05cc6",
+      "size": 31,
+      "cache_control": "no-store"
+    },
+    {
+      "pid": 881215,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "status": 404,
+      "sha256": "2e8d7e003284654cf7becb163a4456b28e75c011ad530fb54efc58b4743c74f0",
+      "size": 22,
+      "cache_control": "no-store"
+    },
+    {
+      "pid": 881223,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "status": 200,
+      "sha256": "35110828c5d3ed93740479c142c8645974f244bd49e3d06beaaeb5444ed05cc6",
+      "size": 31,
+      "cache_control": "no-store"
+    },
+    {
+      "pid": 881247,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "status": 404,
+      "sha256": "2e8d7e003284654cf7becb163a4456b28e75c011ad530fb54efc58b4743c74f0",
+      "size": 22,
+      "cache_control": "no-store"
+    },
+    {
+      "pid": 881258,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "status": 404,
+      "sha256": "2e8d7e003284654cf7becb163a4456b28e75c011ad530fb54efc58b4743c74f0",
+      "size": 22,
+      "cache_control": "no-store"
+    },
+    {
+      "pid": 881272,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "status": 401,
+      "sha256": "ad466e4d42a9c135816e075019c6495eaa884c0e74f274629dbf48c24821cd85",
+      "size": 33,
+      "cache_control": "no-store"
+    },
+    {
+      "pid": 881290,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "status": 401,
+      "sha256": "ad466e4d42a9c135816e075019c6495eaa884c0e74f274629dbf48c24821cd85",
+      "size": 33,
+      "cache_control": "no-store"
+    },
+    {
+      "pid": 881302,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "error": "TLS_CERTIFICATE_REJECTED"
+    },
+    {
+      "pid": 881317,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "ok": true,
+        "value": {
+          "child_tasks": [],
+          "client_read_tool": null,
+          "tools": [
+            {
+              "description": "E2AG governed tool: read",
+              "inputSchema": {
+                "additionalProperties": false,
+                "type": "object"
+              },
+              "name": "read"
+            }
+          ],
+          "worker_secret_refs": []
+        }
+      }
+    },
+    {
+      "pid": 881329,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "error": "WORKER_IDENTITY_DENIED",
+        "ok": false
+      }
+    },
+    {
+      "pid": 881339,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "error": "WORKER_IDENTITY_SCOPE_DENIED",
+        "ok": false
+      }
+    },
+    {
+      "pid": 881353,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "error": "WORKER_IDENTITY_DENIED",
+        "ok": false
+      }
+    },
+    {
+      "pid": 881365,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "error": "WORKER_IDENTITY_EXPIRED_OR_REVOKED",
+        "ok": false
+      }
+    },
+    {
+      "pid": 881390,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "ok": true,
+        "value": {
+          "approval_state": "pending",
+          "expired": false,
+          "id": "8f11a6f1-5cda-45b1-a4bb-16c33979ea80",
+          "reason": null,
+          "state": "awaiting_approval",
+          "version": 1
+        }
+      }
+    },
+    {
+      "pid": 881408,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "ok": true,
+        "value": {
+          "approval_state": "consumed",
+          "expired": false,
+          "id": "8f11a6f1-5cda-45b1-a4bb-16c33979ea80",
+          "reason": "TOOL_RESULT_VALIDATED",
+          "result": {
+            "content": [
+              {
+                "text": "受控读取：同内容不同权限🙂",
+                "type": "text"
+              }
+            ],
+            "isError": false
+          },
+          "state": "succeeded",
+          "version": 4
+        }
+      }
+    },
+    {
+      "pid": 881438,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "ok": true,
+        "value": {
+          "approval_state": "pending",
+          "expired": false,
+          "id": "957557e8-bad3-45e9-86cd-9e215eb9f852",
+          "reason": null,
+          "state": "awaiting_approval",
+          "version": 1
+        }
+      }
+    },
+    {
+      "pid": 881467,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "error": "WORKER_IDENTITY_EXPIRED_OR_REVOKED",
+        "ok": false
+      }
+    },
+    {
+      "pid": 881478,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "error": "WORKER_IDENTITY_EXPIRED_OR_REVOKED",
+        "ok": false
+      }
+    },
+    {
+      "pid": 881493,
+      "boot_sha256": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330",
+      "tls": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "response": {
+        "error": "AUTH_REVOKED",
+        "ok": false
+      }
+    }
+  ],
+  "server_errors": [],
+  "implementation_commit": "d0bba1a36c315cd0a5519b2b29276d62879a42c1",
+  "controller_boot_sha256": "248799648d6da6d67faced5c7cdf815a8d5248292ae3bddd9a71f24b1fcff0a9",
+  "wire": [
+    {
+      "bytes": 54778,
+      "sha256": "b0dbce8c68ee388fe5405f6fbe361c24c4d0e2d09835c1396811b4ae215ac7e7"
+    },
+    {
+      "bytes": 84325,
+      "sha256": "e0d3d122e9d587d65eaaa408e0b3bda4a0c900dc2da91b8a9afe9883c144694e"
+    }
+  ],
+  "tool_calls": 1,
+  "run_id": "552eb6a1-7869-403c-adcf-d6ecf7b2fd65",
+  "attempt_id": "816d6e76-375b-482a-aeb0-b80fd5fdd4a9",
+  "paid_model_calls": 0,
+  "limits": [
+    "Synthetic active Attempt is established by the qualification administrator; no Agent or customer task is launched.",
+    "Local mode does not satisfy physical two-host acceptance.",
+    "MCP source is synthetic on controller loopback; cross-host traffic carries mTLS or HTTPS.",
+    "Existing native IdP/credential rotation evidence remains separately referenced."
+  ],
+  "source_sha256": {
+    "scripts/qualify_identity_access.py": "aaf6757780ce9586f81d682f6f767e812f857a7667723e17c623f8fa717bfa81",
+    "scripts/fixtures/identity_access_probe.py": "46bb15e7c9cec06fd04be3551f04ea5e7ec211860fb00edd694b2a5d8515b02c"
+  }
+}
