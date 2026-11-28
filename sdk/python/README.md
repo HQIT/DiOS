@@ -157,3 +157,5 @@ report = client.application_compatibility(revision_ref)
 ```
 
 Strict clients verify the server before their first mutating request and validate the version header on every successful response. `ContractMismatch` retains `ambiguous` and the original `idempotency_key` if a write might have been accepted. Keep the same logical identity and inspect its receipt before retrying. Omitting `required_contract` preserves legacy behavior. Application discovery and compatibility previews require platform operator access; task and object access retain their existing permissions.
+
+SDK 0.1.22 adds read-only `TaskClient.tools(run_id)` and `TaskClient.tool(run_id, invocation_id)` for authorized runtime tool and approval observations. The list preserves `at_limit` and observation metadata; individual reads refresh known historical invocations. Decisions and dispatch remain governed by existing DiOS endpoints.

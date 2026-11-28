@@ -92,7 +92,7 @@ class Registry:
             self.db = sqlite3.connect(path)
             self.db.row_factory = sqlite3.Row
             schema_version = self.db.execute("PRAGMA user_version").fetchone()[0]
-            check(schema_version in (0,1,2,3), "UNSUPPORTED_REGISTRY_SCHEMA")
+            check(schema_version in (0,1,2,3,4), "UNSUPPORTED_REGISTRY_SCHEMA")
             self.db.execute("PRAGMA journal_mode=WAL"); self.db.execute("PRAGMA synchronous=FULL")
             self.db.executescript('''
                 CREATE TABLE IF NOT EXISTS templates (id TEXT, version INTEGER, definition TEXT NOT NULL, PRIMARY KEY(id,version));

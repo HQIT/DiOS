@@ -81,7 +81,36 @@ flowchart TB
 
 父级状态为 `group_draft → coordinating → awaiting_group_review → group_confirmed / group_needs_revision`。本切片支持一层拆分；父级退回保留决策及已确认子项，重新规划与接管由后续工作承接。嵌套拆分不列为本轮或 #40 新增验收要求。
 
-独立应用库当前为 schema 3，保留原工作项、轮次和提交键。升级前备份完整状态目录；[实际 0.3.0 旧程序验证](evidence/workitem-group-upgrade-fence-40-20261128.json)返回 `UNSUPPORTED_REGISTRY_SCHEMA`，阻止旧程序静默改派已拆分子项。DiOS 数据库和通用 API 保持原契约。
+独立应用库升级保留原工作项、轮次和提交键。升级前备份完整状态目录；[实际 0.3.0 旧程序验证](evidence/workitem-group-upgrade-fence-40-20261128.json)返回 `UNSUPPORTED_REGISTRY_SCHEMA`，阻止旧程序静默改派已拆分子项。DiOS 数据库和通用 API 保持原契约。
+
+## 人工接管与审批关联
+
+人工接管将业务归属与运行状态分开。原复核人登记接管原因和请求键，上层应用先保存意图，再使用原员工专用凭据请求 DiOS 取消。当前 API 继续校验员工的取消权限；复核人使用自己的权限读取 Run。持有成果读取权限不自动取得运行控制权。
+
+```mermaid
+flowchart TB
+  R[人工请求接管] --> P[持久接管意图]
+  P --> C[DiOS 取消与 E2AG 拦截]
+  C --> W[等待原 Run 终态]
+  W --> H[人工持有并排查]
+  H --> B[记录意见并交回员工]
+  B --> N[新轮次与当前授权]
+  N --> V[成果与独立业务复核]
+  style C fill:#eaf1ff,stroke:#4263eb,color:#14244d
+  style H fill:#fff4d6,stroke:#b58100,color:#3d2a00
+```
+
+状态 `takeover_pending → human_owned → bound` 分别表示等待取消确认、人工持有和交回新轮。查询超时、取消应答未知和重启不会结束等待或新建 Run；同请求键可接续原意图。已有取消请求时读取实际执行状态，Worker 确认终态前禁止派发。旧执行者的后续动作继续受 E2AG 限制。未确认派发的工作项先沿原提交键取得回执，再申请接管。
+
+`handback` 固定原员工，记录人工处理意见和新目标；原轮、Run、成果及接管记录留存，新轮重新验证员工发布和当前授权。人工持有、审批通过与业务完成各自独立。父级汇总仍等待子项重新执行和人工确认。
+
+审批关联使用现有 `GET /runs/{run_id}/tools` 和单调用读取 API。上层保存轮次、Run、Attempt、Session、调用 ID、参数摘要、审批决定、审批人、有效期、错误及观察时间；审批决定仍通过 DiOS Console/API 的独立审批凭据与 `tool.approve` 门禁执行。审批失效和执行拒绝可继续刷新到原工作项，业务状态不随审批通过而关闭。
+
+列表提供最近 50 条调用，达到上限时标记部分观察；已知历史调用支持按 ID 刷新，旧记录不因缺席当前列表而丢失。同步失败保留历史并标记不可用，低版本不能覆盖高版本。缓存展示是带时间的观察，执行时的审批有效性由 DiOS 再检查。
+
+数据表 `work_takeovers / work_handbacks / work_approvals / work_approval_sync` 均位于独立上层应用。DiOS 仅增加 SDK 的通用工具读取方法，服务端和 E2AG 契约不变。独立应用 schema 4 阻止 0.4.0 旧包写入，见[旧程序拒写证据](evidence/workitem-intervention-upgrade-fence-40-20261128.json)。
+
+[人工接管与审批 CLI](../../applications/workforce-registry/README.md#人工接管与运行时审批关联)提供可运行命令。本切片交付受信任运维入口，接管后由原员工继续执行；补偿及完整跨实现联合场景按原验收接续。
 
 ## 原五条验收与后续 WBS
 
@@ -89,10 +118,10 @@ flowchart TB
 | --- | --- | --- |
 | A01 Run 完成不自动等于业务验收通过 | 通过 | 最终业务接受 |
 | A02 上级→多岗位→汇总复核可闭环 | 通过 | 最终业务接受 |
-| A03 失败、人工接管、重复事件和审批撤销可追踪 | 部分通过 | 人工接管与审批撤销联验 |
-| A04 多实现协作重试、补偿、审批关联保留，业务复核关闭 | 部分通过 | 补偿、审批关联及多实现联合验收 |
-| A05 重复触发、技术重试、人工验证与业务关闭独立，无默认外发 | 部分通过 | 触发、接管、审批和关闭的完整联合验收 |
+| A03 失败、人工接管、重复事件和审批撤销可追踪 | 通过 | 最终业务接受 |
+| A04 多实现协作重试、补偿、审批关联保留，业务复核关闭 | 部分通过 | 补偿及多实现联合验收 |
+| A05 重复触发、技术重试、人工验证与业务关闭独立，无默认外发 | 部分通过 | 触发、技术重试和业务关闭的完整联合验收 |
 
-[首轮证据](evidence/workitem-40-20261128.json)、[返工证据](evidence/workitem-rework-40-20261128.json)与[多岗位应用包回归](evidence/workitem-groups-40-20261128.json)覆盖持续累积的工程场景。当前安装包 0.4.0 共 29 项测试通过、0 跳过，其中 18 项为 WorkItem 场景；使用真实 API、管理员子进程、Worker 和 E2AG，Worker 采用确定性测试适配器。[CLI 示例](../../applications/workforce-registry/README.md#多岗位拆分与父级汇总复核)包含拆分、独立派发、成果汇总和父级确认。
+[首轮证据](evidence/workitem-40-20261128.json)、[返工证据](evidence/workitem-rework-40-20261128.json)与[多岗位应用包回归](evidence/workitem-groups-40-20261128.json)覆盖持续累积的工程场景。当前[接管与审批应用包回归](evidence/workitem-interventions-40-20261128.json)采用安装包 0.5.0，共 34 项测试通过、0 跳过，其中 23 项为 WorkItem 场景；使用真实 API、管理员子进程、Worker 和 E2AG，Worker 采用确定性测试适配器。[CLI 示例](../../applications/workforce-registry/README.md#多岗位拆分与父级汇总复核)包含拆分、独立派发、成果汇总和父级确认。
 
-下一切片为人工接管与运行时审批关联，随后补齐补偿与联合验收。#40 保持开放，原五条要求和依赖保留；真实目录/SSO 与物理环境继续暂缓。底座统计保持 61/79，上层应用按本表单独记录。
+下一切片为补偿与 A04/A05 联合验收，复用已经通过的接管、返工和审批证据。#40 保持开放，原五条要求和依赖保留；真实目录/SSO 与物理环境继续暂缓。底座统计保持 61/79，上层应用按本表单独记录。

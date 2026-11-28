@@ -10,7 +10,7 @@
 
 ```bash
 pip wheel --no-deps sdk/python applications/workforce-registry -w workspace/workforce-dist
-pip install workspace/workforce-dist/dios_sdk-0.1.21-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.4.0-py3-none-any.whl
+pip install workspace/workforce-dist/dios_sdk-0.1.22-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.5.0-py3-none-any.whl
 dios-workforce --help
 dios-workitem --help
 ```
@@ -108,7 +108,7 @@ dios-workitem --state-dir /srv/workforce/state show --id work-001
 
 `accept` 进入 `confirmed`，`reject` 进入 `needs_revision`。确认再次读取真实成果并核验权限；撤权或成果变化会拒绝确认。相同决策重放只返回原回执，冲突决策拒绝。Run 成功、人工退回与业务通过分别记录。
 
-派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。每个工作项可顺序关联多个返工轮次，每轮对应一个 Run。接管、补偿和审批待办沿 #40 后续切片推进。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
+派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。每个工作项可顺序关联多个返工轮次，每轮对应一个 Run。人工接管与审批关联见下节；补偿与联合验收沿 #40 原计划推进。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
 
 ## 退回返工与多 Run 历史
 
@@ -128,7 +128,7 @@ dios-workitem --state-dir /srv/workforce/state show --id work-001
 
 `show` 返回按顺序排列的 `rounds`，包括已归档轮次和当前轮次，保留每轮的 Run、证据及人工决策。所有轮次归属同一个 WorkItem；不新建聊天或自动发送消息。
 
-升级前结束本地管理命令，备份整个状态目录。首次打开 WorkItem 时原子升级本地数据库，旧工作项映射为第 1 轮，未确认提交保持原键。0.4.0 使用 schema 3，阻止 0.1/0.2/0.3 旧包写入；新包不降低 schema。尚无新写入时可恢复完整升级前备份回退；已有新轮次或父子关系时保留新库和所有 Run 关联，优先前向修复。
+升级前结束本地管理命令，备份整个状态目录。首次打开 WorkItem 时原子升级本地数据库，旧工作项映射为第 1 轮，未确认提交保持原键。0.5.0 使用 schema 4，阻止 0.1/0.2/0.3/0.4 旧包写入；新包不降低 schema。尚无新写入时可恢复完整升级前备份回退；已有新轮次或父子关系时保留新库和所有 Run 关联，优先前向修复。
 
 ## 多岗位拆分与父级汇总复核
 
@@ -156,6 +156,36 @@ dios-workitem --state-dir /srv/workforce/state show --id group-001
 
 汇总提供按清单排列的成果与决策，包含子项轮次、员工修订、Run 和校验信息。父级确认重新读取全部成果并检验权限与完整性，缺项或撤权时保留未确认状态。通过进入 `group_confirmed`；退回进入 `group_needs_revision`，原子项和历史保持。父级退回后的重新规划留待接管/改派流程，不自动重开已经确认的子项。当前支持一层拆分，递归拆分单独安排。
 
+## 人工接管与运行时审批关联
+
+0.5.0 提供人工接管、取消对账、交回员工和审批关联查询。接管由工作项原复核人发起，保留已认证身份、原因与稳定请求键。应用控制器使用该员工原有的专用凭据请求取消，DiOS 校验其 `run.cancel` 权限；复核人须能读取关联 Run。原 Run 尚未结束时保持 `takeover_pending`，确认终态后进入 `human_owned`，期间禁止派发和业务确认。
+
+```bash
+dios-workitem --state-dir /srv/workforce/state takeover --id review-001 --reviewer reviewer --config config.json --reason '人工检查待处理异常' --key takeover-001 --expected-version 3
+dios-workitem --state-dir /srv/workforce/state reconcile-takeover --id review-001 --reviewer reviewer --config config.json --expected-version 4
+```
+
+应答未知时重放相同接管参数，或使用当前工作项版本对账。读取超时不表示原执行结束；取消请求已送达但 Worker 尚未确认时继续等待。具体版本以命令返回或 `show` 为准。未确认派发的 `dispatching` 工作项先沿原幂等键取得 Run 回执，再接管。
+
+人工排查后，使用 `handback` 记录处理意见和新目标，开启新的执行轮次。它保留员工及原历史，验证员工当前发布与身份，后续 `dispatch` 重新经过 E2AG。人工处理意见不会直接成为业务验收结果。
+
+```bash
+dios-workitem --state-dir /srv/workforce/state handback --id review-001 --reviewer reviewer --config config.json --goal '按确认的目标继续执行' --note '异常原因已确认，继续处理' --key handback-001 --expected-version 5
+dios-workitem --state-dir /srv/workforce/state dispatch --id review-001 --config config.json --expected-version 6
+```
+
+审批通过已有 DiOS Console/API 处理。`sync-approvals` 读取当前或指定历史轮次的工具调用，关联 WorkItem、轮次、Run、Attempt、Session、调用 ID、参数摘要、审批人、决定、有效期与失败原因。复核凭据须单独具有 `tool.read`；业务接管或父子关系均不授予此权限。
+
+```bash
+dios-workitem --state-dir /srv/workforce/state sync-approvals --id review-001 --reviewer reviewer --config config.json --expected-version 7
+dios-workitem --state-dir /srv/workforce/state sync-approvals --id review-001 --reviewer reviewer --config config.json --round 1 --invocation INVOCATION_ID --expected-version 7
+dios-workitem --state-dir /srv/workforce/state show --id review-001
+```
+
+列表最多返回现有 API 的 50 条最近调用，`partial=true` 表示范围不完整；已知旧调用可用 `--invocation` 精确刷新，历史记录不因未出现在本次列表而删除。每条记录显示实际观察时间，读取失败将本轮观察标记为 `unavailable`。旧版本响应拒绝覆盖新版本；重复响应不重复生成状态事件。缓存中的 `approved` 是历史观察，执行时仍由 E2AG 重检审批有效性与当前权限。
+
+当前人工接管用于停止执行、排查并交回原员工。补偿与跨实现联合验收继续按 #40 原要求收尾。操作入口为受信任运维 CLI，外部业务消息默认不发送。
+
 ## 发布与恢复规则
 
 模板版本和员工修订不可修改；修改模板需新版本，修改员工产生新草稿。发布校验真实身份、可见执行配置、授权动作、E2AG 和所需接口版本。失败保留当前已发布版本。多个工作类型可分别绑定不同 profile。
@@ -174,6 +204,6 @@ CLI 进程持有独占锁，授权更新子进程继承同一锁。部署升级�
 python scripts/qualify_workforce_registry.py --output workspace/workforce-qualification
 ```
 
-测试使用真实 API、中间件、E2AG 存储/校验和管理员子进程；Worker 使用确定性测试适配器。覆盖模板/发布、身份隔离、结果关联、重启、应答丢失、停用撤权及版本拒绝。真实企业目录/SSO、物理 Runtime 替换和跨 Harness 在线切换沿原验收继续。
+测试使用真实 API、中间件、E2AG 存储/校验和管理员子进程；Worker 使用确定性测试适配器。覆盖模板/发布、身份隔离、结果关联、重启、应答丢失、停用撤权、人工接管、取消对账、交回授权、审批关联与失效、版本拒绝。真实企业目录/SSO、物理 Runtime 替换和跨 Harness 在线切换沿原验收继续。
 
 [员工分层与验收](../../docs/design/workforce-registry-37.md) · [WorkItem 状态与验收](../../docs/design/workitem-40.md)

@@ -30,6 +30,10 @@ class Client:
     async def submit(self, profile_id, sample_id, goal, **kwargs):
         return await asyncio.to_thread(self.sdk.submit, profile_id, sample_id, goal, **kwargs)
     async def get(self, run_id): return await asyncio.to_thread(self.sdk.get, run_id)
+    async def cancel(self, run_id, *, expected_version):
+        return await asyncio.to_thread(self.sdk.cancel, run_id, expected_version=expected_version)
+    async def tools(self, run_id): return await asyncio.to_thread(self.sdk.tools, run_id)
+    async def tool(self, run_id, invocation_id): return await asyncio.to_thread(self.sdk.tool, run_id, invocation_id)
     async def artifact(self, run_id, artifact_id): return await asyncio.to_thread(self.sdk.artifact, run_id, artifact_id)
 
 

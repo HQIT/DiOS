@@ -37,7 +37,19 @@ class WorkItems:
             self.db.execute('''CREATE TABLE IF NOT EXISTS work_children (
                 parent_id TEXT, child_id TEXT UNIQUE NOT NULL, position INTEGER NOT NULL,
                 PRIMARY KEY(parent_id,position))''')
-            self.db.execute('PRAGMA user_version=3')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS work_takeovers (
+                work_id TEXT, round_number INTEGER, request TEXT NOT NULL, status TEXT NOT NULL,
+                run_state TEXT, PRIMARY KEY(work_id,round_number))''')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS work_handbacks (
+                work_id TEXT, request_key TEXT, request TEXT NOT NULL, receipt TEXT NOT NULL,
+                PRIMARY KEY(work_id,request_key))''')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS work_approvals (
+                work_id TEXT, round_number INTEGER, invocation_id TEXT, snapshot TEXT NOT NULL,
+                observed REAL NOT NULL, PRIMARY KEY(work_id,round_number,invocation_id))''')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS work_approval_sync (
+                work_id TEXT, round_number INTEGER, observation TEXT NOT NULL,
+                PRIMARY KEY(work_id,round_number))''')
+            self.db.execute('PRAGMA user_version=4')
             self.db.commit()
         except BaseException:
             self.db.rollback();raise
@@ -61,7 +73,9 @@ class WorkItems:
             'SELECT snapshot FROM work_rounds WHERE work_id=? ORDER BY round_number',(work_id,))]
         children=[self.get(r[0]) for r in self.db.execute(
             'SELECT child_id FROM work_children WHERE parent_id=? ORDER BY position',(work_id,))]
-        return {'work_item':current,'rounds':rounds+[current],'children':children,'events':[dict(r) for r in self.db.execute(
+        from .interventions import Interventions
+        return {'work_item':current,'rounds':rounds+[current],'children':children,
+                **Interventions(self).history(work_id),'events':[dict(r) for r in self.db.execute(
             'SELECT * FROM work_events WHERE work_id=? ORDER BY sequence',(work_id,))]}
 
     async def create(self, work_id, title, kind, sample, goal, reviewer):

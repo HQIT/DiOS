@@ -27,6 +27,15 @@ class ClientTests(unittest.TestCase):
         self.url='http://127.0.0.1:'+str(self.server.server_port)
         self.client=TaskClient(self.url,'private-token',timeout=.2)
     def tearDown(self):self.server.shutdown();self.server.server_close();self.thread.join()
+    def test_tool_observation_uses_scoped_read_routes_and_preserves_denial(self):
+        self.body={'items':[], 'at_limit':True}
+        self.assertTrue(self.client.tools('run/id')['at_limit'])
+        self.client.tool('run/id','call/id')
+        self.assertEqual([v[1] for v in self.requests],['/api/os/runtime/runs/run%2Fid/tools','/api/os/runtime/runs/run%2Fid/tools/call%2Fid'])
+        self.assertTrue(all(v[0]=='GET' and v[3]=='Bearer private-token' for v in self.requests))
+        self.status=404;self.body={'detail':'AUTH_ACTION_DENIED'}
+        with self.assertRaises(ApiError):self.client.tools('run/id')
+
     def test_registered_and_dynamic_submission_preserve_keys_and_input(self):
         self.client.submit('profile','input','中文目标',idempotency_key='stable')
         self.client.submit_input('profile',{'id':'input','name':'中文','payload':{'opaque':1}},'goal',idempotency_key='dynamic')

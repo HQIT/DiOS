@@ -31,6 +31,8 @@ jobs:
           pip install workspace/workforce-dist/*.whl
       - name: Qualify publication, submission and E2AG revocation
         run: python scripts/qualify_workforce_registry.py --output workspace/workforce-qualification
+      - name: Qualify SDK task and approval observation client
+        run: python -m unittest discover -s sdk/python/tests -p test_sdk.py -v > workspace/workforce-qualification/sdk-tests.log 2>&1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
