@@ -1,0 +1,224 @@
+{
+  "work_item": "K04-2.04",
+  "passed": true,
+  "complete": false,
+  "mode": "physical-two-host",
+  "implementation_commit": "c44bcf325d08e49959810c565a01c5e8af19a7e9",
+  "tests": 2,
+  "seconds": 176.969,
+  "host_boot_sha256": {
+    "controller": "248799648d6da6d67faced5c7cdf815a8d5248292ae3bddd9a71f24b1fcff0a9",
+    "worker": "db0141db20c28a2c28910b60ab462c2e7b2c3286289c2ab0cef824921bf53330"
+  },
+  "observations": [
+    {
+      "provider": "sqlite",
+      "scope": "worker-test-2bf74cb9-10c7-4410-b456-5e73a22184b9",
+      "real_concurrency": {
+        "actual_concurrency": 2,
+        "observed_at": 1795835775.1679957,
+        "workers": [
+          {
+            "id": "qualified:c0a53ca8e7cb4e76b3355eb43ca658cd",
+            "pid": 2637582,
+            "instance": "f950f5d8-29d1-41af-8882-11c02b57d7f8"
+          },
+          {
+            "id": "qualified:2f7c7b6ce1a34e81a0b5628b5930a7c9",
+            "pid": 951620,
+            "instance": "08a65684-4b9d-4f31-8b6b-ae7945136eb0"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "edb7b374-ac43-4e56-a8df-59e114ac3047",
+            "attempt_id": "471cbb08-350f-4aaf-a033-73f112123bce",
+            "worker_id": "qualified:c0a53ca8e7cb4e76b3355eb43ca658cd",
+            "session_id": "83625167-d4f4-4fff-b75a-015925e1e822",
+            "process_id": 2637664,
+            "process_instance": "0519978b98a52ff3913870dc55d3a8310e7653e7b9549d02576f3877668d67f1:2026-11-28T03:16:03.638783049Z",
+            "freshness": "fresh"
+          },
+          {
+            "run_id": "6cfd88a2-4759-404f-bc7f-c851fc7179b0",
+            "attempt_id": "eff4e94e-002b-4162-8c66-7e6519e1de07",
+            "worker_id": "qualified:2f7c7b6ce1a34e81a0b5628b5930a7c9",
+            "session_id": "e37b216c-41cc-4898-9117-fe3b7fe7589b",
+            "process_id": 951781,
+            "process_instance": "dfa11ab1fde65397165d76896e1653349066a25e062614f0335cd2bf923c6ff2:2026-11-28T03:16:13.139522405Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "killed_worker_pid": 2637582,
+      "original_attempt": "471cbb08-350f-4aaf-a033-73f112123bce",
+      "original_session": "83625167-d4f4-4fff-b75a-015925e1e822",
+      "lease_until": 1795835836.6060085,
+      "expired_at": 1795835836.6770163,
+      "unknown_capacity": {
+        "scope": "worker-test-2bf74cb9-10c7-4410-b456-5e73a22184b9",
+        "id": "shared",
+        "selector": {
+          "kind": "scope"
+        },
+        "max_concurrent": 2,
+        "enabled": true,
+        "revision": 1,
+        "updated_at": 1795835760.020019,
+        "budget": {
+          "dispatch_window_seconds": null,
+          "max_runtime_seconds": null,
+          "max_dispatches": null,
+          "max_tool_calls": null
+        },
+        "dispatch_rate": null,
+        "reserved_attempts": 1,
+        "unresolved_attempts": 1,
+        "queued_runs": 1,
+        "tree_reserved_slots": 0,
+        "available": 1
+      },
+      "stale_owner_error": "STALE_OWNER",
+      "restored_state": "succeeded",
+      "attempt_count": 1,
+      "usage": [
+        {
+          "attempt_id": "471cbb08-350f-4aaf-a033-73f112123bce",
+          "session_id": "83625167-d4f4-4fff-b75a-015925e1e822",
+          "sequence": 1,
+          "kind": "acp_prompt",
+          "quality": "reported",
+          "values": {
+            "inputTokens": 1,
+            "outputTokens": 0,
+            "totalTokens": 1
+          },
+          "recorded_at": 1795835765.4609873,
+          "evidence": {
+            "artifact_key": "44b967187117335b5339ef8a63c06f82e63e7a060dbf801a199148a121dacd28",
+            "exit_receipt": "3ae4ee0d0fd69343b3f430eb8327ad7b762880326c3553e414f2207c06a17fc6",
+            "report_sequence": 5
+          },
+          "aggregation": "unspecified_acp_scope"
+        }
+      ],
+      "settlement": {
+        "settlement": {
+          "scope": "worker-test-2bf74cb9-10c7-4410-b456-5e73a22184b9",
+          "account_id": "tokens",
+          "attempt_id": "471cbb08-350f-4aaf-a033-73f112123bce",
+          "actual": 1,
+          "evidence": {
+            "ref": {
+              "kind": "file",
+              "id": "62a2c68f-4968-4cbd-9252-4494dd9848c4",
+              "version": 1
+            },
+            "digest": "sha256:c2263d4b0eba733691ce50f6c21b58358aeb0864a9f2a27341c99e20012de568",
+            "basis": "operator_reconciliation"
+          },
+          "actor": "qualification",
+          "created_at": 1795835840.5449896
+        },
+        "reserved": 2,
+        "over_reserved": false
+      },
+      "balance": {
+        "scope": "worker-test-2bf74cb9-10c7-4410-b456-5e73a22184b9",
+        "id": "tokens",
+        "selector": {
+          "kind": "scope"
+        },
+        "unit": "tokens",
+        "maximum": 4,
+        "per_attempt": 2,
+        "enforcement": "reservation_only",
+        "enabled": true,
+        "revision": 1,
+        "updated_at": 1795835760.1290107,
+        "reserved": 2,
+        "settled": 1,
+        "unreconciled_attempts": 1,
+        "remaining": 1,
+        "admission_error": "CONSUMPTION_BUDGET_EXHAUSTED",
+        "provider_hard_cap": "unsupported"
+      },
+      "queued_run": "c0eedbe0-90ff-4a86-82ee-bb6dfbd87dba",
+      "workload_image": "sha256:6de01686e01d4936165ae4b8d7282b03cd68f765b3abf3e240870d3be0aca94b",
+      "additional_launch_for_restored_run": 0
+    },
+    {
+      "case": "partition-budget-and-E2AG-revocation",
+      "provider": "sqlite",
+      "scope": "worker-test-96ef7568-af7d-48d6-a2fe-a44f77bbcc44",
+      "initial_concurrency": {
+        "actual_concurrency": 1,
+        "observed_at": 1795835858.1259847,
+        "workers": [
+          {
+            "id": "qualified:8ad17e348a9347b0b5214f6038c12c3f",
+            "pid": 953771,
+            "instance": "83fddedb-fc83-4ba0-a769-25921754ab1c"
+          }
+        ],
+        "attempts": [
+          {
+            "run_id": "c491f8b9-2cbe-4e12-bbbf-9fbdc0156780",
+            "attempt_id": "e7a38a1f-9f99-44ac-9292-e8d7e312547e",
+            "worker_id": "qualified:8ad17e348a9347b0b5214f6038c12c3f",
+            "session_id": "355ebcbc-9a98-4dee-bcf1-9c645a04ad9b",
+            "process_id": 953903,
+            "process_instance": "dbcd5208d03e3011ee9c4c6d88233447a2bd09b840a600a33ce3f9530c425616:2026-11-28T03:17:36.300749445Z",
+            "freshness": "fresh"
+          }
+        ]
+      },
+      "worker_restarted": false,
+      "original_attempt": "e7a38a1f-9f99-44ac-9292-e8d7e312547e",
+      "original_state": "failed",
+      "first_attempt_count": 1,
+      "stale_owner_error": "STALE_OWNER",
+      "revoked_run": "39b2e06f-9834-46b1-9199-d6caec92d4cd",
+      "revoked_attempts": 0,
+      "next_run": "0ee10e82-bd41-4cd8-a4f5-953fba729baa",
+      "next_state": "succeeded",
+      "balance": {
+        "scope": "worker-test-96ef7568-af7d-48d6-a2fe-a44f77bbcc44",
+        "id": "tokens",
+        "selector": {
+          "kind": "scope"
+        },
+        "unit": "tokens",
+        "maximum": 3,
+        "per_attempt": 2,
+        "enforcement": "reservation_only",
+        "enabled": true,
+        "revision": 1,
+        "updated_at": 1795835850.228019,
+        "reserved": 2,
+        "settled": 1,
+        "unreconciled_attempts": 1,
+        "remaining": 0,
+        "admission_error": "CONSUMPTION_BUDGET_EXHAUSTED",
+        "provider_hard_cap": "unsupported"
+      }
+    }
+  ],
+  "failures": [],
+  "source_sha256": {
+    "scripts/qualify_resource_recovery.py": "d2e3f37b3aa950425d46f3af7adc38c9f9c1c8adb1369c4c41c6402a9fa57ec7",
+    "scripts/qualify_physical_worker.py": "71ec43554da57f90324a73a146053e374c28555943c80c7ec7bee114c610c33b",
+    "scripts/qualify_physical_faults.py": "077dde52f7da1036a20a35627cd5e44a74818a72da92fc1b17faff20c3d14202",
+    "backend/tests/test_remote_recovery_qualification.py": "bdaad0e1525cb8bdb130a8806a34b87f42148325ebc5ee6c4bda8b39182307f7",
+    "backend/app/runtime/capacity.py": "daceea1add467fb1bc65f3b0de11478f307d2a194c52090273dd8d4375c0b150",
+    "backend/app/runtime/consumption.py": "9a2f78b8a7290d61b0bdaed21f016ed66095853e46e0505f4cbfebaa22a70230",
+    "backend/app/runtime/remote_control.py": "4e8f3f459c6eff7f7665a0d8ac084ffd7b84dca7766a25dd8c00c1171fbad3da",
+    "backend/app/runtime/remote_runtime.py": "2d24357fc6b8ed0dadefdd562dd0706f0ed4a7a8312f91812ffb3d262dab767a",
+    "backend/app/runtime/worker.py": "199dedd026b27103c275c1eb8a84b5192d542e555970877f57f4aa5a2cdcda07"
+  },
+  "limits": [
+    "Synthetic reported usage exercises accounting correlation; no provider invoice or hard cost ceiling is qualified.",
+    "Worker SIGKILL and optional Toxiproxy partition affect only qualification resources; old control-plane primary and physical-host loss require separate evidence.",
+    "Local mode does not qualify two physical hosts; complete remains false until the full WBS matrix is accepted."
+  ]
+}

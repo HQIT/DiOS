@@ -44,17 +44,24 @@ class MirroredControlPath:
         self.remote(shlex.join(['rm', '--', str(self.path)]))
 
 
+def remote_command(command, options):
+    host = getattr(options, 'remote_docker_host', None)
+    return shlex.join(['env', 'DOCKER_HOST=' + host, 'sh', '-c', command]) if host else command
+
+
 class PhysicalWorkers(RemoteRecoveryQualificationTests):
     options = None
     security_observations = []
 
     def remote(self, command, **kwargs):
-        return subprocess.run(self.ssh + [command], check=True, **kwargs)
+        kwargs.setdefault('check', True)
+        return subprocess.run(self.ssh + [remote_command(command, self.options)], **kwargs)
 
     async def asyncSetUp(self):
         self.ssh = ['ssh', '-F', str(self.options.ssh_config), self.options.host]
         self.tunnel = None
         self.names = []
+        self.units = []
         await super().asyncSetUp()
         self.addAsyncCleanup(self.cleanup_remote)
         # The destination is freshly created; refuse to reuse arbitrary directories.
@@ -76,15 +83,15 @@ class PhysicalWorkers(RemoteRecoveryQualificationTests):
                 if self.tunnel.returncode is not None:
                     _, err = await self.tunnel.communicate()
                     raise RuntimeError('SSH forward failed: ' + err.decode())
-                p = await asyncio.create_subprocess_exec(*self.ssh, shlex.join([
-                    'python3', '-c', f'import socket; s=socket.create_connection(("127.0.0.1",{local_port}),2); s.close()']),
-                    stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
-                if await p.wait() == 0:
+                ready = await asyncio.to_thread(self.remote,
+                    shlex.join(['ss', '-H', '-ltn', 'sport', '=', ':'+str(local_port)]),
+                    capture_output=True, text=True)
+                if ready.stdout.strip():
                     break
                 await asyncio.sleep(.1)
         self.control = MirroredControlPath(self.control, self.remote)
 
-    async def launch(self, profile='account-a'):
+    async def launch(self, profile='account-a', *, once=True):
         name = 'dios-physical-' + self.store.scope.removeprefix('worker-test-')[:12] + '-' + str(len(self.names))
         self.names.append(name)
         path, _ = self.profiles[profile]
@@ -100,8 +107,26 @@ class PhysicalWorkers(RemoteRecoveryQualificationTests):
             '--artifacts', str(self.root / ('worker-' + str(len(self.children)))),
             '--once', '--poll-interval', '.1',
         ]
+        if getattr(self.options, 'remote_python', None):
+            # A host-side manager can use a rootless daemon and the host SSH tunnel.
+            # The workload remains an isolated Docker container with the same profile.
+            unit = name + '.service'
+            self.units.append(unit)
+            environment = ['PYTHONPATH=' + self.options.remote_source]
+            if getattr(self.options, 'remote_docker_host', None):
+                environment.append('DOCKER_HOST=' + self.options.remote_docker_host)
+            command = ['systemd-run', '--user', '--wait', '--pipe', '--collect', '--quiet',
+                '--unit', unit, '-p', 'RuntimeMaxSec=240', '-p', 'MemoryMax=512M',
+                '-p', 'TasksMax=64', 'env', *environment,
+                self.options.remote_python, '-m', 'app.runtime.cli', '--scope', self.store.scope,
+                'remote-worker', '--profile', str(path), '--control-file', str(self.client_file),
+                '--artifacts', str(self.root / ('worker-' + str(len(self.children)))),
+                '--once', '--poll-interval', '.1']
+        if not once:
+            command.remove('--once')
         process = await asyncio.create_subprocess_exec(
-            *self.ssh, shlex.join(command), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            *self.ssh, remote_command(shlex.join(command), self.options),
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         self.children.append(process)
         return process
 
@@ -139,6 +164,12 @@ class PhysicalWorkers(RemoteRecoveryQualificationTests):
         # Only resources labelled with this fixture's random scope may be removed.
         command = 'ids=$(docker ps -aq --filter ' + shlex.quote('label=dios.qualification=' + self.store.scope) + '); if [ -n "$ids" ]; then docker rm -f $ids >/dev/null; fi'
         try:
+            if self.units:
+                stopped = await asyncio.to_thread(self.remote,
+                    shlex.join(['systemctl', '--user', 'stop', *self.units]), check=False,
+                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+                if stopped.returncode not in (0, 5):
+                    raise RuntimeError('qualification manager cleanup failed: '+stopped.stderr.decode())
             await asyncio.to_thread(self.remote, command)
             command = 'ids=$(docker ps -aq --filter ' + shlex.quote('label=dios.runtime.scope=' + self.adapter.scope) + '); if [ -n "$ids" ]; then docker rm -f $ids >/dev/null; fi'
             await asyncio.to_thread(self.remote, command)

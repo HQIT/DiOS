@@ -42,6 +42,33 @@ backend/.venv/bin/python scripts/qualify_resource_recovery.py \
 
 ## 当前资格
 
-SQLite 和 PostgreSQL 的本机独立进程场景已通过，详见[逐项证据](evidence/resource-recovery-20261127.json)。第二台物理主机当前不可达，双机分支尚未实测。网络分区、旧控制面主节点隔离、宿主机故障及供应商实际账单继续按 K04-2.04 原验收推进；本项保持待验证，整体 60/79。
+SQLite 和 PostgreSQL 的本机独立进程场景已通过，详见[原证据](evidence/resource-recovery-20261127.json)。WSL/H200 双机联合场景 2/2 通过，控制端使用 SQLite，原始记录见[双机证据](evidence/resource-recovery-h200-20261128.json)。两端 Linux boot 摘要不同，backend 源码和工作负载镜像摘要一致，最多两路实际并发；没有付费模型调用。
+
+| 联合场景 | 已通过断言 |
+| --- | --- |
+| 两路执行、Worker 退出与恢复 | 共享并发与预算准入；第三项排队；未知执行不释放预留；自然租约到期后旧心跳返回 STALE_OWNER；同 Attempt/Session 原结果恢复；四次同键结算仅一份回执 |
+| 控制通道中断、重连与撤权 | 原生 Worker 自动对账；中断任务按单次尝试策略确认失败，未结算预留继续保留；离线期间撤权的排队任务没有 Attempt；结算后新任务成功，旧心跳拒写 |
+
+第二个场景的预算为 3、每次预留 2：失联时占用 2，另一任务不能领取；原尝试确认失败并以合成凭据结算 1 后，新任务可预留 2，最终为预留 2、已结算 1、可用 0。预算开放后已撤权任务仍无 Attempt，撤权拒绝与预算不足分别得到验证。
+
+测试仅切断本次 mTLS 通道，未操作宿主网络或山河服务；管理单元和测试容器已回收。Rootless Docker 镜像层使用现有临时缓存，本场景验证执行与预算语义。E2AG 的准入、恢复与撤销沿用现有实现，本轮无需修改授权核心。
+
+旧控制面主节点隔离与复制提交仍需 [HA 故障环境](../../deploy/ha/qualification.md)，按既定节点级故障暂停安排保留待验；K04-2.04 未结项，整体 61/79。供应商账单及费用硬上限按既定能力条件处理。
+
 
 并发准入、预算及结算沿用[共享执行额度](execution-capacity-45.md)和[消费预算](consumption-budget-45.md)的现有设计。本场景补充故障联合证据，不新增调度器或账本。
+
+## Rootless Docker 与网络故障入口
+
+原生 Python 管理进程连接已有 [rootless Docker socket](https://docs.docker.com/engine/security/rootless/tips/)，工作负载仍按同一 Profile 在受限容器执行；[Toxiproxy](https://github.com/Shopify/toxiproxy)只干预本次控制通道。
+
+```bash
+backend/.venv/bin/python scripts/qualify_resource_recovery.py \
+  --ssh-config /path/to/verified/ssh_config --host physical-worker \
+  --remote-source /path/to/backend --remote-python /path/to/venv/bin/python \
+  --remote-docker-host unix:///run/user/UID/docker.sock \
+  --toxiproxy /path/to/verified/toxiproxy-server \
+  --output workspace/resource-recovery-network
+```
+
+每个管理进程由独立 systemd 用户单元托管，限制 512 MiB、64 个线程/进程和 240 秒运行时间。结束时停止本次单元，只回收随机 scope 的容器；现有 daemon 配置保持原状。API 与工具访问仍由 mTLS/E2AG 校验。
