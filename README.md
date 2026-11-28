@@ -93,6 +93,7 @@ MCP、Skills、Plugins 和受控能力包集中管理；查看来源、版本、
 | Worker 故障与资源预算 | 双机共享预算、Worker 退出后原尝试恢复、网络重连与离线撤权通过 | [预算与恢复](docs/design/resource-recovery-45.md) |
 | 外部智能体执行 | Cursor ACP 首条任务、审批、工具、报告与恢复路径已有真实执行证据 | [Harness 治理](docs/design/review-harness-58.md) |
 | 数字员工到可追溯任务 | 独立员工注册包共享岗位模板、发布绑定执行版本、关联真实任务；停用触发 E2AG 撤权 | [员工发布与任务闭环](docs/design/workforce-registry-37.md) |
+| 从执行结果到业务确认 | WorkItem 创建并绑定员工，关联 Run 与可核验成果；复核人明确通过或退回，撤权后拒绝确认 | [工作项与人工确认](docs/design/workitem-40.md) |
 | 应用独立交付 | 参考应用通过公开 SDK/API 接入，独立打包、升级与回滚 | [应用契约](docs/design/application-contract-47.md) |
 
 不同 Harness 的协议和控制能力存在差异，按[接入能力矩阵](docs/design/agent-integration-capability-matrix.md)逐项验证。平台预算预留约束派发额度；供应商费用硬上限需要对应通道支持。高可用、完整跨节点故障矩阵和规模容量按[既定路线](ROADMAP.md)持续推进。
@@ -102,6 +103,8 @@ MCP、Skills、Plugins 和受控能力包集中管理；查看来源、版本、
 ### 上层员工服务如何使用底座
 
 [数字员工注册包](applications/workforce-registry/README.md)提供“岗位模板 → 员工修订 → 受控发布 → 任务与成果 → 停用撤权”的可运行 CLI。员工档案保存在独立平台库中，执行通过公开 SDK/API 进入 DiOS；发布固定执行配置版本，后台配置变更会被拒绝。两名员工共享模板仍使用独立权限，重启应用后历史持续保留。
+
+上层 **WorkItem** 将“任务运行成功”接到“业务确认完成”：创建工作项、固定员工发布版本、关联成果，再由独立复核人明确确认。人工确认会重新核验当前成果权限与内容完整性；执行状态、业务状态和历史决策分别保存。[运行示例与状态图](docs/design/workitem-40.md)
 
 ## 开始使用
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dios-workforce-registry"
-version = "0.1.0"
+version = "0.2.0"
 readme = "README.md"
 description = "Independent workforce identity, template and governed publication registry"
 requires-python = ">=3.11"
@@ -12,6 +12,7 @@ dependencies = ["dios-sdk>=0.1.21,<0.2", "packaging>=26,<27"]
 
 [project.scripts]
 dios-workforce = "dios_workforce.cli:main"
+dios-workitem = "dios_workforce.work_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

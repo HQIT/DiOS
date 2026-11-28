@@ -29,6 +29,8 @@ class Client:
     async def runtime_contract(self): return await asyncio.to_thread(self.sdk.runtime_contract)
     async def submit(self, profile_id, sample_id, goal, **kwargs):
         return await asyncio.to_thread(self.sdk.submit, profile_id, sample_id, goal, **kwargs)
+    async def get(self, run_id): return await asyncio.to_thread(self.sdk.get, run_id)
+    async def artifact(self, run_id, artifact_id): return await asyncio.to_thread(self.sdk.artifact, run_id, artifact_id)
 
 
 class Admin:

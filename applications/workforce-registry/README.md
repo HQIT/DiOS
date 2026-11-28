@@ -1,6 +1,6 @@
-# 数字员工档案与发布
+# 数字员工与工作项
 
-同一数字员工可按工作类型绑定不同执行配置，保留稳定身份、职责、版本和任务历史。模板共享、实例覆盖与发布记录存放在独立 SQLite 中；DiOS 提供任务、成果和 E2AG 执行治理。
+同一数字员工可按工作类型绑定不同执行配置，保留稳定身份、职责、版本和任务历史。WorkItem 负责业务目标、员工绑定、成果关联和人工确认。模板、修订与工作项存放在独立 SQLite 中；DiOS 提供任务、成果和 E2AG 执行治理。
 
 这是客户无关数字分身平台的独立 Linux/WSL 管理包。当前入口为受信任运维 CLI；多人 Web 管理和业务角色审批由后续平台入口承接。
 
@@ -10,8 +10,9 @@
 
 ```bash
 pip wheel --no-deps sdk/python applications/workforce-registry -w workspace/workforce-dist
-pip install workspace/workforce-dist/*.whl
+pip install workspace/workforce-dist/dios_sdk-0.1.21-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.2.0-py3-none-any.whl
 dios-workforce --help
+dios-workitem --help
 ```
 
 运行前由 DiOS 管理员预置每名员工独占的主体、凭据和 E2AG 策略。专用主体由员工生命周期管理，须与目录桥接包的受管人员集合分开；一个主体只有一个生命周期写入方。员工凭据需拥有相应 profile 的 `run.submit` 和 `run.read` 权限。知识/能力引用属于业务配置，执行授权仍由 DiOS 决定。
@@ -63,7 +64,51 @@ dios-workforce --state-dir /srv/workforce/state show --employee employee-001
 dios-workforce --state-dir /srv/workforce/state disable --employee employee-001 --config config.json --expected-version 2
 ```
 
-提交返回 DiOS Run ID，可由 Console 或 SDK 继续观察。`--sample` 必须是对应执行配置已登记的输入；动态 WorkItem 输入由 #40 衔接。
+提交返回 DiOS Run ID，可由 Console 或 SDK 继续观察。`--sample` 必须是对应执行配置已登记的输入；动态业务输入按后续 WorkItem 扩展接入。
+
+## 工作项与人工确认
+
+0.2.0 提供 `dios-workitem`，与员工注册表共用受保护的上层状态目录。复核人与员工采用不同的主体，`config.json` 增加：
+
+```json
+{
+  "reviewers": {
+    "reviewer-001": {"base_url": "http://127.0.0.1:8000", "token_file": "/srv/workforce/secrets/reviewer-001.token"}
+  }
+}
+```
+
+创建时通过该凭据确定复核人身份；员工绑定固定当前发布修订。以下示例假设员工仍为 active，工作项从未创建；实际调用使用上一条返回的 `version`。
+
+```bash
+dios-workitem --state-dir /srv/workforce/state create --id work-001 --title '边界分析' --work-type review --sample first-item --goal '检查输入边界' --reviewer reviewer-001 --config config.json
+dios-workitem --state-dir /srv/workforce/state bind --id work-001 --employee employee-001 --expected-version 1
+dios-workitem --state-dir /srv/workforce/state dispatch --id work-001 --config config.json --expected-version 2
+dios-workitem --state-dir /srv/workforce/state show --id work-001
+```
+
+派发返回的 `run_id` 由 DiOS Worker 执行。管理员通过现有 `identity-update` 为复核主体配置该 Run 的 `run.read`、`artifact.read` 对象权限；WorkItem 不自动授予权限。`objects` 更新应保留该主体原有授权映射，且使用当前身份 revision。受保护变更文件中的对应条目为：
+
+```json
+{"objects": {"ACTUAL_RUN_ID": ["run.read", "artifact.read"]}}
+```
+
+配置授权后观察结果：
+
+```bash
+dios-workitem --state-dir /srv/workforce/state observe --id work-001 --reviewer reviewer-001 --config config.json --expected-version 3
+```
+
+运行尚未结束时仍为 `running`；成功且全部成果通过当前权限及 SHA-256/长度校验后，进入 `awaiting_confirmation`。输出包含 Run 与成果 ID、摘要和大小；复核人通过 Console 或 SDK 下载查看原成果后再明确决策：
+
+```bash
+dios-workitem --state-dir /srv/workforce/state confirm --id work-001 --reviewer reviewer-001 --config config.json --decision accept --note '已核对分析内容和来源' --expected-version 4
+dios-workitem --state-dir /srv/workforce/state show --id work-001
+```
+
+`accept` 进入 `confirmed`，`reject` 进入 `needs_revision`。确认再次读取真实成果并核验权限；撤权或成果变化会拒绝确认。相同决策重放只返回原回执，冲突决策拒绝。Run 成功、人工退回与业务通过分别记录。
+
+派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。当前每个工作项对应一个 Run；返工、多岗位汇总、接管、补偿和审批待办沿 #40 后续切片推进。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
 
 ## 发布与恢复规则
 
@@ -85,4 +130,4 @@ python scripts/qualify_workforce_registry.py --output workspace/workforce-qualif
 
 测试使用真实 API、中间件、E2AG 存储/校验和管理员子进程；Worker 使用确定性测试适配器。覆盖模板/发布、身份隔离、结果关联、重启、应答丢失、停用撤权及版本拒绝。真实企业目录/SSO、物理 Runtime 替换和跨 Harness 在线切换沿原验收继续。
 
-[分层设计与验收](../../docs/design/workforce-registry-37.md)
+[员工分层与验收](../../docs/design/workforce-registry-37.md) · [WorkItem 状态与验收](../../docs/design/workitem-40.md)
