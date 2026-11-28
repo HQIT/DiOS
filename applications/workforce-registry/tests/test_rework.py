@@ -72,7 +72,7 @@ class ReworkTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(self.client.runs),1)
         self.assertEqual(value['round_number'],1)
         self.registry.close();self.registry=Registry(self.path)
-        self.assertEqual(self.registry.db.execute('PRAGMA user_version').fetchone()[0],4)
+        self.assertEqual(self.registry.db.execute('PRAGMA user_version').fetchone()[0],5)
 
 
 class ReworkIntegrationTests(unittest.IsolatedAsyncioTestCase):

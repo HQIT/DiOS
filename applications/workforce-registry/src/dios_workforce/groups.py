@@ -44,6 +44,7 @@ class WorkGroups:
             child=self.work.get(child_id)
             check(child['state']=='bound' and child['round_number']==1,'CHILD_NOT_READY_FOR_SPLIT')
             check(not self.db.execute('SELECT 1 FROM work_children WHERE child_id=?',(child_id,)).fetchone(),'CHILD_ALREADY_ASSIGNED')
+            check(not self.db.execute('SELECT 1 FROM work_compensations WHERE compensation_id=?',(child_id,)).fetchone(),'COMPENSATION_ALREADY_ASSIGNED')
             actor=self.registry.get(child['employee'])
             check(actor['state']=='active' and actor['active']==child['employee_revision'],'EMPLOYEE_PUBLICATION_CHANGED')
             identity=json.loads(actor['identity'])

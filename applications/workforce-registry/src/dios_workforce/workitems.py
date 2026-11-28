@@ -49,7 +49,11 @@ class WorkItems:
             self.db.execute('''CREATE TABLE IF NOT EXISTS work_approval_sync (
                 work_id TEXT, round_number INTEGER, observation TEXT NOT NULL,
                 PRIMARY KEY(work_id,round_number))''')
-            self.db.execute('PRAGMA user_version=4')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS work_compensations (
+                source_id TEXT, source_round INTEGER, compensation_id TEXT UNIQUE NOT NULL,
+                request TEXT NOT NULL, source_snapshot TEXT NOT NULL, decision TEXT,
+                PRIMARY KEY(source_id,source_round))''')
+            self.db.execute('PRAGMA user_version=5')
             self.db.commit()
         except BaseException:
             self.db.rollback();raise
@@ -74,8 +78,9 @@ class WorkItems:
         children=[self.get(r[0]) for r in self.db.execute(
             'SELECT child_id FROM work_children WHERE parent_id=? ORDER BY position',(work_id,))]
         from .interventions import Interventions
+        from .compensations import Compensations
         return {'work_item':current,'rounds':rounds+[current],'children':children,
-                **Interventions(self).history(work_id),'events':[dict(r) for r in self.db.execute(
+                **Interventions(self).history(work_id),**Compensations(self).history(work_id),'events':[dict(r) for r in self.db.execute(
             'SELECT * FROM work_events WHERE work_id=? ORDER BY sequence',(work_id,))]}
 
     async def create(self, work_id, title, kind, sample, goal, reviewer):
@@ -99,6 +104,8 @@ class WorkItems:
         check(row['version']==expected_version,'WORK_ITEM_VERSION_CONFLICT')
         check(not self.db.execute('SELECT 1 FROM work_children WHERE child_id=?',(work_id,)).fetchone(),
               'SPLIT_ASSIGNMENT_FROZEN')
+        check(not self.db.execute('SELECT 1 FROM work_compensations WHERE compensation_id=?',(work_id,)).fetchone(),
+              'COMPENSATION_ASSIGNMENT_FROZEN')
         check(row['state'] in ('created','bound'),'WORK_ITEM_ALREADY_DISPATCHED')
         actor=self.registry.get(employee)
         check(actor['state']=='active','EMPLOYEE_NOT_ACTIVE')

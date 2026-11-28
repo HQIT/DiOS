@@ -10,7 +10,7 @@
 
 ```bash
 pip wheel --no-deps sdk/python applications/workforce-registry -w workspace/workforce-dist
-pip install workspace/workforce-dist/dios_sdk-0.1.22-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.5.0-py3-none-any.whl
+pip install workspace/workforce-dist/dios_sdk-0.1.22-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.6.0-py3-none-any.whl
 dios-workforce --help
 dios-workitem --help
 ```
@@ -108,7 +108,7 @@ dios-workitem --state-dir /srv/workforce/state show --id work-001
 
 `accept` 进入 `confirmed`，`reject` 进入 `needs_revision`。确认再次读取真实成果并核验权限；撤权或成果变化会拒绝确认。相同决策重放只返回原回执，冲突决策拒绝。Run 成功、人工退回与业务通过分别记录。
 
-派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。每个工作项可顺序关联多个返工轮次，每轮对应一个 Run。人工接管与审批关联见下节；补偿与联合验收沿 #40 原计划推进。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
+派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。每个工作项可顺序关联多个返工轮次，每轮对应一个 Run。人工接管、审批关联与补偿见下节。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
 
 ## 退回返工与多 Run 历史
 
@@ -128,7 +128,7 @@ dios-workitem --state-dir /srv/workforce/state show --id work-001
 
 `show` 返回按顺序排列的 `rounds`，包括已归档轮次和当前轮次，保留每轮的 Run、证据及人工决策。所有轮次归属同一个 WorkItem；不新建聊天或自动发送消息。
 
-升级前结束本地管理命令，备份整个状态目录。首次打开 WorkItem 时原子升级本地数据库，旧工作项映射为第 1 轮，未确认提交保持原键。0.5.0 使用 schema 4，阻止 0.1/0.2/0.3/0.4 旧包写入；新包不降低 schema。尚无新写入时可恢复完整升级前备份回退；已有新轮次或父子关系时保留新库和所有 Run 关联，优先前向修复。
+升级前结束本地管理命令，备份整个状态目录。首次打开 WorkItem 时原子升级本地数据库，旧工作项映射为第 1 轮，未确认提交保持原键。0.6.0 使用 schema 5，阻止 0.1–0.5 旧包写入；新包不降低 schema。尚无新写入时可恢复完整升级前备份回退；已有新轮次或父子关系时保留新库和所有 Run 关联，优先前向修复。
 
 ## 多岗位拆分与父级汇总复核
 
@@ -184,7 +184,27 @@ dios-workitem --state-dir /srv/workforce/state show --id review-001
 
 列表最多返回现有 API 的 50 条最近调用，`partial=true` 表示范围不完整；已知旧调用可用 `--invocation` 精确刷新，历史记录不因未出现在本次列表而删除。每条记录显示实际观察时间，读取失败将本轮观察标记为 `unavailable`。旧版本响应拒绝覆盖新版本；重复响应不重复生成状态事件。缓存中的 `approved` 是历史观察，执行时仍由 E2AG 重检审批有效性与当前权限。
 
-当前人工接管用于停止执行、排查并交回原员工。补偿与跨实现联合验收继续按 #40 原要求收尾。操作入口为受信任运维 CLI，外部业务消息默认不发送。
+当前人工接管用于停止执行、排查并交回原员工。补偿使用下节的独立工作项。操作入口为受信任运维 CLI，外部业务消息默认不发送。
+
+## 补偿与独立业务关闭
+
+补偿由上层指定目标、登记输入和执行员工，使用独立 WorkItem、Run、E2AG 工作授权和人工复核。原成果、失败和审批记录持续保留。先按既有命令创建 `undo-001` 并绑定具备补偿能力的员工；补偿输入必须指向原副作用的准确资源标识。
+
+```bash
+dios-workitem --state-dir /srv/workforce/state plan-compensation --id work-001 --compensation undo-001 --reviewer reviewer-001 --config config.json --reason '释放原任务登记的资源' --key compensation-001 --expected-version 5
+dios-workitem --state-dir /srv/workforce/state dispatch --id undo-001 --config config.json --expected-version 2
+```
+
+原工作项进入 `compensation_pending`，保留原 Run 和轮次。规划要求原 Run 已结束；失败或取消的 Run 还要求复核人具有 `tool.read` 并取得完整调用列表。未知副作用、观察失败或列表不完整时保持等待，先通过底座完成对账。成功 Run 沿用 DiOS 接收结果前的工具结清检查。每个原轮次只绑定一个补偿工作项，绑定后不能换员工或加入父级拆分。
+
+补偿按普通工作项进行 `sync-approvals`、`observe`、`confirm`。工具执行需要的审批通过 DiOS 处理；业务规划不代替工具授权。补偿失败时保留等待状态，可按既有人工接管、交回或退回返工继续处理同一补偿工作项。成功和人工确认后，原复核人还需拥有补偿 Run 的成果读取权限，才能关闭原项：
+
+```bash
+dios-workitem --state-dir /srv/workforce/state confirm-compensation --id work-001 --reviewer reviewer-001 --config config.json --note '已核对释放结果与原资源关联' --expected-version 6
+dios-workitem --state-dir /srv/workforce/state show --id work-001
+```
+
+最终状态 `compensated` 表示补偿经过业务复核；原目标的完成情况、原人工决策保持在历史中。版本使用实际返回值。重复请求不重复派发或执行补偿；冲突参数拒绝。父级汇总继续等待符合原目标的子项，不将补偿关闭算作子项成功。已最终复核的父项不允许通过子项补偿悄然改变汇总结论。
 
 ## 发布与恢复规则
 
@@ -204,6 +224,14 @@ CLI 进程持有独占锁，授权更新子进程继承同一锁。部署升级�
 python scripts/qualify_workforce_registry.py --output workspace/workforce-qualification
 ```
 
-测试使用真实 API、中间件、E2AG 存储/校验和管理员子进程；Worker 使用确定性测试适配器。覆盖模板/发布、身份隔离、结果关联、重启、应答丢失、停用撤权、人工接管、取消对账、交回授权、审批关联与失效、版本拒绝。真实企业目录/SSO、物理 Runtime 替换和跨 Harness 在线切换沿原验收继续。
+测试使用真实 API、中间件、E2AG 存储/校验和管理员子进程；Worker 使用确定性测试适配器。覆盖模板/发布、身份隔离、结果关联、重启、应答丢失、停用撤权、人工接管、取消对账、交回授权、审批关联与失效、补偿与副作用未知门禁、版本拒绝。真实企业目录/SSO、物理 Runtime 替换和跨 Harness 在线切换沿原验收继续。
+
+原生联合场景使用现有 Docker 镜像，以隔离的 JSONL 和 ACP 进程执行本地登记/释放样例，验证重试、独立审批及人工关闭：
+
+```bash
+python scripts/qualify_workforce_registry.py --output workspace/workforce-joint --native-image YOUR_EXISTING_DIOS_IMAGE
+```
+
+样例不调用外部模型、不发送业务消息；真实 Harness 接入沿用已有专项证据。
 
 [员工分层与验收](../../docs/design/workforce-registry-37.md) · [WorkItem 状态与验收](../../docs/design/workitem-40.md)

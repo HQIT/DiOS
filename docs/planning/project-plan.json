@@ -2363,18 +2363,21 @@
         "S01-2"
       ],
       "application_progress": {
-        "state": "in_progress",
+        "state": "engineering_ready_for_acceptance",
         "package": "applications/workforce-registry",
         "completed_slices": [
           "create, pin employee publication, associate Run/artifacts and explicitly confirm or reject",
           "returned WorkItem rework rounds, distinct Run/Work authorization, archived evidence/decisions and legacy pending-task upgrade",
           "fixed multi-role children, separate employee execution and live-authorized parent aggregate review",
-          "durable human takeover, confirmed cancellation, governed handback and runtime approval linkage including invalidation"
+          "durable human takeover, confirmed cancellation, governed handback and runtime approval linkage including invalidation",
+          "explicit independent compensating WorkItem, source effect reconciliation fence, E2AG approval and live-evidence human closure; isolated JSONL/ACP A04/A05 joint acceptance"
         ],
         "engineering_acceptance": {
           "A01": "passed",
           "A02": "passed",
-          "A03": "passed"
+          "A03": "passed",
+          "A04": "passed",
+          "A05": "passed"
         },
         "evidence": [
           "docs/design/workitem-40.md",
@@ -2384,23 +2387,20 @@
           "docs/design/evidence/workitem-groups-40-20261128.json",
           "docs/design/evidence/workitem-group-upgrade-fence-40-20261128.json",
           "docs/design/evidence/workitem-interventions-40-20261128.json",
-          "docs/design/evidence/workitem-intervention-upgrade-fence-40-20261128.json"
+          "docs/design/evidence/workitem-intervention-upgrade-fence-40-20261128.json",
+          "docs/design/evidence/workitem-closure-40-20261128.json",
+          "docs/design/evidence/workitem-compensation-upgrade-fence-40-20261128.json"
         ],
         "verification": {
-          "passed": 34,
-          "workitem_scenarios": 23,
+          "passed": 39,
+          "workitem_scenarios": 28,
           "skipped": 0,
-          "execution": "installed application 0.5.0 and SDK 0.1.22; actual HTTP/API, Worker and E2AG; cancel confirmation and old-executor rejection, fresh handback authority, real approval and invalidation projection; old 0.4.0 binary fenced"
+          "execution": "installed application 0.6.0 and unchanged SDK 0.1.22; actual HTTP/API, Worker and E2AG; isolated native JSONL/ACP processes with 2 Runs/3 attempts; explicit approval and compensation review; old 0.5.0 binary fenced; previous SDK 12-test evidence reused"
         },
         "remaining": [
-          "A04: compensation and multi-implementation joint acceptance",
-          "A05: repeated triggers, technical retry, human verification and business closure joint acceptance"
+          "Final business acceptance against original five criteria; dependent F03-2.02/.03 application joint acceptance retains other applications and isolated migration requirements"
         ],
-        "scope_note": "Original five acceptance criteria and dependencies retained. A01/A02/A03 engineering verified; no core WBS count change. Live directory/SSO and physical validation deferred.",
-        "partial_acceptance_evidence": [
-          "A04: multi-Run history, parent review, manual takeover/handback and runtime approval references retained; compensation and cross-implementation joint acceptance remain",
-          "A05: duplicate requests and cancellation recovery retain stable identities; handback creates a new governed round; trigger/retry/business-close joint acceptance remains"
-        ]
+        "scope_note": "Original five criteria and dependencies retained. A01-A05 engineering verified within documented synthetic fixture conditions; user business acceptance separate. No core WBS count change. Live directory/SSO and physical validation deferred."
       }
     },
     {
@@ -3391,7 +3391,7 @@
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
     "next_work_item": "F03-2.02",
-    "next_delivery": "S02-3 compensation and original A04/A05 joint acceptance; reuse accepted takeover, rework and approval evidence",
+    "next_delivery": "F03-2.02/.03 application joint evidence using completed S02-3; retain #59/#60 business ledger and isolated migration scope",
     "next_delivery_order": [
       "K03-1.03",
       "K04-2.04",
@@ -3424,9 +3424,9 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "#40 人工接管与审批关联完成，原五条中 A01/A02/A03 工程通过。接续补偿与 A04/A05 联合验收，不扩项；真实目录/SSO、物理/HA/容量继续暂缓；底座仍为 61/79。",
+    "next_selection_reason": "#40 原五条工程验收 5/5：独立补偿、E2AG 审批及 JSONL/ACP 联合场景通过。停止增加 #40 功能；按既定 F03-2.02/.03 回填证据并继续 #59/#60 尚缺业务验收。真实目录/SSO、物理/HA/容量暂缓；底座保持 61/79。",
     "readiness_report": "docs/planning/remaining-delivery-dependencies.md",
-    "active_application_task": "S02-3",
+    "active_application_task": null,
     "progress_dimensions": {
       "core_closed": 61,
       "core_total": 79,

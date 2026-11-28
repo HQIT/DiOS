@@ -110,7 +110,33 @@ flowchart TB
 
 数据表 `work_takeovers / work_handbacks / work_approvals / work_approval_sync` 均位于独立上层应用。DiOS 仅增加 SDK 的通用工具读取方法，服务端和 E2AG 契约不变。独立应用 schema 4 阻止 0.4.0 旧包写入，见[旧程序拒写证据](evidence/workitem-intervention-upgrade-fence-40-20261128.json)。
 
-[人工接管与审批 CLI](../../applications/workforce-registry/README.md#人工接管与运行时审批关联)提供可运行命令。本切片交付受信任运维入口，接管后由原员工继续执行；补偿及完整跨实现联合场景按原验收接续。
+[人工接管与审批 CLI](../../applications/workforce-registry/README.md#人工接管与运行时审批关联)提供可运行命令。入口面向受信任运维人员；接管后可交回原员工，补偿通过独立工作项执行。
+
+## 显式补偿与业务关闭
+
+上层应用明确补偿目标、原副作用资源标识、执行员工和复核人。补偿使用独立 WorkItem 与 Run，复用既有 E2AG 授权、工具审批、技术重试、成果校验和人工确认。[Azure 补偿事务模式](https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction)同样要求补偿由业务定义、保留恢复信息，并允许失败后继续处理及人工介入。
+
+```mermaid
+flowchart LR
+  S[原 Run 已结束<br/>副作用已对账] --> P[登记补偿目标<br/>保存原历史]
+  P --> C[独立补偿 WorkItem]
+  C --> E[独立 Run 与 E2AG<br/>工具审批后执行]
+  E --> V[校验成果<br/>补偿人工确认]
+  V --> H[原复核人重新读取成果]
+  H --> D[补偿关闭<br/>保留原业务决策]
+  E -->|失败或结果未知| W[保持待补偿<br/>恢复后继续]
+  W --> C
+  style E fill:#eaf1ff,stroke:#4263eb,color:#14244d
+  style H fill:#fff4d6,stroke:#b58100,color:#3d2a00
+```
+
+每个原轮次绑定一个独立补偿工作项。规划保留原快照，将原项置为 `compensation_pending`，随后显式派发补偿项。绑定固定，禁止递归补偿及把补偿项加入岗位拆分。补偿成功且完成独立人工确认后，原复核人重新核验当前成果访问权和内容，明确执行 `confirm-compensation`，原项才进入 `compensated`。原目标、Run、成果和人工决策仍可追溯；父级不将补偿关闭计为子项成功。
+
+失败/取消的原 Run 可能仍有未知工具副作用。规划和关闭要求当前 `tool.read` 权限及完整调用观察，拒绝 `dispatched`、`result_unknown`、观察失败、迁移未完成或列表不完整的状态。先由 DiOS 对账，再继续补偿。成功 Run 复用底座接收结果前的工具结清约束。超过当前列表容量的失败 Run 保持待处理，本切片不新增底座分页契约。
+
+补偿失败保留原项待补偿状态与所有尝试；使用既有技术恢复、人工接管交回或退回返工接续补偿工作项。补偿请求和确认均可幂等重放，冲突内容拒绝。原复核人不能是补偿执行员工；绑定不授予工具权限或成果读取权。工具审批与业务复核各自保留，任何补偿动作仍在 DiOS 执行控制点授权。
+
+`work_compensations` 位于上层独立应用库，schema 5。实际安装的 0.5.0 程序拒绝打开新库，见[升级拒写证据](evidence/workitem-compensation-upgrade-fence-40-20261128.json)。[补偿 CLI](../../applications/workforce-registry/README.md#补偿与独立业务关闭)提供登记、派发和关闭命令。
 
 ## 原五条验收与后续 WBS
 
@@ -119,9 +145,13 @@ flowchart TB
 | A01 Run 完成不自动等于业务验收通过 | 通过 | 最终业务接受 |
 | A02 上级→多岗位→汇总复核可闭环 | 通过 | 最终业务接受 |
 | A03 失败、人工接管、重复事件和审批撤销可追踪 | 通过 | 最终业务接受 |
-| A04 多实现协作重试、补偿、审批关联保留，业务复核关闭 | 部分通过 | 补偿及多实现联合验收 |
-| A05 重复触发、技术重试、人工验证与业务关闭独立，无默认外发 | 部分通过 | 触发、技术重试和业务关闭的完整联合验收 |
+| A04 多实现协作重试、补偿、审批关联保留，业务复核关闭 | 通过 | 最终业务接受 |
+| A05 重复触发、技术重试、人工验证与业务关闭独立，无默认外发 | 通过 | 最终业务接受 |
 
-[首轮证据](evidence/workitem-40-20261128.json)、[返工证据](evidence/workitem-rework-40-20261128.json)与[多岗位应用包回归](evidence/workitem-groups-40-20261128.json)覆盖持续累积的工程场景。当前[接管与审批应用包回归](evidence/workitem-interventions-40-20261128.json)采用安装包 0.5.0，共 34 项测试通过、0 跳过，其中 23 项为 WorkItem 场景；使用真实 API、管理员子进程、Worker 和 E2AG，Worker 采用确定性测试适配器。[CLI 示例](../../applications/workforce-registry/README.md#多岗位拆分与父级汇总复核)包含拆分、独立派发、成果汇总和父级确认。
+[安装包联合验收](evidence/workitem-closure-40-20261128.json)使用应用 0.6.0、SDK 0.1.22，共 39 项通过、0 跳过，其中 28 项为 WorkItem 场景。38 项覆盖真实 API、E2AG、管理员子进程及确定性 Worker；另 1 项在实际 Docker 中运行隔离的 JSONL 与生产 ACP 桥接进程。原生样例用受控本地工具登记并释放资源，没有外部模型或客户系统调用。
 
-下一切片为补偿与 A04/A05 联合验收，复用已经通过的接管、返工和审批证据。#40 保持开放，原五条要求和依赖保留；真实目录/SSO 与物理环境继续暂缓。底座统计保持 61/79，上层应用按本表单独记录。
+联合场景将事件、定时、人工入口的相同业务 ID 重放到同一 WorkItem；网络故障触发同一 Run 的第 2 次尝试；独立补偿 Run 在审批前保持无副作用；原项与补偿项分别人工确认后关闭。实际记录 2 个 Run、3 个进程实例和会话，资源登记与释放各 1 次。触发映射覆盖统一幂等入口；已有事件源与定时调度器资格沿用底座证据，本样例不新建后台调度器。
+
+[人工接管与审批证据](evidence/workitem-interventions-40-20261128.json)、[返工证据](evidence/workitem-rework-40-20261128.json)、[多岗位证据](evidence/workitem-groups-40-20261128.json)持续复用。SDK 和 DiOS 运行时契约未改；实际 Harness 与外部环境资格保持原专项记录。
+
+#40 原五条工程验收均通过，保留最终业务接受和原依赖。后续按既定 F03-2.02/.03 回填应用联合证据，持续评审业务的范围、覆盖账本与旧系统适配仍由 #59/#60 承接。真实目录/SSO 与物理环境继续暂缓。底座统计保持 61/79，上层 #40 单独记录为工程 5/5。
