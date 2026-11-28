@@ -75,3 +75,5 @@ Infrastructure > DiOS > 客户无关数字分身平台 > 客户应用。按 [ADR
 [工作项状态与后续切片](../design/workitem-40.md)。
 
 #10/#9/#58 已按[工程结项记录](../engineering/engineering-closure-20261128.md)完成；#34 期限缺口已修复，整体安全审查及正式发布接受仍保留。
+
+本期人工验收按[HIL 方案](../engineering/hil-acceptance.md)推进；优先准备隔离场景和可操作入口，安全评审人待认领。十张场景卡覆盖 21 条原要求，设计完成不计结项。

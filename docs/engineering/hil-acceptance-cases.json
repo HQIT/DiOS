@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "status": "designed_not_executed",
+  "engineering_baseline": "37aa05ed75519ef96fa3a62384ce01901b4b06e5",
+  "acceptance_candidate": null,
+  "plan": "docs/engineering/hil-acceptance.md",
+  "work_items": [
+    "K03-1.04",
+    "K03-2.03",
+    "K03-3.03",
+    "D01-1.04"
+  ],
+  "readiness": {
+    "state": "not_ready",
+    "missing": [
+      "isolated_execution_profile",
+      "synthetic_readonly_materials",
+      "distinct_test_identities",
+      "live_case_links",
+      "tool_side_observation_baseline",
+      "rehearsal",
+      "named_independent_reviewer"
+    ]
+  },
+  "requirements": [
+    {
+      "id": "K03-1-A01",
+      "text": "终端用户不能借共享管理员令牌扩大权限",
+      "cases": [
+        "H02"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-1-A02",
+      "text": "伪造/过期身份、未授权资源和凭据访问被拒绝",
+      "cases": [
+        "H02",
+        "H03",
+        "H07"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-1-A03",
+      "text": "Secret 不进入普通配置响应、Prompt 或日志，撤销有回归",
+      "cases": [
+        "H08"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-1-A04",
+      "text": "第三方授权凭据生命周期与日志脱敏通过回归，不复用共享管理员账号代表终端用户",
+      "cases": [
+        "H07",
+        "H08"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-1-A05",
+      "text": "跨主机越权、凭据撤销、日志脱敏与同摘要跨 ACL 读取均有回归",
+      "cases": [
+        "H02",
+        "H08"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-1-A06",
+      "text": "撤销、换所有者或终态后续期失败；长任务续期不扩大权限",
+      "cases": [
+        "H07"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-1-A07",
+      "text": "900 秒 Grant 在原工作期限内自动续期；并发版本冲突、权限收窄和上游撤销通过真实凭据回归",
+      "cases": [
+        "H07"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-2-A01",
+      "text": "未授予工具及审批前副作用在执行边界被阻止",
+      "cases": [
+        "H01"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-2-A02",
+      "text": "参数变化、审批过期和结果未知有明确处理",
+      "cases": [
+        "H04",
+        "H05"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-2-A03",
+      "text": "受管工作负载必须声明治理配置；兼容路径显式标记；API/CLI/Console 回归通过",
+      "cases": [
+        "H01",
+        "H09"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-2-A04",
+      "text": "工具通知与强制执行证据分开记录；能力不足的端点被拒绝承接相应风险工作",
+      "cases": [
+        "H09"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-2-A05",
+      "text": "真实 Agent 无法写源码、运行业务构建/脚本或越权外发；拒绝事件和实际文件/网络证据一致",
+      "cases": [
+        "H09"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-2-A06",
+      "text": "缺少治理声明的受管任务拒绝准入；MCP/原生 Shell/文件/网络分别验证实际拒绝，兼容路径明确标识",
+      "cases": [
+        "H09"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-2-A07",
+      "text": "审批单次消费、撤销/派发事务竞争、原生工具拒绝和授权/审计故障暂停通过；恢复保留原任务身份",
+      "cases": [
+        "H01",
+        "H03",
+        "H05",
+        "H10"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-2-A08",
+      "text": "采用不同策略及存储机制时保持授权结果、审批单次消费、意图先持久化与撤销顺序；不降低治理保证获取性能",
+      "cases": [
+        "H10"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-3-A01",
+      "text": "跨部门与跨工作越权、委派提权被拒绝",
+      "cases": [
+        "H02",
+        "H06"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-3-A02",
+      "text": "停用身份后新的受限动作无法执行，在途结果可解释",
+      "cases": [
+        "H03",
+        "H06"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-3-A03",
+      "text": "状态事件重复/乱序不破坏上层工作状态",
+      "cases": [
+        "H06"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-3-A04",
+      "text": "撤销时限与可控制范围可追踪，界面和 API 不把取消请求等同于已停止",
+      "cases": [
+        "H03",
+        "H06"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-3-A05",
+      "text": "参数变化、会话替换、委派和并发不能扩大权限；不足有版本化扩展及回归证据",
+      "cases": [
+        "H04",
+        "H06"
+      ],
+      "decision": null
+    },
+    {
+      "id": "K03-3-A06",
+      "text": "三层委托收窄、上游主体撤销传播、审批人资格变化及自审批拒绝通过",
+      "cases": [
+        "H06"
+      ],
+      "decision": null
+    }
+  ],
+  "cases": [
+    {
+      "id": "H01",
+      "title": "批准与拒绝",
+      "requirements": [
+        "K03-2-A01",
+        "K03-2-A03",
+        "K03-2-A07"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer",
+        "product_reviewer"
+      ],
+      "expected": "批准前零调用；批准后一次；拒绝后零调用",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/approval-qualification-20261124.json",
+          "sha256": "21ce8700ce6099110639bfdd78593b965ee6730e42df8342ea6751f560760fd2",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H02",
+      "title": "身份与资源隔离",
+      "requirements": [
+        "K03-1-A01",
+        "K03-1-A02",
+        "K03-1-A05",
+        "K03-3-A01"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer",
+        "product_reviewer"
+      ],
+      "expected": "实际 API 拒绝无权对象，复用摘要不复用 ACL",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/identity-access-h200-20261128.json",
+          "sha256": "ce9827b74ce0f785be694d9a80a53a953ddddb988130d3159c2ba528b81ad0fa",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H03",
+      "title": "撤权与在途结果",
+      "requirements": [
+        "K03-1-A02",
+        "K03-2-A07",
+        "K03-3-A02",
+        "K03-3-A04"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer",
+        "product_reviewer"
+      ],
+      "expected": "撤销后拒绝新动作，已提交动作及取消/退出分别保留",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/governance-review-20261127.json",
+          "sha256": "2bd3b2ab91c765de463b094d231a4ef5e4c4605109cdbf949e308647a119e1f9",
+          "eligibility": "requires_version_and_scope_review"
+        },
+        {
+          "path": "docs/design/evidence/identity-access-h200-20261128.json",
+          "sha256": "ce9827b74ce0f785be694d9a80a53a953ddddb988130d3159c2ba528b81ad0fa",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H04",
+      "title": "参数会话与期限",
+      "requirements": [
+        "K03-2-A02",
+        "K03-3-A05"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer"
+      ],
+      "expected": "旧参数/会话/执行权不能复用审批",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/tool-delegation-deadline-20261128.json",
+          "sha256": "d88546e0b2243cab3dd506c993c126077761a76fe3f5662d25f36ded5f6c53eb",
+          "eligibility": "requires_version_and_scope_review"
+        },
+        {
+          "path": "docs/design/evidence/delegation-combinations-20261126.json",
+          "sha256": "3b84aa3dc94c7028c310cbbef1c150c98c4946cea9def931673b59140e228fe9",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H05",
+      "title": "单次消费与未知结果",
+      "requirements": [
+        "K03-2-A02",
+        "K03-2-A07"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer",
+        "product_reviewer"
+      ],
+      "expected": "重复操作不重放副作用；完整回执恢复原调用",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/governance-review-20261127.json",
+          "sha256": "2bd3b2ab91c765de463b094d231a4ef5e4c4605109cdbf949e308647a119e1f9",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H06",
+      "title": "委派与独立审批",
+      "requirements": [
+        "K03-3-A01",
+        "K03-3-A02",
+        "K03-3-A03",
+        "K03-3-A04",
+        "K03-3-A05",
+        "K03-3-A06"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer"
+      ],
+      "expected": "权限逐级收窄，来源撤销与乱序事件处理正确，自审批被拒绝",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/delegation-combinations-20261126.json",
+          "sha256": "3b84aa3dc94c7028c310cbbef1c150c98c4946cea9def931673b59140e228fe9",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H07",
+      "title": "凭据生命周期",
+      "requirements": [
+        "K03-1-A02",
+        "K03-1-A04",
+        "K03-1-A06",
+        "K03-1-A07"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer"
+      ],
+      "expected": "正常续期不扩权；撤权/换所有者/终态后拒绝续期；期限疑点已判定",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/worker-credential-renewal-20261113.json",
+          "sha256": "650ab3d75bb08893a8a2f0f00431c2008d5f4f6b4753ee634ccf8840f09125bd",
+          "eligibility": "requires_version_and_scope_review"
+        },
+        {
+          "path": "docs/design/evidence/worker-credentials-20261113.json",
+          "sha256": "1e026ce986751b67b7d2eaf703258bae4cbd782108796cb20f4209e8eab161d6",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H08",
+      "title": "Secret 与脱敏",
+      "requirements": [
+        "K03-1-A03",
+        "K03-1-A04",
+        "K03-1-A05"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer"
+      ],
+      "expected": "普通配置、Prompt、日志和产物不暴露测试凭据原文",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/secret-service-delivery-20261126.json",
+          "sha256": "46268ef1294e26f7f20c10afd61a1daa3694f9cef38a8603bd05b9264f5d9af6",
+          "eligibility": "requires_version_and_scope_review"
+        },
+        {
+          "path": "docs/design/evidence/secret-partition-20261126.json",
+          "sha256": "781f87e133c6f0b698f91a476a7cc503271237da435951ff4163281828d4ed41",
+          "eligibility": "requires_version_and_scope_review"
+        },
+        {
+          "path": "docs/design/evidence/identity-access-h200-20261128.json",
+          "sha256": "ce9827b74ce0f785be694d9a80a53a953ddddb988130d3159c2ba528b81ad0fa",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H09",
+      "title": "Harness 原生能力",
+      "requirements": [
+        "K03-2-A03",
+        "K03-2-A04",
+        "K03-2-A05",
+        "K03-2-A06"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer"
+      ],
+      "expected": "治理声明与真实控制一致，能力不足限制准入",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/cursor-native-controls-20261126.json",
+          "sha256": "04f8bd16c8fd79709c2783d422bfd27fde2f5e7a53e2c788d2a1463b16912a98",
+          "eligibility": "requires_version_and_scope_review"
+        },
+        {
+          "path": "docs/design/evidence/dsh-native-controls-20261126.json",
+          "sha256": "40b9f734fc96b62b1496f7032aefb2a9e761e0f280260d63f6c25d2535305e15",
+          "eligibility": "requires_version_and_scope_review"
+        },
+        {
+          "path": "docs/design/evidence/protocol-control-mapping-20261126.json",
+          "sha256": "af93b9cf27fad4dd8c6abe5a209a5d24fe4dade6e99c43b50ccb231e1a1ca78d",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    },
+    {
+      "id": "H10",
+      "title": "实现一致性",
+      "requirements": [
+        "K03-2-A07",
+        "K03-2-A08"
+      ],
+      "state": "planned",
+      "operator_role": "engineering_operator",
+      "observer_roles": [
+        "independent_security_reviewer"
+      ],
+      "expected": "按固定组合对照授权、审批消费、持久意图及撤销顺序",
+      "evidence_candidates": [
+        {
+          "path": "docs/design/evidence/governance-review-20261127.json",
+          "sha256": "2bd3b2ab91c765de463b094d231a4ef5e4c4605109cdbf949e308647a119e1f9",
+          "eligibility": "requires_version_and_scope_review"
+        },
+        {
+          "path": "docs/design/evidence/tool-delegation-deadline-20261128.json",
+          "sha256": "d88546e0b2243cab3dd506c993c126077761a76fe3f5662d25f36ded5f6c53eb",
+          "eligibility": "requires_version_and_scope_review"
+        }
+      ],
+      "live_entry": null,
+      "observed_result": null,
+      "human_decision": null
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q33-deadline",
+      "case": "H07",
+      "status": "unconfirmed_requires_assessment",
+      "description": "Credential exchange final wait may outlive execution deadlines; requires ruled-out or fixed-and-verified disposition."
+    }
+  ],
+  "decision_policy": {
+    "automatic_pass_assigns_human_acceptance": false,
+    "unknown_or_unobserved_passes": false,
+    "critical_authorization_failure_blocks_release": true,
+    "signer_identity_source": "authenticated human confirmation linked to evidence digest",
+    "blocked_automated_review_preserved": true,
+    "work_item_total": 79,
+    "completed_work_items": 66
+  }
+}

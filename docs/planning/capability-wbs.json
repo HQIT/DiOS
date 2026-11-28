@@ -8,7 +8,7 @@
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
     "next_work_item": "K03-1.04",
-    "next_delivery": "完成身份、工具与委派独立安全审查后进入发布接受；#10/#9/#58 工程结项，用户体验单列",
+    "next_delivery": "完成 HIL 验收准备：隔离 Profile、专用身份、场景入口、版本化证据和预演；独立人工安全评审后进入 #51 发布接受",
     "next_delivery_order": [
       "K03-1.04",
       "K03-2.03",
@@ -68,7 +68,8 @@
         "G06"
       ],
       "application_evidence": "docs/planning/closure-scope-20261128.md"
-    }
+    },
+    "hil_acceptance": "docs/engineering/hil-acceptance.md"
   },
   "waves": [
     {
@@ -2088,8 +2089,15 @@
       ],
       "wave": "W4",
       "progress_evidence": [
-        "docs/engineering/engineering-closure-20261128.md"
-      ]
+        "docs/engineering/engineering-closure-20261128.md",
+        "docs/engineering/hil-acceptance.md"
+      ],
+      "hil_acceptance": {
+        "case_manifest": "docs/engineering/hil-acceptance-cases.json",
+        "status": "designed_not_executed",
+        "readiness": "not_ready",
+        "human_decision": null
+      }
     },
     {
       "id": "K03-2.01",
@@ -2190,7 +2198,8 @@
         "docs/design/evidence/ready-g2-review.json",
         "docs/design/evidence/governance-review-20261127.json",
         "docs/engineering/engineering-closure-20261128.md",
-        "docs/design/evidence/tool-delegation-deadline-20261128.json"
+        "docs/design/evidence/tool-delegation-deadline-20261128.json",
+        "docs/engineering/hil-acceptance.md"
       ],
       "review_package_status": "ready_for_designated_review",
       "product_acceptance": {
@@ -2199,7 +2208,13 @@
         "decision": "requirements_confirmed",
         "record": "docs/engineering/product-acceptance-20261127.md"
       },
-      "qualification_followup": "当前 SQLAlchemy 2.0.58/AnyIO 4.12.1 的四组工具治理契约共52项通过；独立安全评审未完成，策略等待跨租约期限的补充检查及指定责任人接受仍待完成。"
+      "qualification_followup": "当前 SQLAlchemy 2.0.58/AnyIO 4.12.1 的四组工具治理契约共52项通过；独立安全评审未完成，策略等待跨租约期限的补充检查及指定责任人接受仍待完成。",
+      "hil_acceptance": {
+        "case_manifest": "docs/engineering/hil-acceptance-cases.json",
+        "status": "designed_not_executed",
+        "readiness": "not_ready",
+        "human_decision": null
+      }
     },
     {
       "id": "K01-4.01",
@@ -2396,7 +2411,8 @@
         "docs/design/review-ready-g2.md",
         "docs/design/evidence/ready-g2-review.json",
         "docs/design/evidence/governance-review-20261127.json",
-        "docs/engineering/engineering-closure-20261128.md"
+        "docs/engineering/engineering-closure-20261128.md",
+        "docs/engineering/hil-acceptance.md"
       ],
       "review_package_status": "ready_for_designated_review",
       "product_acceptance": {
@@ -2405,7 +2421,13 @@
         "decision": "requirements_confirmed",
         "record": "docs/engineering/product-acceptance-20261127.md"
       },
-      "qualification_followup": "当前 SQLAlchemy 2.0.58/AnyIO 4.12.1 的四组工具治理契约共52项通过；独立安全评审未完成，策略等待跨租约期限的补充检查及指定责任人接受仍待完成。"
+      "qualification_followup": "当前 SQLAlchemy 2.0.58/AnyIO 4.12.1 的四组工具治理契约共52项通过；独立安全评审未完成，策略等待跨租约期限的补充检查及指定责任人接受仍待完成。",
+      "hil_acceptance": {
+        "case_manifest": "docs/engineering/hil-acceptance-cases.json",
+        "status": "designed_not_executed",
+        "readiness": "not_ready",
+        "human_decision": null
+      }
     },
     {
       "id": "K04-1.01",
@@ -2963,7 +2985,16 @@
         "docs/design/evidence/managed-upgrade-20261124.json",
         "docs/design/evidence/harness-governance-20261125.json"
       ],
-      "wave": "W1"
+      "wave": "W1",
+      "progress_evidence": [
+        "docs/engineering/hil-acceptance.md"
+      ],
+      "hil_acceptance": {
+        "case_manifest": "docs/engineering/hil-acceptance-cases.json",
+        "status": "designed_not_executed",
+        "readiness": "not_ready",
+        "human_decision": null
+      }
     },
     {
       "id": "D01-2.01",
