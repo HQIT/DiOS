@@ -150,6 +150,7 @@ class TaskInput(BaseModel):
         return self
 
 class Submit(TaskInput):
+    expected_profile_digest: str|None=Field(default=None,pattern=r'^[0-9a-f]{64}$')
     delegation_ref: str|None=Field(default=None,min_length=1,max_length=160)
     parent_run_id: str|None=Field(default=None,min_length=1,max_length=160)
 
@@ -345,7 +346,8 @@ async def capacity_update(body:CapacityUpdate,s=Depends(service)):
 @router.post('/runs',status_code=202)
 async def submit(body:Submit,s=Depends(service)):
     return await s.submit(body.profile_id,body.sample_id,body.goal,body.idempotency_key,
-        input_payload=body.input_payload,delegation_ref=body.delegation_ref,parent_run_id=body.parent_run_id)
+        input_payload=body.input_payload,delegation_ref=body.delegation_ref,parent_run_id=body.parent_run_id,
+        expected_profile_digest=body.expected_profile_digest)
 
 @router.get('/runs/{run_id}')
 async def detail(run_id:str,s=Depends(service)):

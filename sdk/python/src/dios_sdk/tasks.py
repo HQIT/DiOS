@@ -185,18 +185,20 @@ class TaskClient:
         return self._request('/delegations/'+quote(reference,safe='')+'/revoke',method='POST',body={'expected_version':expected_version})
     def profiles(self): return self._request('/profiles')['items']
     def inputs(self): return self._request('/samples')['items']
-    def submit(self, profile_id, input_id, goal, *, idempotency_key, delegation_ref=None, parent_run_id=None):
+    def submit(self, profile_id, input_id, goal, *, idempotency_key, delegation_ref=None, parent_run_id=None, expected_profile_digest=None):
         if not isinstance(idempotency_key, str) or not idempotency_key:
             raise ValueError('Supply a stable idempotency key for the logical task')
         return self._request('/runs', method='POST', body=dict(profile_id=profile_id,
             sample_id=input_id, goal=goal, idempotency_key=idempotency_key,
+            **({'expected_profile_digest':expected_profile_digest} if expected_profile_digest is not None else {}),
             **({'delegation_ref':delegation_ref} if delegation_ref is not None else {}),
             **({'parent_run_id':parent_run_id} if parent_run_id is not None else {})))
-    def submit_input(self, profile_id, input_payload, goal, *, idempotency_key, delegation_ref=None, parent_run_id=None):
+    def submit_input(self, profile_id, input_payload, goal, *, idempotency_key, delegation_ref=None, parent_run_id=None, expected_profile_digest=None):
         if not isinstance(idempotency_key,str) or not idempotency_key:
             raise ValueError('Supply a stable idempotency key for the logical task')
         return self._request('/runs',method='POST',body=dict(profile_id=profile_id,
             input_payload=input_payload,goal=goal,idempotency_key=idempotency_key,
+            **({'expected_profile_digest':expected_profile_digest} if expected_profile_digest is not None else {}),
             **({'delegation_ref':delegation_ref} if delegation_ref is not None else {}),
             **({'parent_run_id':parent_run_id} if parent_run_id is not None else {})))
     def get(self, run_id, *, timeout=None):

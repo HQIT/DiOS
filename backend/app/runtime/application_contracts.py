@@ -11,6 +11,7 @@ from .store import bounded, digest
 API_VERSION = "1"
 HEADER = "X-DiOS-Runtime-Contract"
 INTERFACES = {
+    "profile-precondition": "1.0",
     "runtime-api": "1.0",
     "runtime-events": "1.0",
     "input-result-schema": "1.0",

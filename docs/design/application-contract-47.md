@@ -112,3 +112,7 @@ run = client.submit_input(profile_id, application_input, goal,
 CLI 使用已安装的公开 SDK 和 `DIOS_ACCESS_TOKEN`，`--url` 指定 HTTPS 或本地开发端点。Console → **应用接入** 展示平台接口、应用版本、登记 Revision 和兼容差异。候选预览不会修改登记、批准能力或启动 Worker。
 
 工程证据见 [应用契约验证](evidence/application-contract-20261126.json)。升级停用、两执行实现替代与各自原输出恢复见 [独立应用生命周期](application-lifecycle-47.md)。
+
+## 发布配置前置条件
+
+`profile-precondition: 1.0` 允许调用方通过 `expected_profile_digest` 固定目录中公布的执行配置指纹。API 在准备配置后、持久入队前比较，不符返回 `409 PROFILE_VERSION_CONFLICT`。SDK 0.1.21 的 `submit`/`submit_input` 和 CLI `task submit --expected-profile-digest` 同步支持。上层员工发布包通过该契约保持发布版本与执行一致；员工业务模型存放于独立应用库。

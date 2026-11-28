@@ -1,0 +1,42 @@
+name: Workforce registry qualification
+on:
+  push:
+    branches: [feat/lightweight-runtime-32]
+    paths:
+      - 'applications/workforce-registry/**'
+      - 'sdk/python/**'
+      - 'backend/app/api/os/runtime_tasks.py'
+      - 'backend/app/services/task_console.py'
+      - 'backend/app/runtime/application_contracts.py'
+      - 'scripts/qualify_workforce_registry.py'
+      - '.github/workflows/workforce-registry.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  registry:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend and independent application wheels
+        run: |
+          pip install -r backend/requirements.txt
+          pip wheel --no-deps sdk/python applications/workforce-registry -w workspace/workforce-dist
+          pip install workspace/workforce-dist/*.whl
+      - name: Qualify publication, submission and E2AG revocation
+        run: python scripts/qualify_workforce_registry.py --output workspace/workforce-qualification
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: workforce-registry-${{ github.sha }}
+          path: |
+            workspace/workforce-qualification/
+            workspace/workforce-dist/*.whl
+          if-no-files-found: error
+          retention-days: 14

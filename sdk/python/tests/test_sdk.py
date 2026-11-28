@@ -43,6 +43,11 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(caught.exception.status,302)
         self.assertEqual(len(self.requests),2)
         self.assertFalse(any('redirect-target' in x[1] for x in self.requests))
+    def test_profile_precondition_forwarded_for_both_submission_modes(self):
+        fingerprint='a'*64
+        self.client.submit('profile','input','goal',idempotency_key='pinned',expected_profile_digest=fingerprint)
+        self.client.submit_input('profile',{'id':'input'},'goal',idempotency_key='dynamic',expected_profile_digest=fingerprint)
+        self.assertTrue(all(row[2]['expected_profile_digest']==fingerprint for row in self.requests))
     def test_delegated_submissions_bind_same_reference_and_key_on_retry(self):
         for _ in range(2):
             self.client.submit('profile','input','goal',idempotency_key='same',delegation_ref='dl-one',parent_run_id='parent-one')

@@ -23,6 +23,8 @@ Build/install and usage: [application contracts](../../docs/design/application-p
 
 Persist the logical idempotency key before submitting. Observation timeout does not cancel or resubmit a task. Approvals remain controlled by DiOS.
 
+SDK 0.1.21 adds `expected_profile_digest` to `submit` and `submit_input`. Applications can pin a published execution profile using its catalog digest. Servers advertising `profile-precondition: 1.0` reject a changed profile with `PROFILE_VERSION_CONFLICT` before durable admission. Keep the original key and request after an uncertain receipt; inspect task history before creating a replacement request. The CLI exposes the same condition through `dios task submit --expected-profile-digest`.
+
 Authenticated delegation: `TaskClient.issue_delegation`, `delegation`, and
 `revoke_delegation` use the same authenticated Runtime transport. Issuance requires
 an existing parent and an explicit profile grant; the server resolves the issuer.

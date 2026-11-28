@@ -690,6 +690,7 @@ def cmd_task(args) -> int:
         method, suffix = "POST", "/runs"
         data = dict(profile_id=args.profile, goal=args.goal, idempotency_key=args.key)
         if args.delegation:data['delegation_ref']=args.delegation
+        if args.expected_profile_digest:data['expected_profile_digest']=args.expected_profile_digest
         if args.parent:data['parent_run_id']=args.parent
         if args.input_file:
             try:
@@ -766,6 +767,7 @@ def task_parser():
             source.add_argument("--sample");source.add_argument("--input-file",help="JSON input validated against the registered application schema")
             c.add_argument("--goal",required=True);c.add_argument("--key",required=True,help="reuse this key when retrying the same submission")
             c.add_argument("--delegation",help="existing delegation bound to your authenticated subject and actor")
+            c.add_argument("--expected-profile-digest",help="reject admission if the selected profile fingerprint has changed")
             c.add_argument("--parent",help="live parent Run that issued the recipient delegation")
         if name in {"show","cancel","revoke","preview","download"}:c.add_argument("run_id")
         if name in {"cancel","revoke"}:c.add_argument("--revision",required=True,type=int)

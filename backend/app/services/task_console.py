@@ -210,13 +210,15 @@ class TaskConsole:
 
     async def submit(self, profile_id, sample_id, goal, key, *, input_payload=None,
                      expected_schedule_binding=None, admission_guard=None, transport_binding=None,
-                      delegation_ref=None, parent_binding=None, parent_run_id=None):
+                      delegation_ref=None, parent_binding=None, parent_run_id=None, expected_profile_digest=None):
         if delegation_ref is not None:
             from app.runtime.store import identifier
             identifier(delegation_ref)
             if self.principal is None:raise RuntimeErrorCode('AUTH_PRINCIPAL_REQUIRED')
         prepared=await self.prepare_submission(profile_id,sample_id,goal,input_payload=input_payload)
         registered,profile,value=(prepared[k] for k in ('registered','profile','value'))
+        if expected_profile_digest is not None and expected_profile_digest != profile['profile_digest']:
+            raise RuntimeErrorCode('PROFILE_VERSION_CONFLICT')
         if parent_run_id is not None:
             if parent_binding is not None or admission_guard is not None:
                 raise RuntimeErrorCode('CHILD_BINDING_INVALID')
