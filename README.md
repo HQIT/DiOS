@@ -89,11 +89,14 @@ MCP、Skills、Plugins 和受控能力包集中管理；查看来源、版本、
 | 场景 | 已验证的效果 | 证据 |
 | --- | --- | --- |
 | 跨主机身份与 E2AG | 两台 Linux/WSL 主机间权限隔离、凭据撤销、实际工具拦截通过 | [双机验证](docs/design/identity-access-qualification-33.md) |
+| 企业目录到执行权限 | 独立目录桥接包生成版本化权限变更；部门成果隔离、移组/停用拦截、重新启用不复活旧授权，29 项测试通过 | [目录授权接入](docs/design/directory-mapping-36.md) |
 | Worker 故障与资源预算 | 双机共享预算、Worker 退出后原尝试恢复、网络重连与离线撤权通过 | [预算与恢复](docs/design/resource-recovery-45.md) |
 | 外部智能体执行 | Cursor ACP 首条任务、审批、工具、报告与恢复路径已有真实执行证据 | [Harness 治理](docs/design/review-harness-58.md) |
 | 应用独立交付 | 参考应用通过公开 SDK/API 接入，独立打包、升级与回滚 | [应用契约](docs/design/application-contract-47.md) |
 
 不同 Harness 的协议和控制能力存在差异，按[接入能力矩阵](docs/design/agent-integration-capability-matrix.md)逐项验证。平台预算预留约束派发额度；供应商费用硬上限需要对应通道支持。高可用、完整跨节点故障矩阵和规模容量按[既定路线](ROADMAP.md)持续推进。
+
+企业目录中的调岗和停用可通过独立[目录桥接包](applications/directory-bridge/README.md)生成权限变更计划，再由 DiOS 的 E2AG 执行门禁生效。部门、岗位规则留在上层；当前支持可信完整快照与运维发布，在线同步和企业 SSO 联验继续推进。
 
 ## 开始使用
 

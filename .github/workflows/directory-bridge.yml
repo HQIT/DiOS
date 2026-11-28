@@ -1,0 +1,46 @@
+name: Directory mapping qualification
+
+on:
+  push:
+    branches: [feat/lightweight-runtime-32]
+    paths:
+      - 'applications/directory-bridge/**'
+      - 'backend/app/runtime/principal_updates.py'
+      - 'backend/app/runtime/principals.py'
+      - 'backend/app/runtime/cli.py'
+      - 'scripts/qualify_directory_bridge.py'
+      - '.github/workflows/directory-bridge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mapping:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install isolated qualification dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip wheel --no-deps applications/directory-bridge -w workspace/directory-bridge-dist
+          pip install --no-deps workspace/directory-bridge-dist/*.whl
+      - name: Qualify directory mapping and E2AG integration
+        env:
+          PYTHONPATH: backend:backend/tests
+        run: python scripts/qualify_directory_bridge.py --output workspace/directory-bridge-qualification
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: directory-bridge-${{ github.sha }}
+          path: |
+            workspace/directory-bridge-qualification/
+            workspace/directory-bridge-dist/*.whl
+          if-no-files-found: error
+          retention-days: 14

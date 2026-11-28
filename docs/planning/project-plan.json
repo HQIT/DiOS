@@ -2070,7 +2070,26 @@
         "K03-3.01",
         "K03-3.02",
         "S02-1.02"
-      ]
+      ],
+      "application_progress": {
+        "state": "in_progress",
+        "completed_slice": "complete SCIM snapshot mapping through trusted identity CLI and E2AG",
+        "evidence": [
+          "docs/design/directory-mapping-36.md",
+          "docs/design/evidence/directory-mapping-36-20261128.json"
+        ],
+        "package": "applications/directory-bridge",
+        "verification": {
+          "passed": 29,
+          "skipped": 0,
+          "execution": "isolated SQLite, installed wheel, real CLI/API/E2AG, deterministic Worker adapter"
+        },
+        "remaining": [
+          "online directory paging/watermarks and resumable lifecycle synchronization",
+          "enterprise SSO and service delegation joint acceptance"
+        ],
+        "scope_note": "Independent upper platform preparation within original #36 scope; original dependency and final acceptance gates retained; not counted in 79 core capability items."
+      }
     },
     {
       "id": "S01-2",
@@ -3286,8 +3305,8 @@
     "wbs": "docs/planning/capability-wbs.json",
     "guide": "docs/planning/capability-wbs.md",
     "implementation_wip_limit": 1,
-    "next_work_item": "K04-2.04",
-    "next_delivery": "K04-2.04",
+    "next_work_item": "F03-2.02",
+    "next_delivery": "S01-1 application directory lifecycle integration",
     "next_delivery_order": [
       "K03-1.03",
       "K04-2.04",
@@ -3319,7 +3338,8 @@
     "platform_rule": "DiOS 当前开发、部署和工程验收以 Linux（含 WSL）为目标。现有评审业务的 Windows 执行机是外部接入背景，不构成 DiOS Windows 原生支持、安装器、ACL Provider 或后台服务交付要求；新增操作系统支持须有明确需求。",
     "primary_harness": "Cursor ACP",
     "harness_delivery_rule": "先完成 Cursor ACP 单一 Harness 的任务、E2AG 授权审批、工具、报告和恢复闭环。DSH/Codex 保留已有适配；第二来源实测与多 Harness 联合验收后置到首条路径交付后，兼容设计不引入新的首轮交付前置。",
-    "next_selection_reason": "K04-2.04 的 WSL/H200 预算、失联恢复、旧执行者拒写和 E2AG 离线撤权通过；剩余旧控制面主节点隔离需 HA 故障环境，沿已有节点级故障暂停安排。README 与进度文档同步，WBS 分母保留。",
-    "readiness_report": "docs/planning/remaining-delivery-dependencies.md"
+    "next_selection_reason": "物理故障、HA 与规模容量暂缓；接续既定 #36 上层身份映射，为 #37/#40 与 F03-2.02/.03 联验提供前置。完整快照映射及 CLI/E2AG 切片 29 项测试通过；下一步在线目录生命周期同步。上层交付独立统计，底座仍为 61/79。",
+    "readiness_report": "docs/planning/remaining-delivery-dependencies.md",
+    "active_application_task": "S01-1"
   }
 }

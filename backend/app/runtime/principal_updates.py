@@ -19,6 +19,16 @@ from .delegation_identity_schema import issuers
 from .delegations import revoke_record
 
 
+def projection(catalog, principal, scope):
+    """Trusted administration view for external policy planners; no credentials."""
+    document = FilePrincipals(catalog).document()
+    row = document["principals"].get(principal)
+    if row is None or row["scope"] != scope:
+        raise RuntimeErrorCode("AUTH_ACTION_DENIED")
+    return {"issuer": document["issuer"], "scope": scope, "principal_id": principal,
+            "revision": row["revision"], "enabled": row["enabled"], "profiles": row["profiles"]}
+
+
 def matching(binding, issuer, principal, revision):
     return and_(
         binding["issuer"].as_string() == issuer,

@@ -51,3 +51,9 @@ Infrastructure > DiOS > 客户无关数字分身平台 > 客户应用。按 [ADR
 
 
 第二节点的[执行与治理证据](../design/physical-worker-qualification-53.md)覆盖三个实际跨主机场景，另有[网络分区、Worker 中断和延迟证据](../design/physical-fault-qualification-53.md)，[存储与节点重启](../design/storage-node-recovery-53.md)亦已通过，D01-3.02 已完成。评审人的具体工作见[交付评审说明](../engineering/reviewer-guide.md)。
+
+## 非物理依赖的接续交付
+
+按 2026-11-28 的安排，物理故障、HA 和规模容量继续暂缓。既定 #36 的独立目录授权映射切片已完成：标准完整目录快照、安全权限投影、CLI 版本化发布与 E2AG 联验，29 项通过。组织岗位语义留在上层包；下一步补在线目录生命周期同步，再衔接 #37/#40 和 F03-2.02/.03。#36 原依赖及最终验收保留，底座仍为 61/79，剩余 18 项。
+
+[交付与剩余条件](../design/directory-mapping-36.md) · [可运行样例](../../applications/directory-bridge/README.md)。

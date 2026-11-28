@@ -230,6 +230,9 @@ async def execute(args):
                 rows=(await c.execute(select(events.c.id,events.c.issuer,events.c.client_id,events.c.issued_at,events.c.received_at,events.c.revoked_work_count)
                     .where(events.c.scope==args.scope).order_by(events.c.received_at.desc(),events.c.id).limit(args.limit))).mappings().all()
                 return {'items':[dict(x) for x in rows]}
+        if args.command == 'identity-policy':
+            from .principal_updates import projection
+            return projection(args.catalog,args.principal,args.scope)
         if args.command == 'identity-update':
             from .principal_updates import update
             with Path(args.file).open('rb') as source:raw=source.read(262145)
@@ -580,6 +583,9 @@ def main(argv=None):
     delegation_check.add_argument('--retry-max',type=float,default=300)
     events=commands.add_parser('identity-events',help='read verified logout receipts in the selected scope')
     events.add_argument('--limit',type=int,default=20)
+    identity_policy=commands.add_parser('identity-policy',help='trusted operator policy projection without credentials')
+    identity_policy.add_argument('--catalog',required=True)
+    identity_policy.add_argument('--principal',required=True)
     update_identity=commands.add_parser('identity-update',help='trusted Linux catalog update; increments identity revision and fences older authority')
     update_identity.add_argument('--catalog',required=True)
     update_identity.add_argument('--principal',required=True)

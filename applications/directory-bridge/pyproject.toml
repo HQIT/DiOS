@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dios-directory-bridge"
+version = "0.1.0"
+description = "Independent SCIM snapshot to DiOS identity policy planner"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+dios-directory = "dios_directory.mapping:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
