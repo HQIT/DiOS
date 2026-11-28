@@ -20,7 +20,7 @@ def main():
     assert not Path(installed.__file__).resolve().is_relative_to(ROOT/'applications'), 'Install the wheel first'
     sys.path[:0]=[str(ROOT/'applications/workforce-registry/tests'),str(ROOT/'backend'),
                   str(ROOT/'backend/tests'),str(ROOT/'sdk/python/tests')]
-    suite=unittest.TestLoader().loadTestsFromNames(['test_registry','test_runtime_integration','test_workitems'])
+    suite=unittest.TestLoader().loadTestsFromNames(['test_registry','test_runtime_integration','test_workitems','test_rework'])
     cases=[]
     class Result(unittest.TextTestResult):
         def addSuccess(self,test):
@@ -39,22 +39,24 @@ def main():
              'applications/workforce-registry/tests/test_registry.py',
              'applications/workforce-registry/tests/test_runtime_integration.py',
              'applications/workforce-registry/tests/test_workitems.py',
+             'applications/workforce-registry/tests/test_rework.py',
              'backend/app/api/os/runtime_tasks.py','backend/app/services/task_console.py',
              'backend/app/runtime/application_contracts.py','sdk/python/src/dios_sdk/tasks.py','cli/dios',
              'scripts/qualify_workforce_registry.py']
     report={'result':'PASS' if result.wasSuccessful() and not result.skipped else 'FAIL',
         'tests_run':result.testsRun,'skipped':len(result.skipped),'duration_seconds':round(time.time()-start,3),
-        'application':'dios-workforce-registry==0.2.0','sdk':'dios-sdk==0.1.21','cases':cases,
+        'application':'dios-workforce-registry==0.3.0','sdk':'dios-sdk==0.1.21','cases':cases,
         'installed_module_sha256':hashlib.sha256(Path(installed.__file__).read_bytes()).hexdigest(),
         'source_hashes':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources},
         'conditions':{'identity':'synthetic dedicated principals; independent application SQLite',
             'worker':'real Worker with deterministic adapter; no model call',
             'authorization':'actual HTTP middleware, E2AG admission/execution/result verifier, admin CLI subprocess',
             'compatibility':'immutable template and revision; generic profile precondition at admission',
-            'workitem':'durable business identity, pinned employee, explicit reviewer decision, live object authorization and integrity checks'},
+            'workitem':'durable business identity, pinned employee, explicit reviewer decision, live object authorization and integrity checks',
+            'rework':'immutable prior-round snapshots; distinct Run and Work authorization per round; legacy pending-key upgrade and durable rework receipt'},
         'not_qualified':['enterprise directory/SSO','physical Runtime replacement','cross-Harness live switch',
                          'multiuser application web UI and operator role model',
-                         'multi-employee aggregation, business rework/compensation and approval inbox']}
+                         'parallel multi-employee aggregation, compensation and approval inbox']}
     (output/'result.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps({k:report[k] for k in ('result','tests_run','skipped','duration_seconds')}))
     return 0 if report['result']=='PASS' else 1

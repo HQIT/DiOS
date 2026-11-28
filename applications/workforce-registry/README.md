@@ -10,7 +10,7 @@
 
 ```bash
 pip wheel --no-deps sdk/python applications/workforce-registry -w workspace/workforce-dist
-pip install workspace/workforce-dist/dios_sdk-0.1.21-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.2.0-py3-none-any.whl
+pip install workspace/workforce-dist/dios_sdk-0.1.21-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.3.0-py3-none-any.whl
 dios-workforce --help
 dios-workitem --help
 ```
@@ -108,7 +108,27 @@ dios-workitem --state-dir /srv/workforce/state show --id work-001
 
 `accept` 进入 `confirmed`，`reject` 进入 `needs_revision`。确认再次读取真实成果并核验权限；撤权或成果变化会拒绝确认。相同决策重放只返回原回执，冲突决策拒绝。Run 成功、人工退回与业务通过分别记录。
 
-派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。当前每个工作项对应一个 Run；返工、多岗位汇总、接管、补偿和审批待办沿 #40 后续切片推进。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
+派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。每个工作项可顺序关联多个返工轮次，每轮对应一个 Run。多岗位汇总、接管、补偿和审批待办沿 #40 后续切片推进。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
+
+## 退回返工与多 Run 历史
+
+0.3.0 支持从 `needs_revision` 创建下一轮。复核人需要继续拥有上一轮成果的读取权限；员工必须处于 active，当前发布版本通过身份、E2AG 和兼容检查。新轮沿用工作类型和登记输入，显式填写新的执行目标。
+
+若首轮在版本 4 被人工退回，退回回执版本为 5：
+
+```bash
+dios-workitem --state-dir /srv/workforce/state rework --id work-001 --reviewer reviewer-001 --config config.json --goal '依据退回意见补充空输入和异常分支分析' --key rework-001 --expected-version 5
+dios-workitem --state-dir /srv/workforce/state dispatch --id work-001 --config config.json --expected-version 6
+dios-workitem --state-dir /srv/workforce/state show --id work-001
+```
+
+`rework` 固定员工当前发布修订，原轮次的目标、员工版本、Run、成果和决策被完整归档。新轮获得新的提交键、Run 和 E2AG 工作授权；管理员为新 Run 单独配置复核读取权限后，再执行 `observe`、`confirm`。旧 Run 的分享不会自动扩展到新 Run。
+
+同一个返工请求的 `--key`、`--goal` 和 `--expected-version` 保持不变。重放返回原创建回执，使用 `show` 获取当前版本；同键不同内容被拒绝。派发回执未知时重试原轮，确认退回后才显式新建轮次。旧轮的延迟确认因版本不符被拒绝。
+
+`show` 返回按顺序排列的 `rounds`，包括已归档轮次和当前轮次，保留每轮的 Run、证据及人工决策。所有轮次归属同一个 WorkItem；不新建聊天或自动发送消息。
+
+升级前结束本地管理命令，备份整个状态目录。首次打开 WorkItem 时原子升级本地数据库，旧工作项映射为第 1 轮，未确认提交保持原键。数据库 schema 2 阻止 0.1/0.2 旧包写入；新包不降低 schema。尚无新写入时可恢复完整升级前备份回退；已有新轮次时保留新库和所有 Run 关联，优先前向修复。
 
 ## 发布与恢复规则
 

@@ -3,7 +3,7 @@ import hashlib
 import json
 import time
 
-from .registry import check, digest, encoded, identifier, principal
+from .registry import check, digest, encoded, identifier, principal, validate
 
 
 class WorkItems:
@@ -19,10 +19,28 @@ class WorkItems:
                 sequence INTEGER PRIMARY KEY AUTOINCREMENT, work_id TEXT NOT NULL,
                 kind TEXT NOT NULL, details TEXT NOT NULL, created REAL NOT NULL);
         ''')
+        # Fence older binaries: their first-round key must never address a rework round.
+        self.db.execute('BEGIN IMMEDIATE')
+        try:
+            columns={r[1] for r in self.db.execute('PRAGMA table_info(work_items)')}
+            if 'round_number' not in columns:
+                check(self.db.execute('PRAGMA user_version').fetchone()[0]==1,'INVALID_WORK_SCHEMA')
+                self.db.execute('ALTER TABLE work_items ADD COLUMN round_number INTEGER NOT NULL DEFAULT 1')
+                self.db.execute('ALTER TABLE work_items ADD COLUMN round_goal TEXT')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS work_rounds (
+                work_id TEXT, round_number INTEGER, snapshot TEXT NOT NULL, PRIMARY KEY(work_id,round_number))''')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS rework_receipts (
+                work_id TEXT, request_key TEXT, request TEXT NOT NULL, receipt TEXT NOT NULL,
+                PRIMARY KEY(work_id,request_key))''')
+            self.db.execute('PRAGMA user_version=2')
+            self.db.commit()
+        except BaseException:
+            self.db.rollback();raise
 
     def event(self, work_id, kind, details):
+        row=self.db.execute('SELECT round_number FROM work_items WHERE id=?',(work_id,)).fetchone()
         self.db.execute('INSERT INTO work_events(work_id,kind,details,created) VALUES (?,?,?,?)',
-                        (work_id, kind, encoded(details), time.time()))
+                        (work_id, kind, encoded(dict(details,round_number=row[0])), time.time()))
 
     def get(self, work_id):
         row=self.db.execute('SELECT * FROM work_items WHERE id=?',(work_id,)).fetchone()
@@ -33,7 +51,10 @@ class WorkItems:
         return value
 
     def history(self, work_id):
-        return {'work_item':self.get(work_id),'events':[dict(r) for r in self.db.execute(
+        current=self.get(work_id)
+        rounds=[json.loads(r[0]) for r in self.db.execute(
+            'SELECT snapshot FROM work_rounds WHERE work_id=? ORDER BY round_number',(work_id,))]
+        return {'work_item':current,'rounds':rounds+[current],'events':[dict(r) for r in self.db.execute(
             'SELECT * FROM work_events WHERE work_id=? ORDER BY sequence',(work_id,))]}
 
     async def create(self, work_id, title, kind, sample, goal, reviewer):
@@ -47,7 +68,7 @@ class WorkItems:
             check(old['specification']==spec and old['reviewer']==identity,'WORK_ITEM_IDEMPOTENCY_CONFLICT')
             return old
         with self.db:
-            self.db.execute("INSERT INTO work_items VALUES (?,?,?,'created',1,NULL,NULL,NULL,NULL,NULL)",
+            self.db.execute("INSERT INTO work_items(id,specification,reviewer,state,version) VALUES (?,?,?,'created',1)",
                             (work_id,encoded(spec),encoded(identity)))
             self.event(work_id,'created',{'reviewer':identity})
         return self.get(work_id)
@@ -76,7 +97,7 @@ class WorkItems:
         actor=self.registry.get(row['employee'])
         check(principal(await client.identity())==json.loads(actor['identity']),'EMPLOYEE_IDENTITY_MISMATCH')
         if row['run_id'] is not None: return row
-        key='workitem-'+digest(work_id)
+        key='workitem-'+digest(work_id if row['round_number']==1 else [work_id,row['round_number']])
         receipt=self.db.execute('SELECT revision FROM submissions WHERE employee=? AND key=?',(row['employee'],key)).fetchone()
         # A durable employee receipt pins the original request after an uncertain response.
         check((receipt['revision'] if receipt else actor['active'])==row['employee_revision'],
@@ -86,11 +107,42 @@ class WorkItems:
                 self.db.execute("UPDATE work_items SET state='dispatching' WHERE id=?",(work_id,))
                 self.event(work_id,'dispatch_requested',{'key':key})
         spec=row['specification']
-        result=await self.registry.submit(row['employee'],spec['kind'],spec['sample'],spec['goal'],key,client)
+        result=await self.registry.submit(row['employee'],spec['kind'],spec['sample'],row['round_goal'] or spec['goal'],key,client)
         with self.db:
             self.db.execute("UPDATE work_items SET state='running',run_id=?,version=version+1 WHERE id=?",(result['run_id'],work_id))
             self.event(work_id,'dispatched',{'run_id':result['run_id']})
         return self.get(work_id)
+
+    async def rework(self, work_id, reviewer, employee_client, goal, key, *, expected_version):
+        identifier(key)
+        check(isinstance(goal,str) and 0<len(goal.strip())<=8000,'INVALID_GOAL')
+        row=self.get(work_id)
+        await self.reviewer(row,reviewer)
+        request=encoded({'goal':goal,'expected_version':expected_version})
+        old=self.db.execute('SELECT request,receipt FROM rework_receipts WHERE work_id=? AND request_key=?',
+                            (work_id,key)).fetchone()
+        if old:
+            check(old['request']==request,'REWORK_IDEMPOTENCY_CONFLICT')
+            return json.loads(old['receipt'])
+        check(row['version']==expected_version,'WORK_ITEM_VERSION_CONFLICT')
+        check(row['state']=='needs_revision' and row['decision']['decision']=='reject','WORK_ITEM_NOT_RETURNED')
+        _,evidence=await self.evidence(row,reviewer)
+        check(evidence is not None and evidence==row['evidence'],'REVIEW_EVIDENCE_CHANGED')
+        actor=self.registry.get(row['employee'])
+        check(actor['state']=='active','EMPLOYEE_NOT_ACTIVE')
+        definition=self.registry.revision(row['employee'],actor['active'])
+        check(row['specification']['kind'] in definition['bindings'],'WORK_TYPE_UNAVAILABLE')
+        await validate(definition,employee_client,json.loads(actor['identity']))
+        with self.db:
+            self.db.execute('INSERT INTO work_rounds VALUES (?,?,?)',(work_id,row['round_number'],encoded(row)))
+            self.db.execute("""UPDATE work_items SET state='bound',version=version+1,
+                round_number=round_number+1,round_goal=?,employee_revision=?,run_id=NULL,evidence=NULL,decision=NULL
+                WHERE id=?""",(goal,actor['active'],work_id))
+            receipt=self.get(work_id)
+            self.event(work_id,'rework_created',{'key':key,'previous_round':row['round_number'],
+                'previous_run_id':row['run_id'],'employee_revision':actor['active'],'goal':goal})
+            self.db.execute('INSERT INTO rework_receipts VALUES (?,?,?,?)',(work_id,key,request,encoded(receipt)))
+        return receipt
 
     async def reviewer(self, row, client):
         check(principal(await client.identity())==row['reviewer'],'REVIEWER_IDENTITY_MISMATCH')

@@ -91,7 +91,8 @@ class Registry:
             check(path.stat().st_uid == os.getuid() and not path.stat().st_mode & 0o077, "PRIVATE_STATE_REQUIRED")
             self.db = sqlite3.connect(path)
             self.db.row_factory = sqlite3.Row
-            check(self.db.execute("PRAGMA user_version").fetchone()[0] in (0,1), "UNSUPPORTED_REGISTRY_SCHEMA")
+            schema_version = self.db.execute("PRAGMA user_version").fetchone()[0]
+            check(schema_version in (0,1,2), "UNSUPPORTED_REGISTRY_SCHEMA")
             self.db.execute("PRAGMA journal_mode=WAL"); self.db.execute("PRAGMA synchronous=FULL")
             self.db.executescript('''
                 CREATE TABLE IF NOT EXISTS templates (id TEXT, version INTEGER, definition TEXT NOT NULL, PRIMARY KEY(id,version));
@@ -102,8 +103,8 @@ class Registry:
                 CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, employee TEXT, kind TEXT, details TEXT, created REAL);
                 CREATE TABLE IF NOT EXISTS submissions (employee TEXT, key TEXT, request TEXT NOT NULL, request_digest TEXT NOT NULL,
                     revision INTEGER NOT NULL, state TEXT NOT NULL, run_id TEXT, PRIMARY KEY(employee,key));
-                PRAGMA user_version=1;
             ''')
+            if schema_version == 0: self.db.execute("PRAGMA user_version=1")
         except BaseException:
             self.close(); raise
 
