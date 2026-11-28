@@ -3,7 +3,7 @@ import http from 'k6/http';
 import exec from 'k6/execution';
 import { Counter, Rate, Trend } from 'k6/metrics';
 
-const config = JSON.parse(open('/input/client.json'));
+const config = JSON.parse(open(__ENV.CLIENT_CONFIG || '/input/client.json'));
 const semanticErrors = new Counter('semantic_errors');
 const cycles = new Counter('completed_write_cycles');
 const availability = new Rate('operation_success');
@@ -75,5 +75,5 @@ export default function () {
 }
 
 export function handleSummary(data) {
-  return {'/output/k6-summary.json': JSON.stringify(data, null, 2)};
+  return {[__ENV.SUMMARY_PATH || '/output/k6-summary.json']: JSON.stringify(data, null, 2)};
 }

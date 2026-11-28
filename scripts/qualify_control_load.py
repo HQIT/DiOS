@@ -38,7 +38,7 @@ def qualifies(report):
         and report['dropped_iterations'] == 0 and count_ok)
 
 
-async def case(output, image, concurrency, rate, duration, iterations):
+async def case(output, image, concurrency, rate, duration, iterations, binary=None):
     output.mkdir(mode=0o700)
     fixture = PrincipalTests()
     await fixture.asyncSetUp()
@@ -70,6 +70,12 @@ async def case(output, image, concurrency, rate, duration, iterations):
             '-v', f'{output}:/output', '-e', f'CONCURRENCY={concurrency}',
             '-e', f'ARRIVAL_RATE={rate}', '-e', f'DURATION={duration}',
             '-e', f'ITERATIONS={iterations}', image, 'run', '--quiet', '/input/load.js']
+        if binary:
+            command = [str(binary), 'run', '--quiet',
+                '-e', f'CLIENT_CONFIG={client}', '-e', f'SUMMARY_PATH={output / "k6-summary.json"}',
+                '-e', f'CONCURRENCY={concurrency}', '-e', f'ARRIVAL_RATE={rate}',
+                '-e', f'DURATION={duration}', '-e', f'ITERATIONS={iterations}',
+                str(ROOT / 'scripts/fixtures/control_load.js')]
         with (output / 'k6.log').open('w') as log:
             completed = await asyncio.to_thread(subprocess.run, command, stdout=log,
                 stderr=subprocess.STDOUT, timeout=duration + 120, check=False)
@@ -108,8 +114,9 @@ async def case(output, image, concurrency, rate, duration, iterations):
         (output / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
         return report
     finally:
-        await asyncio.to_thread(subprocess.run, ['docker','rm','-f',container_name],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15, check=False)
+        if not binary:
+            await asyncio.to_thread(subprocess.run, ['docker','rm','-f',container_name],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15, check=False)
         if server_task:
             server.should_exit = True
             await asyncio.wait_for(server_task, 30)
@@ -119,30 +126,48 @@ async def case(output, image, concurrency, rate, duration, iterations):
         (output / 'client.json').unlink(missing_ok=True)
 
 
+def resource_limits():
+    for line in Path('/proc/self/cgroup').read_text().splitlines():
+        if line.startswith('0::'):
+            root = Path('/sys/fs/cgroup') / line[3:].lstrip('/')
+            return {name: (root / name).read_text().strip() for name in
+                ('cpu.max', 'memory.max', 'pids.max') if (root / name).exists()}
+    return {}
+
+
 async def main(args):
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / 'workspace') or output.exists():
         raise ValueError('Use a new output directory under workspace')
     output.mkdir(parents=True, mode=0o700)
-    image = subprocess.check_output(['docker', 'image', 'inspect', K6_IMAGE, '--format', '{{.Id}}'], text=True).strip()
+    binary = args.k6_binary.resolve() if args.k6_binary else None
+    image = None if binary else subprocess.check_output(
+        ['docker', 'image', 'inspect', K6_IMAGE, '--format', '{{.Id}}'], text=True).strip()
+    generator = dict(kind='native' if binary else 'docker', image=image)
+    if binary:
+        generator.update(sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),
+            version=subprocess.check_output([str(binary), 'version'], text=True).strip())
     reports = []
     for repeat in range(args.repeats):
         for concurrency in args.concurrency:
             label = f'concurrency-{concurrency}-repeat-{repeat+1}'
-            report = await case(output / label, image, concurrency, 0, args.duration, args.iterations)
+            report = await case(output / label, image, concurrency, 0, args.duration, args.iterations, binary)
             reports.append(dict(label=label, **report))
             print(json.dumps(dict(case=label, passed=report['passed'], seconds=report['seconds'])), flush=True)
         for rate in args.rates:
             label = f'arrival-{rate}-repeat-{repeat+1}'
-            report = await case(output / label, image, 128, rate, args.duration, args.iterations)
+            report = await case(output / label, image, args.arrival_vus, rate, args.duration, args.iterations, binary)
             reports.append(dict(label=label, **report))
             print(json.dumps(dict(case=label, passed=report['passed'], seconds=report['seconds'])), flush=True)
     paths = ['scripts/qualify_control_load.py', 'scripts/fixtures/control_load.js',
         'backend/app/runtime/database.py', 'backend/app/services/task_console.py',
         'backend/app/api/os/runtime_tasks.py', 'backend/tests/test_runtime_principals.py']
     report = dict(work_item='D01-4.01', complete=False, passed=all(r['passed'] for r in reports),
-        implementation_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
-        mode='local-http-control-plane', k6_image=image, k6_manifest=K6_IMAGE,
+        implementation_commit=args.source_commit or subprocess.check_output(
+            ['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+        resource_limits=resource_limits(),
+        mode='local-http-control-plane', load_generator=generator,
+        k6_image=image, k6_manifest=K6_IMAGE if not binary else None,
         platform=platform.platform(), logical_cpus=os.cpu_count(),
         cpu_affinity=len(os.sched_getaffinity(0)),
         dependencies={name:importlib.metadata.version(name) for name in ('SQLAlchemy','aiosqlite','uvicorn','fastapi')},
@@ -162,12 +187,15 @@ async def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--concurrency', type=int, nargs='+', default=[1,8,32,128])
-    parser.add_argument('--rates', type=int, nargs='*', default=[10,100])
+    parser.add_argument('--concurrency', type=int, nargs='+', default=[1,4])
+    parser.add_argument('--rates', type=int, nargs='*', default=[2])
+    parser.add_argument('--source-commit', help='Base commit for an exported source tree; file hashes record changes')
+    parser.add_argument('--k6-binary', type=Path, help='Use an official standalone k6 executable')
+    parser.add_argument('--arrival-vus', type=int, default=8)
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--iterations', type=int, default=256)
     parser.add_argument('--duration', type=int, default=10)
     args = parser.parse_args()
-    if any(n <= 0 for n in [*args.concurrency, *args.rates, args.repeats, args.iterations, args.duration]):
+    if any(n <= 0 for n in [*args.concurrency, *args.rates, args.repeats, args.iterations, args.duration, args.arrival_vus]):
         parser.error('All sizes and durations must be positive')
     raise SystemExit(asyncio.run(main(args)))

@@ -1,0 +1,676 @@
+{
+  "work_item": "D01-4.01",
+  "complete": false,
+  "passed": true,
+  "implementation_commit": "fb66401c03df9e897509f36215cbe8f406c95db4",
+  "resource_limits": {
+    "memory.max": "4294967296",
+    "pids.max": "128"
+  },
+  "mode": "local-http-control-plane",
+  "load_generator": {
+    "kind": "native",
+    "image": null,
+    "sha256": "38abd82aed3dceba14c7e842e34f75b550a2a0ae4c6e71262120268f7c0c3771",
+    "version": "k6 v1.4.0+dirty (commit/a9f9e3b28a-dirty, go1.25.3, linux/amd64)"
+  },
+  "k6_image": null,
+  "k6_manifest": null,
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.35",
+  "logical_cpus": 384,
+  "cpu_affinity": 384,
+  "dependencies": {
+    "SQLAlchemy": "2.0.58",
+    "aiosqlite": "0.22.1",
+    "uvicorn": "0.41.0",
+    "fastapi": "0.135.1"
+  },
+  "source_sha256": {
+    "scripts/qualify_control_load.py": "bc3395cdaade894f454d88a0efce1097dfc8f2f018473cba7be3f145ea9bc130",
+    "scripts/fixtures/control_load.js": "6b2447653a91dd31e5e07066baeea434193422b425d8d381592260a816560003",
+    "backend/app/runtime/database.py": "fd6b9418c267d854aed2117a120d357169363345f2e29fdbeaa9bb6276d8d6a5",
+    "backend/app/services/task_console.py": "7c723ea3b5700ec3fef309255c98fc06d9fa36e05014d9fccb3a8e7b3fdedd4c",
+    "backend/app/api/os/runtime_tasks.py": "bc351226921be886c2359d3577999f05de5a6eb6553be87fedbab82ffb1c558a",
+    "backend/tests/test_runtime_principals.py": "371d138afb4b658385c87bfb2cf8cf7f554e9780594c8b1953cf71818fbb92ef"
+  },
+  "cases": [
+    {
+      "label": "concurrency-1-repeat-1",
+      "concurrency_limit": 1,
+      "arrival_rate": 0,
+      "model": "shared-iterations",
+      "intended_iterations": 40,
+      "completed_iterations": 40,
+      "dropped_iterations": 0,
+      "k6_exit": 0,
+      "semantic_errors": 0,
+      "operation_success_rate": 1,
+      "completed_write_cycles": 4,
+      "run_count": 6,
+      "revoked_count": 4,
+      "attempt_count": 0,
+      "accounting_consistent": true,
+      "http_duration_ms": {
+        "avg": 141.79522574999993,
+        "min": 46.256407,
+        "med": 87.10868500000001,
+        "max": 1272.624889,
+        "p(95)": 615.0031074499993,
+        "p(99)": 1069.1020359100005
+      },
+      "operation_duration_ms": {
+        "detail": {
+          "med": 91.63924,
+          "max": 96.506643,
+          "p(95)": 95.17211025,
+          "p(99)": 96.23973645,
+          "avg": 85.83321937500001,
+          "min": 46.256407
+        },
+        "list": {
+          "p(95)": 54.17926045,
+          "p(99)": 54.50116489,
+          "avg": 53.27022608333334,
+          "min": 50.506441,
+          "med": 53.550065000000004,
+          "max": 54.581641
+        },
+        "deny": {
+          "med": 50.6739275,
+          "max": 51.505394,
+          "p(95)": 51.50237945,
+          "p(99)": 51.504791090000005,
+          "avg": 50.754191000000006,
+          "min": 49.783574
+        },
+        "submit": {
+          "avg": 494.42269625,
+          "min": 157.720321,
+          "med": 490.186461,
+          "max": 839.597542,
+          "p(95)": 828.8027360499999,
+          "p(99)": 837.43858081
+        },
+        "replay": {
+          "avg": 95.861397,
+          "min": 84.531468,
+          "med": 99.12212199999999,
+          "max": 100.669876,
+          "p(95)": 100.5169519,
+          "p(99)": 100.63929118
+        },
+        "revoke": {
+          "p(95)": 1131.4635260499995,
+          "p(99)": 1244.3926164099998,
+          "avg": 506.60667799999993,
+          "min": 182.656614,
+          "med": 285.5726045,
+          "max": 1272.624889
+        }
+      },
+      "http_requests": {
+        "rate": 7.031370024937,
+        "count": 48
+      },
+      "iteration_duration_ms": {
+        "max": 2211.997202,
+        "p(95)": 585.5812089999981,
+        "p(99)": 1817.7427150099995,
+        "avg": 170.63516967500004,
+        "min": 47.185816,
+        "med": 54.293628
+      },
+      "seconds": 7.341,
+      "durability": {
+        "journal_mode": "delete",
+        "synchronous": 2
+      },
+      "writer_queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 11,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 0.0
+      },
+      "server_cpu_seconds": 2.183,
+      "runner_process_peak_rss_kib": 147556,
+      "passed": true
+    },
+    {
+      "label": "concurrency-4-repeat-1",
+      "concurrency_limit": 4,
+      "arrival_rate": 0,
+      "model": "shared-iterations",
+      "intended_iterations": 40,
+      "completed_iterations": 40,
+      "dropped_iterations": 0,
+      "k6_exit": 0,
+      "semantic_errors": 0,
+      "operation_success_rate": 1,
+      "completed_write_cycles": 4,
+      "run_count": 6,
+      "revoked_count": 4,
+      "attempt_count": 0,
+      "accounting_consistent": true,
+      "http_duration_ms": {
+        "avg": 187.05758112499996,
+        "min": 51.657753,
+        "med": 169.1304005,
+        "max": 582.638168,
+        "p(95)": 421.88145065,
+        "p(99)": 547.82682652
+      },
+      "operation_duration_ms": {
+        "detail": {
+          "max": 302.562969,
+          "p(95)": 293.6449305,
+          "p(99)": 300.7793613,
+          "avg": 211.79624868749997,
+          "min": 84.615754,
+          "med": 218.6363565
+        },
+        "list": {
+          "p(99)": 156.77398316000003,
+          "avg": 95.48024150000002,
+          "min": 60.630912,
+          "med": 79.097803,
+          "max": 158.529918,
+          "p(95)": 149.7502438
+        },
+        "deny": {
+          "max": 70.556363,
+          "p(95)": 69.94131745,
+          "p(99)": 70.43335389,
+          "avg": 62.21882437500001,
+          "min": 51.657753,
+          "med": 63.034282000000005
+        },
+        "submit": {
+          "avg": 315.87374874999995,
+          "min": 218.559476,
+          "med": 310.129918,
+          "max": 424.675683,
+          "p(95)": 409.21916459999994,
+          "p(99)": 421.58437932
+        },
+        "replay": {
+          "avg": 202.35078925,
+          "min": 168.644274,
+          "med": 181.08382799999998,
+          "max": 278.591227,
+          "p(95)": 265.6852123,
+          "p(99)": 276.01002406
+        },
+        "revoke": {
+          "avg": 468.4030675,
+          "min": 365.710456,
+          "med": 462.631823,
+          "max": 582.638168,
+          "p(95)": 571.5281653999999,
+          "p(99)": 580.4161674799999
+        }
+      },
+      "http_requests": {
+        "count": 48,
+        "rate": 16.617264583409113
+      },
+      "iteration_duration_ms": {
+        "min": 51.936983,
+        "med": 140.961229,
+        "max": 1018.136943,
+        "p(95)": 978.9958499999999,
+        "p(99)": 1009.1002069799999,
+        "avg": 225.00834955
+      },
+      "seconds": 3.434,
+      "durability": {
+        "journal_mode": "delete",
+        "synchronous": 2
+      },
+      "writer_queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 11,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 82.81899988651276
+      },
+      "server_cpu_seconds": 2.826,
+      "runner_process_peak_rss_kib": 147556,
+      "passed": true
+    },
+    {
+      "label": "arrival-2-repeat-1",
+      "concurrency_limit": 8,
+      "arrival_rate": 2,
+      "model": "constant-arrival-rate",
+      "intended_iterations": 20,
+      "completed_iterations": 20,
+      "dropped_iterations": 0,
+      "k6_exit": 0,
+      "semantic_errors": 0,
+      "operation_success_rate": 1,
+      "completed_write_cycles": 2,
+      "run_count": 4,
+      "revoked_count": 2,
+      "attempt_count": 0,
+      "accounting_consistent": true,
+      "http_duration_ms": {
+        "avg": 83.1643495,
+        "min": 10.554578,
+        "med": 51.350775999999996,
+        "max": 609.131414,
+        "p(95)": 229.73965394999996,
+        "p(99)": 522.6853679799998
+      },
+      "operation_duration_ms": {
+        "detail": {
+          "avg": 51.138355499999996,
+          "min": 33.463332,
+          "med": 53.9133715,
+          "max": 55.722588,
+          "p(95)": 55.405560799999996,
+          "p(99)": 55.65918256
+        },
+        "list": {
+          "avg": 14.246866166666665,
+          "min": 13.451767,
+          "med": 14.1669175,
+          "max": 15.147478,
+          "p(95)": 14.986725999999999,
+          "p(99)": 15.1153276
+        },
+        "deny": {
+          "max": 11.628854,
+          "p(95)": 11.5486454,
+          "p(99)": 11.61281228,
+          "avg": 11.0749785,
+          "min": 10.554578,
+          "med": 11.058240999999999
+        },
+        "submit": {
+          "med": 421.205227,
+          "max": 609.131414,
+          "p(95)": 590.3387952999999,
+          "p(99)": 605.37289026,
+          "avg": 421.205227,
+          "min": 233.27904
+        },
+        "replay": {
+          "avg": 99.655314,
+          "min": 98.551098,
+          "med": 99.655314,
+          "max": 100.75953,
+          "p(95)": 100.6491084,
+          "p(99)": 100.73744568
+        },
+        "revoke": {
+          "max": 209.683133,
+          "p(95)": 209.48158725,
+          "p(99)": 209.64282384999998,
+          "avg": 207.6676755,
+          "min": 205.652218,
+          "med": 207.6676755
+        }
+      },
+      "http_requests": {
+        "count": 24,
+        "rate": 2.3037016852280168
+      },
+      "iteration_duration_ms": {
+        "avg": 100.61082664999999,
+        "min": 10.919006,
+        "med": 25.275619,
+        "max": 916.891851,
+        "p(95)": 561.6471039500003,
+        "p(99)": 845.8429015899994
+      },
+      "seconds": 10.938,
+      "durability": {
+        "journal_mode": "delete",
+        "synchronous": 2
+      },
+      "writer_queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 7,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 0.0
+      },
+      "server_cpu_seconds": 1.107,
+      "runner_process_peak_rss_kib": 147556,
+      "passed": true
+    },
+    {
+      "label": "concurrency-1-repeat-2",
+      "concurrency_limit": 1,
+      "arrival_rate": 0,
+      "model": "shared-iterations",
+      "intended_iterations": 40,
+      "completed_iterations": 40,
+      "dropped_iterations": 0,
+      "k6_exit": 0,
+      "semantic_errors": 0,
+      "operation_success_rate": 1,
+      "completed_write_cycles": 4,
+      "run_count": 6,
+      "revoked_count": 4,
+      "attempt_count": 0,
+      "accounting_consistent": true,
+      "http_duration_ms": {
+        "avg": 98.60045954166667,
+        "min": 49.734319,
+        "med": 92.5995045,
+        "max": 360.597615,
+        "p(95)": 219.1311409,
+        "p(99)": 299.5232309400002
+      },
+      "operation_duration_ms": {
+        "detail": {
+          "p(95)": 96.637274,
+          "p(99)": 96.6660572,
+          "avg": 88.8614569375,
+          "min": 53.020463,
+          "med": 93.571347,
+          "max": 96.673253
+        },
+        "list": {
+          "max": 55.667855,
+          "p(95)": 55.2817902,
+          "p(99)": 55.590642040000006,
+          "avg": 53.91593391666667,
+          "min": 52.614952,
+          "med": 53.541311500000006
+        },
+        "deny": {
+          "avg": 50.732691,
+          "min": 49.734319,
+          "med": 50.630432,
+          "max": 51.580347,
+          "p(95)": 51.551652600000004,
+          "p(99)": 51.57460812
+        },
+        "submit": {
+          "p(95)": 213.96602005,
+          "p(99)": 214.57725600999999,
+          "avg": 202.51959324999999,
+          "min": 188.152412,
+          "med": 203.597948,
+          "max": 214.730065
+        },
+        "replay": {
+          "max": 117.611001,
+          "p(95)": 116.18729714999999,
+          "p(99)": 117.32626023,
+          "avg": 107.26285099999998,
+          "min": 101.582979,
+          "med": 104.92871199999999
+        },
+        "revoke": {
+          "med": 226.07653399999998,
+          "max": 360.597615,
+          "p(95)": 341.10579029999997,
+          "p(99)": 356.69925006,
+          "avg": 254.76405875,
+          "min": 206.305552
+        }
+      },
+      "http_requests": {
+        "count": 48,
+        "rate": 10.09822575538842
+      },
+      "iteration_duration_ms": {
+        "min": 49.961521,
+        "med": 55.128769500000004,
+        "max": 694.141871,
+        "p(95)": 523.0764585499999,
+        "p(99)": 635.2633654699999,
+        "avg": 118.80482079999999
+      },
+      "seconds": 5.279,
+      "durability": {
+        "journal_mode": "delete",
+        "synchronous": 2
+      },
+      "writer_queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 11,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 0.0
+      },
+      "server_cpu_seconds": 2.228,
+      "runner_process_peak_rss_kib": 147556,
+      "passed": true
+    },
+    {
+      "label": "concurrency-4-repeat-2",
+      "concurrency_limit": 4,
+      "arrival_rate": 0,
+      "model": "shared-iterations",
+      "intended_iterations": 40,
+      "completed_iterations": 40,
+      "dropped_iterations": 0,
+      "k6_exit": 0,
+      "semantic_errors": 0,
+      "operation_success_rate": 1,
+      "completed_write_cycles": 4,
+      "run_count": 6,
+      "revoked_count": 4,
+      "attempt_count": 0,
+      "accounting_consistent": true,
+      "http_duration_ms": {
+        "avg": 348.12888027083335,
+        "min": 49.570502,
+        "med": 181.1339385,
+        "max": 2552.521824,
+        "p(95)": 1481.6632017499996,
+        "p(99)": 2087.6939756600013
+      },
+      "operation_duration_ms": {
+        "detail": {
+          "avg": 349.02187356250005,
+          "min": 81.418905,
+          "med": 230.3255715,
+          "max": 1563.526402,
+          "p(95)": 1126.30478575,
+          "p(99)": 1476.0820787499997
+        },
+        "list": {
+          "med": 80.61804000000001,
+          "max": 806.583355,
+          "p(95)": 464.48050599999954,
+          "p(99)": 738.1627852000004,
+          "avg": 151.06355308333335,
+          "min": 49.570502
+        },
+        "deny": {
+          "max": 1396.469486,
+          "p(95)": 933.7921666999991,
+          "p(99)": 1303.9340221399996,
+          "avg": 232.130614375,
+          "min": 60.265693,
+          "med": 65.02116649999999
+        },
+        "submit": {
+          "min": 233.708836,
+          "med": 363.0515465,
+          "max": 980.645049,
+          "p(95)": 891.5464582499998,
+          "p(99)": 962.8253308499998,
+          "avg": 485.1142445
+        },
+        "replay": {
+          "p(99)": 304.3738466,
+          "avg": 180.0618105,
+          "min": 93.490394,
+          "med": 159.10907500000002,
+          "max": 308.538698,
+          "p(95)": 287.71444099999997
+        },
+        "revoke": {
+          "avg": 1198.831126,
+          "min": 249.689397,
+          "med": 996.5566415,
+          "max": 2552.521824,
+          "p(95)": 2398.7740615499997,
+          "p(99)": 2521.77227151
+        }
+      },
+      "http_requests": {
+        "count": 48,
+        "rate": 10.372284545710983
+      },
+      "iteration_duration_ms": {
+        "avg": 418.25658322499993,
+        "min": 49.930675,
+        "med": 173.56120149999998,
+        "max": 3063.027126,
+        "p(95)": 1615.905915799997,
+        "p(99)": 2883.6163288499997
+      },
+      "seconds": 5.138,
+      "durability": {
+        "journal_mode": "delete",
+        "synchronous": 2
+      },
+      "writer_queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 11,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 519.2803535610437
+      },
+      "server_cpu_seconds": 2.684,
+      "runner_process_peak_rss_kib": 147556,
+      "passed": true
+    },
+    {
+      "label": "arrival-2-repeat-2",
+      "concurrency_limit": 8,
+      "arrival_rate": 2,
+      "model": "constant-arrival-rate",
+      "intended_iterations": 20,
+      "completed_iterations": 21,
+      "dropped_iterations": 0,
+      "k6_exit": 0,
+      "semantic_errors": 0,
+      "operation_success_rate": 1,
+      "completed_write_cycles": 2,
+      "run_count": 4,
+      "revoked_count": 2,
+      "attempt_count": 0,
+      "accounting_consistent": true,
+      "http_duration_ms": {
+        "max": 456.66129,
+        "p(95)": 284.3504719999998,
+        "p(99)": 418.6227650399997,
+        "avg": 82.16803788000001,
+        "min": 11.031536,
+        "med": 53.678312
+      },
+      "operation_duration_ms": {
+        "detail": {
+          "p(99)": 278.78386544,
+          "avg": 81.22044266666666,
+          "min": 50.828095,
+          "med": 54.438005,
+          "max": 298.167436,
+          "p(95)": 201.24958319999993
+        },
+        "list": {
+          "max": 15.764976,
+          "p(95)": 15.5637835,
+          "p(99)": 15.724737500000002,
+          "avg": 14.078380833333332,
+          "min": 13.029382,
+          "med": 13.770700999999999
+        },
+        "deny": {
+          "min": 11.031536,
+          "med": 11.139002,
+          "max": 11.416384,
+          "p(95)": 11.3868091,
+          "p(99)": 11.41046902,
+          "avg": 11.181481
+        },
+        "submit": {
+          "p(99)": 227.94686991,
+          "avg": 172.2953115,
+          "min": 115.508007,
+          "med": 172.2953115,
+          "max": 229.082616,
+          "p(95)": 223.40388554999998
+        },
+        "replay": {
+          "med": 99.0941095,
+          "max": 100.4671,
+          "p(95)": 100.32980095,
+          "p(99)": 100.43964019,
+          "avg": 99.0941095,
+          "min": 97.721119
+        },
+        "revoke": {
+          "min": 194.580622,
+          "med": 325.620956,
+          "max": 456.66129,
+          "p(95)": 443.55725659999996,
+          "p(99)": 454.04048332,
+          "avg": 325.620956
+        }
+      },
+      "http_requests": {
+        "count": 25,
+        "rate": 2.4273913169953367
+      },
+      "iteration_duration_ms": {
+        "max": 787.58915,
+        "p(95)": 409.642857,
+        "p(99)": 711.9998914000003,
+        "avg": 98.648306,
+        "min": 11.424797,
+        "med": 52.081791
+      },
+      "seconds": 10.791,
+      "durability": {
+        "journal_mode": "delete",
+        "synchronous": 2
+      },
+      "writer_queue": {
+        "capacity": 64,
+        "queued": 0,
+        "active": 0,
+        "accepting": true,
+        "admitted": 7,
+        "rejected": 0,
+        "expired": 0,
+        "max_wait_ms": 0.0
+      },
+      "server_cpu_seconds": 1.215,
+      "runner_process_peak_rss_kib": 147556,
+      "passed": true
+    }
+  ],
+  "limits": [
+    "Loopback HTTP, SQLite FULL with measured journal mode, local file identities, builtin E2AG Work admission/revocation.",
+    "No Worker execution, model, TLS, tool dispatch, approval or delegation-chain load in this baseline.",
+    "Fresh database per case with two seed tasks; no 90-day history, sustained soak, physical hosts or HA qualification.",
+    "Load generator shares the host; VUs are clients, not independent Agent processes.",
+    "RSS is the runner process lifetime high-water mark; CPU excludes k6 and infrastructure.",
+    "Two-tier SLO, full E2AG mix and unit cost remain unqualified."
+  ]
+}

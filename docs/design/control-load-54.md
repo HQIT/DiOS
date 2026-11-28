@@ -4,7 +4,7 @@
 
 ## 负载与口径
 
-采用 [k6 1.4.0](https://github.com/grafana/k6/releases/tag/v1.4.0)，镜像固定摘要。并发矩阵为 1/8/32/128 个 HTTP 客户端，每组 256 个混合操作；到达率矩阵为每秒 10/100 个混合操作，持续 10 秒，每组最多 128 个客户端。两类矩阵各重复三次，每组使用新建隔离数据库和两个不同主体的种子任务。
+采用 [k6 1.4.0](https://github.com/grafana/k6/releases/tag/v1.4.0)，镜像固定摘要。历史笔记本测量的并发矩阵为 1/8/32/128 个 HTTP 客户端，每组 256 个混合操作；到达率矩阵为每秒 10/100 个混合操作，持续 10 秒，每组最多 128 个客户端。两类矩阵各重复三次，每组使用新建隔离数据库和两个不同主体的种子任务。
 
 混合操作中 70% 为列表/热点详情查询，20% 为读取另一主体任务并预期拒绝，10% 为受理、相同键重放和撤权三步流程。到达率是混合操作数，写流程包含三次 HTTP 请求，实际 HTTP QPS 单列。普通查询流量不能直接等同于容量设计中的纯查询 QPS。
 
@@ -36,7 +36,7 @@ backend/.venv/bin/python scripts/qualify_control_load.py \
 
 TLS、完整工具允许/拒绝/审批混合、长委派链、实际 Worker、90 天历史数据、预热及持续负载、跨主机、复制恢复与单位成本仍按 D01-4.01 原要求验收。物理限制相关实测按用户安排暂缓，原待验项及分母保持不变。
 
-## 本次结果
+## 历史笔记本结果
 
 18 组测试采用上述矩阵与三次重复；9 组完整完成，9 组出现请求失败、丢弃或部分写流程。所有组的语义错误计数为零，未启动任何 Attempt。原始测量值和判定依据见[完整证据](evidence/control-load-20261128.json)。
 
@@ -51,4 +51,42 @@ TLS、完整工具允许/拒绝/审批混合、长委派链、实际 Worker、90
 
 8 并发下请求均完成，整体 P99 已达约 2.5–2.7 秒；32/128 并发出现写队列超时。10 操作/秒的三次运行均无请求失败或丢弃，但一次 P99 达约 7.2 秒，当前短时结果不足以确认稳定容量。100 操作/秒下出现明显丢弃及超时。
 
-下一步在 D01-4.01 内定位查询事务开销、SQLite 读写竞争与有界背压，先按 SQLite/SQLAlchemy 的公开方案验证最小调整，再复测受影响档位。保持 FULL 持久保证、E2AG 授权与必要审计；不延长超时来掩盖积压，不启动新一轮存储选型。
+笔记本后续仅做功能与低负载回归。共享服务器先验证小规模、限额部署，32/128 档待资源条件合适再安排；历史过载记录保留，不据此推断服务器容量。完整容量要求和工作项状态保留。
+
+## 独立二进制与低负载默认值
+
+采用 [k6 官方独立二进制](https://grafana.com/docs/k6/latest/set-up/install-k6/)时，指定 `--k6-binary /absolute/path/k6`，无需本机 Docker daemon。两种入口复用相同负载脚本与断言；报告记录二进制版本、SHA256、源码摘要和实际 cgroup 限额。
+
+默认固定客户端数为 1/4，到达率为 2 操作/秒、最多 8 个客户端。参数可显式调整。导出的源码树使用 `--source-commit` 记录来源提交，实际文件摘要始终单独记录。
+
+共享机器采用 [systemd 资源控制](https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html) 限制本次服务及子进程。测试库、依赖和临时文件放入独立目录，服务监听回环地址；不申请 GPU，不修改既有应用服务。低负载通过后再根据服务器余量安排容量实验。
+
+## H200 共享服务器结果
+
+服务器为山河使用的 Linux 主机，测试使用独立目录、合成任务和 SQLite DELETE/FULL，未启动 Agent、模型或 GPU 作业。k6 二进制从上述固定摘要镜像提取，SHA256 为 `38abd82aed3dceba14c7e842e34f75b550a2a0ae4c6e71262120268f7c0c3771`。测试环境为 Python 3.13，原笔记本环境为 3.12；共享负载、CPU 与文件系统也不同，两者不构成性能提升对照。
+
+[入口预检](evidence/control-load-h200-preflight-20261128.json) 6/6 组通过，内存和进程数限制生效，但用户级 CPU 配额控制器不可用。随后用 `taskset -c 0-3` 将服务与 k6 子进程限制在 4 个逻辑核，继续保持 4 GiB 内存、128 个线程/进程和 300 秒运行上限；CPU 核与其他用户共享，未申请独占资源。报告记录实际 `cpu_affinity=4`、`memory.max=4294967296`、`pids.max=128`。
+
+[受限资源结果](evidence/control-load-h200-20261128.json)为 4/6 组通过：
+
+| 负载 | 第一轮 | 第二轮 |
+| --- | --- | --- |
+| 1 客户端，各 40 操作 | 通过，P99 1.66 秒 | 通过，P99 4.62 秒 |
+| 4 客户端，各 40 操作 | 通过，P99 2.92 秒 | 一次撤权失败、写队列过期 1 次，P99 11.00 秒 |
+| 2 操作/秒，10 秒，最多 8 客户端 | 通过，P99 2.30 秒 | 完成 17、丢弃 4，P99 7.66 秒 |
+
+六组均无越权或幂等语义错误、没有 Attempt。第二轮存在明显延迟波动，CPU 调度、共享存储与数据库开销的具体贡献尚未定位。保留完整失败及丢弃记录，D01-4.01 仍待验证；停止扩大负载，先推进低负载跨主机身份与 E2AG 权限验证。
+
+复用入口（工作目录包含导出的源码、独立 venv 与 bin/k6）：
+
+```bash
+systemd-run --user --wait --pipe --unit=dios-control-low-new \
+  -p MemoryMax=4G -p TasksMax=128 -p RuntimeMaxSec=300 \
+  -p WorkingDirectory="$PWD" --setenv=TMPDIR="$PWD/tmp" --setenv=GOMAXPROCS=4 \
+  /usr/bin/taskset -c 0-3 "$PWD/venv/bin/python" scripts/qualify_control_load.py \
+  --k6-binary "$PWD/bin/k6" --source-commit <exported-base-commit> \
+  --output workspace/low-new --concurrency 1 4 --rates 2 \
+  --arrival-vus 8 --repeats 2 --iterations 40 --duration 10
+```
+
+运行前确认所选 CPU 在当前允许集合内，临时目录位于预定持久文件系统。测试结束后临时令牌和数据库已清理；山河四个既有服务仍为 active。Docker 入口兼容性回归 1/1、判定回归 3/3 通过。此次仅增加验证入口与计划证据，不改变生产运行代码。
