@@ -7,6 +7,7 @@ from dios_sdk import WorkloadError
 from .cli import Client, load
 from .registry import Registry, RegistryError
 from .workitems import WorkItems
+from .groups import WorkGroups
 
 
 async def run(args):
@@ -20,6 +21,10 @@ async def run(args):
             employee=work.get(args.id)['employee']
             return await work.dispatch(args.id,Client(config['employees'][employee]),expected_version=args.expected_version)
         client=Client(config['reviewers'][args.reviewer])
+        if args.action=='create-group':return await WorkGroups(work).create(args.id,args.title,args.goal,client)
+        if args.action=='split':return await WorkGroups(work).split(args.id,args.children,client,expected_version=args.expected_version)
+        if args.action=='collect':return await WorkGroups(work).collect(args.id,client,expected_version=args.expected_version)
+        if args.action=='review-group':return await WorkGroups(work).confirm(args.id,client,args.decision,args.note,expected_version=args.expected_version)
         if args.action=='rework':
             employee=work.get(args.id)['employee']
             return await work.rework(args.id,client,Client(config['employees'][employee]),args.goal,args.key,
@@ -35,15 +40,18 @@ def main():
     parser=argparse.ArgumentParser(description='Upper-platform WorkItem and human confirmation')
     parser.add_argument('--state-dir',required=True)
     commands=parser.add_subparsers(dest='action',required=True)
-    for action in ('create','bind','dispatch','observe','confirm','rework','show'):
+    for action in ('create','bind','dispatch','observe','confirm','rework','show','create-group','split','collect','review-group'):
         command=commands.add_parser(action);command.add_argument('--id',required=True)
-        if action not in ('create','show'): command.add_argument('--expected-version',required=True,type=int)
+        if action not in ('create','create-group','show'): command.add_argument('--expected-version',required=True,type=int)
         if action not in ('bind','show'): command.add_argument('--config',required=True)
-        if action in ('create','observe','confirm','rework'): command.add_argument('--reviewer',required=True)
+        if action in ('create','observe','confirm','rework','create-group','split','collect','review-group'): command.add_argument('--reviewer',required=True)
+        if action=='create-group':
+            command.add_argument('--title',required=True);command.add_argument('--goal',required=True)
+        if action=='split':command.add_argument('--children',nargs='+',required=True)
         if action=='create':
             for flag in ('title','work-type','sample','goal'):command.add_argument('--'+flag,required=True)
         if action=='bind':command.add_argument('--employee',required=True)
-        if action=='confirm':
+        if action in ('confirm','review-group'):
             command.add_argument('--decision',choices=('accept','reject'),required=True)
             command.add_argument('--note',required=True)
         if action=='rework':

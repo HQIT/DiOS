@@ -1,0 +1,162 @@
+{
+  "result": "PASS",
+  "tests_run": 29,
+  "skipped": 0,
+  "duration_seconds": 380.795,
+  "application": "dios-workforce-registry==0.4.0",
+  "sdk": "dios-sdk==0.1.21",
+  "cases": [
+    {
+      "test": "test_registry.RegistryTests.test_changed_runtime_keeps_uncertain_request_and_original_revision",
+      "state": "passed"
+    },
+    {
+      "test": "test_registry.RegistryTests.test_cli_reads_durable_history_and_utf8_after_writer_exits",
+      "state": "passed"
+    },
+    {
+      "test": "test_registry.RegistryTests.test_disable_uncertainty_blocks_new_work_then_reconciles",
+      "state": "passed"
+    },
+    {
+      "test": "test_registry.RegistryTests.test_lost_submission_receipt_resumes_original_task",
+      "state": "passed"
+    },
+    {
+      "test": "test_registry.RegistryTests.test_no_e2ag_or_changed_identity_or_profile_rejects",
+      "state": "passed"
+    },
+    {
+      "test": "test_registry.RegistryTests.test_principal_exclusivity_and_optimistic_version",
+      "state": "passed"
+    },
+    {
+      "test": "test_registry.RegistryTests.test_template_snapshot_and_history_survive_restart",
+      "state": "passed"
+    },
+    {
+      "test": "test_registry.RegistryTests.test_unsupported_requirements_cannot_replace_publication",
+      "state": "passed"
+    },
+    {
+      "test": "test_runtime_integration.RuntimeIntegrationTests.test_disable_admin_cli_revokes_claimed_work_and_preserves_identity",
+      "state": "passed"
+    },
+    {
+      "test": "test_runtime_integration.RuntimeIntegrationTests.test_profile_precondition_rejects_drift_before_durable_admission",
+      "state": "passed"
+    },
+    {
+      "test": "test_runtime_integration.RuntimeIntegrationTests.test_run_result_isolation_and_history_survive_app_restart",
+      "state": "passed"
+    },
+    {
+      "test": "test_workitems.WorkItemIntegrationTests.test_corrupt_artifact_cannot_enter_review_and_reject_is_not_success",
+      "state": "passed"
+    },
+    {
+      "test": "test_workitems.WorkItemIntegrationTests.test_revoked_reviewer_access_cannot_confirm_cached_evidence",
+      "state": "passed"
+    },
+    {
+      "test": "test_workitems.WorkItemIntegrationTests.test_self_review_stale_version_and_disabled_employee_rejected",
+      "state": "passed"
+    },
+    {
+      "test": "test_workitems.WorkItemIntegrationTests.test_success_requires_explicit_human_decision_and_keeps_evidence",
+      "state": "passed"
+    },
+    {
+      "test": "test_workitems.WorkItemTests.test_bound_publication_cannot_silently_change",
+      "state": "passed"
+    },
+    {
+      "test": "test_workitems.WorkItemTests.test_duplicate_create_dispatch_recovery_and_process_restart",
+      "state": "passed"
+    },
+    {
+      "test": "test_workitems.WorkItemTests.test_timeout_and_invalid_result_keep_pending_business_state",
+      "state": "passed"
+    },
+    {
+      "test": "test_rework.ReworkIntegrationTests.test_new_round_still_rechecks_live_e2ag_at_dispatch",
+      "state": "passed"
+    },
+    {
+      "test": "test_rework.ReworkIntegrationTests.test_revoked_review_access_and_disabled_employee_block_rework",
+      "state": "passed"
+    },
+    {
+      "test": "test_rework.ReworkIntegrationTests.test_two_real_runs_have_separate_authority_and_preserved_decisions",
+      "state": "passed"
+    },
+    {
+      "test": "test_rework.ReworkTests.test_legacy_pending_submission_keeps_first_round_key",
+      "state": "passed"
+    },
+    {
+      "test": "test_rework.ReworkTests.test_only_returned_work_can_start_new_round",
+      "state": "passed"
+    },
+    {
+      "test": "test_rework.ReworkTests.test_rework_replay_conflict_and_unknown_dispatch_survive_restart",
+      "state": "passed"
+    },
+    {
+      "test": "test_groups.GroupIntegrationTests.test_child_rework_is_preserved_and_parent_rejection_does_not_rewrite_children",
+      "state": "passed"
+    },
+    {
+      "test": "test_groups.GroupIntegrationTests.test_parent_actor_cannot_self_review_and_split_cannot_expand_e2ag",
+      "state": "passed"
+    },
+    {
+      "test": "test_groups.GroupIntegrationTests.test_two_roles_require_separate_parent_review_and_live_access",
+      "state": "passed"
+    },
+    {
+      "test": "test_groups.GroupTests.test_fixed_children_replay_atomic_failure_and_no_cycles",
+      "state": "passed"
+    },
+    {
+      "test": "test_groups.GroupTests.test_parent_never_dispatches_and_pending_children_never_pass",
+      "state": "passed"
+    }
+  ],
+  "installed_module_sha256": "85f492ae6165858ff534113f9e561c8e4d484741779b0e2f057278e59b0dd8b0",
+  "source_hashes": {
+    "applications/workforce-registry/src/dios_workforce/registry.py": "85f492ae6165858ff534113f9e561c8e4d484741779b0e2f057278e59b0dd8b0",
+    "applications/workforce-registry/src/dios_workforce/cli.py": "e9af6bd0b5ab2f1e2ee133b69cfd4abbcc959a6fe83e58dc897542cb17399907",
+    "applications/workforce-registry/src/dios_workforce/workitems.py": "5cce0c3b8c1a854a89b32c54b3f8eef63e2b1cc5e096311f6520da83a12654e7",
+    "applications/workforce-registry/src/dios_workforce/groups.py": "03585e699ef5f8daf68c2094c3e4dbb20af02df727c8944b666d4388188e7d56",
+    "applications/workforce-registry/src/dios_workforce/work_cli.py": "371bc0c4da27a0120326779ef4e586e39390bed7bbfcbf45350ecc0b4f7e2f2c",
+    "applications/workforce-registry/tests/test_registry.py": "2e89a4679ec1e1941cc422b18686ea25916320393fef0fcb8c2dd7fe618ef580",
+    "applications/workforce-registry/tests/test_runtime_integration.py": "586be30e8b6abaa4c5ffeb53210e297bf036bec9ce2939d189814285107b5941",
+    "applications/workforce-registry/tests/test_workitems.py": "020474217fd271a9e95c35ff074c747517475687cfcbcbc7313393698295135d",
+    "applications/workforce-registry/tests/test_rework.py": "cb4a0c83dfc2f40b44160cd49c2b6ca6e22736df08530b197dc940478c1cd6b1",
+    "applications/workforce-registry/tests/test_groups.py": "9628a5470e1ac5853860d4ee15a7bbfb5923291a3af643c0bf0689d9b70544e2",
+    "backend/app/api/os/runtime_tasks.py": "530371ec401dab7773f43fb177033229be2553db22c2cd90e668b8dfd13ff5d5",
+    "backend/app/services/task_console.py": "639c34fc2234ba285b50520a552bac41b4449b4eecce39e7fe27dfb53dec2b71",
+    "backend/app/runtime/application_contracts.py": "618cfd32fff700201ac61a3f7513add3b46af1a6bcfb3435dd051be0b3a182ab",
+    "sdk/python/src/dios_sdk/tasks.py": "0f551957689a57ff45dfe5123b14a2fe8c41c503d164d8b8a3683bb8152a8dd8",
+    "cli/dios": "7e9c3350d2de987966b093814f77d1f2b4b9f95dd538b263d45f4a622e3f3fef",
+    "scripts/qualify_workforce_registry.py": "6c385ee700ad40bedb1658cddf0a7e61be16e880301daadf088cabf126a8146f"
+  },
+  "conditions": {
+    "identity": "synthetic dedicated principals; independent application SQLite",
+    "worker": "real Worker with deterministic adapter; no model call",
+    "authorization": "actual HTTP middleware, E2AG admission/execution/result verifier, admin CLI subprocess",
+    "compatibility": "immutable template and revision; generic profile precondition at admission",
+    "workitem": "durable business identity, pinned employee, explicit reviewer decision, live object authorization and integrity checks",
+    "rework": "immutable prior-round snapshots; distinct Run and Work authorization per round; legacy pending-key upgrade and durable rework receipt",
+    "groups": "fixed one-level child set, distinct employee identities, separate parent reviewer, live per-Run artifact checks and explicit aggregate decision"
+  },
+  "not_qualified": [
+    "enterprise directory/SSO",
+    "physical Runtime replacement",
+    "cross-Harness live switch",
+    "multiuser application web UI and operator role model",
+    "recursive decomposition and parent replanning",
+    "human takeover, compensation and approval inbox"
+  ]
+}

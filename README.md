@@ -94,6 +94,7 @@ MCP、Skills、Plugins 和受控能力包集中管理；查看来源、版本、
 | 外部智能体执行 | Cursor ACP 首条任务、审批、工具、报告与恢复路径已有真实执行证据 | [Harness 治理](docs/design/review-harness-58.md) |
 | 数字员工到可追溯任务 | 独立员工注册包共享岗位模板、发布绑定执行版本、关联真实任务；停用触发 E2AG 撤权 | [员工发布与任务闭环](docs/design/workforce-registry-37.md) |
 | 从执行结果到业务确认 | WorkItem 关联员工、Run 与成果；人工退回后新建返工轮次，逐轮保留目标、成果和决策，撤权后拒绝后续动作 | [工作项、返工与人工确认](docs/design/workitem-40.md) |
+| 多岗位共同完成一项工作 | 父项固定分工，子项独立执行、返工和确认；父级逐项核验成果权限后汇总复核 | [多岗位协作](docs/design/workitem-40.md#多岗位拆分与父级复核) |
 | 应用独立交付 | 参考应用通过公开 SDK/API 接入，独立打包、升级与回滚 | [应用契约](docs/design/application-contract-47.md) |
 
 不同 Harness 的协议和控制能力存在差异，按[接入能力矩阵](docs/design/agent-integration-capability-matrix.md)逐项验证。平台预算预留约束派发额度；供应商费用硬上限需要对应通道支持。高可用、完整跨节点故障矩阵和规模容量按[既定路线](ROADMAP.md)持续推进。
@@ -107,6 +108,8 @@ MCP、Skills、Plugins 和受控能力包集中管理；查看来源、版本、
 上层 **WorkItem** 将“任务运行成功”接到“业务确认完成”：创建工作项、固定员工发布版本、关联成果，再由独立复核人明确确认。人工确认会重新核验当前成果权限与内容完整性；执行状态、业务状态和历史决策分别保存。[运行示例与状态图](docs/design/workitem-40.md)
 
 人工退回可进入下一轮执行。同一工作项下，每轮拥有独立 Run 和 E2AG 授权，历史目标、员工版本、成果及决策连续保留；同轮重试复用原任务，新轮重新检查当前权限。[返工命令与历史查询](applications/workforce-registry/README.md#退回返工与多-run-历史)
+
+多岗位协作通过父子工作项组织：每名员工独立执行子项，复核人分别确认成果；父级取得各项成果的读取授权后统一复核。子项全部通过后仍需父级明确确认；父子关系、分工和业务决策都保存在上层平台。[拆分与汇总示例](applications/workforce-registry/README.md#多岗位拆分与父级汇总复核)
 
 ## 开始使用
 

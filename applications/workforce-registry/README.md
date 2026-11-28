@@ -10,7 +10,7 @@
 
 ```bash
 pip wheel --no-deps sdk/python applications/workforce-registry -w workspace/workforce-dist
-pip install workspace/workforce-dist/dios_sdk-0.1.21-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.3.0-py3-none-any.whl
+pip install workspace/workforce-dist/dios_sdk-0.1.21-py3-none-any.whl workspace/workforce-dist/dios_workforce_registry-0.4.0-py3-none-any.whl
 dios-workforce --help
 dios-workitem --help
 ```
@@ -108,7 +108,7 @@ dios-workitem --state-dir /srv/workforce/state show --id work-001
 
 `accept` 进入 `confirmed`，`reject` 进入 `needs_revision`。确认再次读取真实成果并核验权限；撤权或成果变化会拒绝确认。相同决策重放只返回原回执，冲突决策拒绝。Run 成功、人工退回与业务通过分别记录。
 
-派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。每个工作项可顺序关联多个返工轮次，每轮对应一个 Run。多岗位汇总、接管、补偿和审批待办沿 #40 后续切片推进。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
+派发应答丢失时，使用原工作项和原版本重试 `dispatch`，接续固定的员工提交键；查询超时保持原状态。失败 Run 进入 `execution_failed`，完整历史保留。每个工作项可顺序关联多个返工轮次，每轮对应一个 Run。接管、补偿和审批待办沿 #40 后续切片推进。此 CLI 由受信任人员操作，复核归属使用真实 API 主体；企业 SSO 和多人入口另行联验。
 
 ## 退回返工与多 Run 历史
 
@@ -128,7 +128,33 @@ dios-workitem --state-dir /srv/workforce/state show --id work-001
 
 `show` 返回按顺序排列的 `rounds`，包括已归档轮次和当前轮次，保留每轮的 Run、证据及人工决策。所有轮次归属同一个 WorkItem；不新建聊天或自动发送消息。
 
-升级前结束本地管理命令，备份整个状态目录。首次打开 WorkItem 时原子升级本地数据库，旧工作项映射为第 1 轮，未确认提交保持原键。数据库 schema 2 阻止 0.1/0.2 旧包写入；新包不降低 schema。尚无新写入时可恢复完整升级前备份回退；已有新轮次时保留新库和所有 Run 关联，优先前向修复。
+升级前结束本地管理命令，备份整个状态目录。首次打开 WorkItem 时原子升级本地数据库，旧工作项映射为第 1 轮，未确认提交保持原键。0.4.0 使用 schema 3，阻止 0.1/0.2/0.3 旧包写入；新包不降低 schema。尚无新写入时可恢复完整升级前备份回退；已有新轮次或父子关系时保留新库和所有 Run 关联，优先前向修复。
+
+## 多岗位拆分与父级汇总复核
+
+0.4.0 支持一层父子工作项。预先发布两个不同岗位的员工，并在 config.json 中配置岗位复核人 `leaf-reviewer` 和父级复核人 `parent-reviewer` 的凭据。先使用既有 `create`、`bind` 命令建立两个尚未派发的子项 `analysis-001`、`verify-001`，分别绑定两个员工；然后创建父项并固定拆分清单：
+
+```bash
+dios-workitem --state-dir /srv/workforce/state create-group --id group-001 --title '综合分析' --goal '综合两个岗位的分析与验证结果' --reviewer parent-reviewer --config config.json
+dios-workitem --state-dir /srv/workforce/state split --id group-001 --children analysis-001 verify-001 --reviewer parent-reviewer --config config.json --expected-version 1
+dios-workitem --state-dir /srv/workforce/state dispatch --id analysis-001 --config config.json --expected-version 2
+dios-workitem --state-dir /srv/workforce/state dispatch --id verify-001 --config config.json --expected-version 2
+dios-workitem --state-dir /srv/workforce/state show --id group-001
+```
+
+拆分要求 2–16 个已绑定不同员工、首轮尚未派发的子项。一次事务固定有序子项集合；同参数重放不重复关联，不同集合冲突。子项不能加入多个父项，也不能在拆分后直接改派。父项只管理业务协作；子项各自通过现有 Run、租约、预算和 E2AG 执行。实际并发仍由 Worker 与资源配额决定。
+
+子项分别 `observe`、`confirm`。被退回的子项可沿既有 `rework` 新建轮次，保留原身份及全部历史；未确认、失败或待返工的子项都会阻止汇总。
+
+管理员为父级复核人单独授予每个当前子项 Run 的 `run.read` 和 `artifact.read`，父子关系不授予读取权。全部子项确认后：
+
+```bash
+dios-workitem --state-dir /srv/workforce/state collect --id group-001 --reviewer parent-reviewer --config config.json --expected-version 2
+dios-workitem --state-dir /srv/workforce/state review-group --id group-001 --reviewer parent-reviewer --config config.json --decision accept --note '两个岗位的结果满足整体目标' --expected-version 3
+dios-workitem --state-dir /srv/workforce/state show --id group-001
+```
+
+汇总提供按清单排列的成果与决策，包含子项轮次、员工修订、Run 和校验信息。父级确认重新读取全部成果并检验权限与完整性，缺项或撤权时保留未确认状态。通过进入 `group_confirmed`；退回进入 `group_needs_revision`，原子项和历史保持。父级退回后的重新规划留待接管/改派流程，不自动重开已经确认的子项。当前支持一层拆分，递归拆分单独安排。
 
 ## 发布与恢复规则
 

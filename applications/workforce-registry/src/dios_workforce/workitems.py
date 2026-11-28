@@ -32,7 +32,12 @@ class WorkItems:
             self.db.execute('''CREATE TABLE IF NOT EXISTS rework_receipts (
                 work_id TEXT, request_key TEXT, request TEXT NOT NULL, receipt TEXT NOT NULL,
                 PRIMARY KEY(work_id,request_key))''')
-            self.db.execute('PRAGMA user_version=2')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS work_groups (
+                parent_id TEXT PRIMARY KEY, definition TEXT)''')
+            self.db.execute('''CREATE TABLE IF NOT EXISTS work_children (
+                parent_id TEXT, child_id TEXT UNIQUE NOT NULL, position INTEGER NOT NULL,
+                PRIMARY KEY(parent_id,position))''')
+            self.db.execute('PRAGMA user_version=3')
             self.db.commit()
         except BaseException:
             self.db.rollback();raise
@@ -54,7 +59,9 @@ class WorkItems:
         current=self.get(work_id)
         rounds=[json.loads(r[0]) for r in self.db.execute(
             'SELECT snapshot FROM work_rounds WHERE work_id=? ORDER BY round_number',(work_id,))]
-        return {'work_item':current,'rounds':rounds+[current],'events':[dict(r) for r in self.db.execute(
+        children=[self.get(r[0]) for r in self.db.execute(
+            'SELECT child_id FROM work_children WHERE parent_id=? ORDER BY position',(work_id,))]
+        return {'work_item':current,'rounds':rounds+[current],'children':children,'events':[dict(r) for r in self.db.execute(
             'SELECT * FROM work_events WHERE work_id=? ORDER BY sequence',(work_id,))]}
 
     async def create(self, work_id, title, kind, sample, goal, reviewer):
@@ -76,6 +83,8 @@ class WorkItems:
     def bind(self, work_id, employee, *, expected_version):
         row=self.get(work_id)
         check(row['version']==expected_version,'WORK_ITEM_VERSION_CONFLICT')
+        check(not self.db.execute('SELECT 1 FROM work_children WHERE child_id=?',(work_id,)).fetchone(),
+              'SPLIT_ASSIGNMENT_FROZEN')
         check(row['state'] in ('created','bound'),'WORK_ITEM_ALREADY_DISPATCHED')
         actor=self.registry.get(employee)
         check(actor['state']=='active','EMPLOYEE_NOT_ACTIVE')
@@ -117,6 +126,8 @@ class WorkItems:
         identifier(key)
         check(isinstance(goal,str) and 0<len(goal.strip())<=8000,'INVALID_GOAL')
         row=self.get(work_id)
+        check(not self.db.execute('SELECT 1 FROM work_groups WHERE parent_id=?',(work_id,)).fetchone(),
+              'GROUP_REWORK_REQUIRES_REPLANNING')
         await self.reviewer(row,reviewer)
         request=encoded({'goal':goal,'expected_version':expected_version})
         old=self.db.execute('SELECT request,receipt FROM rework_receipts WHERE work_id=? AND request_key=?',
